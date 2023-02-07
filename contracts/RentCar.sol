@@ -7,16 +7,14 @@ import "hardhat/console.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
-import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "./ERC4907.sol";
 
-contract RentCar is ERC4907, AccessControl {
+//deployed to goerli at 0x4A7f21722Ec52B7f236fd452AD2dD1CDf0267e7e
+contract RentCar is ERC4907{
 
     using Counters for Counters.Counter;
 
-    bytes32 public constant HOST_ROLE = keccak256("HOST_ROLE");
-    bytes32 public constant GUEST_ROLE = keccak256("GUEST_ROLE");
     //_tokenIds variable has the most recent minted tokenId
     Counters.Counter private _tokenIdCounter;
     //owner is the contract address that created the smart contract
@@ -43,55 +41,37 @@ contract RentCar is ERC4907, AccessControl {
     //This mapping maps tokenId to token info and is helpful when retrieving details about a tokenId
     mapping(uint256 => CarToRent) private idToCarToRent;
 
-    constructor() ERC4907("RentCar", "RNTC") {
+    constructor() ERC4907("Rentality", "RNTLTY") {
         owner = payable(msg.sender);
-        _grantRole(DEFAULT_ADMIN_ROLE, owner);
-    }
-
-    function grantAdmin(address adminAddress) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        _grantRole(DEFAULT_ADMIN_ROLE, adminAddress);
-    }
-
-    function grantHostRoleTo(address hostAddress) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        _grantRole(HOST_ROLE, hostAddress);
-    }
-
-    function grantGuestRoleTo(address guestAddress) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        _grantRole(GUEST_ROLE, guestAddress);
-    }
-
-    function getLatestIdToCarToRent() public view returns (CarToRent memory) {
-        uint256 currentTokenId = _tokenIdCounter.current();
-        return idToCarToRent[currentTokenId];
-    }
-
-    function getCarToRentForId(uint256 tokenId) public view returns (CarToRent memory) {
-        return idToCarToRent[tokenId];
     }
 
     function getCurrentToken() public view returns (uint256) {
         return _tokenIdCounter.current();
     }
 
-    //The first time a token is created, it is listed here
-    function createToken(string memory tokenUri, uint256 price) public payable  onlyRole(HOST_ROLE) returns (uint) {
-        //Increment the tokenId counter, which is keeping track of the number of minted NFTs
+    function getCarToRentForId(uint256 tokenId) public view returns (CarToRent memory) {
+        return idToCarToRent[tokenId];
+    }
+
+    function getLatestIdToCarToRent() public view returns (CarToRent memory) {
+        return getCarToRentForId(getCurrentToken());
+    }
+
+    function addCar(string memory tokenUri, uint256 price) public payable returns (uint) {
+        require(price > 0, "Make sure the price isn't negative");
+
         _tokenIdCounter.increment();
         uint256 newTokenId = _tokenIdCounter.current();
-
-        //Mint the NFT with tokenId newTokenId to the address who called createToken
+        
         _safeMint(msg.sender, newTokenId);
-
-        //Map the tokenId to the tokenURI (which is an IPFS URL with the NFT metadata)
         _setTokenURI(newTokenId, tokenUri);
-
-        //Helper function to update Global variables and emit an event
-        createListedToken(newTokenId, price);
+        
+        createCarToken(newTokenId, price);
 
         return newTokenId;
     }
 
-    function createListedToken(uint256 tokenId, uint256 price) private {
+    function createCarToken(uint256 tokenId, uint256 price) private {
         //Just sanity check
         require(price > 0, "Make sure the price isn't negative");
 
@@ -99,95 +79,152 @@ contract RentCar is ERC4907, AccessControl {
         idToCarToRent[tokenId] = CarToRent(
             tokenId,
             payable(msg.sender),
-            payable(address(this)),
+            payable(address(0)),
             price,
             true
         );
 
-        _transfer(msg.sender, address(this), tokenId);
-        //Emit the event for successful transfer. The frontend parses this message and updates the end user
+        _approve(address(this), tokenId);
+        //_transfer(msg.sender, address(this), tokenId);
+        
         emit TokenListedSuccess(
             tokenId,
-            address(this),
             msg.sender,
+            address(0),
             price,
             true
         );
     }
     
     //This will return all the NFTs currently listed to be sold on the marketplace
-    function getAllNFTs() public view onlyRole(HOST_ROLE) returns (CarToRent[] memory) {
-        uint nftCount = _tokenIdCounter.current();
-        CarToRent[] memory tokens = new CarToRent[](nftCount);
-        uint currentIndex = 0;
-
-        //at the moment currentlyListed is true for all, if it becomes false in the future we will 
-        //filter out currentlyListed == false over here
-        for(uint i=0;i<nftCount;i++)
+    function getAllCars() public view returns (CarToRent[] memory) {
+        uint carCount = _tokenIdCounter.current();
+        CarToRent[] memory tokens = new CarToRent[](carCount);
+        
+        for(uint i=0; i<carCount; i++)
         {
-            uint currentId = i + 1;
-            CarToRent storage currentItem = idToCarToRent[currentId];
-            tokens[currentIndex] = currentItem;
-            currentIndex += 1;
+            tokens[i] =  idToCarToRent[i + 1];
         }
-        //the array 'tokens' has the list of all NFTs in the marketplace
+
         return tokens;
     }
+
+    function isCarAvailable(uint256 tokenId, address sender) private view returns (bool) {
+        return idToCarToRent[tokenId].currentlyListed 
+               && idToCarToRent[tokenId].owner != sender
+               && userOf(tokenId) == address(0);
+    }
     
-    //Returns all the NFTs that the current user is owner or seller in
-    function getMyNFTs() public view  onlyRole(HOST_ROLE) returns (CarToRent[] memory) {
+    function getAllAvailableCars() public view returns (CarToRent[] memory) {
         uint totalItemCount = _tokenIdCounter.current();
         uint itemCount = 0;
-        uint currentIndex = 0;
         
-        //Important to get a count of all the NFTs that belong to the user before we can make an array for them
         for(uint i=0; i < totalItemCount; i++)
         {
-            if(idToCarToRent[i+1].owner == msg.sender || idToCarToRent[i+1].renter == msg.sender){
+            uint currentId = i+1;
+            if(isCarAvailable(currentId, msg.sender)){
                 itemCount += 1;
             }
         }
 
-        //Once you have the count of relevant NFTs, create an array then store all the NFTs in it
-        CarToRent[] memory items = new CarToRent[](itemCount);
-        for(uint i=0; i < totalItemCount; i++) {
-            if(idToCarToRent[i+1].owner == msg.sender || idToCarToRent[i+1].renter == msg.sender) {
-                uint currentId = i+1;
+        CarToRent[] memory result = new CarToRent[](itemCount);
+        uint currentIndex = 0;
+
+        for(uint i=0; i < totalItemCount; i++) {            
+            uint currentId = i+1;
+            if(isCarAvailable(currentId, msg.sender)){    
                 CarToRent storage currentItem = idToCarToRent[currentId];
-                items[currentIndex] = currentItem;
+                result[currentIndex] = currentItem;
                 currentIndex += 1;
             }
         }
-        return items;
+
+        return result;
     }
 
-    function getRentedByMeNFTs() public view  onlyRole(GUEST_ROLE) returns (CarToRent[] memory) {
+    function isMyCar(uint256 tokenId, address sender) private view returns (bool) {
+        return idToCarToRent[tokenId].owner == sender;
+    }
+
+    function getMyCars() public view returns (CarToRent[] memory) {
         uint totalItemCount = _tokenIdCounter.current();
         uint itemCount = 0;
-        uint currentIndex = 0;
         
-        //Important to get a count of all the NFTs that belong to the user before we can make an array for them
         for(uint i=0; i < totalItemCount; i++)
         {
-            if (userOf(i) == msg.sender){
+            uint currentId = i+1;
+            if(isMyCar(currentId, msg.sender)){
                 itemCount += 1;
             }
         }
 
-        //Once you have the count of relevant NFTs, create an array then store all the NFTs in it
-        CarToRent[] memory items = new CarToRent[](itemCount);
-        for(uint i=0; i < totalItemCount; i++) {
-            if(userOf(i) == msg.sender) {
-                uint currentId = i+1;
+        CarToRent[] memory result = new CarToRent[](itemCount);
+        uint currentIndex = 0;
+
+        for(uint i=0; i < totalItemCount; i++) {            
+            uint currentId = i+1;
+            if(isMyCar(currentId, msg.sender)){    
                 CarToRent storage currentItem = idToCarToRent[currentId];
-                items[currentIndex] = currentItem;
+                result[currentIndex] = currentItem;
                 currentIndex += 1;
             }
         }
-        return items;
+
+        return result;
     }
 
-    function executeSale(uint256 tokenId) public payable onlyRole(GUEST_ROLE) {
+    function isRentedByMe(uint256 tokenId, address sender) private view returns (bool) {
+        return userOf(tokenId) == sender;
+    }
+
+    function getCarsRentedByMe() public view returns (CarToRent[] memory) {
+        uint totalItemCount = _tokenIdCounter.current();
+        uint itemCount = 0;
+        
+        for(uint i=0; i < totalItemCount; i++)
+        {
+            uint currentId = i+1;
+            if(isRentedByMe(currentId, msg.sender)){
+                itemCount += 1;
+            }
+        }
+
+        CarToRent[] memory result = new CarToRent[](itemCount);
+        uint currentIndex = 0;
+
+        for(uint i=0; i < totalItemCount; i++) {            
+            uint currentId = i+1;
+            if(isRentedByMe(currentId, msg.sender)){    
+                CarToRent storage currentItem = idToCarToRent[currentId];
+                result[currentIndex] = currentItem;
+                currentIndex += 1;
+            }
+        }
+
+        return result;
+    }
+    
+    function convert (uint256 _a) public view returns (uint64) 
+    {
+        return uint64(_a);
+    }
+
+    function rentCar(uint256 tokenId, uint daysForRent) public payable {
+        uint pricePerDay = idToCarToRent[tokenId].pricePerDay;
+        uint price = pricePerDay * daysForRent;
+        require(msg.value == price, "Please submit the asking price in order to complete the purchase");
+
+        //update the details of the token
+        idToCarToRent[tokenId].currentlyListed = false;
+        idToCarToRent[tokenId].renter = payable(msg.sender);
+
+        uint64 expires = uint64(block.timestamp + daysForRent * (5 * 60));
+
+        setUser(tokenId, msg.sender, expires);
+        payable(idToCarToRent[tokenId].owner).transfer(msg.value);
+    }
+
+    function executeSale(uint256 tokenId) public payable {
         uint price = idToCarToRent[tokenId].pricePerDay;
         address renter = idToCarToRent[tokenId].renter;
         require(msg.value == price, "Please submit the asking price in order to complete the purchase");
@@ -203,15 +240,6 @@ contract RentCar is ERC4907, AccessControl {
 
         //Transfer the proceeds from the sale to the seller of the NFT
         payable(renter).transfer(msg.value);
-    }    
-    
-    function supportsInterface(bytes4 interfaceId)
-        public
-        view
-        override(ERC4907, AccessControl)
-        returns (bool)
-    {
-        return super.supportsInterface(interfaceId);
     }
 
     // function safeMint(address to, string memory uri) public  onlyRole(MINTER_ROLE) {
