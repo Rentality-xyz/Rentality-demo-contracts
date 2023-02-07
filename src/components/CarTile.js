@@ -1,8 +1,4 @@
-import axie from "../tile.jpeg";
-import {
-    BrowserRouter as Router,
-    Link,
-  } from "react-router-dom";
+import {Link} from "react-router-dom";
 
 function CarTile (data) {
     const newTo = {
@@ -14,6 +10,9 @@ function CarTile (data) {
             <img src={data.data.image} alt="" className="w-72 h-80 rounded-lg object-cover" />
             <div className= "text-white w-full p-2 bg-gradient-to-t from-[#454545] to-transparent rounded-lg pt-5 -mt-20">
                 <strong className="text-xl">{data.data.name}</strong>
+                <p className="display-inline">
+                    <strong className="text-l">{data.data.model}</strong>
+                </p>                
                 <p className="display-inline">
                     {data.data.description}
                 </p>

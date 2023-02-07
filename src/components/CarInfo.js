@@ -1,5 +1,5 @@
 import Navbar from "./Navbar";
-import { useLocation, useParams } from 'react-router-dom';
+import {useParams } from 'react-router-dom';
 import RentCarJSON from "../RentCar.json";
 import axios from "axios";
 import { useState } from "react";
@@ -8,7 +8,6 @@ export default function CarInfo (props) {
 
 const [data, updateData] = useState({});
 const [dataFetched, updateDataFetched] = useState(false);
-const [message, updateMessage] = useState("");
 const [currAddress, updateCurrAddress] = useState("0x");
 
 async function getCarData(tokenId) {
@@ -42,29 +41,6 @@ async function getCarData(tokenId) {
     updateCurrAddress(addr);
 }
 
-async function buyNFT(tokenId) {
-    try {
-        const ethers = require("ethers");
-        //After adding your Hardhat network to your metamask, this code will get providers and signers
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-        const signer = provider.getSigner();
-
-        //Pull the deployed contract instance
-        let contract = new ethers.Contract(RentCarJSON.address, RentCarJSON.abi, signer);
-        const salePrice = ethers.utils.parseUnits(data.price, 'ether')
-        updateMessage("Buying the NFT... Please Wait (Upto 5 mins)")
-        //run the executeSale function
-        let transaction = await contract.executeSale(tokenId, {value:salePrice});
-        await transaction.wait();
-
-        alert('You successfully bought the NFT!');
-        updateMessage("");
-    }
-    catch(e) {
-        alert("Upload Error"+e)
-    }
-}
-
     const params = useParams();
     const tokenId = params.tokenId;
     if(!dataFetched)
@@ -92,9 +68,7 @@ async function buyNFT(tokenId) {
                         Owner: <span className="text-sm">{data.owner}</span>
                     </div>
                     <div>
-                    <div className="text-emerald-700">You are the owner of this car</div>
-                    
-                    <div className="text-green text-center mt-3">{message}</div>
+                        <div className="text-emerald-700">You are the owner of this car</div>
                     </div>
                 </div>
             </div>
