@@ -11,6 +11,7 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "./ERC4907.sol";
 
 //deployed to goerli at 0x4A7f21722Ec52B7f236fd452AD2dD1CDf0267e7e
+//deployed 07.02.2023 22:45 to goerli at 0xbd6Bae596d644319f56EB0EbE7FC3BE75Fb87AbF
 contract RentCar is ERC4907{
 
     using Counters for Counters.Counter;
