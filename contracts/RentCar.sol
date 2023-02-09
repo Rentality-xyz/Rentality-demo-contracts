@@ -12,8 +12,8 @@ import "./ERC4907.sol";
 
 //deployed to goerli at 0x4A7f21722Ec52B7f236fd452AD2dD1CDf0267e7e
 //deployed 07.02.2023 22:45 to goerli at 0xbd6Bae596d644319f56EB0EbE7FC3BE75Fb87AbF
+//deployed 09.02.2023 23:09 to goerli at 0xBBa0239E4DdFc990D630ce79dC17C9aCDA6558E8
 contract RentCar is ERC4907{
-
     using Counters for Counters.Counter;
 
     //_tokenIds variable has the most recent minted tokenId
@@ -21,28 +21,36 @@ contract RentCar is ERC4907{
     //owner is the contract address that created the smart contract
     address payable owner;
 
+    uint dayInSeconds = 5 * 60;// 24 * 60 * 60 ; 
+
     //The structure to store info about a listed car
     struct CarToRent{
         uint256 tokenId;
         address payable owner;
-        address payable renter;
         uint256 pricePerDay;
         bool currentlyListed;
+    }
+
+    struct RentCarRequest{
+        uint256 tokenId;
+        address payable renter;
+        uint256 daysForRent;
+        uint256 totalPrice;
     }
 
     //the event emitted when a token is successfully listed
     event TokenListedSuccess (
         uint256 indexed tokenId,
         address owner,
-        address seller,
-        uint256 price,
+        uint256 pricePerDay,
         bool currentlyListed
     );
 
     //This mapping maps tokenId to token info and is helpful when retrieving details about a tokenId
     mapping(uint256 => CarToRent) private idToCarToRent;
+    mapping(uint256 => RentCarRequest) private idToRentCarRequest;
 
-    constructor() ERC4907("Rentality", "RNTLTY") {
+    constructor() ERC4907("Rentality Test", "RNTLTY") {
         owner = payable(msg.sender);
     }
 
@@ -54,12 +62,20 @@ contract RentCar is ERC4907{
         return idToCarToRent[tokenId];
     }
 
-    function getLatestIdToCarToRent() public view returns (CarToRent memory) {
+    function getLatestCarToRent() public view returns (CarToRent memory) {
         return getCarToRentForId(getCurrentToken());
     }
 
-    function addCar(string memory tokenUri, uint256 price) public payable returns (uint) {
-        require(price > 0, "Make sure the price isn't negative");
+    function getRentCarRequestForId(uint256 tokenId) public view returns (RentCarRequest memory) {
+        return idToRentCarRequest[tokenId];
+    }
+
+    function getLatestRentCarRequest() public view returns (RentCarRequest memory) {
+        return getRentCarRequestForId(getCurrentToken());
+    }
+
+    function addCar(string memory tokenUri, uint256 pricePerDay) public returns (uint) {
+        require(pricePerDay > 0, "Make sure the price isn't negative");
 
         _tokenIdCounter.increment();
         uint256 newTokenId = _tokenIdCounter.current();
@@ -67,21 +83,20 @@ contract RentCar is ERC4907{
         _safeMint(msg.sender, newTokenId);
         _setTokenURI(newTokenId, tokenUri);
         
-        createCarToken(newTokenId, price);
+        createCarToken(newTokenId, pricePerDay);
 
         return newTokenId;
     }
 
-    function createCarToken(uint256 tokenId, uint256 price) private {
+    function createCarToken(uint256 tokenId, uint256 pricePerDay) private {
         //Just sanity check
-        require(price > 0, "Make sure the price isn't negative");
+        require(pricePerDay > 0, "Make sure the price isn't negative");
 
         //Update the mapping of tokenId's to Token details, useful for retrieval functions
         idToCarToRent[tokenId] = CarToRent(
             tokenId,
             payable(msg.sender),
-            payable(address(0)),
-            price,
+            pricePerDay,
             true
         );
 
@@ -91,8 +106,7 @@ contract RentCar is ERC4907{
         emit TokenListedSuccess(
             tokenId,
             msg.sender,
-            address(0),
-            price,
+            pricePerDay,
             true
         );
     }
@@ -174,6 +188,37 @@ contract RentCar is ERC4907{
         return result;
     }
 
+    function existRequestForCar(uint256 tokenId, address sender) private view returns (bool) {
+        return isMyCar(tokenId, sender) && idToRentCarRequest[tokenId].tokenId > 0;
+    }
+
+    function getRequestsForMyCars() public view returns (RentCarRequest[] memory) {
+        uint totalItemCount = _tokenIdCounter.current();
+        uint itemCount = 0;
+        
+        for(uint i=0; i < totalItemCount; i++)
+        {
+            uint currentId = i+1;
+            if(existRequestForCar(currentId, msg.sender)){
+                itemCount += 1;
+            }
+        }
+
+        RentCarRequest[] memory result = new RentCarRequest[](itemCount);
+        uint currentIndex = 0;
+
+        for(uint i=0; i < totalItemCount; i++) {            
+            uint currentId = i+1;
+            if(existRequestForCar(currentId, msg.sender)){    
+                RentCarRequest storage currentItem = idToRentCarRequest[currentId];
+                result[currentIndex] = currentItem;
+                currentIndex += 1;
+            }
+        }
+
+        return result;
+    }
+
     function isRentedByMe(uint256 tokenId, address sender) private view returns (bool) {
         return userOf(tokenId) == sender;
     }
@@ -204,43 +249,76 @@ contract RentCar is ERC4907{
 
         return result;
     }
+
+    function isMyRequest(uint256 tokenId, address sender) private view returns (bool) {
+        return idToRentCarRequest[tokenId].tokenId > 0 && idToRentCarRequest[tokenId].renter == sender ;
+    }
+
+    function getMyRequests() public view returns (RentCarRequest[] memory) {
+        uint totalItemCount = _tokenIdCounter.current();
+        uint itemCount = 0;
+        
+        for(uint i=0; i < totalItemCount; i++)
+        {
+            uint currentId = i+1;
+            if(isMyRequest(currentId, msg.sender)){
+                itemCount += 1;
+            }
+        }
+
+        RentCarRequest[] memory result = new RentCarRequest[](itemCount);
+        uint currentIndex = 0;
+
+        for(uint i=0; i < totalItemCount; i++) {            
+            uint currentId = i+1;
+            if(isMyRequest(currentId, msg.sender)){    
+                RentCarRequest storage currentItem = idToRentCarRequest[currentId];
+                result[currentIndex] = currentItem;
+                currentIndex += 1;
+            }
+        }
+
+        return result;
+    }
     
-    function convert (uint256 _a) public view returns (uint64) 
+    function convert (uint256 _a) public pure returns (uint64) 
     {
         return uint64(_a);
     }
 
     function rentCar(uint256 tokenId, uint daysForRent) public payable {
         uint pricePerDay = idToCarToRent[tokenId].pricePerDay;
-        uint price = pricePerDay * daysForRent;
-        require(msg.value == price, "Please submit the asking price in order to complete the purchase");
+        uint totalPrice = pricePerDay * daysForRent;
+        require(msg.value == totalPrice, "Please submit the asking price in order to complete the purchase");
 
         //update the details of the token
-        idToCarToRent[tokenId].currentlyListed = false;
-        idToCarToRent[tokenId].renter = payable(msg.sender);
+        //idToCarToRent[tokenId].currentlyListed = false;
+        idToRentCarRequest[tokenId] = RentCarRequest(
+            tokenId,
+            payable(msg.sender),
+            daysForRent,
+            totalPrice
+        );
 
-        uint64 expires = uint64(block.timestamp + daysForRent * (5 * 60));
-
-        setUser(tokenId, msg.sender, expires);
-        payable(idToCarToRent[tokenId].owner).transfer(msg.value);
     }
 
-    function executeSale(uint256 tokenId) public payable {
-        uint price = idToCarToRent[tokenId].pricePerDay;
-        address renter = idToCarToRent[tokenId].renter;
-        require(msg.value == price, "Please submit the asking price in order to complete the purchase");
+    function approveRentCar(uint256 tokenId) public {
+        uint256 rentPeriodInSeconds = idToRentCarRequest[tokenId].daysForRent * dayInSeconds;
+        uint64 expires = uint64(block.timestamp + rentPeriodInSeconds);
 
-        //update the details of the token
-        idToCarToRent[tokenId].currentlyListed = true;
-        idToCarToRent[tokenId].renter = payable(msg.sender);
+        setUser(tokenId, idToRentCarRequest[tokenId].renter, expires);
+        
+        require(idToCarToRent[tokenId].owner.send(idToRentCarRequest[tokenId].totalPrice));
+        delete idToRentCarRequest[tokenId];
+    }
+    
+    function rejectRentCar(uint256 tokenId) public {
+        require(idToRentCarRequest[tokenId].renter.send(idToRentCarRequest[tokenId].totalPrice));
+        delete idToRentCarRequest[tokenId];
+    }
 
-        //Actually transfer the token to the new owner
-        _transfer(address(this), msg.sender, tokenId);
-        //approve the marketplace to sell NFTs on your behalf
-        approve(address(this), tokenId);
-
-        //Transfer the proceeds from the sale to the seller of the NFT
-        payable(renter).transfer(msg.value);
+    function withdrawTips() public {
+        require(owner.send(address(this).balance));
     }
 
     // function safeMint(address to, string memory uri) public  onlyRole(MINTER_ROLE) {
