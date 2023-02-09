@@ -1,5 +1,4 @@
 import Navbar from "./Navbar";
-import axie from "../tile.jpeg";
 import { useLocation, useParams } from 'react-router-dom';
 import RentCarJSON from "../RentCar.json";
 import axios from "axios";

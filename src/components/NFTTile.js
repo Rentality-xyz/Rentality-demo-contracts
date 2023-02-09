@@ -1,4 +1,3 @@
-import axie from "../tile.jpeg";
 import {
     BrowserRouter as Router,
     Link,
