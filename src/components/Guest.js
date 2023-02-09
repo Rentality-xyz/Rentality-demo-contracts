@@ -8,14 +8,12 @@ export default function Guest() {
 const [data, updateData] = useState([]);
 const [dataFetched, updateFetched] = useState(false);
 
-async function getAllNFTs() {
+async function getCarsRentedByMe() {
     const ethers = require("ethers");
-    //After adding your Hardhat network to your metamask, this code will get providers and signers
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const signer = provider.getSigner();
-    //Pull the deployed contract instance
     let contract = new ethers.Contract(RentCarJSON.address, RentCarJSON.abi, signer)
-    //create an NFT Token
+    
     let transaction = await contract.getCarsRentedByMe()
 
     //Fetch all the details of every NFT from the contract and display
@@ -24,14 +22,14 @@ async function getAllNFTs() {
         let meta = await axios.get(tokenURI);
         meta = meta.data;
 
-        let price = ethers.utils.formatUnits(i.price.toString(), 'ether');
+        let price = ethers.utils.formatUnits(i.pricePerDay.toString(), 'ether');
+
         let item = {
             price,
             tokenId: i.tokenId.toNumber(),
-            seller: i.seller,
-            owner: i.owner,
             image: meta.image,
             name: meta.name,
+            model: meta.model,
             description: meta.description,
         }
         return item;
@@ -42,7 +40,7 @@ async function getAllNFTs() {
 }
 
 if(!dataFetched)
-    getAllNFTs();
+    getCarsRentedByMe();
 
 return (
     <div>

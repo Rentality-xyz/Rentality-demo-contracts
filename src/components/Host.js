@@ -10,12 +10,10 @@ const [dataFetched, updateFetched] = useState(false);
 
 async function getMyCars() {
     const ethers = require("ethers");
-    //After adding your Hardhat network to your metamask, this code will get providers and signers
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const signer = provider.getSigner();
-    //Pull the deployed contract instance
     let contract = new ethers.Contract(RentCarJSON.address, RentCarJSON.abi, signer)
-    //create an NFT Token
+    
     let transaction = await contract.getMyCars()
 
     //Fetch all the details of every NFT from the contract and display
@@ -52,13 +50,13 @@ return (
                 My Cars
             </div>
             <div className="flex mt-5 justify-between flex-wrap max-w-screen-xl text-center">
-                {(data != null && data.length  >= 0)?                
+                {(data != null && data.length  > 0)?                
                     data.map((value, index) => {
                         return <CarTile data={value} key={index}></CarTile>;
                     })
                     :
                     <div className="flex mt-5 justify-between flex-wrap max-w-screen-xl text-center">You dont have listed cars</div>
-                }
+                }                
             </div>
         </div>            
     </div>

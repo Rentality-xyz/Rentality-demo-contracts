@@ -42,7 +42,6 @@ export default function AddCar () {
             //upload the metadata JSON to IPFS
             const response = await uploadJSONToIPFS(nftJSON);
             if(response.success === true){
-                alert("Uploaded JSON to Pinata: " +  response)
                 return response.pinataURL;
             }
         }
@@ -70,7 +69,7 @@ export default function AddCar () {
             const price = ethers.utils.parseUnits(formParams.price, 'ether')
 
             //actually create the NFT
-            let transaction = await contract.addCar(metadataURL, price, { value: 0 })
+            let transaction = await contract.addCar(metadataURL, price)
             await transaction.wait()
 
             alert("Successfully listed your car!");
