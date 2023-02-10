@@ -50,7 +50,7 @@ async function getCarData(tokenId) {
     updateCurrAddress(addr);
 }
 
-async function rentCar(tokenId) {
+async function sendRentCarRequest(tokenId) {
     try {
         const ethers = require("ethers");
         //After adding your Hardhat network to your metamask, this code will get providers and signers
@@ -61,12 +61,15 @@ async function rentCar(tokenId) {
         let contract = new ethers.Contract(RentCarJSON.address, RentCarJSON.abi, signer);
         const rentPrice = ethers.utils.parseUnits(totalPrice.toString(), 'ether')
         updateMessage("Buying the NFT... Please Wait (Upto 5 mins)")
+        const saveButton = document.querySelector('.saveButton');
+        saveButton.disabled = true;
         //run the executeSale function
         let transaction = await contract.rentCar(tokenId, days, {value:rentPrice});
         await transaction.wait();
 
-        alert('You successfully rent this car!');
+        alert('You successfully send request to rent this car!');
         updateMessage("");
+        window.location.replace("/guest")
     }
     catch(e) {
         alert("Upload Error"+e)
@@ -106,7 +109,7 @@ async function rentCar(tokenId) {
                         Total Price: <span className="">{totalPrice + " ETH"}</span>
                     </div>
                     <div>
-                    <button className="enableEthereumButton bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm" onClick={() => rentCar(tokenId)}>Rent this car</button>
+                    <button className="saveButton bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm" onClick={() => sendRentCarRequest(tokenId)}>Rent this car</button>
                     
                     <div className="text-green text-center mt-3">{message}</div>
                     </div>
