@@ -1,7 +1,7 @@
 import Navbar from "./Navbar";
 import { useState } from "react";
 import { uploadFileToIPFS, uploadJSONToIPFS } from "../pinata";
-import RentCarJSON from "../RentCar.json";
+import RentCarJSON from "../ContractExport";
 
 export default function AddCar () {
     const [formParams, updateFormParams] = useState({ name: '', model: '', description: '', price: ''});

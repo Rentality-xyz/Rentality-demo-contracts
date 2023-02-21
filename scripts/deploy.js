@@ -13,16 +13,19 @@ async function main() {
   console.log("RentCar deployed to:", rentCar.address);
 
   const chainId = (await deployer.provider?.getNetwork()).chainId;
-  if (chainId !== 1337)
-  {
     const data = {
       address: rentCar.address,
       abi: JSON.parse(rentCar.interface.format('json'))
     }
   
+  if (chainId !== 1337)
+  {
     //This writes the ABI and address to the mktplace.json
     fs.writeFileSync('./src/RentCar.json', JSON.stringify(data))
     console.log("JSON abi saved to ./src/RentCar.json");
+  } else {
+    fs.writeFileSync('./src/RentCar.Localhost.json', JSON.stringify(data))
+    console.log("JSON abi saved to ./src/RentCar.Localhost.json");
   }
 }
 

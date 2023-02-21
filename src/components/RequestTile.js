@@ -1,4 +1,4 @@
-import RentCarJSON from "../RentCar.json";
+import RentCarJSON from "../ContractExport";
 
 function RequestTile (data) {
 

@@ -1,6 +1,6 @@
 import Navbar from "./Navbar";
 import RentedCarTile from "./RentedCarTile";
-import RentCarJSON from "../RentCar.json";
+import RentCarJSON from "../ContractExport";
 import axios from "axios";
 import { useState } from "react";
 

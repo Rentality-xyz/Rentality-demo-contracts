@@ -1,6 +1,6 @@
 import Navbar from "./Navbar";
 import { useLocation, useParams } from 'react-router-dom';
-import RentCarJSON from "../RentCar.json";
+import RentCarJSON from "../ContractExport";
 import axios from "axios";
 import { useState } from "react";
 
