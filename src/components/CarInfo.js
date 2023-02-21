@@ -66,10 +66,11 @@ async function getCarData(tokenId) {
                     </div>
                     <div>
                         Owner: <span className="text-sm">{data.owner}</span>
-                    </div>
-                    <div>
-                        <div className="text-emerald-700">You are the owner of this car</div>
-                    </div>
+                    </div>                    
+                    { currAddress == data.owner ?
+                        <div className="text-emerald-700">You are the owner of this NFT</div>
+                        : <div />
+                    }
                 </div>
             </div>
         </div>
