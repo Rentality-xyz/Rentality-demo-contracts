@@ -19,8 +19,12 @@ module.exports = {
       chainId: 1337
     },
     goerli: {
-      url: process.env.ALCHEMY_API_URL,
+      url: process.env.ALCHEMY_API_URL_GOERLI,
       accounts: [ process.env.PRIVATE_KEY ]
+    },
+    mumbai: {
+      url: process.env.ALCHEMY_API_URL_MUMBAI,
+      accounts: [process.env.PRIVATE_KEY]
     }
   },
   solidity: {
