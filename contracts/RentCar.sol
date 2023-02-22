@@ -41,12 +41,28 @@ contract RentCar is ERC4907 {
         uint256 totalPrice;
     }
 
-    //the event emitted when a token is successfully listed
-    event TokenListedSuccess (
+    event CarAddedSuccess (
         uint256 indexed tokenId,
         address owner,
         uint256 pricePerDayInUsdCents,
         bool currentlyListed
+    );
+    
+    event RentCarRequestCreatedSuccess (
+        uint256 indexed tokenId,
+        address renter,
+        uint256 daysForRent,
+        uint256 totalPrice
+    );
+
+    event RentCarRequestApproved (
+        uint256 indexed tokenId,
+        address renter
+    );
+
+    event RentCarRequestRejected (
+        uint256 indexed tokenId,
+        address renter
     );
 
     mapping(uint256 => CarToRent) private idToCarToRent;
@@ -117,7 +133,7 @@ contract RentCar is ERC4907 {
         _approve(address(this), tokenId);
         //_transfer(msg.sender, address(this), tokenId);
         
-        emit TokenListedSuccess(
+        emit CarAddedSuccess(
             tokenId,
             msg.sender,
             pricePerDayInUsdCents,
@@ -317,6 +333,13 @@ contract RentCar is ERC4907 {
             daysForRent,
             totalPriceInUsdCents
         );
+
+        emit RentCarRequestCreatedSuccess(
+            tokenId,
+            msg.sender,
+            daysForRent,
+            totalPriceInUsdCents
+        );        
     }
 
     function approveRentCar(uint256 tokenId) public {
@@ -328,13 +351,23 @@ contract RentCar is ERC4907 {
         uint totalPriceInEth = getEthFromUsd(idToRentCarRequest[tokenId].totalPrice);
         uint priceToSendToHost = totalPriceInEth * platformFeeInPPM / 1000000;
         require(idToCarToRent[tokenId].owner.send(priceToSendToHost));
-        delete idToRentCarRequest[tokenId];
+        delete idToRentCarRequest[tokenId];        
+
+        emit RentCarRequestApproved(
+            tokenId,
+            msg.sender
+        );   
     }
     
     function rejectRentCar(uint256 tokenId) public {
         uint totalPriceInEth = getEthFromUsd(idToRentCarRequest[tokenId].totalPrice);
         require(idToRentCarRequest[tokenId].renter.send(totalPriceInEth));
         delete idToRentCarRequest[tokenId];
+
+        emit RentCarRequestRejected(
+            tokenId,
+            msg.sender
+        );   
     }
 
     function withdrawTips() public {
