@@ -25,7 +25,6 @@ async function getNFTData(tokenId) {
     const listedToken = await contract.getListedTokenForId(tokenId);
     let meta = await axios.get(tokenURI);
     meta = meta.data;
-    console.log(listedToken);
 
     let item = {
         price: meta.price,
@@ -39,7 +38,6 @@ async function getNFTData(tokenId) {
     console.log(item);
     updateData(item);
     updateDataFetched(true);
-    console.log("address", addr)
     updateCurrAddress(addr);
 }
 

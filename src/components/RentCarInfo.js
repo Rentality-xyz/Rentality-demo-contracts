@@ -30,7 +30,6 @@ async function getCarData(tokenId) {
     let price = ethers.utils.formatUnits(listedToken.pricePerDay.toString(), 'ether');
     let meta = await axios.get(tokenURI);
     meta = meta.data;
-    console.log(listedToken);
 
     let item = {
         price: price,
@@ -46,7 +45,6 @@ async function getCarData(tokenId) {
     updateDays(1);
     updateTotalPrice(price);
     updateDataFetched(true);
-    console.log("address", addr)
     updateCurrAddress(addr);
 }
 

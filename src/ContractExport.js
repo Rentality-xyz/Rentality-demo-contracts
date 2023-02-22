@@ -1,4 +1,8 @@
-//import RentCarJSON from "./RentCar.json";
-import RentCarJSON from "./RentCar.Localhost.json";
+import RentCarJSONNet from "./RentCar.json";
+import RentCarJSONLocal from "./RentCar.Localhost.json";
 
-export default RentCarJSON;
+const rentCarJSON = (process.env.REACT_APP_USE_LOCALHOST_BLOCKCHAIN)?.toLowerCase?.() === "true"
+? RentCarJSONLocal
+: RentCarJSONNet;
+
+export default rentCarJSON;

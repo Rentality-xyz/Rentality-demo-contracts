@@ -29,6 +29,7 @@ function updateButton() {
 function isHost() {
   return location.pathname === "/host" || location.pathname === "/addCar" || location.pathname.substring(0,8) === "/carInfo";
 }
+
 async function connectWebsite() {
 
     const chainId = await window.ethereum.request({ method: 'eth_chainId' });
