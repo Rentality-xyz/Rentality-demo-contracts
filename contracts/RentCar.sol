@@ -75,6 +75,10 @@ contract RentCar is ERC4907 {
         //ETH/USD (Mumbai Testnet) 0x0715A7794a1dc8e42615F059dD6e406A6594651A
         ethToUsdPriceFeed = AggregatorV3Interface(ethToUsdPriceFeedAddress);
         currentEthToUsdPrice = getLatestEthToUsdPrice();
+    }   
+    
+    function getOwner() public view returns (address) {    
+        return owner;
     }
 
     function setPlatformFeeInPPM(uint32 valueInPPM) public {
@@ -321,6 +325,8 @@ contract RentCar is ERC4907 {
     }
 
     function rentCar(uint256 tokenId, uint daysForRent) public payable {
+        require(idToCarToRent[tokenId].owner != msg.sender, "Owner of the car cannot rent his own car");
+
         uint totalPriceInUsdCents = idToCarToRent[tokenId].pricePerDayInUsdCents * daysForRent;
         uint totalPriceInEth = getEthFromUsd(totalPriceInUsdCents);
         require(abs(int(msg.value)-int(totalPriceInEth)) < 0.0001 * (1 ether), "Please submit the asking price in order to complete the purchase");
@@ -342,7 +348,9 @@ contract RentCar is ERC4907 {
         );        
     }
 
-    function approveRentCar(uint256 tokenId) public {
+    function approveRentCar(uint256 tokenId) public {        
+        require(idToCarToRent[tokenId].owner == msg.sender, "Only owner of the car can approve the request");
+
         uint256 rentPeriodInSeconds = idToRentCarRequest[tokenId].daysForRent * SECONDS_IN_DAY;
         uint64 expires = uint64(block.timestamp + rentPeriodInSeconds);
 
@@ -360,6 +368,8 @@ contract RentCar is ERC4907 {
     }
     
     function rejectRentCar(uint256 tokenId) public {
+        require(idToCarToRent[tokenId].owner == msg.sender, "Only owner of the car can reject the request");
+
         uint totalPriceInEth = getEthFromUsd(idToRentCarRequest[tokenId].totalPrice);
         require(idToRentCarRequest[tokenId].renter.send(totalPriceInEth));
         delete idToRentCarRequest[tokenId];
