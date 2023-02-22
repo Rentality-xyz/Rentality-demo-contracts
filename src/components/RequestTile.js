@@ -55,7 +55,7 @@ function RequestTile (data) {
                     <p className="display-inline">
                     </p>  
                     <p className="display-inline">
-                        <strong className="text-2">for {data.data.totalPrice} ether</strong>
+                        <strong className="text-2">for ${data.data.totalPrice}</strong>
                     </p>     
                 </div>
             </div>

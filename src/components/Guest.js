@@ -21,8 +21,7 @@ async function getCarsRentedByMe() {
         const tokenURI = await contract.tokenURI(i.tokenId);
         let meta = await axios.get(tokenURI);
         meta = meta.data;
-
-        let price = ethers.utils.formatUnits(i.pricePerDay.toString(), 'ether');
+        let price = i.pricePerDayInUsdCents / 100;
 
         let item = {
             price,

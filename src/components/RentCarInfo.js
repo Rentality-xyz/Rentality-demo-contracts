@@ -27,7 +27,7 @@ async function getCarData(tokenId) {
     
     const tokenURI = await contract.tokenURI(tokenId);
     const listedToken = await contract.getCarToRentForId(tokenId);
-    let price = ethers.utils.formatUnits(listedToken.pricePerDay.toString(), 'ether');
+    let price = listedToken.pricePerDayInUsdCents / 100;
     let meta = await axios.get(tokenURI);
     meta = meta.data;
 
@@ -57,12 +57,15 @@ async function sendRentCarRequest(tokenId) {
 
         //Pull the deployed contract instance
         let contract = new ethers.Contract(RentCarJSON.address, RentCarJSON.abi, signer);
-        const rentPrice = ethers.utils.parseUnits(totalPrice.toString(), 'ether')
-        updateMessage("Buying the NFT... Please Wait (Upto 5 mins)")
+        
+        const rentPriceInUsdCents = (totalPrice * 100) |0;
+        const rentPriceInEth = await contract.getEthFromUsd(rentPriceInUsdCents);
+        
+        updateMessage("Renting the car... Please Wait (Upto 5 mins)")
         const saveButton = document.querySelector('.saveButton');
         saveButton.disabled = true;
         //run the executeSale function
-        let transaction = await contract.rentCar(tokenId, days, {value:rentPrice});
+        let transaction = await contract.rentCar(tokenId, days, {value:rentPriceInEth});
         await transaction.wait();
 
         alert('You successfully send request to rent this car!');
@@ -95,7 +98,7 @@ async function sendRentCarRequest(tokenId) {
                         Description: {data.description}
                     </div>
                     <div>
-                        Price: <span className="">{data.price + " ETH"}</span>
+                        Price: <span className="">{"$" + data.price}</span>
                     </div>
                     <div>
                         Owner: <span className="text-sm">{data.owner}</span>
@@ -104,7 +107,7 @@ async function sendRentCarRequest(tokenId) {
                         Rent for <input className="shadow appearance-none border rounded w-1/5 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" type="number" placeholder="Min 1 day" step="1" value={days} onChange={e => updateRentForDays(e.target.value)}></input> days
                     </div>
                     <div>
-                        Total Price: <span className="">{totalPrice + " ETH"}</span>
+                        Total Price: <span className="">{"$" +totalPrice}</span>
                     </div>
                     <div>
                     <button className="saveButton bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm" onClick={() => sendRentCarRequest(tokenId)}>Rent this car</button>

@@ -65,9 +65,8 @@ export default function AddCar () {
             //Pull the deployed contract instance
             let contract = new ethers.Contract(RentCarJSON.address, RentCarJSON.abi, signer)
 
-            //massage the params to be sent to the create NFT request
-            const price = ethers.utils.parseUnits(formParams.price, 'ether')
-
+            var doubleNumber = Number(formParams.price.replace(/[^0-9\.]+/g,""));
+            let price = ((doubleNumber*100 | 0)).toString();
             //actually create the NFT
             let transaction = await contract.addCar(metadataURL, price)
             await transaction.wait()

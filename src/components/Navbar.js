@@ -2,6 +2,7 @@ import fullLogo from '../full_logo.png';
 import { Link } from "react-router-dom";
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router';
+import RentCarJSON from "../ContractExport";
 
 function Navbar() {
 
@@ -48,6 +49,29 @@ async function connectWebsite() {
         getAddress();
         window.location.replace(location.pathname)
       });
+}
+
+async function withdrawTips() {
+  try {
+      const ethers = require("ethers");
+      //After adding your Hardhat network to your metamask, this code will get providers and signers
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
+
+      //Pull the deployed contract instance
+      let contract = new ethers.Contract(RentCarJSON.address, RentCarJSON.abi, signer);
+      const saveButton = document.querySelector('.saveButton');
+      saveButton.disabled = true;
+      //run the executeSale function
+      let transaction = await contract.withdrawTips();
+      await transaction.wait();
+
+      alert('You successfully withdraw Tips!');
+      saveButton.disabled = false;
+  }
+  catch(e) {
+      alert("Upload Error"+e)
+  }
 }
 
   useEffect(() => {
@@ -148,7 +172,7 @@ async function connectWebsite() {
                 <Link to="/sellNFT">List My NFT</Link>
               </li>              
               }               */}
-              {location.pathname === "/profile" ? 
+              {/* {location.pathname === "/profile" ? 
               <li className='border-b-2 hover:border-b-2 pb-0 p-2'>
                 <Link to="/profile">Profile</Link>
               </li>
@@ -156,7 +180,10 @@ async function connectWebsite() {
               <li className='hover:border-b-2 hover:pb-0 p-2'>
                 <Link to="/profile">Profile</Link>
               </li>              
-              }  
+              }   */}
+              <li>
+                <button className="withdrawButton bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 mx-4 rounded text-sm" onClick={withdrawTips}>{"Withdraw Tips"}</button>
+              </li>
               <li>
                 <button className="enableEthereumButton bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm" onClick={connectWebsite}>{connected? "Connected":"Connect Wallet"}</button>
               </li>

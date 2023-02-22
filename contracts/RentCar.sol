@@ -9,25 +9,28 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "./ERC4907.sol";
+import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 
 //deployed to goerli at 0x4A7f21722Ec52B7f236fd452AD2dD1CDf0267e7e
 //deployed 07.02.2023 22:45 to goerli at 0xbd6Bae596d644319f56EB0EbE7FC3BE75Fb87AbF
 //deployed 09.02.2023 23:09 to goerli at 0xBBa0239E4DdFc990D630ce79dC17C9aCDA6558E8
-contract RentCar is ERC4907{
+//deployed 21.02.2023 23:09 to goerli at 0xCb858b19cef62Bd0506FcFE3C03AA24416362200
+contract RentCar is ERC4907 { 
     using Counters for Counters.Counter;
 
     //_tokenIds variable has the most recent minted tokenId
     Counters.Counter private _tokenIdCounter;
     //owner is the contract address that created the smart contract
     address payable owner;
+    uint32 platformFeeInPPM = 10000;
 
-    uint dayInSeconds = 5 * 60;// 24 * 60 * 60 ; 
+    uint SECONDS_IN_DAY = 5 * 60;// 24 * 60 * 60 ; 
 
     //The structure to store info about a listed car
     struct CarToRent{
         uint256 tokenId;
         address payable owner;
-        uint256 pricePerDay;
+        uint256 pricePerDayInUsdCents;
         bool currentlyListed;
     }
 
@@ -42,16 +45,27 @@ contract RentCar is ERC4907{
     event TokenListedSuccess (
         uint256 indexed tokenId,
         address owner,
-        uint256 pricePerDay,
+        uint256 pricePerDayInUsdCents,
         bool currentlyListed
     );
 
-    //This mapping maps tokenId to token info and is helpful when retrieving details about a tokenId
     mapping(uint256 => CarToRent) private idToCarToRent;
     mapping(uint256 => RentCarRequest) private idToRentCarRequest;
 
-    constructor() ERC4907("Rentality Test", "RNTLTY") {
+    constructor(address ethToUsdPriceFeedAddress) ERC4907("Rentality Test", "RNTLTY") {
         owner = payable(msg.sender);
+
+        //ETH/USD (Goerli Testnet) 0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e
+        //ETH/USD (Mumbai Testnet) 0x0715A7794a1dc8e42615F059dD6e406A6594651A
+        ethToUsdPriceFeed = AggregatorV3Interface(ethToUsdPriceFeedAddress);
+        currentEthToUsdPrice = getLatestEthToUsdPrice();
+    }
+
+    function setPlatformFeeInPPM(uint32 valueInPPM) public {
+        require(valueInPPM > 0, "Make sure the value isn't negative");
+        require(valueInPPM < 1000000, "Value can't be more than 1000000");
+
+        platformFeeInPPM = valueInPPM;
     }
 
     function getCurrentToken() public view returns (uint256) {
@@ -74,8 +88,8 @@ contract RentCar is ERC4907{
         return getRentCarRequestForId(getCurrentToken());
     }
 
-    function addCar(string memory tokenUri, uint256 pricePerDay) public returns (uint) {
-        require(pricePerDay > 0, "Make sure the price isn't negative");
+    function addCar(string memory tokenUri, uint256 pricePerDayInUsdCents) public returns (uint) {
+        require(pricePerDayInUsdCents > 0, "Make sure the price isn't negative");
 
         _tokenIdCounter.increment();
         uint256 newTokenId = _tokenIdCounter.current();
@@ -83,20 +97,20 @@ contract RentCar is ERC4907{
         _safeMint(msg.sender, newTokenId);
         _setTokenURI(newTokenId, tokenUri);
         
-        createCarToken(newTokenId, pricePerDay);
+        createCarToken(newTokenId, pricePerDayInUsdCents);
 
         return newTokenId;
     }
 
-    function createCarToken(uint256 tokenId, uint256 pricePerDay) private {
+    function createCarToken(uint256 tokenId, uint256 pricePerDayInUsdCents) private {
         //Just sanity check
-        require(pricePerDay > 0, "Make sure the price isn't negative");
+        require(pricePerDayInUsdCents > 0, "Make sure the price isn't negative");
 
         //Update the mapping of tokenId's to Token details, useful for retrieval functions
         idToCarToRent[tokenId] = CarToRent(
             tokenId,
             payable(msg.sender),
-            pricePerDay,
+            pricePerDayInUsdCents,
             true
         );
 
@@ -106,7 +120,7 @@ contract RentCar is ERC4907{
         emit TokenListedSuccess(
             tokenId,
             msg.sender,
-            pricePerDay,
+            pricePerDayInUsdCents,
             true
         );
     }
@@ -286,10 +300,14 @@ contract RentCar is ERC4907{
         return uint64(_a);
     }
 
+    function abs(int x) private pure returns (int) {
+        return x >= 0 ? x : -x;
+    }
+
     function rentCar(uint256 tokenId, uint daysForRent) public payable {
-        uint pricePerDay = idToCarToRent[tokenId].pricePerDay;
-        uint totalPrice = pricePerDay * daysForRent;
-        require(msg.value == totalPrice, "Please submit the asking price in order to complete the purchase");
+        uint totalPriceInUsdCents = idToCarToRent[tokenId].pricePerDayInUsdCents * daysForRent;
+        uint totalPriceInEth = getEthFromUsd(totalPriceInUsdCents);
+        require(abs(int(msg.value)-int(totalPriceInEth)) < 0.0001 * (1 ether), "Please submit the asking price in order to complete the purchase");
 
         //update the details of the token
         //idToCarToRent[tokenId].currentlyListed = false;
@@ -297,28 +315,67 @@ contract RentCar is ERC4907{
             tokenId,
             payable(msg.sender),
             daysForRent,
-            totalPrice
+            totalPriceInUsdCents
         );
-
     }
 
     function approveRentCar(uint256 tokenId) public {
-        uint256 rentPeriodInSeconds = idToRentCarRequest[tokenId].daysForRent * dayInSeconds;
+        uint256 rentPeriodInSeconds = idToRentCarRequest[tokenId].daysForRent * SECONDS_IN_DAY;
         uint64 expires = uint64(block.timestamp + rentPeriodInSeconds);
 
         setUser(tokenId, idToRentCarRequest[tokenId].renter, expires);
         
-        require(idToCarToRent[tokenId].owner.send(idToRentCarRequest[tokenId].totalPrice));
+        uint totalPriceInEth = getEthFromUsd(idToRentCarRequest[tokenId].totalPrice);
+        uint priceToSendToHost = totalPriceInEth * platformFeeInPPM / 1000000;
+        require(idToCarToRent[tokenId].owner.send(priceToSendToHost));
         delete idToRentCarRequest[tokenId];
     }
     
     function rejectRentCar(uint256 tokenId) public {
-        require(idToRentCarRequest[tokenId].renter.send(idToRentCarRequest[tokenId].totalPrice));
+        uint totalPriceInEth = getEthFromUsd(idToRentCarRequest[tokenId].totalPrice);
+        require(idToRentCarRequest[tokenId].renter.send(totalPriceInEth));
         delete idToRentCarRequest[tokenId];
     }
 
     function withdrawTips() public {
         require(owner.send(address(this).balance));
+    }
+
+    
+    // uint256 public interval;
+    // uint256 public lastTimeStamp;
+    AggregatorV3Interface internal ethToUsdPriceFeed;
+    int256 private currentEthToUsdPrice; 
+
+    // function getEthToUsdPrice() public returns (int256) {
+    //     if ((block.timestamp - lastTimeStamp) > interval ) {
+    //         lastTimeStamp = block.timestamp;         
+    //         currentEthToUsdPrice =  getLatestEthToUsdPrice();
+    //     } 
+    // }
+
+    function getLatestEthToUsdPrice() public view returns (int256) {
+         (
+            /*uint80 roundID*/,
+            int price,
+            /*uint startedAt*/,
+            /*uint timeStamp*/,
+            /*uint80 answeredInRound*/
+        ) = ethToUsdPriceFeed.latestRoundData();
+
+        return price; //  example price returned 165110000000
+    }
+
+    function getPriceFeedDecimals() public view returns (uint8) {
+        return ethToUsdPriceFeed.decimals(); 
+    }
+    
+    function getEthFromUsd(uint256 valueInUsdCents) public view returns (uint256) {
+        return (valueInUsdCents * (1 ether) * (10 ** (getPriceFeedDecimals()-2))) / uint(getLatestEthToUsdPrice());
+    }
+
+    function getUsdFromEth(uint256 valueInEth) public view returns (uint256) {
+        return (valueInEth * uint(getLatestEthToUsdPrice()) / ((10 ** (getPriceFeedDecimals()-2)) * (1 ether)));
     }
 
     // function safeMint(address to, string memory uri) public  onlyRole(MINTER_ROLE) {

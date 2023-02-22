@@ -20,7 +20,7 @@ async function getCarData(tokenId) {
     //create an NFT Token
     const tokenURI = await contract.tokenURI(tokenId);
     const listedToken = await contract.getCarToRentForId(tokenId);
-    let price = ethers.utils.formatUnits(listedToken.pricePerDay.toString(), 'ether');
+    let price = listedToken.pricePerDayInUsdCents / 100;
     let meta = await axios.get(tokenURI);
     meta = meta.data;
 
@@ -60,7 +60,7 @@ async function getCarData(tokenId) {
                         Description: {data.description}
                     </div>
                     <div>
-                        Price: <span className="">{data.price + " ETH"}</span>
+                        Price: <span className="">{"$" + data.price}</span>
                     </div>
                     <div>
                         Owner: <span className="text-sm">{data.owner}</span>

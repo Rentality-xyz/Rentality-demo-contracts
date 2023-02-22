@@ -21,8 +21,8 @@ async function getAllAvailableCars() {
         const tokenURI = await contract.tokenURI(i.tokenId);
         let meta = await axios.get(tokenURI);
         meta = meta.data;
+        let price = i.pricePerDayInUsdCents / 100;
 
-        let price = ethers.utils.formatUnits(i.pricePerDay.toString(), 'ether');
         let item = {
             price,
             tokenId: i.tokenId.toNumber(),

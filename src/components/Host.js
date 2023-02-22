@@ -23,9 +23,8 @@ async function getMyCars() {
         const myCars = await Promise.all(myCarsTransaction.map(async i => {
             const tokenURI = await contract.tokenURI(i.tokenId);
             let meta = await axios.get(tokenURI);
-            meta = meta.data;
-    
-            let price = ethers.utils.formatUnits(i.pricePerDay.toString(), 'ether');
+            meta = meta.data;    
+            let price = i.pricePerDayInUsdCents / 100;
             
             let item = {
                 tokenId: i.tokenId.toNumber(),
