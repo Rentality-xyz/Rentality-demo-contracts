@@ -13,18 +13,24 @@ const {
     async function deployFixture() {    
       // Contracts are deployed using the first signer/account by default
       const [owner, host, guest] = await ethers.getSigners();
-  
+      const MockEthToUsdPriceFeed = await ethers.getContractFactory("MockEthToUsdPriceFeed");
       const RentCar = await ethers.getContractFactory("RentCar");
-      const rentCar = await RentCar.deploy();
   
-      return { rentCar, owner, host, guest };
+      const mockEthToUsdPriceFeed = await MockEthToUsdPriceFeed.deploy(8, 200000000000);
+      await mockEthToUsdPriceFeed.deployed();
+      const mockEthToUsdPriceFeedAddress = mockEthToUsdPriceFeed.address;
+
+      const rentCar = await RentCar.deploy(mockEthToUsdPriceFeedAddress);
+      await rentCar.deployed();
+  
+      return { rentCar, mockEthToUsdPriceFeed, owner, host, guest };
     }
 
     describe("Deployment", function () {
       it("Should set the right owner", async function () {
         const { rentCar, owner } = await loadFixture(deployFixture);
-  
-        expect(await rentCar.owner).to.equal(owner.address);
+
+        expect(await rentCar.getOwner()).to.equal(owner.address);
       });
 
       it("Shouldn't contain tokens when deployed", async function () {
@@ -35,30 +41,25 @@ const {
     });
 
     describe("Host functions", function () {
-      it("Adding car should return new token id", async function () {
+      it("Adding car should emit CarAddedSuccess event", async function () {
         const { rentCar, host } = await loadFixture(deployFixture);
         const PRICE_PER_DAY = 1;
 
-        var TOKEN1_ID = await (await rentCar.connect(host).addCar("tokenUri1", PRICE_PER_DAY)).wait();
-        //console.log("TokenId: ", TOKEN1_ID); 
-        var TOKEN2_ID = await rentCar.connect(host).addCar("tokenUri2", PRICE_PER_DAY);
-        //console.log("TokenId: ", TOKEN2_ID); 
-  
-        expect(TOKEN1_ID).to.equal(1);
-        expect((await rentCar.connect(host).getAllCars()).lenght).to.equal(1);
-        expect(await rentCar.connect(host).addCar("tokenUri2", PRICE_PER_DAY)).to.equal(2);
-        expect((await rentCar.connect(host).getAllCars()).lenght).to.equal(2);
+        await expect(rentCar.connect(host).addCar("tokenUri1", PRICE_PER_DAY))
+        .to.emit(rentCar, "CarAddedSuccess")
+        .withArgs(1, host.address, PRICE_PER_DAY,true);
       });
 
       it("getCarToRentForId should return valid info", async function () {
         const { rentCar, host } = await loadFixture(deployFixture);
         const PRICE_PER_DAY = 1;
-        const TOKEN_ID = await rentCar.connect(host).addCar("tokenUri1", 1);
+        await rentCar.connect(host).addCar("tokenUri1", PRICE_PER_DAY);
+        const TOKEN_ID = 1;
         const carToRent = await rentCar.connect(host).getCarToRentForId(TOKEN_ID);
 
         expect(carToRent.tokenId).to.equal(TOKEN_ID);
         expect(carToRent.owner).to.equal(host.address);
-        expect(carToRent.pricePerDay).to.equal(PRICE_PER_DAY);
+        expect(carToRent.pricePerDayInUsdCents).to.equal(PRICE_PER_DAY);
         expect(carToRent.currentlyListed).to.equal(true);
       });
 
@@ -66,45 +67,43 @@ const {
         const { rentCar, host } = await loadFixture(deployFixture);
         const myCars = await rentCar.connect(host).getMyCars();
 
-        expect(myCars.lenght).to.equal(0);
+        expect(myCars.length).to.equal(0);
       });
 
       it("getMyCars with 1 car should return valid info", async function () {
         const { rentCar, host } = await loadFixture(deployFixture);
         const PRICE_PER_DAY = 1;
-        const TOKEN_ID = await rentCar.connect(host).addCar("tokenUri1", 1);
+        await rentCar.connect(host).addCar("tokenUri1", PRICE_PER_DAY);
+        const TOKEN_ID = 1;
         const myCars = await rentCar.connect(host).getMyCars();
-        
-        
-        console.log("myCars[0]:", myCars[0]);
-        console.log("myCars.type:", myCars.type);
-        console.log("typeof :", typeof myCars);
-        expect(myCars.lenght).to.equal(1);
+
+        expect(myCars.length).to.equal(1);
         expect(myCars[0].tokenId).to.equal(TOKEN_ID);
         expect(myCars[0].owner).to.equal(host.address);
-        expect(myCars[0].pricePerDay).to.equal(PRICE_PER_DAY);
+        expect(myCars[0].pricePerDayInUsdCents).to.equal(PRICE_PER_DAY);
         expect(myCars[0].currentlyListed).to.equal(true);
       });
 
       it("getAllAvailableCars with 1 car shouldn't return data for car owner", async function () {
         const { rentCar, host } = await loadFixture(deployFixture);
         const PRICE_PER_DAY = 1;
-        const TOKEN_ID = await rentCar.connect(host).addCar("tokenUri1", 1);
+        await rentCar.connect(host).addCar("tokenUri1", PRICE_PER_DAY);
         const availableCars = await rentCar.connect(host).getAllAvailableCars();
         
-        expect(availableCars.lenght).to.equal(0);
+        expect(availableCars.length).to.equal(0);
       });
 
       it("getAllAvailableCars with 1 car should return data for guest", async function () {
         const { rentCar, host, guest } = await loadFixture(deployFixture);
         const PRICE_PER_DAY = 1;
-        const TOKEN_ID = await rentCar.connect(host).addCar("tokenUri1", 1);
+        await rentCar.connect(host).addCar("tokenUri1", PRICE_PER_DAY);
+        const TOKEN_ID = 1;
         const availableCars = await rentCar.connect(guest).getAllAvailableCars();
         
-        expect(availableCars.lenght).to.equal(1);
+        expect(availableCars.length).to.equal(1);
         expect(availableCars[0].tokenId).to.equal(TOKEN_ID);
         expect(availableCars[0].owner).to.equal(host.address);
-        expect(availableCars[0].pricePerDay).to.equal(PRICE_PER_DAY);
+        expect(availableCars[0].pricePerDayInUsdCents).to.equal(PRICE_PER_DAY);
         expect(availableCars[0].currentlyListed).to.equal(true);
       });
     });
