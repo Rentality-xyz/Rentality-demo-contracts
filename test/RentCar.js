@@ -26,6 +26,25 @@ const {
       return { rentCar, mockEthToUsdPriceFeed, owner, host, guest };
     }
 
+    async function deployFixtureWith1Car() {    
+      // Contracts are deployed using the first signer/account by default
+      const [owner, host, guest] = await ethers.getSigners();
+      const MockEthToUsdPriceFeed = await ethers.getContractFactory("MockEthToUsdPriceFeed");
+      const RentCar = await ethers.getContractFactory("RentCar");
+  
+      const mockEthToUsdPriceFeed = await MockEthToUsdPriceFeed.deploy(8, 200000000000);
+      await mockEthToUsdPriceFeed.deployed();
+      const mockEthToUsdPriceFeedAddress = mockEthToUsdPriceFeed.address;
+
+      const rentCar = await RentCar.deploy(mockEthToUsdPriceFeedAddress);
+      await rentCar.deployed();
+      
+      const PRICE_PER_DAY = 1;
+      await rentCar.connect(host).addCar("tokenUri1", PRICE_PER_DAY);
+
+      return { rentCar, mockEthToUsdPriceFeed, owner, host, guest };
+    }
+
     describe("Deployment", function () {
       it("Should set the right owner", async function () {
         const { rentCar, owner } = await loadFixture(deployFixture);
