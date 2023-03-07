@@ -74,7 +74,7 @@ export default function AddCar () {
             alert("Successfully listed your car!");
             updateMessage("");
             updateFormParams({ name: '', model: '', description: '', price: ''});
-            window.location.replace("/host")
+            window.location.replace("/")
         }
         catch(e) {
             alert( "Upload error"+e )

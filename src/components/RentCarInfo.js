@@ -70,7 +70,7 @@ async function sendRentCarRequest(tokenId) {
 
         alert('You successfully send request to rent this car!');
         updateMessage("");
-        window.location.replace("/guest")
+        window.location.replace("/")
     }
     catch(e) {
         alert("Upload Error"+e)

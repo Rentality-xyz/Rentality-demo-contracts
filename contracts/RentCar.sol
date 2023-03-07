@@ -16,14 +16,10 @@ import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 //deployed 09.02.2023 23:09 to goerli at 0xBBa0239E4DdFc990D630ce79dC17C9aCDA6558E8
 //deployed 21.02.2023 23:09 to goerli at 0xCb858b19cef62Bd0506FcFE3C03AA24416362200
 contract RentCar is ERC4907 { 
-    using Counters for Counters.Counter;
-
-    //_tokenIds variable has the most recent minted tokenId
-    Counters.Counter private _tokenIdCounter;
-    //owner is the contract address that created the smart contract
     address payable owner;
+    using Counters for Counters.Counter;
+    Counters.Counter private _tokenIdCounter;
     uint32 platformFeeInPPM = 10000;
-
     uint SECONDS_IN_DAY = 5 * 60;// 24 * 60 * 60 ; 
 
     //The structure to store info about a listed car
@@ -34,6 +30,7 @@ contract RentCar is ERC4907 {
         bool currentlyListed;
     }
 
+    //The structure to store info about rent car request
     struct RentCarRequest{
         uint256 tokenId;
         address payable renter;

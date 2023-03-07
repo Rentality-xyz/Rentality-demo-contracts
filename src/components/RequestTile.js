@@ -12,7 +12,8 @@ function RequestTile (data) {
             let transaction = await contract.approveRentCar(data.data.tokenId)
             await transaction.wait()
 
-            alert("Car rent approved!");
+            alert("Car rent approved!");            
+            window.location.replace("/")
         }
         catch(e) {
             alert( "approveRentCar error"+e )
@@ -30,6 +31,7 @@ function RequestTile (data) {
             await transaction.wait()
 
             alert("Car rent rejected!");
+            window.location.replace("/")
         }
         catch(e) {
             alert( "rejectRentCar error"+e )

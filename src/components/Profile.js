@@ -1,9 +1,9 @@
 import Navbar from "./Navbar";
 import { useLocation, useParams } from 'react-router-dom';
-import MarketplaceJSON from "../Marketplace.json";
+import RentCarJSON from "../ContractExport";
 import axios from "axios";
 import { useState } from "react";
-import NFTTile from "./NFTTile";
+import CarTile from "./CarTile";
 
 export default function Profile () {
     const [data, updateData] = useState([]);
@@ -20,29 +20,29 @@ export default function Profile () {
         const addr = await signer.getAddress();
 
         //Pull the deployed contract instance
-        let contract = new ethers.Contract(MarketplaceJSON.address, MarketplaceJSON.abi, signer)
+        let contract = new ethers.Contract(RentCarJSON.address, RentCarJSON.abi, signer)
 
         //create an NFT Token
-        let transaction = await contract.getMyNFTs()
+        let myCarsTransaction = await contract.getMyCars()
 
         /*
         * Below function takes the metadata from tokenURI and the data returned by getMyNFTs() contract function
         * and creates an object of information that is to be displayed
         */
         
-        const items = await Promise.all(transaction.map(async i => {
+        const items = await Promise.all(myCarsTransaction.map(async i => {
             const tokenURI = await contract.tokenURI(i.tokenId);
             let meta = await axios.get(tokenURI);
-            meta = meta.data;
-
-            let price = ethers.utils.formatUnits(i.price.toString(), 'ether');
+            meta = meta.data;    
+            let price = i.pricePerDayInUsdCents / 100;
+            
             let item = {
-                price,
                 tokenId: i.tokenId.toNumber(),
-                seller: i.seller,
-                owner: i.owner,
+                owner: i.owner.toString(),
+                price,
                 image: meta.image,
                 name: meta.name,
+                model: meta.model,
                 description: meta.description,
             }
             sumPrice += Number(price);
@@ -84,7 +84,7 @@ export default function Profile () {
                 <h2 className="font-bold">Your NFTs</h2>
                 <div className="flex justify-center flex-wrap max-w-screen-xl">
                     {data.map((value, index) => {
-                    return <NFTTile data={value} key={index}></NFTTile>;
+                    return <CarTile data={value} key={index}></CarTile>;
                     })}
                 </div>
                 <div className="mt-10 text-xl">

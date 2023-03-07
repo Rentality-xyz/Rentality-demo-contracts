@@ -154,24 +154,6 @@ async function withdrawTips() {
                 <Link to="/rentCar">Rent Car</Link>
               </li>          
               }  
-              {/* {location.pathname === "/" ? 
-              <li className='border-b-2 hover:border-b-2 pb-0 p-2'>
-                <Link to="/">Marketplace</Link>
-              </li>
-              :
-              <li className='hover:border-b-2 hover:pb-0 p-2'>
-                <Link to="/">Marketplace</Link>
-              </li>              
-              }
-              {location.pathname === "/sellNFT" ? 
-              <li className='border-b-2 hover:border-b-2 pb-0 p-2'>
-                <Link to="/sellNFT">List My NFT</Link>
-              </li>
-              :
-              <li className='hover:border-b-2 hover:pb-0 p-2'>
-                <Link to="/sellNFT">List My NFT</Link>
-              </li>              
-              }               */}
               {/* {location.pathname === "/profile" ? 
               <li className='border-b-2 hover:border-b-2 pb-0 p-2'>
                 <Link to="/profile">Profile</Link>
