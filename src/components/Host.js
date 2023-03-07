@@ -53,7 +53,7 @@ async function getMyCars() {
             let meta = await axios.get(tokenURI);
             meta = meta.data;
     
-            let totalPrice = ethers.utils.formatUnits(i.totalPrice.toString(), 'ether');
+            let totalPrice = i.totalPrice / 100;
             
             let item = {
                 tokenId: i.tokenId.toNumber(),
