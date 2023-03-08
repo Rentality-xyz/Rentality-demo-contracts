@@ -118,54 +118,54 @@ async function withdrawTips() {
               }
               {(isHost())? 
               location.pathname === "/host"?
-              <li className='border-b-2 hover:border-b-2 pb-0 p-2'>
+              <li className='border-b-2 p-2 pb-0'>
                 <Link to="/host">Main</Link> 
               </li>
               :
-              <li className='hover:border-b-2 hover:pb-0 p-2'>
+              <li className='hover:border-b-2 p-2 pb-0'>
                 <Link to="/host">Main</Link>
               </li>  
               :
               location.pathname === "/guest"?
-              <li className='border-b-2 hover:border-b-2 pb-0 p-2'>
+              <li className='border-b-2 p-2 pb-0'>
                 <Link to="/guest">Main</Link>
               </li>
               :
-              <li className='hover:border-b-2 hover:pb-0 p-2'>
+              <li className='hover:border-b-2 p-2 pb-0'>
                 <Link to="/guest">Main</Link>
               </li>          
               } 
               {(isHost() )? 
               location.pathname === "/addCar"?
-              <li className='border-b-2 hover:border-b-2 pb-0 p-2'>
+              <li className='border-b-2 p-2 pb-0'>
                 <Link to="/addCar">List Car</Link>
               </li>
               :
-              <li className='hover:border-b-2 hover:pb-0 p-2'>
+              <li className='hover:border-b-2 p-2 pb-0'>
                 <Link to="/addCar">List Car</Link>
               </li>  
               :
               location.pathname === "/rentCar"?
-              <li className='border-b-2 hover:border-b-2 pb-0 p-2'>
+              <li className='border-b-2 p-2 pb-0'>
                 <Link to="/rentCar">Rent Car</Link>
               </li>
               :
-              <li className='hover:border-b-2 hover:pb-0 p-2'>
+              <li className='hover:border-b-2 p-2 pb-0'>
                 <Link to="/rentCar">Rent Car</Link>
               </li>          
               }  
               {/* {location.pathname === "/profile" ? 
-              <li className='border-b-2 hover:border-b-2 pb-0 p-2'>
+              <li className='border-b-2 p-2 pb-0'>
                 <Link to="/profile">Profile</Link>
               </li>
               :
-              <li className='hover:border-b-2 hover:pb-0 p-2'>
+              <li className='hover:border-b-2 p-2 pb-0'>
                 <Link to="/profile">Profile</Link>
               </li>              
-              }   */}
+              }
               <li>
                 <button className="withdrawButton bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 mx-4 rounded text-sm" onClick={withdrawTips}>{"Withdraw Tips"}</button>
-              </li>
+              </li> */}
               <li>
                 <button className="enableEthereumButton bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm" onClick={connectWebsite}>{connected? "Connected":"Connect Wallet"}</button>
               </li>
