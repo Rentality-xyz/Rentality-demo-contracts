@@ -13,9 +13,10 @@ export default function AddCar () {
     async function OnChangeFile(e) {
         var file = e.target.files[0];
         //check for file extension
+        var resizedImage = await resizeImageToSquare(file);
         try {
             //upload the file to IPFS
-            const response = await uploadFileToIPFS(file);
+            const response = await uploadFileToIPFS(resizedImage);
             if(response.success === true) {
                 console.log("Uploaded image to Pinata: ", response.pinataURL)
                 setFileURL(response.pinataURL);
@@ -25,6 +26,33 @@ export default function AddCar () {
             console.log("Error during file upload", e);
             alert("Error during file upload: " + e);
         }
+    }
+
+    async function resizeImageToSquare(file) {
+        return new Promise((resolve, reject) => {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          const img = new Image();
+          img.src = URL.createObjectURL(file);
+      
+          img.onload = () => {
+            const size = 1000;
+            canvas.width = size;
+            canvas.height = size;
+            ctx.fillStyle = 'transparent';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            const scaleFactor = size / Math.max(img.width, img.height);
+            const scaledWidth = img.width * scaleFactor;
+            const scaledHeight = img.height * scaleFactor;
+            ctx.drawImage(img, (size - scaledWidth) / 2, (size - scaledHeight) / 2, scaledWidth, scaledHeight);
+            canvas.toBlob(blob => {
+              const resizedFile = new File([blob], file.name, { type: 'image/png' });
+              resolve(resizedFile);
+            }, 'image/png', 1);
+          };
+      
+          img.onerror = reject;
+        });
     }
 
     //This function uploads the metadata to IPDS
