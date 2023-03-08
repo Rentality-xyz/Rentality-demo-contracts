@@ -37,6 +37,10 @@ async function main() {
     //This writes the ABI and address to the mktplace.json
     fs.writeFileSync('./src/RentCar.json', JSON.stringify(data))
     console.log("JSON abi saved to ./src/RentCar.json");
+    
+    const backupFilePath = './src/RentCar.'+ chainId + '.json'
+    fs.writeFileSync(backupFilePath, JSON.stringify(data))
+    console.log("JSON abi saved to " + backupFilePath);
   } else {
     fs.writeFileSync('./src/RentCar.Localhost.json', JSON.stringify(data))
     console.log("JSON abi saved to ./src/RentCar.Localhost.json");
