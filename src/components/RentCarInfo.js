@@ -98,7 +98,7 @@ async function sendRentCarRequest(tokenId) {
                         Description: {data.description}
                     </div>
                     <div>
-                        Price: <span className="">{"$" + data.price}</span>
+                        Price per day: <span className="">{"$" + data.price}</span>
                     </div>
                     <div>
                         Owner: <span className="text-sm">{data.owner}</span>

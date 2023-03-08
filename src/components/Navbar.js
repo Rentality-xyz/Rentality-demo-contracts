@@ -51,6 +51,12 @@ async function connectWebsite() {
       });
 }
 
+function formatAddress(address) {  
+  if (address == null || address.length < 10) 
+      return address;
+  return address.substr(0,6) + ".." + address.substr(address.length - 8);
+}
+
 async function withdrawTips() {
   try {
       const ethers = require("ethers");
@@ -174,7 +180,7 @@ async function withdrawTips() {
           </ul>
         </nav>
         <div className='text-white text-bold text-right mr-10 text-sm'>
-          {currAddress !== "0x" ? "Connected to":"Not Connected. Please login to view NFTs"} {currAddress !== "0x" ? (currAddress.substring(0,15)+'...'):""}
+          {currAddress !== "0x" ? "Connected to":"Not Connected. Please login to view NFTs"} {currAddress !== "0x" ? (formatAddress(currAddress)):""}
         </div>
       </div>
     );
