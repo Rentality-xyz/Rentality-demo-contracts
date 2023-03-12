@@ -118,7 +118,7 @@ const AddCar = () => {
       );
 
       var doubleNumber = Number(
-        carInfoFormParams.price.replace(/[^0-9\.]+/g, "")
+        carInfoFormParams.price.replace(/[^0-9.]+/g, "")
       );
       let price = ((doubleNumber * 100) | 0).toString();
       //actually create the NFT

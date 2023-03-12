@@ -1,5 +1,5 @@
 import Navbar from "./Navbar";
-import { useLocation, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import RentCarJSON from "../ContractExport";
 import axios from "axios";
 import { useState, useRef } from "react";
@@ -21,7 +21,7 @@ const RentCarInfo = (props) => {
     const ethers = require("ethers");
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const signer = provider.getSigner();
-    const addr = await signer.getAddress();
+    
     let contract = new ethers.Contract(
       RentCarJSON.address,
       RentCarJSON.abi,

@@ -188,9 +188,15 @@ const Navbar = () => {
                 <Link to="/profile">Profile</Link>
               </li>              
               } */}
-              {/* <li>
-                <button ref={withdrawTipsButtonRef} className="withdrawButton bg-blue-500 hover:bg-blue-700 disabled:bg-gray-500 text-white font-bold py-2 px-4 mx-4 rounded text-sm" onClick={withdrawTips}>{"Withdraw Tips"}</button>
-              </li> */}
+              <li>
+                <button
+                  ref={withdrawTipsButtonRef}
+                  className="withdrawButton hidden bg-blue-500 hover:bg-blue-700 disabled:bg-gray-500 text-white font-bold py-2 px-4 mx-4 rounded text-sm"
+                  onClick={withdrawTips}
+                >
+                  Withdraw Tips
+                </button>
+              </li>
               <li>
                 <button
                   ref={connectButtonRef}

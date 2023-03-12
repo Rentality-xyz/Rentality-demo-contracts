@@ -60,9 +60,9 @@ const CarInfo = (props) => {
           <div>
             Owner: <span className="text-sm">{carInfo.owner}</span>
           </div>
-          {userWeb3Address == carInfo.owner ? (
+          {userWeb3Address === carInfo.owner ? (
             <div className="text-emerald-700">
-              You are the owner of this NFT
+              You are the owner of this car
             </div>
           ) : (
             <div />

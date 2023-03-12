@@ -23,7 +23,6 @@ const Host = () => {
     try {
       let myCarsTransaction = await contract.getMyCars();
 
-      //Fetch all the details of every NFT from the contract and display
       const myCars = await Promise.all(
         myCarsTransaction.map(async (i) => {
           const tokenURI = await contract.tokenURI(i.tokenId);

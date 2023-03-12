@@ -1,5 +1,5 @@
 import Navbar from "./Navbar";
-import { useLocation, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import RentCarJSON from "../ContractExport";
 import axios from "axios";
 import { useState } from "react";
@@ -74,7 +74,7 @@ const Profile = () => {
           </div>
           <div className="ml-20">
             <h2 className="font-bold">Total Value</h2>
-            {totalPrice} ETH
+            $ {totalPrice}
           </div>
         </div>
         <div className="flex flex-col text-center items-center mt-11 text-white">
@@ -85,7 +85,7 @@ const Profile = () => {
             })}
           </div>
           <div className="mt-10 text-xl">
-            {hostCars.length == 0
+            {hostCars.length === 0
               ? "Oops, No NFT data to display (Are you logged in?)"
               : ""}
           </div>
