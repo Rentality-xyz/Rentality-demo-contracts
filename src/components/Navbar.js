@@ -1,6 +1,6 @@
 import fullLogo from "../full_logo.png";
 import { Link } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useLocation } from "react-router";
 import RentCarJSON from "../ContractExport";
 
@@ -8,6 +8,8 @@ const Navbar = () => {
   const [userConnected, setUserConnected] = useState(false);
   const [userWeb3Address, setUserWeb3Address] = useState("0x");
   const location = useLocation();
+  const connectButtonRef = useRef();
+  const withdrawTipsButtonRef = useRef();
 
   const getAddress = async () => {
     const ethers = require("ethers");
@@ -18,12 +20,11 @@ const Navbar = () => {
   };
 
   const updateButton = () => {
-    const ethereumButton = document.querySelector(".enableEthereumButton");
-    ethereumButton.textContent = "Connected";
-    ethereumButton.classList.remove("hover:bg-blue-70");
-    ethereumButton.classList.remove("bg-blue-500");
-    ethereumButton.classList.add("hover:bg-green-70");
-    ethereumButton.classList.add("bg-green-500");
+    connectButtonRef.current.textContent = "Connected";
+    connectButtonRef.current.classList.remove("hover:bg-blue-70");
+    connectButtonRef.current.classList.remove("bg-blue-500");
+    connectButtonRef.current.classList.add("hover:bg-green-70");
+    connectButtonRef.current.classList.add("bg-green-500");
   };
 
   const isHost = () => {
@@ -70,21 +71,21 @@ const Navbar = () => {
         signer
       );
 
-      const withdrawButton = document.querySelector(".withdrawButton");
-      withdrawButton.disabled = true;
+      withdrawTipsButtonRef.current.disabled = true;
 
       let transaction = await contract.withdrawTips();
       await transaction.wait();
 
       alert("You successfully withdraw tips!");
-      withdrawButton.disabled = false;
+      withdrawTipsButtonRef.current.disabled = false;
     } catch (e) {
       alert("withdrawTips error:" + e);
+      withdrawTipsButtonRef.current.disabled = false;
     }
   };
 
   const handleAccountsChanged = () => {
-    window.location.replace(location.pathname);
+    window.location.replace("/");
   };
 
   useEffect(() => {
@@ -186,13 +187,14 @@ const Navbar = () => {
               <li className='hover:border-b-2 p-2 pb-0'>
                 <Link to="/profile">Profile</Link>
               </li>              
-              }
-              <li>
-                <button className="withdrawButton bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 mx-4 rounded text-sm" onClick={withdrawTips}>{"Withdraw Tips"}</button>
+              } */}
+              {/* <li>
+                <button ref={withdrawTipsButtonRef} className="withdrawButton bg-blue-500 hover:bg-blue-700 disabled:bg-gray-500 text-white font-bold py-2 px-4 mx-4 rounded text-sm" onClick={withdrawTips}>{"Withdraw Tips"}</button>
               </li> */}
               <li>
                 <button
-                  className="enableEthereumButton bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm"
+                  ref={connectButtonRef}
+                  className="enableEthereumButton bg-blue-500 hover:bg-blue-700 disabled:bg-gray-500 text-white font-bold py-2 px-4 rounded text-sm"
                   onClick={connectWebsite}
                 >
                   {userConnected ? "Connected" : "Connect Wallet"}

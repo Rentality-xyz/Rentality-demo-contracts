@@ -1,5 +1,5 @@
 import Navbar from "./Navbar";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { uploadFileToIPFS, uploadJSONToIPFS } from "../pinata";
 import RentCarJSON from "../ContractExport";
 
@@ -13,6 +13,7 @@ const AddCar = () => {
   const [fileURL, setFileURL] = useState(null);
   const ethers = require("ethers");
   const [message, setMessage] = useState("");
+  const listCarButtonRef = useRef();
 
   //This function uploads the car image to IPFS
   const onChangeFile = async (e) => {
@@ -107,6 +108,7 @@ const AddCar = () => {
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       const signer = provider.getSigner();
       setMessage("Please wait.. uploading (upto 5 mins)");
+      listCarButtonRef.current.disabled = true;
 
       //Pull the deployed contract instance
       let contract = new ethers.Contract(
@@ -129,6 +131,7 @@ const AddCar = () => {
       window.location.replace("/");
     } catch (e) {
       alert("Upload error" + e);
+      listCarButtonRef.current.disabled = false;
     }
   };
 
@@ -238,8 +241,9 @@ const AddCar = () => {
           <br></br>
           <div className="text-green text-center">{message}</div>
           <button
+            ref={listCarButtonRef}
             onClick={listCar}
-            className="font-bold mt-10 w-full bg-purple-500 text-white rounded p-2 shadow-lg"
+            className="font-bold mt-10 w-full bg-purple-500 disabled:bg-gray-500 text-white rounded p-2 shadow-lg"
           >
             List car
           </button>

@@ -2,7 +2,7 @@ import Navbar from "./Navbar";
 import { useLocation, useParams } from "react-router-dom";
 import RentCarJSON from "../ContractExport";
 import axios from "axios";
-import { useState } from "react";
+import { useState, useRef } from "react";
 
 const RentCarInfo = (props) => {
   const [dataFetched, setDataFetched] = useState(false);
@@ -10,6 +10,7 @@ const RentCarInfo = (props) => {
   const [daysToRent, setDaysToRent] = useState(1);
   const [totalPrice, updsetTotalPrice] = useState(0);
   const [message, setMessage] = useState("");
+  const rentCarButtonRef = useRef();
 
   function updateRentForDays(value) {
     setDaysToRent(value);
@@ -67,8 +68,7 @@ const RentCarInfo = (props) => {
       const rentPriceInEth = await contract.getEthFromUsd(rentPriceInUsdCents);
 
       setMessage("Renting the car... Please Wait (Upto 5 mins)");
-      const saveButton = document.querySelector(".saveButton");
-      saveButton.disabled = true;
+      rentCarButtonRef.current.disabled = true;
       //run the executeSale function
       let transaction = await contract.rentCar(tokenId, daysToRent, {
         value: rentPriceInEth,
@@ -80,6 +80,7 @@ const RentCarInfo = (props) => {
       window.location.replace("/");
     } catch (e) {
       alert("Upload Error" + e);
+      rentCarButtonRef.current.disabled = false;
     }
   };
 
@@ -119,7 +120,8 @@ const RentCarInfo = (props) => {
           </div>
           <div>
             <button
-              className="saveButton bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm"
+              ref={rentCarButtonRef}
+              className="saveButton bg-blue-500 hover:bg-blue-700 disabled:bg-gray-500 text-white font-bold py-2 px-4 rounded text-sm"
               onClick={() => sendRentCarRequest(tokenId)}
             >
               Rent this car
