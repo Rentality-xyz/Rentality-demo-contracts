@@ -83,6 +83,10 @@ const Navbar = () => {
     }
   };
 
+  const handleAccountsChanged = () => {
+    window.location.replace(location.pathname);
+  };
+
   useEffect(() => {
     let isConnected = window.ethereum.isConnected();
     if (isConnected) {
@@ -92,15 +96,17 @@ const Navbar = () => {
       updateButton();
     }
 
-    window.ethereum.on("accountsChanged", function (accounts) {
-      window.location.replace(location.pathname);
-    });
+    window.ethereum.on("accountsChanged", handleAccountsChanged);
+
+    return () => {
+      window.ethereum.removeListener("accountsChanged", handleAccountsChanged);
+    };
   });
 
   return (
-    <div className="">
+    <div className="flex flex-col pt-2">
       <nav className="w-screen">
-        <ul className="flex items-end justify-between py-3 bg-transparent text-white pr-5">
+        <ul className="flex items-end justify-between bg-transparent text-white py-3 pr-5">
           <li className="flex items-end ml-5 pb-2">
             <Link to="/">
               <img
@@ -110,7 +116,7 @@ const Navbar = () => {
                 height={150}
                 className="inline-block -mt-2"
               />
-              <div className="inline-block font-bold text-xl ml-4">
+              <div className="inline-block font-bold text-2xl ml-6">
                 Rentality v0.1
               </div>
             </Link>
