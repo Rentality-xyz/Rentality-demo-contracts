@@ -27,9 +27,7 @@ const Host = () => {
       const myCars = await Promise.all(
         myCarsTransaction.map(async (i) => {
           const tokenURI = await contract.tokenURI(i.tokenId);
-          console.log("before  axios.get(tokenURI));");
           let meta = await axios.get(tokenURI);
-          console.log("after  axios.get(tokenURI));");
           meta = meta.data;
           let price = i.pricePerDayInUsdCents / 100;
 

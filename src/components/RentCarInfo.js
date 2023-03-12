@@ -43,7 +43,7 @@ const RentCarInfo = (props) => {
       model: meta.model,
       description: meta.description,
     };
-    console.log(item);
+    //console.log(item);
     setCarInfo(item);
     setDaysToRent(1);
     updsetTotalPrice(price);

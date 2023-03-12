@@ -35,7 +35,7 @@ const CarInfo = (props) => {
       model: meta.model,
       description: meta.description,
     };
-    console.log(item);
+    //console.log(item);
     setCarInfo(item);
     setDataFetched(true);
     setUserWeb3Address(addr);
