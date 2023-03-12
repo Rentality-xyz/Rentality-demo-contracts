@@ -6,7 +6,7 @@ const SelectMode = () => {
     <div>
       <Navbar></Navbar>
       <div className="flex flex-col place-items-center mt-20 ">
-        <div className="grid grid-cols-1 gap-2 flex mt-5 justify-between flex-wrap max-w-screen-xl text-center align-middle">
+        <div className="flex flex-col gap-4 mt-5 justify-between flex-wrap max-w-screen-xl text-center align-middle">
           <Link to="/host">
             <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-lg">
               Continue as Host
