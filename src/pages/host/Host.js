@@ -80,6 +80,48 @@ const Host = () => {
     setDataFetched(true);
   };
 
+  const approveRentCarRequest = async (carRequest) => {
+    try {
+      const ethers = require("ethers");
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
+      let contract = new ethers.Contract(
+        RentCarJSON.address,
+        RentCarJSON.abi,
+        signer
+      );
+
+      let transaction = await contract.approveRentCar(carRequest.tokenId);
+      await transaction.wait();
+
+      alert("Car rent approved!");
+      window.location.replace("/");
+    } catch (e) {
+      alert("approveRentCar error" + e);
+    }
+  };
+
+  const rejectRentCarRequest = async (carRequest) => {
+    try {
+      const ethers = require("ethers");
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
+      let contract = new ethers.Contract(
+        RentCarJSON.address,
+        RentCarJSON.abi,
+        signer
+      );
+
+      let transaction = await contract.rejectRentCar(carRequest.tokenId);
+      await transaction.wait();
+
+      alert("Car rent rejected!");
+      window.location.replace("/");
+    } catch (e) {
+      alert("rejectRentCar error" + e);
+    }
+  };
+
   if (!dataFetched) getMyCars();
 
   return (
@@ -91,7 +133,7 @@ const Host = () => {
           <div className="flex mt-5 justify-between flex-wrap max-w-screen-xl text-center">
             {hostCars != null && hostCars.length > 0 ? (
               hostCars.map((value, index) => {
-                return <CarTile data={value} key={index}></CarTile>;
+                return <CarTile key={index} data={value}></CarTile>;
               })
             ) : (
               <div className="flex mt-5 justify-between flex-wrap max-w-screen-xl text-center">
@@ -105,7 +147,14 @@ const Host = () => {
           <div className="flex mt-5 justify-between flex-wrap max-w-screen-xl text-center">
             {hostRequests != null && hostRequests.length > 0 ? (
               hostRequests.map((value, index) => {
-                return <RequestTile data={value} key={index}></RequestTile>;
+                return (
+                  <RequestTile
+                    key={index}
+                    data={value}
+                    onApprove={approveRentCarRequest}
+                    onReject={rejectRentCarRequest}
+                  ></RequestTile>
+                );
               })
             ) : (
               <div className="flex mt-5 justify-between flex-wrap max-w-screen-xl text-center">
