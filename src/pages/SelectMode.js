@@ -1,4 +1,4 @@
-import Navbar from "./Navbar";
+import Navbar from "../components/Navbar";
 import { Link } from "react-router-dom";
 
 const SelectMode = () => {

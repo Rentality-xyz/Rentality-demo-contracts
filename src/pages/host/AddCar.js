@@ -1,7 +1,7 @@
-import Navbar from "./Navbar";
+import Navbar from "../../components/Navbar";
 import { useState, useRef } from "react";
-import { uploadFileToIPFS, uploadJSONToIPFS } from "../pinata";
-import RentCarJSON from "../ContractExport";
+import { uploadFileToIPFS, uploadJSONToIPFS } from "../../pinata";
+import RentCarJSON from "../../ContractExport";
 
 const AddCar = () => {
   const [carInfoFormParams, setCarInfoFormParams] = useState({

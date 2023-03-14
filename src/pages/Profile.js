@@ -1,9 +1,9 @@
-import Navbar from "./Navbar";
+import Navbar from "../components/Navbar";
 import { useParams } from "react-router-dom";
 import RentCarJSON from "../ContractExport";
 import axios from "axios";
 import { useState } from "react";
-import CarTile from "./CarTile";
+import CarTile from "../components/CarTile";
 
 const Profile = () => {
   const [dataFetched, setDataFetched] = useState(false);

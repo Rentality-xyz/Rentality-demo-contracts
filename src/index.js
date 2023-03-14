@@ -7,14 +7,14 @@ import {
   Routes,
   Route,
 } from "react-router-dom";
-import Profile from './components/Profile';
-import SelectMode from './components/SelectMode';
-import Host from './components/Host';
-import AddCar from './components/AddCar';
-import CarInfo from './components/CarInfo';
-import Guest from './components/Guest';
-import RentCar from './components/RentCar';
-import RentCarInfo from './components/RentCarInfo';
+import Profile from './pages/Profile';
+import SelectMode from './pages/SelectMode';
+import Host from './pages/host/Host';
+import AddCar from './pages/host/AddCar';
+import CarInfo from './pages/host/CarInfo';
+import Guest from './pages/guest/Guest';
+import RentCar from './pages/guest/RentCar';
+import RentCarInfo from './pages/guest/RentCarInfo';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

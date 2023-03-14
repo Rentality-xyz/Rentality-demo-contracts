@@ -1,6 +1,6 @@
-import Navbar from "./Navbar";
+import Navbar from "../../components/Navbar";
 import { useParams } from "react-router-dom";
-import RentCarJSON from "../ContractExport";
+import RentCarJSON from "../../ContractExport";
 import axios from "axios";
 import { useState } from "react";
 
