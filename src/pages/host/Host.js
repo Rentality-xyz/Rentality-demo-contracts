@@ -5,7 +5,7 @@ import RentCarJSON from "../../ContractExport";
 import axios from "axios";
 import { useState } from "react";
 
-const Host = () => {
+export default function Host() {
   const [dataFetched, setDataFetched] = useState(false);
   const [hostCars, setHostCars] = useState([]);
   const [hostRequests, setHostRequests] = useState([]);
@@ -133,7 +133,7 @@ const Host = () => {
           <div className="flex mt-5 justify-between flex-wrap max-w-screen-xl text-center">
             {hostCars != null && hostCars.length > 0 ? (
               hostCars.map((value, index) => {
-                return <CarTile key={index} data={value}></CarTile>;
+                return <CarTile key={index} carInfo={value}></CarTile>;
               })
             ) : (
               <div className="flex mt-5 justify-between flex-wrap max-w-screen-xl text-center">
@@ -150,7 +150,7 @@ const Host = () => {
                 return (
                   <RequestTile
                     key={index}
-                    data={value}
+                    requestInfo={value}
                     onApprove={approveRentCarRequest}
                     onReject={rejectRentCarRequest}
                   ></RequestTile>
@@ -166,6 +166,4 @@ const Host = () => {
       </div>
     </div>
   );
-};
-
-export default Host;
+}

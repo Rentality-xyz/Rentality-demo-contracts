@@ -4,7 +4,7 @@ import RentCarJSON from "../../ContractExport";
 import axios from "axios";
 import { useState } from "react";
 
-const RentCar = () => {
+export default function RentCar() {
   const [dataFetched, usetDataFetched] = useState(false);
   const [carsToRent, setCarsToRent] = useState([]);
 
@@ -56,12 +56,10 @@ const RentCar = () => {
         </div>
         <div className="flex mt-5 justify-between flex-wrap max-w-screen-xl text-center">
           {carsToRent.map((value, index) => {
-            return <RentedCarTile data={value} key={index}></RentedCarTile>;
+            return <RentedCarTile key={index} carInfo={value}></RentedCarTile>;
           })}
         </div>
       </div>
     </div>
   );
-};
-
-export default RentCar;
+}

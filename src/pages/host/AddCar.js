@@ -3,7 +3,7 @@ import { useState, useRef } from "react";
 import { uploadFileToIPFS, uploadJSONToIPFS } from "../../pinata";
 import RentCarJSON from "../../ContractExport";
 
-const AddCar = () => {
+export default function AddCar() {
   const [carInfoFormParams, setCarInfoFormParams] = useState({
     name: "",
     model: "",
@@ -251,6 +251,4 @@ const AddCar = () => {
       </div>
     </div>
   );
-};
-
-export default AddCar;
+}

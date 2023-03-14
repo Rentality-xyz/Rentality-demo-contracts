@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import { useLocation } from "react-router";
 import RentCarJSON from "../ContractExport";
 
-const Navbar = () => {
+export default function Navbar() {
   const [userConnected, setUserConnected] = useState(false);
   const [userWeb3Address, setUserWeb3Address] = useState("0x");
   const location = useLocation();
@@ -217,6 +217,4 @@ const Navbar = () => {
       </div>
     </div>
   );
-};
-
-export default Navbar;
+}

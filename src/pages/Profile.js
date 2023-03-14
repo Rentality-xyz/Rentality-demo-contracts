@@ -5,7 +5,7 @@ import axios from "axios";
 import { useState } from "react";
 import CarTile from "../components/CarTile";
 
-const Profile = () => {
+export default function Profile() {
   const [dataFetched, setDataFetched] = useState(false);
   const [hostCars, setHostCars] = useState([]);
   const [userAddress, setUserAddress] = useState("0x");
@@ -73,15 +73,14 @@ const Profile = () => {
             {hostCars.length}
           </div>
           <div className="ml-20">
-            <h2 className="font-bold">Total Value</h2>
-            $ {totalPrice}
+            <h2 className="font-bold">Total Value</h2>$ {totalPrice}
           </div>
         </div>
         <div className="flex flex-col text-center items-center mt-11 text-white">
           <h2 className="font-bold">Your NFTs</h2>
           <div className="flex justify-center flex-wrap max-w-screen-xl">
             {hostCars.map((value, index) => {
-              return <CarTile data={value} key={index}></CarTile>;
+              return <CarTile key={index} carInfo={value}></CarTile>;
             })}
           </div>
           <div className="mt-10 text-xl">
@@ -93,6 +92,4 @@ const Profile = () => {
       </div>
     </div>
   );
-};
-
-export default Profile;
+}

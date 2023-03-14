@@ -4,7 +4,7 @@ import RentCarJSON from "../../ContractExport";
 import axios from "axios";
 import { useState } from "react";
 
-const Guest = () => {
+export default function Guest() {
   const [dataFetched, setDataFetched] = useState(false);
   const [guestRentedCars, setGuestRentedCars] = useState([]);
 
@@ -19,7 +19,7 @@ const Guest = () => {
     );
 
     let transaction = await contract.getCarsRentedByMe();
-    
+
     const items = await Promise.all(
       transaction.map(async (i) => {
         const tokenURI = await contract.tokenURI(i.tokenId);
@@ -53,7 +53,7 @@ const Guest = () => {
         <div className="flex mt-5 justify-between flex-wrap max-w-screen-xl text-center">
           {guestRentedCars != null && guestRentedCars.length > 0 ? (
             guestRentedCars.map((value, index) => {
-              return <CarTile data={value} key={index}></CarTile>;
+              return <CarTile key={index} carInfo={value}></CarTile>;
             })
           ) : (
             <div className="flex mt-5 justify-between flex-wrap max-w-screen-xl text-center">
@@ -64,6 +64,4 @@ const Guest = () => {
       </div>
     </div>
   );
-};
-
-export default Guest;
+}

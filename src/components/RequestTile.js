@@ -1,13 +1,18 @@
 import React, { useRef } from "react";
 
-export default function RequestTile({ data, onApprove, onReject }) {
+export default function RequestTile({ requestInfo, onApprove, onReject }) {
   const approveButtonRef = useRef();
   const rejectButtonRef = useRef();
+
+  const formatAddress = (address) => {
+    if (address == null || address.length < 10) return address;
+    return address.substr(0, 5) + ".." + address.substr(address.length - 5);
+  };
 
   const handleApproveClick = async () => {
     approveButtonRef.current.disabled = true;
     rejectButtonRef.current.disabled = true;
-    await onApprove(data);
+    await onApprove(requestInfo);
     approveButtonRef.current.disabled = false;
     rejectButtonRef.current.disabled = false;
   };
@@ -15,35 +20,30 @@ export default function RequestTile({ data, onApprove, onReject }) {
   const handleRejectClick = async () => {
     approveButtonRef.current.disabled = true;
     rejectButtonRef.current.disabled = true;
-    await onReject(data);
+    await onReject(requestInfo);
     approveButtonRef.current.disabled = false;
     rejectButtonRef.current.disabled = false;
-  };
-
-  const formatAddress = (address) => {
-    if (address == null || address.length < 10) return address;
-    return address.substr(0, 5) + ".." + address.substr(address.length - 5);
   };
 
   return (
     <div className="border-2 flex flex-col items-center rounded-md w-full shadow-2xl">
       <div className="flex flex-row items-center mt-2 mx-4 w-full">
         <img
-          src={data.image}
+          src={requestInfo.image}
           alt=""
           className="ml-4 w w-16 h-16 rounded-sm object-cover"
         />
         <div className="text-white w-full">
-          <strong className="text-1">{data.name}</strong>
+          <strong className="text-1">{requestInfo.name}</strong>
           <p className="display-inline">
             <strong className="text-sm">
-              from {formatAddress(data.renter)}
+              from {formatAddress(requestInfo.renter)}
             </strong>
-            <strong className="text-sm"> for {data.daysForRent} day(s)</strong>
+            <strong className="text-sm"> for {requestInfo.daysForRent} day(s)</strong>
           </p>
           <p className="display-inline"></p>
           <p className="display-inline">
-            <strong className="text-2">for ${data.totalPrice}</strong>
+            <strong className="text-2">for ${requestInfo.totalPrice}</strong>
           </p>
         </div>
       </div>

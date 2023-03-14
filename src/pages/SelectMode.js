@@ -1,7 +1,7 @@
 import Navbar from "../components/Navbar";
 import { Link } from "react-router-dom";
 
-const SelectMode = () => {
+export default function SelectMode() {
   return (
     <div>
       <Navbar></Navbar>
@@ -21,6 +21,4 @@ const SelectMode = () => {
       </div>
     </div>
   );
-};
-
-export default SelectMode;
+}

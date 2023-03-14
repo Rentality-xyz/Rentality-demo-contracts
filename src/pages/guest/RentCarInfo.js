@@ -4,7 +4,7 @@ import RentCarJSON from "../../ContractExport";
 import axios from "axios";
 import { useState, useRef } from "react";
 
-const RentCarInfo = (props) => {
+export default function RentCarInfo(props) {
   const [dataFetched, setDataFetched] = useState(false);
   const [carInfo, setCarInfo] = useState({});
   const [daysToRent, setDaysToRent] = useState(1);
@@ -21,7 +21,7 @@ const RentCarInfo = (props) => {
     const ethers = require("ethers");
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const signer = provider.getSigner();
-    
+
     let contract = new ethers.Contract(
       RentCarJSON.address,
       RentCarJSON.abi,
@@ -133,6 +133,4 @@ const RentCarInfo = (props) => {
       </div>
     </div>
   );
-};
-
-export default RentCarInfo;
+}

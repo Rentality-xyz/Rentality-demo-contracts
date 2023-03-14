@@ -4,7 +4,7 @@ import RentCarJSON from "../../ContractExport";
 import axios from "axios";
 import { useState } from "react";
 
-const CarInfo = (props) => {
+export default function CarInfo(props) {
   const [dataFetched, setDataFetched] = useState(false);
   const [carInfo, setCarInfo] = useState({});
   const [userWeb3Address, setUserWeb3Address] = useState("0x");
@@ -71,6 +71,4 @@ const CarInfo = (props) => {
       </div>
     </div>
   );
-};
-
-export default CarInfo;
+}
