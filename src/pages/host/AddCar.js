@@ -1,4 +1,4 @@
-import Navbar from "../../components/Navbar";
+import HostNavbar from "../../components/host/HostNavbar";
 import { useState, useRef } from "react";
 import { uploadFileToIPFS, uploadJSONToIPFS } from "../../pinata";
 import RentCarJSON from "../../ContractExport";
@@ -137,7 +137,7 @@ export default function AddCar() {
 
   return (
     <div className="">
-      <Navbar></Navbar>
+      <HostNavbar></HostNavbar>
       <div className="flex flex-col place-items-center mt-10" id="nftForm">
         <form className="bg-white shadow-md rounded px-8 pt-4 pb-8 mb-4">
           <h3 className="text-center font-bold text-purple-500 mb-8">

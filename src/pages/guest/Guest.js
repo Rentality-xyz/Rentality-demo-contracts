@@ -1,4 +1,4 @@
-import Navbar from "../../components/Navbar";
+import GuestNavbar from "../../components/guest/GuestNavbar";
 import CarTile from "../../components/CarTile";
 import RentCarJSON from "../../ContractExport";
 import axios from "axios";
@@ -47,7 +47,7 @@ export default function Guest() {
 
   return (
     <div>
-      <Navbar></Navbar>
+      <GuestNavbar></GuestNavbar>
       <div className="flex flex-col place-items-center mt-20">
         <div className="md:text-xl font-bold text-white">My rented car</div>
         <div className="flex mt-5 justify-between flex-wrap max-w-screen-xl text-center">

@@ -1,4 +1,4 @@
-import Navbar from "../../components/Navbar";
+import HostNavbar from "../../components/host/HostNavbar";
 import CarTile from "../../components/CarTile";
 import RequestTile from "../../components/RequestTile";
 import RentCarJSON from "../../ContractExport";
@@ -126,7 +126,7 @@ export default function Host() {
 
   return (
     <div>
-      <Navbar></Navbar>
+      <HostNavbar></HostNavbar>
       <div className="flex flex-row mt-20">
         <div className="flex flex-col w-2/3 place-items-center">
           <div className="md:text-xl font-bold text-white">My Cars</div>

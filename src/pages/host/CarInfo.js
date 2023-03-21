@@ -1,4 +1,4 @@
-import Navbar from "../../components/Navbar";
+import HostNavbar from "../../components/host/HostNavbar";
 import { useParams } from "react-router-dom";
 import RentCarJSON from "../../ContractExport";
 import axios from "axios";
@@ -47,7 +47,7 @@ export default function CarInfo(props) {
 
   return (
     <div style={{ "min-height": "100vh" }}>
-      <Navbar></Navbar>
+      <HostNavbar></HostNavbar>
       <div className="flex ml-20 mt-20">
         <img src={carInfo.image} alt="" className="w-2/5" />
         <div className="text-xl ml-20 space-y-8 text-white shadow-2xl rounded-lg border-2 p-5">
