@@ -92,7 +92,9 @@ export default function RentCarInfo(props) {
     <div style={{ "min-height": "100vh" }}>
       <GuestNavbar></GuestNavbar>
       <div className="flex ml-20 mt-20">
-        <img src={carInfo.image} alt="" className="w-2/5" />
+        <div className="w-2/5" >
+          <img src={carInfo.image} alt="" className="w-full" />
+        </div>
         <div className="text-xl ml-20 space-y-8 text-white shadow-2xl rounded-lg border-2 p-5">
           <div>Name: {carInfo.name}</div>
           <div>Model: {carInfo.model}</div>

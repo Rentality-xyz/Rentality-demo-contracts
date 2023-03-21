@@ -36,8 +36,9 @@ export default function Host() {
             price,
             image: meta.image,
             name: meta.name,
-            model: meta.model,
             description: meta.description,
+            brand: meta.attributes?.find((x) => x.trait_type === "Brand")?.value ?? "",
+            model: meta.attributes?.find((x) => x.trait_type === "Model")?.value ?? "",
           };
           return item;
         })

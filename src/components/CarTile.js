@@ -15,7 +15,7 @@ export default function CarTile({ carInfo }) {
         <div className="text-white w-full p-2 bg-gradient-to-t from-[#454545] to-transparent rounded-lg pt-5 -mt-20">
           <strong className="text-xl">{carInfo.name}</strong>
           <p className="display-inline">
-            <strong className="text-l">{carInfo.model}</strong>
+            <strong className="text-l">{carInfo.brand + ' ' + carInfo.model}</strong>
           </p>
           <p className="display-inline">{carInfo.description}</p>
         </div>
