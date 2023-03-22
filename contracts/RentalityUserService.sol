@@ -24,22 +24,51 @@ contract RentalityUserService is AccessControl {
         _setRoleAdmin(GUEST_ROLE, MANAGER_ROLE);
     }
 
-    function grantAdminRole(address user) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        grantRole(DEFAULT_ADMIN_ROLE, user);
+    function setKYCInfo(address user, KYCInfo memory kycInfo) public {
+        kycInfos[user] = kycInfo;
     }
 
-    function grantManagerRole(
-        address user
-    ) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    function getKYCInfo(address user) external view returns (KYCInfo memory) {
+        return kycInfos[user];
+    }
+
+    function hasValidKYC(address user) public view returns (bool) {
+        KYCInfo memory kycInfo = kycInfos[user];
+        return kycInfo.expirationDate > block.timestamp;
+    }
+
+    function grantAdminRole(address user) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        grantRole(DEFAULT_ADMIN_ROLE, user);
         grantRole(MANAGER_ROLE, user);
+    }
+
+    function revokeAdminRole(address user) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        revokeRole(DEFAULT_ADMIN_ROLE, user);
+        revokeRole(MANAGER_ROLE, user);
+    }
+
+    function grantManagerRole(address user) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        grantRole(MANAGER_ROLE, user);
+    }
+
+    function revokeManagerRole(address user) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        revokeRole(MANAGER_ROLE, user);
     }
 
     function grantHostRole(address user) public onlyRole(MANAGER_ROLE) {
         grantRole(HOST_ROLE, user);
     }
 
+    function revokeHostRole(address user) public onlyRole(MANAGER_ROLE) {
+        revokeRole(HOST_ROLE, user);
+    }
+
     function grantGuestRole(address user) public onlyRole(MANAGER_ROLE) {
         grantRole(GUEST_ROLE, user);
+    }
+
+    function revokeGuestRole(address user) public onlyRole(MANAGER_ROLE) {
+        revokeRole(GUEST_ROLE, user);
     }
 
     function isAdmin(address user) public view returns (bool) {
@@ -60,18 +89,5 @@ contract RentalityUserService is AccessControl {
 
     function isHostOrGuest(address user) public view returns (bool) {
         return isHost(user) || isGuest(user);
-    }
-
-    function setKYCInfo(address user, KYCInfo memory kycInfo) public {
-        kycInfos[user] = kycInfo;
-    }
-
-    function getKYCInfo(address user) external view returns (KYCInfo memory) {
-        return kycInfos[user];
-    }
-
-    function hasValidKYC(address user) public view returns (bool) {
-        KYCInfo memory kycInfo = kycInfos[user];
-        return kycInfo.expirationDate > block.timestamp;
     }
 }
