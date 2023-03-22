@@ -2,10 +2,9 @@
 pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 import "./IERC4907.sol";
 
-contract ERC4907 is ERC721URIStorage, ERC721Burnable, IERC4907 {
+contract ERC4907 is ERC721URIStorage, IERC4907 {
     struct UserInfo {
         address user; // address of user role
         uint64 expires; // unix timestamp, user expires
@@ -88,17 +87,5 @@ contract ERC4907 is ERC721URIStorage, ERC721Burnable, IERC4907 {
             delete _users[tokenId];
             emit UpdateUser(tokenId, address(0), 0);
         }
-    }
-
-    function _burn(
-        uint256 tokenId
-    ) internal override(ERC721, ERC721URIStorage) {
-        super._burn(tokenId);
-    }
-
-    function tokenURI(
-        uint256 tokenId
-    ) public view override(ERC721, ERC721URIStorage) returns (string memory) {
-        return super.tokenURI(tokenId);
     }
 }
