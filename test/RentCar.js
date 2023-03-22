@@ -13,49 +13,49 @@ const {
     async function deployFixture() {    
       // Contracts are deployed using the first signer/account by default
       const [owner, host, guest] = await ethers.getSigners();
-      const MockEthToUsdPriceFeed = await ethers.getContractFactory("MockEthToUsdPriceFeed");
+      const MockPriceFeed = await ethers.getContractFactory("MockPriceFeed");
       const RentCar = await ethers.getContractFactory("RentCar");
   
-      const mockEthToUsdPriceFeed = await MockEthToUsdPriceFeed.deploy(8, 200000000000);
-      await mockEthToUsdPriceFeed.deployed();
-      const mockEthToUsdPriceFeedAddress = mockEthToUsdPriceFeed.address;
+      const mockPriceFeed = await MockPriceFeed.deploy(8, 200000000000);
+      await mockPriceFeed.deployed();
+      const mockPriceFeedAddress = mockPriceFeed.address;
 
-      const rentCar = await RentCar.deploy(mockEthToUsdPriceFeedAddress);
+      const rentCar = await RentCar.deploy(mockPriceFeedAddress);
       await rentCar.deployed();
   
-      return { rentCar, mockEthToUsdPriceFeed, owner, host, guest };
+      return { rentCar, mockPriceFeed, owner, host, guest };
     }
 
     async function deployFixtureWith1Car() {    
       // Contracts are deployed using the first signer/account by default
       const [owner, host, guest] = await ethers.getSigners();
-      const MockEthToUsdPriceFeed = await ethers.getContractFactory("MockEthToUsdPriceFeed");
+      const MockPriceFeed = await ethers.getContractFactory("MockPriceFeed");
       const RentCar = await ethers.getContractFactory("RentCar");
   
-      const mockEthToUsdPriceFeed = await MockEthToUsdPriceFeed.deploy(8, 200000000000);
-      await mockEthToUsdPriceFeed.deployed();
-      const mockEthToUsdPriceFeedAddress = mockEthToUsdPriceFeed.address;
+      const mockPriceFeed = await MockPriceFeed.deploy(8, 200000000000);
+      await mockPriceFeed.deployed();
+      const mockPriceFeedAddress = mockPriceFeed.address;
 
-      const rentCar = await RentCar.deploy(mockEthToUsdPriceFeedAddress);
+      const rentCar = await RentCar.deploy(mockPriceFeedAddress);
       await rentCar.deployed();
       
       const PRICE_PER_DAY = 1;
       await rentCar.connect(host).addCar("tokenUri1", PRICE_PER_DAY);
 
-      return { rentCar, mockEthToUsdPriceFeed, owner, host, guest };
+      return { rentCar, mockPriceFeed, owner, host, guest };
     }
 
     describe("Deployment", function () {
       it("Should set the right owner", async function () {
         const { rentCar, owner } = await loadFixture(deployFixture);
 
-        expect(await rentCar.getOwner()).to.equal(owner.address);
+        expect(await rentCar.owner()).to.equal(owner.address);
       });
 
       it("Shouldn't contain tokens when deployed", async function () {
         const { rentCar } = await loadFixture(deployFixture);
   
-        expect(await rentCar.getCurrentToken()).to.equal(0);
+        expect(await rentCar.totalSupply()).to.equal(0);
       });
     });
 
@@ -76,7 +76,7 @@ const {
         const TOKEN_ID = 1;
         const carToRent = await rentCar.connect(host).getCarToRentForId(TOKEN_ID);
 
-        expect(carToRent.tokenId).to.equal(TOKEN_ID);
+        expect(carToRent.carId).to.equal(TOKEN_ID);
         expect(carToRent.owner).to.equal(host.address);
         expect(carToRent.pricePerDayInUsdCents).to.equal(PRICE_PER_DAY);
         expect(carToRent.currentlyListed).to.equal(true);
@@ -97,7 +97,7 @@ const {
         const myCars = await rentCar.connect(host).getMyCars();
 
         expect(myCars.length).to.equal(1);
-        expect(myCars[0].tokenId).to.equal(TOKEN_ID);
+        expect(myCars[0].carId).to.equal(TOKEN_ID);
         expect(myCars[0].owner).to.equal(host.address);
         expect(myCars[0].pricePerDayInUsdCents).to.equal(PRICE_PER_DAY);
         expect(myCars[0].currentlyListed).to.equal(true);
@@ -120,7 +120,7 @@ const {
         const availableCars = await rentCar.connect(guest).getAllAvailableCars();
         
         expect(availableCars.length).to.equal(1);
-        expect(availableCars[0].tokenId).to.equal(TOKEN_ID);
+        expect(availableCars[0].carId).to.equal(TOKEN_ID);
         expect(availableCars[0].owner).to.equal(host.address);
         expect(availableCars[0].pricePerDayInUsdCents).to.equal(PRICE_PER_DAY);
         expect(availableCars[0].currentlyListed).to.equal(true);
