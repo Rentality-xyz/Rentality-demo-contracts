@@ -12,6 +12,7 @@ contract RentalityCarToken is ERC4907, Ownable {
 
     //The structure to store info about a listed car
     struct CarInfo{
+        uint256 carId;
         string carVinNumber;
         bytes32 carVinNumberHash;
         address createdBy;
@@ -81,6 +82,7 @@ contract RentalityCarToken is ERC4907, Ownable {
         _setTokenURI(newCarId, tokenUri);
         
         idToCarInfo[newCarId] = CarInfo(
+            newCarId,
             carVinNumber,
             keccak256(abi.encodePacked(carVinNumber)),
             msg.sender,
