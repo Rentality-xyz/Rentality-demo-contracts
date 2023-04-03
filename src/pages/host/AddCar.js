@@ -633,6 +633,7 @@ export default function AddCar() {
               <option value="Gasoline">Gasoline</option>
               <option value="Diesel">Diesel</option>
               <option value="Bio-diesel">Bio-diesel</option>
+              <option value="Electro">Electro</option>
             </select>
           </div>
           <div className="mb-4">

@@ -28,7 +28,7 @@ root.render(
         <Route path="/guest" element={<Guest />}/>
         <Route path="/rentCar" element={<RentCar />}/>
         <Route path="/rentCarInfo/:tokenId" element={<RentCarInfo />}/>
-        <Route path="/profile" element={<Profile />}/> 
+        <Route path="/profile" element={<Profile />}/>
       </Routes>
     </BrowserRouter>
   </React.StrictMode>
