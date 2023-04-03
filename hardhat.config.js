@@ -3,6 +3,7 @@ require("@nomiclabs/hardhat-ethers");
 const fs = require('fs');
 // const infuraId = fs.readFileSync(".infuraid").toString().trim() || "";
 require('dotenv').config();
+//require("@nomicfoundation/hardhat-toolbox");
 
 // task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
 //   const accounts = await hre.ethers.getSigners();
@@ -13,9 +14,12 @@ require('dotenv').config();
 // });
 
 module.exports = {
-  defaultNetwork: "hardhat",
+  defaultNetwork: "localhost",
   networks: {
     hardhat: {
+      chainId: 1337
+    },
+    localhost: {
       chainId: 1337
     },
     goerli: {
@@ -24,6 +28,10 @@ module.exports = {
     },
     mumbai: {
       url: process.env.ALCHEMY_API_URL_MUMBAI,
+      accounts: [process.env.PRIVATE_KEY]
+    },
+    sepolia: {
+      url: process.env.ALCHEMY_API_URL_SEPOLIA,
       accounts: [process.env.PRIVATE_KEY]
     }
   },
