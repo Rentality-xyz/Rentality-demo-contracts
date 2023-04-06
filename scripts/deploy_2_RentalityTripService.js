@@ -1,8 +1,8 @@
+const saveJsonAbi = require("./utils/abiSaver");
 const { ethers } = require("hardhat");
-const hre = require("hardhat");
-const fs = require("fs");
 
 async function main() {
+  const contractName = "RentalityTripService";
   const [deployer] = await ethers.getSigners();
   const balance = await deployer.getBalance();
   console.log(
@@ -12,34 +12,16 @@ async function main() {
     balance
   );
 
-  const chainId = (await deployer.provider?.getNetwork()).chainId;
+  const chainId = (await deployer.provider?.getNetwork())?.chainId ?? -1;
   console.log("ChainId is:", chainId);
+  if (chainId < 0) return;
 
-  const RentalityTripService = await hre.ethers.getContractFactory("RentalityTripService");
-  const rentalityTripService = await RentalityTripService.deploy();
-  await rentalityTripService.deployed();
-  console.log("RentalityTripService deployed to:", rentalityTripService.address);
+  const contractFactory = await ethers.getContractFactory(contractName);
+  const contract = await contractFactory.deploy();
+  await contract.deployed();
+  console.log(contractName + " deployed to:", contract.address);
 
-  const data = {
-    address: rentalityTripService.address,
-    abi: JSON.parse(rentalityTripService.interface.format("json")),
-  };
-
-  if (chainId !== 1337) {
-    //This writes the ABI and address to the mktplace.json
-    fs.writeFileSync("./src/RentalityTripService.json", JSON.stringify(data));
-    console.log("JSON abi saved to ./src/RentalityTripService.json");
-
-    const backupFilePath = "./src/RentalityTripService." + chainId + ".json";
-    fs.writeFileSync(backupFilePath, JSON.stringify(data));
-    console.log("JSON abi saved to " + backupFilePath);
-  } else {
-    fs.writeFileSync(
-      "./src/RentalityTripService.Localhost.json",
-      JSON.stringify(data)
-    );
-    console.log("JSON abi saved to ./src/RentalityTripService.Localhost.json");
-  }
+  saveJsonAbi(contractName, chainId, contract);
 }
 
 main()

@@ -2,7 +2,7 @@ const saveJsonAbi = require("./utils/abiSaver");
 const { ethers } = require("hardhat");
 
 async function main() {
-  const contractName = "RentCar";
+  const contractName = "MockPriceFeed";
   const [deployer] = await ethers.getSigners();
   const balance = await deployer.getBalance();
   console.log(
@@ -14,20 +14,13 @@ async function main() {
 
   const chainId = (await deployer.provider?.getNetwork())?.chainId ?? -1;
   console.log("ChainId is:", chainId);
-  if (chainId < 0) return;
-
-  const ethToUsdPriceFeedAddress =
-    chainId === 5
-      ? "0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e"
-      : chainId === 80001
-      ? "0x0715A7794a1dc8e42615F059dD6e406A6594651A"
-      : chainId === 1337
-      ? "0x5FbDB2315678afecb367f032d93F642f64180aa3"
-      : "";
-  console.log("EthToUsdPriceFeedAddress is:", ethToUsdPriceFeedAddress);
+  if (chainId !== 1337) {
+    console.log("Can be deployed only on chainId: 1337");
+    return;
+  }
 
   const contractFactory = await ethers.getContractFactory(contractName);
-  const contract = await contractFactory.deploy(ethToUsdPriceFeedAddress);
+  const contract = await contractFactory.deploy(8, 165000000000);
   await contract.deployed();
   console.log(contractName + " deployed to:", contract.address);
 

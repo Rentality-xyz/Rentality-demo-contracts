@@ -1,8 +1,8 @@
+const saveJsonAbi = require("./utils/abiSaver");
 const { ethers } = require("hardhat");
-const hre = require("hardhat");
-const fs = require("fs");
 
 async function main() {
+  let contractName = "";
   const [deployer] = await ethers.getSigners();
   const balance = await deployer.getBalance();
   console.log(
@@ -12,8 +12,9 @@ async function main() {
     balance
   );
 
-  const chainId = (await deployer.provider?.getNetwork()).chainId;
+  const chainId = (await deployer.provider?.getNetwork())?.chainId ?? -1;
   console.log("ChainId is:", chainId);
+  if (chainId < 0) return;
 
   const ethToUsdPriceFeedAddress =
     chainId === 5
@@ -21,64 +22,60 @@ async function main() {
       : chainId === 80001
       ? "0x0715A7794a1dc8e42615F059dD6e406A6594651A"
       : chainId === 1337
-      ? "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+      ? "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e"
       : "";
-  
-  const RentalityUserService = await hre.ethers.getContractFactory("RentalityUserService");  
-  const rentalityUserService = await RentalityUserService.deploy();
-  await rentalityUserService.deployed();
-  console.log( "RentalityUserService deployed to:", rentalityUserService.address);
 
-  const RentalityTripService = await hre.ethers.getContractFactory("RentalityTripService");
-  const rentalityTripService = await RentalityTripService.deploy();
-  await rentalityTripService.deployed();
-  console.log("RentalityTripService deployed to:", rentalityTripService.address);
+  contractName = "RentalityUserService";
+  let contractFactory = await ethers.getContractFactory(contractName);
+  let contract = await contractFactory.deploy();
+  await contract.deployed();
+  console.log(contractName + " deployed to:", contract.address);
 
-  const RentalityCurrencyConverter = await hre.ethers.getContractFactory("RentalityCurrencyConverter");
-  const rentalityCurrencyConverter = await RentalityCurrencyConverter.deploy(ethToUsdPriceFeedAddress);
-  await rentalityCurrencyConverter.deployed();
-  console.log("RentalityCurrencyConverter deployed to:", rentalityCurrencyConverter.address);
+  saveJsonAbi(contractName, chainId, contract);
 
-  const RentalityCarToken = await hre.ethers.getContractFactory("RentalityCarToken");  
-  const rentalityCarToken = await RentalityCarToken.deploy(rentalityUserService.address);
-  await rentalityCarToken.deployed();
-  console.log("RentalityCarToken deployed to:", rentalityCarToken.address);
+  let rentalityUserServiceAddress = contract.address;
 
-  const Rentality = await hre.ethers.getContractFactory("Rentality");
-  const rentality = await Rentality.deploy(
-    rentalityCarToken.address,
-    rentalityCurrencyConverter.address,
-    rentalityTripService.address,
-    rentalityUserService.address
-  );
-  await rentality.deployed();
-  console.log("Rentality deployed to:", rentality.address);
-  
-  saveJsonAbi("RentalityUserServiceData", chainId, rentalityUserService);
-  saveJsonAbi("RentalityTripServiceData", chainId, rentalityTripService);
-  saveJsonAbi("RentalityCurrencyConverterData", chainId, rentalityCurrencyConverter);
-  saveJsonAbi("RentalityCarTokenData", chainId, rentalityCarToken);
-  saveJsonAbi("RentalityData", chainId, rentality);
-}
+  contractName = "RentalityTripService";
+  contractFactory = await ethers.getContractFactory(contractName);
+  contract = await contractFactory.deploy();
+  await contract.deployed();
+  console.log(contractName + " deployed to:", contract.address);
 
-function saveJsonAbi(fileName, chainId, contract){  
-  const jsonData = {
-    address: contract.address,
-    abi: JSON.parse(contract.interface.format("json")),
-  };
-  
-  const chainIdString = chainId !== 1337 ? chainId.toString() : "localhost";
-  let filePath;
-  
-  if (chainId !== 1337) {
-    filePath = "./src/" + fileName + ".json";
-    fs.writeFileSync(filePath, JSON.stringify(jsonData));
-    console.log("JSON abi saved to " + filePath);
-  }
+  saveJsonAbi(contractName, chainId, contract);
 
-  filePath = "./src/" + fileName + "." + chainIdString + ".json";
-  fs.writeFileSync(filePath, JSON.stringify(jsonData));
-  console.log("JSON abi saved to " + filePath);
+  let rentalityTripServiceAddress = contract.address;
+
+  contractName = "RentalityCurrencyConverter";
+  contractFactory = await ethers.getContractFactory(contractName);
+  contract = await contractFactory.deploy(ethToUsdPriceFeedAddress);
+  await contract.deployed();
+  console.log(contractName + " deployed to:", contract.address);
+
+  saveJsonAbi(contractName, chainId, contract);
+
+  let rentalityCurrencyConverterAddress = contract.address;
+
+  contractName = "RentalityCarToken";
+  contractFactory = await ethers.getContractFactory(contractName);
+  contract = await contractFactory.deploy(rentalityUserServiceAddress);
+  await contract.deployed();
+  console.log(contractName + " deployed to:", contract.address);
+
+  saveJsonAbi(contractName, chainId, contract);
+
+  let rentalityCarTokenAddress = contract.address;
+
+  contractName = "Rentality";
+  contractFactory = await ethers.getContractFactory(contractName);
+  contract = await contractFactory.deploy(
+    rentalityCarTokenAddress,
+    rentalityCurrencyConverterAddress,
+    rentalityTripServiceAddress,
+    rentalityUserServiceAddress);
+  await contract.deployed();
+  console.log(contractName + " deployed to:", contract.address);
+
+  saveJsonAbi(contractName, chainId, contract);
 }
 
 main()

@@ -13,7 +13,7 @@ const {
     async function deployFixture() {    
       // Contracts are deployed using the first signer/account by default
       const [owner, host, guest] = await ethers.getSigners();
-      const MockPriceFeed = await ethers.getContractFactory("MockPriceFeed");
+      const MockPriceFeed = await ethers.getContractFactory("RentalityMockPriceFeed");
       const RentCar = await ethers.getContractFactory("RentCar");
   
       const mockPriceFeed = await MockPriceFeed.deploy(8, 200000000000);
@@ -29,7 +29,7 @@ const {
     async function deployFixtureWith1Car() {    
       // Contracts are deployed using the first signer/account by default
       const [owner, host, guest] = await ethers.getSigners();
-      const MockPriceFeed = await ethers.getContractFactory("MockPriceFeed");
+      const MockPriceFeed = await ethers.getContractFactory("RentalityMockPriceFeed");
       const RentCar = await ethers.getContractFactory("RentCar");
   
       const mockPriceFeed = await MockPriceFeed.deploy(8, 200000000000);
