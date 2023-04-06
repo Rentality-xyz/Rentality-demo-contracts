@@ -1,7 +1,7 @@
 import HostNavbar from "../../components/host/HostNavbar";
 import CarTile from "../../components/CarTile";
 import RequestTile from "../../components/RequestTile";
-import RentCarJSON from "../../ContractExport";
+import RentCarJSON from "../../abis";
 import axios from "axios";
 import { useState } from "react";
 

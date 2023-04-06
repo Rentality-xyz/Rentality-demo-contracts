@@ -1,7 +1,7 @@
 import HostNavbar from "../../components/host/HostNavbar";
 import { useState, useRef } from "react";
-import { uploadFileToIPFS, uploadJSONToIPFS } from "../../pinata";
-import RentCarJSON from "../../ContractExport";
+import { uploadFileToIPFS, uploadJSONToIPFS } from "../../utils/pinata";
+import RentCarJSON from "../../abis";
 
 export default function AddCar() {
   const [carInfoFormParams, setCarInfoFormParams] = useState({

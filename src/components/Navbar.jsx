@@ -1,8 +1,8 @@
-import fullLogo from "../full_logo.png";
+import fullLogo from "../images/full_logo.png";
 import { Link } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
 import { useLocation } from "react-router";
-import RentCarJSON from "../ContractExport";
+import RentCarJSON from "../abis";
 
 export default function Navbar() {
   const [userConnected, setUserConnected] = useState(false);
@@ -102,7 +102,7 @@ export default function Navbar() {
     return () => {
       window.ethereum.removeListener("accountsChanged", handleAccountsChanged);
     };
-  });
+  }, []);
 
   return (
     <div className="flex flex-col pt-2">

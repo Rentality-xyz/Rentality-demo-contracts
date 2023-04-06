@@ -1,6 +1,6 @@
 import GuestNavbar from "../../components/guest/GuestNavbar";
 import RentedCarTile from "../../components/RentedCarTile";
-import RentCarJSON from "../../ContractExport";
+import RentCarJSON from "../../abis";
 import axios from "axios";
 import { useState } from "react";
 

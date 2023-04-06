@@ -1,6 +1,6 @@
 import HostNavbar from "../../components/host/HostNavbar";
 import { useParams } from "react-router-dom";
-import RentCarJSON from "../../ContractExport";
+import RentCarJSON from "../../abis";
 import axios from "axios";
 import { useState } from "react";
 
