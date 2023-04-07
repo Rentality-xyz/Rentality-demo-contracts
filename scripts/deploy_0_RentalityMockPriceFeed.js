@@ -2,7 +2,7 @@ const saveJsonAbi = require("./utils/abiSaver");
 const { ethers } = require("hardhat");
 
 async function main() {
-  const contractName = "MockPriceFeed";
+  const contractName = "RentalityMockPriceFeed";
   const [deployer] = await ethers.getSigners();
   const balance = await deployer.getBalance();
   console.log(
