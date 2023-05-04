@@ -83,12 +83,12 @@ export default function HostNavbar() {
                 className="inline-block -mt-2"
               />
               <div className="inline-block font-bold text-2xl ml-6">
-                Rentality v0.1
+                v0.2
               </div>
             </Link>
           </li>
           <li className="w-2/6">
-            <ul className="lg:flex justify-between font-bold mr-10 text-lg">
+            <ul className="h-12 flex flex-row items-center justify-between font-bold mr-10 text-lg">
               <li>
                 <Link to="/guest">
                   <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm">

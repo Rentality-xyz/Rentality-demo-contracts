@@ -324,13 +324,13 @@ export default function AddCar() {
               id="description"
               type="text"
               placeholder="e.g. Dupont Pepper Grey 1967 Ford Mustang fastback"
-              value={carInfoFormParams.description}
               onChange={(e) =>
                 setCarInfoFormParams({
                   ...carInfoFormParams,
                   description: e.target.value,
                 })
               }
+              value={carInfoFormParams.description}
             ></textarea>
           </div>
           <div className="mb-4">
