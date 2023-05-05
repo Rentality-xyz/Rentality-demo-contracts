@@ -11,13 +11,14 @@ import {
   Routes,
   Route,
 } from "react-router-dom";
+import Home from './pages/Home';
 
 function App() {
   return (
     <div className="container">
         <Routes>
-          <Route path="/" element={<SelectMode />}/>
-
+          <Route path="/" element={<Home />}/>
+          <Route path="/demo" element={<SelectMode />}/>
           <Route path="/host" element={<Host />}/>
           <Route path="/addCar" element={<AddCar />}/>
           <Route path="/carInfo" element={<CarInfo />}/> 

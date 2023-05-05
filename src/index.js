@@ -15,13 +15,15 @@ import CarInfo from './pages/host/CarInfo';
 import Guest from './pages/guest/Guest';
 import RentCar from './pages/guest/RentCar';
 import RentCarInfo from './pages/guest/RentCarInfo';
+import Home from './pages/Home';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<SelectMode />}/>
+        <Route path="/" element={<Home />}/>
+        <Route path="/demo" element={<SelectMode />}/>
         <Route path="/host" element={<Host />}/>
         <Route path="/addCar" element={<AddCar />}/>
         <Route path="/carInfo/:tokenId" element={<CarInfo />}/>
