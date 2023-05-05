@@ -133,9 +133,9 @@ export default function Host() {
   return (
     <div>
       <HostNavbar></HostNavbar>
-      <div className="flex flex-row mt-20">
+      <div className="flex flex-row mt-20 text-white">
         <div className="flex flex-col w-2/3 place-items-center">
-          <div className="md:text-xl font-bold text-white">My Cars</div>
+          <div className="md:text-xl font-bold">My Cars</div>
           <div className="flex mt-5 justify-between flex-wrap max-w-screen-xl text-center">
             {hostCars != null && hostCars.length > 0 ? (
               hostCars.map((value, index) => {
@@ -149,7 +149,7 @@ export default function Host() {
           </div>
         </div>
         <div className="flex flex-col w-1/3 place-items-center">
-          <div className="md:text-xl font-bold text-white">My requests</div>
+          <div className="md:text-xl font-bold">My requests</div>
           <div className="flex mt-5 justify-between flex-wrap max-w-screen-xl text-center">
             {hostRequests != null && hostRequests.length > 0 ? (
               hostRequests.map((value, index) => {
@@ -163,7 +163,7 @@ export default function Host() {
                 );
               })
             ) : (
-              <div className="flex mt-5 justify-between flex-wrap max-w-screen-xl text-center">
+              <div className="flex mt-5 justify-between flex-wrap max-w-screen-xl text-center ">
                 You dont have requests
               </div>
             )}

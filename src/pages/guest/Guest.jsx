@@ -48,8 +48,8 @@ export default function Guest() {
   return (
     <div>
       <GuestNavbar></GuestNavbar>
-      <div className="flex flex-col place-items-center mt-20">
-        <div className="md:text-xl font-bold text-white">My rented car</div>
+      <div className="flex flex-col place-items-center mt-20 text-white">
+        <div className="md:text-xl font-bold">My rented car</div>
         <div className="flex mt-5 justify-between flex-wrap max-w-screen-xl text-center">
           {guestRentedCars != null && guestRentedCars.length > 0 ? (
             guestRentedCars.map((value, index) => {

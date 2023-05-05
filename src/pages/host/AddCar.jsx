@@ -690,13 +690,13 @@ export default function AddCar() {
               type="number"
               placeholder="e.g. 100"
               step="1"
-              value={carInfoFormParams.pricePerDay}
               onChange={(e) =>
                 setCarInfoFormParams({
                   ...carInfoFormParams,
                   pricePerDay: e.target.value,
                 })
               }
+              value={carInfoFormParams.pricePerDay}
             ></input>
           </div>
           <div>
