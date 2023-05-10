@@ -31,7 +31,11 @@ export default function RentCarInfo(props) {
     const tokenURI = await contract.tokenURI(tokenId);
     const listedToken = await contract.getCarToRentForId(tokenId);
     let price = listedToken.pricePerDayInUsdCents / 100;
-    let meta = await axios.get(tokenURI);
+    let meta = await axios.get(tokenURI, {
+      headers: {
+        'Accept': 'application/json',
+      }
+    });
     meta = meta.data;
 
     let item = {

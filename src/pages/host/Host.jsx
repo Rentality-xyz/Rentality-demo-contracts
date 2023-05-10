@@ -28,8 +28,7 @@ export default function Host() {
           const tokenURI = await contract.tokenURI(i.tokenId);
           let meta = await axios.get(tokenURI, {
             headers: {
-              'Access-Control-Allow-Origin': '*',
-              'Access-Control-Allow-Headers':'Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers'
+              'Accept': 'application/json',
             }
           });
           meta = meta.data;
@@ -60,7 +59,11 @@ export default function Host() {
       const myRequests = await Promise.all(
         myRequestsTransaction.map(async (i) => {
           const tokenURI = await contract.tokenURI(i.tokenId);
-          let meta = await axios.get(tokenURI);
+          let meta = await axios.get(tokenURI, {
+            headers: {
+              'Accept': 'application/json',
+            }
+          });
           meta = meta.data;
 
           let totalPrice = i.totalPrice / 100;

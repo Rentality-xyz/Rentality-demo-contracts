@@ -23,7 +23,11 @@ export default function Guest() {
     const items = await Promise.all(
       transaction.map(async (i) => {
         const tokenURI = await contract.tokenURI(i.tokenId);
-        let meta = await axios.get(tokenURI);
+        let meta = await axios.get(tokenURI, {
+          headers: {
+            'Accept': 'application/json',
+          }
+        });
         meta = meta.data;
         let price = i.pricePerDayInUsdCents / 100;
 
