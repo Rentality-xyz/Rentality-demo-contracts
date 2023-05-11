@@ -22,7 +22,7 @@ root.render(
   <React.StrictMode>
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Home />}/>
+        <Route path="/" element={<SelectMode />}/>
         <Route path="/demo" element={<SelectMode />}/>
         <Route path="/host" element={<Host />}/>
         <Route path="/addCar" element={<AddCar />}/>
