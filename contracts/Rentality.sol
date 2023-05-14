@@ -22,6 +22,9 @@ contract Rentality is Ownable {
         uint256 totalDayPrice;
         uint256 taxPrice;
         uint256 deposit;
+        bool approved;
+        bool rejected;
+        bool closed;
     }
 
     mapping(uint256 => TripRequest) private idToTripRequest;
@@ -62,24 +65,22 @@ contract Rentality is Ownable {
         _;
     }
 
-    function updateCarService(address carServiceAddress) public onlyAdmin {
-        carService = RentalityCarToken(carServiceAddress);
+    function updateCarService(address contractAddress) public onlyAdmin {
+        carService = RentalityCarToken(contractAddress);
     }
 
     function updateCurrencyConverterService(
-        address currencyConverterServiceAddress
+        address contractAddress
     ) public onlyAdmin {
-        currencyConverterService = RentalityCurrencyConverter(
-            currencyConverterServiceAddress
-        );
+        currencyConverterService = RentalityCurrencyConverter(contractAddress);
     }
 
-    function updateTripService(address tripServiceAddress) public onlyAdmin {
-        tripService = RentalityTripService(tripServiceAddress);
+    function updateTripService(address contractAddress) public onlyAdmin {
+        tripService = RentalityTripService(contractAddress);
     }
 
-    function updateUserService(address userServiceAddress) public onlyAdmin {
-        userService = RentalityUserService(userServiceAddress);
+    function updateUserService(address contractAddress) public onlyAdmin {
+        userService = RentalityUserService(contractAddress);
     }
 
     function totalTripRequestCount() public view returns (uint) {
@@ -136,7 +137,11 @@ contract Rentality is Ownable {
         return carService.burnCar(carId);
     }
 
-    function getAllCars() public view returns (RentalityCarToken.CarInfo[] memory) {
+    function getAllCars()
+        public
+        view
+        returns (RentalityCarToken.CarInfo[] memory)
+    {
         return carService.getAllCars();
     }
 
@@ -154,8 +159,97 @@ contract Rentality is Ownable {
         return carService.getMyCars();
     }
 
-    function getCarsRentedByMe() public view returns (RentalityCarToken.CarInfo[] memory) {
+    function getCarsRentedByMe()
+        public
+        view
+        returns (RentalityCarToken.CarInfo[] memory)
+    {
         return carService.getCarsRentedByMe();
+    }
+
+    function createTripRequest(
+        uint256 carId,
+        address host,
+        uint256 startDateTime,
+        uint256 endDateTime,
+        string memory startLocation,
+        string memory endLocation,
+        uint256 totalDayPrice,
+        uint256 taxPrice,
+        uint256 deposit
+    ) public payable {
+        require(msg.value > 0, "Rental fee must be greater than 0");
+        require(
+            msg.value == totalDayPrice + taxPrice + deposit,
+            "Rental fee must be equal to sum totalDayPrice + taxPrice + deposit"
+        );
+
+        _tripRequestIdCounter.increment();
+        uint256 newTripRequestId = _tripRequestIdCounter.current();
+
+        idToTripRequest[newTripRequestId] = TripRequest(
+            carId,
+            msg.sender,
+            host,
+            startDateTime,
+            endDateTime,
+            startLocation,
+            endLocation,
+            totalDayPrice,
+            taxPrice,
+            deposit,
+            false,
+            false,
+            false
+        );
+    }
+
+    function approveTripRequest(uint256 tripRequestId) public {
+        TripRequest memory request = idToTripRequest[tripRequestId];
+        RentalityCarToken.CarInfo memory carInfo = getCarInfoById(
+            request.carId
+        );
+
+        tripService.addTrip(
+            request.carId,
+            request.guest,
+            request.host,
+            request.startDateTime,
+            request.endDateTime,
+            request.startLocation,
+            request.endLocation,
+            carInfo.distanceIncludedInMi,
+            request.totalDayPrice,
+            request.taxPrice,
+            request.deposit,
+            true
+        );
+        request.approved = true;
+        request.closed = true;
+    }
+
+    function rejectTripRequest(uint256 tripRequestId) public {
+        TripRequest memory request = idToTripRequest[tripRequestId];
+        RentalityCarToken.CarInfo memory carInfo = getCarInfoById(
+            request.carId
+        );
+
+        tripService.addTrip(
+            request.carId,
+            request.guest,
+            request.host,
+            request.startDateTime,
+            request.endDateTime,
+            request.startLocation,
+            request.endLocation,
+            carInfo.distanceIncludedInMi,
+            request.totalDayPrice,
+            request.taxPrice,
+            request.deposit,
+            false
+        );
+        request.rejected = true;
+        request.closed = true;
     }
 
     function addTrip(
@@ -171,7 +265,7 @@ contract Rentality is Ownable {
         uint256 taxPrice,
         uint256 deposit,
         bool isAccepted
-    ) public {
+    ) private {
         return
             tripService.addTrip(
                 carId,
@@ -194,12 +288,7 @@ contract Rentality is Ownable {
         uint256 startFuelLevel,
         uint256 startOdometr
     ) public {
-        return
-            tripService.checkInByHost(
-                tripId,
-                startFuelLevel,
-                startOdometr
-            );
+        return tripService.checkInByHost(tripId, startFuelLevel, startOdometr);
     }
 
     function checkInByGuest(
@@ -207,12 +296,7 @@ contract Rentality is Ownable {
         uint256 startFuelLevel,
         uint256 startOdometr
     ) public {
-        return
-            tripService.checkInByGuest(
-                tripId,
-                startFuelLevel,
-                startOdometr
-            );
+        return tripService.checkInByGuest(tripId, startFuelLevel, startOdometr);
     }
 
     function checkOutByGuest(
@@ -220,12 +304,7 @@ contract Rentality is Ownable {
         uint256 endFuelLevel,
         uint256 endOdometr
     ) public {
-        return
-            tripService.checkOutByGuest(
-                tripId,
-                endFuelLevel,
-                endOdometr
-            );
+        return tripService.checkOutByGuest(tripId, endFuelLevel, endOdometr);
     }
 
     function checkOutByHost(
@@ -233,12 +312,7 @@ contract Rentality is Ownable {
         uint256 endFuelLevel,
         uint256 endOdometr
     ) public {
-        return
-            tripService.checkOutByHost(
-                tripId,
-                endFuelLevel,
-                endOdometr
-            );
+        return tripService.checkOutByHost(tripId, endFuelLevel, endOdometr);
     }
 
     function finishTrip(uint256 tripId) public {
@@ -249,7 +323,9 @@ contract Rentality is Ownable {
         return tripService.resolveIssue(tripId, fuelPricePerGal);
     }
 
-    function getTrip(uint256 tripId) public view returns (RentalityTripService.Trip memory) {
+    function getTrip(
+        uint256 tripId
+    ) public view returns (RentalityTripService.Trip memory) {
         return tripService.getTrip(tripId);
     }
 
@@ -259,7 +335,9 @@ contract Rentality is Ownable {
         return tripService.getTripsByGuest(guest);
     }
 
-    function getTripsByHost(address host) public view returns (RentalityTripService.Trip[] memory) {
+    function getTripsByHost(
+        address host
+    ) public view returns (RentalityTripService.Trip[] memory) {
         return tripService.getTripsByHost(host);
     }
 

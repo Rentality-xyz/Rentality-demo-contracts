@@ -107,6 +107,7 @@ contract RentalityCarToken is ERC4907, Ownable {
 
     function updateCarInfo(uint256 carId, uint256 pricePerDayInUsdCents, bool currentlyListed) public onlyHost {
         require(_exists(carId), "Token does not exist");
+        require(ownerOf(carId) == msg.sender, "Only owner of the car can update car info");
 
         idToCarInfo[carId].pricePerDayInUsdCents = pricePerDayInUsdCents;
         idToCarInfo[carId].currentlyListed = currentlyListed;
