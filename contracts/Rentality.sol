@@ -98,7 +98,10 @@ contract Rentality is Ownable {
         uint256 pricePerDayInUsdCents,
         uint256 tankVolumeInGal,
         uint256 distanceIncludedInMi
-    ) public onlyHost returns (uint) {
+    ) public returns (uint) {
+        if (!userService.isHost(msg.sender)){
+            userService.grantHostRole(msg.sender);
+        }
         return
             carService.addCar(
                 tokenUri,
@@ -143,7 +146,11 @@ contract Rentality is Ownable {
         return carService.getAllAvailableCarsForUser(user);
     }
 
-    function getMyCars() public view onlyHost returns (RentalityCarToken.CarInfo[] memory) {
+    function getMyCars()
+        public
+        view
+        returns (RentalityCarToken.CarInfo[] memory)
+    {
         return carService.getMyCars();
     }
 

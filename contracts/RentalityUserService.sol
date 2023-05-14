@@ -5,8 +5,11 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 
 contract RentalityUserService is AccessControl {
     struct KYCInfo {
+        string name;
+        string surname;
         string licenseNumber;
         uint256 expirationDate;
+        uint createDate;
     }
 
     bytes32 public constant MANAGER_ROLE = keccak256("MANAGER_ROLE");
@@ -24,8 +27,20 @@ contract RentalityUserService is AccessControl {
         _setRoleAdmin(GUEST_ROLE, MANAGER_ROLE);
     }
 
-    function setKYCInfo(address user, KYCInfo memory kycInfo) public {
-        kycInfos[user] = kycInfo;
+    function setKYCInfo(
+        address user,
+        string memory name,
+        string memory surname,
+        string memory licenseNumber,
+        uint256 expirationDate
+    ) public {
+        kycInfos[user] = KYCInfo(
+            name,
+            surname,
+            licenseNumber,
+            expirationDate,
+            block.timestamp
+        );
     }
 
     function getKYCInfo(address user) external view returns (KYCInfo memory) {
@@ -34,7 +49,8 @@ contract RentalityUserService is AccessControl {
 
     function hasValidKYC(address user) public view returns (bool) {
         KYCInfo memory kycInfo = kycInfos[user];
-        return kycInfo.expirationDate > block.timestamp;
+        return
+            kycInfo.createDate > 0 && kycInfo.expirationDate > block.timestamp;
     }
 
     function grantAdminRole(address user) public onlyRole(DEFAULT_ADMIN_ROLE) {
@@ -47,15 +63,19 @@ contract RentalityUserService is AccessControl {
         revokeRole(MANAGER_ROLE, user);
     }
 
-    function grantManagerRole(address user) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    function grantManagerRole(
+        address user
+    ) public onlyRole(DEFAULT_ADMIN_ROLE) {
         grantRole(MANAGER_ROLE, user);
     }
 
-    function revokeManagerRole(address user) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    function revokeManagerRole(
+        address user
+    ) public onlyRole(DEFAULT_ADMIN_ROLE) {
         revokeRole(MANAGER_ROLE, user);
     }
 
-    function grantHostRole(address user) public onlyRole(MANAGER_ROLE) {
+    function grantHostRole(address user) public {
         grantRole(HOST_ROLE, user);
     }
 
@@ -63,7 +83,7 @@ contract RentalityUserService is AccessControl {
         revokeRole(HOST_ROLE, user);
     }
 
-    function grantGuestRole(address user) public onlyRole(MANAGER_ROLE) {
+    function grantGuestRole(address user) public {
         grantRole(GUEST_ROLE, user);
     }
 
