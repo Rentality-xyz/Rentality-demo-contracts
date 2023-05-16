@@ -9,6 +9,7 @@ contract RentalityTripService {
 
     enum TripStatus {
         Created,
+        Approved,
         CheckedInByHost,
         CheckedInByGuest,
         CheckedOutByGuest,
@@ -17,15 +18,25 @@ contract RentalityTripService {
         Canceled
     }
 
-    struct TripPaymentInfo {
-        uint256 totalDayPrice;
-        uint256 taxPrice;
-        uint256 deposit;
+    enum CurrencyType {
+        ETH
+    }
+
+    struct PaymentInfo {
+        uint256 tripRequestId;
+        address from;
+        address to;
+        uint256 totalDayPriceInUsdCents;
+        uint256 taxPriceInUsdCents;
+        uint256 depositInUsdCents;
+        CurrencyType currencyType;
+        uint256 ethToCurrencyRate;
+        uint256 ethToCurrencyDecimals;
     }
 
     struct Trip {
+        uint256 tripId;
         uint256 carId;
-        uint256 tripRequestId;
         TripStatus status;
         address guest;
         address host;
@@ -34,10 +45,8 @@ contract RentalityTripService {
         string startLocation;
         string endLocation;
         uint256 milesIncluded;
-        uint256 totalDayPrice;
-        uint256 taxPrice;
-        uint256 deposit;
-        bool isAccepted;
+        PaymentInfo paymentInfo;
+        uint approvedDateTime;
         uint checkedInByHostDateTime;
         uint startFuelLevel;
         uint startOdometr;
@@ -57,9 +66,8 @@ contract RentalityTripService {
         return _tripIdCounter.current();
     }
 
-    function addTrip(
+    function createNewTrip(
         uint256 carId,
-        uint256 tripRequestId,
         address guest,
         address host,
         uint startDateTime,
@@ -67,16 +75,15 @@ contract RentalityTripService {
         string memory startLocation,
         string memory endLocation,
         uint256 milesIncluded,
-        TripPaymentInfo memory tripPaymentInfo,
-        bool isAccepted
+        PaymentInfo memory paymentInfo
     ) public {
         _tripIdCounter.increment();
         uint256 newTripId = _tripIdCounter.current();
 
         idToTripInfo[newTripId] = Trip(
+            newTripId,
             carId,
-            tripRequestId,
-            isAccepted ? TripStatus.Created : TripStatus.Canceled,
+            TripStatus.Created,
             guest,
             host,
             startDateTime,
@@ -84,10 +91,8 @@ contract RentalityTripService {
             startLocation,
             endLocation,
             milesIncluded,
-            tripPaymentInfo.totalDayPrice,
-            tripPaymentInfo.taxPrice,
-            tripPaymentInfo.deposit,
-            isAccepted,
+            paymentInfo,
+            0,
             0,
             0,
             0,
@@ -98,6 +103,25 @@ contract RentalityTripService {
             0,
             0
         );
+    }
+
+    function approveTrip(uint256 tripId) public {
+        require(
+            idToTripInfo[tripId].status != TripStatus.Created,
+            "The trip is not in status Created"
+        );
+
+        idToTripInfo[tripId].status = TripStatus.Approved;
+        idToTripInfo[tripId].approvedDateTime = block.timestamp;
+    }
+
+    function rejectTrip(uint256 tripId) public {
+        require(
+            idToTripInfo[tripId].status != TripStatus.Created,
+            "The trip is not in status Created"
+        );
+
+        idToTripInfo[tripId].status = TripStatus.Canceled;
     }
 
     function checkInByHost(
@@ -199,7 +223,7 @@ contract RentalityTripService {
         uint256 resolveDrivenMilesAmount = ((idToTripInfo[tripId].endOdometr -
             idToTripInfo[tripId].startOdometr -
             idToTripInfo[tripId].milesIncluded) *
-            idToTripInfo[tripId].totalDayPrice) /
+            idToTripInfo[tripId].paymentInfo.totalDayPriceInUsdCents) /
             idToTripInfo[tripId].milesIncluded;
         idToTripInfo[tripId].resolveAmount =
             resolveFuelAmount +

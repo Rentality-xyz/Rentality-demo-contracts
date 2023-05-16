@@ -55,16 +55,30 @@ describe("Rentality", function () {
   }
 
   describe("Rentality", function () {
-    it("Host can add car to carToken", async function () {
-      const { rentalityCarToken,host} = await loadFixture(deployDefaultFixture);
-      
-      await expect(rentalityCarToken.connect(host).addCar("1","2", 3,4,5)).not.to.be.reverted;
-    });
-
     it("Host can add car to rentality", async function () {
       const { rentality, host} = await loadFixture(deployDefaultFixture);
       
       await expect(rentality.connect(host).addCar("1","2", 3,4,5)).not.to.be.reverted;
+      const myCars = await rentality.connect(host).getMyCars();
+      expect(myCars.length).to.equal(1);
+    });
+    it("Host dont see own cars as available", async function () {
+      const { rentality, host} = await loadFixture(deployDefaultFixture);
+      
+      await expect(rentality.connect(host).addCar("1","2", 3,4,5)).not.to.be.reverted;
+      const myCars = await rentality.connect(host).getMyCars();
+      expect(myCars.length).to.equal(1);
+      const availableCars = await rentality.connect(host).getAllAvailableCarsForUser(host.address);
+      expect(availableCars.length).to.equal(0);
+    });
+    it("Guest see cars as available", async function () {
+      const { rentality, host, guest} = await loadFixture(deployDefaultFixture);
+      
+      await expect(rentality.connect(host).addCar("1","2", 3,4,5)).not.to.be.reverted;
+      const myCars = await rentality.connect(host).getMyCars();
+      expect(myCars.length).to.equal(1);
+      const availableCars = await rentality.connect(guest).getAllAvailableCars();
+      expect(availableCars.length).to.equal(1);
     });
   });
 });

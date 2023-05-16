@@ -11,41 +11,24 @@ contract Rentality is Ownable {
     using Counters for Counters.Counter;
     Counters.Counter private _tripRequestIdCounter;
 
-    enum CurrencyType {
-        ETH
-    }
-
-    struct PaymentInfo {
-        uint256 tripRequestId;
-        address from;
-        address to;
-        uint256 totalDayPriceInUsdCents;
-        uint256 taxPriceInUsdCents;
-        uint256 depositInUsdCents;
-        CurrencyType currencyType;
-        uint256 ethToCurrencyRate;
-        uint256 ethToCurrencyDecimals;
-    }
-
-    struct TripRequest {
-        uint256 carId;
-        address guest;
-        address host;
-        uint startDateTime;
-        uint endDateTime;
-        string startLocation;
-        string endLocation;
-        PaymentInfo paymentInfo;
-        bool approved;
-        bool rejected;
-        bool closed;
-    }
-
-    mapping(uint256 => TripRequest) private idToTripRequest;
     RentalityCarToken private carService;
     RentalityCurrencyConverter private currencyConverterService;
     RentalityTripService private tripService;
     RentalityUserService private userService;
+
+    struct CreateTripRequest {
+        uint256 carId;
+        address host;
+        uint256 startDateTime;
+        uint256 endDateTime;
+        string startLocation;
+        string endLocation;
+        uint256 totalDayPriceInUsdCents;
+        uint256 taxPriceInUsdCents;
+        uint256 depositInUsdCents;
+        uint256 ethToCurrencyRate;
+        uint256 ethToCurrencyDecimals;
+    }
 
     constructor(
         address carServiceAddress,
@@ -154,6 +137,10 @@ contract Rentality is Ownable {
         return carService.getAllCars();
     }
 
+    function getAllAvailableCars() public view returns (RentalityCarToken.CarInfo[] memory) {
+        return getAllAvailableCarsForUser(tx.origin);
+    }
+
     function getAllAvailableCarsForUser(address user) public view returns (RentalityCarToken.CarInfo[] memory) {
         return carService.getAllAvailableCarsForUser(user);
     }
@@ -171,127 +158,67 @@ contract Rentality is Ownable {
         return carService.getCarsRentedByUser(tx.origin);
     }
 
-    function createTripRequest(
-        uint256 carId,
-        address host,
-        uint256 startDateTime,
-        uint256 endDateTime,
-        string memory startLocation,
-        string memory endLocation,
-        uint256 totalDayPriceInUsdCents,
-        uint256 taxPriceInUsdCents,
-        uint256 depositInUsdCents,
-        uint256 ethToCurrencyRate,
-        uint256 ethToCurrencyDecimals
-    ) public payable {
+    function createTripRequest(CreateTripRequest memory request) public payable {
         require(msg.value > 0, "Rental fee must be greater than 0");
 
-        uint256 msgValueInUsdCents = (msg.value * uint(ethToCurrencyRate)) /
-            ((10 ** (ethToCurrencyDecimals - 2)) * (1 ether));
+        uint256 msgValueInUsdCents = (msg.value * uint(request.ethToCurrencyRate)) /
+            ((10 ** (request.ethToCurrencyDecimals - 2)) * (1 ether));
 
         require(
             msgValueInUsdCents ==
-                totalDayPriceInUsdCents +
-                    taxPriceInUsdCents +
-                    depositInUsdCents,
+                request.totalDayPriceInUsdCents +
+                    request.taxPriceInUsdCents +
+                    request.depositInUsdCents,
             "Rental fee must be equal to sum totalDayPrice + taxPrice + deposit"
         );
 
         _tripRequestIdCounter.increment();
         uint256 newTripRequestId = _tripRequestIdCounter.current();
-        PaymentInfo memory paymentInfo = PaymentInfo(
+        RentalityTripService.PaymentInfo memory paymentInfo = RentalityTripService.PaymentInfo(
             newTripRequestId,
-            msg.sender,
+            tx.origin,
             address(this),
-            totalDayPriceInUsdCents,
-            taxPriceInUsdCents,
-            depositInUsdCents,
-            CurrencyType.ETH,
-            ethToCurrencyRate,
-            ethToCurrencyDecimals
+            request.totalDayPriceInUsdCents,
+            request.taxPriceInUsdCents,
+            request.depositInUsdCents,
+            RentalityTripService.CurrencyType.ETH,
+            request.ethToCurrencyRate,
+            request.ethToCurrencyDecimals
         );
 
-        idToTripRequest[newTripRequestId] = TripRequest(
-            carId,
-            msg.sender,
-            host,
-            startDateTime,
-            endDateTime,
-            startLocation,
-            endLocation,
-            paymentInfo,
-            false,
-            false,
-            false
-        );
-    }
+        RentalityCarToken.CarInfo memory carInfo = getCarInfoById(request.carId);
 
-    function approveTripRequest(uint256 tripRequestId) public {
-        TripRequest memory request = idToTripRequest[tripRequestId];
-        RentalityCarToken.CarInfo memory carInfo = getCarInfoById(
-            request.carId
-        );
-        RentalityTripService.TripPaymentInfo
-            memory tripPaymentInfo = RentalityTripService.TripPaymentInfo(
-                request.paymentInfo.totalDayPriceInUsdCents,
-                request.paymentInfo.taxPriceInUsdCents,
-                request.paymentInfo.depositInUsdCents
-            );
-
-        tripService.addTrip(
+        tripService.createNewTrip(
             request.carId,
-            tripRequestId,
-            request.guest,
+            tx.origin,
             request.host,
             request.startDateTime,
             request.endDateTime,
             request.startLocation,
             request.endLocation,
             carInfo.distanceIncludedInMi,
-            tripPaymentInfo,
-            true
+            paymentInfo
         );
-        request.approved = true;
-        request.closed = true;
     }
 
-    function rejectTripRequest(uint256 tripRequestId) public {
-        TripRequest memory request = idToTripRequest[tripRequestId];
-        RentalityCarToken.CarInfo memory carInfo = getCarInfoById(
-            request.carId
-        );
-        RentalityTripService.TripPaymentInfo
-            memory tripPaymentInfo = RentalityTripService.TripPaymentInfo(
-                request.paymentInfo.totalDayPriceInUsdCents,
-                request.paymentInfo.taxPriceInUsdCents,
-                request.paymentInfo.depositInUsdCents
-            );
+    function approveTripRequest(uint256 tripId) public {
+        tripService.approveTrip(tripId);
+    }
 
-        tripService.addTrip(
-            request.carId,
-            tripRequestId,
-            request.guest,
-            request.host,
-            request.startDateTime,
-            request.endDateTime,
-            request.startLocation,
-            request.endLocation,
-            carInfo.distanceIncludedInMi,
-            tripPaymentInfo,
-            false
-        );
-        request.rejected = true;
-        request.closed = true;
-        uint256 valueToReturnInUsdCents = request
+    function rejectTripRequest(uint256 tripId) public {
+        tripService.rejectTrip(tripId);
+        RentalityTripService.Trip memory trip = tripService.getTrip(tripId); 
+
+        uint256 valueToReturnInUsdCents = trip
             .paymentInfo
             .totalDayPriceInUsdCents +
-            request.paymentInfo.taxPriceInUsdCents +
-            request.paymentInfo.depositInUsdCents;
+            trip.paymentInfo.taxPriceInUsdCents +
+            trip.paymentInfo.depositInUsdCents;
         uint256 valueToReturnInEth = (valueToReturnInUsdCents *
             (1 ether) *
-            (10 ** (request.paymentInfo.ethToCurrencyDecimals - 2))) /
-            uint(request.paymentInfo.ethToCurrencyRate);
-        require(payable(request.guest).send(valueToReturnInEth));
+            (10 ** (trip.paymentInfo.ethToCurrencyDecimals - 2))) /
+            uint(trip.paymentInfo.ethToCurrencyRate);
+        require(payable(trip.guest).send(valueToReturnInEth));
     }
 
     function checkInByHost(
@@ -328,23 +255,22 @@ contract Rentality is Ownable {
 
     function finishTrip(uint256 tripId) public {
         tripService.finishTrip(tripId);
-        RentalityTripService.Trip memory trip = tripService.getTrip(tripId);
-        TripRequest memory request = idToTripRequest[trip.tripRequestId];
-
-        uint256 valueToHostInUsdCents = request
+        RentalityTripService.Trip memory trip = tripService.getTrip(tripId); 
+        
+        uint256 valueToHostInUsdCents = trip
             .paymentInfo
-            .totalDayPriceInUsdCents + request.paymentInfo.taxPriceInUsdCents;
+            .totalDayPriceInUsdCents + trip.paymentInfo.taxPriceInUsdCents;
         uint256 valueToHostInEth = (valueToHostInUsdCents *
             (1 ether) *
-            (10 ** (request.paymentInfo.ethToCurrencyDecimals - 2))) /
-            uint(request.paymentInfo.ethToCurrencyRate);
-        uint256 valueToGuestInUsdCents = request.paymentInfo.depositInUsdCents;
+            (10 ** (trip.paymentInfo.ethToCurrencyDecimals - 2))) /
+            uint(trip.paymentInfo.ethToCurrencyRate);
+        uint256 valueToGuestInUsdCents = trip.paymentInfo.depositInUsdCents;
         uint256 valueToGuestInEth = (valueToGuestInUsdCents *
             (1 ether) *
-            (10 ** (request.paymentInfo.ethToCurrencyDecimals - 2))) /
-            uint(request.paymentInfo.ethToCurrencyRate);
-        require(payable(request.host).send(valueToHostInEth));
-        require(payable(request.guest).send(valueToGuestInEth));
+            (10 ** (trip.paymentInfo.ethToCurrencyDecimals - 2))) /
+            uint(trip.paymentInfo.ethToCurrencyRate);
+        require(payable(trip.host).send(valueToHostInEth));
+        require(payable(trip.guest).send(valueToGuestInEth));
     }
 
     function resolveIssue(uint256 tripId, uint256 fuelPricePerGal) public {
