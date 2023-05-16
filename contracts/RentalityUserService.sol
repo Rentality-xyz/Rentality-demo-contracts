@@ -63,28 +63,24 @@ contract RentalityUserService is AccessControl {
         revokeRole(MANAGER_ROLE, user);
     }
 
-    function grantManagerRole(
-        address user
-    ) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    function grantManagerRole(address user) public onlyRole(DEFAULT_ADMIN_ROLE) {
         grantRole(MANAGER_ROLE, user);
     }
 
-    function revokeManagerRole(
-        address user
-    ) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    function revokeManagerRole(address user) public onlyRole(DEFAULT_ADMIN_ROLE) {
         revokeRole(MANAGER_ROLE, user);
     }
 
-    function grantHostRole(address user) public {
-        grantRole(HOST_ROLE, user);
+    function grantHostRole(address user) public onlyRole(MANAGER_ROLE) {
+        _grantRole(HOST_ROLE, user);
     }
 
     function revokeHostRole(address user) public onlyRole(MANAGER_ROLE) {
         revokeRole(HOST_ROLE, user);
     }
 
-    function grantGuestRole(address user) public {
-        grantRole(GUEST_ROLE, user);
+    function grantGuestRole(address user) public onlyRole(MANAGER_ROLE) {
+        _grantRole(GUEST_ROLE, user);
     }
 
     function revokeGuestRole(address user) public onlyRole(MANAGER_ROLE) {

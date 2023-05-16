@@ -165,7 +165,7 @@ describe("RentalityUserService", function () {
       const ONE_YEAR_IN_SECS = 365 * 24 * 60 * 60;
       const expirationDate = (await time.latest()) + ONE_YEAR_IN_SECS;
 
-      await rentalityUserService.setKYCInfo(anonymous.address, {licenseNumber:"licenseNumber", expirationDate:expirationDate});
+      await rentalityUserService.setKYCInfo(anonymous.address, "name", "surname", "licenseNumber", expirationDate);
 
       expect(await rentalityUserService.hasValidKYC(anonymous.address)).to.equal(true);
     });
@@ -175,7 +175,8 @@ describe("RentalityUserService", function () {
       const ONE_YEAR_IN_SECS = 365 * 24 * 60 * 60;
       const expirationDate = (await time.latest()) + ONE_YEAR_IN_SECS;
       
-      await rentalityUserService.setKYCInfo(anonymous.address, {licenseNumber:"licenseNumber", expirationDate:expirationDate});
+      //await rentalityUserService.setKYCInfo(anonymous.address, {licenseNumber:"licenseNumber", expirationDate:expirationDate});
+      await rentalityUserService.setKYCInfo(anonymous.address, "name", "surname",  "licenseNumber", expirationDate);
       await time.increaseTo(expirationDate + 1);
 
       expect(await rentalityUserService.hasValidKYC(anonymous.address)).to.equal(false);
