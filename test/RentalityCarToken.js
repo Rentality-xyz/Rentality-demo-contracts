@@ -188,23 +188,23 @@ describe("RentalityCarToken", function () {
       expect(carInfo.currentlyListed).to.equal(true);
     });
 
-    it("getMyCars without cars should return empty array", async function () {
+    it("getCarsOwnedByUser without cars should return empty array", async function () {
       const { rentalityCarToken, host } = await loadFixture(deployDefaultFixture);
-      const myCars = await rentalityCarToken.connect(host).getMyCars();
+      const myCars = await rentalityCarToken.connect(host).getCarsOwnedByUser(host.address);
 
       expect(myCars.length).to.equal(0);
     });
 
-    it("getMyCars after burn car should return empty array", async function () {
+    it("getCarsOwnedByUser after burn car should return empty array", async function () {
       const { rentalityCarToken, host } = await loadFixture(deployFixtureWith1Car);
 
       await rentalityCarToken.connect(host).burnCar(1);      
-      const myCars = await rentalityCarToken.connect(host).getMyCars();
+      const myCars = await rentalityCarToken.connect(host).getCarsOwnedByUser(host.address);
 
       expect(myCars.length).to.equal(0);
     });
 
-    it("getMyCars with 1 car should return valid info", async function () {
+    it("getCarsOwnedByUser with 1 car should return valid info", async function () {
       const { rentalityCarToken, host } = await loadFixture(deployFixtureWith1Car);
       
       const VIN_NUMBER = "VIN_NUMBER";
@@ -212,7 +212,7 @@ describe("RentalityCarToken", function () {
       const TANK_VOLUME = 3;
       const DISTANCE_INCLUDED = 4;
       
-      const myCars = await rentalityCarToken.connect(host).getMyCars();
+      const myCars = await rentalityCarToken.connect(host).getCarsOwnedByUser(host.address);
 
       expect(myCars.length).to.equal(1);
       expect(myCars[0].carVinNumber).to.equal(VIN_NUMBER);

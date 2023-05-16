@@ -11,7 +11,7 @@ contract RentalityCarToken is ERC4907, Ownable {
     Counters.Counter private _carIdCounter;
 
     //The structure to store info about a listed car
-    struct CarInfo{
+    struct CarInfo {
         uint256 carId;
         string carVinNumber;
         bytes32 carVinNumberHash;
@@ -22,7 +22,7 @@ contract RentalityCarToken is ERC4907, Ownable {
         bool currentlyListed;
     }
 
-    event CarAddedSuccess (
+    event CarAddedSuccess(
         string carVinNumber,
         address createdBy,
         uint256 pricePerDayInUsdCents,
@@ -34,58 +34,67 @@ contract RentalityCarToken is ERC4907, Ownable {
 
     constructor(address userServiceAddress) ERC4907("RentalityCarToken Test", "RTCT") {
         userService = RentalityUserService(userServiceAddress);
-    } 
+    }
 
     modifier onlyAdmin() {
-        require(userService.isAdmin(msg.sender) || (msg.sender == owner()), "User is not an admin ");
+        require(
+            userService.isAdmin(msg.sender) || userService.isAdmin(tx.origin) ||(tx.origin == owner()),
+            "User is not an admin"
+        );
         _;
     }
 
     modifier onlyHost() {
-        require(userService.isHost(msg.sender), "User is not a host ");
+        require(userService.isHost(tx.origin), "User is not a host");
         _;
     }
 
-    function updateUserService(address userServiceAddress) public onlyAdmin {
-        userService = RentalityUserService(userServiceAddress);
+    function updateUserService(address contractAddress) public onlyAdmin {
+        userService = RentalityUserService(contractAddress);
     }
 
-    function totalSupply() public view returns (uint){
+    function totalSupply() public view returns (uint) {
         return _carIdCounter.current();
     }
-    
+
     function getCarInfoById(uint256 carId) public view returns (CarInfo memory) {
         return idToCarInfo[carId];
     }
-    
-    function isUniqueVinNumber(string memory carVinNumber) public view returns(bool) {        
+
+    function isUniqueVinNumber(string memory carVinNumber) public view returns (bool) {
         bytes32 carVinNumberHash = keccak256(abi.encodePacked(carVinNumber));
 
-        for(uint i=0; i<totalSupply(); i++)
-        {
-            if (idToCarInfo[i + 1].carVinNumberHash == carVinNumberHash) return false;
+        for (uint i = 0; i < totalSupply(); i++) {
+            if (idToCarInfo[i + 1].carVinNumberHash == carVinNumberHash)
+                return false;
         }
 
         return true;
     }
 
-    function addCar(string memory tokenUri, string memory carVinNumber, uint256 pricePerDayInUsdCents, uint256 tankVolumeInGal, uint256 distanceIncludedInMi) public onlyHost returns (uint) {
+    function addCar(
+        string memory tokenUri,
+        string memory carVinNumber,
+        uint256 pricePerDayInUsdCents,
+        uint256 tankVolumeInGal,
+        uint256 distanceIncludedInMi
+    ) public onlyHost returns (uint) {
         require(pricePerDayInUsdCents > 0, "Make sure the price isn't negative");
         require(tankVolumeInGal > 0, "Make sure the tank volume isn't negative");
-        require(distanceIncludedInMi > 0, "Make sure the included distance isn't negative");
-        require(isUniqueVinNumber(carVinNumber), "Car with this VIN number is already exist");
+        require(distanceIncludedInMi > 0,"Make sure the included distance isn't negative");
+        require(isUniqueVinNumber(carVinNumber),"Car with this VIN number is already exist");
 
         _carIdCounter.increment();
         uint256 newCarId = _carIdCounter.current();
-        
-        _safeMint(msg.sender, newCarId);
+
+        _safeMint(tx.origin, newCarId);
         _setTokenURI(newCarId, tokenUri);
-        
+
         idToCarInfo[newCarId] = CarInfo(
             newCarId,
             carVinNumber,
             keccak256(abi.encodePacked(carVinNumber)),
-            msg.sender,
+            tx.origin,
             pricePerDayInUsdCents,
             tankVolumeInGal,
             distanceIncludedInMi,
@@ -94,10 +103,10 @@ contract RentalityCarToken is ERC4907, Ownable {
 
         _approve(address(this), newCarId);
         //_transfer(msg.sender, address(this), carId);
-        
+
         emit CarAddedSuccess(
             carVinNumber,
-            msg.sender,
+            tx.origin,
             pricePerDayInUsdCents,
             true
         );
@@ -105,63 +114,71 @@ contract RentalityCarToken is ERC4907, Ownable {
         return newCarId;
     }
 
-    function updateCarInfo(uint256 carId, uint256 pricePerDayInUsdCents, bool currentlyListed) public onlyHost {
+    function updateCarInfo(
+        uint256 carId,
+        uint256 pricePerDayInUsdCents,
+        bool currentlyListed
+    ) public onlyHost {
         require(_exists(carId), "Token does not exist");
-        require(ownerOf(carId) == msg.sender, "Only owner of the car can update car info");
+        require(ownerOf(carId) == tx.origin, "Only owner of the car can update car info");
 
         idToCarInfo[carId].pricePerDayInUsdCents = pricePerDayInUsdCents;
         idToCarInfo[carId].currentlyListed = currentlyListed;
     }
 
-    function updateCarTokenUri(uint256 carId, string memory tokenUri) public onlyHost {
+    function updateCarTokenUri(uint256 carId,string memory tokenUri) public onlyHost {
         require(_exists(carId), "Token does not exist");
-        
+        require(ownerOf(carId) == tx.origin, "Only owner of the car can update token");
+
         _setTokenURI(carId, tokenUri);
     }
 
-    function burnCar(uint256 carId) public onlyHost {        
+    function burnCar(uint256 carId) public onlyHost {
         require(_exists(carId), "Token does not exist");
-        require(ownerOf(carId) == msg.sender, "Only owner of the car can burn token");
+        require(ownerOf(carId) == tx.origin, "Only owner of the car can burn token");
 
         _burn(carId);
         delete idToCarInfo[carId];
     }
-        
+
     function getAllCars() public view returns (CarInfo[] memory) {
         uint itemCount = 0;
-        
-        for(uint i=0; i < totalSupply(); i++)
-        {
-            uint currentId = i+1;
-            if(_exists(currentId)){
+
+        for (uint i = 0; i < totalSupply(); i++) {
+            uint currentId = i + 1;
+            if (_exists(currentId)) {
                 itemCount += 1;
             }
         }
 
         CarInfo[] memory result = new CarInfo[](itemCount);
-        
-        for(uint i=0; i<totalSupply(); i++)
-        {
+
+        for (uint i = 0; i < totalSupply(); i++) {
             result[i] = idToCarInfo[i + 1];
         }
 
         return result;
     }
 
-    function isCarAvailableForUser(uint256 carId, address sender) private view returns (bool) {
-        return _exists(carId) 
-               && idToCarInfo[carId].currentlyListed 
-               && ownerOf(carId) != sender
-               && userOf(carId) == address(0);
+    function isCarAvailableForUser(
+        uint256 carId,
+        address sender
+    ) private view returns (bool) {
+        return
+            _exists(carId) &&
+            idToCarInfo[carId].currentlyListed &&
+            ownerOf(carId) != sender &&
+            userOf(carId) == address(0);
     }
-    
-    function getAllAvailableCarsForUser(address user) public view returns (CarInfo[] memory) {
+
+    function getAllAvailableCarsForUser(
+        address user
+    ) public view returns (CarInfo[] memory) {
         uint itemCount = 0;
-        
-        for(uint i=0; i < totalSupply(); i++)
-        {
-            uint currentId = i+1;
-            if(isCarAvailableForUser(currentId, user)){
+
+        for (uint i = 0; i < totalSupply(); i++) {
+            uint currentId = i + 1;
+            if (isCarAvailableForUser(currentId, user)) {
                 itemCount += 1;
             }
         }
@@ -169,9 +186,9 @@ contract RentalityCarToken is ERC4907, Ownable {
         CarInfo[] memory result = new CarInfo[](itemCount);
         uint currentIndex = 0;
 
-        for(uint i=0; i < totalSupply(); i++) {            
-            uint currentId = i+1;
-            if(isCarAvailableForUser(currentId, user)){    
+        for (uint i = 0; i < totalSupply(); i++) {
+            uint currentId = i + 1;
+            if (isCarAvailableForUser(currentId, user)) {
                 CarInfo storage currentItem = idToCarInfo[currentId];
                 result[currentIndex] = currentItem;
                 currentIndex += 1;
@@ -181,19 +198,21 @@ contract RentalityCarToken is ERC4907, Ownable {
         return result;
     }
 
-    function isCarOfUser(uint256 carId, address user) private view returns (bool) {
+    function isCarOfUser(
+        uint256 carId,
+        address user
+    ) private view returns (bool) {
         return _exists(carId) && (ownerOf(carId) == user);
     }
 
-    function getMyCars() public view returns (CarInfo[] memory) {
-        if (userService.isHost(msg.sender)) return new CarInfo[](0);
-        
+    function getCarsOwnedByUser(address user) public view returns (CarInfo[] memory) {
+        if (!userService.isHost(user)) return new CarInfo[](0);
+
         uint itemCount = 0;
-        
-        for(uint i=0; i < totalSupply(); i++)
-        {
-            uint currentId = i+1;
-            if(isCarOfUser(currentId, msg.sender)){
+
+        for (uint i = 0; i < totalSupply(); i++) {
+            uint currentId = i + 1;
+            if (isCarOfUser(currentId, user)) {
                 itemCount += 1;
             }
         }
@@ -201,9 +220,9 @@ contract RentalityCarToken is ERC4907, Ownable {
         CarInfo[] memory result = new CarInfo[](itemCount);
         uint currentIndex = 0;
 
-        for(uint i=0; i < totalSupply(); i++) {            
-            uint currentId = i+1;
-            if(isCarOfUser(currentId, msg.sender)){    
+        for (uint i = 0; i < totalSupply(); i++) {
+            uint currentId = i + 1;
+            if (isCarOfUser(currentId, user)) {
                 CarInfo storage currentItem = idToCarInfo[currentId];
                 result[currentIndex] = currentItem;
                 currentIndex += 1;
@@ -212,18 +231,20 @@ contract RentalityCarToken is ERC4907, Ownable {
 
         return result;
     }
-    
-    function isRentedByUser(uint256 carId, address user) private view returns (bool) {
+
+    function isRentedByUser(
+        uint256 carId,
+        address user
+    ) private view returns (bool) {
         return _exists(carId) && userOf(carId) == user;
     }
 
-    function getCarsRentedByMe() public view returns (CarInfo[] memory) {
+    function getCarsRentedByUser(address user)  public view returns (CarInfo[] memory) {
         uint itemCount = 0;
-        
-        for(uint i=0; i < totalSupply(); i++)
-        {
-            uint currentId = i+1;
-            if(isRentedByUser(currentId, msg.sender)){
+
+        for (uint i = 0; i < totalSupply(); i++) {
+            uint currentId = i + 1;
+            if (isRentedByUser(currentId, user)) {
                 itemCount += 1;
             }
         }
@@ -231,9 +252,9 @@ contract RentalityCarToken is ERC4907, Ownable {
         CarInfo[] memory result = new CarInfo[](itemCount);
         uint currentIndex = 0;
 
-        for(uint i=0; i < totalSupply(); i++) {            
-            uint currentId = i+1;
-            if(isRentedByUser(currentId, msg.sender)){    
+        for (uint i = 0; i < totalSupply(); i++) {
+            uint currentId = i + 1;
+            if (isRentedByUser(currentId, user)) {
                 CarInfo storage currentItem = idToCarInfo[currentId];
                 result[currentIndex] = currentItem;
                 currentIndex += 1;
