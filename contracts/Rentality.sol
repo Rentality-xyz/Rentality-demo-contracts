@@ -11,17 +11,31 @@ contract Rentality is Ownable {
     using Counters for Counters.Counter;
     Counters.Counter private _tripRequestIdCounter;
 
+    enum CurrencyType {
+        ETH
+    }
+
+    struct PaymentInfo {
+        uint256 tripRequestId;
+        address from;
+        address to;
+        uint256 totalDayPriceInUsdCents;
+        uint256 taxPriceInUsdCents;
+        uint256 depositInUsdCents;
+        CurrencyType currencyType;
+        uint256 ethToCurrencyRate;
+        uint256 ethToCurrencyDecimals;
+    }
+
     struct TripRequest {
         uint256 carId;
         address guest;
         address host;
-        uint256 startDateTime;
-        uint256 endDateTime;
+        uint startDateTime;
+        uint endDateTime;
         string startLocation;
         string endLocation;
-        uint256 totalDayPrice;
-        uint256 taxPrice;
-        uint256 deposit;
+        PaymentInfo paymentInfo;
         bool approved;
         bool rejected;
         bool closed;
@@ -49,19 +63,19 @@ contract Rentality is Ownable {
 
     modifier onlyAdmin() {
         require(
-            userService.isAdmin(msg.sender) || (msg.sender == owner()),
-            "User is not an admin "
+            userService.isAdmin(msg.sender) || userService.isAdmin(tx.origin) ||(tx.origin == owner()),
+            "User is not an admin"
         );
         _;
     }
 
     modifier onlyHost() {
-        require(userService.isHost(msg.sender), "User is not a host ");
+        require(userService.isHost(msg.sender), "User is not a host");
         _;
     }
 
     modifier onlyGuest() {
-        require(userService.isGuest(msg.sender), "User is not a guest ");
+        require(userService.isGuest(msg.sender), "User is not a guest");
         _;
     }
 
@@ -69,9 +83,7 @@ contract Rentality is Ownable {
         carService = RentalityCarToken(contractAddress);
     }
 
-    function updateCurrencyConverterService(
-        address contractAddress
-    ) public onlyAdmin {
+    function updateCurrencyConverterService(address contractAddress) public onlyAdmin {
         currencyConverterService = RentalityCurrencyConverter(contractAddress);
     }
 
@@ -100,7 +112,7 @@ contract Rentality is Ownable {
         uint256 tankVolumeInGal,
         uint256 distanceIncludedInMi
     ) public returns (uint) {
-        if (!userService.isHost(msg.sender)){
+        if (!userService.isHost(msg.sender)) {
             userService.grantHostRole(msg.sender);
         }
         return
@@ -137,26 +149,18 @@ contract Rentality is Ownable {
         return carService.burnCar(carId);
     }
 
-    function getAllCars()
-        public
-        view
-        returns (RentalityCarToken.CarInfo[] memory)
+    function getAllCars() public view returns (RentalityCarToken.CarInfo[] memory)
     {
         return carService.getAllCars();
     }
 
-    function getAllAvailableCarsForUser(
-        address user
-    ) public view returns (RentalityCarToken.CarInfo[] memory) {
+    function getAllAvailableCarsForUser(address user) public view returns (RentalityCarToken.CarInfo[] memory) {
         return carService.getAllAvailableCarsForUser(user);
     }
 
-    function getMyCars()
-        public
-        view
-        returns (RentalityCarToken.CarInfo[] memory)
+    function getMyCars() public view returns (RentalityCarToken.CarInfo[] memory)
     {
-        return carService.getMyCars();
+        return carService.getCarsOwnedByUser(tx.origin);
     }
 
     function getCarsRentedByMe()
@@ -164,7 +168,7 @@ contract Rentality is Ownable {
         view
         returns (RentalityCarToken.CarInfo[] memory)
     {
-        return carService.getCarsRentedByMe();
+        return carService.getCarsRentedByUser(tx.origin);
     }
 
     function createTripRequest(
@@ -174,18 +178,38 @@ contract Rentality is Ownable {
         uint256 endDateTime,
         string memory startLocation,
         string memory endLocation,
-        uint256 totalDayPrice,
-        uint256 taxPrice,
-        uint256 deposit
+        uint256 totalDayPriceInUsdCents,
+        uint256 taxPriceInUsdCents,
+        uint256 depositInUsdCents,
+        uint256 ethToCurrencyRate,
+        uint256 ethToCurrencyDecimals
     ) public payable {
         require(msg.value > 0, "Rental fee must be greater than 0");
+
+        uint256 msgValueInUsdCents = (msg.value * uint(ethToCurrencyRate)) /
+            ((10 ** (ethToCurrencyDecimals - 2)) * (1 ether));
+
         require(
-            msg.value == totalDayPrice + taxPrice + deposit,
+            msgValueInUsdCents ==
+                totalDayPriceInUsdCents +
+                    taxPriceInUsdCents +
+                    depositInUsdCents,
             "Rental fee must be equal to sum totalDayPrice + taxPrice + deposit"
         );
 
         _tripRequestIdCounter.increment();
         uint256 newTripRequestId = _tripRequestIdCounter.current();
+        PaymentInfo memory paymentInfo = PaymentInfo(
+            newTripRequestId,
+            msg.sender,
+            address(this),
+            totalDayPriceInUsdCents,
+            taxPriceInUsdCents,
+            depositInUsdCents,
+            CurrencyType.ETH,
+            ethToCurrencyRate,
+            ethToCurrencyDecimals
+        );
 
         idToTripRequest[newTripRequestId] = TripRequest(
             carId,
@@ -195,9 +219,7 @@ contract Rentality is Ownable {
             endDateTime,
             startLocation,
             endLocation,
-            totalDayPrice,
-            taxPrice,
-            deposit,
+            paymentInfo,
             false,
             false,
             false
@@ -209,9 +231,16 @@ contract Rentality is Ownable {
         RentalityCarToken.CarInfo memory carInfo = getCarInfoById(
             request.carId
         );
+        RentalityTripService.TripPaymentInfo
+            memory tripPaymentInfo = RentalityTripService.TripPaymentInfo(
+                request.paymentInfo.totalDayPriceInUsdCents,
+                request.paymentInfo.taxPriceInUsdCents,
+                request.paymentInfo.depositInUsdCents
+            );
 
         tripService.addTrip(
             request.carId,
+            tripRequestId,
             request.guest,
             request.host,
             request.startDateTime,
@@ -219,9 +248,7 @@ contract Rentality is Ownable {
             request.startLocation,
             request.endLocation,
             carInfo.distanceIncludedInMi,
-            request.totalDayPrice,
-            request.taxPrice,
-            request.deposit,
+            tripPaymentInfo,
             true
         );
         request.approved = true;
@@ -233,9 +260,16 @@ contract Rentality is Ownable {
         RentalityCarToken.CarInfo memory carInfo = getCarInfoById(
             request.carId
         );
+        RentalityTripService.TripPaymentInfo
+            memory tripPaymentInfo = RentalityTripService.TripPaymentInfo(
+                request.paymentInfo.totalDayPriceInUsdCents,
+                request.paymentInfo.taxPriceInUsdCents,
+                request.paymentInfo.depositInUsdCents
+            );
 
         tripService.addTrip(
             request.carId,
+            tripRequestId,
             request.guest,
             request.host,
             request.startDateTime,
@@ -243,44 +277,21 @@ contract Rentality is Ownable {
             request.startLocation,
             request.endLocation,
             carInfo.distanceIncludedInMi,
-            request.totalDayPrice,
-            request.taxPrice,
-            request.deposit,
+            tripPaymentInfo,
             false
         );
         request.rejected = true;
         request.closed = true;
-    }
-
-    function addTrip(
-        uint256 carId,
-        address guest,
-        address host,
-        uint256 startDateTime,
-        uint256 endDateTime,
-        string memory startLocation,
-        string memory endLocation,
-        uint256 milesIncluded,
-        uint256 totalDayPrice,
-        uint256 taxPrice,
-        uint256 deposit,
-        bool isAccepted
-    ) private {
-        return
-            tripService.addTrip(
-                carId,
-                guest,
-                host,
-                startDateTime,
-                endDateTime,
-                startLocation,
-                endLocation,
-                milesIncluded,
-                totalDayPrice,
-                taxPrice,
-                deposit,
-                isAccepted
-            );
+        uint256 valueToReturnInUsdCents = request
+            .paymentInfo
+            .totalDayPriceInUsdCents +
+            request.paymentInfo.taxPriceInUsdCents +
+            request.paymentInfo.depositInUsdCents;
+        uint256 valueToReturnInEth = (valueToReturnInUsdCents *
+            (1 ether) *
+            (10 ** (request.paymentInfo.ethToCurrencyDecimals - 2))) /
+            uint(request.paymentInfo.ethToCurrencyRate);
+        require(payable(request.guest).send(valueToReturnInEth));
     }
 
     function checkInByHost(
@@ -316,7 +327,24 @@ contract Rentality is Ownable {
     }
 
     function finishTrip(uint256 tripId) public {
-        return tripService.finishTrip(tripId);
+        tripService.finishTrip(tripId);
+        RentalityTripService.Trip memory trip = tripService.getTrip(tripId);
+        TripRequest memory request = idToTripRequest[trip.tripRequestId];
+
+        uint256 valueToHostInUsdCents = request
+            .paymentInfo
+            .totalDayPriceInUsdCents + request.paymentInfo.taxPriceInUsdCents;
+        uint256 valueToHostInEth = (valueToHostInUsdCents *
+            (1 ether) *
+            (10 ** (request.paymentInfo.ethToCurrencyDecimals - 2))) /
+            uint(request.paymentInfo.ethToCurrencyRate);
+        uint256 valueToGuestInUsdCents = request.paymentInfo.depositInUsdCents;
+        uint256 valueToGuestInEth = (valueToGuestInUsdCents *
+            (1 ether) *
+            (10 ** (request.paymentInfo.ethToCurrencyDecimals - 2))) /
+            uint(request.paymentInfo.ethToCurrencyRate);
+        require(payable(request.host).send(valueToHostInEth));
+        require(payable(request.guest).send(valueToGuestInEth));
     }
 
     function resolveIssue(uint256 tripId, uint256 fuelPricePerGal) public {
@@ -345,5 +373,13 @@ contract Rentality is Ownable {
         uint256 carTokenId
     ) public view returns (RentalityTripService.Trip[] memory) {
         return tripService.getTripsByCar(carTokenId);
+    }
+
+    function withdrawTips() public {
+        require(
+            address(this).balance > 0,
+            "There is no commission to withdraw"
+        );
+        require(payable(owner()).send(address(this).balance));
     }
 }
