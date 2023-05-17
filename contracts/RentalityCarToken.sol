@@ -171,7 +171,7 @@ contract RentalityCarToken is ERC4907, Ownable {
             userOf(carId) == address(0);
     }
 
-    function getAllAvailableCarsForUser(
+    function getAvailableCarsForUser(
         address user
     ) public view returns (CarInfo[] memory) {
         uint itemCount = 0;

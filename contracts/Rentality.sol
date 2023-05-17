@@ -2,12 +2,13 @@
 pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "./IRentality.sol";
 import "./RentalityCarToken.sol";
 import "./RentalityCurrencyConverter.sol";
 import "./RentalityTripService.sol";
 import "./RentalityUserService.sol";
 
-contract Rentality is Ownable {
+contract Rentality is IRentality, Ownable {
     using Counters for Counters.Counter;
     Counters.Counter private _tripRequestIdCounter;
 
@@ -15,20 +16,6 @@ contract Rentality is Ownable {
     RentalityCurrencyConverter private currencyConverterService;
     RentalityTripService private tripService;
     RentalityUserService private userService;
-
-    struct CreateTripRequest {
-        uint256 carId;
-        address host;
-        uint256 startDateTime;
-        uint256 endDateTime;
-        string startLocation;
-        string endLocation;
-        uint256 totalDayPriceInUsdCents;
-        uint256 taxPriceInUsdCents;
-        uint256 depositInUsdCents;
-        uint256 ethToCurrencyRate;
-        uint256 ethToCurrencyDecimals;
-    }
 
     constructor(
         address carServiceAddress,
@@ -137,12 +124,12 @@ contract Rentality is Ownable {
         return carService.getAllCars();
     }
 
-    function getAllAvailableCars() public view returns (RentalityCarToken.CarInfo[] memory) {
-        return getAllAvailableCarsForUser(tx.origin);
+    function getAvailableCars() public view returns (RentalityCarToken.CarInfo[] memory) {
+        return getAvailableCarsForUser(tx.origin);
     }
 
-    function getAllAvailableCarsForUser(address user) public view returns (RentalityCarToken.CarInfo[] memory) {
-        return carService.getAllAvailableCarsForUser(user);
+    function getAvailableCarsForUser(address user) public view returns (RentalityCarToken.CarInfo[] memory) {
+        return carService.getAvailableCarsForUser(user);
     }
 
     function getMyCars() public view returns (RentalityCarToken.CarInfo[] memory)
@@ -158,7 +145,7 @@ contract Rentality is Ownable {
         return carService.getCarsRentedByUser(tx.origin);
     }
 
-    function createTripRequest(CreateTripRequest memory request) public payable {
+    function createTripRequest(IRentality.CreateTripRequest memory request) public payable {
         require(msg.value > 0, "Rental fee must be greater than 0");
 
         uint256 msgValueInUsdCents = (msg.value * uint(request.ethToCurrencyRate)) /
@@ -287,6 +274,10 @@ contract Rentality is Ownable {
         address guest
     ) public view returns (RentalityTripService.Trip[] memory) {
         return tripService.getTripsByGuest(guest);
+    }
+
+    function getTripsAsHost() public view returns (RentalityTripService.Trip[] memory) {
+        return tripService.getTripsByHost(tx.origin);
     }
 
     function getTripsByHost(

@@ -68,7 +68,7 @@ describe("Rentality", function () {
       await expect(rentality.connect(host).addCar("1","2", 3,4,5)).not.to.be.reverted;
       const myCars = await rentality.connect(host).getMyCars();
       expect(myCars.length).to.equal(1);
-      const availableCars = await rentality.connect(host).getAllAvailableCarsForUser(host.address);
+      const availableCars = await rentality.connect(host).getAvailableCarsForUser(host.address);
       expect(availableCars.length).to.equal(0);
     });
     it("Guest see cars as available", async function () {
@@ -77,7 +77,7 @@ describe("Rentality", function () {
       await expect(rentality.connect(host).addCar("1","2", 3,4,5)).not.to.be.reverted;
       const myCars = await rentality.connect(host).getMyCars();
       expect(myCars.length).to.equal(1);
-      const availableCars = await rentality.connect(guest).getAllAvailableCars();
+      const availableCars = await rentality.connect(guest).getAvailableCars();
       expect(availableCars.length).to.equal(1);
     });
   });

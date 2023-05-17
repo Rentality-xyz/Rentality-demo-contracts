@@ -200,10 +200,7 @@ contract RentalityTripService {
     }
 
     function finishTrip(uint256 tripId) public {
-        require(
-            idToTripInfo[tripId].status != TripStatus.CheckedOutByHost,
-            "The trip is not in status CheckedOutByHost"
-        );
+        //require(idToTripInfo[tripId].status != TripStatus.CheckedOutByHost,"The trip is not in status CheckedOutByHost");
 
         idToTripInfo[tripId].status = TripStatus.Finished;
     }

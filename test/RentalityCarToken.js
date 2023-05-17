@@ -226,7 +226,7 @@ describe("RentalityCarToken", function () {
     it("getAllAvailableCars with 1 car shouldn't return data for car owner", async function () {
       const { rentalityCarToken, host } = await loadFixture(deployFixtureWith1Car);
       
-      const availableCars = await rentalityCarToken.getAllAvailableCarsForUser(host.address);
+      const availableCars = await rentalityCarToken.getAvailableCarsForUser(host.address);
       
       expect(availableCars.length).to.equal(0);
     });
@@ -239,7 +239,7 @@ describe("RentalityCarToken", function () {
       const TANK_VOLUME = 3;
       const DISTANCE_INCLUDED = 4;
       
-      const availableCars = await rentalityCarToken.getAllAvailableCarsForUser(guest.address);
+      const availableCars = await rentalityCarToken.getAvailableCarsForUser(guest.address);
       
       expect(availableCars.length).to.equal(1);
       expect(availableCars[0].carVinNumber).to.equal(VIN_NUMBER);
