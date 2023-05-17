@@ -16,14 +16,26 @@ async function main() {
   console.log("ChainId is:", chainId);
   if (chainId < 0) return;
 
+  let rentalityMockPriceFeedAddress = "";
+
+  if( chainId === 1337){
+    let contractName = "RentalityMockPriceFeed";
+    let contractFactory = await ethers.getContractFactory(contractName);
+    let contract = await contractFactory.deploy(8, 165000000000);
+    await contract.deployed();
+    console.log(contractName + " deployed to:", contract.address);
+    rentalityMockPriceFeedAddress = contract.address;
+  }
+
   const ethToUsdPriceFeedAddress =
     chainId === 5
       ? "0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e"
       : chainId === 80001
       ? "0x0715A7794a1dc8e42615F059dD6e406A6594651A"
       : chainId === 1337
-      ? "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+      ? rentalityMockPriceFeedAddress
       : "";
+
   console.log("EthToUsdPriceFeedAddress is:", ethToUsdPriceFeedAddress);
 
   const contractFactory = await ethers.getContractFactory(contractName);

@@ -86,6 +86,8 @@ async function main() {
   await contract.deployed();
   console.log(contractName + " deployed to:", contract.address);
 
+  //await rentalityUserServiceContract.connect(deployer).grantManagerRole(contract.address);
+  
   saveJsonAbi(contractName, chainId, contract);
 }
 
