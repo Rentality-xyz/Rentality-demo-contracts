@@ -34,6 +34,7 @@ interface IRentality {
     ///guest functions 
     function getAvailableCars() external view returns (RentalityCarToken.CarInfo[] memory);
     function createTripRequest(CreateTripRequest memory request) external payable;
+    function getTripsAsGuest() external view returns (RentalityTripService.Trip[] memory);
     function getCarsRentedByMe() external view returns(RentalityCarToken.CarInfo[] memory);
     function finishTrip(uint256 tripId) external;
 }

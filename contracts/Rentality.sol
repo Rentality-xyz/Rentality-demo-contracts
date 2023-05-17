@@ -270,6 +270,10 @@ contract Rentality is IRentality, Ownable {
         return tripService.getTrip(tripId);
     }
 
+    function getTripsAsGuest() public view returns (RentalityTripService.Trip[] memory) {
+        return tripService.getTripsByGuest(tx.origin);
+    }
+
     function getTripsByGuest(
         address guest
     ) public view returns (RentalityTripService.Trip[] memory) {
