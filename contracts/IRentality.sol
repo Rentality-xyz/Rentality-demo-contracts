@@ -26,6 +26,7 @@ interface IRentality {
         uint256 pricePerDayInUsdCents,
         uint256 tankVolumeInGal,
         uint256 distanceIncludedInMi) external returns (uint);
+    function getCarMetadataURI(uint256 carId) external view returns (string memory);
     function getMyCars() external view returns(RentalityCarToken.CarInfo[] memory);
     function getTripsAsHost() external view returns (RentalityTripService.Trip[] memory);
     function approveTripRequest(uint256 tripId) external;

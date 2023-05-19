@@ -75,6 +75,12 @@ contract Rentality is IRentality, Ownable {
         return carService.getCarInfoById(carId);
     }
 
+    function getCarMetadataURI(
+        uint256 carId
+    ) public view returns (string memory) {
+        return carService.tokenURI(carId);
+    }
+
     function addCar(
         string memory tokenUri,
         string memory carVinNumber,
