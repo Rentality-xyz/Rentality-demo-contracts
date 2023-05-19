@@ -33,7 +33,9 @@ contract Rentality is IRentality, Ownable {
 
     modifier onlyAdmin() {
         require(
-            userService.isAdmin(msg.sender) || userService.isAdmin(tx.origin) ||(tx.origin == owner()),
+            userService.isAdmin(msg.sender) ||
+                userService.isAdmin(tx.origin) ||
+                (tx.origin == owner()),
             "User is not an admin"
         );
         _;
@@ -53,7 +55,9 @@ contract Rentality is IRentality, Ownable {
         carService = RentalityCarToken(contractAddress);
     }
 
-    function updateCurrencyConverterService(address contractAddress) public onlyAdmin {
+    function updateCurrencyConverterService(
+        address contractAddress
+    ) public onlyAdmin {
         currencyConverterService = RentalityCurrencyConverter(contractAddress);
     }
 
@@ -125,20 +129,32 @@ contract Rentality is IRentality, Ownable {
         return carService.burnCar(carId);
     }
 
-    function getAllCars() public view returns (RentalityCarToken.CarInfo[] memory)
+    function getAllCars()
+        public
+        view
+        returns (RentalityCarToken.CarInfo[] memory)
     {
         return carService.getAllCars();
     }
 
-    function getAvailableCars() public view returns (RentalityCarToken.CarInfo[] memory) {
+    function getAvailableCars()
+        public
+        view
+        returns (RentalityCarToken.CarInfo[] memory)
+    {
         return getAvailableCarsForUser(tx.origin);
     }
 
-    function getAvailableCarsForUser(address user) public view returns (RentalityCarToken.CarInfo[] memory) {
+    function getAvailableCarsForUser(
+        address user
+    ) public view returns (RentalityCarToken.CarInfo[] memory) {
         return carService.getAvailableCarsForUser(user);
     }
 
-    function getMyCars() public view returns (RentalityCarToken.CarInfo[] memory)
+    function getMyCars()
+        public
+        view
+        returns (RentalityCarToken.CarInfo[] memory)
     {
         return carService.getCarsOwnedByUser(tx.origin);
     }
@@ -151,35 +167,42 @@ contract Rentality is IRentality, Ownable {
         return carService.getCarsRentedByUser(tx.origin);
     }
 
-    function createTripRequest(IRentality.CreateTripRequest memory request) public payable {
+    function createTripRequest(
+        IRentality.CreateTripRequest memory request
+    ) public payable {
         require(msg.value > 0, "Rental fee must be greater than 0");
 
-        uint256 msgValueInUsdCents = (msg.value * uint(request.ethToCurrencyRate)) /
-            ((10 ** (request.ethToCurrencyDecimals - 2)) * (1 ether));
+        uint256 valueSum = request.totalDayPriceInUsdCents +
+            request.taxPriceInUsdCents +
+            request.depositInUsdCents;
+        uint256 valueSumInEth =(valueSum *
+            (1 ether) *
+            (10 ** (request.ethToCurrencyDecimals - 2))) /
+            uint(request.ethToCurrencyRate);
 
         require(
-            msgValueInUsdCents ==
-                request.totalDayPriceInUsdCents +
-                    request.taxPriceInUsdCents +
-                    request.depositInUsdCents,
+            msg.value == valueSumInEth,
             "Rental fee must be equal to sum totalDayPrice + taxPrice + deposit"
         );
 
         _tripRequestIdCounter.increment();
         uint256 newTripRequestId = _tripRequestIdCounter.current();
-        RentalityTripService.PaymentInfo memory paymentInfo = RentalityTripService.PaymentInfo(
-            newTripRequestId,
-            tx.origin,
-            address(this),
-            request.totalDayPriceInUsdCents,
-            request.taxPriceInUsdCents,
-            request.depositInUsdCents,
-            RentalityTripService.CurrencyType.ETH,
-            request.ethToCurrencyRate,
-            request.ethToCurrencyDecimals
-        );
+        RentalityTripService.PaymentInfo
+            memory paymentInfo = RentalityTripService.PaymentInfo(
+                newTripRequestId,
+                tx.origin,
+                address(this),
+                request.totalDayPriceInUsdCents,
+                request.taxPriceInUsdCents,
+                request.depositInUsdCents,
+                RentalityTripService.CurrencyType.ETH,
+                request.ethToCurrencyRate,
+                request.ethToCurrencyDecimals
+            );
 
-        RentalityCarToken.CarInfo memory carInfo = getCarInfoById(request.carId);
+        RentalityCarToken.CarInfo memory carInfo = getCarInfoById(
+            request.carId
+        );
 
         tripService.createNewTrip(
             request.carId,
@@ -200,7 +223,7 @@ contract Rentality is IRentality, Ownable {
 
     function rejectTripRequest(uint256 tripId) public {
         tripService.rejectTrip(tripId);
-        RentalityTripService.Trip memory trip = tripService.getTrip(tripId); 
+        RentalityTripService.Trip memory trip = tripService.getTrip(tripId);
 
         uint256 valueToReturnInUsdCents = trip
             .paymentInfo
@@ -248,8 +271,8 @@ contract Rentality is IRentality, Ownable {
 
     function finishTrip(uint256 tripId) public {
         tripService.finishTrip(tripId);
-        RentalityTripService.Trip memory trip = tripService.getTrip(tripId); 
-        
+        RentalityTripService.Trip memory trip = tripService.getTrip(tripId);
+
         uint256 valueToHostInUsdCents = trip
             .paymentInfo
             .totalDayPriceInUsdCents + trip.paymentInfo.taxPriceInUsdCents;
@@ -276,7 +299,11 @@ contract Rentality is IRentality, Ownable {
         return tripService.getTrip(tripId);
     }
 
-    function getTripsAsGuest() public view returns (RentalityTripService.Trip[] memory) {
+    function getTripsAsGuest()
+        public
+        view
+        returns (RentalityTripService.Trip[] memory)
+    {
         return tripService.getTripsByGuest(tx.origin);
     }
 
@@ -286,7 +313,11 @@ contract Rentality is IRentality, Ownable {
         return tripService.getTripsByGuest(guest);
     }
 
-    function getTripsAsHost() public view returns (RentalityTripService.Trip[] memory) {
+    function getTripsAsHost()
+        public
+        view
+        returns (RentalityTripService.Trip[] memory)
+    {
         return tripService.getTripsByHost(tx.origin);
     }
 
