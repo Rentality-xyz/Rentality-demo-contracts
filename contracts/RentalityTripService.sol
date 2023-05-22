@@ -107,7 +107,7 @@ contract RentalityTripService {
 
     function approveTrip(uint256 tripId) public {
         require(
-            idToTripInfo[tripId].status != TripStatus.Created,
+            idToTripInfo[tripId].status == TripStatus.Created,
             "The trip is not in status Created"
         );
 
@@ -117,7 +117,7 @@ contract RentalityTripService {
 
     function rejectTrip(uint256 tripId) public {
         require(
-            idToTripInfo[tripId].status != TripStatus.Created,
+            idToTripInfo[tripId].status == TripStatus.Created,
             "The trip is not in status Created"
         );
 
@@ -130,7 +130,7 @@ contract RentalityTripService {
         uint startOdometr
     ) public {
         require(
-            idToTripInfo[tripId].status != TripStatus.Created,
+            idToTripInfo[tripId].status == TripStatus.Created,
             "The trip is not in status Created"
         );
 
@@ -146,7 +146,7 @@ contract RentalityTripService {
         uint startOdometr
     ) public {
         require(
-            idToTripInfo[tripId].status != TripStatus.CheckedInByHost,
+            idToTripInfo[tripId].status == TripStatus.CheckedInByHost,
             "The trip is not in status CheckedInByHost"
         );
         require(
@@ -168,7 +168,7 @@ contract RentalityTripService {
         uint endOdometr
     ) public {
         require(
-            idToTripInfo[tripId].status != TripStatus.CheckedInByGuest,
+            idToTripInfo[tripId].status == TripStatus.CheckedInByGuest,
             "The trip is not in status CheckedInByGuest"
         );
         idToTripInfo[tripId].status = TripStatus.CheckedOutByGuest;
@@ -183,7 +183,7 @@ contract RentalityTripService {
         uint endOdometr
     ) public {
         require(
-            idToTripInfo[tripId].status != TripStatus.CheckedOutByGuest,
+            idToTripInfo[tripId].status == TripStatus.CheckedOutByGuest,
             "The trip is not in status CheckedOutByGuest"
         );
         require(
@@ -207,7 +207,7 @@ contract RentalityTripService {
 
     function resolveIssue(uint256 tripId, uint256 fuelPricePerGal) public {
         require(
-            idToTripInfo[tripId].status != TripStatus.CheckedOutByHost,
+            idToTripInfo[tripId].status == TripStatus.CheckedOutByHost,
             "The trip is not in status CheckedOutByHost"
         );
 

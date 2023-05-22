@@ -80,5 +80,108 @@ describe("Rentality", function () {
       const availableCars = await rentality.connect(guest).getAvailableCars();
       expect(availableCars.length).to.equal(1);
     });
+    it("createTripRequest", async function () {
+      const { rentality, rentalityCurrencyConverter, host, guest} = await loadFixture(deployDefaultFixture);
+      
+      await expect(rentality.connect(host).addCar("1","2", 3,4,5)).not.to.be.reverted;
+      const myCars = await rentality.connect(host).getMyCars();
+      expect(myCars.length).to.equal(1);
+
+      const availableCars = await rentality.connect(guest).getAvailableCars();
+      expect(availableCars.length).to.equal(1);
+
+      const [ ethToCurrencyRate, ethToCurrencyDecimals ] =
+        await rentalityCurrencyConverter.getEthToUsdPrice();
+      const rentPriceInUsdCents = 1000;
+      const rentPriceInEth =
+        await rentalityCurrencyConverter.getEthFromUsd(
+          rentPriceInUsdCents
+        );
+
+      await expect(rentality.connect(guest).createTripRequest({carId:1,
+        host:host.address,
+        startDateTime:1,
+        endDateTime:1,
+        startLocation:"",
+        endLocation:"",
+        totalDayPriceInUsdCents:rentPriceInUsdCents,
+        taxPriceInUsdCents:0,
+        depositInUsdCents:0,
+        ethToCurrencyRate:ethToCurrencyRate,
+        ethToCurrencyDecimals:ethToCurrencyDecimals}, {value: rentPriceInEth})).not.to.be.reverted;
+    });
+
+    it("reject case", async function () {
+      const { rentality, rentalityCurrencyConverter, host, guest} = await loadFixture(deployDefaultFixture);
+      
+      await expect(rentality.connect(host).addCar("1","2", 3,4,5)).not.to.be.reverted;
+      const myCars = await rentality.connect(host).getMyCars();
+      expect(myCars.length).to.equal(1);
+
+      const availableCars = await rentality.connect(guest).getAvailableCars();
+      expect(availableCars.length).to.equal(1);
+
+      const [ ethToCurrencyRate, ethToCurrencyDecimals ] =
+        await rentalityCurrencyConverter.getEthToUsdPrice();
+      const rentPriceInUsdCents = 1000;
+      const rentPriceInEth =
+        await rentalityCurrencyConverter.getEthFromUsd(
+          rentPriceInUsdCents
+        );
+
+      await expect(rentality.connect(guest).createTripRequest({carId:1,
+        host:host.address,
+        startDateTime:1,
+        endDateTime:1,
+        startLocation:"",
+        endLocation:"",
+        totalDayPriceInUsdCents:rentPriceInUsdCents,
+        taxPriceInUsdCents:0,
+        depositInUsdCents:0,
+        ethToCurrencyRate:ethToCurrencyRate,
+        ethToCurrencyDecimals:ethToCurrencyDecimals}, {value: rentPriceInEth})).to.changeEtherBalances(
+                    [guest, rentality],
+                     [-rentPriceInEth, rentPriceInEth]);
+
+      await expect( rentality.connect(host).rejectTripRequest(1)).to.changeEtherBalances(
+                    [guest, rentality],
+                     [rentPriceInEth, -rentPriceInEth]);
+    });
+
+    it("Happy case", async function () {
+      const { rentality, rentalityCurrencyConverter, host, guest} = await loadFixture(deployDefaultFixture);
+      
+      await expect(rentality.connect(host).addCar("1","2", 3,4,5)).not.to.be.reverted;
+      const myCars = await rentality.connect(host).getMyCars();
+      expect(myCars.length).to.equal(1);
+      const availableCars = await rentality.connect(guest).getAvailableCars();
+      expect(availableCars.length).to.equal(1);
+
+
+      const [ ethToCurrencyRate, ethToCurrencyDecimals ] =
+        await rentalityCurrencyConverter.getEthToUsdPrice();
+      const rentPriceInUsdCents = 1000;
+      const rentPriceInEth =
+        await rentalityCurrencyConverter.getEthFromUsd(
+          rentPriceInUsdCents
+        );
+
+      await expect(rentality.connect(guest).createTripRequest({carId:1,
+        host:host.address,
+        startDateTime:1,
+        endDateTime:1,
+        startLocation:"",
+        endLocation:"",
+        totalDayPriceInUsdCents:rentPriceInUsdCents,
+        taxPriceInUsdCents:0,
+        depositInUsdCents:0,
+        ethToCurrencyRate:ethToCurrencyRate,
+        ethToCurrencyDecimals:ethToCurrencyDecimals}, {value: rentPriceInEth})).not.to.be.reverted;
+
+      await expect( rentality.connect(host).approveTripRequest(1)).not.to.be.reverted;
+      await expect( rentality.connect(guest).finishTrip(1)).to.changeEtherBalances(
+        [host, rentality],
+         [rentPriceInEth, -rentPriceInEth]);
+    });
   });
 });
