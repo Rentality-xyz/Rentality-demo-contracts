@@ -31,8 +31,6 @@ contract RentCar is ERC4907, Ownable {
         address payable owner;
         uint256 pricePerDayInUsdCents;
         bool currentlyListed;
-        uint256 tankVolumeInGal;
-        uint256 distanceIncludedInMi;
     }
 
     //The structure to store info about rent car request
@@ -80,6 +78,7 @@ contract RentCar is ERC4907, Ownable {
     constructor(address ethToUsdPriceFeedAddress) ERC4907("Rentality Test", "RNTLTY") {
         //ETH/USD (Goerli Testnet) 0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e
         //ETH/USD (Mumbai Testnet) 0x0715A7794a1dc8e42615F059dD6e406A6594651A
+        //ETH/USD (Sepolia Testnet) 0x694AA1769357215DE4FAC081bf1f309aDC325306
         ethToUsdPriceFeed = AggregatorV3Interface(ethToUsdPriceFeedAddress);
         currentEthToUsdPrice = getLatestEthToUsdPrice();
     }   
@@ -126,9 +125,7 @@ contract RentCar is ERC4907, Ownable {
             carId,
             payable(msg.sender),
             pricePerDayInUsdCents,
-            true,
-            0,
-            0
+            true
         );
 
         _approve(address(this), carId);

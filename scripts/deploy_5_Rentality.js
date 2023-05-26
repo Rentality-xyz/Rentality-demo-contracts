@@ -1,4 +1,5 @@
 const saveJsonAbi = require("./utils/abiSaver");
+const RentalityUserServiceJSON = require("../src/abis/RentalityUserService.localhost.json");
 const { ethers } = require("hardhat");
 
 async function main() {
@@ -16,46 +17,53 @@ async function main() {
   console.log("ChainId is:", chainId);
   if (chainId < 0) return;
 
-  const carServiceAddress = "";
-  const currencyConverterServiceAddress = "";
-  const tripServiceAddress = "";
-  const userServiceAddress = "";
+  const rentalityCarTokenAddress = "";
+  const rentalityCurrencyConverterAddress = "";
+  const rentalityTripServiceAddress = "";
+  const rentalityUserServiceAddress = "";
 
-  if (!carServiceAddress) {
-    console.log("carServiceAddress is not set");
+  if (!rentalityCarTokenAddress) {
+    console.log("rentalityCarTokenAddress is not set");
     return;
   }
-  if (!currencyConverterServiceAddress) {
-    console.log("currencyConverterServiceAddress is not set");
+  if (!rentalityCurrencyConverterAddress) {
+    console.log("rentalityCurrencyConverterAddress is not set");
     return;
   }
-  if (!tripServiceAddress) {
-    console.log("tripServiceAddress is not set");
+  if (!rentalityTripServiceAddress) {
+    console.log("rentalityTripServiceAddress is not set");
     return;
   }
-  if (!userServiceAddress) {
-    console.log("userServiceAddress is not set");
+  if (!rentalityUserServiceAddress) {
+    console.log("rentalityUserServiceAddress is not set");
     return;
   }
 
-  console.log("carServiceAddress is:", carServiceAddress);
+  console.log("rentalityCarTokenAddress is:", rentalityCarTokenAddress);
   console.log(
-    "currencyConverterServiceAddress is:",
-    currencyConverterServiceAddress
+    "rentalityCurrencyConverterAddress is:",
+    rentalityCurrencyConverterAddress
   );
-  console.log("tripServiceAddress is:", tripServiceAddress);
-  console.log("userServiceAddress is:", userServiceAddress);
-
+  console.log("rentalityTripServiceAddress is:", rentalityTripServiceAddress);
+  console.log("rentalityUserServiceAddress is:", rentalityUserServiceAddress);
+  
   const contractFactory = await ethers.getContractFactory(contractName);
   const contract = await contractFactory.deploy(
-    carServiceAddress,
-    currencyConverterServiceAddress,
-    tripServiceAddress,
-    userServiceAddress
-  );
+    rentalityCarTokenAddress,
+    rentalityCurrencyConverterAddress,
+    rentalityTripServiceAddress,
+    rentalityUserServiceAddress);
   await contract.deployed();
   console.log(contractName + " deployed to:", contract.address);
 
+  let rentalityUserServiceContract = new ethers.Contract(
+    RentalityUserServiceJSON.address,
+    RentalityUserServiceJSON.abi,
+    deployer
+  );
+  await rentalityUserServiceContract.grantManagerRole(contract.address);
+  //await rentalityUserServiceContract.connect(deployer).grantManagerRole(contract.address);
+  
   saveJsonAbi(contractName, chainId, contract);
 }
 

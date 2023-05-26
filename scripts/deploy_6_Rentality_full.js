@@ -32,6 +32,8 @@ async function main() {
       ? "0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e"
       : chainId === 80001
       ? "0x0715A7794a1dc8e42615F059dD6e406A6594651A"
+      : chainId === 11155111
+      ? "0x694AA1769357215DE4FAC081bf1f309aDC325306"
       : chainId === 1337
       ? rentalityMockPriceFeedAddress
       : "";
@@ -45,6 +47,7 @@ async function main() {
   saveJsonAbi(contractName, chainId, contract);
 
   let rentalityUserServiceAddress = contract.address;
+  const rentalityUserServiceContract = contract;
 
   contractName = "RentalityTripService";
   contractFactory = await ethers.getContractFactory(contractName);
@@ -86,6 +89,7 @@ async function main() {
   await contract.deployed();
   console.log(contractName + " deployed to:", contract.address);
 
+  await rentalityUserServiceContract.grantManagerRole(contract.address);
   //await rentalityUserServiceContract.connect(deployer).grantManagerRole(contract.address);
   
   saveJsonAbi(contractName, chainId, contract);
