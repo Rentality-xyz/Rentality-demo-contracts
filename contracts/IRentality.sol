@@ -31,11 +31,16 @@ interface IRentality {
     function getTripsAsHost() external view returns (RentalityTripService.Trip[] memory);
     function approveTripRequest(uint256 tripId) external;
     function rejectTripRequest(uint256 tripId) external;
-    
+    function checkInByHost(uint256 tripId, uint256 startFuelLevel, uint256 startOdometr) external;
+    function checkOutByHost(uint256 tripId,uint256 endFuelLevel,uint256 endOdometr) external;
+    function finishTrip(uint256 tripId) external;
+    function resolveIssue(uint256 tripId, uint256 fuelPricePerGal) external;
+
     ///guest functions 
     function getAvailableCars() external view returns (RentalityCarToken.CarInfo[] memory);
     function createTripRequest(CreateTripRequest memory request) external payable;
     function getTripsAsGuest() external view returns (RentalityTripService.Trip[] memory);
     function getCarsRentedByMe() external view returns(RentalityCarToken.CarInfo[] memory);
-    function finishTrip(uint256 tripId) external;
+    function checkInByGuest(uint256 tripId,uint256 startFuelLevel,uint256 startOdometr) external;
+    function checkOutByGuest(uint256 tripId,uint256 endFuelLevel,uint256 endOdometr) external;
 }
