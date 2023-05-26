@@ -3,6 +3,7 @@ pragma solidity ^0.8.9;
 
 import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 
+//deployed 26.05.2023 11:15 to sepolia at 0x3E69da2133f87a3CC2602b351869046C2D8Aef2A
 contract RentalityCurrencyConverter {
     AggregatorV3Interface internal ethToUsdPriceFeed;
     int256 private currentEthToUsdPrice;

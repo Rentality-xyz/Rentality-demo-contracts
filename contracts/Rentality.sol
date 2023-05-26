@@ -8,6 +8,7 @@ import "./RentalityCurrencyConverter.sol";
 import "./RentalityTripService.sol";
 import "./RentalityUserService.sol";
 
+//deployed 26.05.2023 11:15 to sepolia at 0x12fB29Ed1f0E17605f488F640D49De29050cf855
 contract Rentality is IRentality, Ownable {
     using Counters for Counters.Counter;
     Counters.Counter private _tripRequestIdCounter;

@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "./ERC4907.sol";
 import "./RentalityUserService.sol";
 
+//deployed 26.05.2023 11:15 to sepolia at 0xcC66CdAfc3C39d96651220975855202960C08747
 contract RentalityCarToken is ERC4907, Ownable {
     using Counters for Counters.Counter;
     Counters.Counter private _carIdCounter;

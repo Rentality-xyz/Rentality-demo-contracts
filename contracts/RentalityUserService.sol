@@ -3,6 +3,7 @@ pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
 
+//deployed 26.05.2023 11:15 to sepolia at 0xF5d6E451600439BBd282B0001b56019E5F4662bf
 contract RentalityUserService is AccessControl {
     struct KYCInfo {
         string name;
