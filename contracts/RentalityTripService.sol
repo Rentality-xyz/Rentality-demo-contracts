@@ -130,8 +130,8 @@ contract RentalityTripService {
         uint startOdometr
     ) public {
         require(
-            idToTripInfo[tripId].status == TripStatus.Created,
-            "The trip is not in status Created"
+            idToTripInfo[tripId].status == TripStatus.Approved,
+            "The trip is not in status Approved"
         );
 
         idToTripInfo[tripId].status = TripStatus.CheckedInByHost;
