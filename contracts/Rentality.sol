@@ -12,6 +12,7 @@ import "./RentalityUserService.sol";
 contract Rentality is IRentality, Ownable {
     using Counters for Counters.Counter;
     Counters.Counter private _tripRequestIdCounter;
+    uint32 platformFeeInPPM = 300_000;
 
     RentalityCarToken private carService;
     RentalityCurrencyConverter private currencyConverterService;
@@ -68,6 +69,18 @@ contract Rentality is IRentality, Ownable {
 
     function updateUserService(address contractAddress) public onlyAdmin {
         userService = RentalityUserService(contractAddress);
+    }
+
+    function getPlatformFeeInPPM() public view returns (uint32)
+    {
+        return platformFeeInPPM;
+    }
+
+    function setPlatformFeeInPPM(uint32 valueInPPM) public onlyAdmin {
+        require(valueInPPM > 0, "Make sure the value isn't negative");
+        require(valueInPPM <= 1_000_000, "Value can't be more than 1000000");
+
+        platformFeeInPPM = valueInPPM;
     }
 
     function totalTripRequestCount() public view returns (uint) {
