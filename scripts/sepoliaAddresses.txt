@@ -1,0 +1,6 @@
+RentalityMockPriceFeed:     
+RentalityUserService:       0xF5d6E451600439BBd282B0001b56019E5F4662bf
+RentalityTripService:       0x417886Ca72048E92E8Bf2082cf193ab8DB4ED09f
+RentalityCurrencyConverter: 0x3E69da2133f87a3CC2602b351869046C2D8Aef2A
+RentalityCarToken:          0xcC66CdAfc3C39d96651220975855202960C08747
+Rentality:                  0x12fB29Ed1f0E17605f488F640D49De29050cf855
