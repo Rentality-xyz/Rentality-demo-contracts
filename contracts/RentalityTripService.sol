@@ -31,8 +31,8 @@ contract RentalityTripService {
         uint256 taxPriceInUsdCents;
         uint256 depositInUsdCents;
         CurrencyType currencyType;
-        uint256 ethToCurrencyRate;
-        uint256 ethToCurrencyDecimals;
+        int256 ethToCurrencyRate;
+        uint8 ethToCurrencyDecimals;
     }
 
     struct Trip {

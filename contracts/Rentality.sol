@@ -176,10 +176,11 @@ contract Rentality is IRentality, Ownable {
         uint256 valueSum = request.totalDayPriceInUsdCents +
             request.taxPriceInUsdCents +
             request.depositInUsdCents;
-        uint256 valueSumInEth =(valueSum *
-            (1 ether) *
-            (10 ** (request.ethToCurrencyDecimals - 2))) /
-            uint(request.ethToCurrencyRate);
+        uint256 valueSumInEth = currencyConverterService.getEthFromUsd(
+            valueSum,
+            request.ethToCurrencyRate,
+            request.ethToCurrencyDecimals
+        );
 
         require(
             msg.value == valueSumInEth,
@@ -231,10 +232,11 @@ contract Rentality is IRentality, Ownable {
             .totalDayPriceInUsdCents +
             trip.paymentInfo.taxPriceInUsdCents +
             trip.paymentInfo.depositInUsdCents;
-        uint256 valueToReturnInEth = (valueToReturnInUsdCents *
-            (1 ether) *
-            (10 ** (trip.paymentInfo.ethToCurrencyDecimals - 2))) /
-            uint(trip.paymentInfo.ethToCurrencyRate);
+        uint256 valueToReturnInEth = currencyConverterService.getEthFromUsd(
+            valueToReturnInUsdCents,
+            trip.paymentInfo.ethToCurrencyRate,
+            trip.paymentInfo.ethToCurrencyDecimals
+        );
         require(payable(trip.guest).send(valueToReturnInEth));
     }
 
@@ -277,15 +279,17 @@ contract Rentality is IRentality, Ownable {
         uint256 valueToHostInUsdCents = trip
             .paymentInfo
             .totalDayPriceInUsdCents + trip.paymentInfo.taxPriceInUsdCents;
-        uint256 valueToHostInEth = (valueToHostInUsdCents *
-            (1 ether) *
-            (10 ** (trip.paymentInfo.ethToCurrencyDecimals - 2))) /
-            uint(trip.paymentInfo.ethToCurrencyRate);
+        uint256 valueToHostInEth = currencyConverterService.getEthFromUsd(
+            valueToHostInUsdCents,
+            trip.paymentInfo.ethToCurrencyRate,
+            trip.paymentInfo.ethToCurrencyDecimals
+        );
         uint256 valueToGuestInUsdCents = trip.paymentInfo.depositInUsdCents;
-        uint256 valueToGuestInEth = (valueToGuestInUsdCents *
-            (1 ether) *
-            (10 ** (trip.paymentInfo.ethToCurrencyDecimals - 2))) /
-            uint(trip.paymentInfo.ethToCurrencyRate);
+        uint256 valueToGuestInEth = currencyConverterService.getEthFromUsd(
+            valueToGuestInUsdCents,
+            trip.paymentInfo.ethToCurrencyRate,
+            trip.paymentInfo.ethToCurrencyDecimals
+        );
         require(payable(trip.host).send(valueToHostInEth));
         require(payable(trip.guest).send(valueToGuestInEth));
     }

@@ -21,12 +21,13 @@ contract RentalityCurrencyConverter {
 
     function getLatestEthToUsdPrice() private view returns (int256) {
         (
-            /*uint80 roundID*/,
-            int price,
-            /*uint startedAt*/,
-            /*uint timeStamp*/,
-            /*uint80 answeredInRound*/
-        ) = ethToUsdPriceFeed.latestRoundData();
+            ,
+            /*uint80 roundID*/ int price,
+            ,
+            ,
+
+        ) = /*uint startedAt*/ /*uint timeStamp*/ /*uint80 answeredInRound*/
+            ethToUsdPriceFeed.latestRoundData();
 
         return price; //  example price returned 165110000000
     }
@@ -35,23 +36,55 @@ contract RentalityCurrencyConverter {
         return (getLatestEthToUsdPrice(), ethToUsdPriceFeed.decimals());
     }
 
-    function getEthFromUsd(uint256 valueInUsdCents) public view returns (uint256) {
+    function getEthFromUsdLatest(
+        uint256 valueInUsdCents
+    ) public view returns (uint256, int256, uint8) {
         (int256 ethToUsdPrice, uint8 ethToUsdDecimals) = getEthToUsdPrice();
 
+        return (
+            (valueInUsdCents * (1 ether) * (10 ** (ethToUsdDecimals - 2))) /
+                uint(ethToUsdPrice),
+            ethToUsdPrice,
+            ethToUsdDecimals
+        );
+    }
+
+    function getUsdFromEthLatest(
+        uint256 valueInEth
+    ) public view returns (uint256, int256, uint8) {
+        (int256 ethToUsdPrice, uint8 ethToUsdDecimals) = getEthToUsdPrice();
+
+        return (
+            ((valueInEth * uint(ethToUsdPrice)) /
+                ((10 ** (ethToUsdDecimals - 2)) * (1 ether))),
+            ethToUsdPrice,
+            ethToUsdDecimals
+        );
+    }
+
+    function getEthFromUsd(
+        uint256 valueInUsdCents,
+        int256 ethToUsdPrice,
+        uint8 ethToUsdDecimals
+    ) public pure returns (uint256) {
         return
             (valueInUsdCents * (1 ether) * (10 ** (ethToUsdDecimals - 2))) /
             uint(ethToUsdPrice);
     }
 
-    function getUsdFromEth(uint256 valueInEth) public view returns (uint256) {
-        (int256 ethToUsdPrice, uint8 ethToUsdDecimals) = getEthToUsdPrice();
-
+    function getUsdFromEth(
+        uint256 valueInEth,
+        int256 ethToUsdPrice,
+        uint8 ethToUsdDecimals
+    ) public pure returns (uint256) {
         return ((valueInEth * uint(ethToUsdPrice)) /
             ((10 ** (ethToUsdDecimals - 2)) * (1 ether)));
     }
 
     function getEthToUsdPriceWithCache() public returns (int256, uint8) {
-        if ((block.timestamp - lastUpdatePriceTimeStamp) > updatePriceInterval) {
+        if (
+            (block.timestamp - lastUpdatePriceTimeStamp) > updatePriceInterval
+        ) {
             lastUpdatePriceTimeStamp = block.timestamp;
             currentEthToUsdPrice = getLatestEthToUsdPrice();
             currentEthToUsdDecimals = ethToUsdPriceFeed.decimals();
@@ -59,16 +92,26 @@ contract RentalityCurrencyConverter {
         return (currentEthToUsdPrice, currentEthToUsdDecimals);
     }
 
-    function getEthFromUsdWithCache(uint256 valueInUsdCents) public returns (uint256) {
-        (int256 ethToUsdPrice,uint8 ethToUsdDecimals) = getEthToUsdPriceWithCache();
+    function getEthFromUsdWithCache(
+        uint256 valueInUsdCents
+    ) public returns (uint256) {
+        (
+            int256 ethToUsdPrice,
+            uint8 ethToUsdDecimals
+        ) = getEthToUsdPriceWithCache();
 
         return
             (valueInUsdCents * (1 ether) * (10 ** (ethToUsdDecimals - 2))) /
             uint(ethToUsdPrice);
     }
 
-    function getUsdFromEthWithCache(uint256 valueInEth) public returns (uint256) {
-        (int256 ethToUsdPrice,uint8 ethToUsdDecimals) = getEthToUsdPriceWithCache();
+    function getUsdFromEthWithCache(
+        uint256 valueInEth
+    ) public returns (uint256) {
+        (
+            int256 ethToUsdPrice,
+            uint8 ethToUsdDecimals
+        ) = getEthToUsdPriceWithCache();
 
         return ((valueInEth * uint(ethToUsdPrice)) /
             ((10 ** (ethToUsdDecimals - 2)) * (1 ether)));

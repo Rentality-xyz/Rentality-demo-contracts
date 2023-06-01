@@ -16,8 +16,8 @@ interface IRentality {
         uint256 totalDayPriceInUsdCents;
         uint256 taxPriceInUsdCents;
         uint256 depositInUsdCents;
-        uint256 ethToCurrencyRate;
-        uint256 ethToCurrencyDecimals;
+        int256 ethToCurrencyRate;
+        uint8 ethToCurrencyDecimals;
     }
 
     ///host functions 
