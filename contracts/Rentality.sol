@@ -33,6 +33,15 @@ contract Rentality is IRentality, Ownable {
         userService = RentalityUserService(userServiceAddress);
     }
 
+    function owner()
+        public
+        view
+        override(IRentality, Ownable)
+        returns (address)
+    {
+        return Ownable.owner();
+    }
+
     modifier onlyAdmin() {
         require(
             userService.isAdmin(msg.sender) ||
@@ -53,8 +62,24 @@ contract Rentality is IRentality, Ownable {
         _;
     }
 
+    function getCarServiceAddress()
+        public
+        view
+        returns (address)
+    {
+        return address(carService);
+    }
+
     function updateCarService(address contractAddress) public onlyAdmin {
         carService = RentalityCarToken(contractAddress);
+    }
+
+    function getCurrencyConverterServiceAddress()
+        public
+        view
+        returns (address)
+    {
+        return address(currencyConverterService);
     }
 
     function updateCurrencyConverterService(
@@ -63,8 +88,24 @@ contract Rentality is IRentality, Ownable {
         currencyConverterService = RentalityCurrencyConverter(contractAddress);
     }
 
+    function getTripServiceAddress()
+        public
+        view
+        returns (address)
+    {
+        return address(tripService);
+    }
+
     function updateTripService(address contractAddress) public onlyAdmin {
         tripService = RentalityTripService(contractAddress);
+    }
+
+    function getUserServiceAddress()
+        public
+        view
+        returns (address)
+    {
+        return address(userService);
     }
 
     function updateUserService(address contractAddress) public onlyAdmin {
@@ -81,6 +122,23 @@ contract Rentality is IRentality, Ownable {
         require(valueInPPM <= 1_000_000, "Value can't be more than 1000000");
 
         platformFeeInPPM = valueInPPM;
+    }
+
+    function withdrawFromPlatform(uint256 amount) public {
+        require(
+            address(this).balance > 0,
+            "There is no commission to withdraw"
+        );
+        require(
+            address(this).balance >= amount,
+            "There is not enough balance on the contract"
+        );
+
+        require(payable(owner()).send(amount));
+    }
+
+    function withdrawAllFromPlatform() public {
+        return withdrawFromPlatform(address(this).balance);
     }
 
     function totalTripRequestCount() public view returns (uint) {
@@ -349,13 +407,5 @@ contract Rentality is IRentality, Ownable {
         uint256 carTokenId
     ) public view returns (RentalityTripService.Trip[] memory) {
         return tripService.getTripsByCar(carTokenId);
-    }
-
-    function withdrawTips() public {
-        require(
-            address(this).balance > 0,
-            "There is no commission to withdraw"
-        );
-        require(payable(owner()).send(address(this).balance));
     }
 }
