@@ -62,11 +62,7 @@ contract Rentality is IRentality, Ownable {
         _;
     }
 
-    function getCarServiceAddress()
-        public
-        view
-        returns (address)
-    {
+    function getCarServiceAddress() public view returns (address) {
         return address(carService);
     }
 
@@ -88,11 +84,7 @@ contract Rentality is IRentality, Ownable {
         currencyConverterService = RentalityCurrencyConverter(contractAddress);
     }
 
-    function getTripServiceAddress()
-        public
-        view
-        returns (address)
-    {
+    function getTripServiceAddress() public view returns (address) {
         return address(tripService);
     }
 
@@ -100,11 +92,7 @@ contract Rentality is IRentality, Ownable {
         tripService = RentalityTripService(contractAddress);
     }
 
-    function getUserServiceAddress()
-        public
-        view
-        returns (address)
-    {
+    function getUserServiceAddress() public view returns (address) {
         return address(userService);
     }
 
@@ -112,8 +100,7 @@ contract Rentality is IRentality, Ownable {
         userService = RentalityUserService(contractAddress);
     }
 
-    function getPlatformFeeInPPM() public view returns (uint32)
-    {
+    function getPlatformFeeInPPM() public view returns (uint32) {
         return platformFeeInPPM;
     }
 
@@ -343,13 +330,22 @@ contract Rentality is IRentality, Ownable {
         return tripService.checkOutByHost(tripId, endFuelLevel, endOdometr);
     }
 
+    function getPlatformFeeFrom(uint256 value) private view returns (uint256) {
+        return (value * platformFeeInPPM) / 1_000_000;
+    }
+
     function finishTrip(uint256 tripId) public {
         tripService.finishTrip(tripId);
         RentalityTripService.Trip memory trip = tripService.getTrip(tripId);
 
         uint256 valueToHostInUsdCents = trip
             .paymentInfo
-            .totalDayPriceInUsdCents + trip.paymentInfo.taxPriceInUsdCents;
+            .totalDayPriceInUsdCents +
+            trip.paymentInfo.taxPriceInUsdCents -
+            getPlatformFeeFrom(
+                trip.paymentInfo.totalDayPriceInUsdCents +
+                    trip.paymentInfo.taxPriceInUsdCents
+            );
         uint256 valueToHostInEth = currencyConverterService.getEthFromUsd(
             valueToHostInUsdCents,
             trip.paymentInfo.ethToCurrencyRate,
