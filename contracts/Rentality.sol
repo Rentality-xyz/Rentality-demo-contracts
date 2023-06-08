@@ -13,6 +13,8 @@ contract Rentality is IRentality, Ownable {
     using Counters for Counters.Counter;
     Counters.Counter private _tripRequestIdCounter;
     uint32 platformFeeInPPM = 300_000;
+    uint32 depositePriceInUsdCents = 100_00;
+    uint32 fuelPricePerGalInUsdCents = 4_20;
 
     RentalityCarToken private carService;
     RentalityCurrencyConverter private currencyConverterService;
@@ -109,6 +111,26 @@ contract Rentality is IRentality, Ownable {
         require(valueInPPM <= 1_000_000, "Value can't be more than 1000000");
 
         platformFeeInPPM = valueInPPM;
+    }
+
+    function getDepositePriceInUsdCents() public view returns (uint32) {
+        return depositePriceInUsdCents;
+    }
+
+    function setDepositePriceInUsdCents(uint32 valueInUsdCents) public onlyAdmin {
+        require(valueInUsdCents > 0, "Make sure the value isn't negative");
+
+        depositePriceInUsdCents = valueInUsdCents;
+    }
+
+    function getFuelPricePerGalInUsdCents() public view returns (uint32) {
+        return fuelPricePerGalInUsdCents;
+    }
+
+    function setFuelPricePerGalInUsdCents(uint32 valueInUsdCents) public onlyAdmin {
+        require(valueInUsdCents > 0, "Make sure the value isn't negative");
+
+        fuelPricePerGalInUsdCents = valueInUsdCents;
     }
 
     function withdrawFromPlatform(uint256 amount) public {
