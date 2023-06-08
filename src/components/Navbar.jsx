@@ -38,7 +38,6 @@ export default function Navbar() {
   const connectWebsite = async () => {
     const chainId = await window.ethereum.request({ method: "eth_chainId" });
     if (chainId !== "0x5") {
-      //alert('Incorrect network! Switch your metamask network to Rinkeby');
       await window.ethereum.request({
         method: "wallet_switchEthereumChain",
         params: [{ chainId: "0x5" }],
