@@ -46,6 +46,7 @@ contract RentalityTripService {
         string startLocation;
         string endLocation;
         uint256 milesIncluded;
+        uint256 fuelPricePerGalInUsdCents;
         PaymentInfo paymentInfo;
         uint approvedDateTime;
         uint checkedInByHostDateTime;
@@ -56,7 +57,7 @@ contract RentalityTripService {
         uint endFuelLevel;
         uint endOdometr;
         uint checkedOutByHostDateTime;
-        uint256 resolveAmount;
+        uint256 resolveAmountInUsdCents;
     }
 
     mapping(uint256 => Trip) private idToTripInfo;
@@ -76,6 +77,7 @@ contract RentalityTripService {
         string memory startLocation,
         string memory endLocation,
         uint256 milesIncluded,
+        uint256 fuelPricePerGalInUsdCents,
         PaymentInfo memory paymentInfo
     ) public {
         _tripIdCounter.increment();
@@ -92,6 +94,7 @@ contract RentalityTripService {
             startLocation,
             endLocation,
             milesIncluded,
+            fuelPricePerGalInUsdCents,
             paymentInfo,
             0,
             0,
@@ -172,6 +175,10 @@ contract RentalityTripService {
             idToTripInfo[tripId].status == TripStatus.CheckedInByGuest,
             "The trip is not in status CheckedInByGuest"
         );
+        require(
+            idToTripInfo[tripId].startOdometr <= endFuelLevel,
+            "End odometr should be greater than start odometr"
+        );
         idToTripInfo[tripId].status = TripStatus.CheckedOutByGuest;
         idToTripInfo[tripId].checkedOutByGuestDateTime = block.timestamp;
         idToTripInfo[tripId].endFuelLevel = endFuelLevel;
@@ -202,30 +209,34 @@ contract RentalityTripService {
 
     function finishTrip(uint256 tripId) public {
         //require(idToTripInfo[tripId].status != TripStatus.CheckedOutByHost,"The trip is not in status CheckedOutByHost");
-
-        idToTripInfo[tripId].status = TripStatus.Finished;
-    }
-
-    function resolveIssue(uint256 tripId, uint256 fuelPricePerGal) public {
         require(
             idToTripInfo[tripId].status == TripStatus.CheckedOutByHost,
             "The trip is not in status CheckedOutByHost"
         );
 
         idToTripInfo[tripId].status = TripStatus.Finished;
-        uint256 resolveFuelAmount = (idToTripInfo[tripId].endFuelLevel -
-            idToTripInfo[tripId].startFuelLevel) * fuelPricePerGal;
-        if (resolveFuelAmount < 0) {
-            resolveFuelAmount = 0;
-        }
-        uint256 resolveDrivenMilesAmount = ((idToTripInfo[tripId].endOdometr -
+
+        uint256 resolveDrivenMilesAmountInUsdCents = ((idToTripInfo[tripId].endOdometr -
             idToTripInfo[tripId].startOdometr -
             idToTripInfo[tripId].milesIncluded) *
             idToTripInfo[tripId].paymentInfo.totalDayPriceInUsdCents) /
             idToTripInfo[tripId].milesIncluded;
-        idToTripInfo[tripId].resolveAmount =
-            resolveFuelAmount +
-            resolveDrivenMilesAmount;
+        if (resolveDrivenMilesAmountInUsdCents < 0) {
+            resolveDrivenMilesAmountInUsdCents = 0;
+        }
+
+        uint256 resolveFuelAmountInUsdCents = ((idToTripInfo[tripId].startFuelLevel -
+            idToTripInfo[tripId].endFuelLevel) * idToTripInfo[tripId].fuelPricePerGalInUsdCents)/8;
+        if (resolveFuelAmountInUsdCents < 0) {
+            resolveFuelAmountInUsdCents = 0;
+        }
+
+        uint256 resolveAmountInUsdCents = resolveDrivenMilesAmountInUsdCents+
+            resolveFuelAmountInUsdCents;
+        if (resolveAmountInUsdCents > idToTripInfo[tripId].paymentInfo.depositInUsdCents){
+            resolveAmountInUsdCents = idToTripInfo[tripId].paymentInfo.depositInUsdCents;
+        }
+        idToTripInfo[tripId].resolveAmountInUsdCents = resolveAmountInUsdCents;
     }
 
     function getTrip(uint256 tripId) public view returns (Trip memory) {

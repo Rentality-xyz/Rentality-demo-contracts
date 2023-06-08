@@ -273,6 +273,7 @@ contract Rentality is IRentality, Ownable {
             request.startLocation,
             request.endLocation,
             carInfo.distanceIncludedInMi,
+            request.fuelPricePerGalInUsdCents,
             paymentInfo
         );
     }
@@ -341,7 +342,8 @@ contract Rentality is IRentality, Ownable {
         uint256 valueToHostInUsdCents = trip
             .paymentInfo
             .totalDayPriceInUsdCents +
-            trip.paymentInfo.taxPriceInUsdCents -
+            trip.paymentInfo.taxPriceInUsdCents +
+            trip.resolveAmountInUsdCents -
             getPlatformFeeFrom(
                 trip.paymentInfo.totalDayPriceInUsdCents +
                     trip.paymentInfo.taxPriceInUsdCents
@@ -351,7 +353,8 @@ contract Rentality is IRentality, Ownable {
             trip.paymentInfo.ethToCurrencyRate,
             trip.paymentInfo.ethToCurrencyDecimals
         );
-        uint256 valueToGuestInUsdCents = trip.paymentInfo.depositInUsdCents;
+        uint256 valueToGuestInUsdCents = trip.paymentInfo.depositInUsdCents -
+            trip.resolveAmountInUsdCents;
         uint256 valueToGuestInEth = currencyConverterService.getEthFromUsd(
             valueToGuestInUsdCents,
             trip.paymentInfo.ethToCurrencyRate,
@@ -359,10 +362,6 @@ contract Rentality is IRentality, Ownable {
         );
         require(payable(trip.host).send(valueToHostInEth));
         require(payable(trip.guest).send(valueToGuestInEth));
-    }
-
-    function resolveIssue(uint256 tripId, uint256 fuelPricePerGal) public {
-        return tripService.resolveIssue(tripId, fuelPricePerGal);
     }
 
     function getTrip(

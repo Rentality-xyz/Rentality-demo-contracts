@@ -18,6 +18,7 @@ interface IRentality {
         uint256 depositInUsdCents;
         int256 ethToCurrencyRate;
         uint8 ethToCurrencyDecimals;
+        uint256 fuelPricePerGalInUsdCents;
     }
 
     ///admin functions 
@@ -49,7 +50,6 @@ interface IRentality {
         function checkInByHost(uint256 tripId, uint256 startFuelLevel, uint256 startOdometr) external;
         function checkOutByHost(uint256 tripId,uint256 endFuelLevel,uint256 endOdometr) external;
         function finishTrip(uint256 tripId) external;
-        function resolveIssue(uint256 tripId, uint256 fuelPricePerGal) external;
 
         ///guest functions 
         function getAvailableCars() external view returns (RentalityCarToken.CarInfo[] memory);
