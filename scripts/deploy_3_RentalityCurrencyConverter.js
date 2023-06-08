@@ -1,8 +1,10 @@
 const saveJsonAbi = require("./utils/abiSaver");
 const { ethers } = require("hardhat");
+const addressesGanache = require("./ganacheAddresses.json")
+const addressesSepolia = require("./sepoliaAddresses.json")
 
 async function main() {
-  const contractName = "RentalityCurrencyConverter";
+  var contractName = "RentalityCurrencyConverter";
   const [deployer] = await ethers.getSigners();
   const balance = await deployer.getBalance();
   console.log(
@@ -16,9 +18,10 @@ async function main() {
   console.log("ChainId is:", chainId);
   if (chainId < 0) return;
 
-  let rentalityMockPriceFeedAddress = "";
+  const addresses = chainId === 11155111 ? addressesSepolia : addressesGanache;
+  let rentalityMockPriceFeedAddress = addresses.RentalityMockPriceFeed;
 
-  if( chainId === 1337 || rentalityMockPriceFeedAddress.length === 0){
+  if( chainId === 1337 && rentalityMockPriceFeedAddress.length === 0){
     contractName = "RentalityMockPriceFeed";
     let contractFactory = await ethers.getContractFactory(contractName);
     let contract = await contractFactory.deploy(8, 165000000000);
