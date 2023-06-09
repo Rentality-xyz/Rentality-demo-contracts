@@ -90,11 +90,9 @@ describe("Rentality", function () {
       const availableCars = await rentality.connect(guest).getAvailableCars();
       expect(availableCars.length).to.equal(1);
 
-      const [ ethToCurrencyRate, ethToCurrencyDecimals ] =
-        await rentalityCurrencyConverter.getEthToUsdPrice();
       const rentPriceInUsdCents = 1000;
-      const rentPriceInEth =
-        await rentalityCurrencyConverter.getEthFromUsd(
+      const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
+        await rentalityCurrencyConverter.getEthFromUsdLatest(
           rentPriceInUsdCents
         );
 
@@ -108,7 +106,8 @@ describe("Rentality", function () {
         taxPriceInUsdCents:0,
         depositInUsdCents:0,
         ethToCurrencyRate:ethToCurrencyRate,
-        ethToCurrencyDecimals:ethToCurrencyDecimals}, {value: rentPriceInEth})).not.to.be.reverted;
+        ethToCurrencyDecimals:ethToCurrencyDecimals,
+        fuelPricePerGalInUsdCents:500}, {value: rentPriceInEth})).not.to.be.reverted;
     });
 
     it("reject case", async function () {
@@ -121,11 +120,9 @@ describe("Rentality", function () {
       const availableCars = await rentality.connect(guest).getAvailableCars();
       expect(availableCars.length).to.equal(1);
 
-      const [ ethToCurrencyRate, ethToCurrencyDecimals ] =
-        await rentalityCurrencyConverter.getEthToUsdPrice();
       const rentPriceInUsdCents = 1000;
-      const rentPriceInEth =
-        await rentalityCurrencyConverter.getEthFromUsd(
+      const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
+        await rentalityCurrencyConverter.getEthFromUsdLatest(
           rentPriceInUsdCents
         );
 
@@ -139,7 +136,8 @@ describe("Rentality", function () {
         taxPriceInUsdCents:0,
         depositInUsdCents:0,
         ethToCurrencyRate:ethToCurrencyRate,
-        ethToCurrencyDecimals:ethToCurrencyDecimals}, {value: rentPriceInEth})).to.changeEtherBalances(
+        ethToCurrencyDecimals:ethToCurrencyDecimals,
+        fuelPricePerGalInUsdCents:500}, {value: rentPriceInEth})).to.changeEtherBalances(
                     [guest, rentality],
                      [-rentPriceInEth, rentPriceInEth]);
 
@@ -157,12 +155,9 @@ describe("Rentality", function () {
       const availableCars = await rentality.connect(guest).getAvailableCars();
       expect(availableCars.length).to.equal(1);
 
-
-      const [ ethToCurrencyRate, ethToCurrencyDecimals ] =
-        await rentalityCurrencyConverter.getEthToUsdPrice();
       const rentPriceInUsdCents = 1000;
-      const rentPriceInEth =
-        await rentalityCurrencyConverter.getEthFromUsd(
+      const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
+        await rentalityCurrencyConverter.getEthFromUsdLatest(
           rentPriceInUsdCents
         );
 
@@ -176,12 +171,18 @@ describe("Rentality", function () {
         taxPriceInUsdCents:0,
         depositInUsdCents:0,
         ethToCurrencyRate:ethToCurrencyRate,
-        ethToCurrencyDecimals:ethToCurrencyDecimals}, {value: rentPriceInEth})).not.to.be.reverted;
+        ethToCurrencyDecimals:ethToCurrencyDecimals,
+        fuelPricePerGalInUsdCents:500}, {value: rentPriceInEth})).not.to.be.reverted;
 
       await expect( rentality.connect(host).approveTripRequest(1)).not.to.be.reverted;
-      await expect( rentality.connect(guest).finishTrip(1)).to.changeEtherBalances(
+      await expect( rentality.connect(host).checkInByHost(1, 1, 1)).not.to.be.reverted;
+      await expect( rentality.connect(guest).checkInByGuest(1, 1, 1)).not.to.be.reverted;
+      await expect( rentality.connect(guest).checkOutByGuest(1, 1, 1)).not.to.be.reverted;
+      await expect( rentality.connect(host).checkOutByHost(1, 1, 1)).not.to.be.reverted;
+      const returnToHost = rentPriceInEth - (rentPriceInEth* (await rentality.getPlatformFeeInPPM())) / 1_000_000;
+      await expect( rentality.connect(host).finishTrip(1)).to.changeEtherBalances(
         [host, rentality],
-         [rentPriceInEth, -rentPriceInEth]);
+         [returnToHost, -returnToHost]);
     });
   });
 });
