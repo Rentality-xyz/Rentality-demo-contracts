@@ -14,7 +14,7 @@ contract Rentality is IRentality, Ownable {
     Counters.Counter private _tripRequestIdCounter;
     uint32 platformFeeInPPM = 300_000;
     uint32 depositePriceInUsdCents = 100_00;
-    uint32 fuelPricePerGalInUsdCents = 4_20;
+    uint32 fuelPricePerGalInUsdCents = 5_00;
 
     RentalityCarToken private carService;
     RentalityCurrencyConverter private currencyConverterService;
@@ -169,9 +169,9 @@ contract Rentality is IRentality, Ownable {
     function addCar(
         string memory tokenUri,
         string memory carVinNumber,
-        uint256 pricePerDayInUsdCents,
-        uint256 tankVolumeInGal,
-        uint256 distanceIncludedInMi
+        uint64 pricePerDayInUsdCents,
+        uint64 tankVolumeInGal,
+        uint64 distanceIncludedInMi
     ) public returns (uint) {
         if (!userService.isHost(msg.sender)) {
             userService.grantHostRole(msg.sender);
@@ -188,7 +188,7 @@ contract Rentality is IRentality, Ownable {
 
     function updateCarInfo(
         uint256 carId,
-        uint256 pricePerDayInUsdCents,
+        uint64 pricePerDayInUsdCents,
         bool currentlyListed
     ) public onlyHost {
         return
@@ -253,7 +253,7 @@ contract Rentality is IRentality, Ownable {
     ) public payable {
         require(msg.value > 0, "Rental fee must be greater than 0");
 
-        uint256 valueSum = request.totalDayPriceInUsdCents +
+        uint64 valueSum = request.totalDayPriceInUsdCents +
             request.taxPriceInUsdCents +
             request.depositInUsdCents;
         uint256 valueSumInEth = currencyConverterService.getEthFromUsd(
@@ -308,7 +308,7 @@ contract Rentality is IRentality, Ownable {
         tripService.rejectTrip(tripId);
         RentalityTripService.Trip memory trip = tripService.getTrip(tripId);
 
-        uint256 valueToReturnInUsdCents = trip
+        uint64 valueToReturnInUsdCents = trip
             .paymentInfo
             .totalDayPriceInUsdCents +
             trip.paymentInfo.taxPriceInUsdCents +
@@ -323,37 +323,37 @@ contract Rentality is IRentality, Ownable {
 
     function checkInByHost(
         uint256 tripId,
-        uint256 startFuelLevel,
-        uint256 startOdometr
+        uint64 startFuelLevel,
+        uint64 startOdometr
     ) public {
         return tripService.checkInByHost(tripId, startFuelLevel, startOdometr);
     }
 
     function checkInByGuest(
         uint256 tripId,
-        uint256 startFuelLevel,
-        uint256 startOdometr
+        uint64 startFuelLevel,
+        uint64 startOdometr
     ) public {
         return tripService.checkInByGuest(tripId, startFuelLevel, startOdometr);
     }
 
     function checkOutByGuest(
         uint256 tripId,
-        uint256 endFuelLevel,
-        uint256 endOdometr
+        uint64 endFuelLevel,
+        uint64 endOdometr
     ) public {
         return tripService.checkOutByGuest(tripId, endFuelLevel, endOdometr);
     }
 
     function checkOutByHost(
         uint256 tripId,
-        uint256 endFuelLevel,
-        uint256 endOdometr
+        uint64 endFuelLevel,
+        uint64 endOdometr
     ) public {
         return tripService.checkOutByHost(tripId, endFuelLevel, endOdometr);
     }
 
-    function getPlatformFeeFrom(uint256 value) private view returns (uint256) {
+    function getPlatformFeeFrom(uint64 value) private view returns (uint64) {
         return (value * platformFeeInPPM) / 1_000_000;
     }
 
@@ -361,9 +361,8 @@ contract Rentality is IRentality, Ownable {
         tripService.finishTrip(tripId);
         RentalityTripService.Trip memory trip = tripService.getTrip(tripId);
 
-        uint256 valueToHostInUsdCents = trip
-            .paymentInfo
-            .totalDayPriceInUsdCents +
+        uint64 valueToHostInUsdCents = 
+        trip.paymentInfo.totalDayPriceInUsdCents +
             trip.paymentInfo.taxPriceInUsdCents +
             trip.resolveAmountInUsdCents -
             getPlatformFeeFrom(
@@ -375,7 +374,7 @@ contract Rentality is IRentality, Ownable {
             trip.paymentInfo.ethToCurrencyRate,
             trip.paymentInfo.ethToCurrencyDecimals
         );
-        uint256 valueToGuestInUsdCents = trip.paymentInfo.depositInUsdCents -
+        uint64 valueToGuestInUsdCents = trip.paymentInfo.depositInUsdCents -
             trip.resolveAmountInUsdCents;
         uint256 valueToGuestInEth = currencyConverterService.getEthFromUsd(
             valueToGuestInUsdCents,

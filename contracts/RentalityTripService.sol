@@ -27,9 +27,9 @@ contract RentalityTripService {
         uint256 tripRequestId;
         address from;
         address to;
-        uint256 totalDayPriceInUsdCents;
-        uint256 taxPriceInUsdCents;
-        uint256 depositInUsdCents;
+        uint64 totalDayPriceInUsdCents;
+        uint64 taxPriceInUsdCents;
+        uint64 depositInUsdCents;
         CurrencyType currencyType;
         int256 ethToCurrencyRate;
         uint8 ethToCurrencyDecimals;
@@ -45,19 +45,19 @@ contract RentalityTripService {
         uint endDateTime;
         string startLocation;
         string endLocation;
-        uint256 milesIncluded;
-        uint256 fuelPricePerGalInUsdCents;
+        uint64 milesIncluded;
+        uint64 fuelPricePerGalInUsdCents;
         PaymentInfo paymentInfo;
         uint approvedDateTime;
         uint checkedInByHostDateTime;
-        uint startFuelLevel;
-        uint startOdometr;
+        uint64 startFuelLevel;
+        uint64 startOdometr;
         uint checkedInByGuestDateTime;
         uint checkedOutByGuestDateTime;
-        uint endFuelLevel;
-        uint endOdometr;
+        uint64 endFuelLevel;
+        uint64 endOdometr;
         uint checkedOutByHostDateTime;
-        uint256 resolveAmountInUsdCents;
+        uint64 resolveAmountInUsdCents;
     }
 
     mapping(uint256 => Trip) private idToTripInfo;
@@ -76,12 +76,15 @@ contract RentalityTripService {
         uint endDateTime,
         string memory startLocation,
         string memory endLocation,
-        uint256 milesIncluded,
-        uint256 fuelPricePerGalInUsdCents,
+        uint64 milesIncluded,
+        uint64 fuelPricePerGalInUsdCents,
         PaymentInfo memory paymentInfo
     ) public {
         _tripIdCounter.increment();
         uint256 newTripId = _tripIdCounter.current();
+        if (milesIncluded == 0) {
+            milesIncluded = 2 ** 32 - 1;
+        }
 
         idToTripInfo[newTripId] = Trip(
             newTripId,
@@ -130,8 +133,8 @@ contract RentalityTripService {
 
     function checkInByHost(
         uint256 tripId,
-        uint startFuelLevel,
-        uint startOdometr
+        uint64 startFuelLevel,
+        uint64 startOdometr
     ) public {
         require(
             idToTripInfo[tripId].status == TripStatus.Approved,
@@ -146,8 +149,8 @@ contract RentalityTripService {
 
     function checkInByGuest(
         uint256 tripId,
-        uint startFuelLevel,
-        uint startOdometr
+        uint64 startFuelLevel,
+        uint64 startOdometr
     ) public {
         require(
             idToTripInfo[tripId].status == TripStatus.CheckedInByHost,
@@ -168,15 +171,15 @@ contract RentalityTripService {
 
     function checkOutByGuest(
         uint256 tripId,
-        uint endFuelLevel,
-        uint endOdometr
+        uint64 endFuelLevel,
+        uint64 endOdometr
     ) public {
         require(
             idToTripInfo[tripId].status == TripStatus.CheckedInByGuest,
             "The trip is not in status CheckedInByGuest"
         );
         require(
-            idToTripInfo[tripId].startOdometr <= endFuelLevel,
+            idToTripInfo[tripId].startOdometr <= endOdometr,
             "End odometr should be greater than start odometr"
         );
         idToTripInfo[tripId].status = TripStatus.CheckedOutByGuest;
@@ -187,8 +190,8 @@ contract RentalityTripService {
 
     function checkOutByHost(
         uint256 tripId,
-        uint endFuelLevel,
-        uint endOdometr
+        uint64 endFuelLevel,
+        uint64 endOdometr
     ) public {
         require(
             idToTripInfo[tripId].status == TripStatus.CheckedOutByGuest,
@@ -213,28 +216,39 @@ contract RentalityTripService {
             idToTripInfo[tripId].status == TripStatus.CheckedOutByHost,
             "The trip is not in status CheckedOutByHost"
         );
-
         idToTripInfo[tripId].status = TripStatus.Finished;
 
-        uint256 resolveDrivenMilesAmountInUsdCents = ((idToTripInfo[tripId].endOdometr -
-            idToTripInfo[tripId].startOdometr -
-            idToTripInfo[tripId].milesIncluded) *
-            idToTripInfo[tripId].paymentInfo.totalDayPriceInUsdCents) /
-            idToTripInfo[tripId].milesIncluded;
-        if (resolveDrivenMilesAmountInUsdCents < 0) {
-            resolveDrivenMilesAmountInUsdCents = 0;
+        uint64 resolveDrivenMilesAmountInUsdCents = 0;
+
+        if (
+            idToTripInfo[tripId].endOdometr -
+                idToTripInfo[tripId].startOdometr >
+            idToTripInfo[tripId].milesIncluded
+        ) {
+            resolveDrivenMilesAmountInUsdCents =
+                ((idToTripInfo[tripId].endOdometr -
+                    idToTripInfo[tripId].startOdometr -
+                    idToTripInfo[tripId].milesIncluded) *
+                    idToTripInfo[tripId].paymentInfo.totalDayPriceInUsdCents) /
+                idToTripInfo[tripId].milesIncluded;
         }
 
-        uint256 resolveFuelAmountInUsdCents = ((idToTripInfo[tripId].startFuelLevel -
-            idToTripInfo[tripId].endFuelLevel) * idToTripInfo[tripId].fuelPricePerGalInUsdCents)/8;
-        if (resolveFuelAmountInUsdCents < 0) {
-            resolveFuelAmountInUsdCents = 0;
+        uint64 resolveFuelAmountInUsdCents = 0;
+        if (idToTripInfo[tripId].endFuelLevel < idToTripInfo[tripId].startFuelLevel){
+            resolveFuelAmountInUsdCents = ((idToTripInfo[tripId]
+            .startFuelLevel - idToTripInfo[tripId].endFuelLevel) *
+            idToTripInfo[tripId].fuelPricePerGalInUsdCents) / 8;
         }
 
-        uint256 resolveAmountInUsdCents = resolveDrivenMilesAmountInUsdCents+
+        uint64 resolveAmountInUsdCents = resolveDrivenMilesAmountInUsdCents +
             resolveFuelAmountInUsdCents;
-        if (resolveAmountInUsdCents > idToTripInfo[tripId].paymentInfo.depositInUsdCents){
-            resolveAmountInUsdCents = idToTripInfo[tripId].paymentInfo.depositInUsdCents;
+        if (
+            resolveAmountInUsdCents >
+            idToTripInfo[tripId].paymentInfo.depositInUsdCents
+        ) {
+            resolveAmountInUsdCents = idToTripInfo[tripId]
+                .paymentInfo
+                .depositInUsdCents;
         }
         idToTripInfo[tripId].resolveAmountInUsdCents = resolveAmountInUsdCents;
     }

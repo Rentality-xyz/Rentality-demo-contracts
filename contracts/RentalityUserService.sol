@@ -9,7 +9,7 @@ contract RentalityUserService is AccessControl {
         string name;
         string surname;
         string licenseNumber;
-        uint256 expirationDate;
+        uint64 expirationDate;
         uint createDate;
     }
 
@@ -33,7 +33,7 @@ contract RentalityUserService is AccessControl {
         string memory name,
         string memory surname,
         string memory licenseNumber,
-        uint256 expirationDate
+        uint64 expirationDate
     ) public {
         kycInfos[user] = KYCInfo(
             name,

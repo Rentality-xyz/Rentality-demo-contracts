@@ -17,16 +17,16 @@ contract RentalityCarToken is ERC4907, Ownable {
         string carVinNumber;
         bytes32 carVinNumberHash;
         address createdBy;
-        uint256 pricePerDayInUsdCents;
-        uint256 tankVolumeInGal;
-        uint256 distanceIncludedInMi;
+        uint64 pricePerDayInUsdCents;
+        uint64 tankVolumeInGal;
+        uint64 distanceIncludedInMi;
         bool currentlyListed;
     }
 
     event CarAddedSuccess(
         string carVinNumber,
         address createdBy,
-        uint256 pricePerDayInUsdCents,
+        uint64 pricePerDayInUsdCents,
         bool currentlyListed
     );
 
@@ -76,9 +76,9 @@ contract RentalityCarToken is ERC4907, Ownable {
     function addCar(
         string memory tokenUri,
         string memory carVinNumber,
-        uint256 pricePerDayInUsdCents,
-        uint256 tankVolumeInGal,
-        uint256 distanceIncludedInMi
+        uint64 pricePerDayInUsdCents,
+        uint64 tankVolumeInGal,
+        uint64 distanceIncludedInMi
     ) public onlyHost returns (uint) {
         require(pricePerDayInUsdCents > 0, "Make sure the price isn't negative");
         require(tankVolumeInGal > 0, "Make sure the tank volume isn't negative");
@@ -117,7 +117,7 @@ contract RentalityCarToken is ERC4907, Ownable {
 
     function updateCarInfo(
         uint256 carId,
-        uint256 pricePerDayInUsdCents,
+        uint64 pricePerDayInUsdCents,
         bool currentlyListed
     ) public onlyHost {
         require(_exists(carId), "Token does not exist");
