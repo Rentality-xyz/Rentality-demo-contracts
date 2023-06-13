@@ -17,7 +17,6 @@ interface IRentality {
         uint64 depositInUsdCents;
         int256 ethToCurrencyRate;
         uint8 ethToCurrencyDecimals;
-        uint64 fuelPricePerGalInUsdCents;
     }
 
     ///admin functions
@@ -34,8 +33,8 @@ interface IRentality {
     function withdrawAllFromPlatform() external;
     function getPlatformFeeInPPM() external view returns (uint32);
     function setPlatformFeeInPPM(uint32 valueInPPM) external;
-    function getDepositePriceInUsdCents() external view returns (uint32);
-    function setDepositePriceInUsdCents(uint32 valueInUsdCents) external;
+    function getDepositPriceInUsdCents() external view returns (uint32);
+    function setDepositPriceInUsdCents(uint32 valueInUsdCents) external;
     function getFuelPricePerGalInUsdCents() external view returns (uint32);
     function setFuelPricePerGalInUsdCents(uint32 valueInUsdCents) external;
 
@@ -52,8 +51,8 @@ interface IRentality {
     function getTripsAsHost() external view returns (RentalityTripService.Trip[] memory);
     function approveTripRequest(uint256 tripId) external;
     function rejectTripRequest(uint256 tripId) external;
-    function checkInByHost(uint256 tripId, uint64 startFuelLevel, uint64 startOdometr) external;
-    function checkOutByHost(uint256 tripId, uint64 endFuelLevel, uint64 endOdometr) external;
+    function checkInByHost(uint256 tripId, uint64 startFuelLevelInPermille, uint64 startOdometr) external;
+    function checkOutByHost(uint256 tripId, uint64 endFuelLevelInPermille, uint64 endOdometr) external;
     function finishTrip(uint256 tripId) external;
 
     ///guest functions
@@ -61,9 +60,8 @@ interface IRentality {
     function createTripRequest(CreateTripRequest memory request) external payable;
     function getTripsAsGuest() external view returns (RentalityTripService.Trip[] memory);
     function getCarsRentedByMe() external view returns (RentalityCarToken.CarInfo[] memory);
-    function checkInByGuest(uint256 tripId, uint64 startFuelLevel, uint64 startOdometr) external;
-    function checkOutByGuest(uint256 tripId, uint64 endFuelLevel, uint64 endOdometr) external;
+    function checkInByGuest(uint256 tripId, uint64 startFuelLevelInPermille, uint64 startOdometr) external;
+    function checkOutByGuest(uint256 tripId, uint64 endFuelLevelInPermille, uint64 endOdometr) external;
 
-    
     function getTrip(uint256 tripId) external view returns (RentalityTripService.Trip memory);
 }

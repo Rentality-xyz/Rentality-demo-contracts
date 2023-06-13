@@ -10,10 +10,8 @@ import "./RentalityUserService.sol";
 
 //deployed 26.05.2023 11:15 to sepolia at 0x12fB29Ed1f0E17605f488F640D49De29050cf855
 contract Rentality is IRentality, Ownable {
-    using Counters for Counters.Counter;
-    Counters.Counter private _tripRequestIdCounter;
-    uint32 platformFeeInPPM = 300_000;
-    uint32 depositePriceInUsdCents = 100_00;
+    uint32 platformFeeInPPM = 200_000;
+    uint32 depositPriceInUsdCents = 300_00;
     uint32 fuelPricePerGalInUsdCents = 5_00;
 
     RentalityCarToken private carService;
@@ -113,14 +111,24 @@ contract Rentality is IRentality, Ownable {
         platformFeeInPPM = valueInPPM;
     }
 
-    function getDepositePriceInUsdCents() public view returns (uint32) {
-        return depositePriceInUsdCents;
+    function getDepositPriceInUsdCents() public view returns (uint32) {
+        return depositPriceInUsdCents;
     }
 
-    function setDepositePriceInUsdCents(uint32 valueInUsdCents) public onlyAdmin {
+    function setDepositPriceInUsdCents(uint32 valueInUsdCents) public onlyAdmin {
         require(valueInUsdCents > 0, "Make sure the value isn't negative");
 
-        depositePriceInUsdCents = valueInUsdCents;
+        depositPriceInUsdCents = valueInUsdCents;
+    }
+
+    //TODO DELETE 
+    function getDepositePriceInUsdCents() public view returns (uint32) {
+        return getDepositPriceInUsdCents();
+    }
+
+    //TODO DELETE 
+    function setDepositePriceInUsdCents(uint32 valueInUsdCents) public onlyAdmin {
+        setDepositPriceInUsdCents(valueInUsdCents);
     }
 
     function getFuelPricePerGalInUsdCents() public view returns (uint32) {
@@ -148,10 +156,6 @@ contract Rentality is IRentality, Ownable {
 
     function withdrawAllFromPlatform() public {
         return withdrawFromPlatform(address(this).balance);
-    }
-
-    function totalTripRequestCount() public view returns (uint) {
-        return _tripRequestIdCounter.current();
     }
 
     function getCarInfoById(
@@ -267,16 +271,15 @@ contract Rentality is IRentality, Ownable {
             "Rental fee must be equal to sum totalDayPrice + taxPrice + deposit"
         );
 
-        _tripRequestIdCounter.increment();
-        uint256 newTripRequestId = _tripRequestIdCounter.current();
         RentalityTripService.PaymentInfo
             memory paymentInfo = RentalityTripService.PaymentInfo(
-                newTripRequestId,
+                0,
                 tx.origin,
                 address(this),
                 request.totalDayPriceInUsdCents,
                 request.taxPriceInUsdCents,
                 request.depositInUsdCents,
+                0,
                 RentalityTripService.CurrencyType.ETH,
                 request.ethToCurrencyRate,
                 request.ethToCurrencyDecimals
@@ -290,12 +293,13 @@ contract Rentality is IRentality, Ownable {
             request.carId,
             tx.origin,
             request.host,
+            carInfo.pricePerDayInUsdCents,
             request.startDateTime,
             request.endDateTime,
             request.startLocation,
             request.endLocation,
             carInfo.distanceIncludedInMi,
-            request.fuelPricePerGalInUsdCents,
+            fuelPricePerGalInUsdCents,
             paymentInfo
         );
     }
@@ -323,34 +327,50 @@ contract Rentality is IRentality, Ownable {
 
     function checkInByHost(
         uint256 tripId,
-        uint64 startFuelLevel,
+        uint64 startFuelLevelInPermille,
         uint64 startOdometr
     ) public {
-        return tripService.checkInByHost(tripId, startFuelLevel, startOdometr);
+        RentalityTripService.Trip memory trip = tripService.getTrip(tripId);        
+        RentalityCarToken.CarInfo memory carInfo = getCarInfoById(trip.carId);
+        uint64 startFuelLevelInGal = (carInfo.tankVolumeInGal * startFuelLevelInPermille) / 1000;
+
+        return tripService.checkInByHost(tripId, startFuelLevelInGal, startOdometr);
     }
 
     function checkInByGuest(
         uint256 tripId,
-        uint64 startFuelLevel,
+        uint64 startFuelLevelInPermille,
         uint64 startOdometr
     ) public {
-        return tripService.checkInByGuest(tripId, startFuelLevel, startOdometr);
+        RentalityTripService.Trip memory trip = tripService.getTrip(tripId);        
+        RentalityCarToken.CarInfo memory carInfo = getCarInfoById(trip.carId);
+        uint64 startFuelLevelInGal = (carInfo.tankVolumeInGal * startFuelLevelInPermille) / 1000;
+
+        return tripService.checkInByGuest(tripId, startFuelLevelInGal, startOdometr);
     }
 
     function checkOutByGuest(
         uint256 tripId,
-        uint64 endFuelLevel,
+        uint64 endFuelLevelInPermille,
         uint64 endOdometr
     ) public {
-        return tripService.checkOutByGuest(tripId, endFuelLevel, endOdometr);
+        RentalityTripService.Trip memory trip = tripService.getTrip(tripId);        
+        RentalityCarToken.CarInfo memory carInfo = getCarInfoById(trip.carId);
+        uint64 endFuelLevelInGal = (carInfo.tankVolumeInGal * endFuelLevelInPermille) / 1000;
+
+        return tripService.checkOutByGuest(tripId, endFuelLevelInGal, endOdometr);
     }
 
     function checkOutByHost(
         uint256 tripId,
-        uint64 endFuelLevel,
+        uint64 endFuelLevelInPermille,
         uint64 endOdometr
     ) public {
-        return tripService.checkOutByHost(tripId, endFuelLevel, endOdometr);
+        RentalityTripService.Trip memory trip = tripService.getTrip(tripId);        
+        RentalityCarToken.CarInfo memory carInfo = getCarInfoById(trip.carId);
+        uint64 endFuelLevelInGal = (carInfo.tankVolumeInGal * endFuelLevelInPermille) / 1000;
+
+        return tripService.checkOutByHost(tripId, endFuelLevelInGal, endOdometr);
     }
 
     function getPlatformFeeFrom(uint64 value) private view returns (uint64) {
@@ -364,7 +384,7 @@ contract Rentality is IRentality, Ownable {
         uint64 valueToHostInUsdCents = 
         trip.paymentInfo.totalDayPriceInUsdCents +
             trip.paymentInfo.taxPriceInUsdCents +
-            trip.resolveAmountInUsdCents -
+            trip.paymentInfo.resolveAmountInUsdCents -
             getPlatformFeeFrom(
                 trip.paymentInfo.totalDayPriceInUsdCents +
                     trip.paymentInfo.taxPriceInUsdCents
@@ -375,7 +395,7 @@ contract Rentality is IRentality, Ownable {
             trip.paymentInfo.ethToCurrencyDecimals
         );
         uint64 valueToGuestInUsdCents = trip.paymentInfo.depositInUsdCents -
-            trip.resolveAmountInUsdCents;
+            trip.paymentInfo.resolveAmountInUsdCents;
         uint256 valueToGuestInEth = currencyConverterService.getEthFromUsd(
             valueToGuestInUsdCents,
             trip.paymentInfo.ethToCurrencyRate,

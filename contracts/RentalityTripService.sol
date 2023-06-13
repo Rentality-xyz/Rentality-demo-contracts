@@ -2,6 +2,7 @@
 pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 
 //deployed 26.05.2023 11:15 to sepolia at 0x417886Ca72048E92E8Bf2082cf193ab8DB4ED09f
 contract RentalityTripService {
@@ -24,12 +25,13 @@ contract RentalityTripService {
     }
 
     struct PaymentInfo {
-        uint256 tripRequestId;
+        uint256 tripId;
         address from;
         address to;
         uint64 totalDayPriceInUsdCents;
         uint64 taxPriceInUsdCents;
         uint64 depositInUsdCents;
+        uint64 resolveAmountInUsdCents;
         CurrencyType currencyType;
         int256 ethToCurrencyRate;
         uint8 ethToCurrencyDecimals;
@@ -41,6 +43,7 @@ contract RentalityTripService {
         TripStatus status;
         address guest;
         address host;
+        uint256 pricePerDayInUsdCents;
         uint startDateTime;
         uint endDateTime;
         string startLocation;
@@ -50,14 +53,13 @@ contract RentalityTripService {
         PaymentInfo paymentInfo;
         uint approvedDateTime;
         uint checkedInByHostDateTime;
-        uint64 startFuelLevel;
+        uint64 startFuelLevelInGal;
         uint64 startOdometr;
         uint checkedInByGuestDateTime;
         uint checkedOutByGuestDateTime;
-        uint64 endFuelLevel;
+        uint64 endFuelLevelInGal;
         uint64 endOdometr;
         uint checkedOutByHostDateTime;
-        uint64 resolveAmountInUsdCents;
     }
 
     mapping(uint256 => Trip) private idToTripInfo;
@@ -72,6 +74,7 @@ contract RentalityTripService {
         uint256 carId,
         address guest,
         address host,
+        uint64 pricePerDayInUsdCents,
         uint startDateTime,
         uint endDateTime,
         string memory startLocation,
@@ -85,6 +88,7 @@ contract RentalityTripService {
         if (milesIncluded == 0) {
             milesIncluded = 2 ** 32 - 1;
         }
+        paymentInfo.tripId = newTripId;
 
         idToTripInfo[newTripId] = Trip(
             newTripId,
@@ -92,6 +96,7 @@ contract RentalityTripService {
             TripStatus.Created,
             guest,
             host,
+            pricePerDayInUsdCents,
             startDateTime,
             endDateTime,
             startLocation,
@@ -99,7 +104,6 @@ contract RentalityTripService {
             milesIncluded,
             fuelPricePerGalInUsdCents,
             paymentInfo,
-            0,
             0,
             0,
             0,
@@ -133,7 +137,7 @@ contract RentalityTripService {
 
     function checkInByHost(
         uint256 tripId,
-        uint64 startFuelLevel,
+        uint64 startFuelLevelInGal,
         uint64 startOdometr
     ) public {
         require(
@@ -143,13 +147,13 @@ contract RentalityTripService {
 
         idToTripInfo[tripId].status = TripStatus.CheckedInByHost;
         idToTripInfo[tripId].checkedInByHostDateTime = block.timestamp;
-        idToTripInfo[tripId].startFuelLevel = startFuelLevel;
+        idToTripInfo[tripId].startFuelLevelInGal = startFuelLevelInGal;
         idToTripInfo[tripId].startOdometr = startOdometr;
     }
 
     function checkInByGuest(
         uint256 tripId,
-        uint64 startFuelLevel,
+        uint64 startFuelLevelInGal,
         uint64 startOdometr
     ) public {
         require(
@@ -157,7 +161,7 @@ contract RentalityTripService {
             "The trip is not in status CheckedInByHost"
         );
         require(
-            idToTripInfo[tripId].startFuelLevel == startFuelLevel,
+            idToTripInfo[tripId].startFuelLevelInGal == startFuelLevelInGal,
             "Start fuel level does not match"
         );
         require(
@@ -171,7 +175,7 @@ contract RentalityTripService {
 
     function checkOutByGuest(
         uint256 tripId,
-        uint64 endFuelLevel,
+        uint64 endFuelLevelInGal,
         uint64 endOdometr
     ) public {
         require(
@@ -184,13 +188,13 @@ contract RentalityTripService {
         );
         idToTripInfo[tripId].status = TripStatus.CheckedOutByGuest;
         idToTripInfo[tripId].checkedOutByGuestDateTime = block.timestamp;
-        idToTripInfo[tripId].endFuelLevel = endFuelLevel;
+        idToTripInfo[tripId].endFuelLevelInGal = endFuelLevelInGal;
         idToTripInfo[tripId].endOdometr = endOdometr;
     }
 
     function checkOutByHost(
         uint256 tripId,
-        uint64 endFuelLevel,
+        uint64 endFuelLevelInGal,
         uint64 endOdometr
     ) public {
         require(
@@ -198,7 +202,7 @@ contract RentalityTripService {
             "The trip is not in status CheckedOutByGuest"
         );
         require(
-            idToTripInfo[tripId].endFuelLevel == endFuelLevel,
+            idToTripInfo[tripId].endFuelLevelInGal == endFuelLevelInGal,
             "End fuel level does not match"
         );
         require(
@@ -225,19 +229,23 @@ contract RentalityTripService {
                 idToTripInfo[tripId].startOdometr >
             idToTripInfo[tripId].milesIncluded
         ) {
-            resolveDrivenMilesAmountInUsdCents =
+            resolveDrivenMilesAmountInUsdCents = (uint64)(
                 ((idToTripInfo[tripId].endOdometr -
                     idToTripInfo[tripId].startOdometr -
                     idToTripInfo[tripId].milesIncluded) *
-                    idToTripInfo[tripId].paymentInfo.totalDayPriceInUsdCents) /
-                idToTripInfo[tripId].milesIncluded;
+                    idToTripInfo[tripId].pricePerDayInUsdCents) /
+                    idToTripInfo[tripId].milesIncluded
+            );
         }
 
         uint64 resolveFuelAmountInUsdCents = 0;
-        if (idToTripInfo[tripId].endFuelLevel < idToTripInfo[tripId].startFuelLevel){
+        if (
+            idToTripInfo[tripId].endFuelLevelInGal <
+            idToTripInfo[tripId].startFuelLevelInGal
+        ) {
             resolveFuelAmountInUsdCents = ((idToTripInfo[tripId]
-            .startFuelLevel - idToTripInfo[tripId].endFuelLevel) *
-            idToTripInfo[tripId].fuelPricePerGalInUsdCents) / 8;
+                .startFuelLevelInGal - idToTripInfo[tripId].endFuelLevelInGal) *
+                idToTripInfo[tripId].fuelPricePerGalInUsdCents);
         }
 
         uint64 resolveAmountInUsdCents = resolveDrivenMilesAmountInUsdCents +
@@ -250,7 +258,9 @@ contract RentalityTripService {
                 .paymentInfo
                 .depositInUsdCents;
         }
-        idToTripInfo[tripId].resolveAmountInUsdCents = resolveAmountInUsdCents;
+        idToTripInfo[tripId]
+            .paymentInfo
+            .resolveAmountInUsdCents = resolveAmountInUsdCents;
     }
 
     function getTrip(uint256 tripId) public view returns (Trip memory) {

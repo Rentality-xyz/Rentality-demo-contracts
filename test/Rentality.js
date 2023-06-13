@@ -17,7 +17,7 @@ describe("Rentality", function () {
     const RentalityCarToken = await ethers.getContractFactory("RentalityCarToken");
     const Rentality = await ethers.getContractFactory("Rentality");
 
-    let rentalityMockPriceFeed = await RentalityMockPriceFeed.deploy(8, 165000000000);
+    let rentalityMockPriceFeed = await RentalityMockPriceFeed.deploy(8, 200000000000);
     await rentalityMockPriceFeed.deployed();
 
     const rentalityUserService = await RentalityUserService.deploy();
@@ -106,8 +106,7 @@ describe("Rentality", function () {
         taxPriceInUsdCents:0,
         depositInUsdCents:0,
         ethToCurrencyRate:ethToCurrencyRate,
-        ethToCurrencyDecimals:ethToCurrencyDecimals,
-        fuelPricePerGalInUsdCents:500}, {value: rentPriceInEth})).not.to.be.reverted;
+        ethToCurrencyDecimals:ethToCurrencyDecimals}, {value: rentPriceInEth})).not.to.be.reverted;
     });
 
     it("reject case", async function () {
@@ -136,8 +135,7 @@ describe("Rentality", function () {
         taxPriceInUsdCents:0,
         depositInUsdCents:0,
         ethToCurrencyRate:ethToCurrencyRate,
-        ethToCurrencyDecimals:ethToCurrencyDecimals,
-        fuelPricePerGalInUsdCents:500}, {value: rentPriceInEth})).to.changeEtherBalances(
+        ethToCurrencyDecimals:ethToCurrencyDecimals}, {value: rentPriceInEth})).to.changeEtherBalances(
                     [guest, rentality],
                      [-rentPriceInEth, rentPriceInEth]);
 
@@ -171,14 +169,13 @@ describe("Rentality", function () {
         taxPriceInUsdCents:0,
         depositInUsdCents:0,
         ethToCurrencyRate:ethToCurrencyRate,
-        ethToCurrencyDecimals:ethToCurrencyDecimals,
-        fuelPricePerGalInUsdCents:500}, {value: rentPriceInEth})).not.to.be.reverted;
+        ethToCurrencyDecimals:ethToCurrencyDecimals}, {value: rentPriceInEth})).not.to.be.reverted;
 
       await expect( rentality.connect(host).approveTripRequest(1)).not.to.be.reverted;
-      await expect( rentality.connect(host).checkInByHost(1, 1, 1)).not.to.be.reverted;
-      await expect( rentality.connect(guest).checkInByGuest(1, 1, 1)).not.to.be.reverted;
-      await expect( rentality.connect(guest).checkOutByGuest(1, 1, 1)).not.to.be.reverted;
-      await expect( rentality.connect(host).checkOutByHost(1, 1, 1)).not.to.be.reverted;
+      await expect( rentality.connect(host).checkInByHost(1, 0, 0)).not.to.be.reverted;
+      await expect( rentality.connect(guest).checkInByGuest(1, 0, 0)).not.to.be.reverted;
+      await expect( rentality.connect(guest).checkOutByGuest(1, 0, 0)).not.to.be.reverted;
+      await expect( rentality.connect(host).checkOutByHost(1, 0, 0)).not.to.be.reverted;
       const returnToHost = rentPriceInEth - (rentPriceInEth* (await rentality.getPlatformFeeInPPM())) / 1_000_000;
       await expect( rentality.connect(host).finishTrip(1)).to.changeEtherBalances(
         [host, rentality],
