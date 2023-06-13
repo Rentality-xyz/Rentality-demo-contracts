@@ -20,7 +20,7 @@ async function main() {
   }
 
   const contractFactory = await ethers.getContractFactory(contractName);
-  const contract = await contractFactory.deploy(8, 165000000000);
+  const contract = await contractFactory.deploy(8, 200000000000);
   await contract.deployed();
   console.log(contractName + " deployed to:", contract.address);
 

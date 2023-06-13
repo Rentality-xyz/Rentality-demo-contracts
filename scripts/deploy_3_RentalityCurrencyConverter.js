@@ -24,7 +24,7 @@ async function main() {
   if( chainId === 1337 && rentalityMockPriceFeedAddress.length === 0){
     contractName = "RentalityMockPriceFeed";
     let contractFactory = await ethers.getContractFactory(contractName);
-    let contract = await contractFactory.deploy(8, 165000000000);
+    let contract = await contractFactory.deploy(8, 200000000000);
     await contract.deployed();
     console.log(contractName + " deployed to:", contract.address);
     rentalityMockPriceFeedAddress = contract.address;
