@@ -1,5 +1,7 @@
 const saveJsonAbi = require("./utils/abiSaver");
 const { ethers } = require("hardhat");
+const addressesGanache = require("./ganacheAddresses.json")
+const addressesSepolia = require("./sepoliaAddresses.json")
 
 async function main() {
   const contractName = "RentalityCarToken";
@@ -16,7 +18,9 @@ async function main() {
   console.log("ChainId is:", chainId);
   if (chainId < 0) return;
 
-  const userServiceAddress = "";
+  const addresses = chainId === 11155111 ? addressesSepolia : addressesGanache;
+
+  const userServiceAddress = addresses.RentalityUserService;
   if (!userServiceAddress) {
     console.log("userServiceAddress is not set");
     return;
