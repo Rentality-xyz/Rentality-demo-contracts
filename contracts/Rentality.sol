@@ -175,7 +175,7 @@ contract Rentality is IRentality, Ownable {
         string memory carVinNumber,
         uint64 pricePerDayInUsdCents,
         uint64 tankVolumeInGal,
-        uint64 distanceIncludedInMi
+        uint64 milesIncludedPerDay
     ) public returns (uint) {
         if (!userService.isHost(msg.sender)) {
             userService.grantHostRole(msg.sender);
@@ -186,7 +186,7 @@ contract Rentality is IRentality, Ownable {
                 carVinNumber,
                 pricePerDayInUsdCents,
                 tankVolumeInGal,
-                distanceIncludedInMi
+                milesIncludedPerDay
             );
     }
 
@@ -298,7 +298,7 @@ contract Rentality is IRentality, Ownable {
             request.endDateTime,
             request.startLocation,
             request.endLocation,
-            carInfo.distanceIncludedInMi,
+            carInfo.milesIncludedPerDay,
             fuelPricePerGalInUsdCents,
             paymentInfo
         );

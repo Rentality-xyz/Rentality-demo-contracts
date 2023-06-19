@@ -19,7 +19,7 @@ contract RentalityCarToken is ERC4907, Ownable {
         address createdBy;
         uint64 pricePerDayInUsdCents;
         uint64 tankVolumeInGal;
-        uint64 distanceIncludedInMi;
+        uint64 milesIncludedPerDay;
         bool currentlyListed;
     }
 
@@ -78,11 +78,11 @@ contract RentalityCarToken is ERC4907, Ownable {
         string memory carVinNumber,
         uint64 pricePerDayInUsdCents,
         uint64 tankVolumeInGal,
-        uint64 distanceIncludedInMi
+        uint64 milesIncludedPerDay
     ) public onlyHost returns (uint) {
         require(pricePerDayInUsdCents > 0, "Make sure the price isn't negative");
         require(tankVolumeInGal > 0, "Make sure the tank volume isn't negative");
-        require(distanceIncludedInMi > 0,"Make sure the included distance isn't negative");
+        require(milesIncludedPerDay > 0,"Make sure the included distance isn't negative");
         require(isUniqueVinNumber(carVinNumber),"Car with this VIN number is already exist");
 
         _carIdCounter.increment();
@@ -98,7 +98,7 @@ contract RentalityCarToken is ERC4907, Ownable {
             tx.origin,
             pricePerDayInUsdCents,
             tankVolumeInGal,
-            distanceIncludedInMi,
+            milesIncludedPerDay,
             true
         );
 

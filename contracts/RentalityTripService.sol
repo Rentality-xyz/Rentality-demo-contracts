@@ -43,12 +43,12 @@ contract RentalityTripService {
         TripStatus status;
         address guest;
         address host;
-        uint256 pricePerDayInUsdCents;
+        uint64 pricePerDayInUsdCents;
         uint startDateTime;
         uint endDateTime;
         string startLocation;
         string endLocation;
-        uint64 milesIncluded;
+        uint64 milesIncludedPerDay;
         uint64 fuelPricePerGalInUsdCents;
         PaymentInfo paymentInfo;
         uint approvedDateTime;
@@ -79,14 +79,14 @@ contract RentalityTripService {
         uint endDateTime,
         string memory startLocation,
         string memory endLocation,
-        uint64 milesIncluded,
+        uint64 milesIncludedPerDay,
         uint64 fuelPricePerGalInUsdCents,
         PaymentInfo memory paymentInfo
     ) public {
         _tripIdCounter.increment();
         uint256 newTripId = _tripIdCounter.current();
-        if (milesIncluded == 0) {
-            milesIncluded = 2 ** 32 - 1;
+        if (milesIncludedPerDay == 0) {
+            milesIncludedPerDay = 2 ** 32 - 1;
         }
         paymentInfo.tripId = newTripId;
 
@@ -101,7 +101,7 @@ contract RentalityTripService {
             endDateTime,
             startLocation,
             endLocation,
-            milesIncluded,
+            milesIncludedPerDay,
             fuelPricePerGalInUsdCents,
             paymentInfo,
             0,
@@ -221,35 +221,9 @@ contract RentalityTripService {
             "The trip is not in status CheckedOutByHost"
         );
         idToTripInfo[tripId].status = TripStatus.Finished;
-
-        uint64 resolveDrivenMilesAmountInUsdCents = 0;
-
-        if (
-            idToTripInfo[tripId].endOdometr -
-                idToTripInfo[tripId].startOdometr >
-            idToTripInfo[tripId].milesIncluded
-        ) {
-            resolveDrivenMilesAmountInUsdCents = (uint64)(
-                ((idToTripInfo[tripId].endOdometr -
-                    idToTripInfo[tripId].startOdometr -
-                    idToTripInfo[tripId].milesIncluded) *
-                    idToTripInfo[tripId].pricePerDayInUsdCents) /
-                    idToTripInfo[tripId].milesIncluded
-            );
-        }
-
-        uint64 resolveFuelAmountInUsdCents = 0;
-        if (
-            idToTripInfo[tripId].endFuelLevelInGal <
-            idToTripInfo[tripId].startFuelLevelInGal
-        ) {
-            resolveFuelAmountInUsdCents = ((idToTripInfo[tripId]
-                .startFuelLevelInGal - idToTripInfo[tripId].endFuelLevelInGal) *
-                idToTripInfo[tripId].fuelPricePerGalInUsdCents);
-        }
-
-        uint64 resolveAmountInUsdCents = resolveDrivenMilesAmountInUsdCents +
-            resolveFuelAmountInUsdCents;
+        
+        uint64 resolveAmountInUsdCents = getResolveAmountInUsdCents(idToTripInfo[tripId]);
+        
         if (
             resolveAmountInUsdCents >
             idToTripInfo[tripId].paymentInfo.depositInUsdCents
@@ -261,6 +235,41 @@ contract RentalityTripService {
         idToTripInfo[tripId]
             .paymentInfo
             .resolveAmountInUsdCents = resolveAmountInUsdCents;
+    }
+
+    function getResolveAmountInUsdCents(Trip memory tripInfo) public pure returns (uint64){
+         return getResolveAmountInUsdCents(
+            tripInfo.startOdometr,
+            tripInfo.endOdometr,
+            tripInfo.milesIncludedPerDay,
+            tripInfo.pricePerDayInUsdCents,
+            tripInfo.startFuelLevelInGal,  
+            tripInfo.endFuelLevelInGal, 
+            tripInfo.fuelPricePerGalInUsdCents);
+    }
+
+    function getResolveAmountInUsdCents(uint64 startOdometr, uint64 endOdometr, uint64 milesIncludedPerDay, uint64 pricePerDayInUsdCents, uint64 startFuelLevelInGal, uint64 endFuelLevelInGal, uint64 fuelPricePerGalInUsdCents) public pure returns (uint64){
+         return getDrivenMilesResolveAmountInUsdCents(
+            startOdometr,
+            endOdometr,
+            milesIncludedPerDay,
+            pricePerDayInUsdCents
+        ) + getFuelResolveAmountInUsdCents(
+            startFuelLevelInGal,  
+            endFuelLevelInGal, 
+            fuelPricePerGalInUsdCents);
+    }
+
+    function getDrivenMilesResolveAmountInUsdCents(uint64 startOdometr, uint64 endOdometr, uint64 milesIncludedPerDay, uint64 pricePerDayInUsdCents) public pure returns (uint64){
+        if (endOdometr - startOdometr <= milesIncludedPerDay * pricePerDayInUsdCents) return 0;
+
+        return (endOdometr - startOdometr - milesIncludedPerDay * pricePerDayInUsdCents) * pricePerDayInUsdCents / milesIncludedPerDay;
+    }
+    
+    function getFuelResolveAmountInUsdCents(uint64 startFuelLevelInGal, uint64 endFuelLevelInGal, uint64 fuelPricePerGalInUsdCents) public pure returns (uint64){
+        if (endFuelLevelInGal >= startFuelLevelInGal ) return 0;
+
+        return (startFuelLevelInGal - endFuelLevelInGal) * fuelPricePerGalInUsdCents;
     }
 
     function getTrip(uint256 tripId) public view returns (Trip memory) {

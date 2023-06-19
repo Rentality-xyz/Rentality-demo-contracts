@@ -44,7 +44,7 @@ interface IRentality {
         string memory carVinNumber,
         uint64 pricePerDayInUsdCents,
         uint64 tankVolumeInGal,
-        uint64 distanceIncludedInMi
+        uint64 milesIncludedPerDay
     ) external returns (uint);
     function getCarMetadataURI(uint256 carId) external view returns (string memory);
     function getMyCars() external view returns (RentalityCarToken.CarInfo[] memory);
