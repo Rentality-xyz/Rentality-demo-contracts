@@ -33,13 +33,17 @@ contract RentalityCarToken is ERC4907, Ownable {
     mapping(uint256 => CarInfo) private idToCarInfo;
     RentalityUserService private userService;
 
-    constructor(address userServiceAddress) ERC4907("RentalityCarToken Test", "RTCT") {
+    constructor(
+        address userServiceAddress
+    ) ERC4907("RentalityCarToken Test", "RTCT") {
         userService = RentalityUserService(userServiceAddress);
     }
 
     modifier onlyAdmin() {
         require(
-            userService.isAdmin(msg.sender) || userService.isAdmin(tx.origin) ||(tx.origin == owner()),
+            userService.isAdmin(msg.sender) ||
+                userService.isAdmin(tx.origin) ||
+                (tx.origin == owner()),
             "User is not an admin"
         );
         _;
@@ -58,11 +62,15 @@ contract RentalityCarToken is ERC4907, Ownable {
         return _carIdCounter.current();
     }
 
-    function getCarInfoById(uint256 carId) public view returns (CarInfo memory) {
+    function getCarInfoById(
+        uint256 carId
+    ) public view returns (CarInfo memory) {
         return idToCarInfo[carId];
     }
 
-    function isUniqueVinNumber(string memory carVinNumber) public view returns (bool) {
+    function isUniqueVinNumber(
+        string memory carVinNumber
+    ) public view returns (bool) {
         bytes32 carVinNumberHash = keccak256(abi.encodePacked(carVinNumber));
 
         for (uint i = 0; i < totalSupply(); i++) {
@@ -80,10 +88,22 @@ contract RentalityCarToken is ERC4907, Ownable {
         uint64 tankVolumeInGal,
         uint64 milesIncludedPerDay
     ) public onlyHost returns (uint) {
-        require(pricePerDayInUsdCents > 0, "Make sure the price isn't negative");
-        require(tankVolumeInGal > 0, "Make sure the tank volume isn't negative");
-        require(milesIncludedPerDay > 0,"Make sure the included distance isn't negative");
-        require(isUniqueVinNumber(carVinNumber),"Car with this VIN number is already exist");
+        require(
+            pricePerDayInUsdCents > 0,
+            "Make sure the price isn't negative"
+        );
+        require(
+            tankVolumeInGal > 0,
+            "Make sure the tank volume isn't negative"
+        );
+        require(
+            milesIncludedPerDay > 0,
+            "Make sure the included distance isn't negative"
+        );
+        require(
+            isUniqueVinNumber(carVinNumber),
+            "Car with this VIN number is already exist"
+        );
 
         _carIdCounter.increment();
         uint256 newCarId = _carIdCounter.current();
@@ -121,22 +141,34 @@ contract RentalityCarToken is ERC4907, Ownable {
         bool currentlyListed
     ) public onlyHost {
         require(_exists(carId), "Token does not exist");
-        require(ownerOf(carId) == tx.origin, "Only owner of the car can update car info");
+        require(
+            ownerOf(carId) == tx.origin,
+            "Only owner of the car can update car info"
+        );
 
         idToCarInfo[carId].pricePerDayInUsdCents = pricePerDayInUsdCents;
         idToCarInfo[carId].currentlyListed = currentlyListed;
     }
 
-    function updateCarTokenUri(uint256 carId,string memory tokenUri) public onlyHost {
+    function updateCarTokenUri(
+        uint256 carId,
+        string memory tokenUri
+    ) public onlyHost {
         require(_exists(carId), "Token does not exist");
-        require(ownerOf(carId) == tx.origin, "Only owner of the car can update token");
+        require(
+            ownerOf(carId) == tx.origin,
+            "Only owner of the car can update token"
+        );
 
         _setTokenURI(carId, tokenUri);
     }
 
     function burnCar(uint256 carId) public onlyHost {
         require(_exists(carId), "Token does not exist");
-        require(ownerOf(carId) == tx.origin, "Only owner of the car can burn token");
+        require(
+            ownerOf(carId) == tx.origin,
+            "Only owner of the car can burn token"
+        );
 
         _burn(carId);
         delete idToCarInfo[carId];
@@ -206,7 +238,9 @@ contract RentalityCarToken is ERC4907, Ownable {
         return _exists(carId) && (ownerOf(carId) == user);
     }
 
-    function getCarsOwnedByUser(address user) public view returns (CarInfo[] memory) {
+    function getCarsOwnedByUser(
+        address user
+    ) public view returns (CarInfo[] memory) {
         if (!userService.isHost(user)) return new CarInfo[](0);
 
         uint itemCount = 0;
@@ -240,7 +274,9 @@ contract RentalityCarToken is ERC4907, Ownable {
         return _exists(carId) && userOf(carId) == user;
     }
 
-    function getCarsRentedByUser(address user)  public view returns (CarInfo[] memory) {
+    function getCarsRentedByUser(
+        address user
+    ) public view returns (CarInfo[] memory) {
         uint itemCount = 0;
 
         for (uint i = 0; i < totalSupply(); i++) {

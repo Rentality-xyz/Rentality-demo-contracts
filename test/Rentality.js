@@ -109,7 +109,7 @@ describe("Rentality", function () {
         ethToCurrencyDecimals:ethToCurrencyDecimals}, {value: rentPriceInEth})).not.to.be.reverted;
     });
 
-    it("reject case", async function () {
+    it("host can reject created trip", async function () {
       const { rentality, rentalityCurrencyConverter, host, guest} = await loadFixture(deployDefaultFixture);
       
       await expect(rentality.connect(host).addCar("1","2", 3,4,5)).not.to.be.reverted;
@@ -140,6 +140,41 @@ describe("Rentality", function () {
                      [-rentPriceInEth, rentPriceInEth]);
 
       await expect( rentality.connect(host).rejectTripRequest(1)).to.changeEtherBalances(
+                    [guest, rentality],
+                     [rentPriceInEth, -rentPriceInEth]);
+    });
+
+    it("guest can reject created trip", async function () {
+      const { rentality, rentalityCurrencyConverter, host, guest} = await loadFixture(deployDefaultFixture);
+      
+      await expect(rentality.connect(host).addCar("1","2", 3,4,5)).not.to.be.reverted;
+      const myCars = await rentality.connect(host).getMyCars();
+      expect(myCars.length).to.equal(1);
+
+      const availableCars = await rentality.connect(guest).getAvailableCars();
+      expect(availableCars.length).to.equal(1);
+
+      const rentPriceInUsdCents = 1000;
+      const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
+        await rentalityCurrencyConverter.getEthFromUsdLatest(
+          rentPriceInUsdCents
+        );
+
+      await expect(rentality.connect(guest).createTripRequest({carId:1,
+        host:host.address,
+        startDateTime:1,
+        endDateTime:1,
+        startLocation:"",
+        endLocation:"",
+        totalDayPriceInUsdCents:rentPriceInUsdCents,
+        taxPriceInUsdCents:0,
+        depositInUsdCents:0,
+        ethToCurrencyRate:ethToCurrencyRate,
+        ethToCurrencyDecimals:ethToCurrencyDecimals}, {value: rentPriceInEth})).to.changeEtherBalances(
+                    [guest, rentality],
+                     [-rentPriceInEth, rentPriceInEth]);
+
+      await expect( rentality.connect(guest).rejectTripRequest(1)).to.changeEtherBalances(
                     [guest, rentality],
                      [rentPriceInEth, -rentPriceInEth]);
     });

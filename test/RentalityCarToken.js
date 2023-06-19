@@ -184,7 +184,7 @@ describe("RentalityCarToken", function () {
       expect(carInfo.createdBy).to.equal(host.address);
       expect(carInfo.pricePerDayInUsdCents).to.equal(PRICE_PER_DAY);
       expect(carInfo.tankVolumeInGal).to.equal(TANK_VOLUME);
-      expect(carInfo.distanceIncludedInMi).to.equal(DISTANCE_INCLUDED);
+      expect(carInfo.milesIncludedPerDay).to.equal(DISTANCE_INCLUDED);
       expect(carInfo.currentlyListed).to.equal(true);
     });
 
@@ -219,7 +219,7 @@ describe("RentalityCarToken", function () {
       expect(myCars[0].createdBy).to.equal(host.address);
       expect(myCars[0].pricePerDayInUsdCents).to.equal(PRICE_PER_DAY);
       expect(myCars[0].tankVolumeInGal).to.equal(TANK_VOLUME);
-      expect(myCars[0].distanceIncludedInMi).to.equal(DISTANCE_INCLUDED);
+      expect(myCars[0].milesIncludedPerDay).to.equal(DISTANCE_INCLUDED);
       expect(myCars[0].currentlyListed).to.equal(true);
     });
 
@@ -246,7 +246,7 @@ describe("RentalityCarToken", function () {
       expect(availableCars[0].createdBy).to.equal(host.address);
       expect(availableCars[0].pricePerDayInUsdCents).to.equal(PRICE_PER_DAY);
       expect(availableCars[0].tankVolumeInGal).to.equal(TANK_VOLUME);
-      expect(availableCars[0].distanceIncludedInMi).to.equal(DISTANCE_INCLUDED);
+      expect(availableCars[0].milesIncludedPerDay).to.equal(DISTANCE_INCLUDED);
       expect(availableCars[0].currentlyListed).to.equal(true);
     });
   });

@@ -115,27 +115,21 @@ contract Rentality is IRentality, Ownable {
         return depositPriceInUsdCents;
     }
 
-    function setDepositPriceInUsdCents(uint32 valueInUsdCents) public onlyAdmin {
+    function setDepositPriceInUsdCents(
+        uint32 valueInUsdCents
+    ) public onlyAdmin {
         require(valueInUsdCents > 0, "Make sure the value isn't negative");
 
         depositPriceInUsdCents = valueInUsdCents;
-    }
-
-    //TODO DELETE 
-    function getDepositePriceInUsdCents() public view returns (uint32) {
-        return getDepositPriceInUsdCents();
-    }
-
-    //TODO DELETE 
-    function setDepositePriceInUsdCents(uint32 valueInUsdCents) public onlyAdmin {
-        setDepositPriceInUsdCents(valueInUsdCents);
     }
 
     function getFuelPricePerGalInUsdCents() public view returns (uint32) {
         return fuelPricePerGalInUsdCents;
     }
 
-    function setFuelPricePerGalInUsdCents(uint32 valueInUsdCents) public onlyAdmin {
+    function setFuelPricePerGalInUsdCents(
+        uint32 valueInUsdCents
+    ) public onlyAdmin {
         require(valueInUsdCents > 0, "Make sure the value isn't negative");
 
         fuelPricePerGalInUsdCents = valueInUsdCents;
@@ -330,11 +324,17 @@ contract Rentality is IRentality, Ownable {
         uint64 startFuelLevelInPermille,
         uint64 startOdometr
     ) public {
-        RentalityTripService.Trip memory trip = tripService.getTrip(tripId);        
+        RentalityTripService.Trip memory trip = tripService.getTrip(tripId);
         RentalityCarToken.CarInfo memory carInfo = getCarInfoById(trip.carId);
-        uint64 startFuelLevelInGal = (carInfo.tankVolumeInGal * startFuelLevelInPermille) / 1000;
+        uint64 startFuelLevelInGal = (carInfo.tankVolumeInGal *
+            startFuelLevelInPermille) / 1000;
 
-        return tripService.checkInByHost(tripId, startFuelLevelInGal, startOdometr);
+        return
+            tripService.checkInByHost(
+                tripId,
+                startFuelLevelInGal,
+                startOdometr
+            );
     }
 
     function checkInByGuest(
@@ -342,11 +342,17 @@ contract Rentality is IRentality, Ownable {
         uint64 startFuelLevelInPermille,
         uint64 startOdometr
     ) public {
-        RentalityTripService.Trip memory trip = tripService.getTrip(tripId);        
+        RentalityTripService.Trip memory trip = tripService.getTrip(tripId);
         RentalityCarToken.CarInfo memory carInfo = getCarInfoById(trip.carId);
-        uint64 startFuelLevelInGal = (carInfo.tankVolumeInGal * startFuelLevelInPermille) / 1000;
+        uint64 startFuelLevelInGal = (carInfo.tankVolumeInGal *
+            startFuelLevelInPermille) / 1000;
 
-        return tripService.checkInByGuest(tripId, startFuelLevelInGal, startOdometr);
+        return
+            tripService.checkInByGuest(
+                tripId,
+                startFuelLevelInGal,
+                startOdometr
+            );
     }
 
     function checkOutByGuest(
@@ -354,11 +360,13 @@ contract Rentality is IRentality, Ownable {
         uint64 endFuelLevelInPermille,
         uint64 endOdometr
     ) public {
-        RentalityTripService.Trip memory trip = tripService.getTrip(tripId);        
+        RentalityTripService.Trip memory trip = tripService.getTrip(tripId);
         RentalityCarToken.CarInfo memory carInfo = getCarInfoById(trip.carId);
-        uint64 endFuelLevelInGal = (carInfo.tankVolumeInGal * endFuelLevelInPermille) / 1000;
+        uint64 endFuelLevelInGal = (carInfo.tankVolumeInGal *
+            endFuelLevelInPermille) / 1000;
 
-        return tripService.checkOutByGuest(tripId, endFuelLevelInGal, endOdometr);
+        return
+            tripService.checkOutByGuest(tripId, endFuelLevelInGal, endOdometr);
     }
 
     function checkOutByHost(
@@ -366,11 +374,13 @@ contract Rentality is IRentality, Ownable {
         uint64 endFuelLevelInPermille,
         uint64 endOdometr
     ) public {
-        RentalityTripService.Trip memory trip = tripService.getTrip(tripId);        
+        RentalityTripService.Trip memory trip = tripService.getTrip(tripId);
         RentalityCarToken.CarInfo memory carInfo = getCarInfoById(trip.carId);
-        uint64 endFuelLevelInGal = (carInfo.tankVolumeInGal * endFuelLevelInPermille) / 1000;
+        uint64 endFuelLevelInGal = (carInfo.tankVolumeInGal *
+            endFuelLevelInPermille) / 1000;
 
-        return tripService.checkOutByHost(tripId, endFuelLevelInGal, endOdometr);
+        return
+            tripService.checkOutByHost(tripId, endFuelLevelInGal, endOdometr);
     }
 
     function getPlatformFeeFrom(uint64 value) private view returns (uint64) {
@@ -381,8 +391,9 @@ contract Rentality is IRentality, Ownable {
         tripService.finishTrip(tripId);
         RentalityTripService.Trip memory trip = tripService.getTrip(tripId);
 
-        uint64 valueToHostInUsdCents = 
-        trip.paymentInfo.totalDayPriceInUsdCents +
+        uint64 valueToHostInUsdCents = trip
+            .paymentInfo
+            .totalDayPriceInUsdCents +
             trip.paymentInfo.taxPriceInUsdCents +
             trip.paymentInfo.resolveAmountInUsdCents -
             getPlatformFeeFrom(
