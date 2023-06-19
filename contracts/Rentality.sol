@@ -289,6 +289,16 @@ contract Rentality is IRentality, Ownable {
 
     function approveTripRequest(uint256 tripId) public {
         tripService.approveTrip(tripId);
+
+        RentalityTripService.Trip memory trip = tripService.getTrip(tripId);
+        RentalityTripService.Trip[] memory intersectedTrips= tripService.getTripsForCarThatIntersect(trip.carId, trip.startDateTime, trip.endDateTime);
+        if (intersectedTrips.length > 0){
+            for (uint256 i = 0; i < intersectedTrips.length; i++) {
+                if (intersectedTrips[i].status == RentalityTripService.TripStatus.Created){
+                    rejectTripRequest(intersectedTrips[i].tripId);
+                }
+            }
+        }
     }
 
     function rejectTripRequest(uint256 tripId) public {
@@ -440,8 +450,8 @@ contract Rentality is IRentality, Ownable {
     }
 
     function getTripsByCar(
-        uint256 carTokenId
+        uint256 carId
     ) public view returns (RentalityTripService.Trip[] memory) {
-        return tripService.getTripsByCar(carTokenId);
+        return tripService.getTripsByCar(carId);
     }
 }

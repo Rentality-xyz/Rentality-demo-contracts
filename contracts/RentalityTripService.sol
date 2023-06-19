@@ -44,8 +44,8 @@ contract RentalityTripService {
         address guest;
         address host;
         uint64 pricePerDayInUsdCents;
-        uint startDateTime;
-        uint endDateTime;
+        uint64 startDateTime;
+        uint64 endDateTime;
         string startLocation;
         string endLocation;
         uint64 milesIncludedPerDay;
@@ -75,8 +75,8 @@ contract RentalityTripService {
         address guest,
         address host,
         uint64 pricePerDayInUsdCents,
-        uint startDateTime,
-        uint endDateTime,
+        uint64 startDateTime,
+        uint64 endDateTime,
         string memory startLocation,
         string memory endLocation,
         uint64 milesIncludedPerDay,
@@ -374,13 +374,13 @@ contract RentalityTripService {
     }
 
     function getTripsByCar(
-        uint256 carTokenId
+        uint256 carId
     ) public view returns (Trip[] memory) {
         uint itemCount = 0;
 
         for (uint i = 0; i < totalTripCount(); i++) {
             uint currentId = i + 1;
-            if (idToTripInfo[currentId].carId == carTokenId) {
+            if (idToTripInfo[currentId].carId == carId) {
                 itemCount += 1;
             }
         }
@@ -390,9 +390,48 @@ contract RentalityTripService {
 
         for (uint i = 0; i < totalTripCount(); i++) {
             uint currentId = i + 1;
-            if (idToTripInfo[currentId].carId == carTokenId) {
+            if (idToTripInfo[currentId].carId == carId) {
                 Trip storage currentItem = idToTripInfo[currentId];
                 result[currentIndex] = currentItem;
+                currentIndex += 1;
+            }
+        }
+
+        return result;
+    }
+
+    function isCarThatIntersect(
+        uint256 tripId,
+        uint256 carId,
+        uint64 startDateTime,
+        uint64 endDateTime
+    ) private view returns (bool) {
+        return (idToTripInfo[tripId].carId == carId)
+        && (idToTripInfo[tripId].endDateTime > startDateTime)
+        && (idToTripInfo[tripId].startDateTime < endDateTime);
+    }
+
+    function getTripsForCarThatIntersect(
+        uint256 carId,
+        uint64 startDateTime,
+        uint64 endDateTime
+    ) public view returns (Trip[] memory) {
+        uint itemCount = 0;
+
+        for (uint i = 0; i < totalTripCount(); i++) {
+            uint currentId = i + 1;
+            if (isCarThatIntersect(currentId, carId, startDateTime, endDateTime)) {
+                itemCount += 1;
+            }
+        }
+
+        Trip[] memory result = new Trip[](itemCount);
+        uint currentIndex = 0;
+
+        for (uint i = 0; i < totalTripCount(); i++) {
+            uint currentId = i + 1;
+            if (isCarThatIntersect(currentId, carId, startDateTime, endDateTime)) {
+                result[currentIndex] = idToTripInfo[currentId];
                 currentIndex += 1;
             }
         }
