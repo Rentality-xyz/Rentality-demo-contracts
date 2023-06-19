@@ -164,24 +164,13 @@ contract Rentality is IRentality, Ownable {
         return carService.tokenURI(carId);
     }
 
-    function addCar(
-        string memory tokenUri,
-        string memory carVinNumber,
-        uint64 pricePerDayInUsdCents,
-        uint64 tankVolumeInGal,
-        uint64 milesIncludedPerDay
+    function addCar(RentalityCarToken.CreateCarRequest memory request
     ) public returns (uint) {
         if (!userService.isHost(msg.sender)) {
             userService.grantHostRole(msg.sender);
         }
         return
-            carService.addCar(
-                tokenUri,
-                carVinNumber,
-                pricePerDayInUsdCents,
-                tankVolumeInGal,
-                milesIncludedPerDay
-            );
+            carService.addCar(request);
     }
 
     function updateCarInfo(

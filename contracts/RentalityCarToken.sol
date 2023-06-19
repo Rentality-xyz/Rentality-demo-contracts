@@ -18,9 +18,31 @@ contract RentalityCarToken is ERC4907, Ownable {
         bytes32 carVinNumberHash;
         address createdBy;
         uint64 pricePerDayInUsdCents;
+        uint64 securityDepositPerTripInUsdCents;
         uint64 tankVolumeInGal;
+        uint64 fuelPricePerGalInUsdCents;
         uint64 milesIncludedPerDay;
+        string country;
+        string state;
+        string city;
+        uint64 locationLatitudeInPPM;
+        uint64 locationLongitudeInPPM;
         bool currentlyListed;
+    }
+
+    struct CreateCarRequest {
+        string tokenUri;
+        string carVinNumber;
+        uint64 pricePerDayInUsdCents;
+        uint64 securityDepositPerTripInUsdCents;
+        uint64 tankVolumeInGal;
+        uint64 fuelPricePerGalInUsdCents;
+        uint64 milesIncludedPerDay;
+        string country;
+        string state;
+        string city;
+        uint64 locationLatitudeInPPM;
+        uint64 locationLongitudeInPPM;
     }
 
     event CarAddedSuccess(
@@ -82,26 +104,22 @@ contract RentalityCarToken is ERC4907, Ownable {
     }
 
     function addCar(
-        string memory tokenUri,
-        string memory carVinNumber,
-        uint64 pricePerDayInUsdCents,
-        uint64 tankVolumeInGal,
-        uint64 milesIncludedPerDay
+        CreateCarRequest memory request
     ) public onlyHost returns (uint) {
         require(
-            pricePerDayInUsdCents > 0,
+            request.pricePerDayInUsdCents > 0,
             "Make sure the price isn't negative"
         );
         require(
-            tankVolumeInGal > 0,
+            request.tankVolumeInGal > 0,
             "Make sure the tank volume isn't negative"
         );
         require(
-            milesIncludedPerDay > 0,
+            request.milesIncludedPerDay > 0,
             "Make sure the included distance isn't negative"
         );
         require(
-            isUniqueVinNumber(carVinNumber),
+            isUniqueVinNumber(request.carVinNumber),
             "Car with this VIN number is already exist"
         );
 
@@ -109,16 +127,23 @@ contract RentalityCarToken is ERC4907, Ownable {
         uint256 newCarId = _carIdCounter.current();
 
         _safeMint(tx.origin, newCarId);
-        _setTokenURI(newCarId, tokenUri);
+        _setTokenURI(newCarId, request.tokenUri);
 
         idToCarInfo[newCarId] = CarInfo(
             newCarId,
-            carVinNumber,
-            keccak256(abi.encodePacked(carVinNumber)),
+            request.carVinNumber,
+            keccak256(abi.encodePacked(request.carVinNumber)),
             tx.origin,
-            pricePerDayInUsdCents,
-            tankVolumeInGal,
-            milesIncludedPerDay,
+            request.pricePerDayInUsdCents,
+            request.securityDepositPerTripInUsdCents,
+            request.tankVolumeInGal,
+            request.fuelPricePerGalInUsdCents,
+            request.milesIncludedPerDay,
+            request.country,
+            request.state,
+            request.city,
+            request.locationLatitudeInPPM,
+            request.locationLongitudeInPPM,
             true
         );
 
@@ -126,9 +151,9 @@ contract RentalityCarToken is ERC4907, Ownable {
         //_transfer(msg.sender, address(this), carId);
 
         emit CarAddedSuccess(
-            carVinNumber,
+            request.carVinNumber,
             tx.origin,
-            pricePerDayInUsdCents,
+            request.pricePerDayInUsdCents,
             true
         );
 

@@ -39,13 +39,7 @@ interface IRentality {
     function setFuelPricePerGalInUsdCents(uint32 valueInUsdCents) external;
 
     ///host functions
-    function addCar(
-        string memory tokenUri,
-        string memory carVinNumber,
-        uint64 pricePerDayInUsdCents,
-        uint64 tankVolumeInGal,
-        uint64 milesIncludedPerDay
-    ) external returns (uint);
+    function addCar(RentalityCarToken.CreateCarRequest memory request) external returns (uint);
     function getCarMetadataURI(uint256 carId) external view returns (string memory);
     function getMyCars() external view returns (RentalityCarToken.CarInfo[] memory);
     function getTripsAsHost() external view returns (RentalityTripService.Trip[] memory);
