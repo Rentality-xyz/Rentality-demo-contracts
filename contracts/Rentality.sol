@@ -96,6 +96,7 @@ contract Rentality is IRentality, Ownable {
 
     function updateUserService(address contractAddress) public onlyAdmin {
         userService = RentalityUserService(contractAddress);
+        carService.updateUserService(contractAddress);
     }
 
     function getPlatformFeeInPPM() public view returns (uint32) {
