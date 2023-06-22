@@ -15,6 +15,7 @@ interface IRentality {
         uint64 totalDayPriceInUsdCents;
         uint64 taxPriceInUsdCents;
         uint64 depositInUsdCents;
+        uint64 fuelPricePerGalInUsdCents;
         int256 ethToCurrencyRate;
         uint8 ethToCurrencyDecimals;
     }
@@ -33,10 +34,6 @@ interface IRentality {
     function withdrawAllFromPlatform() external;
     function getPlatformFeeInPPM() external view returns (uint32);
     function setPlatformFeeInPPM(uint32 valueInPPM) external;
-    function getDepositPriceInUsdCents() external view returns (uint32);
-    function setDepositPriceInUsdCents(uint32 valueInUsdCents) external;
-    function getFuelPricePerGalInUsdCents() external view returns (uint32);
-    function setFuelPricePerGalInUsdCents(uint32 valueInUsdCents) external;
 
     ///host functions
     function addCar(RentalityCarToken.CreateCarRequest memory request) external returns (uint);

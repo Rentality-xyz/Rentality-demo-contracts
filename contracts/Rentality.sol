@@ -11,8 +11,6 @@ import "./RentalityUserService.sol";
 //deployed 26.05.2023 11:15 to sepolia at 0x12fB29Ed1f0E17605f488F640D49De29050cf855
 contract Rentality is IRentality, Ownable {
     uint32 platformFeeInPPM = 200_000;
-    uint32 depositPriceInUsdCents = 300_00;
-    uint32 fuelPricePerGalInUsdCents = 5_00;
 
     RentalityCarToken private carService;
     RentalityCurrencyConverter private currencyConverterService;
@@ -109,30 +107,6 @@ contract Rentality is IRentality, Ownable {
         require(valueInPPM <= 1_000_000, "Value can't be more than 1000000");
 
         platformFeeInPPM = valueInPPM;
-    }
-
-    function getDepositPriceInUsdCents() public view returns (uint32) {
-        return depositPriceInUsdCents;
-    }
-
-    function setDepositPriceInUsdCents(
-        uint32 valueInUsdCents
-    ) public onlyAdmin {
-        require(valueInUsdCents > 0, "Make sure the value isn't negative");
-
-        depositPriceInUsdCents = valueInUsdCents;
-    }
-
-    function getFuelPricePerGalInUsdCents() public view returns (uint32) {
-        return fuelPricePerGalInUsdCents;
-    }
-
-    function setFuelPricePerGalInUsdCents(
-        uint32 valueInUsdCents
-    ) public onlyAdmin {
-        require(valueInUsdCents > 0, "Make sure the value isn't negative");
-
-        fuelPricePerGalInUsdCents = valueInUsdCents;
     }
 
     function withdrawFromPlatform(uint256 amount) public {
@@ -282,7 +256,7 @@ contract Rentality is IRentality, Ownable {
             request.startLocation,
             request.endLocation,
             carInfo.milesIncludedPerDay,
-            fuelPricePerGalInUsdCents,
+            request.fuelPricePerGalInUsdCents,
             paymentInfo
         );
     }
