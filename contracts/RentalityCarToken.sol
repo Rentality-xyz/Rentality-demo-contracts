@@ -25,8 +25,8 @@ contract RentalityCarToken is ERC4907, Ownable {
         string country;
         string state;
         string city;
-        uint64 locationLatitudeInPPM;
-        uint64 locationLongitudeInPPM;
+        int64 locationLatitudeInPPM;
+        int64 locationLongitudeInPPM;
         bool currentlyListed;
     }
 
@@ -41,8 +41,8 @@ contract RentalityCarToken is ERC4907, Ownable {
         string country;
         string state;
         string city;
-        uint64 locationLatitudeInPPM;
-        uint64 locationLongitudeInPPM;
+        int64 locationLatitudeInPPM;
+        int64 locationLongitudeInPPM;
     }
 
     event CarAddedSuccess(

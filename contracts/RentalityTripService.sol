@@ -248,15 +248,22 @@ contract RentalityTripService {
             .resolveAmountInUsdCents = resolveAmountInUsdCents;
     }
 
+    function getTripDays(Trip memory tripInfo) public pure returns (uint64) {
+        return ((tripInfo.endDateTime - tripInfo.startDateTime) / 1 days) + 1;
+    }
+
     function getResolveAmountInUsdCents(
         Trip memory tripInfo
     ) public pure returns (uint64) {
+        uint64 tripDays = getTripDays(tripInfo);
+
         return
             getResolveAmountInUsdCents(
                 tripInfo.startOdometr,
                 tripInfo.endOdometr,
                 tripInfo.milesIncludedPerDay,
                 tripInfo.pricePerDayInUsdCents,
+                tripDays,
                 tripInfo.startFuelLevelInGal,
                 tripInfo.endFuelLevelInGal,
                 tripInfo.fuelPricePerGalInUsdCents
@@ -268,6 +275,7 @@ contract RentalityTripService {
         uint64 endOdometr,
         uint64 milesIncludedPerDay,
         uint64 pricePerDayInUsdCents,
+        uint64 tripDays,
         uint64 startFuelLevelInGal,
         uint64 endFuelLevelInGal,
         uint64 fuelPricePerGalInUsdCents
@@ -277,7 +285,8 @@ contract RentalityTripService {
                 startOdometr,
                 endOdometr,
                 milesIncludedPerDay,
-                pricePerDayInUsdCents
+                pricePerDayInUsdCents,
+                tripDays
             ) +
             getFuelResolveAmountInUsdCents(
                 startFuelLevelInGal,
@@ -290,19 +299,15 @@ contract RentalityTripService {
         uint64 startOdometr,
         uint64 endOdometr,
         uint64 milesIncludedPerDay,
-        uint64 pricePerDayInUsdCents
+        uint64 pricePerDayInUsdCents,
+        uint64 tripDays
     ) public pure returns (uint64) {
-        if (
-            endOdometr - startOdometr <=
-            milesIncludedPerDay * pricePerDayInUsdCents
-        ) return 0;
+        if (endOdometr - startOdometr <= milesIncludedPerDay * tripDays)
+            return 0;
 
         return
-            ((endOdometr -
-                startOdometr -
-                milesIncludedPerDay *
-                pricePerDayInUsdCents) * pricePerDayInUsdCents) /
-            milesIncludedPerDay;
+            ((endOdometr - startOdometr - milesIncludedPerDay * tripDays) *
+                pricePerDayInUsdCents) / milesIncludedPerDay;
     }
 
     function getFuelResolveAmountInUsdCents(
@@ -373,9 +378,7 @@ contract RentalityTripService {
         return result;
     }
 
-    function getTripsByCar(
-        uint256 carId
-    ) public view returns (Trip[] memory) {
+    function getTripsByCar(uint256 carId) public view returns (Trip[] memory) {
         uint itemCount = 0;
 
         for (uint i = 0; i < totalTripCount(); i++) {
@@ -406,9 +409,10 @@ contract RentalityTripService {
         uint64 startDateTime,
         uint64 endDateTime
     ) private view returns (bool) {
-        return (idToTripInfo[tripId].carId == carId)
-        && (idToTripInfo[tripId].endDateTime > startDateTime)
-        && (idToTripInfo[tripId].startDateTime < endDateTime);
+        return
+            (idToTripInfo[tripId].carId == carId) &&
+            (idToTripInfo[tripId].endDateTime > startDateTime) &&
+            (idToTripInfo[tripId].startDateTime < endDateTime);
     }
 
     function getTripsForCarThatIntersect(
@@ -420,7 +424,9 @@ contract RentalityTripService {
 
         for (uint i = 0; i < totalTripCount(); i++) {
             uint currentId = i + 1;
-            if (isCarThatIntersect(currentId, carId, startDateTime, endDateTime)) {
+            if (
+                isCarThatIntersect(currentId, carId, startDateTime, endDateTime)
+            ) {
                 itemCount += 1;
             }
         }
@@ -430,7 +436,9 @@ contract RentalityTripService {
 
         for (uint i = 0; i < totalTripCount(); i++) {
             uint currentId = i + 1;
-            if (isCarThatIntersect(currentId, carId, startDateTime, endDateTime)) {
+            if (
+                isCarThatIntersect(currentId, carId, startDateTime, endDateTime)
+            ) {
                 result[currentIndex] = idToTripInfo[currentId];
                 currentIndex += 1;
             }
