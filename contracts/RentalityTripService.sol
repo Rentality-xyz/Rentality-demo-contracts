@@ -64,6 +64,9 @@ contract RentalityTripService {
 
     mapping(uint256 => Trip) private idToTripInfo;
 
+    event TripCreated(uint256 tripId);
+    event TripStatusChanged(uint256 tripId, TripStatus newStatus);
+
     constructor() {}
 
     function totalTripCount() public view returns (uint) {
@@ -114,6 +117,8 @@ contract RentalityTripService {
             0,
             0
         );
+
+        emit TripCreated(newTripId);
     }
 
     function approveTrip(uint256 tripId) public {
@@ -127,7 +132,7 @@ contract RentalityTripService {
         );
 
         idToTripInfo[tripId].status = TripStatus.Approved;
-        idToTripInfo[tripId].approvedDateTime = block.timestamp;
+        idToTripInfo[tripId].approvedDateTime = block.timestamp;     
     }
 
     function rejectTrip(uint256 tripId) public {
