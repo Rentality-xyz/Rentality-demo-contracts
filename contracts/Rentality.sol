@@ -9,6 +9,7 @@ import "./RentalityTripService.sol";
 import "./RentalityUserService.sol";
 
 //deployed 26.05.2023 11:15 to sepolia at 0x12fB29Ed1f0E17605f488F640D49De29050cf855
+//deployed 27.06.2023 11:10 to sepolia at 0x18744A3f7D15930446B1dbc5A837562e468B2D8d
 contract Rentality is IRentality, Ownable {
     uint32 platformFeeInPPM = 200_000;
 

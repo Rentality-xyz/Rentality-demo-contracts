@@ -89,6 +89,9 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/t
 //create local network
 npx hardhat node   
 
+//compile the smart contracts
+npx hardhat compile
+
 // deploy Eth/Usd mock agregator
 npx hardhat run scripts/deploy_EthToUsd_mock.js --network localhost
 
@@ -107,3 +110,4 @@ REACT_APP_USE_LOCALHOST_BLOCKCHAIN = "true"
 
 //start app
 npm start 
+
