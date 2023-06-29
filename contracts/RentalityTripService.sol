@@ -132,7 +132,9 @@ contract RentalityTripService {
         );
 
         idToTripInfo[tripId].status = TripStatus.Approved;
-        idToTripInfo[tripId].approvedDateTime = block.timestamp;     
+        idToTripInfo[tripId].approvedDateTime = block.timestamp; 
+
+        emit TripStatusChanged(tripId, TripStatus.Approved);    
     }
 
     function rejectTrip(uint256 tripId) public {
@@ -147,6 +149,8 @@ contract RentalityTripService {
         );
 
         idToTripInfo[tripId].status = TripStatus.Canceled;
+
+        emit TripStatusChanged(tripId, TripStatus.Canceled);
     }
 
     function checkInByHost(
@@ -163,6 +167,8 @@ contract RentalityTripService {
         idToTripInfo[tripId].checkedInByHostDateTime = block.timestamp;
         idToTripInfo[tripId].startFuelLevelInGal = startFuelLevelInGal;
         idToTripInfo[tripId].startOdometr = startOdometr;
+
+        emit TripStatusChanged(tripId, TripStatus.CheckedInByHost);
     }
 
     function checkInByGuest(
@@ -185,6 +191,8 @@ contract RentalityTripService {
 
         idToTripInfo[tripId].status = TripStatus.CheckedInByGuest;
         idToTripInfo[tripId].checkedInByGuestDateTime = block.timestamp;
+
+        emit TripStatusChanged(tripId, TripStatus.CheckedInByGuest);
     }
 
     function checkOutByGuest(
@@ -204,6 +212,8 @@ contract RentalityTripService {
         idToTripInfo[tripId].checkedOutByGuestDateTime = block.timestamp;
         idToTripInfo[tripId].endFuelLevelInGal = endFuelLevelInGal;
         idToTripInfo[tripId].endOdometr = endOdometr;
+
+        emit TripStatusChanged(tripId, TripStatus.CheckedOutByGuest);
     }
 
     function checkOutByHost(
@@ -226,6 +236,8 @@ contract RentalityTripService {
 
         idToTripInfo[tripId].status = TripStatus.CheckedOutByHost;
         idToTripInfo[tripId].checkedOutByHostDateTime = block.timestamp;
+
+        emit TripStatusChanged(tripId, TripStatus.CheckedOutByHost);
     }
 
     function finishTrip(uint256 tripId) public {
@@ -251,6 +263,8 @@ contract RentalityTripService {
         idToTripInfo[tripId]
             .paymentInfo
             .resolveAmountInUsdCents = resolveAmountInUsdCents;
+
+        emit TripStatusChanged(tripId, TripStatus.Finished);
     }
 
     function getTripDays(Trip memory tripInfo) public pure returns (uint64) {
