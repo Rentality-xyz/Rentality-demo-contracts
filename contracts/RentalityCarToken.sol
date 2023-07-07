@@ -46,10 +46,23 @@ contract RentalityCarToken is ERC4907, Ownable {
     }
 
     event CarAddedSuccess(
+        uint256 CarId,
         string carVinNumber,
         address createdBy,
         uint64 pricePerDayInUsdCents,
         bool currentlyListed
+    );
+
+    event CarUpdatedSuccess(
+        uint256 carId,
+        uint64 pricePerDayInUsdCents,
+        bool currentlyListed
+    );
+
+    event CarRemovedSuccess(
+        uint256 carId,
+        string CarVinNumber,
+        address removedBy
     );
 
     mapping(uint256 => CarInfo) private idToCarInfo;
@@ -151,6 +164,7 @@ contract RentalityCarToken is ERC4907, Ownable {
         //_transfer(msg.sender, address(this), carId);
 
         emit CarAddedSuccess(
+            newCarId,
             request.carVinNumber,
             tx.origin,
             request.pricePerDayInUsdCents,
@@ -173,6 +187,12 @@ contract RentalityCarToken is ERC4907, Ownable {
 
         idToCarInfo[carId].pricePerDayInUsdCents = pricePerDayInUsdCents;
         idToCarInfo[carId].currentlyListed = currentlyListed;
+
+        emit CarUpdatedSuccess(
+            carId,
+            pricePerDayInUsdCents,
+            currentlyListed
+        );
     }
 
     function updateCarTokenUri(
@@ -197,6 +217,12 @@ contract RentalityCarToken is ERC4907, Ownable {
 
         _burn(carId);
         delete idToCarInfo[carId];
+
+        emit CarRemovedSuccess(
+            carId,
+            idToCarInfo[carId].carVinNumber,
+            tx.origin
+        );
     }
 
     function getAllCars() public view returns (CarInfo[] memory) {
