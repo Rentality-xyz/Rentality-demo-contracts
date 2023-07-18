@@ -241,7 +241,9 @@ contract Rentality is IRentality, Ownable {
                 0,
                 RentalityTripService.CurrencyType.ETH,
                 request.ethToCurrencyRate,
-                request.ethToCurrencyDecimals
+                request.ethToCurrencyDecimals,
+                0,
+                0
             );
 
         RentalityCarToken.CarInfo memory carInfo = getCarInfoById(

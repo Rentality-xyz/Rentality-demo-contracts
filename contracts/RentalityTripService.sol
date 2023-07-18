@@ -35,6 +35,8 @@ contract RentalityTripService {
         CurrencyType currencyType;
         int256 ethToCurrencyRate;
         uint8 ethToCurrencyDecimals;
+        uint64 resolveFuelAmountInUsdCents;
+        uint64 resolveMilesAmountInUsdCents;
     }
 
     struct Trip {
@@ -248,9 +250,17 @@ contract RentalityTripService {
         );
         idToTripInfo[tripId].status = TripStatus.Finished;
 
-        uint64 resolveAmountInUsdCents = getResolveAmountInUsdCents(
+        (uint64 resolveMilesAmountInUsdCents, uint64 resolveFuelAmountInUsdCents) = getResolveAmountInUsdCents(
             idToTripInfo[tripId]
         );
+        idToTripInfo[tripId]
+            .paymentInfo
+            .resolveMilesAmountInUsdCents = resolveMilesAmountInUsdCents;
+        idToTripInfo[tripId]
+            .paymentInfo
+            .resolveFuelAmountInUsdCents = resolveFuelAmountInUsdCents;
+            
+        uint64 resolveAmountInUsdCents = resolveMilesAmountInUsdCents + resolveFuelAmountInUsdCents;
 
         if (
             resolveAmountInUsdCents >
@@ -273,7 +283,7 @@ contract RentalityTripService {
 
     function getResolveAmountInUsdCents(
         Trip memory tripInfo
-    ) public pure returns (uint64) {
+    ) public pure returns (uint64, uint64) {
         uint64 tripDays = getTripDays(tripInfo);
 
         return
@@ -298,20 +308,20 @@ contract RentalityTripService {
         uint64 startFuelLevelInGal,
         uint64 endFuelLevelInGal,
         uint64 fuelPricePerGalInUsdCents
-    ) public pure returns (uint64) {
-        return
+    ) public pure returns (uint64, uint64) {
+        return (
             getDrivenMilesResolveAmountInUsdCents(
                 startOdometr,
                 endOdometr,
                 milesIncludedPerDay,
                 pricePerDayInUsdCents,
                 tripDays
-            ) +
+            ),
             getFuelResolveAmountInUsdCents(
                 startFuelLevelInGal,
                 endFuelLevelInGal,
                 fuelPricePerGalInUsdCents
-            );
+            ));
     }
 
     function getDrivenMilesResolveAmountInUsdCents(
