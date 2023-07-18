@@ -138,6 +138,7 @@ describe("Rentality", function () {
         totalDayPriceInUsdCents:rentPriceInUsdCents,
         taxPriceInUsdCents:0,
         depositInUsdCents:0,
+        fuelPricePerGalInUsdCents:400,
         ethToCurrencyRate:ethToCurrencyRate,
         ethToCurrencyDecimals:ethToCurrencyDecimals}, {value: rentPriceInEth})).not.to.be.reverted;
     });
@@ -167,6 +168,7 @@ describe("Rentality", function () {
         totalDayPriceInUsdCents:rentPriceInUsdCents,
         taxPriceInUsdCents:0,
         depositInUsdCents:0,
+        fuelPricePerGalInUsdCents:400,
         ethToCurrencyRate:ethToCurrencyRate,
         ethToCurrencyDecimals:ethToCurrencyDecimals}, {value: rentPriceInEth})).to.changeEtherBalances(
                     [guest, rentality],
@@ -202,6 +204,7 @@ describe("Rentality", function () {
         totalDayPriceInUsdCents:rentPriceInUsdCents,
         taxPriceInUsdCents:0,
         depositInUsdCents:0,
+        fuelPricePerGalInUsdCents:400,
         ethToCurrencyRate:ethToCurrencyRate,
         ethToCurrencyDecimals:ethToCurrencyDecimals}, {value: rentPriceInEth})).to.changeEtherBalances(
                     [guest, rentality],
@@ -236,6 +239,7 @@ describe("Rentality", function () {
         totalDayPriceInUsdCents:rentPriceInUsdCents,
         taxPriceInUsdCents:0,
         depositInUsdCents:0,
+        fuelPricePerGalInUsdCents:400,
         ethToCurrencyRate:ethToCurrencyRate,
         ethToCurrencyDecimals:ethToCurrencyDecimals}, {value: rentPriceInEth})).not.to.be.reverted;
 
@@ -274,6 +278,7 @@ describe("Rentality", function () {
         totalDayPriceInUsdCents:rentPriceInUsdCents,
         taxPriceInUsdCents:0,
         depositInUsdCents:0,
+        fuelPricePerGalInUsdCents:400,
         ethToCurrencyRate:ethToCurrencyRate,
         ethToCurrencyDecimals:ethToCurrencyDecimals}, {value: rentPriceInEth})).not.to.be.reverted;
 
@@ -286,6 +291,7 @@ describe("Rentality", function () {
           totalDayPriceInUsdCents:rentPriceInUsdCents,
           taxPriceInUsdCents:0,
           depositInUsdCents:0,
+          fuelPricePerGalInUsdCents:400,
           ethToCurrencyRate:ethToCurrencyRate,
           ethToCurrencyDecimals:ethToCurrencyDecimals}, {value: rentPriceInEth})).not.to.be.reverted;
           
@@ -326,6 +332,7 @@ describe("Rentality", function () {
         totalDayPriceInUsdCents:rentPriceInUsdCents,
         taxPriceInUsdCents:0,
         depositInUsdCents:0,
+        fuelPricePerGalInUsdCents:400,
         ethToCurrencyRate:ethToCurrencyRate,
         ethToCurrencyDecimals:ethToCurrencyDecimals}, {value: rentPriceInEth})).not.to.be.reverted;
 
@@ -338,6 +345,7 @@ describe("Rentality", function () {
           totalDayPriceInUsdCents:rentPriceInUsdCents,
           taxPriceInUsdCents:0,
           depositInUsdCents:0,
+          fuelPricePerGalInUsdCents:400,
           ethToCurrencyRate:ethToCurrencyRate,
           ethToCurrencyDecimals:ethToCurrencyDecimals}, {value: rentPriceInEth})).not.to.be.reverted;
           
