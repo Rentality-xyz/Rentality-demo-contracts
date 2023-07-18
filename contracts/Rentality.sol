@@ -121,7 +121,9 @@ contract Rentality is IRentality, Ownable {
             "There is not enough balance on the contract"
         );
 
-        require(payable(owner()).send(amount));
+        //require(payable(owner()).send(amount));
+        (bool success, ) = payable(owner()).call{value: amount}("");
+        require(success, "Transfer failed.");
     }
 
     function withdrawAllFromPlatform() public {
@@ -293,7 +295,10 @@ contract Rentality is IRentality, Ownable {
             trip.paymentInfo.ethToCurrencyRate,
             trip.paymentInfo.ethToCurrencyDecimals
         );
-        require(payable(trip.guest).send(valueToReturnInEth));
+
+        //require(payable(trip.guest).send(valueToReturnInEth));
+        (bool success, ) = payable(trip.guest).call{value: valueToReturnInEth}("");
+        require(success, "Transfer failed.");
     }
 
     function checkInByHost(
@@ -389,8 +394,12 @@ contract Rentality is IRentality, Ownable {
             trip.paymentInfo.ethToCurrencyRate,
             trip.paymentInfo.ethToCurrencyDecimals
         );
-        require(payable(trip.host).send(valueToHostInEth));
-        require(payable(trip.guest).send(valueToGuestInEth));
+        //require(payable(trip.host).send(valueToHostInEth));
+        //require(payable(trip.guest).send(valueToGuestInEth));
+        (bool successHost, ) = payable(trip.host).call{value: valueToHostInEth}("");
+        (bool successGuest, ) = payable(trip.guest).call{value: valueToGuestInEth}("");
+        require(successHost, "Transfer failed.");
+        require(successGuest, "Transfer failed.");
     }
 
     function getTrip(
