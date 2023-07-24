@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "./ERC4907.sol";
 import "./RentalityUserService.sol";
+import "./RentalityUtils.sol";
 
 //deployed 26.05.2023 11:15 to sepolia at 0xcC66CdAfc3C39d96651220975855202960C08747
 contract RentalityCarToken is ERC4907, Ownable {
@@ -17,6 +18,9 @@ contract RentalityCarToken is ERC4907, Ownable {
         string carVinNumber;
         bytes32 carVinNumberHash;
         address createdBy;
+        string brand;
+        string model;
+        uint32 yearOfProduction;
         uint64 pricePerDayInUsdCents;
         uint64 securityDepositPerTripInUsdCents;
         uint64 tankVolumeInGal;
@@ -33,6 +37,9 @@ contract RentalityCarToken is ERC4907, Ownable {
     struct CreateCarRequest {
         string tokenUri;
         string carVinNumber;
+        string brand;
+        string model;
+        uint32 yearOfProduction;
         uint64 pricePerDayInUsdCents;
         uint64 securityDepositPerTripInUsdCents;
         uint64 tankVolumeInGal;
@@ -43,6 +50,18 @@ contract RentalityCarToken is ERC4907, Ownable {
         string city;
         int64 locationLatitudeInPPM;
         int64 locationLongitudeInPPM;
+    }
+
+    struct SearchCarParams {
+        string country;
+        string state;
+        string city;
+        string brand;
+        string model;
+        uint32 yearOfProductionFrom;
+        uint32 yearOfProductionTo;
+        uint64 pricePerDayInUsdCentsFrom;
+        uint64 pricePerDayInUsdCentsTo;
     }
 
     event CarAddedSuccess(
@@ -147,6 +166,9 @@ contract RentalityCarToken is ERC4907, Ownable {
             request.carVinNumber,
             keccak256(abi.encodePacked(request.carVinNumber)),
             tx.origin,
+            request.brand,
+            request.model,
+            request.yearOfProduction,
             request.pricePerDayInUsdCents,
             request.securityDepositPerTripInUsdCents,
             request.tankVolumeInGal,
@@ -177,6 +199,14 @@ contract RentalityCarToken is ERC4907, Ownable {
     function updateCarInfo(
         uint256 carId,
         uint64 pricePerDayInUsdCents,
+        uint64 securityDepositPerTripInUsdCents,
+        uint64 fuelPricePerGalInUsdCents,
+        uint64 milesIncludedPerDay,
+        string memory country,
+        string memory state,
+        string memory city,
+        int64 locationLatitudeInPPM,
+        int64 locationLongitudeInPPM,
         bool currentlyListed
     ) public onlyHost {
         require(_exists(carId), "Token does not exist");
@@ -186,13 +216,19 @@ contract RentalityCarToken is ERC4907, Ownable {
         );
 
         idToCarInfo[carId].pricePerDayInUsdCents = pricePerDayInUsdCents;
+        idToCarInfo[carId]
+            .securityDepositPerTripInUsdCents = securityDepositPerTripInUsdCents;
+        idToCarInfo[carId]
+            .fuelPricePerGalInUsdCents = fuelPricePerGalInUsdCents;
+        idToCarInfo[carId].milesIncludedPerDay = milesIncludedPerDay;
+        idToCarInfo[carId].country = country;
+        idToCarInfo[carId].state = state;
+        idToCarInfo[carId].city = city;
+        idToCarInfo[carId].locationLatitudeInPPM = locationLatitudeInPPM;
+        idToCarInfo[carId].locationLongitudeInPPM = locationLongitudeInPPM;
         idToCarInfo[carId].currentlyListed = currentlyListed;
 
-        emit CarUpdatedSuccess(
-            carId,
-            pricePerDayInUsdCents,
-            currentlyListed
-        );
+        emit CarUpdatedSuccess(carId, pricePerDayInUsdCents, currentlyListed);
     }
 
     function updateCarTokenUri(
@@ -273,6 +309,82 @@ contract RentalityCarToken is ERC4907, Ownable {
         for (uint i = 0; i < totalSupply(); i++) {
             uint currentId = i + 1;
             if (isCarAvailableForUser(currentId, user)) {
+                CarInfo storage currentItem = idToCarInfo[currentId];
+                result[currentIndex] = currentItem;
+                currentIndex += 1;
+            }
+        }
+
+        return result;
+    }
+
+    function isCarAvailableForUser(
+        uint256 carId,
+        address sender,
+        SearchCarParams memory searchCarParams
+    ) private view returns (bool) {
+        return
+            _exists(carId) &&
+            idToCarInfo[carId].currentlyListed &&
+            ownerOf(carId) != sender &&
+            (bytes(searchCarParams.brand).length == 0 ||
+                RentalityUtils.containWord(
+                    RentalityUtils.toLower(idToCarInfo[carId].brand),
+                    RentalityUtils.toLower(searchCarParams.brand)
+                )) &&
+            (bytes(searchCarParams.model).length == 0 ||
+                RentalityUtils.containWord(
+                    RentalityUtils.toLower(idToCarInfo[carId].model),
+                    RentalityUtils.toLower(searchCarParams.model)
+                )) &&
+            (bytes(searchCarParams.country).length == 0 ||
+                RentalityUtils.containWord(
+                    RentalityUtils.toLower(idToCarInfo[carId].country),
+                    RentalityUtils.toLower(searchCarParams.country)
+                )) &&
+            (bytes(searchCarParams.state).length == 0 ||
+                RentalityUtils.containWord(
+                    RentalityUtils.toLower(idToCarInfo[carId].state),
+                    RentalityUtils.toLower(searchCarParams.state)
+                )) &&
+            (bytes(searchCarParams.city).length == 0 ||
+                RentalityUtils.containWord(
+                    RentalityUtils.toLower(idToCarInfo[carId].city),
+                    RentalityUtils.toLower(searchCarParams.city)
+                )) &&
+            (searchCarParams.yearOfProductionFrom == 0 ||
+                idToCarInfo[carId].yearOfProduction >=
+                searchCarParams.yearOfProductionFrom) &&
+            (searchCarParams.yearOfProductionTo == 0 ||
+                idToCarInfo[carId].yearOfProduction >=
+                searchCarParams.yearOfProductionTo) &&
+            (searchCarParams.pricePerDayInUsdCentsFrom == 0 ||
+                idToCarInfo[carId].pricePerDayInUsdCents >=
+                searchCarParams.pricePerDayInUsdCentsFrom) &&
+            (searchCarParams.pricePerDayInUsdCentsTo == 0 ||
+                idToCarInfo[carId].pricePerDayInUsdCents <=
+                searchCarParams.pricePerDayInUsdCentsTo);
+    }
+
+    function searchAvailableCarsForUser(
+        address user,
+        SearchCarParams memory searchCarParams
+    ) public view returns (CarInfo[] memory) {
+        uint itemCount = 0;
+
+        for (uint i = 0; i < totalSupply(); i++) {
+            uint currentId = i + 1;
+            if (isCarAvailableForUser(currentId, user, searchCarParams)) {
+                itemCount += 1;
+            }
+        }
+
+        CarInfo[] memory result = new CarInfo[](itemCount);
+        uint currentIndex = 0;
+
+        for (uint i = 0; i < totalSupply(); i++) {
+            uint currentId = i + 1;
+            if (isCarAvailableForUser(currentId, user, searchCarParams)) {
                 CarInfo storage currentItem = idToCarInfo[currentId];
                 result[currentIndex] = currentItem;
                 currentIndex += 1;

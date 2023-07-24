@@ -60,6 +60,9 @@ describe("Rentality", function () {
 
     const TOKEN_URI = "TOKEN_URI" + seedStr;
     const VIN_NUMBER = "VIN_NUMBER" + seedStr;
+    const BRAND = "BRAND" + seedStr;
+    const MODEL = "MODEL" + seedStr;
+    const YEAR = "200" + seedStr;
     const PRICE_PER_DAY = seedInt * 100 + 2;
     const DEPOSIT = seedInt * 100 + 3;
     const TANK_VOLUME = seedInt * 100 + 4;
@@ -74,6 +77,9 @@ describe("Rentality", function () {
     return {
       tokenUri: TOKEN_URI,
       carVinNumber: VIN_NUMBER,
+      brand: BRAND,
+      model: MODEL,
+      yearOfProduction: YEAR,
       pricePerDayInUsdCents: PRICE_PER_DAY,
       securityDepositPerTripInUsdCents: DEPOSIT,
       tankVolumeInGal: TANK_VOLUME,
@@ -84,6 +90,47 @@ describe("Rentality", function () {
       city: CITY,
       locationLatitudeInPPM: LOCATION_LATITUDE,
       locationLongitudeInPPM: LOCATION_LONGITUDE,
+    };
+  }
+  
+  function getMockSearchCarParams(seed) {
+    const seedStr = seed?.toString() ?? "";
+    const seedInt = Number(seed) ?? 0;
+
+    const BRAND = "BRAND" + seedStr;
+    const MODEL = "MODEL" + seedStr;
+    const COUNTRY = "COUNTRY" + seedStr;
+    const STATE = "STATE" + seedStr;
+    const CITY = "CITY" + seedStr;
+    const YEAR_FROM = 2000 + seedInt;
+    const YEAR_TO =  2000 + seedInt;
+    const PRICE_PER_DAY_FROM = seedInt * 100 + 2;
+    const PRICE_PER_DAY_TO = seedInt * 100 + 2;
+
+    return {
+      country: COUNTRY,
+      state: STATE,
+      city: CITY,
+      brand: BRAND,
+      model: MODEL,
+      yearOfProductionFrom: YEAR_FROM,
+      yearOfProductionTo: YEAR_TO,
+      pricePerDayInUsdCentsFrom: PRICE_PER_DAY_FROM,
+      pricePerDayInUsdCentsTo: PRICE_PER_DAY_TO,
+    };
+  }
+  
+  function getEmptySearchCarParams(seed) {
+    return {
+      country: "",
+      state: "",
+      city: "",
+      brand: "",
+      model: "",
+      yearOfProductionFrom: 0,
+      yearOfProductionTo: 0,
+      pricePerDayInUsdCentsFrom: 0,
+      pricePerDayInUsdCentsTo: 0,
     };
   }
 
@@ -358,6 +405,90 @@ describe("Rentality", function () {
       const trip2 = (await rentality.connect(host).getTrip(2));
       expect(trip1.status).to.equal(1);
       expect(trip2.status).to.equal(0);
+    });
+
+    it("searchAvailableCars should return cars with Intersect trip in status Created", async function () {
+      const { rentality, rentalityCurrencyConverter, host, guest} = await loadFixture(deployDefaultFixture);
+      
+      await expect(rentality.connect(host).addCar(getMockCarRequset(0))).not.to.be.reverted;
+      const myCars = await rentality.connect(host).getMyCars();
+      expect(myCars.length).to.equal(1);
+
+      const timestampNow = Math.floor(Date.now() / 1000);
+      const timestampIn1Day = timestampNow+ 3600*24;
+      const searchCarParams = getEmptySearchCarParams();
+      const availableCars = await rentality.connect(guest).searchAvailableCars(timestampNow, timestampIn1Day, searchCarParams);
+      expect(availableCars.length).to.equal(1);
+
+      const rentPriceInUsdCents = 1000;
+      const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
+        await rentalityCurrencyConverter.getEthFromUsdLatest(
+          rentPriceInUsdCents
+        );
+
+      await expect(rentality.connect(guest).createTripRequest({carId:1,
+        host:host.address,
+        startDateTime:timestampNow,
+        endDateTime:timestampIn1Day,
+        startLocation:"",
+        endLocation:"",
+        totalDayPriceInUsdCents:rentPriceInUsdCents,
+        taxPriceInUsdCents:0,
+        depositInUsdCents:0,
+        fuelPricePerGalInUsdCents:400,
+        ethToCurrencyRate:ethToCurrencyRate,
+        ethToCurrencyDecimals:ethToCurrencyDecimals}, {value: rentPriceInEth})).not.to.be.reverted;
+          
+      expect((await rentality.connect(host).getTrip(1)).status).to.equal(0);
+      
+      //await expect( rentality.connect(host).approveTripRequest(1)).not.to.be.reverted;
+
+      //const trip1 = (await rentality.connect(host).getTrip(1));
+      //expect(trip1.status).to.equal(1);
+      const availableCars2 = await rentality.connect(guest).searchAvailableCars(timestampNow, timestampIn1Day, searchCarParams);
+      expect(availableCars2.length).to.equal(1);
+    });
+
+    it("searchAvailableCars shouldn't return cars with Intersect trip in status approved", async function () {
+      const { rentality, rentalityCurrencyConverter, host, guest} = await loadFixture(deployDefaultFixture);
+      
+      await expect(rentality.connect(host).addCar(getMockCarRequset(0))).not.to.be.reverted;
+      const myCars = await rentality.connect(host).getMyCars();
+      expect(myCars.length).to.equal(1);
+
+      const timestampNow = Math.floor(Date.now() / 1000);
+      const timestampIn1Day = timestampNow+ 3600*24;
+      const searchCarParams = getEmptySearchCarParams();
+      const availableCars = await rentality.connect(guest).searchAvailableCars(timestampNow, timestampIn1Day, searchCarParams);
+      expect(availableCars.length).to.equal(1);
+
+      const rentPriceInUsdCents = 1000;
+      const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
+        await rentalityCurrencyConverter.getEthFromUsdLatest(
+          rentPriceInUsdCents
+        );
+
+      await expect(rentality.connect(guest).createTripRequest({carId:1,
+        host:host.address,
+        startDateTime:timestampNow,
+        endDateTime:timestampIn1Day,
+        startLocation:"",
+        endLocation:"",
+        totalDayPriceInUsdCents:rentPriceInUsdCents,
+        taxPriceInUsdCents:0,
+        depositInUsdCents:0,
+        fuelPricePerGalInUsdCents:400,
+        ethToCurrencyRate:ethToCurrencyRate,
+        ethToCurrencyDecimals:ethToCurrencyDecimals}, {value: rentPriceInEth})).not.to.be.reverted;
+          
+      expect((await rentality.connect(host).getTrip(1)).status).to.equal(0);
+      
+      await expect( rentality.connect(host).approveTripRequest(1)).not.to.be.reverted;
+
+      const trip1 = (await rentality.connect(host).getTrip(1));
+      expect(trip1.status).to.equal(1);
+      const availableCars2 = await rentality.connect(guest).searchAvailableCars(timestampNow, timestampIn1Day, searchCarParams);
+      expect(availableCars2.length).to.equal(0);
     });
   });
 });

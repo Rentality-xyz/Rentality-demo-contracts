@@ -80,6 +80,9 @@ describe("RentalityCarToken", function () {
 
     const TOKEN_URI = "TOKEN_URI" + seedStr;
     const VIN_NUMBER = "VIN_NUMBER" + seedStr;
+    const BRAND = "BRAND" + seedStr;
+    const MODEL = "MODEL" + seedStr;
+    const YEAR = "200" + seedStr;
     const PRICE_PER_DAY = seedInt * 100 + 2;
     const DEPOSIT = seedInt * 100 + 3;
     const TANK_VOLUME = seedInt * 100 + 4;
@@ -94,6 +97,9 @@ describe("RentalityCarToken", function () {
     return {
       tokenUri: TOKEN_URI,
       carVinNumber: VIN_NUMBER,
+      brand: BRAND,
+      model: MODEL,
+      yearOfProduction: YEAR,
       pricePerDayInUsdCents: PRICE_PER_DAY,
       securityDepositPerTripInUsdCents: DEPOSIT,
       tankVolumeInGal: TANK_VOLUME,
@@ -253,6 +259,7 @@ describe("RentalityCarToken", function () {
       await expect(rentalityCarToken.connect(host).addCar(request))
         .to.emit(rentalityCarToken, "CarAddedSuccess")
         .withArgs(
+          1,
           request.carVinNumber,
           host.address,
           request.pricePerDayInUsdCents,
@@ -422,5 +429,420 @@ describe("RentalityCarToken", function () {
       expect(availableCars[0].locationLongitudeInPPM).to.equal(request.locationLongitudeInPPM);
       expect(availableCars[0].currentlyListed).to.equal(true);
     });
+  });
+  
+  describe("Search functions", function () {
+    it("Search with empty should return car", async function () {
+      const {rentalityCarToken, guest} = await loadFixture(
+        deployFixtureWith1Car
+      );
+      
+      const searchCarParams = {
+        country:"",
+        state:"",
+        city:"",
+        brand:"",
+        model:"",
+        yearOfProductionFrom:0,
+        yearOfProductionTo:0,
+        pricePerDayInUsdCentsFrom:0,
+        pricePerDayInUsdCentsTo:0
+      }
+
+      const availableCars = await rentalityCarToken.searchAvailableCarsForUser(
+        guest.address,
+        searchCarParams
+      );
+
+      expect(availableCars.length).to.equal(1);
+    })
+
+    it("Search with brand should work", async function () {
+      const {rentalityCarToken, guest} = await loadFixture(
+        deployFixtureWith1Car
+      );
+      
+      const request = getMockCarRequset(0);
+      const searchCarParams1 = {
+        country:"",
+        state:"",
+        city:"",
+        brand:request.brand,
+        model:"",
+        yearOfProductionFrom:0,
+        yearOfProductionTo:0,
+        pricePerDayInUsdCentsFrom:0,
+        pricePerDayInUsdCentsTo:0
+      }
+      const searchCarParams2 = {
+        country:"",
+        state:"",
+        city:"",
+        brand:request.brand+"other",
+        model:"",
+        yearOfProductionFrom:0,
+        yearOfProductionTo:0,
+        pricePerDayInUsdCentsFrom:0,
+        pricePerDayInUsdCentsTo:0
+      }
+
+      const availableCars1 = await rentalityCarToken.searchAvailableCarsForUser(
+        guest.address,
+        searchCarParams1
+      );
+
+      expect(availableCars1.length).to.equal(1);
+
+      const availableCars2 = await rentalityCarToken.searchAvailableCarsForUser(
+        guest.address,
+        searchCarParams2
+      );
+
+      expect(availableCars2.length).to.equal(0);
+    })
+
+    it("Search with model should work", async function () {
+      const {rentalityCarToken, guest} = await loadFixture(
+        deployFixtureWith1Car
+      );
+      
+      const request = getMockCarRequset(0);
+      const searchCarParams1 = {
+        country:"",
+        state:"",
+        city:"",
+        brand:"",
+        model:request.model,
+        yearOfProductionFrom:0,
+        yearOfProductionTo:0,
+        pricePerDayInUsdCentsFrom:0,
+        pricePerDayInUsdCentsTo:0
+      }
+      const searchCarParams2 = {
+        country:"",
+        state:"",
+        city:"",
+        brand:"",
+        model:request.model+"other",
+        yearOfProductionFrom:0,
+        yearOfProductionTo:0,
+        pricePerDayInUsdCentsFrom:0,
+        pricePerDayInUsdCentsTo:0
+      }
+
+      const availableCars1 = await rentalityCarToken.searchAvailableCarsForUser(
+        guest.address,
+        searchCarParams1
+      );
+
+      expect(availableCars1.length).to.equal(1);
+
+      const availableCars2 = await rentalityCarToken.searchAvailableCarsForUser(
+        guest.address,
+        searchCarParams2
+      );
+
+      expect(availableCars2.length).to.equal(0);
+    })
+
+    it("Search with yearOfProduction should work", async function () {
+      const {rentalityCarToken, guest} = await loadFixture(
+        deployFixtureWith1Car
+      );
+      
+      const request = getMockCarRequset(0);
+      const searchCarParams1 = {
+        country:"",
+        state:"",
+        city:"",
+        brand:"",
+        model:"",
+        yearOfProductionFrom:request.yearOfProduction,
+        yearOfProductionTo:0,
+        pricePerDayInUsdCentsFrom:0,
+        pricePerDayInUsdCentsTo:0
+      }
+      const searchCarParams2 = {
+        country:"",
+        state:"",
+        city:"",
+        brand:"",
+        model:"",
+        yearOfProductionFrom:request.yearOfProduction + 1,
+        yearOfProductionTo:0,
+        pricePerDayInUsdCentsFrom:0,
+        pricePerDayInUsdCentsTo:0
+      }
+
+      const availableCars1 = await rentalityCarToken.searchAvailableCarsForUser(
+        guest.address,
+        searchCarParams1
+      );
+
+      expect(availableCars1.length).to.equal(1);
+
+      const availableCars2 = await rentalityCarToken.searchAvailableCarsForUser(
+        guest.address,
+        searchCarParams2
+      );
+
+      expect(availableCars2.length).to.equal(0);
+    })
+
+    it("Search with country should work", async function () {
+      const {rentalityCarToken, guest} = await loadFixture(
+        deployFixtureWith1Car
+      );
+      
+      const request = getMockCarRequset(0);
+      const searchCarParams1 = {
+        country:request.country,
+        state:"",
+        city:"",
+        brand:"",
+        model:"",
+        yearOfProductionFrom:0,
+        yearOfProductionTo:0,
+        pricePerDayInUsdCentsFrom:0,
+        pricePerDayInUsdCentsTo:0
+      }
+      const searchCarParams2 = {
+        country:request.country+"!",
+        state:"",
+        city:"",
+        brand:"",
+        model:"",
+        yearOfProductionFrom:0,
+        yearOfProductionTo:0,
+        pricePerDayInUsdCentsFrom:0,
+        pricePerDayInUsdCentsTo:0
+      }
+
+      const availableCars1 = await rentalityCarToken.searchAvailableCarsForUser(
+        guest.address,
+        searchCarParams1
+      );
+
+      expect(availableCars1.length).to.equal(1);
+
+      const availableCars2 = await rentalityCarToken.searchAvailableCarsForUser(
+        guest.address,
+        searchCarParams2
+      );
+
+      expect(availableCars2.length).to.equal(0);
+    })
+
+    it("Search with state should work", async function () {
+      const {rentalityCarToken, guest} = await loadFixture(
+        deployFixtureWith1Car
+      );
+      
+      const request = getMockCarRequset(0);
+      const searchCarParams1 = {
+        country:"",
+        state:request.state,
+        city:"",
+        brand:"",
+        model:"",
+        yearOfProductionFrom:0,
+        yearOfProductionTo:0,
+        pricePerDayInUsdCentsFrom:0,
+        pricePerDayInUsdCentsTo:0
+      }
+      const searchCarParams2 = {
+        country:"",
+        state:request.state+"!",
+        city:"",
+        brand:"",
+        model:"",
+        yearOfProductionFrom:0,
+        yearOfProductionTo:0,
+        pricePerDayInUsdCentsFrom:0,
+        pricePerDayInUsdCentsTo:0
+      }
+
+      const availableCars1 = await rentalityCarToken.searchAvailableCarsForUser(
+        guest.address,
+        searchCarParams1
+      );
+
+      expect(availableCars1.length).to.equal(1);
+
+      const availableCars2 = await rentalityCarToken.searchAvailableCarsForUser(
+        guest.address,
+        searchCarParams2
+      );
+
+      expect(availableCars2.length).to.equal(0);
+    })
+
+    it("Search with city should work", async function () {
+      const {rentalityCarToken, guest} = await loadFixture(
+        deployFixtureWith1Car
+      );
+      
+      const request = getMockCarRequset(0);
+      const searchCarParams1 = {
+        country:"",
+        state:"",
+        city:request.city,
+        brand:"",
+        model:"",
+        yearOfProductionFrom:0,
+        yearOfProductionTo:0,
+        pricePerDayInUsdCentsFrom:0,
+        pricePerDayInUsdCentsTo:0
+      }
+      const searchCarParams2 = {
+        country:"",
+        state:"",
+        city:request.city+"!",
+        brand:"",
+        model:"",
+        yearOfProductionFrom:0,
+        yearOfProductionTo:0,
+        pricePerDayInUsdCentsFrom:0,
+        pricePerDayInUsdCentsTo:0
+      }
+
+      const availableCars1 = await rentalityCarToken.searchAvailableCarsForUser(
+        guest.address,
+        searchCarParams1
+      );
+
+      expect(availableCars1.length).to.equal(1);
+
+      const availableCars2 = await rentalityCarToken.searchAvailableCarsForUser(
+        guest.address,
+        searchCarParams2
+      );
+
+      expect(availableCars2.length).to.equal(0);
+    })
+
+    it("Search with pricePerDayInUsdCentsFrom should work", async function () {
+      const {rentalityCarToken, guest} = await loadFixture(
+        deployFixtureWith1Car
+      );
+      
+      const request = getMockCarRequset(0);
+      const searchCarParams1 = {
+        country:"",
+        state:"",
+        city:"",
+        brand:"",
+        model:"",
+        yearOfProductionFrom:0,
+        yearOfProductionTo:0,
+        pricePerDayInUsdCentsFrom:request.pricePerDayInUsdCents,
+        pricePerDayInUsdCentsTo:0
+      }
+      const searchCarParams2 = {
+        country:"",
+        state:"",
+        city:"",
+        brand:"",
+        model:"",
+        yearOfProductionFrom:0,
+        yearOfProductionTo:0,
+        pricePerDayInUsdCentsFrom:request.pricePerDayInUsdCents+1,
+        pricePerDayInUsdCentsTo:0
+      }
+      const searchCarParams3 = {
+        country:"",
+        state:"",
+        city:"",
+        brand:"",
+        model:"",
+        yearOfProductionFrom:0,
+        yearOfProductionTo:0,
+        pricePerDayInUsdCentsFrom:request.pricePerDayInUsdCents-1,
+        pricePerDayInUsdCentsTo:0
+      }
+
+      const availableCars1 = await rentalityCarToken.searchAvailableCarsForUser(
+        guest.address,
+        searchCarParams1
+      );
+
+      expect(availableCars1.length).to.equal(1);
+
+      const availableCars2 = await rentalityCarToken.searchAvailableCarsForUser(
+        guest.address,
+        searchCarParams2
+      );
+
+      expect(availableCars2.length).to.equal(0);
+
+      const availableCars3 = await rentalityCarToken.searchAvailableCarsForUser(
+        guest.address,
+        searchCarParams3
+      );
+
+      expect(availableCars3.length).to.equal(1);
+    })
+
+    it("Search with pricePerDayInUsdCentsTo should work", async function () {
+      const {rentalityCarToken, guest} = await loadFixture(
+        deployFixtureWith1Car
+      );
+      
+      const request = getMockCarRequset(0);
+      const searchCarParams1 = {
+        country:"",
+        state:"",
+        city:"",
+        brand:"",
+        model:"",
+        yearOfProductionFrom:0,
+        yearOfProductionTo:0,
+        pricePerDayInUsdCentsFrom:0,
+        pricePerDayInUsdCentsTo:request.pricePerDayInUsdCents
+      }
+      const searchCarParams2 = {
+        country:"",
+        state:"",
+        city:"",
+        brand:"",
+        model:"",
+        yearOfProductionFrom:0,
+        yearOfProductionTo:0,
+        pricePerDayInUsdCentsFrom:0,
+        pricePerDayInUsdCentsTo:request.pricePerDayInUsdCents+1
+      }
+      const searchCarParams3 = {
+        country:"",
+        state:"",
+        city:"",
+        brand:"",
+        model:"",
+        yearOfProductionFrom:0,
+        yearOfProductionTo:0,
+        pricePerDayInUsdCentsFrom:0,
+        pricePerDayInUsdCentsTo:request.pricePerDayInUsdCents-1
+      }
+
+      const availableCars1 = await rentalityCarToken.searchAvailableCarsForUser(
+        guest.address,
+        searchCarParams1
+      );
+
+      expect(availableCars1.length).to.equal(1);
+
+      const availableCars2 = await rentalityCarToken.searchAvailableCarsForUser(
+        guest.address,
+        searchCarParams2
+      );
+
+      expect(availableCars2.length).to.equal(1);
+
+      const availableCars3 = await rentalityCarToken.searchAvailableCarsForUser(
+        guest.address,
+        searchCarParams3
+      );
+
+      expect(availableCars3.length).to.equal(0);
+    })
   });
 });

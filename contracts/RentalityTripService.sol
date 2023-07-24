@@ -475,4 +475,45 @@ contract RentalityTripService {
 
         return result;
     }
+
+    function isTripThatIntersect(
+        uint256 tripId,
+        uint64 startDateTime,
+        uint64 endDateTime
+    ) private view returns (bool) {
+        return
+            (idToTripInfo[tripId].endDateTime > startDateTime) &&
+            (idToTripInfo[tripId].startDateTime < endDateTime);
+    }
+    
+    function getTripsThatIntersect(
+        uint64 startDateTime,
+        uint64 endDateTime
+    ) public view returns (Trip[] memory) {
+        uint itemCount = 0;
+
+        for (uint i = 0; i < totalTripCount(); i++) {
+            uint currentId = i + 1;
+            if (
+                isTripThatIntersect(currentId, startDateTime, endDateTime)
+            ) {
+                itemCount += 1;
+            }
+        }
+
+        Trip[] memory result = new Trip[](itemCount);
+        uint currentIndex = 0;
+
+        for (uint i = 0; i < totalTripCount(); i++) {
+            uint currentId = i + 1;
+            if (
+                isTripThatIntersect(currentId, startDateTime, endDateTime)
+            ) {
+                result[currentIndex] = idToTripInfo[currentId];
+                currentIndex += 1;
+            }
+        }
+
+        return result;
+    }
 }

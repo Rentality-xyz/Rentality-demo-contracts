@@ -111,6 +111,10 @@ contract Rentality is IRentality, Ownable {
         platformFeeInPPM = valueInPPM;
     }
 
+    function getPlatformFeeFrom(uint64 value) private view returns (uint64) {
+        return (value * platformFeeInPPM) / 1_000_000;
+    }
+
     function withdrawFromPlatform(uint256 amount) public {
         require(
             address(this).balance > 0,
@@ -142,24 +146,40 @@ contract Rentality is IRentality, Ownable {
         return carService.tokenURI(carId);
     }
 
-    function addCar(RentalityCarToken.CreateCarRequest memory request
+    function addCar(
+        RentalityCarToken.CreateCarRequest memory request
     ) public returns (uint) {
         if (!userService.isHost(msg.sender)) {
             userService.grantHostRole(msg.sender);
         }
-        return
-            carService.addCar(request);
+        return carService.addCar(request);
     }
 
     function updateCarInfo(
         uint256 carId,
         uint64 pricePerDayInUsdCents,
+        uint64 securityDepositPerTripInUsdCents,
+        uint64 fuelPricePerGalInUsdCents,
+        uint64 milesIncludedPerDay,
+        string memory country,
+        string memory state,
+        string memory city,
+        int64 locationLatitudeInPPM,
+        int64 locationLongitudeInPPM,
         bool currentlyListed
     ) public onlyHost {
         return
             carService.updateCarInfo(
                 carId,
                 pricePerDayInUsdCents,
+                securityDepositPerTripInUsdCents,
+                fuelPricePerGalInUsdCents,
+                milesIncludedPerDay,
+                country,
+                state,
+                city,
+                locationLatitudeInPPM,
+                locationLongitudeInPPM,
                 currentlyListed
             );
     }
@@ -195,6 +215,75 @@ contract Rentality is IRentality, Ownable {
         address user
     ) public view returns (RentalityCarToken.CarInfo[] memory) {
         return carService.getAvailableCarsForUser(user);
+    }
+
+
+    function searchAvailableCars(uint64 startDateTime,
+        uint64 endDateTime,
+        RentalityCarToken.SearchCarParams memory searchParams)
+        public
+        view
+        returns (RentalityCarToken.CarInfo[] memory)
+    {
+        return searchAvailableCarsForUser(tx.origin, startDateTime, endDateTime, searchParams);
+    }
+
+    function searchAvailableCarsForUser(
+        address user,
+        uint64 startDateTime,
+        uint64 endDateTime,
+        RentalityCarToken.SearchCarParams memory searchParams
+    ) public view returns (RentalityCarToken.CarInfo[] memory) {
+        // if (startDateTime < block.timestamp){
+        //     return new RentalityCarToken.CarInfo[](0);
+        // }
+        RentalityCarToken.CarInfo[] memory availableCars = carService
+            .searchAvailableCarsForUser(user, searchParams);
+        if (availableCars.length == 0) return availableCars;
+
+        RentalityTripService.Trip[] memory trips = tripService
+            .getTripsThatIntersect(startDateTime, endDateTime);
+        if (trips.length == 0) return availableCars;
+
+        RentalityCarToken.CarInfo[]
+            memory temp = new RentalityCarToken.CarInfo[](availableCars.length);
+        uint256 resultCount = 0;
+
+        for (uint i = 0; i < availableCars.length; i++) {
+            bool hasIntersectTrip = false;
+
+            for (uint j = 0; j < trips.length; j++) {
+                if (
+                    trips[j].status ==
+                    RentalityTripService.TripStatus.Created ||
+                    trips[j].status ==
+                    RentalityTripService.TripStatus.Finished ||
+                    trips[j].status == RentalityTripService.TripStatus.Canceled
+                ) {
+                    continue;
+                }
+
+                if (trips[j].carId == availableCars[i].carId) {
+                    hasIntersectTrip = true;
+                    break;
+                }
+            }
+
+            if (!hasIntersectTrip) {
+                temp[resultCount] = availableCars[i];
+                resultCount++;
+            }
+        }
+
+        if (availableCars.length == resultCount) return availableCars;
+
+        RentalityCarToken.CarInfo[]
+            memory result = new RentalityCarToken.CarInfo[](resultCount);
+
+        for (uint i = 0; i < resultCount; i++) {
+            result[i] = temp[i];
+        }
+        return result;
     }
 
     function getMyCars()
@@ -271,10 +360,18 @@ contract Rentality is IRentality, Ownable {
         tripService.approveTrip(tripId);
 
         RentalityTripService.Trip memory trip = tripService.getTrip(tripId);
-        RentalityTripService.Trip[] memory intersectedTrips= tripService.getTripsForCarThatIntersect(trip.carId, trip.startDateTime, trip.endDateTime);
-        if (intersectedTrips.length > 0){
+        RentalityTripService.Trip[] memory intersectedTrips = tripService
+            .getTripsForCarThatIntersect(
+                trip.carId,
+                trip.startDateTime,
+                trip.endDateTime
+            );
+        if (intersectedTrips.length > 0) {
             for (uint256 i = 0; i < intersectedTrips.length; i++) {
-                if (intersectedTrips[i].status == RentalityTripService.TripStatus.Created){
+                if (
+                    intersectedTrips[i].status ==
+                    RentalityTripService.TripStatus.Created
+                ) {
                     rejectTripRequest(intersectedTrips[i].tripId);
                 }
             }
@@ -297,7 +394,9 @@ contract Rentality is IRentality, Ownable {
         );
 
         //require(payable(trip.guest).send(valueToReturnInEth));
-        (bool success, ) = payable(trip.guest).call{value: valueToReturnInEth}("");
+        (bool success, ) = payable(trip.guest).call{value: valueToReturnInEth}(
+            ""
+        );
         require(success, "Transfer failed.");
     }
 
@@ -365,10 +464,6 @@ contract Rentality is IRentality, Ownable {
             tripService.checkOutByHost(tripId, endFuelLevelInGal, endOdometr);
     }
 
-    function getPlatformFeeFrom(uint64 value) private view returns (uint64) {
-        return (value * platformFeeInPPM) / 1_000_000;
-    }
-
     function finishTrip(uint256 tripId) public {
         tripService.finishTrip(tripId);
         RentalityTripService.Trip memory trip = tripService.getTrip(tripId);
@@ -396,8 +491,12 @@ contract Rentality is IRentality, Ownable {
         );
         //require(payable(trip.host).send(valueToHostInEth));
         //require(payable(trip.guest).send(valueToGuestInEth));
-        (bool successHost, ) = payable(trip.host).call{value: valueToHostInEth}("");
-        (bool successGuest, ) = payable(trip.guest).call{value: valueToGuestInEth}("");
+        (bool successHost, ) = payable(trip.host).call{value: valueToHostInEth}(
+            ""
+        );
+        (bool successGuest, ) = payable(trip.guest).call{
+            value: valueToGuestInEth
+        }("");
         require(successHost, "Transfer failed.");
         require(successGuest, "Transfer failed.");
     }
