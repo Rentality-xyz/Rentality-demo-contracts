@@ -2,8 +2,7 @@ const saveJsonAbi = require("./utils/abiSaver");
 const RentalityUserServiceJSONNet = require("../src/abis/RentalityUserService.json");
 const RentalityUserServiceJSONLocal = require("../src/abis/RentalityUserService.localhost.json");
 const { ethers } = require("hardhat");
-const addressesGanache = require("./ganacheAddresses.json")
-const addressesSepolia = require("./sepoliaAddresses.json")
+const addressesContractsTestnets = require("./addressesContractsTestnets.json");
 
 async function main() {
   const contractName = "Rentality";
@@ -19,8 +18,13 @@ async function main() {
   const chainId = (await deployer.provider?.getNetwork())?.chainId ?? -1;
   console.log("ChainId is:", chainId);
   if (chainId < 0) return;
+
+  const addresses = addressesContractsTestnets.find((i) => i.chainId === chainId);
+  if (addresses == null) {
+    console.error(`Addresses for chainId:${chainId} was not found in addressesContractsTestnets.json`);
+    return;
+  }
   
-  const addresses = chainId === 11155111 ? addressesSepolia : addressesGanache;
   const RentalityUserServiceJSON = chainId === 1337 ? RentalityUserServiceJSONLocal : RentalityUserServiceJSONNet;
 
   const rentalityCarTokenAddress =  addresses.RentalityCarToken;

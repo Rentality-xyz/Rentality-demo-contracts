@@ -1,0 +1,42 @@
+[
+  {
+    "name": "Goerli",
+    "chainId": 5,
+    "EthToUsdPriceFeedAddress": "0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e",
+    "RentalityUserService": "",
+    "RentalityTripService": "",
+    "RentalityCurrencyConverter": "",
+    "RentalityCarToken": "",
+    "Rentality": ""
+  },
+  {
+    "name": "Mumbai",
+    "chainId": 80001,
+    "EthToUsdPriceFeedAddress": "0x0715A7794a1dc8e42615F059dD6e406A6594651A",
+    "RentalityUserService": "",
+    "RentalityTripService": "",
+    "RentalityCurrencyConverter": "",
+    "RentalityCarToken": "",
+    "Rentality": ""
+  },
+  {
+    "name": "Sepolia",
+    "chainId": 11155111,
+    "EthToUsdPriceFeedAddress": "0x694AA1769357215DE4FAC081bf1f309aDC325306",
+    "RentalityUserService": "0x9385440C47b344398a0799e0Bd2dc113B445CD69",
+    "RentalityTripService": "0xA56DfeD75A0830121207D5B262cF401118c1eA24",
+    "RentalityCurrencyConverter": "0x30517Ad6985e4454894034e6F0C7C06B4c7Db070",
+    "RentalityCarToken": "0xDa65a3463D1BF032cdDe34B92CAFA74BaA83409C",
+    "Rentality": "0x330f406bcF3a9e1D42C336C0Ae2b060285423a8c"
+  },
+  {
+    "name": "Ganache",
+    "chainId": 1337,
+    "EthToUsdPriceFeedAddress": "",
+    "RentalityUserService": "",
+    "RentalityTripService": "",
+    "RentalityCurrencyConverter": "",
+    "RentalityCarToken": "",
+    "Rentality": ""
+  }
+]

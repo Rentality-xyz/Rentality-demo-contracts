@@ -1,7 +1,6 @@
 const saveJsonAbi = require("./utils/abiSaver");
 const { ethers } = require("hardhat");
-const addressesGanache = require("./ganacheAddresses.json")
-const addressesSepolia = require("./sepoliaAddresses.json")
+const addressesContractsTestnets = require("./addressesContractsTestnets.json");
 
 async function main() {
   var contractName = "RentalityCurrencyConverter";
@@ -18,29 +17,23 @@ async function main() {
   console.log("ChainId is:", chainId);
   if (chainId < 0) return;
 
-  const addresses = chainId === 11155111 ? addressesSepolia : addressesGanache;
-  let rentalityMockPriceFeedAddress = addresses.RentalityMockPriceFeed;
+  let ethToUsdPriceFeedAddress =
+    addressesContractsTestnets.find((i) => i.chainId === chainId)
+      ?.EthToUsdPriceFeedAddress ?? "";
 
-  if( chainId === 1337 && rentalityMockPriceFeedAddress.length === 0){
+  if (chainId === 1337 && ethToUsdPriceFeedAddress.length === 0) {
     contractName = "RentalityMockPriceFeed";
     let contractFactory = await ethers.getContractFactory(contractName);
     let contract = await contractFactory.deploy(8, 200000000000);
     await contract.deployed();
     console.log(contractName + " deployed to:", contract.address);
-    rentalityMockPriceFeedAddress = contract.address;
+    ethToUsdPriceFeedAddress = contract.address;
   }
 
-  const ethToUsdPriceFeedAddress =
-    chainId === 5
-      ? "0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e"
-      : chainId === 80001
-      ? "0x0715A7794a1dc8e42615F059dD6e406A6594651A"
-      : chainId === 11155111
-      ? "0x694AA1769357215DE4FAC081bf1f309aDC325306"
-      : chainId === 1337
-      ? rentalityMockPriceFeedAddress
-      : "";
-
+  if (!ethToUsdPriceFeedAddress) {
+    console.log("ethToUsdPriceFeedAddress is not set");
+    return;
+  }
   console.log("EthToUsdPriceFeedAddress is:", ethToUsdPriceFeedAddress);
 
   const contractFactory = await ethers.getContractFactory(contractName);

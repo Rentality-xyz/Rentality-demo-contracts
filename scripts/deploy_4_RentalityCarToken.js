@@ -1,7 +1,6 @@
 const saveJsonAbi = require("./utils/abiSaver");
 const { ethers } = require("hardhat");
-const addressesGanache = require("./ganacheAddresses.json")
-const addressesSepolia = require("./sepoliaAddresses.json")
+const addressesContractsTestnets = require("./addressesContractsTestnets.json");
 
 async function main() {
   const contractName = "RentalityCarToken";
@@ -18,7 +17,11 @@ async function main() {
   console.log("ChainId is:", chainId);
   if (chainId < 0) return;
 
-  const addresses = chainId === 11155111 ? addressesSepolia : addressesGanache;
+  const addresses = addressesContractsTestnets.find((i) => i.chainId === chainId);
+  if (addresses == null) {
+    console.error(`Addresses for chainId:${chainId} was not found in addressesContractsTestnets.json`);
+    return;
+  }
 
   const userServiceAddress = addresses.RentalityUserService;
   if (!userServiceAddress) {
