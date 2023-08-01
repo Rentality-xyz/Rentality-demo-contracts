@@ -37,7 +37,22 @@ interface IRentality {
 
     ///host functions
     function addCar(RentalityCarToken.CreateCarRequest memory request) external returns (uint);
+    function updateCarInfo(RentalityCarToken.UpdateCarInfoRequest memory request) external;
+    function updateCarInfo(
+        uint256 carId,
+        uint64 pricePerDayInUsdCents,
+        uint64 securityDepositPerTripInUsdCents,
+        uint64 fuelPricePerGalInUsdCents,
+        uint64 milesIncludedPerDay,
+        string memory country,
+        string memory state,
+        string memory city,
+        int64 locationLatitudeInPPM,
+        int64 locationLongitudeInPPM,
+        bool currentlyListed
+    ) external;
     function getCarMetadataURI(uint256 carId) external view returns (string memory);
+    function getCarInfoById(uint256 carId) external view returns (RentalityCarToken.CarInfo memory);
     function getMyCars() external view returns (RentalityCarToken.CarInfo[] memory);
     function getTripsAsHost() external view returns (RentalityTripService.Trip[] memory);
     function approveTripRequest(uint256 tripId) external;

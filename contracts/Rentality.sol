@@ -156,6 +156,25 @@ contract Rentality is IRentality, Ownable {
     }
 
     function updateCarInfo(
+        RentalityCarToken.UpdateCarInfoRequest memory request
+    ) public onlyHost {
+        return
+            carService.updateCarInfo(
+                request.carId,
+                request.pricePerDayInUsdCents,
+                request.securityDepositPerTripInUsdCents,
+                request.fuelPricePerGalInUsdCents,
+                request.milesIncludedPerDay,
+                request.country,
+                request.state,
+                request.city,
+                request.locationLatitudeInPPM,
+                request.locationLongitudeInPPM,
+                request.currentlyListed
+            );
+    }
+
+    function updateCarInfo(
         uint256 carId,
         uint64 pricePerDayInUsdCents,
         uint64 securityDepositPerTripInUsdCents,
@@ -217,15 +236,18 @@ contract Rentality is IRentality, Ownable {
         return carService.getAvailableCarsForUser(user);
     }
 
-
-    function searchAvailableCars(uint64 startDateTime,
+    function searchAvailableCars(
+        uint64 startDateTime,
         uint64 endDateTime,
-        RentalityCarToken.SearchCarParams memory searchParams)
-        public
-        view
-        returns (RentalityCarToken.CarInfo[] memory)
-    {
-        return searchAvailableCarsForUser(tx.origin, startDateTime, endDateTime, searchParams);
+        RentalityCarToken.SearchCarParams memory searchParams
+    ) public view returns (RentalityCarToken.CarInfo[] memory) {
+        return
+            searchAvailableCarsForUser(
+                tx.origin,
+                startDateTime,
+                endDateTime,
+                searchParams
+            );
     }
 
     function searchAvailableCarsForUser(

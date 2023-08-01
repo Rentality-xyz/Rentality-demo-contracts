@@ -52,6 +52,20 @@ contract RentalityCarToken is ERC4907, Ownable {
         int64 locationLongitudeInPPM;
     }
 
+    struct UpdateCarInfoRequest {
+        uint256 carId;
+        uint64 pricePerDayInUsdCents;
+        uint64 securityDepositPerTripInUsdCents;
+        uint64 fuelPricePerGalInUsdCents;
+        uint64 milesIncludedPerDay;
+        string country;
+        string state;
+        string city;
+        int64 locationLatitudeInPPM;
+        int64 locationLongitudeInPPM;
+        bool currentlyListed;
+    }
+
     struct SearchCarParams {
         string country;
         string state;
