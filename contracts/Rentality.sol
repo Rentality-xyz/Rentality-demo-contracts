@@ -401,25 +401,47 @@ contract Rentality is IRentality, Ownable {
     }
 
     function rejectTripRequest(uint256 tripId) public {
-        tripService.rejectTrip(tripId);
         RentalityTripService.Trip memory trip = tripService.getTrip(tripId);
+        tripService.rejectTrip(tripId);
 
         uint64 valueToReturnInUsdCents = trip
-            .paymentInfo
+            .paymentInfo 
             .totalDayPriceInUsdCents +
             trip.paymentInfo.taxPriceInUsdCents +
             trip.paymentInfo.depositInUsdCents;
+
+        uint64 subtractAmount;
+        if (trip.status == RentalityTripService.TripStatus.Approved) {
+            subtractAmount = trip.paymentInfo.totalDayPriceInUsdCents / 2; // 50% of daily price
+        } else if (trip.status == RentalityTripService.TripStatus.CheckedInByHost) {
+            subtractAmount = trip.paymentInfo.totalDayPriceInUsdCents; // 100% of daily price
+        } else {
+            subtractAmount = 0;
+        }
+
+        uint64 platformFee = subtractAmount * platformFeeInPPM / 1000000;
+        uint64 returnToHost = subtractAmount - platformFee;
+
+        valueToReturnInUsdCents -= subtractAmount;
+
         uint256 valueToReturnInEth = currencyConverterService.getEthFromUsd(
             valueToReturnInUsdCents,
             trip.paymentInfo.ethToCurrencyRate,
             trip.paymentInfo.ethToCurrencyDecimals
         );
 
-        //require(payable(trip.guest).send(valueToReturnInEth));
-        (bool success, ) = payable(trip.guest).call{value: valueToReturnInEth}(
-            ""
-        );
-        require(success, "Transfer failed.");
+        (bool successGuest, ) = payable(trip.guest).call{value: valueToReturnInEth}("");
+        require(successGuest, "Transfer to guest failed.");
+
+        if (returnToHost > 0) {
+            uint256 returnToHostInEth = currencyConverterService.getEthFromUsd(
+                returnToHost,
+                trip.paymentInfo.ethToCurrencyRate,
+                trip.paymentInfo.ethToCurrencyDecimals
+            );
+            (bool successHost, ) = payable(trip.host).call{value: returnToHostInEth}("");
+            require(successHost, "Transfer to host failed.");
+        }
     }
 
     function checkInByHost(
