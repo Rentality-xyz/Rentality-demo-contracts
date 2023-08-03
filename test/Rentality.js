@@ -214,25 +214,23 @@ describe('Rentality', function () {
         )
 
       await expect(
-        rentality
-          .connect(guest)
-          .createTripRequest(
-            {
-              carId: 1,
-              host: host.address,
-              startDateTime: 1,
-              endDateTime: 1,
-              startLocation: '',
-              endLocation: '',
-              totalDayPriceInUsdCents: rentPriceInUsdCents,
-              taxPriceInUsdCents: 0,
-              depositInUsdCents: 0,
-              fuelPricePerGalInUsdCents: 400,
-              ethToCurrencyRate: ethToCurrencyRate,
-              ethToCurrencyDecimals: ethToCurrencyDecimals,
-            },
-            { value: rentPriceInEth },
-          ),
+        rentality.connect(guest).createTripRequest(
+          {
+            carId: 1,
+            host: host.address,
+            startDateTime: 1,
+            endDateTime: 1,
+            startLocation: '',
+            endLocation: '',
+            totalDayPriceInUsdCents: rentPriceInUsdCents,
+            taxPriceInUsdCents: 0,
+            depositInUsdCents: 0,
+            fuelPricePerGalInUsdCents: 400,
+            ethToCurrencyRate: ethToCurrencyRate,
+            ethToCurrencyDecimals: ethToCurrencyDecimals,
+          },
+          { value: rentPriceInEth },
+        ),
       ).not.to.be.reverted
     })
 
@@ -255,25 +253,23 @@ describe('Rentality', function () {
         )
 
       await expect(
-        rentality
-          .connect(guest)
-          .createTripRequest(
-            {
-              carId: 1,
-              host: host.address,
-              startDateTime: 1,
-              endDateTime: 1,
-              startLocation: '',
-              endLocation: '',
-              totalDayPriceInUsdCents: rentPriceInUsdCents,
-              taxPriceInUsdCents: 0,
-              depositInUsdCents: 0,
-              fuelPricePerGalInUsdCents: 400,
-              ethToCurrencyRate: ethToCurrencyRate,
-              ethToCurrencyDecimals: ethToCurrencyDecimals,
-            },
-            { value: rentPriceInEth },
-          ),
+        rentality.connect(guest).createTripRequest(
+          {
+            carId: 1,
+            host: host.address,
+            startDateTime: 1,
+            endDateTime: 1,
+            startLocation: '',
+            endLocation: '',
+            totalDayPriceInUsdCents: rentPriceInUsdCents,
+            taxPriceInUsdCents: 0,
+            depositInUsdCents: 0,
+            fuelPricePerGalInUsdCents: 400,
+            ethToCurrencyRate: ethToCurrencyRate,
+            ethToCurrencyDecimals: ethToCurrencyDecimals,
+          },
+          { value: rentPriceInEth },
+        ),
       ).to.changeEtherBalances(
         [guest, rentality],
         [-rentPriceInEth, rentPriceInEth],
@@ -306,25 +302,23 @@ describe('Rentality', function () {
         )
 
       await expect(
-        rentality
-          .connect(guest)
-          .createTripRequest(
-            {
-              carId: 1,
-              host: host.address,
-              startDateTime: 1,
-              endDateTime: 1,
-              startLocation: '',
-              endLocation: '',
-              totalDayPriceInUsdCents: rentPriceInUsdCents,
-              taxPriceInUsdCents: 0,
-              depositInUsdCents: 0,
-              fuelPricePerGalInUsdCents: 400,
-              ethToCurrencyRate: ethToCurrencyRate,
-              ethToCurrencyDecimals: ethToCurrencyDecimals,
-            },
-            { value: rentPriceInEth },
-          ),
+        rentality.connect(guest).createTripRequest(
+          {
+            carId: 1,
+            host: host.address,
+            startDateTime: 1,
+            endDateTime: 1,
+            startLocation: '',
+            endLocation: '',
+            totalDayPriceInUsdCents: rentPriceInUsdCents,
+            taxPriceInUsdCents: 0,
+            depositInUsdCents: 0,
+            fuelPricePerGalInUsdCents: 400,
+            ethToCurrencyRate: ethToCurrencyRate,
+            ethToCurrencyDecimals: ethToCurrencyDecimals,
+          },
+          { value: rentPriceInEth },
+        ),
       ).to.changeEtherBalances(
         [guest, rentality],
         [-rentPriceInEth, rentPriceInEth],
@@ -356,25 +350,23 @@ describe('Rentality', function () {
         )
 
       await expect(
-        rentality
-          .connect(guest)
-          .createTripRequest(
-            {
-              carId: 1,
-              host: host.address,
-              startDateTime: 1,
-              endDateTime: 1,
-              startLocation: '',
-              endLocation: '',
-              totalDayPriceInUsdCents: rentPriceInUsdCents,
-              taxPriceInUsdCents: 0,
-              depositInUsdCents: 0,
-              fuelPricePerGalInUsdCents: 400,
-              ethToCurrencyRate: ethToCurrencyRate,
-              ethToCurrencyDecimals: ethToCurrencyDecimals,
-            },
-            { value: rentPriceInEth },
-          ),
+        rentality.connect(guest).createTripRequest(
+          {
+            carId: 1,
+            host: host.address,
+            startDateTime: 1,
+            endDateTime: 1,
+            startLocation: '',
+            endLocation: '',
+            totalDayPriceInUsdCents: rentPriceInUsdCents,
+            taxPriceInUsdCents: 0,
+            depositInUsdCents: 0,
+            fuelPricePerGalInUsdCents: 400,
+            ethToCurrencyRate: ethToCurrencyRate,
+            ethToCurrencyDecimals: ethToCurrencyDecimals,
+          },
+          { value: rentPriceInEth },
+        ),
       ).not.to.be.reverted
 
       await expect(rentality.connect(host).approveTripRequest(1)).not.to.be
@@ -413,47 +405,43 @@ describe('Rentality', function () {
         )
 
       await expect(
-        rentality
-          .connect(guest)
-          .createTripRequest(
-            {
-              carId: 1,
-              host: host.address,
-              startDateTime: 123,
-              endDateTime: 321,
-              startLocation: '',
-              endLocation: '',
-              totalDayPriceInUsdCents: rentPriceInUsdCents,
-              taxPriceInUsdCents: 0,
-              depositInUsdCents: 0,
-              fuelPricePerGalInUsdCents: 400,
-              ethToCurrencyRate: ethToCurrencyRate,
-              ethToCurrencyDecimals: ethToCurrencyDecimals,
-            },
-            { value: rentPriceInEth },
-          ),
+        rentality.connect(guest).createTripRequest(
+          {
+            carId: 1,
+            host: host.address,
+            startDateTime: 123,
+            endDateTime: 321,
+            startLocation: '',
+            endLocation: '',
+            totalDayPriceInUsdCents: rentPriceInUsdCents,
+            taxPriceInUsdCents: 0,
+            depositInUsdCents: 0,
+            fuelPricePerGalInUsdCents: 400,
+            ethToCurrencyRate: ethToCurrencyRate,
+            ethToCurrencyDecimals: ethToCurrencyDecimals,
+          },
+          { value: rentPriceInEth },
+        ),
       ).not.to.be.reverted
 
       await expect(
-        rentality
-          .connect(guest)
-          .createTripRequest(
-            {
-              carId: 1,
-              host: host.address,
-              startDateTime: 234,
-              endDateTime: 456,
-              startLocation: '',
-              endLocation: '',
-              totalDayPriceInUsdCents: rentPriceInUsdCents,
-              taxPriceInUsdCents: 0,
-              depositInUsdCents: 0,
-              fuelPricePerGalInUsdCents: 400,
-              ethToCurrencyRate: ethToCurrencyRate,
-              ethToCurrencyDecimals: ethToCurrencyDecimals,
-            },
-            { value: rentPriceInEth },
-          ),
+        rentality.connect(guest).createTripRequest(
+          {
+            carId: 1,
+            host: host.address,
+            startDateTime: 234,
+            endDateTime: 456,
+            startLocation: '',
+            endLocation: '',
+            totalDayPriceInUsdCents: rentPriceInUsdCents,
+            taxPriceInUsdCents: 0,
+            depositInUsdCents: 0,
+            fuelPricePerGalInUsdCents: 400,
+            ethToCurrencyRate: ethToCurrencyRate,
+            ethToCurrencyDecimals: ethToCurrencyDecimals,
+          },
+          { value: rentPriceInEth },
+        ),
       ).not.to.be.reverted
 
       expect((await rentality.connect(host).getTrip(1)).status).to.equal(0)
@@ -490,47 +478,43 @@ describe('Rentality', function () {
         )
 
       await expect(
-        rentality
-          .connect(guest)
-          .createTripRequest(
-            {
-              carId: 1,
-              host: host.address,
-              startDateTime: 123,
-              endDateTime: 321,
-              startLocation: '',
-              endLocation: '',
-              totalDayPriceInUsdCents: rentPriceInUsdCents,
-              taxPriceInUsdCents: 0,
-              depositInUsdCents: 0,
-              fuelPricePerGalInUsdCents: 400,
-              ethToCurrencyRate: ethToCurrencyRate,
-              ethToCurrencyDecimals: ethToCurrencyDecimals,
-            },
-            { value: rentPriceInEth },
-          ),
+        rentality.connect(guest).createTripRequest(
+          {
+            carId: 1,
+            host: host.address,
+            startDateTime: 123,
+            endDateTime: 321,
+            startLocation: '',
+            endLocation: '',
+            totalDayPriceInUsdCents: rentPriceInUsdCents,
+            taxPriceInUsdCents: 0,
+            depositInUsdCents: 0,
+            fuelPricePerGalInUsdCents: 400,
+            ethToCurrencyRate: ethToCurrencyRate,
+            ethToCurrencyDecimals: ethToCurrencyDecimals,
+          },
+          { value: rentPriceInEth },
+        ),
       ).not.to.be.reverted
 
       await expect(
-        rentality
-          .connect(guest)
-          .createTripRequest(
-            {
-              carId: 1,
-              host: host.address,
-              startDateTime: 456,
-              endDateTime: 789,
-              startLocation: '',
-              endLocation: '',
-              totalDayPriceInUsdCents: rentPriceInUsdCents,
-              taxPriceInUsdCents: 0,
-              depositInUsdCents: 0,
-              fuelPricePerGalInUsdCents: 400,
-              ethToCurrencyRate: ethToCurrencyRate,
-              ethToCurrencyDecimals: ethToCurrencyDecimals,
-            },
-            { value: rentPriceInEth },
-          ),
+        rentality.connect(guest).createTripRequest(
+          {
+            carId: 1,
+            host: host.address,
+            startDateTime: 456,
+            endDateTime: 789,
+            startLocation: '',
+            endLocation: '',
+            totalDayPriceInUsdCents: rentPriceInUsdCents,
+            taxPriceInUsdCents: 0,
+            depositInUsdCents: 0,
+            fuelPricePerGalInUsdCents: 400,
+            ethToCurrencyRate: ethToCurrencyRate,
+            ethToCurrencyDecimals: ethToCurrencyDecimals,
+          },
+          { value: rentPriceInEth },
+        ),
       ).not.to.be.reverted
 
       expect((await rentality.connect(host).getTrip(1)).status).to.equal(0)
@@ -569,25 +553,23 @@ describe('Rentality', function () {
         )
 
       await expect(
-        rentality
-          .connect(guest)
-          .createTripRequest(
-            {
-              carId: 1,
-              host: host.address,
-              startDateTime: timestampNow,
-              endDateTime: timestampIn1Day,
-              startLocation: '',
-              endLocation: '',
-              totalDayPriceInUsdCents: rentPriceInUsdCents,
-              taxPriceInUsdCents: 0,
-              depositInUsdCents: 0,
-              fuelPricePerGalInUsdCents: 400,
-              ethToCurrencyRate: ethToCurrencyRate,
-              ethToCurrencyDecimals: ethToCurrencyDecimals,
-            },
-            { value: rentPriceInEth },
-          ),
+        rentality.connect(guest).createTripRequest(
+          {
+            carId: 1,
+            host: host.address,
+            startDateTime: timestampNow,
+            endDateTime: timestampIn1Day,
+            startLocation: '',
+            endLocation: '',
+            totalDayPriceInUsdCents: rentPriceInUsdCents,
+            taxPriceInUsdCents: 0,
+            depositInUsdCents: 0,
+            fuelPricePerGalInUsdCents: 400,
+            ethToCurrencyRate: ethToCurrencyRate,
+            ethToCurrencyDecimals: ethToCurrencyDecimals,
+          },
+          { value: rentPriceInEth },
+        ),
       ).not.to.be.reverted
 
       expect((await rentality.connect(host).getTrip(1)).status).to.equal(0)
@@ -626,25 +608,23 @@ describe('Rentality', function () {
         )
 
       await expect(
-        rentality
-          .connect(guest)
-          .createTripRequest(
-            {
-              carId: 1,
-              host: host.address,
-              startDateTime: timestampNow,
-              endDateTime: timestampIn1Day,
-              startLocation: '',
-              endLocation: '',
-              totalDayPriceInUsdCents: rentPriceInUsdCents,
-              taxPriceInUsdCents: 0,
-              depositInUsdCents: 0,
-              fuelPricePerGalInUsdCents: 400,
-              ethToCurrencyRate: ethToCurrencyRate,
-              ethToCurrencyDecimals: ethToCurrencyDecimals,
-            },
-            { value: rentPriceInEth },
-          ),
+        rentality.connect(guest).createTripRequest(
+          {
+            carId: 1,
+            host: host.address,
+            startDateTime: timestampNow,
+            endDateTime: timestampIn1Day,
+            startLocation: '',
+            endLocation: '',
+            totalDayPriceInUsdCents: rentPriceInUsdCents,
+            taxPriceInUsdCents: 0,
+            depositInUsdCents: 0,
+            fuelPricePerGalInUsdCents: 400,
+            ethToCurrencyRate: ethToCurrencyRate,
+            ethToCurrencyDecimals: ethToCurrencyDecimals,
+          },
+          { value: rentPriceInEth },
+        ),
       ).not.to.be.reverted
 
       expect((await rentality.connect(host).getTrip(1)).status).to.equal(0)
@@ -773,26 +753,27 @@ describe('Rentality', function () {
       ).to.be.true
     })
 
-    it('Guest reject | trip status Accepted | trip money - 50% daily price - deposit - gas fee returned to guest', async function () {
+    it('Guest reject | trip status Accepted | trip money - 50% price per day - deposit - gas fee returned to guest', async function () {
       const { rentality, rentalityCurrencyConverter, host, guest } =
         await loadFixture(deployDefaultFixture)
 
-      await expect(rentality.connect(host).addCar(getMockCarRequset(0))).not.to
+      await expect(rentality.connect(host).addCar(getMockCarRequset(1))).not.to
         .be.reverted
       const myCars = await rentality.connect(host).getMyCars()
       expect(myCars.length).to.equal(1)
       const availableCars = await rentality.connect(guest).getAvailableCars()
       expect(availableCars.length).to.equal(1)
 
+      const pricePerDayInUsdCents = 102
       const dailyPriceInUsdCents = 1000
       const rentPriceInUsdCents = dailyPriceInUsdCents + 600
       const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
         await rentalityCurrencyConverter.getEthFromUsdLatest(
           rentPriceInUsdCents,
         )
-      const [dailyPriceInEth] =
+      const [pricePerDayInEth] =
         await rentalityCurrencyConverter.getEthFromUsdLatest(
-          dailyPriceInUsdCents,
+          pricePerDayInUsdCents,
         )
 
       await expect(
@@ -833,7 +814,7 @@ describe('Rentality', function () {
       const expectedBalance = balanceBeforeRejection
         .add(rentPriceInEth)
         .sub(gasCost)
-        .sub(dailyPriceInEth / 2)
+        .sub(pricePerDayInEth / 2)
 
       expect(
         balanceAfterRejection.eq(expectedBalance),
@@ -841,26 +822,27 @@ describe('Rentality', function () {
       ).to.be.true
     })
 
-    it('Guest reject | trip status CheckedInByHost | trip money - 100% daily price - deposit - gas fee returned to guest', async function () {
+    it('Guest reject | trip status CheckedInByHost | trip money - 100% price per day - deposit - gas fee returned to guest', async function () {
       const { rentality, rentalityCurrencyConverter, host, guest } =
         await loadFixture(deployDefaultFixture)
 
-      await expect(rentality.connect(host).addCar(getMockCarRequset(0))).not.to
+      await expect(rentality.connect(host).addCar(getMockCarRequset(1))).not.to
         .be.reverted
       const myCars = await rentality.connect(host).getMyCars()
       expect(myCars.length).to.equal(1)
       const availableCars = await rentality.connect(guest).getAvailableCars()
       expect(availableCars.length).to.equal(1)
 
+      const pricePerDayInUsdCents = 102
       const dailyPriceInUsdCents = 1000
       const rentPriceInUsdCents = dailyPriceInUsdCents + 600
       const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
         await rentalityCurrencyConverter.getEthFromUsdLatest(
           rentPriceInUsdCents,
         )
-      const [dailyPriceInEth] =
+      const [pricePerDayInEth] =
         await rentalityCurrencyConverter.getEthFromUsdLatest(
-          dailyPriceInUsdCents,
+          pricePerDayInUsdCents,
         )
 
       await expect(
@@ -904,7 +886,7 @@ describe('Rentality', function () {
       const expectedBalance = balanceBeforeRejection
         .add(rentPriceInEth)
         .sub(gasCost)
-        .sub(dailyPriceInEth)
+        .sub(pricePerDayInEth)
 
       expect(
         balanceAfterRejection.eq(expectedBalance),

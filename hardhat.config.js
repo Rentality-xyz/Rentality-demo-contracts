@@ -1,7 +1,6 @@
 /** @type import('hardhat/config').HardhatUserConfig */
 require('@nomiclabs/hardhat-waffle')
 require('@nomiclabs/hardhat-ethers')
-const fs = require('fs')
 require('dotenv').config()
 
 module.exports = {

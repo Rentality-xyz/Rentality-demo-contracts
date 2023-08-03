@@ -412,9 +412,10 @@ contract Rentality is IRentality, Ownable {
 
         uint64 subtractAmount;
         if (trip.status == RentalityTripService.TripStatus.Approved) {
-            subtractAmount = trip.paymentInfo.totalDayPriceInUsdCents / 2; // 50% of daily price
+            subtractAmount = trip.pricePerDayInUsdCents / 2; 
         } else if (trip.status == RentalityTripService.TripStatus.CheckedInByHost) {
-            subtractAmount = trip.paymentInfo.totalDayPriceInUsdCents; // 100% of daily price
+            subtractAmount = trip.pricePerDayInUsdCents;
+
         } else {
             subtractAmount = 0;
         }
