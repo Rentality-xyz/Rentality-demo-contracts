@@ -530,7 +530,7 @@ describe('RentalityUserService', function () {
       expect(kycInfo.expirationDate).to.equal(expirationDate)
     })
 
-    it('After a trip is requested, the manager can get the contact numbers of the host and guest', async function () {
+    it('After a trip is requested, the host or guest can get the contact numbers of the host and guest', async function () {
       const {
         rentality,
         rentalityCurrencyConverter,
@@ -599,12 +599,14 @@ describe('RentalityUserService', function () {
       ).not.to.be.reverted
       expect((await rentality.connect(host).getTrip(1)).status).to.equal(0)
 
-      const isManager = await rentalityUserService.isManager(manager.address)
-      expect(isManager).to.equal(true)
-
-      const [guestPhoneNumber, hostPhoneNumber] = await rentality
-        .connect(manager)
+      let [guestPhoneNumber, hostPhoneNumber] = await rentality
+        .connect(guest)
         .getTripContactInfo(1)
+
+      expect(guestPhoneNumber).to.equal('phoneNumberGuest')
+      expect(hostPhoneNumber).to.equal('phoneNumberHost')[
+        (guestPhoneNumber, hostPhoneNumber)
+      ] = await rentality.connect(host).getTripContactInfo(1)
 
       expect(guestPhoneNumber).to.equal('phoneNumberGuest')
       expect(hostPhoneNumber).to.equal('phoneNumberHost')
