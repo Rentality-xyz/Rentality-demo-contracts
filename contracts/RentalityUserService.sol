@@ -50,7 +50,7 @@ contract RentalityUserService is AccessControl {
     }
 
     function getKYCInfo(address user) external view returns (KYCInfo memory) {
-        require(isManager(tx.origin), 'Only the manager can get other users KYC info');
+        require(isManager(msg.sender), 'Only the manager can get other users KYC info');
         return kycInfos[user];
     }
 
