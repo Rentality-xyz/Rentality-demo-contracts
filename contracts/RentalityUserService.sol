@@ -39,8 +39,7 @@ contract RentalityUserService is AccessControl {
         string memory licenseNumber,
         uint64 expirationDate
     ) public {
-        require(tx.origin == user, 'Only the user can set their KYC info');
-        kycInfos[user] = KYCInfo(
+        kycInfos[tx.origin] = KYCInfo(
             name,
             surname,
             mobilePhoneNumber,
