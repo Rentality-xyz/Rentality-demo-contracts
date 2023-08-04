@@ -146,8 +146,10 @@ contract RentalityTripService {
             "Only host or guest of the trip can reject it"
         );
         require(
-            idToTripInfo[tripId].status == TripStatus.Created,
-            "The trip is not in status Created"
+            idToTripInfo[tripId].status == TripStatus.Created ||
+            idToTripInfo[tripId].status == TripStatus.Approved ||
+            idToTripInfo[tripId].status == TripStatus.CheckedInByHost,
+            "The trip is not in status Created, Approved or CheckedInByHost"
         );
 
         idToTripInfo[tripId].status = TripStatus.Canceled;
