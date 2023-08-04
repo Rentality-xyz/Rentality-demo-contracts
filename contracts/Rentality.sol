@@ -378,6 +378,22 @@ contract Rentality is IRentality, Ownable {
         );
     }
 
+    function getTripContactInfo(uint256 tripId)
+        public
+        view
+        returns (string memory guestPhoneNumber, string memory hostPhoneNumber)
+    {
+        RentalityTripService.Trip memory trip = tripService.getTrip(tripId);
+        RentalityUserService.KYCInfo memory guestInfo = userService.getKYCInfo(
+            trip.guest
+        );
+        RentalityUserService.KYCInfo memory hostInfo = userService.getKYCInfo(
+            trip.host
+        );
+
+        return (guestInfo.mobilePhoneNumber, hostInfo.mobilePhoneNumber);
+    }
+
     function approveTripRequest(uint256 tripId) public {
         tripService.approveTrip(tripId);
 
