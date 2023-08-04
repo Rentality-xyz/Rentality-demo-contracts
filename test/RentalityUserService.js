@@ -66,6 +66,9 @@ describe('RentalityUserService', function () {
     await rentality.deployed()
 
     await rentalityUserService.connect(owner).grantHostRole(rentality.address)
+    await rentalityUserService
+      .connect(owner)
+      .grantManagerRole(rentality.address)
 
     return {
       rentalityMockPriceFeed,
@@ -407,7 +410,6 @@ describe('RentalityUserService', function () {
       await rentalityUserService
         .connect(anonymous)
         .setKYCInfo(
-          anonymous.address,
           'name',
           'surname',
           'phoneNumber',
@@ -431,7 +433,6 @@ describe('RentalityUserService', function () {
       await rentalityUserService
         .connect(anonymous)
         .setKYCInfo(
-          anonymous.address,
           'name',
           'surname',
           'phoneNumber',
@@ -456,7 +457,6 @@ describe('RentalityUserService', function () {
       await rentalityUserService
         .connect(guest)
         .setKYCInfo(
-          guest.address,
           'name',
           'surname',
           'phoneNumber',
@@ -485,7 +485,6 @@ describe('RentalityUserService', function () {
       await rentalityUserService
         .connect(guest)
         .setKYCInfo(
-          guest.address,
           'name',
           'surname',
           'phoneNumber',
@@ -508,7 +507,6 @@ describe('RentalityUserService', function () {
       await rentalityUserService
         .connect(guest)
         .setKYCInfo(
-          guest.address,
           'name',
           'surname',
           'phoneNumber',
@@ -561,7 +559,6 @@ describe('RentalityUserService', function () {
       await rentalityUserService
         .connect(guest)
         .setKYCInfo(
-          guest.address,
           'name',
           'surname',
           'phoneNumberGuest',
@@ -573,7 +570,6 @@ describe('RentalityUserService', function () {
       await rentalityUserService
         .connect(host)
         .setKYCInfo(
-          host.address,
           'name',
           'surname',
           'phoneNumberHost',
