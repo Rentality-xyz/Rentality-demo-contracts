@@ -31,7 +31,6 @@ contract RentalityUserService is AccessControl {
     }
 
     function setKYCInfo(
-        address user,
         string memory name,
         string memory surname,
         string memory mobilePhoneNumber,
