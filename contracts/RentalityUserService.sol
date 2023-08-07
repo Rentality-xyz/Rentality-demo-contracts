@@ -8,6 +8,8 @@ contract RentalityUserService is AccessControl {
     struct KYCInfo {
         string name;
         string surname;
+        string mobilePhoneNumber;
+        string profilePhoto;
         string licenseNumber;
         uint64 expirationDate;
         uint createDate;
@@ -29,15 +31,18 @@ contract RentalityUserService is AccessControl {
     }
 
     function setKYCInfo(
-        address user,
         string memory name,
         string memory surname,
+        string memory mobilePhoneNumber,
+        string memory profilePhoto,
         string memory licenseNumber,
         uint64 expirationDate
     ) public {
-        kycInfos[user] = KYCInfo(
+        kycInfos[tx.origin] = KYCInfo(
             name,
             surname,
+            mobilePhoneNumber,
+            profilePhoto,
             licenseNumber,
             expirationDate,
             block.timestamp
@@ -45,7 +50,12 @@ contract RentalityUserService is AccessControl {
     }
 
     function getKYCInfo(address user) external view returns (KYCInfo memory) {
+        require(isManager(msg.sender), 'Only the manager can get other users KYC info');
         return kycInfos[user];
+    }
+
+    function getMyKYCInfo() external view returns (KYCInfo memory) {
+        return kycInfos[tx.origin];
     }
 
     function hasValidKYC(address user) public view returns (bool) {

@@ -61,6 +61,14 @@ contract Rentality is IRentality, Ownable {
         _;
     }
 
+    modifier onlyHostOrGuest() {
+        require(
+            userService.isHost(msg.sender) || userService.isGuest(msg.sender),
+            "User is not a host or guest"
+        );
+        _;
+    }
+
     function getCarServiceAddress() public view returns (address) {
         return address(carService);
     }
@@ -376,6 +384,25 @@ contract Rentality is IRentality, Ownable {
             request.fuelPricePerGalInUsdCents,
             paymentInfo
         );
+    }
+
+    function getTripContactInfo(uint256 tripId)
+        public
+        view
+        onlyHostOrGuest
+        returns (string memory guestPhoneNumber, string memory hostPhoneNumber)
+    {
+        RentalityTripService.Trip memory trip = tripService.getTrip(tripId);
+
+
+        RentalityUserService.KYCInfo memory guestInfo = userService.getKYCInfo(
+            trip.guest
+        );
+        RentalityUserService.KYCInfo memory hostInfo = userService.getKYCInfo(
+            trip.host
+        );
+
+        return (guestInfo.mobilePhoneNumber, hostInfo.mobilePhoneNumber);
     }
 
     function approveTripRequest(uint256 tripId) public {

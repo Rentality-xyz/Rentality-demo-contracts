@@ -84,7 +84,7 @@ describe('Rentality', function () {
     }
   }
 
-  function getMockCarRequset(seed) {
+  function getMockCarRequest(seed) {
     const seedStr = seed?.toString() ?? ''
     const seedInt = Number(seed) ?? 0
 
@@ -168,7 +168,7 @@ describe('Rentality', function () {
     it('Host can add car to rentality', async function () {
       const { rentality, host } = await loadFixture(deployDefaultFixture)
 
-      await expect(rentality.connect(host).addCar(getMockCarRequset(0))).not.to
+      await expect(rentality.connect(host).addCar(getMockCarRequest(0))).not.to
         .be.reverted
       const myCars = await rentality.connect(host).getMyCars()
       expect(myCars.length).to.equal(1)
@@ -176,7 +176,7 @@ describe('Rentality', function () {
     it('Host dont see own cars as available', async function () {
       const { rentality, host } = await loadFixture(deployDefaultFixture)
 
-      await expect(rentality.connect(host).addCar(getMockCarRequset(0))).not.to
+      await expect(rentality.connect(host).addCar(getMockCarRequest(0))).not.to
         .be.reverted
       const myCars = await rentality.connect(host).getMyCars()
       expect(myCars.length).to.equal(1)
@@ -188,7 +188,7 @@ describe('Rentality', function () {
     it('Guest see cars as available', async function () {
       const { rentality, host, guest } = await loadFixture(deployDefaultFixture)
 
-      await expect(rentality.connect(host).addCar(getMockCarRequset(0))).not.to
+      await expect(rentality.connect(host).addCar(getMockCarRequest(0))).not.to
         .be.reverted
       const myCars = await rentality.connect(host).getMyCars()
       expect(myCars.length).to.equal(1)
@@ -199,7 +199,7 @@ describe('Rentality', function () {
       const { rentality, rentalityCurrencyConverter, host, guest } =
         await loadFixture(deployDefaultFixture)
 
-      await expect(rentality.connect(host).addCar(getMockCarRequset(0))).not.to
+      await expect(rentality.connect(host).addCar(getMockCarRequest(0))).not.to
         .be.reverted
       const myCars = await rentality.connect(host).getMyCars()
       expect(myCars.length).to.equal(1)
@@ -238,7 +238,7 @@ describe('Rentality', function () {
       const { rentality, rentalityCurrencyConverter, host, guest } =
         await loadFixture(deployDefaultFixture)
 
-      await expect(rentality.connect(host).addCar(getMockCarRequset(0))).not.to
+      await expect(rentality.connect(host).addCar(getMockCarRequest(0))).not.to
         .be.reverted
       const myCars = await rentality.connect(host).getMyCars()
       expect(myCars.length).to.equal(1)
@@ -287,7 +287,7 @@ describe('Rentality', function () {
       const { rentality, rentalityCurrencyConverter, host, guest } =
         await loadFixture(deployDefaultFixture)
 
-      await expect(rentality.connect(host).addCar(getMockCarRequset(0))).not.to
+      await expect(rentality.connect(host).addCar(getMockCarRequest(0))).not.to
         .be.reverted
       const myCars = await rentality.connect(host).getMyCars()
       expect(myCars.length).to.equal(1)
@@ -336,7 +336,7 @@ describe('Rentality', function () {
       const { rentality, rentalityCurrencyConverter, host, guest } =
         await loadFixture(deployDefaultFixture)
 
-      await expect(rentality.connect(host).addCar(getMockCarRequset(0))).not.to
+      await expect(rentality.connect(host).addCar(getMockCarRequest(0))).not.to
         .be.reverted
       const myCars = await rentality.connect(host).getMyCars()
       expect(myCars.length).to.equal(1)
@@ -391,7 +391,7 @@ describe('Rentality', function () {
       const { rentality, rentalityCurrencyConverter, host, guest } =
         await loadFixture(deployDefaultFixture)
 
-      await expect(rentality.connect(host).addCar(getMockCarRequset(0))).not.to
+      await expect(rentality.connect(host).addCar(getMockCarRequest(0))).not.to
         .be.reverted
       const myCars = await rentality.connect(host).getMyCars()
       expect(myCars.length).to.equal(1)
@@ -464,7 +464,7 @@ describe('Rentality', function () {
       const { rentality, rentalityCurrencyConverter, host, guest } =
         await loadFixture(deployDefaultFixture)
 
-      await expect(rentality.connect(host).addCar(getMockCarRequset(0))).not.to
+      await expect(rentality.connect(host).addCar(getMockCarRequest(0))).not.to
         .be.reverted
       const myCars = await rentality.connect(host).getMyCars()
       expect(myCars.length).to.equal(1)
@@ -533,7 +533,7 @@ describe('Rentality', function () {
       const { rentality, rentalityCurrencyConverter, host, guest } =
         await loadFixture(deployDefaultFixture)
 
-      await expect(rentality.connect(host).addCar(getMockCarRequset(0))).not.to
+      await expect(rentality.connect(host).addCar(getMockCarRequest(0))).not.to
         .be.reverted
       const myCars = await rentality.connect(host).getMyCars()
       expect(myCars.length).to.equal(1)
@@ -588,7 +588,7 @@ describe('Rentality', function () {
       const { rentality, rentalityCurrencyConverter, host, guest } =
         await loadFixture(deployDefaultFixture)
 
-      await expect(rentality.connect(host).addCar(getMockCarRequset(0))).not.to
+      await expect(rentality.connect(host).addCar(getMockCarRequest(0))).not.to
         .be.reverted
       const myCars = await rentality.connect(host).getMyCars()
       expect(myCars.length).to.equal(1)
@@ -646,7 +646,7 @@ describe('Rentality', function () {
       const { rentality, rentalityCurrencyConverter, host, guest } =
         await loadFixture(deployDefaultFixture)
 
-      await expect(rentality.connect(host).addCar(getMockCarRequset(0))).not.to
+      await expect(rentality.connect(host).addCar(getMockCarRequest(0))).not.to
         .be.reverted
       const myCars = await rentality.connect(host).getMyCars()
       expect(myCars.length).to.equal(1)
@@ -699,7 +699,7 @@ describe('Rentality', function () {
       const { rentality, rentalityCurrencyConverter, host, guest } =
         await loadFixture(deployDefaultFixture)
 
-      await expect(rentality.connect(host).addCar(getMockCarRequset(0))).not.to
+      await expect(rentality.connect(host).addCar(getMockCarRequest(0))).not.to
         .be.reverted
       const myCars = await rentality.connect(host).getMyCars()
       expect(myCars.length).to.equal(1)
@@ -757,7 +757,7 @@ describe('Rentality', function () {
       const { rentality, rentalityCurrencyConverter, host, guest } =
         await loadFixture(deployDefaultFixture)
 
-      await expect(rentality.connect(host).addCar(getMockCarRequset(1))).not.to
+      await expect(rentality.connect(host).addCar(getMockCarRequest(1))).not.to
         .be.reverted
       const myCars = await rentality.connect(host).getMyCars()
       expect(myCars.length).to.equal(1)
@@ -826,7 +826,7 @@ describe('Rentality', function () {
       const { rentality, rentalityCurrencyConverter, host, guest } =
         await loadFixture(deployDefaultFixture)
 
-      await expect(rentality.connect(host).addCar(getMockCarRequset(1))).not.to
+      await expect(rentality.connect(host).addCar(getMockCarRequest(1))).not.to
         .be.reverted
       const myCars = await rentality.connect(host).getMyCars()
       expect(myCars.length).to.equal(1)
