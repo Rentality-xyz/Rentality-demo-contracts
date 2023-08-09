@@ -50,4 +50,13 @@ library RentalityUtils {
     ) internal pure returns (bytes32) {
         return keccak256(abi.encodePacked(str));
     }
+
+    function getTripDays(uint64 endDateTime, uint64 startDateTime) public pure returns (uint64) {
+        uint64 duration = endDateTime - startDateTime;
+        uint64 tripDays = duration / 1 days;
+        if (duration % 1 days > 0) {
+            tripDays += 1;
+        }
+        return tripDays;
+    }
 }
