@@ -53,7 +53,7 @@ library RentalityUtils {
         return keccak256(abi.encodePacked(str));
     }
 
-    function getTripDays(uint64 endDateTime, uint64 startDateTime) public pure returns (uint64) {
+    function getCeilDays(uint64 startDateTime, uint64 endDateTime) public pure returns (uint64) {
         uint64 duration = endDateTime - startDateTime;
         return uint64(Math.ceilDiv(duration, 1 days));
     }

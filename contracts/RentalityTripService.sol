@@ -285,7 +285,7 @@ contract RentalityTripService {
     function getResolveAmountInUsdCents(
         Trip memory tripInfo
     ) public pure returns (uint64, uint64) {
-        uint64 tripDays = RentalityUtils.getTripDays(tripInfo.endDateTime, tripInfo.startDateTime);
+        uint64 tripDays = RentalityUtils.getCeilDays(tripInfo.startDateTime, tripInfo.endDateTime);
 
         return
             getResolveAmountInUsdCents(
