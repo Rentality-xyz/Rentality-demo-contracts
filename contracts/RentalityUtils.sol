@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
+import "@openzeppelin/contracts/utils/math/Math.sol";
+
 library RentalityUtils {
     function toLower(string memory str) internal pure returns (string memory) {
         bytes memory bStr = bytes(str);
@@ -53,10 +55,6 @@ library RentalityUtils {
 
     function getTripDays(uint64 endDateTime, uint64 startDateTime) public pure returns (uint64) {
         uint64 duration = endDateTime - startDateTime;
-        uint64 tripDays = duration / 1 days;
-        if (duration % 1 days > 0) {
-            tripDays += 1;
-        }
-        return tripDays;
+        return uint64(Math.ceilDiv(duration, 1 days));
     }
 }
