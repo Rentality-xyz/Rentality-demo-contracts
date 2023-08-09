@@ -4,6 +4,8 @@ pragma solidity ^0.8.9;
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 
+import "./RentalityUtils.sol";
+
 //deployed 26.05.2023 11:15 to sepolia at 0x417886Ca72048E92E8Bf2082cf193ab8DB4ED09f
 contract RentalityTripService {
     using Counters for Counters.Counter;
@@ -279,14 +281,11 @@ contract RentalityTripService {
         emit TripStatusChanged(tripId, TripStatus.Finished);
     }
 
-    function getTripDays(Trip memory tripInfo) public pure returns (uint64) {
-        return ((tripInfo.endDateTime - tripInfo.startDateTime) / 1 days) + 1;
-    }
 
     function getResolveAmountInUsdCents(
         Trip memory tripInfo
     ) public pure returns (uint64, uint64) {
-        uint64 tripDays = getTripDays(tripInfo);
+        uint64 tripDays = RentalityUtils.getCeilDays(tripInfo.startDateTime, tripInfo.endDateTime);
 
         return
             getResolveAmountInUsdCents(

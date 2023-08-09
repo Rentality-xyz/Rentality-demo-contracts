@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
+import "@openzeppelin/contracts/utils/math/Math.sol";
+
 library RentalityUtils {
     function toLower(string memory str) internal pure returns (string memory) {
         bytes memory bStr = bytes(str);
@@ -49,5 +51,10 @@ library RentalityUtils {
         string memory str
     ) internal pure returns (bytes32) {
         return keccak256(abi.encodePacked(str));
+    }
+
+    function getCeilDays(uint64 startDateTime, uint64 endDateTime) public pure returns (uint64) {
+        uint64 duration = endDateTime - startDateTime;
+        return uint64(Math.ceilDiv(duration, 1 days));
     }
 }
