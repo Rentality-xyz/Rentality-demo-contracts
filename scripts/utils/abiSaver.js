@@ -9,6 +9,10 @@ var saveJsonAbi = function (fileName, chainId, contract) {
   const chainIdString = chainId !== 1337 ? chainId.toString() : "localhost";
   let filePath;
 
+  fs.mkdirSync('./src/abis', { recursive: true }, (err) => {
+    if (err) throw err;
+  });
+
   if (chainId !== 1337) {
     filePath = "./src/abis/" + fileName + ".json";
     fs.writeFileSync(filePath, JSON.stringify(jsonData));
