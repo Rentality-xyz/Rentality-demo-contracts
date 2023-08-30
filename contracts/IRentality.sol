@@ -72,4 +72,19 @@ interface IRentality {
     function checkOutByGuest(uint256 tripId, uint64 endFuelLevelInPermille, uint64 endOdometr) external;
 
     function getTrip(uint256 tripId) external view returns (RentalityTripService.Trip memory);
+
+    function getTripContactInfo(uint256 tripId)
+        external
+        view
+        returns (string memory guestPhoneNumber, string memory hostPhoneNumber);
+    function setKYCInfo(
+        string memory name,
+        string memory surname,
+        string memory mobilePhoneNumber,
+        string memory profilePhoto,
+        string memory licenseNumber,
+        uint64 expirationDate
+    ) external;
+    function getKYCInfo(address user) external view returns (RentalityUserService.KYCInfo memory);
+    function getMyKYCInfo() external view returns (RentalityUserService.KYCInfo memory);
 }

@@ -612,4 +612,23 @@ contract Rentality is IRentality, Ownable {
     ) public view returns (RentalityTripService.Trip[] memory) {
         return tripService.getTripsByCar(carId);
     }
+
+    function setKYCInfo(
+        string memory name,
+        string memory surname,
+        string memory mobilePhoneNumber,
+        string memory profilePhoto,
+        string memory licenseNumber,
+        uint64 expirationDate
+    ) public {
+         return userService.setKYCInfo(name, surname, mobilePhoneNumber, profilePhoto, licenseNumber, expirationDate);
+    }
+
+    function getKYCInfo(address user) external view returns (RentalityUserService.KYCInfo memory) {
+         return userService.getKYCInfo(user);
+    }
+
+    function getMyKYCInfo() external view returns (RentalityUserService.KYCInfo memory) {
+         return userService.getMyKYCInfo();
+    }
 }
