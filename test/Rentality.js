@@ -14,6 +14,9 @@ describe('Rentality', function () {
     const [owner, admin, manager, host, guest, anonymous] =
       await ethers.getSigners()
 
+    const RentalityUtils = await ethers.getContractFactory('RentalityUtils')
+    const utils = await RentalityUtils.deploy()
+
     const RentalityMockPriceFeed = await ethers.getContractFactory(
       'RentalityMockPriceFeed',
     )
@@ -22,6 +25,7 @@ describe('Rentality', function () {
     )
     const RentalityTripService = await ethers.getContractFactory(
       'RentalityTripService',
+      { libraries: { RentalityUtils: utils.address } },
     )
     const RentalityCurrencyConverter = await ethers.getContractFactory(
       'RentalityCurrencyConverter',
@@ -29,7 +33,9 @@ describe('Rentality', function () {
     const RentalityCarToken = await ethers.getContractFactory(
       'RentalityCarToken',
     )
-    const Rentality = await ethers.getContractFactory('Rentality')
+    const Rentality = await ethers.getContractFactory('Rentality', {
+      libraries: { RentalityUtils: utils.address },
+    })
 
     let rentalityMockPriceFeed = await RentalityMockPriceFeed.deploy(
       8,
@@ -65,6 +71,14 @@ describe('Rentality', function () {
       rentalityUserService.address,
     )
     await rentality.deployed()
+
+    try {
+      await rentalityUserService.grantManagerRole(rentality.address)
+      await rentalityUserService.grantManagerRole(utils.address)
+      console.log('manager role granded')
+    } catch (e) {
+      console.log('grand manager role error:', e)
+    }
 
     await rentalityUserService.connect(owner).grantHostRole(rentality.address)
 

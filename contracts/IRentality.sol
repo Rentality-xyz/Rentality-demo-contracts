@@ -20,6 +20,21 @@ interface IRentality {
         uint8 ethToCurrencyDecimals;
     }
 
+    struct ChatInfo {
+        uint256 tripId;
+        address guestAddress;
+        string guestName;
+        string guestPhotoUrl;
+        address hostAddress;
+        string hostName;
+        string hostPhotoUrl;
+        uint256 tripStatus;
+        string carBrand;
+        string carModel;
+        uint32 carYearOfProduction;
+        string carMetadataUrl;
+    }
+
     ///admin functions
     function owner() external view returns (address);
     function getCarServiceAddress() external view returns (address);
