@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
+import "./RentalityTripService.sol";
+import "./RentalityUserService.sol";
+import "./RentalityCarToken.sol";
+import "./IRentality.sol";
 import "@openzeppelin/contracts/utils/math/Math.sol";
 
 library RentalityUtils {
@@ -56,5 +60,35 @@ library RentalityUtils {
     function getCeilDays(uint64 startDateTime, uint64 endDateTime) public pure returns (uint64) {
         uint64 duration = endDateTime - startDateTime;
         return uint64(Math.ceilDiv(duration, 1 days));
+    }
+
+    function populateChatInfo(
+        RentalityTripService.Trip[] memory trips,
+        RentalityUserService userService,
+        RentalityCarToken carService
+    ) public view returns (IRentality.ChatInfo[] memory) {
+        IRentality.ChatInfo[] memory chatInfoList = new IRentality.ChatInfo[](trips.length);
+
+        for (uint i = 0; i < trips.length; i++) {
+            RentalityUserService.KYCInfo memory guestInfo = userService.getKYCInfo(trips[i].guest);
+            RentalityUserService.KYCInfo memory hostInfo = userService.getKYCInfo(trips[i].host);
+
+            chatInfoList[i].tripId = trips[i].tripId;
+            chatInfoList[i].guestAddress = trips[i].guest;
+            chatInfoList[i].guestName = string(abi.encodePacked(guestInfo.name, " ", guestInfo.surname));
+            chatInfoList[i].guestPhotoUrl = guestInfo.profilePhoto;
+            chatInfoList[i].hostAddress = trips[i].host;
+            chatInfoList[i].hostName = string(abi.encodePacked(hostInfo.name, " ", hostInfo.surname));
+            chatInfoList[i].hostPhotoUrl = hostInfo.profilePhoto;
+            chatInfoList[i].tripStatus = uint256(trips[i].status);
+
+            RentalityCarToken.CarInfo memory carInfo = carService.getCarInfoById(trips[i].carId);
+            chatInfoList[i].carBrand = carInfo.brand;
+            chatInfoList[i].carModel = carInfo.model;
+            chatInfoList[i].carYearOfProduction = carInfo.yearOfProduction;
+            chatInfoList[i].carMetadataUrl = carService.tokenURI(trips[i].carId);
+        }
+
+        return chatInfoList;
     }
 }

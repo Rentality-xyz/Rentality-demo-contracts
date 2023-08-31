@@ -13,6 +13,9 @@ describe('RentalityUserService', function () {
     const [owner, admin, manager, host, guest, anonymous] =
       await ethers.getSigners()
 
+    const RentalityUtils = await ethers.getContractFactory('RentalityUtils')
+    const utils = await RentalityUtils.deploy()
+
     const RentalityMockPriceFeed = await ethers.getContractFactory(
       'RentalityMockPriceFeed',
     )
@@ -21,6 +24,7 @@ describe('RentalityUserService', function () {
     )
     const RentalityTripService = await ethers.getContractFactory(
       'RentalityTripService',
+      { libraries: { RentalityUtils: utils.address } },
     )
     const RentalityCurrencyConverter = await ethers.getContractFactory(
       'RentalityCurrencyConverter',
@@ -28,7 +32,9 @@ describe('RentalityUserService', function () {
     const RentalityCarToken = await ethers.getContractFactory(
       'RentalityCarToken',
     )
-    const Rentality = await ethers.getContractFactory('Rentality')
+    const Rentality = await ethers.getContractFactory('Rentality', {
+      libraries: { RentalityUtils: utils.address },
+    })
 
     let rentalityMockPriceFeed = await RentalityMockPriceFeed.deploy(
       8,

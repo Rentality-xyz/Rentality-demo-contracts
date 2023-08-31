@@ -7,6 +7,8 @@ import "./RentalityCarToken.sol";
 import "./RentalityCurrencyConverter.sol";
 import "./RentalityTripService.sol";
 import "./RentalityUserService.sol";
+import "./RentalityUtils.sol";
+
 
 //deployed 26.05.2023 11:15 to sepolia at 0x12fB29Ed1f0E17605f488F640D49De29050cf855
 //deployed 27.06.2023 11:10 to sepolia at 0x18744A3f7D15930446B1dbc5A837562e468B2D8d
@@ -67,6 +69,16 @@ contract Rentality is IRentality, Ownable {
             "User is not a host or guest"
         );
         _;
+    }
+
+    function getChatInfoForHost() public view returns (IRentality.ChatInfo[] memory) {
+        RentalityTripService.Trip[] memory trips = tripService.getTripsByHost(tx.origin);
+        return RentalityUtils.populateChatInfo(trips, userService, carService);
+    }
+
+    function getChatInfoForGuest() public view returns (IRentality.ChatInfo[] memory) {
+        RentalityTripService.Trip[] memory trips = tripService.getTripsByGuest(tx.origin);
+        return RentalityUtils.populateChatInfo(trips, userService, carService);
     }
 
     function getCarServiceAddress() public view returns (address) {
