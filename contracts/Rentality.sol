@@ -633,6 +633,9 @@ contract Rentality is IRentality, Ownable {
         string memory licenseNumber,
         uint64 expirationDate
     ) public {
+        if (!userService.isGuest(msg.sender)) {
+            userService.grantGuestRole(msg.sender);
+        }
          return userService.setKYCInfo(name, surname, mobilePhoneNumber, profilePhoto, licenseNumber, expirationDate);
     }
 
