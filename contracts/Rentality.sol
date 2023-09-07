@@ -646,4 +646,8 @@ contract Rentality is IRentality, Ownable {
     function getMyKYCInfo() external view returns (RentalityUserService.KYCInfo memory) {
          return userService.getMyKYCInfo();
     }
+
+    function getAddressesByTripId(uint256 tripId) external view returns (address hostAddress, address guestAddress){
+         return tripService.getAddressesByTripId(tripId);
+    }
 }

@@ -87,6 +87,7 @@ interface IRentality {
     function checkOutByGuest(uint256 tripId, uint64 endFuelLevelInPermille, uint64 endOdometr) external;
 
     function getTrip(uint256 tripId) external view returns (RentalityTripService.Trip memory);
+    function getAddressesByTripId(uint256 tripId) external view returns (address hostAddress, address guestAddress);
 
     function getTripContactInfo(uint256 tripId)
         external

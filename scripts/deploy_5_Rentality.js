@@ -54,6 +54,7 @@ async function main() {
     return;
   }
 
+  console.log("rentalityUtilsAddress is:", rentalityUtilsAddress);
   console.log("rentalityCarTokenAddress is:", rentalityCarTokenAddress);
   console.log(
     "rentalityCurrencyConverterAddress is:",

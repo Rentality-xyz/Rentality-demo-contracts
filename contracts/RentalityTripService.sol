@@ -517,4 +517,8 @@ contract RentalityTripService {
 
         return result;
     }
+
+    function getAddressesByTripId(uint256 tripId) external view returns (address hostAddress, address guestAddress){
+        return (idToTripInfo[tripId].host, idToTripInfo[tripId].guest);
+    }
 }
