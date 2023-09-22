@@ -46,10 +46,7 @@ describe('RentalityCarToken', function () {
     await rentalityUserService.connect(owner).grantHostRole(host.address)
     await rentalityUserService.connect(owner).grantGuestRole(guest.address)
 
-    const rentalityCarToken = await RentalityCarToken.deploy(
-      'RentalityCarToken',
-      'RCT',
-    )
+    const rentalityCarToken = await RentalityCarToken.deploy()
     const rentalityCarService = await rentalityCarToken.deployed()
 
     const RentalityTripService = await ethers.getContractFactory(

@@ -99,11 +99,7 @@ contract RentalityCarToken is ERC721URIStorage, Ownable {
 
     mapping(uint256 => CarInfo) private idToCarInfo;
 
-    constructor(
-        string memory name_,
-        string memory symbol_
-    ) ERC721(name_, symbol_) {
-    }
+    constructor() ERC721("RentalityCarToken Test", "RTCT") {}
 
     function totalSupply() public view returns (uint) {
         return _carIdCounter.current();

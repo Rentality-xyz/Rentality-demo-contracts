@@ -56,10 +56,7 @@ describe('Rentality', function () {
     )
     await rentalityCurrencyConverter.deployed()
 
-    const rentalityCarToken = await RentalityCarToken.deploy(
-      'Rental Car Token',
-      'RCT',
-    )
+    const rentalityCarToken = await RentalityCarToken.deploy()
     await rentalityCarToken.deployed()
     const rentalityPaymentService = await RentalityPaymentService.deploy()
     await rentalityPaymentService.deployed()
