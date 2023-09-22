@@ -20,6 +20,21 @@ interface IRentalityGateway {
         uint8 ethToCurrencyDecimals;
     }
 
+    struct ChatInfo {
+        uint256 tripId;
+        address guestAddress;
+        string guestName;
+        string guestPhotoUrl;
+        address hostAddress;
+        string hostName;
+        string hostPhotoUrl;
+        uint256 tripStatus;
+        string carBrand;
+        string carModel;
+        uint32 carYearOfProduction;
+        string carMetadataUrl;
+    }
+
     ///admin functions
     function getCarServiceAddress() external view returns (address);
     function updateCarService(address contractAddress) external;
@@ -70,6 +85,7 @@ interface IRentalityGateway {
     function checkOutByGuest(uint256 tripId, uint64 endFuelLevelInPermille, uint64 endOdometr) external;
 
     function getTrip(uint256 tripId) external view returns (RentalityTripService.Trip memory);
+    function getAddressesByTripId(uint256 tripId) external view returns (address hostAddress, address guestAddress);
 
     function getTripContactInfo(uint256 tripId)
         external

@@ -27,11 +27,16 @@ async function main() {
   
   const RentalityUserServiceJSON = chainId === 1337 ? RentalityUserServiceJSONLocal : RentalityUserServiceJSONNet;
 
+  const rentalityUtilsAddress =  addresses.RentalityUtils;
   const rentalityCarTokenAddress =  addresses.RentalityCarToken;
   const rentalityCurrencyConverterAddress = addresses.RentalityCurrencyConverter;
   const rentalityTripServiceAddress = addresses.RentalityTripService;
   const rentalityUserServiceAddress = addresses.RentalityUserService;
 
+  if (!rentalityUtilsAddress) {
+    console.log("rentalityUtilsAddress is not set");
+    return;
+  }
   if (!rentalityCarTokenAddress) {
     console.log("rentalityCarTokenAddress is not set");
     return;
@@ -49,6 +54,7 @@ async function main() {
     return;
   }
 
+  console.log("rentalityUtilsAddress is:", rentalityUtilsAddress);
   console.log("rentalityCarTokenAddress is:", rentalityCarTokenAddress);
   console.log(
     "rentalityCurrencyConverterAddress is:",
@@ -57,7 +63,11 @@ async function main() {
   console.log("rentalityTripServiceAddress is:", rentalityTripServiceAddress);
   console.log("rentalityUserServiceAddress is:", rentalityUserServiceAddress);
   
-  const contractFactory = await ethers.getContractFactory(contractName);
+  const contractFactory = await ethers.getContractFactory(contractName, {
+    libraries: {
+      RentalityUtils: rentalityUtilsAddress,
+    },
+  });
   const contract = await contractFactory.deploy(
     rentalityCarTokenAddress,
     rentalityCurrencyConverterAddress,
