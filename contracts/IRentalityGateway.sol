@@ -4,7 +4,7 @@ pragma solidity ^0.8.9;
 import "./RentalityCarToken.sol";
 import "./RentalityTripService.sol";
 
-interface IRentality {
+interface IRentalityGateway {
     struct CreateTripRequest {
         uint256 carId;
         address host;
@@ -21,7 +21,6 @@ interface IRentality {
     }
 
     ///admin functions
-    function owner() external view returns (address);
     function getCarServiceAddress() external view returns (address);
     function updateCarService(address contractAddress) external;
     function getCurrencyConverterServiceAddress() external view returns (address);
@@ -67,7 +66,6 @@ interface IRentality {
 
     function createTripRequest(CreateTripRequest memory request) external payable;
     function getTripsAsGuest() external view returns (RentalityTripService.Trip[] memory);
-    function getCarsRentedByMe() external view returns (RentalityCarToken.CarInfo[] memory);
     function checkInByGuest(uint256 tripId, uint64 startFuelLevelInPermille, uint64 startOdometr) external;
     function checkOutByGuest(uint256 tripId, uint64 endFuelLevelInPermille, uint64 endOdometr) external;
 

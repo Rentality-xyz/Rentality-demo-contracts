@@ -13,6 +13,9 @@ describe('RentalityUserService', function () {
     const [owner, admin, manager, host, guest, anonymous] =
       await ethers.getSigners()
 
+    const RentalityUtils = await ethers.getContractFactory('RentalityUtils')
+    const utils = await RentalityUtils.deploy()
+
     const RentalityMockPriceFeed = await ethers.getContractFactory(
       'RentalityMockPriceFeed',
     )
@@ -21,14 +24,18 @@ describe('RentalityUserService', function () {
     )
     const RentalityTripService = await ethers.getContractFactory(
       'RentalityTripService',
+      { libraries: { RentalityUtils: utils.address } },
     )
     const RentalityCurrencyConverter = await ethers.getContractFactory(
       'RentalityCurrencyConverter',
     )
-    const RentalityCarToken = await ethers.getContractFactory(
-      'RentalityCarToken',
+    const RentalityPaymentService = await ethers.getContractFactory(
+      'RentalityPaymentService',
     )
-    const Rentality = await ethers.getContractFactory('Rentality')
+    const RentalityCarToken =
+      await ethers.getContractFactory('RentalityCarToken')
+    const RentalityPlatform =
+      await ethers.getContractFactory('RentalityPlatform')
 
     let rentalityMockPriceFeed = await RentalityMockPriceFeed.deploy(
       8,
@@ -44,31 +51,43 @@ describe('RentalityUserService', function () {
     await rentalityUserService.connect(owner).grantHostRole(host.address)
     await rentalityUserService.connect(owner).grantGuestRole(guest.address)
 
-    const rentalityTripService = await RentalityTripService.deploy()
-    await rentalityTripService.deployed()
-
     const rentalityCurrencyConverter = await RentalityCurrencyConverter.deploy(
       rentalityMockPriceFeed.address,
     )
-    await rentalityCurrencyConverter.deployed()
-
     const rentalityCarToken = await RentalityCarToken.deploy(
-      rentalityUserService.address,
+      'RentalCarToken',
+      'RCT',
     )
     await rentalityCarToken.deployed()
 
-    const rentality = await Rentality.deploy(
+    const rentalityPaymentService = await RentalityPaymentService.deploy()
+
+    const rentalityTripService = await RentalityTripService.deploy(
+      rentalityCurrencyConverter.address,
+      rentalityPaymentService.address,
+      rentalityUserService.address,
+      rentalityUserService.address,
+    )
+    await rentalityTripService.deployed()
+
+    const rentalityPlatform = await RentalityPlatform.deploy(
       rentalityCarToken.address,
       rentalityCurrencyConverter.address,
       rentalityTripService.address,
       rentalityUserService.address,
+      rentalityPaymentService.address,
     )
-    await rentality.deployed()
+    await rentalityPlatform.deployed()
 
-    await rentalityUserService.connect(owner).grantHostRole(rentality.address)
     await rentalityUserService
       .connect(owner)
-      .grantManagerRole(rentality.address)
+      .grantHostRole(rentalityPlatform.address)
+    await rentalityUserService
+      .connect(owner)
+      .grantManagerRole(rentalityPlatform.address)
+    await rentalityUserService
+      .connect(owner)
+      .grantManagerRole(rentalityTripService.address)
 
     return {
       rentalityMockPriceFeed,
@@ -76,7 +95,7 @@ describe('RentalityUserService', function () {
       rentalityTripService,
       rentalityCurrencyConverter,
       rentalityCarToken,
-      rentality,
+      rentalityPlatform,
       owner,
       admin,
       manager,
@@ -153,9 +172,8 @@ describe('RentalityUserService', function () {
 
   describe('Deployment', function () {
     it('Owner should have all roles', async function () {
-      const { rentalityUserService, owner } = await loadFixture(
-        deployDefaultFixture,
-      )
+      const { rentalityUserService, owner } =
+        await loadFixture(deployDefaultFixture)
 
       expect(await rentalityUserService.isAdmin(owner.address)).to.equal(true)
       expect(await rentalityUserService.isManager(owner.address)).to.equal(true)
@@ -532,19 +550,21 @@ describe('RentalityUserService', function () {
 
     it('After a trip is requested, the host or guest can get the contact numbers of the host and guest', async function () {
       const {
-        rentality,
+        rentalityPlatform,
         rentalityCurrencyConverter,
         host,
+        rentalityCarToken,
         guest,
         manager,
+        rentalityTripService,
         rentalityUserService,
       } = await loadFixture(deployDefaultFixture)
 
-      await expect(rentality.connect(host).addCar(getMockCarRequest(0))).not.to
-        .be.reverted
-      const myCars = await rentality.connect(host).getMyCars()
-      expect(myCars.length).to.equal(1)
-      const availableCars = await rentality.connect(guest).getAvailableCars()
+      await expect(rentalityCarToken.connect(host).addCar(getMockCarRequest(0)))
+        .not.to.be.reverted
+      const availableCars = await rentalityCarToken
+        .connect(guest)
+        .getAvailableCarsForUser(guest.address)
       expect(availableCars.length).to.equal(1)
 
       const rentPriceInUsdCents = 1600
@@ -579,7 +599,7 @@ describe('RentalityUserService', function () {
         )
 
       await expect(
-        await rentality.connect(guest).createTripRequest(
+        await rentalityPlatform.connect(guest).createTripRequest(
           {
             carId: 1,
             host: host.address,
@@ -597,16 +617,18 @@ describe('RentalityUserService', function () {
           { value: rentPriceInEth },
         ),
       ).not.to.be.reverted
-      expect((await rentality.connect(host).getTrip(1)).status).to.equal(0)
+      expect(
+        (await rentalityTripService.connect(host).getTrip(1)).status,
+      ).to.equal(0)
 
-      let [guestPhoneNumber, hostPhoneNumber] = await rentality
+      let [guestPhoneNumber, hostPhoneNumber] = await rentalityPlatform
         .connect(guest)
         .getTripContactInfo(1)
 
       expect(guestPhoneNumber).to.equal('phoneNumberGuest')
       expect(hostPhoneNumber).to.equal('phoneNumberHost')[
         (guestPhoneNumber, hostPhoneNumber)
-      ] = await rentality.connect(host).getTripContactInfo(1)
+      ] = await rentalityPlatform.connect(host).getTripContactInfo(1)
 
       expect(guestPhoneNumber).to.equal('phoneNumberGuest')
       expect(hostPhoneNumber).to.equal('phoneNumberHost')

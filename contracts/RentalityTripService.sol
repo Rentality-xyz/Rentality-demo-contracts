@@ -3,9 +3,11 @@ pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
-
+import "./RentalityCurrencyConverter.sol";
+import "./RentalityPaymentService.sol";
+import "./RentalityCarToken.sol";
 import "./RentalityUtils.sol";
-
+import "./RentalityUserService.sol";
 //deployed 26.05.2023 11:15 to sepolia at 0x417886Ca72048E92E8Bf2082cf193ab8DB4ED09f
 contract RentalityTripService {
     using Counters for Counters.Counter;
@@ -47,6 +49,8 @@ contract RentalityTripService {
         TripStatus status;
         address guest;
         address host;
+        string guestName;
+        string hostName;
         uint64 pricePerDayInUsdCents;
         uint64 startDateTime;
         uint64 endDateTime;
@@ -56,6 +60,8 @@ contract RentalityTripService {
         uint64 fuelPricePerGalInUsdCents;
         PaymentInfo paymentInfo;
         uint approvedDateTime;
+        uint rejectedDateTime;
+        address rejectedBy;
         uint checkedInByHostDateTime;
         uint64 startFuelLevelInGal;
         uint64 startOdometr;
@@ -71,7 +77,24 @@ contract RentalityTripService {
     event TripCreated(uint256 tripId);
     event TripStatusChanged(uint256 tripId, TripStatus newStatus);
 
-    constructor() {}
+    RentalityCurrencyConverter private currencyConverterService;
+    RentalityCarToken private carService;
+    RentalityPaymentService private paymentService;
+    RentalityUserService private userService;
+
+    constructor(
+        address currencyConverterServiceAddress,
+        address carServiceAddress,
+        address paymentServiceAddress,
+        address userServiceAddress
+    ) {
+        currencyConverterService = RentalityCurrencyConverter(
+            currencyConverterServiceAddress
+        );
+        paymentService = RentalityPaymentService(paymentServiceAddress);
+        carService = RentalityCarToken(carServiceAddress);
+        userService = RentalityUserService(userServiceAddress);
+    }
 
     function totalTripCount() public view returns (uint) {
         return _tripIdCounter.current();
@@ -97,12 +120,17 @@ contract RentalityTripService {
         }
         paymentInfo.tripId = newTripId;
 
+        string memory guestName = userService.getKYCInfo(tx.origin).name;
+        string memory hostName = userService.getKYCInfo(host).name;
+
         idToTripInfo[newTripId] = Trip(
             newTripId,
             carId,
             TripStatus.Created,
             guest,
             host,
+            guestName,
+            hostName,
             pricePerDayInUsdCents,
             startDateTime,
             endDateTime,
@@ -112,6 +140,8 @@ contract RentalityTripService {
             fuelPricePerGalInUsdCents,
             paymentInfo,
             0,
+            0,
+            address(0),
             0,
             0,
             0,
@@ -155,15 +185,75 @@ contract RentalityTripService {
         );
 
         idToTripInfo[tripId].status = TripStatus.Canceled;
+        idToTripInfo[tripId].rejectedDateTime = block.timestamp;
+        idToTripInfo[tripId].rejectedBy = tx.origin;
 
         emit TripStatusChanged(tripId, TripStatus.Canceled);
     }
 
+    function searchAvailableCarsForUser(
+        address user,
+        uint64 startDateTime,
+        uint64 endDateTime,
+        RentalityCarToken.SearchCarParams memory searchParams
+    ) public view returns (RentalityCarToken.CarInfo[] memory) {
+        // if (startDateTime < block.timestamp){
+        //     return new RentalityCarToken.CarInfo[](0);
+        // }
+        RentalityCarToken.CarInfo[] memory availableCars = carService.fetchAvailableCarsForUser(user, searchParams);
+        if (availableCars.length == 0) return availableCars;
+
+        Trip[] memory trips = getTripsThatIntersect(startDateTime, endDateTime);
+        if (trips.length == 0) return availableCars;
+
+        RentalityCarToken.CarInfo[] memory temp = new RentalityCarToken.CarInfo[](availableCars.length);
+        uint256 resultCount = 0;
+
+        for (uint i = 0; i < availableCars.length; i++) {
+            bool hasIntersectTrip = false;
+
+            for (uint j = 0; j < trips.length; j++) {
+                if (
+                    trips[j].status == TripStatus.Created ||
+                    trips[j].status == TripStatus.Finished ||
+                    trips[j].status == TripStatus.Canceled
+                ) {
+                    continue;
+                }
+
+                if (trips[j].carId == availableCars[i].carId) {
+                    hasIntersectTrip = true;
+                    break;
+                }
+            }
+
+            if (!hasIntersectTrip) {
+                temp[resultCount] = availableCars[i];
+                resultCount++;
+            }
+        }
+
+        if (availableCars.length == resultCount) return availableCars;
+
+        RentalityCarToken.CarInfo[] memory result = new RentalityCarToken.CarInfo[](resultCount);
+
+        for (uint i = 0; i < resultCount; i++) {
+            result[i] = temp[i];
+        }
+        return result;
+    }
+
     function checkInByHost(
         uint256 tripId,
-        uint64 startFuelLevelInGal,
+        uint64 startFuelLevelInPermille,
         uint64 startOdometr
     ) public {
+        Trip memory trip = getTrip(tripId);
+
+        RentalityCarToken.CarInfo memory carInfo = carService.getCarInfoById(trip.carId);
+        uint64 startFuelLevelInGal = (carInfo.tankVolumeInGal *
+            startFuelLevelInPermille) / 1000;
+
         require(
             idToTripInfo[tripId].status == TripStatus.Approved,
             "The trip is not in status Approved"
@@ -179,9 +269,16 @@ contract RentalityTripService {
 
     function checkInByGuest(
         uint256 tripId,
-        uint64 startFuelLevelInGal,
+        uint64 startFuelLevelInPermille,
         uint64 startOdometr
     ) public {
+        RentalityTripService.Trip memory trip = getTrip(tripId);
+        RentalityCarToken.CarInfo memory carInfo = carService.getCarInfoById(trip.carId);
+        uint64 startFuelLevelInGal = (carInfo.tankVolumeInGal *
+            startFuelLevelInPermille) / 1000;
+
+
+
         require(
             idToTripInfo[tripId].status == TripStatus.CheckedInByHost,
             "The trip is not in status CheckedInByHost"
@@ -203,9 +300,14 @@ contract RentalityTripService {
 
     function checkOutByGuest(
         uint256 tripId,
-        uint64 endFuelLevelInGal,
+        uint64 endFuelLevelInPermille,
         uint64 endOdometr
     ) public {
+        RentalityTripService.Trip memory trip = getTrip(tripId);
+        RentalityCarToken.CarInfo memory carInfo = carService.getCarInfoById(trip.carId);
+        uint64 endFuelLevelInGal = (carInfo.tankVolumeInGal *
+            endFuelLevelInPermille) / 1000;
+
         require(
             idToTripInfo[tripId].status == TripStatus.CheckedInByGuest,
             "The trip is not in status CheckedInByGuest"
@@ -224,9 +326,15 @@ contract RentalityTripService {
 
     function checkOutByHost(
         uint256 tripId,
-        uint64 endFuelLevelInGal,
+        uint64 endFuelLevelInPermille,
         uint64 endOdometr
     ) public {
+        RentalityTripService.Trip memory trip = getTrip(tripId);
+        RentalityCarToken.CarInfo memory carInfo = carService.getCarInfoById(trip.carId);
+        uint64 endFuelLevelInGal = (carInfo.tankVolumeInGal *
+            endFuelLevelInPermille) / 1000;
+
+
         require(
             idToTripInfo[tripId].status == TripStatus.CheckedOutByGuest,
             "The trip is not in status CheckedOutByGuest"
