@@ -388,5 +388,14 @@ contract RentalityGateway is Ownable {
 
     function getMyKYCInfo() external view returns (RentalityUserService.KYCInfo memory) {
          return userService.getMyKYCInfo();
+    }    
+    
+    function getChatInfoForHost() public view returns (IRentalityGateway.ChatInfo[] memory) {
+         return rentalityPlatform.getChatInfoForHost();
     }
+
+    function getChatInfoForGuest() public view returns (IRentalityGateway.ChatInfo[] memory) {
+         return rentalityPlatform.getChatInfoForGuest();
+    }
+
 }

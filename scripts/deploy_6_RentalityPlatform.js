@@ -72,7 +72,11 @@ async function main() {
   console.log('rentalityUserServiceAddress is:', rentalityUserServiceAddress)
   console.log('rentalityTripServiceAddress is:', rentalityTripServiceAddress)
 
-  const contractFactory = await ethers.getContractFactory(contractName)
+  const contractFactory = await ethers.getContractFactory(contractName, {
+    libraries: {
+      RentalityUtils: rentalityUtilsAddress,
+    },
+  })
   const contract = await contractFactory.deploy(
     rentalityCarTokenAddress,
     rentalityCurrencyConverterAddress,

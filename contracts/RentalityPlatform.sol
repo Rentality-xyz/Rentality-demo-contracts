@@ -298,4 +298,14 @@ contract RentalityPlatform is Ownable {
     function getMyKYCInfo() external view returns (RentalityUserService.KYCInfo memory) {
          return userService.getMyKYCInfo();
     }    
+    
+    function getChatInfoForHost() public view returns (IRentalityGateway.ChatInfo[] memory) {
+        RentalityTripService.Trip[] memory trips = tripService.getTripsByHost(tx.origin);
+        return RentalityUtils.populateChatInfo(trips, userService, carService);
+    }
+
+    function getChatInfoForGuest() public view returns (IRentalityGateway.ChatInfo[] memory) {
+        RentalityTripService.Trip[] memory trips = tripService.getTripsByGuest(tx.origin);
+        return RentalityUtils.populateChatInfo(trips, userService, carService);
+    }
 }
