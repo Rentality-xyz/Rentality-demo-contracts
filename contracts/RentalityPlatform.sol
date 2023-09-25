@@ -42,23 +42,23 @@ contract RentalityPlatform is Ownable {
         _;
     }
 
-    modifier onlyHost() {
-        require(userService.isHost(msg.sender), "User is not a host");
-        _;
-    }
+    // modifier onlyHost() {
+    //     require(userService.isHost(msg.sender), "User is not a host");
+    //     _;
+    // }
 
-    modifier onlyGuest() {
-        require(userService.isGuest(msg.sender), "User is not a guest");
-        _;
-    }
+    // modifier onlyGuest() {
+    //     require(userService.isGuest(msg.sender), "User is not a guest");
+    //     _;
+    // }
 
-    modifier onlyHostOrGuest() {
-        require(
-            userService.isHost(msg.sender) || userService.isGuest(msg.sender),
-            "User is not a host or guest"
-        );
-        _;
-    }
+    // modifier onlyHostOrGuest() {
+    //     require(
+    //         userService.isHost(msg.sender) || userService.isGuest(msg.sender),
+    //         "User is not a host or guest"
+    //     );
+    //     _;
+    // }
 
     function getCarServiceAddress() public view returns (address) {
         return address(carService);
@@ -136,8 +136,8 @@ contract RentalityPlatform is Ownable {
             "Rental fee must be equal to sum totalDayPrice + taxPrice + deposit"
         );
 
-        if (!userService.isGuest(msg.sender)) {
-            userService.grantGuestRole(msg.sender);
+        if (!userService.isGuest(tx.origin)) {
+            userService.grantGuestRole(tx.origin);
         }
 
         RentalityTripService.PaymentInfo
@@ -280,7 +280,6 @@ contract RentalityPlatform is Ownable {
     function getTripContactInfo(uint256 tripId)
         public
         view
-        onlyHostOrGuest
         returns (string memory guestPhoneNumber, string memory hostPhoneNumber)
     {
         RentalityTripService.Trip memory trip = tripService.getTrip(tripId);
@@ -295,4 +294,8 @@ contract RentalityPlatform is Ownable {
 
         return (guestInfo.mobilePhoneNumber, hostInfo.mobilePhoneNumber);
     }
+
+    function getMyKYCInfo() external view returns (RentalityUserService.KYCInfo memory) {
+         return userService.getMyKYCInfo();
+    }    
 }
