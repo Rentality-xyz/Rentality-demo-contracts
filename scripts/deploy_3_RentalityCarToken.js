@@ -3,7 +3,7 @@ const { ethers } = require("hardhat");
 const addressesContractsTestnets = require("./addressesContractsTestnets.json");
 
 async function main() {
-  const contractName = "RentalityTripService";
+  const contractName = "RentalityCarToken";
   const [deployer] = await ethers.getSigners();
   const balance = await deployer.getBalance();
   console.log(
@@ -22,17 +22,8 @@ async function main() {
     console.error(`Addresses for chainId:${chainId} was not found in addressesContractsTestnets.json`);
     return;
   }
-  
-  const rentalityUtilsAddress =  addresses.RentalityUtils;
-  if (!rentalityUtilsAddress) {
-    console.log("rentalityUtilsAddress is not set");
-    return;
-  }
-  const contractFactory = await ethers.getContractFactory(contractName, {
-    libraries: {
-      RentalityUtils: rentalityUtilsAddress,
-    },
-  });
+
+  const contractFactory = await ethers.getContractFactory(contractName);
   const contract = await contractFactory.deploy();
   await contract.deployed();
   console.log(contractName + " deployed to:", contract.address);

@@ -26,19 +26,31 @@ async function main() {
   const RentalityUserServiceJSON = chainId === 1337 ? RentalityUserServiceJSONLocal : RentalityUserServiceJSONNet;
 
   const rentalityUserServiceAddress = addresses.RentalityUserService;
-  const rentalityAddress = addresses.Rentality;
+  const rentalityGatewayAddress = addresses.RentalityGateway;
+  const rentalityTripServiceAddress = addresses.RentalityTripService;
+  const rentalityPlatformAddress = addresses.RentalityPlatform;
 
   if (!rentalityUserServiceAddress) {
     console.log("rentalityUserServiceAddress is not set");
     return;
   }
-  if (!rentalityAddress) {
+  if (!rentalityGatewayAddress) {
+    console.log("rentalityAddress is not set");
+    return;
+  }
+  if (!rentalityTripServiceAddress) {
+    console.log("rentalityTripServiceAddress is not set");
+    return;
+  }
+  if (!rentalityPlatformAddress) {
     console.log("rentalityAddress is not set");
     return;
   }
 
   console.log("rentalityUserServiceAddress is:", rentalityUserServiceAddress);
-  console.log("rentalityAddress is:", rentalityAddress);
+  console.log("rentalityGatewayAddress is:", rentalityGatewayAddress);
+  console.log("rentalityTripServiceAddress is:", rentalityTripServiceAddress);
+  console.log("rentalityPlatformAddress is:", rentalityPlatformAddress);
   
   let rentalityUserServiceContract = new ethers.Contract(
     rentalityUserServiceAddress,
@@ -46,7 +58,9 @@ async function main() {
     deployer
   );
   try{
-    await rentalityUserServiceContract.grantManagerRole(rentalityAddress);
+    await rentalityUserServiceContract.grantManagerRole(rentalityGatewayAddress);
+    await rentalityUserServiceContract.grantManagerRole(rentalityTripServiceAddress);
+    await rentalityUserServiceContract.grantManagerRole(rentalityPlatformAddress);
     console.log("manager role granded");
   } catch(e){
     console.log("grand manager role error:", e);

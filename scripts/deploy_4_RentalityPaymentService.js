@@ -3,7 +3,7 @@ const { ethers } = require("hardhat");
 const addressesContractsTestnets = require("./addressesContractsTestnets.json");
 
 async function main() {
-  const contractName = "RentalityCarToken";
+  const contractName = "RentalityPaymentService";
   const [deployer] = await ethers.getSigners();
   const balance = await deployer.getBalance();
   console.log(
@@ -23,15 +23,8 @@ async function main() {
     return;
   }
 
-  const userServiceAddress = addresses.RentalityUserService;
-  if (!userServiceAddress) {
-    console.log("userServiceAddress is not set");
-    return;
-  }
-  console.log("userServiceAddress is:", userServiceAddress);
-
   const contractFactory = await ethers.getContractFactory(contractName);
-  const contract = await contractFactory.deploy(userServiceAddress);
+  const contract = await contractFactory.deploy();
   await contract.deployed();
   console.log(contractName + " deployed to:", contract.address);
 

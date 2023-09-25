@@ -136,6 +136,10 @@ contract RentalityPlatform is Ownable {
             "Rental fee must be equal to sum totalDayPrice + taxPrice + deposit"
         );
 
+        if (!userService.isGuest(msg.sender)) {
+            userService.grantGuestRole(msg.sender);
+        }
+
         RentalityTripService.PaymentInfo
             memory paymentInfo = RentalityTripService.PaymentInfo(
                 0,
