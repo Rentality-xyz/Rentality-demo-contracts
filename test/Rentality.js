@@ -16,7 +16,6 @@ describe('Rentality', function () {
 
     const RentalityUtils = await ethers.getContractFactory('RentalityUtils')
     const utils = await RentalityUtils.deploy()
-
     const RentalityMockPriceFeed = await ethers.getContractFactory(
       'RentalityMockPriceFeed',
     )
@@ -30,12 +29,13 @@ describe('Rentality', function () {
     const RentalityCurrencyConverter = await ethers.getContractFactory(
       'RentalityCurrencyConverter',
     )
-    const RentalityCarToken = await ethers.getContractFactory(
-      'RentalityCarToken',
+    const RentalityPaymentService = await ethers.getContractFactory(
+      'RentalityPaymentService',
     )
-    const Rentality = await ethers.getContractFactory('Rentality', {
-      libraries: { RentalityUtils: utils.address },
-    })
+    const RentalityCarToken =
+      await ethers.getContractFactory('RentalityCarToken')
+    const RentalityPlatform =
+      await ethers.getContractFactory('RentalityPlatform')
 
     let rentalityMockPriceFeed = await RentalityMockPriceFeed.deploy(
       8,
@@ -51,36 +51,40 @@ describe('Rentality', function () {
     await rentalityUserService.connect(owner).grantHostRole(host.address)
     await rentalityUserService.connect(owner).grantGuestRole(guest.address)
 
-    const rentalityTripService = await RentalityTripService.deploy()
-    await rentalityTripService.deployed()
-
     const rentalityCurrencyConverter = await RentalityCurrencyConverter.deploy(
       rentalityMockPriceFeed.address,
     )
     await rentalityCurrencyConverter.deployed()
 
-    const rentalityCarToken = await RentalityCarToken.deploy(
+    const rentalityCarToken = await RentalityCarToken.deploy()
+    await rentalityCarToken.deployed()
+    const rentalityPaymentService = await RentalityPaymentService.deploy()
+    await rentalityPaymentService.deployed()
+
+    const rentalityTripService = await RentalityTripService.deploy(
+      rentalityCurrencyConverter.address,
+      rentalityCarToken.address,
+      rentalityPaymentService.address,
       rentalityUserService.address,
     )
-    await rentalityCarToken.deployed()
+    await rentalityTripService.deployed()
 
-    const rentality = await Rentality.deploy(
+    const rentalityPlatform = await RentalityPlatform.deploy(
       rentalityCarToken.address,
       rentalityCurrencyConverter.address,
       rentalityTripService.address,
       rentalityUserService.address,
+      rentalityPaymentService.address,
     )
-    await rentality.deployed()
+    await rentalityPlatform.deployed()
 
-    try {
-      await rentalityUserService.grantManagerRole(rentality.address)
-      await rentalityUserService.grantManagerRole(utils.address)
-      console.log('manager role granded')
-    } catch (e) {
-      console.log('grand manager role error:', e)
-    }
+    await rentalityUserService
+      .connect(owner)
+      .grantHostRole(rentalityPlatform.address)
 
-    await rentalityUserService.connect(owner).grantHostRole(rentality.address)
+    await rentalityUserService
+      .connect(owner)
+      .grantManagerRole(rentalityTripService.address)
 
     return {
       rentalityMockPriceFeed,
@@ -88,7 +92,8 @@ describe('Rentality', function () {
       rentalityTripService,
       rentalityCurrencyConverter,
       rentalityCarToken,
-      rentality,
+      rentalityPaymentService,
+      rentalityPlatform,
       owner,
       admin,
       manager,
@@ -180,45 +185,65 @@ describe('Rentality', function () {
 
   describe('Rentality', function () {
     it('Host can add car to rentality', async function () {
-      const { rentality, host } = await loadFixture(deployDefaultFixture)
+      const { rentalityCarToken, host } =
+        await loadFixture(deployDefaultFixture)
 
-      await expect(rentality.connect(host).addCar(getMockCarRequest(0))).not.to
-        .be.reverted
-      const myCars = await rentality.connect(host).getMyCars()
+      await expect(rentalityCarToken.connect(host).addCar(getMockCarRequest(0)))
+        .not.to.be.reverted
+      const myCars = await rentalityCarToken
+        .connect(host)
+        .getCarsOwnedByUser(host.address)
       expect(myCars.length).to.equal(1)
     })
     it('Host dont see own cars as available', async function () {
-      const { rentality, host } = await loadFixture(deployDefaultFixture)
+      const { rentalityCarToken, host } =
+        await loadFixture(deployDefaultFixture)
 
-      await expect(rentality.connect(host).addCar(getMockCarRequest(0))).not.to
-        .be.reverted
-      const myCars = await rentality.connect(host).getMyCars()
+      await expect(rentalityCarToken.connect(host).addCar(getMockCarRequest(0)))
+        .not.to.be.reverted
+      const myCars = await rentalityCarToken
+        .connect(host)
+        .getCarsOwnedByUser(host.address)
       expect(myCars.length).to.equal(1)
-      const availableCars = await rentality
+      const availableCars = await rentalityCarToken
         .connect(host)
         .getAvailableCarsForUser(host.address)
       expect(availableCars.length).to.equal(0)
     })
     it('Guest see cars as available', async function () {
-      const { rentality, host, guest } = await loadFixture(deployDefaultFixture)
+      const { rentalityCarToken, host, guest } =
+        await loadFixture(deployDefaultFixture)
 
-      await expect(rentality.connect(host).addCar(getMockCarRequest(0))).not.to
-        .be.reverted
-      const myCars = await rentality.connect(host).getMyCars()
+      await expect(rentalityCarToken.connect(host).addCar(getMockCarRequest(0)))
+        .not.to.be.reverted
+      const myCars = await rentalityCarToken
+        .connect(host)
+        .getCarsOwnedByUser(host.address)
       expect(myCars.length).to.equal(1)
-      const availableCars = await rentality.connect(guest).getAvailableCars()
+      const availableCars = await rentalityCarToken
+        .connect(guest)
+        .getAvailableCarsForUser(guest.address)
       expect(availableCars.length).to.equal(1)
     })
     it('createTripRequest', async function () {
-      const { rentality, rentalityCurrencyConverter, host, guest } =
-        await loadFixture(deployDefaultFixture)
+      const {
+        rentalityCarToken,
+        rentalityPlatform,
+        rentalityCurrencyConverter,
+        host,
+        guest,
+      } = await loadFixture(deployDefaultFixture)
 
-      await expect(rentality.connect(host).addCar(getMockCarRequest(0))).not.to
-        .be.reverted
-      const myCars = await rentality.connect(host).getMyCars()
+      await expect(rentalityCarToken.connect(host).addCar(getMockCarRequest(0)))
+        .not.to.be.reverted
+      const myCars = await rentalityCarToken
+        .connect(host)
+        .getCarsOwnedByUser(host.address)
       expect(myCars.length).to.equal(1)
 
-      const availableCars = await rentality.connect(guest).getAvailableCars()
+      const availableCars = await rentalityCarToken
+        .connect(guest)
+        .getAvailableCarsForUser(guest.address)
       expect(availableCars.length).to.equal(1)
 
       const rentPriceInUsdCents = 1000
@@ -228,7 +253,7 @@ describe('Rentality', function () {
         )
 
       await expect(
-        rentality.connect(guest).createTripRequest(
+        rentalityPlatform.connect(guest).createTripRequest(
           {
             carId: 1,
             host: host.address,
@@ -249,15 +274,24 @@ describe('Rentality', function () {
     })
 
     it('host can reject created trip', async function () {
-      const { rentality, rentalityCurrencyConverter, host, guest } =
-        await loadFixture(deployDefaultFixture)
+      const {
+        rentalityPlatform,
+        rentalityCarToken,
+        rentalityCurrencyConverter,
+        host,
+        guest,
+      } = await loadFixture(deployDefaultFixture)
 
-      await expect(rentality.connect(host).addCar(getMockCarRequest(0))).not.to
-        .be.reverted
-      const myCars = await rentality.connect(host).getMyCars()
+      await expect(rentalityCarToken.connect(host).addCar(getMockCarRequest(0)))
+        .not.to.be.reverted
+      const myCars = await rentalityCarToken
+        .connect(host)
+        .getCarsOwnedByUser(host.address)
       expect(myCars.length).to.equal(1)
 
-      const availableCars = await rentality.connect(guest).getAvailableCars()
+      const availableCars = await rentalityCarToken
+        .connect(guest)
+        .getAvailableCarsForUser(guest.address)
       expect(availableCars.length).to.equal(1)
 
       const rentPriceInUsdCents = 1000
@@ -267,7 +301,7 @@ describe('Rentality', function () {
         )
 
       await expect(
-        rentality.connect(guest).createTripRequest(
+        rentalityPlatform.connect(guest).createTripRequest(
           {
             carId: 1,
             host: host.address,
@@ -285,28 +319,37 @@ describe('Rentality', function () {
           { value: rentPriceInEth },
         ),
       ).to.changeEtherBalances(
-        [guest, rentality],
+        [guest, rentalityPlatform],
         [-rentPriceInEth, rentPriceInEth],
       )
 
       await expect(
-        rentality.connect(host).rejectTripRequest(1),
+        rentalityPlatform.connect(host).rejectTripRequest(1),
       ).to.changeEtherBalances(
-        [guest, rentality],
+        [guest, rentalityPlatform],
         [rentPriceInEth, -rentPriceInEth],
       )
     })
 
     it('guest can reject created trip', async function () {
-      const { rentality, rentalityCurrencyConverter, host, guest } =
-        await loadFixture(deployDefaultFixture)
+      const {
+        rentalityPlatform,
+        rentalityCarToken,
+        rentalityCurrencyConverter,
+        host,
+        guest,
+      } = await loadFixture(deployDefaultFixture)
 
-      await expect(rentality.connect(host).addCar(getMockCarRequest(0))).not.to
-        .be.reverted
-      const myCars = await rentality.connect(host).getMyCars()
+      await expect(rentalityCarToken.connect(host).addCar(getMockCarRequest(0)))
+        .not.to.be.reverted
+      const myCars = await rentalityCarToken
+        .connect(host)
+        .getCarsOwnedByUser(host.address)
       expect(myCars.length).to.equal(1)
 
-      const availableCars = await rentality.connect(guest).getAvailableCars()
+      const availableCars = await rentalityCarToken
+        .connect(guest)
+        .getAvailableCarsForUser(guest.address)
       expect(availableCars.length).to.equal(1)
 
       const rentPriceInUsdCents = 1000
@@ -316,7 +359,7 @@ describe('Rentality', function () {
         )
 
       await expect(
-        rentality.connect(guest).createTripRequest(
+        rentalityPlatform.connect(guest).createTripRequest(
           {
             carId: 1,
             host: host.address,
@@ -334,27 +377,38 @@ describe('Rentality', function () {
           { value: rentPriceInEth },
         ),
       ).to.changeEtherBalances(
-        [guest, rentality],
+        [guest, rentalityPlatform],
         [-rentPriceInEth, rentPriceInEth],
       )
 
       await expect(
-        rentality.connect(guest).rejectTripRequest(1),
+        rentalityPlatform.connect(guest).rejectTripRequest(1),
       ).to.changeEtherBalances(
-        [guest, rentality],
+        [guest, rentalityPlatform],
         [rentPriceInEth, -rentPriceInEth],
       )
     })
 
     it('Happy case', async function () {
-      const { rentality, rentalityCurrencyConverter, host, guest } =
-        await loadFixture(deployDefaultFixture)
+      const {
+        rentalityPlatform,
+        rentalityCarToken,
+        rentalityCurrencyConverter,
+        rentalityPaymentService,
+        rentalityTripService,
+        host,
+        guest,
+      } = await loadFixture(deployDefaultFixture)
 
-      await expect(rentality.connect(host).addCar(getMockCarRequest(0))).not.to
-        .be.reverted
-      const myCars = await rentality.connect(host).getMyCars()
+      await expect(rentalityCarToken.connect(host).addCar(getMockCarRequest(0)))
+        .not.to.be.reverted
+      const myCars = await rentalityCarToken
+        .connect(host)
+        .getCarsOwnedByUser(host.address)
       expect(myCars.length).to.equal(1)
-      const availableCars = await rentality.connect(guest).getAvailableCars()
+      const availableCars = await rentalityCarToken
+        .connect(guest)
+        .getAvailableCarsForUser(guest.address)
       expect(availableCars.length).to.equal(1)
 
       const rentPriceInUsdCents = 1000
@@ -364,7 +418,7 @@ describe('Rentality', function () {
         )
 
       await expect(
-        rentality.connect(guest).createTripRequest(
+        rentalityPlatform.connect(guest).createTripRequest(
           {
             carId: 1,
             host: host.address,
@@ -383,33 +437,49 @@ describe('Rentality', function () {
         ),
       ).not.to.be.reverted
 
-      await expect(rentality.connect(host).approveTripRequest(1)).not.to.be
-        .reverted
-      await expect(rentality.connect(host).checkInByHost(1, 0, 0)).not.to.be
-        .reverted
-      await expect(rentality.connect(guest).checkInByGuest(1, 0, 0)).not.to.be
-        .reverted
-      await expect(rentality.connect(guest).checkOutByGuest(1, 0, 0)).not.to.be
-        .reverted
-      await expect(rentality.connect(host).checkOutByHost(1, 0, 0)).not.to.be
-        .reverted
+      await expect(rentalityPlatform.connect(host).approveTripRequest(1)).not.to
+        .be.reverted
+      await expect(rentalityTripService.connect(host).checkInByHost(1, 0, 0))
+        .not.to.be.reverted
+      await expect(rentalityTripService.connect(guest).checkInByGuest(1, 0, 0))
+        .not.to.be.reverted
+      await expect(rentalityTripService.connect(guest).checkOutByGuest(1, 0, 0))
+        .not.to.be.reverted
+      await expect(rentalityTripService.connect(host).checkOutByHost(1, 0, 0))
+        .not.to.be.reverted
       const returnToHost =
         rentPriceInEth -
-        (rentPriceInEth * (await rentality.getPlatformFeeInPPM())) / 1_000_000
+        (rentPriceInEth *
+          (await rentalityPaymentService.getPlatformFeeInPPM())) /
+          1_000_000
+
       await expect(
-        rentality.connect(host).finishTrip(1),
-      ).to.changeEtherBalances([host, rentality], [returnToHost, -returnToHost])
+        rentalityPlatform.connect(host).finishTrip(1),
+      ).to.changeEtherBalances(
+        [host, rentalityPlatform],
+        [returnToHost, -returnToHost],
+      )
     })
 
     it('if trip accepted intersect trips should be rejected', async function () {
-      const { rentality, rentalityCurrencyConverter, host, guest } =
-        await loadFixture(deployDefaultFixture)
+      const {
+        rentalityPlatform,
+        rentalityCarToken,
+        rentalityTripService,
+        rentalityCurrencyConverter,
+        host,
+        guest,
+      } = await loadFixture(deployDefaultFixture)
 
-      await expect(rentality.connect(host).addCar(getMockCarRequest(0))).not.to
-        .be.reverted
-      const myCars = await rentality.connect(host).getMyCars()
+      await expect(rentalityCarToken.connect(host).addCar(getMockCarRequest(0)))
+        .not.to.be.reverted
+      const myCars = await rentalityCarToken
+        .connect(host)
+        .getCarsOwnedByUser(host.address)
       expect(myCars.length).to.equal(1)
-      const availableCars = await rentality.connect(guest).getAvailableCars()
+      const availableCars = await rentalityCarToken
+        .connect(guest)
+        .getAvailableCarsForUser(guest.address)
       expect(availableCars.length).to.equal(1)
 
       const rentPriceInUsdCents = 1000
@@ -419,7 +489,7 @@ describe('Rentality', function () {
         )
 
       await expect(
-        rentality.connect(guest).createTripRequest(
+        rentalityPlatform.connect(guest).createTripRequest(
           {
             carId: 1,
             host: host.address,
@@ -439,7 +509,7 @@ describe('Rentality', function () {
       ).not.to.be.reverted
 
       await expect(
-        rentality.connect(guest).createTripRequest(
+        rentalityPlatform.connect(guest).createTripRequest(
           {
             carId: 1,
             host: host.address,
@@ -458,31 +528,45 @@ describe('Rentality', function () {
         ),
       ).not.to.be.reverted
 
-      expect((await rentality.connect(host).getTrip(1)).status).to.equal(0)
-      expect((await rentality.connect(host).getTrip(2)).status).to.equal(0)
+      expect(
+        (await rentalityTripService.connect(host).getTrip(1)).status,
+      ).to.equal(0)
+      expect(
+        (await rentalityTripService.connect(host).getTrip(2)).status,
+      ).to.equal(0)
 
       await expect(
-        rentality.connect(host).approveTripRequest(1),
+        rentalityPlatform.connect(host).approveTripRequest(1),
       ).to.changeEtherBalances(
-        [guest, rentality],
+        [guest, rentalityPlatform],
         [rentPriceInEth, -rentPriceInEth],
       )
 
-      const trip1 = await rentality.connect(host).getTrip(1)
-      const trip2 = await rentality.connect(host).getTrip(2)
+      const trip1 = await rentalityTripService.connect(host).getTrip(1)
+      const trip2 = await rentalityTripService.connect(host).getTrip(2)
       expect(trip1.status).to.equal(1)
       expect(trip2.status).to.equal(7)
     })
 
     it("if trip accepted not intersect trips shouldn't be rejected", async function () {
-      const { rentality, rentalityCurrencyConverter, host, guest } =
-        await loadFixture(deployDefaultFixture)
+      const {
+        rentalityPlatform,
+        rentalityCarToken,
+        rentalityTripService,
+        rentalityCurrencyConverter,
+        host,
+        guest,
+      } = await loadFixture(deployDefaultFixture)
 
-      await expect(rentality.connect(host).addCar(getMockCarRequest(0))).not.to
-        .be.reverted
-      const myCars = await rentality.connect(host).getMyCars()
+      await expect(rentalityCarToken.connect(host).addCar(getMockCarRequest(0)))
+        .not.to.be.reverted
+      const myCars = await rentalityCarToken
+        .connect(host)
+        .getCarsOwnedByUser(host.address)
       expect(myCars.length).to.equal(1)
-      const availableCars = await rentality.connect(guest).getAvailableCars()
+      const availableCars = await rentalityCarToken
+        .connect(guest)
+        .getAvailableCarsForUser(guest.address)
       expect(availableCars.length).to.equal(1)
 
       const rentPriceInUsdCents = 1000
@@ -492,7 +576,7 @@ describe('Rentality', function () {
         )
 
       await expect(
-        rentality.connect(guest).createTripRequest(
+        rentalityPlatform.connect(guest).createTripRequest(
           {
             carId: 1,
             host: host.address,
@@ -512,7 +596,7 @@ describe('Rentality', function () {
       ).not.to.be.reverted
 
       await expect(
-        rentality.connect(guest).createTripRequest(
+        rentalityPlatform.connect(guest).createTripRequest(
           {
             carId: 1,
             host: host.address,
@@ -531,33 +615,50 @@ describe('Rentality', function () {
         ),
       ).not.to.be.reverted
 
-      expect((await rentality.connect(host).getTrip(1)).status).to.equal(0)
-      expect((await rentality.connect(host).getTrip(2)).status).to.equal(0)
+      expect(
+        (await rentalityTripService.connect(host).getTrip(1)).status,
+      ).to.equal(0)
+      expect(
+        (await rentalityTripService.connect(host).getTrip(2)).status,
+      ).to.equal(0)
 
-      await expect(rentality.connect(host).approveTripRequest(1)).not.to.be
-        .reverted
+      await expect(rentalityPlatform.connect(host).approveTripRequest(1)).not.to
+        .be.reverted
 
-      const trip1 = await rentality.connect(host).getTrip(1)
-      const trip2 = await rentality.connect(host).getTrip(2)
+      const trip1 = await rentalityTripService.connect(host).getTrip(1)
+      const trip2 = await rentalityTripService.connect(host).getTrip(2)
       expect(trip1.status).to.equal(1)
       expect(trip2.status).to.equal(0)
     })
 
     it('searchAvailableCars should return cars with Intersect trip in status Created', async function () {
-      const { rentality, rentalityCurrencyConverter, host, guest } =
-        await loadFixture(deployDefaultFixture)
+      const {
+        rentalityPlatform,
+        rentalityCarToken,
+        rentalityTripService,
+        rentalityCurrencyConverter,
+        host,
+        guest,
+      } = await loadFixture(deployDefaultFixture)
 
-      await expect(rentality.connect(host).addCar(getMockCarRequest(0))).not.to
-        .be.reverted
-      const myCars = await rentality.connect(host).getMyCars()
+      await expect(rentalityCarToken.connect(host).addCar(getMockCarRequest(0)))
+        .not.to.be.reverted
+      const myCars = await rentalityCarToken
+        .connect(host)
+        .getCarsOwnedByUser(host.address)
       expect(myCars.length).to.equal(1)
 
       const timestampNow = Math.floor(Date.now() / 1000)
       const timestampIn1Day = timestampNow + 3600 * 24
       const searchCarParams = getEmptySearchCarParams()
-      const availableCars = await rentality
+      const availableCars = await rentalityTripService
         .connect(guest)
-        .searchAvailableCars(timestampNow, timestampIn1Day, searchCarParams)
+        .searchAvailableCarsForUser(
+          guest.address,
+          timestampNow,
+          timestampIn1Day,
+          searchCarParams,
+        )
       expect(availableCars.length).to.equal(1)
 
       const rentPriceInUsdCents = 1000
@@ -567,7 +668,7 @@ describe('Rentality', function () {
         )
 
       await expect(
-        rentality.connect(guest).createTripRequest(
+        rentalityPlatform.connect(guest).createTripRequest(
           {
             carId: 1,
             host: host.address,
@@ -586,33 +687,53 @@ describe('Rentality', function () {
         ),
       ).not.to.be.reverted
 
-      expect((await rentality.connect(host).getTrip(1)).status).to.equal(0)
+      expect(
+        (await rentalityTripService.connect(host).getTrip(1)).status,
+      ).to.equal(0)
 
       //await expect( rentality.connect(host).approveTripRequest(1)).not.to.be.reverted;
 
       //const trip1 = (await rentality.connect(host).getTrip(1));
       //expect(trip1.status).to.equal(1);
-      const availableCars2 = await rentality
+      const availableCars2 = await rentalityTripService
         .connect(guest)
-        .searchAvailableCars(timestampNow, timestampIn1Day, searchCarParams)
+        .searchAvailableCarsForUser(
+          guest.address,
+          timestampNow,
+          timestampIn1Day,
+          searchCarParams,
+        )
       expect(availableCars2.length).to.equal(1)
     })
 
     it("searchAvailableCars shouldn't return cars with Intersect trip in status approved", async function () {
-      const { rentality, rentalityCurrencyConverter, host, guest } =
-        await loadFixture(deployDefaultFixture)
+      const {
+        rentalityPlatform,
+        rentalityTripService,
+        rentalityCarToken,
+        rentalityCurrencyConverter,
+        host,
+        guest,
+      } = await loadFixture(deployDefaultFixture)
 
-      await expect(rentality.connect(host).addCar(getMockCarRequest(0))).not.to
-        .be.reverted
-      const myCars = await rentality.connect(host).getMyCars()
+      await expect(rentalityCarToken.connect(host).addCar(getMockCarRequest(0)))
+        .not.to.be.reverted
+      const myCars = await rentalityCarToken
+        .connect(host)
+        .getCarsOwnedByUser(host.address)
       expect(myCars.length).to.equal(1)
 
       const timestampNow = Math.floor(Date.now() / 1000)
       const timestampIn1Day = timestampNow + 3600 * 24
       const searchCarParams = getEmptySearchCarParams()
-      const availableCars = await rentality
+      const availableCars = await rentalityTripService
         .connect(guest)
-        .searchAvailableCars(timestampNow, timestampIn1Day, searchCarParams)
+        .searchAvailableCarsForUser(
+          guest.address,
+          timestampNow,
+          timestampIn1Day,
+          searchCarParams,
+        )
       expect(availableCars.length).to.equal(1)
 
       const rentPriceInUsdCents = 1000
@@ -622,7 +743,7 @@ describe('Rentality', function () {
         )
 
       await expect(
-        rentality.connect(guest).createTripRequest(
+        rentalityPlatform.connect(guest).createTripRequest(
           {
             carId: 1,
             host: host.address,
@@ -641,30 +762,47 @@ describe('Rentality', function () {
         ),
       ).not.to.be.reverted
 
-      expect((await rentality.connect(host).getTrip(1)).status).to.equal(0)
+      expect(
+        (await rentalityTripService.connect(host).getTrip(1)).status,
+      ).to.equal(0)
 
-      await expect(rentality.connect(host).approveTripRequest(1)).not.to.be
-        .reverted
+      await expect(rentalityPlatform.connect(host).approveTripRequest(1)).not.to
+        .be.reverted
 
-      const trip1 = await rentality.connect(host).getTrip(1)
+      const trip1 = await rentalityTripService.connect(host).getTrip(1)
       expect(trip1.status).to.equal(1)
-      const availableCars2 = await rentality
+      const availableCars2 = await rentalityTripService
         .connect(guest)
-        .searchAvailableCars(timestampNow, timestampIn1Day, searchCarParams)
+        .searchAvailableCarsForUser(
+          guest.address,
+          timestampNow,
+          timestampIn1Day,
+          searchCarParams,
+        )
       expect(availableCars2.length).to.equal(0)
     })
   })
 
   describe('Reject Trip Request', function () {
     it('Host reject | trip status Created | trip money + deposit returned to guest', async function () {
-      const { rentality, rentalityCurrencyConverter, host, guest } =
-        await loadFixture(deployDefaultFixture)
+      const {
+        rentalityPlatform,
+        rentalityCarToken,
+        rentalityCurrencyConverter,
+        rentalityTripService,
+        host,
+        guest,
+      } = await loadFixture(deployDefaultFixture)
 
-      await expect(rentality.connect(host).addCar(getMockCarRequest(0))).not.to
-        .be.reverted
-      const myCars = await rentality.connect(host).getMyCars()
+      await expect(rentalityCarToken.connect(host).addCar(getMockCarRequest(0)))
+        .not.to.be.reverted
+      const myCars = await rentalityCarToken
+        .connect(host)
+        .getCarsOwnedByUser(host.address)
       expect(myCars.length).to.equal(1)
-      const availableCars = await rentality.connect(guest).getAvailableCars()
+      const availableCars = await rentalityCarToken
+        .connect(guest)
+        .getAvailableCarsForUser(guest.address)
       expect(availableCars.length).to.equal(1)
 
       const rentPriceInUsdCents = 1600
@@ -674,7 +812,7 @@ describe('Rentality', function () {
         )
 
       await expect(
-        await rentality.connect(guest).createTripRequest(
+        await rentalityPlatform.connect(guest).createTripRequest(
           {
             carId: 1,
             host: host.address,
@@ -692,13 +830,17 @@ describe('Rentality', function () {
           { value: rentPriceInEth },
         ),
       ).not.to.be.reverted
-      expect((await rentality.connect(host).getTrip(1)).status).to.equal(0)
+      expect(
+        (await rentalityTripService.connect(host).getTrip(1)).status,
+      ).to.equal(0)
 
       const balanceAfterRequest = await guest.getBalance()
 
-      expect(await rentality.connect(host).rejectTripRequest(1)).not.to.be
-        .reverted
-      expect((await rentality.connect(host).getTrip(1)).status).to.equal(7)
+      expect(await rentalityPlatform.connect(host).rejectTripRequest(1)).not.to
+        .be.reverted
+      expect(
+        (await rentalityTripService.connect(host).getTrip(1)).status,
+      ).to.equal(7)
 
       const balanceAfterRejection = await guest.getBalance()
       const returnAmountDifference =
@@ -710,14 +852,24 @@ describe('Rentality', function () {
     })
 
     it('Guest reject | trip status Created | trip money + deposit - gas fee returned to guest', async function () {
-      const { rentality, rentalityCurrencyConverter, host, guest } =
-        await loadFixture(deployDefaultFixture)
+      const {
+        rentalityPlatform,
+        rentalityCarToken,
+        rentalityTripService,
+        rentalityCurrencyConverter,
+        host,
+        guest,
+      } = await loadFixture(deployDefaultFixture)
 
-      await expect(rentality.connect(host).addCar(getMockCarRequest(0))).not.to
-        .be.reverted
-      const myCars = await rentality.connect(host).getMyCars()
+      await expect(rentalityCarToken.connect(host).addCar(getMockCarRequest(0)))
+        .not.to.be.reverted
+      const myCars = await rentalityCarToken
+        .connect(host)
+        .getCarsOwnedByUser(host.address)
       expect(myCars.length).to.equal(1)
-      const availableCars = await rentality.connect(guest).getAvailableCars()
+      const availableCars = await rentalityCarToken
+        .connect(guest)
+        .getAvailableCarsForUser(guest.address)
       expect(availableCars.length).to.equal(1)
 
       const rentPriceInUsdCents = 1600
@@ -727,7 +879,7 @@ describe('Rentality', function () {
         )
 
       await expect(
-        await rentality.connect(guest).createTripRequest(
+        await rentalityPlatform.connect(guest).createTripRequest(
           {
             carId: 1,
             host: host.address,
@@ -745,12 +897,14 @@ describe('Rentality', function () {
           { value: rentPriceInEth },
         ),
       ).not.to.be.reverted
-      expect((await rentality.connect(host).getTrip(1)).status).to.equal(0)
+      expect(
+        (await rentalityTripService.connect(host).getTrip(1)).status,
+      ).to.equal(0)
 
       const balanceBeforeRejection = await guest.getBalance()
 
       const tx = await (
-        await rentality.connect(guest).rejectTripRequest(1)
+        await rentalityPlatform.connect(guest).rejectTripRequest(1)
       ).wait()
 
       const gasCost = tx.gasUsed.mul(tx.effectiveGasPrice)
@@ -768,14 +922,24 @@ describe('Rentality', function () {
     })
 
     it('Guest reject | trip status Accepted | trip money - 50% price per day - deposit - gas fee returned to guest', async function () {
-      const { rentality, rentalityCurrencyConverter, host, guest } =
-        await loadFixture(deployDefaultFixture)
+      const {
+        rentalityPlatform,
+        rentalityCarToken,
+        rentalityTripService,
+        rentalityCurrencyConverter,
+        host,
+        guest,
+      } = await loadFixture(deployDefaultFixture)
 
-      await expect(rentality.connect(host).addCar(getMockCarRequest(1))).not.to
-        .be.reverted
-      const myCars = await rentality.connect(host).getMyCars()
+      await expect(rentalityCarToken.connect(host).addCar(getMockCarRequest(1)))
+        .not.to.be.reverted
+      const myCars = await rentalityCarToken
+        .connect(host)
+        .getCarsOwnedByUser(host.address)
       expect(myCars.length).to.equal(1)
-      const availableCars = await rentality.connect(guest).getAvailableCars()
+      const availableCars = await rentalityCarToken
+        .connect(guest)
+        .getAvailableCarsForUser(guest.address)
       expect(availableCars.length).to.equal(1)
 
       const pricePerDayInUsdCents = 102
@@ -791,7 +955,7 @@ describe('Rentality', function () {
         )
 
       await expect(
-        await rentality.connect(guest).createTripRequest(
+        await rentalityPlatform.connect(guest).createTripRequest(
           {
             carId: 1,
             host: host.address,
@@ -810,15 +974,17 @@ describe('Rentality', function () {
         ),
       ).not.to.be.reverted
 
-      await expect(await rentality.connect(host).approveTripRequest(1)).not.to
-        .be.reverted
+      await expect(await rentalityPlatform.connect(host).approveTripRequest(1))
+        .not.to.be.reverted
 
-      expect((await rentality.connect(host).getTrip(1)).status).to.equal(1)
+      expect(
+        (await rentalityTripService.connect(host).getTrip(1)).status,
+      ).to.equal(1)
 
       const balanceBeforeRejection = await guest.getBalance()
 
       const tx = await (
-        await rentality.connect(guest).rejectTripRequest(1)
+        await rentalityPlatform.connect(guest).rejectTripRequest(1)
       ).wait()
 
       const gasCost = tx.gasUsed.mul(tx.effectiveGasPrice)
@@ -837,14 +1003,24 @@ describe('Rentality', function () {
     })
 
     it('Guest reject | trip status CheckedInByHost | trip money - 100% price per day - deposit - gas fee returned to guest', async function () {
-      const { rentality, rentalityCurrencyConverter, host, guest } =
-        await loadFixture(deployDefaultFixture)
+      const {
+        rentalityPlatform,
+        rentalityCarToken,
+        rentalityTripService,
+        rentalityCurrencyConverter,
+        host,
+        guest,
+      } = await loadFixture(deployDefaultFixture)
 
-      await expect(rentality.connect(host).addCar(getMockCarRequest(1))).not.to
-        .be.reverted
-      const myCars = await rentality.connect(host).getMyCars()
+      await expect(rentalityCarToken.connect(host).addCar(getMockCarRequest(1)))
+        .not.to.be.reverted
+      const myCars = await rentalityCarToken
+        .connect(host)
+        .getCarsOwnedByUser(host.address)
       expect(myCars.length).to.equal(1)
-      const availableCars = await rentality.connect(guest).getAvailableCars()
+      const availableCars = await rentalityCarToken
+        .connect(guest)
+        .getAvailableCarsForUser(guest.address)
       expect(availableCars.length).to.equal(1)
 
       const pricePerDayInUsdCents = 102
@@ -860,7 +1036,7 @@ describe('Rentality', function () {
         )
 
       await expect(
-        await rentality.connect(guest).createTripRequest(
+        await rentalityPlatform.connect(guest).createTripRequest(
           {
             carId: 1,
             host: host.address,
@@ -879,18 +1055,23 @@ describe('Rentality', function () {
         ),
       ).not.to.be.reverted
 
-      await expect(await rentality.connect(host).approveTripRequest(1)).not.to
-        .be.reverted
-      expect((await rentality.connect(host).getTrip(1)).status).to.equal(1)
+      await expect(await rentalityPlatform.connect(host).approveTripRequest(1))
+        .not.to.be.reverted
+      expect(
+        (await rentalityTripService.connect(host).getTrip(1)).status,
+      ).to.equal(1)
 
-      await expect(await rentality.connect(host).checkInByHost(1, 10, 10)).not
-        .to.be.reverted
-      expect((await rentality.connect(host).getTrip(1)).status).to.equal(2)
+      await expect(
+        await rentalityTripService.connect(host).checkInByHost(1, 10, 10),
+      ).not.to.be.reverted
+      expect(
+        (await rentalityTripService.connect(host).getTrip(1)).status,
+      ).to.equal(2)
 
       const balanceBeforeRejection = await guest.getBalance()
 
       const tx = await (
-        await rentality.connect(guest).rejectTripRequest(1)
+        await rentalityPlatform.connect(guest).rejectTripRequest(1)
       ).wait()
 
       const gasCost = tx.gasUsed.mul(tx.effectiveGasPrice)

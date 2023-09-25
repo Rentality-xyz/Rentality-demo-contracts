@@ -4,7 +4,7 @@ pragma solidity ^0.8.9;
 import "./RentalityTripService.sol";
 import "./RentalityUserService.sol";
 import "./RentalityCarToken.sol";
-import "./IRentality.sol";
+import "./IRentalityGateway.sol";
 import "@openzeppelin/contracts/utils/math/Math.sol";
 
 library RentalityUtils {
@@ -66,8 +66,8 @@ library RentalityUtils {
         RentalityTripService.Trip[] memory trips,
         RentalityUserService userService,
         RentalityCarToken carService
-    ) public view returns (IRentality.ChatInfo[] memory) {
-        IRentality.ChatInfo[] memory chatInfoList = new IRentality.ChatInfo[](trips.length);
+    ) public view returns (IRentalityGateway.ChatInfo[] memory) {
+        IRentalityGateway.ChatInfo[] memory chatInfoList = new IRentalityGateway.ChatInfo[](trips.length);
 
         for (uint i = 0; i < trips.length; i++) {
             RentalityUserService.KYCInfo memory guestInfo = userService.getKYCInfo(trips[i].guest);

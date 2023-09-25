@@ -3,12 +3,11 @@ pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
-import "./ERC4907.sol";
-import "./RentalityUserService.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "./RentalityUtils.sol";
 
 //deployed 26.05.2023 11:15 to sepolia at 0xcC66CdAfc3C39d96651220975855202960C08747
-contract RentalityCarToken is ERC4907, Ownable {
+contract RentalityCarToken is ERC721URIStorage, Ownable {
     using Counters for Counters.Counter;
     Counters.Counter private _carIdCounter;
 
@@ -99,32 +98,8 @@ contract RentalityCarToken is ERC4907, Ownable {
     );
 
     mapping(uint256 => CarInfo) private idToCarInfo;
-    RentalityUserService private userService;
 
-    constructor(
-        address userServiceAddress
-    ) ERC4907("RentalityCarToken Test", "RTCT") {
-        userService = RentalityUserService(userServiceAddress);
-    }
-
-    modifier onlyAdmin() {
-        require(
-            userService.isAdmin(msg.sender) ||
-                userService.isAdmin(tx.origin) ||
-                (tx.origin == owner()),
-            "User is not an admin"
-        );
-        _;
-    }
-
-    modifier onlyHost() {
-        require(userService.isHost(tx.origin), "User is not a host");
-        _;
-    }
-
-    function updateUserService(address contractAddress) public onlyAdmin {
-        userService = RentalityUserService(contractAddress);
-    }
+    constructor() ERC721("RentalityCarToken Test", "RTCT") {}
 
     function totalSupply() public view returns (uint) {
         return _carIdCounter.current();
@@ -151,7 +126,7 @@ contract RentalityCarToken is ERC4907, Ownable {
 
     function addCar(
         CreateCarRequest memory request
-    ) public onlyHost returns (uint) {
+    ) public returns (uint) {
         require(
             request.pricePerDayInUsdCents > 0,
             "Make sure the price isn't negative"
@@ -222,7 +197,7 @@ contract RentalityCarToken is ERC4907, Ownable {
         int64 locationLatitudeInPPM,
         int64 locationLongitudeInPPM,
         bool currentlyListed
-    ) public onlyHost {
+    ) public {
         require(_exists(carId), "Token does not exist");
         require(
             ownerOf(carId) == tx.origin,
@@ -248,7 +223,7 @@ contract RentalityCarToken is ERC4907, Ownable {
     function updateCarTokenUri(
         uint256 carId,
         string memory tokenUri
-    ) public onlyHost {
+    ) public {
         require(_exists(carId), "Token does not exist");
         require(
             ownerOf(carId) == tx.origin,
@@ -258,7 +233,7 @@ contract RentalityCarToken is ERC4907, Ownable {
         _setTokenURI(carId, tokenUri);
     }
 
-    function burnCar(uint256 carId) public onlyHost {
+    function burnCar(uint256 carId) public {
         require(_exists(carId), "Token does not exist");
         require(
             ownerOf(carId) == tx.origin,
@@ -301,10 +276,10 @@ contract RentalityCarToken is ERC4907, Ownable {
         return
             _exists(carId) &&
             idToCarInfo[carId].currentlyListed &&
-            ownerOf(carId) != sender &&
-            userOf(carId) == address(0);
+            ownerOf(carId) != sender;
     }
 
+    // Only used by main contract
     function getAvailableCarsForUser(
         address user
     ) public view returns (CarInfo[] memory) {
@@ -380,7 +355,7 @@ contract RentalityCarToken is ERC4907, Ownable {
                 searchCarParams.pricePerDayInUsdCentsTo);
     }
 
-    function searchAvailableCarsForUser(
+    function fetchAvailableCarsForUser(
         address user,
         SearchCarParams memory searchCarParams
     ) public view returns (CarInfo[] memory) {
@@ -418,8 +393,6 @@ contract RentalityCarToken is ERC4907, Ownable {
     function getCarsOwnedByUser(
         address user
     ) public view returns (CarInfo[] memory) {
-        if (!userService.isHost(user)) return new CarInfo[](0);
-
         uint itemCount = 0;
 
         for (uint i = 0; i < totalSupply(); i++) {
@@ -444,37 +417,5 @@ contract RentalityCarToken is ERC4907, Ownable {
         return result;
     }
 
-    function isRentedByUser(
-        uint256 carId,
-        address user
-    ) private view returns (bool) {
-        return _exists(carId) && userOf(carId) == user;
-    }
-
-    function getCarsRentedByUser(
-        address user
-    ) public view returns (CarInfo[] memory) {
-        uint itemCount = 0;
-
-        for (uint i = 0; i < totalSupply(); i++) {
-            uint currentId = i + 1;
-            if (isRentedByUser(currentId, user)) {
-                itemCount += 1;
-            }
-        }
-
-        CarInfo[] memory result = new CarInfo[](itemCount);
-        uint currentIndex = 0;
-
-        for (uint i = 0; i < totalSupply(); i++) {
-            uint currentId = i + 1;
-            if (isRentedByUser(currentId, user)) {
-                CarInfo storage currentItem = idToCarInfo[currentId];
-                result[currentIndex] = currentItem;
-                currentIndex += 1;
-            }
-        }
-
-        return result;
-    }
+    
 }
