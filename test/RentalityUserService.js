@@ -15,6 +15,14 @@ describe('RentalityUserService', function () {
 
     const RentalityUtils = await ethers.getContractFactory('RentalityUtils')
     const utils = await RentalityUtils.deploy()
+    await utils.deployed()
+
+    const RentalityGeoService = await ethers.getContractFactory(
+      'RentalityGeoService',
+      { libraries: { RentalityUtils: utils.address } },
+    )
+    const geo = await RentalityGeoService.deploy()
+    await geo.deployed()
 
     const RentalityMockPriceFeed = await ethers.getContractFactory(
       'RentalityMockPriceFeed',
@@ -32,10 +40,12 @@ describe('RentalityUserService', function () {
     const RentalityPaymentService = await ethers.getContractFactory(
       'RentalityPaymentService',
     )
-    const RentalityCarToken =
-      await ethers.getContractFactory('RentalityCarToken')
-    const RentalityPlatform =
-      await ethers.getContractFactory('RentalityPlatform')
+    const RentalityCarToken = await ethers.getContractFactory(
+      'RentalityCarToken',
+    )
+    const RentalityPlatform = await ethers.getContractFactory(
+      'RentalityPlatform',
+    )
 
     let rentalityMockPriceFeed = await RentalityMockPriceFeed.deploy(
       8,
@@ -54,7 +64,7 @@ describe('RentalityUserService', function () {
     const rentalityCurrencyConverter = await RentalityCurrencyConverter.deploy(
       rentalityMockPriceFeed.address,
     )
-    const rentalityCarToken = await RentalityCarToken.deploy()
+    const rentalityCarToken = await RentalityCarToken.deploy(geo.address)
     await rentalityCarToken.deployed()
 
     const rentalityPaymentService = await RentalityPaymentService.deploy()
@@ -169,8 +179,9 @@ describe('RentalityUserService', function () {
 
   describe('Deployment', function () {
     it('Owner should have all roles', async function () {
-      const { rentalityUserService, owner } =
-        await loadFixture(deployDefaultFixture)
+      const { rentalityUserService, owner } = await loadFixture(
+        deployDefaultFixture,
+      )
 
       expect(await rentalityUserService.isAdmin(owner.address)).to.equal(true)
       expect(await rentalityUserService.isManager(owner.address)).to.equal(true)

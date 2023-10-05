@@ -10,11 +10,20 @@ describe('RentalityCarToken', function () {
     const RentalityUtils = await ethers.getContractFactory('RentalityUtils')
     const utils = await RentalityUtils.deploy()
 
+    const RentalityGeoService = await ethers.getContractFactory(
+      'RentalityGeoService',
+      { libraries: { RentalityUtils: utils.address } },
+    )
+
+    const rentalityGeoService = await RentalityGeoService.deploy()
+    await rentalityGeoService.deployed()
+
     const RentalityUserService = await ethers.getContractFactory(
       'RentalityUserService',
     )
-    const RentalityCarToken =
-      await ethers.getContractFactory('RentalityCarToken')
+    const RentalityCarToken = await ethers.getContractFactory(
+      'RentalityCarToken',
+    )
 
     const RentalityCurrencyConverter = await ethers.getContractFactory(
       'RentalityCurrencyConverter',
@@ -46,7 +55,9 @@ describe('RentalityCarToken', function () {
     await rentalityUserService.connect(owner).grantHostRole(host.address)
     await rentalityUserService.connect(owner).grantGuestRole(guest.address)
 
-    const rentalityCarToken = await RentalityCarToken.deploy()
+    const rentalityCarToken = await RentalityCarToken.deploy(
+      rentalityGeoService.address,
+    )
     const rentalityCarService = await rentalityCarToken.deployed()
 
     const RentalityTripService = await ethers.getContractFactory(
@@ -158,8 +169,9 @@ describe('RentalityCarToken', function () {
     const RentalityUserService2 = await ethers.getContractFactory(
       'RentalityUserService',
     )
-    const RentalityCarToken =
-      await ethers.getContractFactory('RentalityCarToken')
+    const RentalityCarToken = await ethers.getContractFactory(
+      'RentalityCarToken',
+    )
 
     const rentalityUserService1 = await RentalityUserService1.deploy()
     await rentalityUserService1.deployed()
@@ -184,8 +196,9 @@ describe('RentalityCarToken', function () {
 
   describe('Deployment', function () {
     it('Should set the right owner', async function () {
-      const { rentalityCarToken, owner } =
-        await loadFixture(deployDefaultFixture)
+      const { rentalityCarToken, owner } = await loadFixture(
+        deployDefaultFixture,
+      )
 
       expect(await rentalityCarToken.owner()).to.equal(owner.address)
     })
@@ -205,8 +218,9 @@ describe('RentalityCarToken', function () {
 
   describe('Host functions', function () {
     it('Adding car should emit CarAddedSuccess event', async function () {
-      const { rentalityCarToken, host } =
-        await loadFixture(deployDefaultFixture)
+      const { rentalityCarToken, host } = await loadFixture(
+        deployDefaultFixture,
+      )
 
       const request = getMockCarRequset(0)
 
@@ -222,8 +236,9 @@ describe('RentalityCarToken', function () {
     })
 
     it('Adding car with the same VIN number should be reverted', async function () {
-      const { rentalityCarToken, host } =
-        await loadFixture(deployDefaultFixture)
+      const { rentalityCarToken, host } = await loadFixture(
+        deployDefaultFixture,
+      )
 
       const request1 = getMockCarRequset(0)
       const request2 = {
@@ -238,8 +253,9 @@ describe('RentalityCarToken', function () {
     })
 
     it('Adding car with the different VIN number should not be reverted', async function () {
-      const { rentalityCarToken, host } =
-        await loadFixture(deployDefaultFixture)
+      const { rentalityCarToken, host } = await loadFixture(
+        deployDefaultFixture,
+      )
 
       const request1 = getMockCarRequset(0)
       const request2 = getMockCarRequset(1)
@@ -302,8 +318,9 @@ describe('RentalityCarToken', function () {
     })
 
     it('getCarsOwnedByUser without cars should return empty array', async function () {
-      const { rentalityCarToken, host } =
-        await loadFixture(deployDefaultFixture)
+      const { rentalityCarToken, host } = await loadFixture(
+        deployDefaultFixture,
+      )
       const myCars = await rentalityCarToken
         .connect(host)
         .getCarsOwnedByUser(host.address)

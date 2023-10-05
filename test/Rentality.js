@@ -16,6 +16,13 @@ describe('Rentality', function () {
 
     const RentalityUtils = await ethers.getContractFactory('RentalityUtils')
     const utils = await RentalityUtils.deploy()
+
+    const RentalityGeoService = await ethers.getContractFactory(
+      'RentalityGeoService',
+      { libraries: { RentalityUtils: utils.address } },
+    )
+    const geoService = await RentalityGeoService.deploy()
+
     const RentalityMockPriceFeed = await ethers.getContractFactory(
       'RentalityMockPriceFeed',
     )
@@ -32,10 +39,12 @@ describe('Rentality', function () {
     const RentalityPaymentService = await ethers.getContractFactory(
       'RentalityPaymentService',
     )
-    const RentalityCarToken =
-      await ethers.getContractFactory('RentalityCarToken')
-    const RentalityPlatform =
-      await ethers.getContractFactory('RentalityPlatform')
+    const RentalityCarToken = await ethers.getContractFactory(
+      'RentalityCarToken',
+    )
+    const RentalityPlatform = await ethers.getContractFactory(
+      'RentalityPlatform',
+    )
 
     let rentalityMockPriceFeed = await RentalityMockPriceFeed.deploy(
       8,
@@ -56,7 +65,7 @@ describe('Rentality', function () {
     )
     await rentalityCurrencyConverter.deployed()
 
-    const rentalityCarToken = await RentalityCarToken.deploy()
+    const rentalityCarToken = await RentalityCarToken.deploy(geoService.address)
     await rentalityCarToken.deployed()
     const rentalityPaymentService = await RentalityPaymentService.deploy()
     await rentalityPaymentService.deployed()
@@ -117,11 +126,8 @@ describe('Rentality', function () {
     const TANK_VOLUME = seedInt * 100 + 4
     const FUEL_PRICE = seedInt * 100 + 5
     const DISTANCE_INCLUDED = seedInt * 100 + 6
-    const COUNTRY = 'COUNTRY' + seedStr
-    const STATE = 'STATE' + seedStr
-    const CITY = 'CITY' + seedStr
-    const LOCATION_LATITUDE = seedInt * 100 + 7
-    const LOCATION_LONGITUDE = seedInt * 100 + 8
+    const location = 'kyiv ukraine'
+    const apiKey = 'AIzaSyBZ9Ii2pMKHcJrMFvWSPxG8NPSIsdS0nLs'
 
     return {
       tokenUri: TOKEN_URI,
@@ -134,11 +140,8 @@ describe('Rentality', function () {
       tankVolumeInGal: TANK_VOLUME,
       fuelPricePerGalInUsdCents: FUEL_PRICE,
       milesIncludedPerDay: DISTANCE_INCLUDED,
-      country: COUNTRY,
-      state: STATE,
-      city: CITY,
-      locationLatitudeInPPM: LOCATION_LATITUDE,
-      locationLongitudeInPPM: LOCATION_LONGITUDE,
+      locationAddress: location,
+      geoApiKey: apiKey,
     }
   }
 
@@ -185,8 +188,9 @@ describe('Rentality', function () {
 
   describe('Rentality', function () {
     it('Host can add car to rentality', async function () {
-      const { rentalityCarToken, host } =
-        await loadFixture(deployDefaultFixture)
+      const { rentalityCarToken, host } = await loadFixture(
+        deployDefaultFixture,
+      )
 
       await expect(rentalityCarToken.connect(host).addCar(getMockCarRequest(0)))
         .not.to.be.reverted
@@ -196,8 +200,9 @@ describe('Rentality', function () {
       expect(myCars.length).to.equal(1)
     })
     it('Host dont see own cars as available', async function () {
-      const { rentalityCarToken, host } =
-        await loadFixture(deployDefaultFixture)
+      const { rentalityCarToken, host } = await loadFixture(
+        deployDefaultFixture,
+      )
 
       await expect(rentalityCarToken.connect(host).addCar(getMockCarRequest(0)))
         .not.to.be.reverted
@@ -211,8 +216,9 @@ describe('Rentality', function () {
       expect(availableCars.length).to.equal(0)
     })
     it('Guest see cars as available', async function () {
-      const { rentalityCarToken, host, guest } =
-        await loadFixture(deployDefaultFixture)
+      const { rentalityCarToken, host, guest } = await loadFixture(
+        deployDefaultFixture,
+      )
 
       await expect(rentalityCarToken.connect(host).addCar(getMockCarRequest(0)))
         .not.to.be.reverted

@@ -19,6 +19,7 @@
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^2.0.2",
+    "@nomicfoundation/hardhat-verify": "^1.1.1",
     "hardhat": "^2.17.1"
   }
 }
