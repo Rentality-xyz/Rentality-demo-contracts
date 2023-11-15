@@ -14,7 +14,7 @@
     "name": "Mumbai",
     "chainId": 80001,
     "EthToUsdPriceFeedAddress": "0x0715A7794a1dc8e42615F059dD6e406A6594651A",
-    "RentalityUtils": "",
+    "RentalityUtils": "0x887F7352412051d23F7d77aCfDcD7Ac722dC6b49",
     "RentalityUserService": "",
     "RentalityTripService": "",
     "RentalityCurrencyConverter": "",
