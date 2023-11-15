@@ -34,8 +34,15 @@ describe('Rentality', function () {
     )
     const RentalityCarToken =
       await ethers.getContractFactory('RentalityCarToken')
+
     const RentalityPlatform =
-      await ethers.getContractFactory('RentalityPlatform')
+      await ethers.getContractFactory('RentalityPlatform',
+          {
+              libraries:
+                  {
+                      RentalityUtils: utils.address
+                  }
+          })
 
     let rentalityMockPriceFeed = await RentalityMockPriceFeed.deploy(
       8,
