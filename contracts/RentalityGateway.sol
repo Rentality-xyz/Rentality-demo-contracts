@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "./IRentalityGateway.sol";
-import "./RentalityCarToken.sol";
-import "./RentalityCurrencyConverter.sol";
-import "./RentalityTripService.sol";
-import "./RentalityUserService.sol";
-import "./RentalityPlatform.sol";
-import "./RentalityPaymentService.sol";
+import '@openzeppelin/contracts/access/Ownable.sol';
+import './IRentalityGateway.sol';
+import './RentalityCarToken.sol';
+import './RentalityCurrencyConverter.sol';
+import './RentalityTripService.sol';
+import './RentalityUserService.sol';
+import './RentalityPlatform.sol';
+import './RentalityPaymentService.sol';
 
 //deployed 26.05.2023 11:15 to sepolia at 0x12fB29Ed1f0E17605f488F640D49De29050cf855
 //deployed 27.06.2023 11:10 to sepolia at 0x18744A3f7D15930446B1dbc5A837562e468B2D8d
@@ -43,25 +43,25 @@ contract RentalityGateway is Ownable {
             userService.isAdmin(msg.sender) ||
                 userService.isAdmin(tx.origin) ||
                 (tx.origin == owner()),
-            "User is not an admin"
+            'User is not an admin'
         );
         _;
     }
 
     modifier onlyHost() {
-        require(userService.isHost(msg.sender), "User is not a host");
+        require(userService.isHost(msg.sender), 'User is not a host');
         _;
     }
 
     modifier onlyGuest() {
-        require(userService.isGuest(msg.sender), "User is not a guest");
+        require(userService.isGuest(msg.sender), 'User is not a guest');
         _;
     }
 
     modifier onlyHostOrGuest() {
         require(
             userService.isHost(msg.sender) || userService.isGuest(msg.sender),
-            "User is not a host or guest"
+            'User is not a host or guest'
         );
         _;
     }
@@ -153,24 +153,24 @@ contract RentalityGateway is Ownable {
         return carService.addCar(request);
     }
 
-    function updateCarInfo(
-        RentalityCarToken.UpdateCarInfoRequest memory request
-    ) public onlyHost {
-        return
-            carService.updateCarInfo(
-                request.carId,
-                request.pricePerDayInUsdCents,
-                request.securityDepositPerTripInUsdCents,
-                request.fuelPricePerGalInUsdCents,
-                request.milesIncludedPerDay,
-                request.country,
-                request.state,
-                request.city,
-                request.locationLatitudeInPPM,
-                request.locationLongitudeInPPM,
-                request.currentlyListed
-            );
-    }
+    // function updateCarInfo(
+    //     RentalityCarToken.UpdateCarInfoRequest memory request
+    // ) public onlyHost {
+    //     return
+    //         carService.updateCarInfo(
+    //             request.carId,
+    //             request.pricePerDayInUsdCents,
+    //             request.securityDepositPerTripInUsdCents,
+    //             request.fuelPricePerGalInUsdCents,
+    //             request.milesIncludedPerDay,
+    //             request.country,
+    //             request.state,
+    //             request.city,
+    //             request.locationLatitudeInPPM,
+    //             request.locationLongitudeInPPM,
+    //             request.currentlyListed
+    //         );
+    // }
 
     function updateCarInfo(
         uint256 carId,
@@ -271,14 +271,15 @@ contract RentalityGateway is Ownable {
         return carService.getCarsOwnedByUser(tx.origin);
     }
 
-
     function createTripRequest(
         IRentalityGateway.CreateTripRequest memory request
     ) public payable {
         return rentalityPlatform.createTripRequest{value: msg.value}(request);
     }
 
-    function getTripContactInfo(uint256 tripId)
+    function getTripContactInfo(
+        uint256 tripId
+    )
         public
         view
         onlyHostOrGuest
@@ -300,7 +301,12 @@ contract RentalityGateway is Ownable {
         uint64 startFuelLevelInPermille,
         uint64 startOdometr
     ) public {
-        return tripService.checkInByHost(tripId, startFuelLevelInPermille, startOdometr);
+        return
+            tripService.checkInByHost(
+                tripId,
+                startFuelLevelInPermille,
+                startOdometr
+            );
     }
 
     function checkInByGuest(
@@ -308,7 +314,12 @@ contract RentalityGateway is Ownable {
         uint64 startFuelLevelInPermille,
         uint64 startOdometr
     ) public {
-        return tripService.checkInByGuest(tripId, startFuelLevelInPermille, startOdometr);
+        return
+            tripService.checkInByGuest(
+                tripId,
+                startFuelLevelInPermille,
+                startOdometr
+            );
     }
 
     function checkOutByGuest(
@@ -316,7 +327,12 @@ contract RentalityGateway is Ownable {
         uint64 endFuelLevelInPermille,
         uint64 endOdometr
     ) public {
-        return tripService.checkOutByGuest(tripId, endFuelLevelInPermille, endOdometr);
+        return
+            tripService.checkOutByGuest(
+                tripId,
+                endFuelLevelInPermille,
+                endOdometr
+            );
     }
 
     function checkOutByHost(
@@ -324,7 +340,12 @@ contract RentalityGateway is Ownable {
         uint64 endFuelLevelInPermille,
         uint64 endOdometr
     ) public {
-        return tripService.checkOutByHost(tripId, endFuelLevelInPermille, endOdometr);
+        return
+            tripService.checkOutByHost(
+                tripId,
+                endFuelLevelInPermille,
+                endOdometr
+            );
     }
 
     function finishTrip(uint256 tripId) public {
@@ -379,23 +400,44 @@ contract RentalityGateway is Ownable {
         string memory licenseNumber,
         uint64 expirationDate
     ) public {
-         return userService.setKYCInfo(name, surname, mobilePhoneNumber, profilePhoto, licenseNumber, expirationDate);
+        return
+            userService.setKYCInfo(
+                name,
+                surname,
+                mobilePhoneNumber,
+                profilePhoto,
+                licenseNumber,
+                expirationDate
+            );
     }
 
-    function getKYCInfo(address user) external view returns (RentalityUserService.KYCInfo memory) {
-         return userService.getKYCInfo(user);
+    function getKYCInfo(
+        address user
+    ) external view returns (RentalityUserService.KYCInfo memory) {
+        return userService.getKYCInfo(user);
     }
 
-    function getMyKYCInfo() external view returns (RentalityUserService.KYCInfo memory) {
-         return userService.getMyKYCInfo();
-    }    
-    
-    function getChatInfoForHost() public view returns (IRentalityGateway.ChatInfo[] memory) {
-         return rentalityPlatform.getChatInfoForHost();
+    function getMyKYCInfo()
+        external
+        view
+        returns (RentalityUserService.KYCInfo memory)
+    {
+        return userService.getMyKYCInfo();
     }
 
-    function getChatInfoForGuest() public view returns (IRentalityGateway.ChatInfo[] memory) {
-         return rentalityPlatform.getChatInfoForGuest();
+    function getChatInfoForHost()
+        public
+        view
+        returns (IRentalityGateway.ChatInfo[] memory)
+    {
+        return rentalityPlatform.getChatInfoForHost();
     }
 
+    function getChatInfoForGuest()
+        public
+        view
+        returns (IRentalityGateway.ChatInfo[] memory)
+    {
+        return rentalityPlatform.getChatInfoForGuest();
+    }
 }
