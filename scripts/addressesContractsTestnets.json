@@ -38,9 +38,12 @@
     "EthToUsdPriceFeedAddress": "",
     "RentalityUtils": "",
     "RentalityUserService": "",
-    "RentalityTripService": "",
     "RentalityCurrencyConverter": "",
     "RentalityCarToken": "",
-    "Rentality": ""
+    "RentalityPaymentService": "",
+    "RentalityTripService": "",
+    "RentalityPlatform": "",
+    "RentalityGateway": "",
+    "RentalityChatHelper": ""
   }
 ]
