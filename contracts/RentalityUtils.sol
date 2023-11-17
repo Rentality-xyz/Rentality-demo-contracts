@@ -205,7 +205,7 @@ library RentalityUtils {
         }
 
         string[] memory parts = new string[](delimiterCount);
-        
+
         uint256 partIndex = 0;
         uint256 startNewString = 0;
 
@@ -220,7 +220,7 @@ library RentalityUtils {
                 }
                 startNewString++;
                 parts[partIndex] = string(newString);
-                partIndex++; 
+                partIndex++;
             }
         }
 
@@ -289,5 +289,8 @@ library RentalityUtils {
             }
         }
         return output;
+    }
+    function toBytes(bytes32 _data) public pure returns (bytes memory) {
+        return abi.encodePacked(_data);
     }
 }
