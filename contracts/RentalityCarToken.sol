@@ -345,7 +345,7 @@ contract RentalityCarToken is ERC721URIStorage, Ownable {
                 idToCarInfo[carId].yearOfProduction >=
                 searchCarParams.yearOfProductionFrom) &&
             (searchCarParams.yearOfProductionTo == 0 ||
-                idToCarInfo[carId].yearOfProduction >=
+                idToCarInfo[carId].yearOfProduction <=
                 searchCarParams.yearOfProductionTo) &&
             (searchCarParams.pricePerDayInUsdCentsFrom == 0 ||
                 idToCarInfo[carId].pricePerDayInUsdCents >=
