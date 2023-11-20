@@ -98,7 +98,7 @@ contract RentalityCarToken is ERC721URIStorage, Ownable {
         address _geoServiceAddress
     ) ERC721("RentalityCarToken Test", "RTCT") {
         geoService = RentalityGeoService(_geoServiceAddress);
-        geoService.updateCarService(address (this));
+
     }
 
     function totalSupply() public view returns (uint) {

@@ -12,8 +12,6 @@ contract RentalityGeoService is ChainlinkClient, Ownable {
 
     bytes32 private jobId;
     uint256 private fee;
-    IRentalityCarToken private carService;
-    uint256 private requests;
 
     mapping(bytes32 => uint256) public requestIdToCarId;
     mapping(uint256 => string) public carIdToGeolocationResponse;
@@ -40,27 +38,10 @@ contract RentalityGeoService is ChainlinkClient, Ownable {
         setChainlinkOracle(chainLinkOracle);
         jobId = "7d80a6386ef543a3abb52817f6707e3b";
         fee = (1 * LINK_DIVISIBILITY) / 10;
-        carService = IRentalityCarToken(address(0));
-        requests = 1;
+
     }
 
-    modifier isUpdated()
-    {
-        require(address (0) != address (carService));
-        _;
-    }
-
-    function updateCarService(address carToken) public
-    {
-        require(tx.origin == owner());
-
-        carService = IRentalityCarToken(carToken);
-    }
-
-    function executeRequest(string memory addr, string memory key, uint256 carId)
-    isUpdated public returns (bytes32 requestId) {
-
-        require(msg.sender == address (carService));
+    function executeRequest(string memory addr, string memory key, uint256 carId) public returns (bytes32 requestId) {
 
         string memory urlApi = string.concat(
             "https://rentality-location-service-dq3ggp3yqq-lm.a.run.app/geolocation?address=",
@@ -81,34 +62,18 @@ contract RentalityGeoService is ChainlinkClient, Ownable {
         );
 
         req.add("path", "0,resultInOneLine");
-
-        bytes32 reqId = keccak256(abi.encodePacked(this, requests));
-
-        req.addBytes("reqId", RentalityUtils.toBytes(reqId));
-
-        sendChainlinkRequest(req, fee);
-
+        bytes32 reqId =  sendChainlinkRequest(req, fee);
         requestIdToCarId[reqId] = carId;
-        requests += 1;
-
         return reqId;
-    }
-
-    function handleResponse(ParsedGeolocationData memory data, uint256 carId, bytes32 reqId) isUpdated public onlyOwner
-    {
-        require(requestIdToCarId[reqId] == carId);
-        carIdToParsedGeolocationData[carId] = data;
-        carService.verifyGeo(carId);
-
     }
 
     function fulfill(
         bytes32 _requestId,
         string memory  _response
     ) public  recordChainlinkFulfillment(_requestId) {
-        //do nothing
+        uint256 carId = requestIdToCarId[_requestId];
+        carIdToGeolocationResponse[carId] = _response;
     }
-
 
     function withdrawLink() public onlyOwner {
         LinkTokenInterface link = LinkTokenInterface(chainlinkTokenAddress());
@@ -116,6 +81,49 @@ contract RentalityGeoService is ChainlinkClient, Ownable {
             link.transfer(msg.sender, link.balanceOf(address(this))),
             "Unable to transfer"
         );
+    }
+
+    function parseGeoResponse(uint256 carId) public {
+        string memory response = carIdToGeolocationResponse[carId];
+
+        string[] memory pairs = RentalityUtils.splitString(response);
+
+        ParsedGeolocationData memory result;
+
+        for (uint256 i = 0; i < pairs.length; i++) {
+            string[] memory keyValue = RentalityUtils.splitKeyValue(pairs[i]);
+            string memory key = keyValue[0];
+            string memory value = keyValue[1];
+            if (RentalityUtils.compareStrings(key, "status")) {
+                result.status = value;
+            } else if (RentalityUtils.compareStrings(key, "locationLat")) {
+                result.locationLat = value;
+            } else if (RentalityUtils.compareStrings(key, "locationLng")) {
+                result.locationLng = value;
+            } else if (RentalityUtils.compareStrings(key, "northeastLat")) {
+                result.northeastLat = value;
+            } else if (RentalityUtils.compareStrings(key, "northeastLng")) {
+                result.northeastLng = value;
+            } else if (RentalityUtils.compareStrings(key, "southwestLat")) {
+                result.southwestLat = value;
+            } else if (RentalityUtils.compareStrings(key, "southwestLng")) {
+                result.southwestLng = value;
+            } else if (RentalityUtils.compareStrings(key, "locality")) {
+                result.city = value;
+            } else if (RentalityUtils.compareStrings(key, "adminAreaLvl1")) {
+                result.state = value;
+            } else if (RentalityUtils.compareStrings(key, "country")) {
+                result.country = value;
+            }
+        }
+
+        bool coordinatesAreValid =
+                            RentalityUtils.checkCoordinates(
+                result.locationLat, result.locationLng, result.northeastLat,
+                result.northeastLng, result.southwestLat, result.southwestLng
+            );
+        result.validCoordinates = coordinatesAreValid;
+        carIdToParsedGeolocationData[carId] = result;
     }
 
     function getCarCoordinateValidity(uint256 carId) public view returns (bool) {
@@ -133,5 +141,4 @@ contract RentalityGeoService is ChainlinkClient, Ownable {
     function getCarCountry(uint256 carId) public view returns (string memory) {
         return carIdToParsedGeolocationData[carId].country;
     }
-
 }
