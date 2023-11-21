@@ -5,7 +5,7 @@ require('dotenv').config()
 require('@nomicfoundation/hardhat-verify')
 
 module.exports = {
-  defaultNetwork: 'sepolia',
+  defaultNetwork: 'hardhat',
   networks: {
     hardhat: {
       chainId: 1337,

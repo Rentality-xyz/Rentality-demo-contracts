@@ -18,10 +18,10 @@ describe('Rentality', function () {
     const utils = await RentalityUtils.deploy()
 
     const RentalityGeoService = await ethers.getContractFactory(
-      'RentalityGeoService',
-      { libraries: { RentalityUtils: utils.address } },
-    )
-    const geoService = await RentalityGeoService.deploy()
+      'RentalityGeoMock');
+
+
+    const geoService = await RentalityGeoService.deploy();
 
     const RentalityMockPriceFeed = await ethers.getContractFactory(
       'RentalityMockPriceFeed',
@@ -43,8 +43,7 @@ describe('Rentality', function () {
       'RentalityCarToken',
     )
     const RentalityPlatform = await ethers.getContractFactory(
-      'RentalityPlatform',
-    )
+      'RentalityPlatform')
 
     let rentalityMockPriceFeed = await RentalityMockPriceFeed.deploy(
       8,
@@ -142,33 +141,6 @@ describe('Rentality', function () {
       milesIncludedPerDay: DISTANCE_INCLUDED,
       locationAddress: location,
       geoApiKey: apiKey,
-    }
-  }
-
-  function getMockSearchCarParams(seed) {
-    const seedStr = seed?.toString() ?? ''
-    const seedInt = Number(seed) ?? 0
-
-    const BRAND = 'BRAND' + seedStr
-    const MODEL = 'MODEL' + seedStr
-    const COUNTRY = 'COUNTRY' + seedStr
-    const STATE = 'STATE' + seedStr
-    const CITY = 'CITY' + seedStr
-    const YEAR_FROM = 2000 + seedInt
-    const YEAR_TO = 2000 + seedInt
-    const PRICE_PER_DAY_FROM = seedInt * 100 + 2
-    const PRICE_PER_DAY_TO = seedInt * 100 + 2
-
-    return {
-      country: COUNTRY,
-      state: STATE,
-      city: CITY,
-      brand: BRAND,
-      model: MODEL,
-      yearOfProductionFrom: YEAR_FROM,
-      yearOfProductionTo: YEAR_TO,
-      pricePerDayInUsdCentsFrom: PRICE_PER_DAY_FROM,
-      pricePerDayInUsdCentsTo: PRICE_PER_DAY_TO,
     }
   }
 

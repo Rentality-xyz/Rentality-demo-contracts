@@ -5,14 +5,14 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "./RentalityUtils.sol";
-import "./RentalityGeoService.sol";
+import "./IRentalityGeoService.sol";
 
 //deployed 26.05.2023 11:15 to sepolia at 0xcC66CdAfc3C39d96651220975855202960C08747
 contract RentalityCarToken is ERC721URIStorage, Ownable {
     using Counters for Counters.Counter;
     Counters.Counter private _carIdCounter;
 
-    RentalityGeoService private geoService;
+    IRentalityGeoService private geoService;
     mapping(uint256 => CarInfo) private idToCarInfo;
 
     //The structure to store info about a listed car
@@ -97,8 +97,7 @@ contract RentalityCarToken is ERC721URIStorage, Ownable {
     constructor(
         address _geoServiceAddress
     ) ERC721("RentalityCarToken Test", "RTCT") {
-        geoService = RentalityGeoService(_geoServiceAddress);
-
+        geoService = IRentalityGeoService(_geoServiceAddress);
     }
 
     function totalSupply() public view returns (uint) {
@@ -150,7 +149,7 @@ contract RentalityCarToken is ERC721URIStorage, Ownable {
         _safeMint(tx.origin, newCarId);
         _setTokenURI(newCarId, request.tokenUri);
 
-        geoService.executeRequest(request.locationAddress, request.geoApiKey, newCarId);        
+        geoService.executeRequest(request.locationAddress, request.geoApiKey, newCarId);
 
         idToCarInfo[newCarId] = CarInfo(
             newCarId,
@@ -205,9 +204,9 @@ contract RentalityCarToken is ERC721URIStorage, Ownable {
 
         idToCarInfo[carId].pricePerDayInUsdCents = pricePerDayInUsdCents;
         idToCarInfo[carId]
-            .securityDepositPerTripInUsdCents = securityDepositPerTripInUsdCents;
+        .securityDepositPerTripInUsdCents = securityDepositPerTripInUsdCents;
         idToCarInfo[carId]
-            .fuelPricePerGalInUsdCents = fuelPricePerGalInUsdCents;
+        .fuelPricePerGalInUsdCents = fuelPricePerGalInUsdCents;
         idToCarInfo[carId].milesIncludedPerDay = milesIncludedPerDay;
         idToCarInfo[carId].currentlyListed = currentlyListed;
 

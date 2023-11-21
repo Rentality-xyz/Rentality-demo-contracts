@@ -4,9 +4,11 @@ pragma solidity ^0.8.9;
 import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./RentalityUtils.sol";
-import "./IRentalityCarToken.sol";
 
 
+//#GEO sepolia
+//CHAINLINK_ORACLE="0x6090149792dAAeE9D1D568c9f9a6F6B46AA29eFD"
+//CHAINLINK_TOKEN="0x779877A7B0D9E8603169DdbD7836e478b4624789"
 contract RentalityGeoService is ChainlinkClient, Ownable {
     using Chainlink for Chainlink.Request;
 
