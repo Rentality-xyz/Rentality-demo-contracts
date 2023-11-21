@@ -25,12 +25,15 @@
     "name": "Sepolia",
     "chainId": 11155111,
     "EthToUsdPriceFeedAddress": "0x694AA1769357215DE4FAC081bf1f309aDC325306",
-    "RentalityUtils": "0x60dC0257757C5dF36a1f89e6D388DaF5452E5B48",
-    "RentalityUserService": "0xd5E0f1F432e1C6855B892204DFc78093f5e3364f",
-    "RentalityTripService": "0xd3f74213C940fbfC6eEf316A4b0Cdde0009e44dA",
-    "RentalityCurrencyConverter": "0x30517Ad6985e4454894034e6F0C7C06B4c7Db070",
-    "RentalityCarToken": "0x738A01AdD9377a7404F0D4061F0A8e4527b7e800",
-    "Rentality": "0x7087b47929b2BaCA9CDDEBAbb3FFB52FB527B6d4"
+    "RentalityUtils": "0x5F615251F2C83489E58ED721ebA07908155699C7",
+    "RentalityUserService": "0x5286fba7C4b90ebd6a41615547c8807057E990cb",
+    "RentalityCurrencyConverter": "0xe107e64112df16A428c36107Fcc02eC8C7bBa7B6",
+    "RentalityCarToken": "0xf5349FDBe2AB6f5df50B94Fe55F20FF15dFEe6Ac",
+    "RentalityPaymentService": "0xbd5eD5B71bbcCC217c76446B48d4Bb24946788B2",
+    "RentalityTripService": "0xa23dD4a38362657BF2CB202283d4007a6E297103",
+    "RentalityPlatform": "0xbf067F7C9Cd0191a992fACC307D20b230FB3dBF9",
+    "RentalityGateway": "0x90aD0a871b6aF31367911d64134b02456D2fBCbF",
+    "RentalityChatHelper": "0xB31993e4DB0087367274e5cD292186041bFB8AB8"
   },
   {
     "name": "Ganache",
@@ -38,9 +41,12 @@
     "EthToUsdPriceFeedAddress": "",
     "RentalityUtils": "",
     "RentalityUserService": "",
-    "RentalityTripService": "",
     "RentalityCurrencyConverter": "",
     "RentalityCarToken": "",
-    "Rentality": ""
+    "RentalityPaymentService": "",
+    "RentalityTripService": "",
+    "RentalityPlatform": "",
+    "RentalityGateway": "",
+    "RentalityChatHelper": ""
   }
 ]
