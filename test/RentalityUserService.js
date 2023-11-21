@@ -32,6 +32,11 @@ describe('RentalityUserService', function () {
     const RentalityPaymentService = await ethers.getContractFactory(
       'RentalityPaymentService',
     )
+    const RentalityGeoService = await ethers.getContractFactory(
+      'RentalityGeoMock');
+
+
+
     const RentalityCarToken =
       await ethers.getContractFactory('RentalityCarToken')
     const RentalityPlatform =
@@ -59,7 +64,12 @@ describe('RentalityUserService', function () {
     const rentalityCurrencyConverter = await RentalityCurrencyConverter.deploy(
       rentalityMockPriceFeed.address,
     )
-    const rentalityCarToken = await RentalityCarToken.deploy()
+
+    const rentalityGeoService = await RentalityGeoService.deploy();
+    await rentalityGeoService.deployed();
+
+    const rentalityCarToken = await RentalityCarToken.deploy(rentalityGeoService.address)
+
     await rentalityCarToken.deployed()
 
     const rentalityPaymentService = await RentalityPaymentService.deploy()
@@ -147,11 +157,9 @@ describe('RentalityUserService', function () {
     const TANK_VOLUME = seedInt * 100 + 4
     const FUEL_PRICE = seedInt * 100 + 5
     const DISTANCE_INCLUDED = seedInt * 100 + 6
-    const COUNTRY = 'COUNTRY' + seedStr
-    const STATE = 'STATE' + seedStr
-    const CITY = 'CITY' + seedStr
-    const LOCATION_LATITUDE = seedInt * 100 + 7
-    const LOCATION_LONGITUDE = seedInt * 100 + 8
+    const location = 'kyiv ukraine'
+    const apiKey = 'AIzaSyBZ9Ii2pMKHcJrMFvWSPxG8NPSIsdS0nLs'
+
 
     return {
       tokenUri: TOKEN_URI,
@@ -164,11 +172,8 @@ describe('RentalityUserService', function () {
       tankVolumeInGal: TANK_VOLUME,
       fuelPricePerGalInUsdCents: FUEL_PRICE,
       milesIncludedPerDay: DISTANCE_INCLUDED,
-      country: COUNTRY,
-      state: STATE,
-      city: CITY,
-      locationLatitudeInPPM: LOCATION_LATITUDE,
-      locationLongitudeInPPM: LOCATION_LONGITUDE,
+      locationAddress: location,
+      geoApiKey: apiKey,
     }
   }
 

@@ -32,17 +32,23 @@ describe('Rentality', function () {
     const RentalityPaymentService = await ethers.getContractFactory(
       'RentalityPaymentService',
     )
+    const RentalityGeoService = await ethers.getContractFactory(
+      'RentalityGeoMock');
+
+
+    const geoService = await RentalityGeoService.deploy();
+
     const RentalityCarToken =
       await ethers.getContractFactory('RentalityCarToken')
 
     const RentalityPlatform =
       await ethers.getContractFactory('RentalityPlatform',
-          {
-              libraries:
-                  {
-                      RentalityUtils: utils.address
-                  }
-          })
+        {
+          libraries:
+            {
+              RentalityUtils: utils.address
+            }
+        })
 
     let rentalityMockPriceFeed = await RentalityMockPriceFeed.deploy(
       8,
@@ -63,7 +69,7 @@ describe('Rentality', function () {
     )
     await rentalityCurrencyConverter.deployed()
 
-    const rentalityCarToken = await RentalityCarToken.deploy()
+    const rentalityCarToken = await RentalityCarToken.deploy(geoService.address)
     await rentalityCarToken.deployed()
     const rentalityPaymentService = await RentalityPaymentService.deploy()
     await rentalityPaymentService.deployed()
@@ -111,6 +117,7 @@ describe('Rentality', function () {
   }
 
   function getMockCarRequest(seed) {
+
     const seedStr = seed?.toString() ?? ''
     const seedInt = Number(seed) ?? 0
 
@@ -124,11 +131,9 @@ describe('Rentality', function () {
     const TANK_VOLUME = seedInt * 100 + 4
     const FUEL_PRICE = seedInt * 100 + 5
     const DISTANCE_INCLUDED = seedInt * 100 + 6
-    const COUNTRY = 'COUNTRY' + seedStr
-    const STATE = 'STATE' + seedStr
-    const CITY = 'CITY' + seedStr
-    const LOCATION_LATITUDE = seedInt * 100 + 7
-    const LOCATION_LONGITUDE = seedInt * 100 + 8
+    const location = 'kyiv ukraine'
+    const apiKey = 'AIzaSyBZ9Ii2pMKHcJrMFvWSPxG8NPSIsdS0nLs'
+
 
     return {
       tokenUri: TOKEN_URI,
@@ -141,11 +146,8 @@ describe('Rentality', function () {
       tankVolumeInGal: TANK_VOLUME,
       fuelPricePerGalInUsdCents: FUEL_PRICE,
       milesIncludedPerDay: DISTANCE_INCLUDED,
-      country: COUNTRY,
-      state: STATE,
-      city: CITY,
-      locationLatitudeInPPM: LOCATION_LATITUDE,
-      locationLongitudeInPPM: LOCATION_LONGITUDE,
+      locationAddress: location,
+      geoApiKey: apiKey,
     }
   }
 
