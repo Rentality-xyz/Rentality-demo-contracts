@@ -163,11 +163,6 @@ contract RentalityGateway is Ownable {
                 request.securityDepositPerTripInUsdCents,
                 request.fuelPricePerGalInUsdCents,
                 request.milesIncludedPerDay,
-                request.country,
-                request.state,
-                request.city,
-                request.locationLatitudeInPPM,
-                request.locationLongitudeInPPM,
                 request.currentlyListed
             );
     }
@@ -178,11 +173,6 @@ contract RentalityGateway is Ownable {
         uint64 securityDepositPerTripInUsdCents,
         uint64 fuelPricePerGalInUsdCents,
         uint64 milesIncludedPerDay,
-        string memory country,
-        string memory state,
-        string memory city,
-        int64 locationLatitudeInPPM,
-        int64 locationLongitudeInPPM,
         bool currentlyListed
     ) public onlyHost {
         return
@@ -192,11 +182,6 @@ contract RentalityGateway is Ownable {
                 securityDepositPerTripInUsdCents,
                 fuelPricePerGalInUsdCents,
                 milesIncludedPerDay,
-                country,
-                state,
-                city,
-                locationLatitudeInPPM,
-                locationLongitudeInPPM,
                 currentlyListed
             );
     }
