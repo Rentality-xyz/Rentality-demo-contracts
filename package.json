@@ -12,7 +12,6 @@
   },
   "dependencies": {
     "@chainlink/contracts": "^0.6.1",
-    "@ethereum-waffle/mock-contract": "^4.0.4",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.8",
     "@openzeppelin/contracts": "^4.9.0",
     "chai": "^4.3.10",
@@ -20,10 +19,8 @@
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^2.0.2",
-    "@nomicfoundation/hardhat-verify": "^1.1.1",
-    "@nomiclabs/hardhat-waffle": "^2.0.6",
-    "@openzeppelin/test-helpers": "^0.5.16",
     "hardhat": "^2.19.1",
-    "hardhat-ethers": "^1.0.1"
+    "@nomiclabs/hardhat-waffle": "^2.0.6",
+    "@nomicfoundation/hardhat-verify": "^2.0.1"
   }
 }
