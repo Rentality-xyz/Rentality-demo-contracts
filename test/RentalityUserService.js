@@ -4,6 +4,7 @@ const {
 } = require('@nomicfoundation/hardhat-network-helpers')
 const { expect } = require('chai')
 const { ethers } = require('hardhat')
+const { getMockCarRequest } = require('./utils')
 
 describe('RentalityUserService', function () {
   // We define a fixture to reuse the same setup in every test.
@@ -62,7 +63,7 @@ describe('RentalityUserService', function () {
     const rentalityCarToken = await RentalityCarToken.deploy()
     await rentalityCarToken.deployed()
 
-    const rentalityPaymentService = await RentalityPaymentService.deploy()
+    const rentalityPaymentService = await RentalityPaymentService.deploy(rentalityUserService.address)
 
     const rentalityTripService = await RentalityTripService.deploy(
       rentalityCurrencyConverter.address,
@@ -383,14 +384,14 @@ describe('RentalityUserService', function () {
     })
 
     it('After adding valid KYCInfo user has valid KYC', async function () {
-      const { rentalityUserService, anonymous } = await loadFixture(
+      const { rentalityUserService, guest } = await loadFixture(
         deployFixtureWithUsers,
       )
       const ONE_YEAR_IN_SECS = 365 * 24 * 60 * 60
       const expirationDate = (await time.latest()) + ONE_YEAR_IN_SECS
 
       await rentalityUserService
-        .connect(anonymous)
+        .connect(guest)
         .setKYCInfo(
           'name',
           'surname',
@@ -401,19 +402,19 @@ describe('RentalityUserService', function () {
         )
 
       expect(
-        await rentalityUserService.hasValidKYC(anonymous.address),
+        await rentalityUserService.hasValidKYC(guest.address),
       ).to.equal(true)
     })
 
     it("After adding invalid KYCInfo user doesn't have valid KYC", async function () {
-      const { rentalityUserService, anonymous } = await loadFixture(
+      const { rentalityUserService, guest } = await loadFixture(
         deployFixtureWithUsers,
       )
       const ONE_YEAR_IN_SECS = 365 * 24 * 60 * 60
       const expirationDate = (await time.latest()) + ONE_YEAR_IN_SECS
 
       await rentalityUserService
-        .connect(anonymous)
+        .connect(guest)
         .setKYCInfo(
           'name',
           'surname',
@@ -425,7 +426,7 @@ describe('RentalityUserService', function () {
       await time.increaseTo(expirationDate + 1)
 
       expect(
-        await rentalityUserService.hasValidKYC(anonymous.address),
+        await rentalityUserService.hasValidKYC(guest.address),
       ).to.equal(false)
     })
 

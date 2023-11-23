@@ -66,7 +66,7 @@ describe('Rentality', function () {
 
     const rentalityCarToken = await RentalityCarToken.deploy()
     await rentalityCarToken.deployed()
-    const rentalityPaymentService = await RentalityPaymentService.deploy()
+    const rentalityPaymentService = await RentalityPaymentService.deploy(rentalityUserService.address)
     await rentalityPaymentService.deployed()
 
     const rentalityTripService = await RentalityTripService.deploy(

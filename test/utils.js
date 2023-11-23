@@ -1,3 +1,5 @@
+const env = require('hardhat')
+
 function getMockCarRequest(seed) {
     const seedStr = seed?.toString() ?? ''
     const seedInt = Number(seed) ?? 0
@@ -37,6 +39,18 @@ function getMockCarRequest(seed) {
     }
 }
 
+const TripStatus = {
+    Created: 0,
+    Approved: 1,
+    CheckedInByHost: 2,
+    CheckedInByGuest: 3,
+    CheckedOutByGuest: 4,
+    CheckedOutByHost: 5,
+    Finished: 6,
+    Canceled: 7
+};
+
 module.exports = {
     getMockCarRequest,
+    TripStatus
 };
