@@ -1,6 +1,7 @@
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 const { expect } = require('chai')
 const { ethers } = require('hardhat')
+const { getMockCarRequest } = require('./utils')
 
 describe('RentalityCarToken', function () {
   async function deployDefaultFixture() {
@@ -30,13 +31,15 @@ describe('RentalityCarToken', function () {
       8,
       200000000000,
     )
-    const rentalityPaymentService = await RentalityPaymentService.deploy()
-    const rentalityCurrencyConverter = await RentalityCurrencyConverter.deploy(
-      rentalityMockPriceFeed.address,
-    )
     const rentalityUserService = await RentalityUserService.deploy()
 
     await rentalityUserService.deployed()
+
+    const rentalityPaymentService = await RentalityPaymentService.deploy(rentalityUserService.address)
+    const rentalityCurrencyConverter = await RentalityCurrencyConverter.deploy(
+      rentalityMockPriceFeed.address,
+    )
+
     await rentalityCurrencyConverter.deployed()
     await rentalityPaymentService.deployed()
     await rentalityMockPriceFeed.deployed()
