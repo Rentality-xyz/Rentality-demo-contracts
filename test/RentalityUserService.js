@@ -4,6 +4,7 @@ const {
 } = require('@nomicfoundation/hardhat-network-helpers')
 const { expect } = require('chai')
 const { ethers } = require('hardhat')
+const { getMockCarRequest } = require('./utils')
 
 describe('RentalityUserService', function () {
   // We define a fixture to reuse the same setup in every test.
@@ -72,7 +73,7 @@ describe('RentalityUserService', function () {
 
     await rentalityCarToken.deployed()
 
-    const rentalityPaymentService = await RentalityPaymentService.deploy()
+    const rentalityPaymentService = await RentalityPaymentService.deploy(rentalityUserService.address)
 
     const rentalityTripService = await RentalityTripService.deploy(
       rentalityCurrencyConverter.address,
@@ -143,39 +144,6 @@ describe('RentalityUserService', function () {
     }
   }
 
-  function getMockCarRequest(seed) {
-    const seedStr = seed?.toString() ?? ''
-    const seedInt = Number(seed) ?? 0
-
-    const TOKEN_URI = 'TOKEN_URI' + seedStr
-    const VIN_NUMBER = 'VIN_NUMBER' + seedStr
-    const BRAND = 'BRAND' + seedStr
-    const MODEL = 'MODEL' + seedStr
-    const YEAR = '200' + seedStr
-    const PRICE_PER_DAY = seedInt * 100 + 2
-    const DEPOSIT = seedInt * 100 + 3
-    const TANK_VOLUME = seedInt * 100 + 4
-    const FUEL_PRICE = seedInt * 100 + 5
-    const DISTANCE_INCLUDED = seedInt * 100 + 6
-    const location = 'kyiv ukraine'
-    const apiKey = process.env.GOOGLE_API_KEY || " "
-
-
-    return {
-      tokenUri: TOKEN_URI,
-      carVinNumber: VIN_NUMBER,
-      brand: BRAND,
-      model: MODEL,
-      yearOfProduction: YEAR,
-      pricePerDayInUsdCents: PRICE_PER_DAY,
-      securityDepositPerTripInUsdCents: DEPOSIT,
-      tankVolumeInGal: TANK_VOLUME,
-      fuelPricePerGalInUsdCents: FUEL_PRICE,
-      milesIncludedPerDay: DISTANCE_INCLUDED,
-      locationAddress: location,
-      geoApiKey: apiKey,
-    }
-  }
 
   describe('Deployment', function () {
     it('Owner should have all roles', async function () {
@@ -426,14 +394,14 @@ describe('RentalityUserService', function () {
     })
 
     it('After adding valid KYCInfo user has valid KYC', async function () {
-      const { rentalityUserService, anonymous } = await loadFixture(
+      const { rentalityUserService, guest } = await loadFixture(
         deployFixtureWithUsers,
       )
       const ONE_YEAR_IN_SECS = 365 * 24 * 60 * 60
       const expirationDate = (await time.latest()) + ONE_YEAR_IN_SECS
 
       await rentalityUserService
-        .connect(anonymous)
+        .connect(guest)
         .setKYCInfo(
           'name',
           'surname',
@@ -444,19 +412,19 @@ describe('RentalityUserService', function () {
         )
 
       expect(
-        await rentalityUserService.hasValidKYC(anonymous.address),
+        await rentalityUserService.hasValidKYC(guest.address),
       ).to.equal(true)
     })
 
     it("After adding invalid KYCInfo user doesn't have valid KYC", async function () {
-      const { rentalityUserService, anonymous } = await loadFixture(
+      const { rentalityUserService, guest } = await loadFixture(
         deployFixtureWithUsers,
       )
       const ONE_YEAR_IN_SECS = 365 * 24 * 60 * 60
       const expirationDate = (await time.latest()) + ONE_YEAR_IN_SECS
 
       await rentalityUserService
-        .connect(anonymous)
+        .connect(guest)
         .setKYCInfo(
           'name',
           'surname',
@@ -468,7 +436,7 @@ describe('RentalityUserService', function () {
       await time.increaseTo(expirationDate + 1)
 
       expect(
-        await rentalityUserService.hasValidKYC(anonymous.address),
+        await rentalityUserService.hasValidKYC(guest.address),
       ).to.equal(false)
     })
 

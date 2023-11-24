@@ -4,6 +4,7 @@ const {
 } = require('@nomicfoundation/hardhat-network-helpers')
 const { expect } = require('chai')
 const { ethers } = require('hardhat')
+const {getMockCarRequest} = require("./utils");
 
 describe('Rentality', function () {
   // We define a fixture to reuse the same setup in every test.
@@ -70,7 +71,7 @@ describe('Rentality', function () {
 
     const rentalityCarToken = await RentalityCarToken.deploy(geoService.address)
     await rentalityCarToken.deployed()
-    const rentalityPaymentService = await RentalityPaymentService.deploy()
+    const rentalityPaymentService = await RentalityPaymentService.deploy(rentalityUserService.address)
     await rentalityPaymentService.deployed()
 
     const rentalityTripService = await RentalityTripService.deploy(
@@ -115,40 +116,6 @@ describe('Rentality', function () {
     }
   }
 
-  function getMockCarRequest(seed) {
-
-    const seedStr = seed?.toString() ?? ''
-    const seedInt = Number(seed) ?? 0
-
-    const TOKEN_URI = 'TOKEN_URI' + seedStr
-    const VIN_NUMBER = 'VIN_NUMBER' + seedStr
-    const BRAND = 'BRAND' + seedStr
-    const MODEL = 'MODEL' + seedStr
-    const YEAR = '200' + seedStr
-    const PRICE_PER_DAY = seedInt * 100 + 2
-    const DEPOSIT = seedInt * 100 + 3
-    const TANK_VOLUME = seedInt * 100 + 4
-    const FUEL_PRICE = seedInt * 100 + 5
-    const DISTANCE_INCLUDED = seedInt * 100 + 6
-    const location = 'kyiv ukraine'
-    const apiKey = process.env.GOOGLE_API_KEY || " "
-
-
-    return {
-      tokenUri: TOKEN_URI,
-      carVinNumber: VIN_NUMBER,
-      brand: BRAND,
-      model: MODEL,
-      yearOfProduction: YEAR,
-      pricePerDayInUsdCents: PRICE_PER_DAY,
-      securityDepositPerTripInUsdCents: DEPOSIT,
-      tankVolumeInGal: TANK_VOLUME,
-      fuelPricePerGalInUsdCents: FUEL_PRICE,
-      milesIncludedPerDay: DISTANCE_INCLUDED,
-      locationAddress: location,
-      geoApiKey: apiKey,
-    }
-  }
 
   function getMockSearchCarParams(seed) {
     const seedStr = seed?.toString() ?? ''

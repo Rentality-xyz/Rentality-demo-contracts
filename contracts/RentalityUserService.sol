@@ -38,6 +38,8 @@ contract RentalityUserService is AccessControl {
         string memory licenseNumber,
         uint64 expirationDate
     ) public {
+        require(isHostOrGuest(tx.origin), "Only for hosts or guests");
+
         kycInfos[tx.origin] = KYCInfo(
             name,
             surname,

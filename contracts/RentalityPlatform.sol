@@ -121,6 +121,7 @@ contract RentalityPlatform is Ownable {
         IRentalityGateway.CreateTripRequest memory request
     ) public payable {
         require(msg.value > 0, "Rental fee must be greater than 0");
+        require(carService.ownerOf(request.carId) != tx.origin,"Car is not available for creator");
 
         uint64 valueSum = request.totalDayPriceInUsdCents +
             request.taxPriceInUsdCents +
