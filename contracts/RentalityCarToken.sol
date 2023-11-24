@@ -48,17 +48,13 @@ contract RentalityCarToken is ERC721URIStorage, Ownable {
         string geoApiKey;
     }
 
-    struct UpdateCarInfoRequest {
+    struct UpdateCarInfoRequest
+    {
         uint256 carId;
         uint64 pricePerDayInUsdCents;
         uint64 securityDepositPerTripInUsdCents;
         uint64 fuelPricePerGalInUsdCents;
         uint64 milesIncludedPerDay;
-        string country;
-        string state;
-        string city;
-        int64 locationLatitudeInPPM;
-        int64 locationLongitudeInPPM;
         bool currentlyListed;
     }
 
@@ -189,28 +185,45 @@ contract RentalityCarToken is ERC721URIStorage, Ownable {
     }
 
     function updateCarInfo(
-        uint256 carId,
-        uint64 pricePerDayInUsdCents,
-        uint64 securityDepositPerTripInUsdCents,
-        uint64 fuelPricePerGalInUsdCents,
-        uint64 milesIncludedPerDay,
-        bool currentlyListed
+        UpdateCarInfoRequest memory request, string memory location, string memory geoApiKey
     ) public {
-        require(_exists(carId), "Token does not exist");
+        require(_exists(request.carId), "Token does not exist");
         require(
-            ownerOf(carId) == tx.origin,
+            ownerOf(request.carId) == tx.origin,
             "Only owner of the car can update car info"
         );
+        require(
+            request.fuelPricePerGalInUsdCents > 0,
+            "Make sure the price isn't negative"
+        );
 
-        idToCarInfo[carId].pricePerDayInUsdCents = pricePerDayInUsdCents;
-        idToCarInfo[carId]
-        .securityDepositPerTripInUsdCents = securityDepositPerTripInUsdCents;
-        idToCarInfo[carId]
-        .fuelPricePerGalInUsdCents = fuelPricePerGalInUsdCents;
-        idToCarInfo[carId].milesIncludedPerDay = milesIncludedPerDay;
-        idToCarInfo[carId].currentlyListed = currentlyListed;
+        require(
+            request.pricePerDayInUsdCents > 0,
+            "Make sure the price isn't negative"
+        );
 
-        emit CarUpdatedSuccess(carId, pricePerDayInUsdCents, currentlyListed);
+        require(
+            request.milesIncludedPerDay > 0,
+            "Make sure the included distance isn't negative"
+        );
+        if (bytes(location).length > 0)
+        {
+            require(bytes(geoApiKey).length > 0, "Make sure you have correct geo Api Key");
+            geoService.executeRequest(location, geoApiKey, request.carId);
+            idToCarInfo[request.carId].geoVerified = false;
+        }
+
+
+        idToCarInfo[request.carId].pricePerDayInUsdCents = request.pricePerDayInUsdCents;
+        idToCarInfo[request.carId]
+        .securityDepositPerTripInUsdCents = request.securityDepositPerTripInUsdCents;
+        idToCarInfo[request.carId]
+        .fuelPricePerGalInUsdCents = request.fuelPricePerGalInUsdCents;
+        idToCarInfo[request.carId].milesIncludedPerDay = request.milesIncludedPerDay;
+        idToCarInfo[request.carId].currentlyListed = request.currentlyListed;
+
+
+        emit CarUpdatedSuccess(request.carId, request.pricePerDayInUsdCents, request.currentlyListed);
     }
 
     function updateCarTokenUri(

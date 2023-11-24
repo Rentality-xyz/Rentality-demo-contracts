@@ -5,7 +5,7 @@ require('dotenv').config()
 require('@nomicfoundation/hardhat-verify')
 
 module.exports = {
-  defaultNetwork: 'hardhat',
+  defaultNetwork: 'localhost',
   networks: {
     hardhat: {
       chainId: 1337,

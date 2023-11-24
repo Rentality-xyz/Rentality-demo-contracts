@@ -140,7 +140,7 @@ describe('RentalityCarToken', function () {
     const FUEL_PRICE = seedInt * 100 + 5
     const DISTANCE_INCLUDED = seedInt * 100 + 6
     const location = 'kyiv ukraine'
-    const apiKey = 'AIzaSyBZ9Ii2pMKHcJrMFvWSPxG8NPSIsdS0nLs'
+    const apiKey = process.env.GOOGLE_API_KEY || " "
 
 
     return {
@@ -179,6 +179,74 @@ describe('RentalityCarToken', function () {
 
       expect(await rentalityCarToken.totalSupply()).to.equal(1)
     })
+  })
+  it('Update car without location should work fine', async function () {
+    const { rentalityCarToken } = await loadFixture(deployFixtureWith1Car)
+
+    let request = getMockCarRequest(1)
+    await expect( rentalityCarToken.addCar(request)).not.be.reverted
+
+    let update_params = {
+      carId: 2,
+      pricePerDayInUsdCents: 2,
+      securityDepositPerTripInUsdCents: 2,
+      fuelPricePerGalInUsdCents: 2,
+      milesIncludedPerDay: 2,
+      currentlyListed: false
+    }
+
+    await expect (rentalityCarToken.updateCarInfo(update_params, "", "")).not.be.reverted
+
+    let car_info = await rentalityCarToken.getCarInfoById(2);
+
+    expect(car_info.pricePerDayInUsdCents).to.be.equal(update_params.pricePerDayInUsdCents);
+    expect(car_info.securityDepositPerTripInUsdCents).to.be.equal(update_params.securityDepositPerTripInUsdCents);
+    expect(car_info.fuelPricePerGalInUsdCents).to.be.equal(update_params.fuelPricePerGalInUsdCents);
+    expect(car_info.milesIncludedPerDay).to.be.equal(update_params.milesIncludedPerDay);
+})
+  it('Update car with location, but without api should revert', async function () {
+    const { rentalityCarToken } = await loadFixture(deployFixtureWith1Car)
+
+    let request = getMockCarRequest(1)
+    await expect( rentalityCarToken.addCar(request)).not.be.reverted
+
+    let update_params = {
+      carId: 2,
+      pricePerDayInUsdCents: 2,
+      securityDepositPerTripInUsdCents: 2,
+      fuelPricePerGalInUsdCents: 2,
+      milesIncludedPerDay: 2,
+      currentlyListed: false
+    }
+
+    await expect (rentalityCarToken.updateCarInfo(update_params, "location", "")).to.be.reverted
+
+  })
+  it('Update with location should pass locationVarification param to false', async function () {
+    const { rentalityCarToken,rentalityGeoService } = await loadFixture(deployFixtureWith1Car)
+
+    let request = getMockCarRequest(1)
+    await expect( rentalityCarToken.addCar(request)).not.be.reverted
+
+    let update_params = {
+      carId: 2,
+      pricePerDayInUsdCents: 2,
+      securityDepositPerTripInUsdCents: 2,
+      fuelPricePerGalInUsdCents: 2,
+      milesIncludedPerDay: 2,
+      currentlyListed: false
+    }
+
+    await rentalityGeoService.setCarCoordinateValidity(2, true); // mock
+
+    await expect( rentalityCarToken.verifyGeo(2)).to.not.reverted;
+
+    await expect (rentalityCarToken.updateCarInfo(update_params, "location", "geoApi")).to.not.reverted
+
+    let car_info = await rentalityCarToken.getCarInfoById(2);
+
+    expect(car_info.geoVerified).to.be.equal(false);
+
   })
 
   describe('Host functions', function () {
