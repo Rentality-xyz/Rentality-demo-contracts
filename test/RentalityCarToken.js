@@ -10,11 +10,19 @@ describe('RentalityCarToken', function () {
     const RentalityUtils = await ethers.getContractFactory('RentalityUtils')
     const utils = await RentalityUtils.deploy()
 
+
+    const RentalityGeoService = await ethers.getContractFactory(
+      'RentalityGeoMock');
+
+    const rentalityGeoService = await RentalityGeoService.deploy();
+    await rentalityGeoService.deployed();
+
     const RentalityUserService = await ethers.getContractFactory(
       'RentalityUserService',
     )
-    const RentalityCarToken =
-      await ethers.getContractFactory('RentalityCarToken')
+    const RentalityCarToken = await ethers.getContractFactory(
+      'RentalityCarToken',
+    )
 
     const RentalityCurrencyConverter = await ethers.getContractFactory(
       'RentalityCurrencyConverter',
@@ -46,7 +54,9 @@ describe('RentalityCarToken', function () {
     await rentalityUserService.connect(owner).grantHostRole(host.address)
     await rentalityUserService.connect(owner).grantGuestRole(guest.address)
 
-    const rentalityCarToken = await RentalityCarToken.deploy()
+    const rentalityCarToken = await RentalityCarToken.deploy(
+      rentalityGeoService.address,
+    )
     const rentalityCarService = await rentalityCarToken.deployed()
 
     const RentalityTripService = await ethers.getContractFactory(
@@ -71,6 +81,7 @@ describe('RentalityCarToken', function () {
       rentalityCarToken,
       rentalityUserService,
       rentalityTripService,
+      rentalityGeoService,
       owner,
       admin,
       manager,
@@ -85,6 +96,7 @@ describe('RentalityCarToken', function () {
       rentalityCarToken,
       rentalityUserService,
       rentalityTripService,
+      rentalityGeoService,
       owner,
       admin,
       manager,
@@ -93,7 +105,7 @@ describe('RentalityCarToken', function () {
       anonymous,
     } = await deployDefaultFixture()
 
-    const request = getMockCarRequset(0)
+    const request = getMockCarRequest(0)
 
     await rentalityCarToken.connect(host).addCar(request)
 
@@ -101,6 +113,7 @@ describe('RentalityCarToken', function () {
       rentalityCarToken,
       rentalityUserService,
       rentalityTripService,
+      rentalityGeoService,
       owner,
       admin,
       manager,
@@ -110,7 +123,9 @@ describe('RentalityCarToken', function () {
     }
   }
 
-  function getMockCarRequset(seed) {
+
+  function getMockCarRequest(seed) {
+
     const seedStr = seed?.toString() ?? ''
     const seedInt = Number(seed) ?? 0
 
@@ -124,11 +139,9 @@ describe('RentalityCarToken', function () {
     const TANK_VOLUME = seedInt * 100 + 4
     const FUEL_PRICE = seedInt * 100 + 5
     const DISTANCE_INCLUDED = seedInt * 100 + 6
-    const COUNTRY = 'COUNTRY' + seedStr
-    const STATE = 'STATE' + seedStr
-    const CITY = 'CITY' + seedStr
-    const LOCATION_LATITUDE = seedInt * 100 + 7
-    const LOCATION_LONGITUDE = seedInt * 100 + 8
+    const location = 'kyiv ukraine'
+    const apiKey = process.env.GOOGLE_API_KEY || " "
+
 
     return {
       tokenUri: TOKEN_URI,
@@ -141,51 +154,16 @@ describe('RentalityCarToken', function () {
       tankVolumeInGal: TANK_VOLUME,
       fuelPricePerGalInUsdCents: FUEL_PRICE,
       milesIncludedPerDay: DISTANCE_INCLUDED,
-      country: COUNTRY,
-      state: STATE,
-      city: CITY,
-      locationLatitudeInPPM: LOCATION_LATITUDE,
-      locationLongitudeInPPM: LOCATION_LONGITUDE,
-    }
-  }
-
-  async function deployFixtureWith2UserService() {
-    const [owner, admin1, admin2] = await ethers.getSigners()
-
-    const RentalityUserService1 = await ethers.getContractFactory(
-      'RentalityUserService',
-    )
-    const RentalityUserService2 = await ethers.getContractFactory(
-      'RentalityUserService',
-    )
-    const RentalityCarToken =
-      await ethers.getContractFactory('RentalityCarToken')
-
-    const rentalityUserService1 = await RentalityUserService1.deploy()
-    await rentalityUserService1.deployed()
-
-    const rentalityUserService2 = await RentalityUserService2.deploy()
-    await rentalityUserService2.deployed()
-
-    await rentalityUserService1.connect(owner).grantAdminRole(admin1.address)
-    await rentalityUserService2.connect(owner).grantAdminRole(admin2.address)
-
-    const rentalityCarToken = await RentalityCarToken.deploy()
-    await rentalityCarToken.deployed()
-
-    return {
-      rentalityCarToken,
-      rentalityUserService1,
-      rentalityUserService2,
-      admin1,
-      admin2,
+      locationAddress: location,
+      geoApiKey: apiKey,
     }
   }
 
   describe('Deployment', function () {
     it('Should set the right owner', async function () {
-      const { rentalityCarToken, owner } =
-        await loadFixture(deployDefaultFixture)
+      const { rentalityCarToken, owner } = await loadFixture(
+        deployDefaultFixture,
+      )
 
       expect(await rentalityCarToken.owner()).to.equal(owner.address)
     })
@@ -202,13 +180,82 @@ describe('RentalityCarToken', function () {
       expect(await rentalityCarToken.totalSupply()).to.equal(1)
     })
   })
+  it('Update car without location should work fine', async function () {
+    const { rentalityCarToken } = await loadFixture(deployFixtureWith1Car)
+
+    let request = getMockCarRequest(1)
+    await expect( rentalityCarToken.addCar(request)).not.be.reverted
+
+    let update_params = {
+      carId: 2,
+      pricePerDayInUsdCents: 2,
+      securityDepositPerTripInUsdCents: 2,
+      fuelPricePerGalInUsdCents: 2,
+      milesIncludedPerDay: 2,
+      currentlyListed: false
+    }
+
+    await expect (rentalityCarToken.updateCarInfo(update_params, "", "")).not.be.reverted
+
+    let car_info = await rentalityCarToken.getCarInfoById(2);
+
+    expect(car_info.pricePerDayInUsdCents).to.be.equal(update_params.pricePerDayInUsdCents);
+    expect(car_info.securityDepositPerTripInUsdCents).to.be.equal(update_params.securityDepositPerTripInUsdCents);
+    expect(car_info.fuelPricePerGalInUsdCents).to.be.equal(update_params.fuelPricePerGalInUsdCents);
+    expect(car_info.milesIncludedPerDay).to.be.equal(update_params.milesIncludedPerDay);
+})
+  it('Update car with location, but without api should revert', async function () {
+    const { rentalityCarToken } = await loadFixture(deployFixtureWith1Car)
+
+    let request = getMockCarRequest(1)
+    await expect( rentalityCarToken.addCar(request)).not.be.reverted
+
+    let update_params = {
+      carId: 2,
+      pricePerDayInUsdCents: 2,
+      securityDepositPerTripInUsdCents: 2,
+      fuelPricePerGalInUsdCents: 2,
+      milesIncludedPerDay: 2,
+      currentlyListed: false
+    }
+
+    await expect (rentalityCarToken.updateCarInfo(update_params, "location", "")).to.be.reverted
+
+  })
+  it('Update with location should pass locationVarification param to false', async function () {
+    const { rentalityCarToken,rentalityGeoService } = await loadFixture(deployFixtureWith1Car)
+
+    let request = getMockCarRequest(1)
+    await expect( rentalityCarToken.addCar(request)).not.be.reverted
+
+    let update_params = {
+      carId: 2,
+      pricePerDayInUsdCents: 2,
+      securityDepositPerTripInUsdCents: 2,
+      fuelPricePerGalInUsdCents: 2,
+      milesIncludedPerDay: 2,
+      currentlyListed: false
+    }
+
+    await rentalityGeoService.setCarCoordinateValidity(2, true); // mock
+
+    await expect( rentalityCarToken.verifyGeo(2)).to.not.reverted;
+
+    await expect (rentalityCarToken.updateCarInfo(update_params, "location", "geoApi")).to.not.reverted
+
+    let car_info = await rentalityCarToken.getCarInfoById(2);
+
+    expect(car_info.geoVerified).to.be.equal(false);
+
+  })
 
   describe('Host functions', function () {
     it('Adding car should emit CarAddedSuccess event', async function () {
-      const { rentalityCarToken, host } =
-        await loadFixture(deployDefaultFixture)
+      const { rentalityCarToken, host } = await loadFixture(
+        deployDefaultFixture,
+      )
 
-      const request = getMockCarRequset(0)
+      const request = getMockCarRequest(0)
 
       await expect(rentalityCarToken.connect(host).addCar(request))
         .to.emit(rentalityCarToken, 'CarAddedSuccess')
@@ -222,12 +269,13 @@ describe('RentalityCarToken', function () {
     })
 
     it('Adding car with the same VIN number should be reverted', async function () {
-      const { rentalityCarToken, host } =
-        await loadFixture(deployDefaultFixture)
+      const { rentalityCarToken, host } = await loadFixture(
+        deployDefaultFixture,
+      )
 
-      const request1 = getMockCarRequset(0)
+      const request1 = getMockCarRequest(0)
       const request2 = {
-        ...getMockCarRequset(1),
+        ...getMockCarRequest(1),
         carVinNumber: request1.carVinNumber,
       }
 
@@ -238,11 +286,12 @@ describe('RentalityCarToken', function () {
     })
 
     it('Adding car with the different VIN number should not be reverted', async function () {
-      const { rentalityCarToken, host } =
-        await loadFixture(deployDefaultFixture)
+      const { rentalityCarToken, host } = await loadFixture(
+        deployDefaultFixture,
+      )
 
-      const request1 = getMockCarRequset(0)
-      const request2 = getMockCarRequset(1)
+      const request1 = getMockCarRequest(0)
+      const request2 = getMockCarRequest(1)
 
       await expect(rentalityCarToken.connect(host).addCar(request1)).not.be
         .reverted
@@ -270,7 +319,7 @@ describe('RentalityCarToken', function () {
       )
 
       const TOKEN_ID = 1
-      const request = getMockCarRequset(0)
+      const request = getMockCarRequest(0)
 
       const carInfo = await rentalityCarToken
         .connect(host)
@@ -302,8 +351,9 @@ describe('RentalityCarToken', function () {
     })
 
     it('getCarsOwnedByUser without cars should return empty array', async function () {
-      const { rentalityCarToken, host } =
-        await loadFixture(deployDefaultFixture)
+      const { rentalityCarToken, host } = await loadFixture(
+        deployDefaultFixture,
+      )
       const myCars = await rentalityCarToken
         .connect(host)
         .getCarsOwnedByUser(host.address)
@@ -329,7 +379,7 @@ describe('RentalityCarToken', function () {
         deployFixtureWith1Car,
       )
 
-      const request = getMockCarRequset(0)
+      const request = getMockCarRequest(0)
 
       const myCars = await rentalityCarToken
         .connect(host)
@@ -381,7 +431,7 @@ describe('RentalityCarToken', function () {
         deployFixtureWith1Car,
       )
 
-      const request = getMockCarRequset(0)
+      const request = getMockCarRequest(0)
 
       const availableCars = await rentalityCarToken.getAvailableCarsForUser(
         guest.address,
@@ -433,6 +483,7 @@ describe('RentalityCarToken', function () {
         pricePerDayInUsdCentsTo: 0,
       }
 
+
       const availableCars =
         await rentalityTripService.searchAvailableCarsForUser(
           guest.address,
@@ -441,6 +492,8 @@ describe('RentalityCarToken', function () {
           searchCarParams,
         )
 
+
+
       expect(availableCars.length).to.equal(1)
     })
 
@@ -448,7 +501,7 @@ describe('RentalityCarToken', function () {
       const { rentalityCarToken, rentalityTripService, guest } =
         await loadFixture(deployFixtureWith1Car)
 
-      const request = getMockCarRequset(0)
+      const request = getMockCarRequest(0)
       const searchCarParams1 = {
         country: '',
         state: '',
@@ -497,7 +550,7 @@ describe('RentalityCarToken', function () {
       const { rentalityCarToken, rentalityTripService, guest } =
         await loadFixture(deployFixtureWith1Car)
 
-      const request = getMockCarRequset(0)
+      const request = getMockCarRequest(0)
       const searchCarParams1 = {
         country: '',
         state: '',
@@ -546,7 +599,7 @@ describe('RentalityCarToken', function () {
       const { rentalityCarToken, rentalityTripService, guest } =
         await loadFixture(deployFixtureWith1Car)
 
-      const request = getMockCarRequset(0)
+      const request = getMockCarRequest(0)
       const searchCarParams1 = {
         country: '',
         state: '',
@@ -592,12 +645,14 @@ describe('RentalityCarToken', function () {
     })
 
     it('Search with country should work', async function () {
-      const { rentalityCarToken, rentalityTripService, guest } =
+      const { rentalityGeoService, rentalityTripService, guest } =
         await loadFixture(deployFixtureWith1Car)
 
-      const request = getMockCarRequset(0)
+      let carId = 0;
+      await rentalityGeoService.setCarCountry(++carId, "usa"); //mock
+
       const searchCarParams1 = {
-        country: request.country,
+        country: 'usa',
         state: '',
         city: '',
         brand: '',
@@ -608,7 +663,7 @@ describe('RentalityCarToken', function () {
         pricePerDayInUsdCentsTo: 0,
       }
       const searchCarParams2 = {
-        country: request.country + '!',
+        country: '!',
         state: '',
         city: '',
         brand: '',
@@ -641,13 +696,15 @@ describe('RentalityCarToken', function () {
     })
 
     it('Search with state should work', async function () {
-      const { rentalityCarToken, rentalityTripService, guest } =
+      const { rentalityGeoService, rentalityTripService, guest } =
         await loadFixture(deployFixtureWith1Car)
 
-      const request = getMockCarRequset(0)
+      let carId = 0;
+      await rentalityGeoService.setCarState(++carId, "kyiv"); //mock
+
       const searchCarParams1 = {
         country: '',
-        state: request.state,
+        state: 'kyiv',
         city: '',
         brand: '',
         model: '',
@@ -658,7 +715,7 @@ describe('RentalityCarToken', function () {
       }
       const searchCarParams2 = {
         country: '',
-        state: request.state + '!',
+        state: '!',
         city: '',
         brand: '',
         model: '',
@@ -690,14 +747,16 @@ describe('RentalityCarToken', function () {
     })
 
     it('Search with city should work', async function () {
-      const { rentalityCarToken, rentalityTripService, guest } =
+      const { rentalityGeoService, rentalityTripService, guest } =
         await loadFixture(deployFixtureWith1Car)
 
-      const request = getMockCarRequset(0)
+      let carId = 0;
+      await rentalityGeoService.setCarCity(++carId,'kyiv'); //mock
+
       const searchCarParams1 = {
         country: '',
         state: '',
-        city: request.city,
+        city: 'kyiv',
         brand: '',
         model: '',
         yearOfProductionFrom: 0,
@@ -708,7 +767,7 @@ describe('RentalityCarToken', function () {
       const searchCarParams2 = {
         country: '',
         state: '',
-        city: request.city + '!',
+        city: '!',
         brand: '',
         model: '',
         yearOfProductionFrom: 0,
@@ -717,6 +776,7 @@ describe('RentalityCarToken', function () {
         pricePerDayInUsdCentsTo: 0,
       }
 
+
       const availableCars1 =
         await rentalityTripService.searchAvailableCarsForUser(
           guest.address,
@@ -724,6 +784,7 @@ describe('RentalityCarToken', function () {
           0,
           searchCarParams1,
         )
+
 
       expect(availableCars1.length).to.equal(1)
 
@@ -742,7 +803,7 @@ describe('RentalityCarToken', function () {
       const { rentalityCarToken, rentalityTripService, guest } =
         await loadFixture(deployFixtureWith1Car)
 
-      const request = getMockCarRequset(0)
+      const request = getMockCarRequest(0)
       const searchCarParams1 = {
         country: '',
         state: '',
@@ -812,7 +873,7 @@ describe('RentalityCarToken', function () {
       const { rentalityCarToken, rentalityTripService, guest } =
         await loadFixture(deployFixtureWith1Car)
 
-      const request = getMockCarRequset(0)
+      const request = getMockCarRequest(0)
       const searchCarParams1 = {
         country: '',
         state: '',

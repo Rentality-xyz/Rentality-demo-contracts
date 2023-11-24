@@ -5,11 +5,15 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "./RentalityUtils.sol";
+import "./IRentalityGeoService.sol";
 
 //deployed 26.05.2023 11:15 to sepolia at 0xcC66CdAfc3C39d96651220975855202960C08747
 contract RentalityCarToken is ERC721URIStorage, Ownable {
     using Counters for Counters.Counter;
     Counters.Counter private _carIdCounter;
+
+    IRentalityGeoService private geoService;
+    mapping(uint256 => CarInfo) private idToCarInfo;
 
     //The structure to store info about a listed car
     struct CarInfo {
@@ -25,12 +29,8 @@ contract RentalityCarToken is ERC721URIStorage, Ownable {
         uint64 tankVolumeInGal;
         uint64 fuelPricePerGalInUsdCents;
         uint64 milesIncludedPerDay;
-        string country;
-        string state;
-        string city;
-        int64 locationLatitudeInPPM;
-        int64 locationLongitudeInPPM;
         bool currentlyListed;
+        bool geoVerified;
     }
 
     struct CreateCarRequest {
@@ -44,24 +44,17 @@ contract RentalityCarToken is ERC721URIStorage, Ownable {
         uint64 tankVolumeInGal;
         uint64 fuelPricePerGalInUsdCents;
         uint64 milesIncludedPerDay;
-        string country;
-        string state;
-        string city;
-        int64 locationLatitudeInPPM;
-        int64 locationLongitudeInPPM;
+        string locationAddress;
+        string geoApiKey;
     }
 
-    struct UpdateCarInfoRequest {
+    struct UpdateCarInfoRequest
+    {
         uint256 carId;
         uint64 pricePerDayInUsdCents;
         uint64 securityDepositPerTripInUsdCents;
         uint64 fuelPricePerGalInUsdCents;
         uint64 milesIncludedPerDay;
-        string country;
-        string state;
-        string city;
-        int64 locationLatitudeInPPM;
-        int64 locationLongitudeInPPM;
         bool currentlyListed;
     }
 
@@ -97,9 +90,11 @@ contract RentalityCarToken is ERC721URIStorage, Ownable {
         address removedBy
     );
 
-    mapping(uint256 => CarInfo) private idToCarInfo;
-
-    constructor() ERC721("RentalityCarToken Test", "RTCT") {}
+    constructor(
+        address _geoServiceAddress
+    ) ERC721("RentalityCarToken Test", "RTCT") {
+        geoService = IRentalityGeoService(_geoServiceAddress);
+    }
 
     function totalSupply() public view returns (uint) {
         return _carIdCounter.current();
@@ -150,6 +145,8 @@ contract RentalityCarToken is ERC721URIStorage, Ownable {
         _safeMint(tx.origin, newCarId);
         _setTokenURI(newCarId, request.tokenUri);
 
+        geoService.executeRequest(request.locationAddress, request.geoApiKey, newCarId);
+
         idToCarInfo[newCarId] = CarInfo(
             newCarId,
             request.carVinNumber,
@@ -163,12 +160,8 @@ contract RentalityCarToken is ERC721URIStorage, Ownable {
             request.tankVolumeInGal,
             request.fuelPricePerGalInUsdCents,
             request.milesIncludedPerDay,
-            request.country,
-            request.state,
-            request.city,
-            request.locationLatitudeInPPM,
-            request.locationLongitudeInPPM,
-            true
+            true,
+            false
         );
 
         _approve(address(this), newCarId);
@@ -185,39 +178,52 @@ contract RentalityCarToken is ERC721URIStorage, Ownable {
         return newCarId;
     }
 
+    function verifyGeo(uint256 carId) public {
+        bool geoStatus = geoService.getCarCoordinateValidity(carId);
+        CarInfo storage carInfo = idToCarInfo[carId];
+        carInfo.geoVerified = geoStatus;
+    }
+
     function updateCarInfo(
-        uint256 carId,
-        uint64 pricePerDayInUsdCents,
-        uint64 securityDepositPerTripInUsdCents,
-        uint64 fuelPricePerGalInUsdCents,
-        uint64 milesIncludedPerDay,
-        string memory country,
-        string memory state,
-        string memory city,
-        int64 locationLatitudeInPPM,
-        int64 locationLongitudeInPPM,
-        bool currentlyListed
+        UpdateCarInfoRequest memory request, string memory location, string memory geoApiKey
     ) public {
-        require(_exists(carId), "Token does not exist");
+        require(_exists(request.carId), "Token does not exist");
         require(
-            ownerOf(carId) == tx.origin,
+            ownerOf(request.carId) == tx.origin,
             "Only owner of the car can update car info"
         );
+        require(
+            request.fuelPricePerGalInUsdCents > 0,
+            "Make sure the price isn't negative"
+        );
 
-        idToCarInfo[carId].pricePerDayInUsdCents = pricePerDayInUsdCents;
-        idToCarInfo[carId]
-            .securityDepositPerTripInUsdCents = securityDepositPerTripInUsdCents;
-        idToCarInfo[carId]
-            .fuelPricePerGalInUsdCents = fuelPricePerGalInUsdCents;
-        idToCarInfo[carId].milesIncludedPerDay = milesIncludedPerDay;
-        idToCarInfo[carId].country = country;
-        idToCarInfo[carId].state = state;
-        idToCarInfo[carId].city = city;
-        idToCarInfo[carId].locationLatitudeInPPM = locationLatitudeInPPM;
-        idToCarInfo[carId].locationLongitudeInPPM = locationLongitudeInPPM;
-        idToCarInfo[carId].currentlyListed = currentlyListed;
+        require(
+            request.pricePerDayInUsdCents > 0,
+            "Make sure the price isn't negative"
+        );
 
-        emit CarUpdatedSuccess(carId, pricePerDayInUsdCents, currentlyListed);
+        require(
+            request.milesIncludedPerDay > 0,
+            "Make sure the included distance isn't negative"
+        );
+        if (bytes(location).length > 0)
+        {
+            require(bytes(geoApiKey).length > 0, "Make sure you have correct geo Api Key");
+            geoService.executeRequest(location, geoApiKey, request.carId);
+            idToCarInfo[request.carId].geoVerified = false;
+        }
+
+
+        idToCarInfo[request.carId].pricePerDayInUsdCents = request.pricePerDayInUsdCents;
+        idToCarInfo[request.carId]
+        .securityDepositPerTripInUsdCents = request.securityDepositPerTripInUsdCents;
+        idToCarInfo[request.carId]
+        .fuelPricePerGalInUsdCents = request.fuelPricePerGalInUsdCents;
+        idToCarInfo[request.carId].milesIncludedPerDay = request.milesIncludedPerDay;
+        idToCarInfo[request.carId].currentlyListed = request.currentlyListed;
+
+
+        emit CarUpdatedSuccess(request.carId, request.pricePerDayInUsdCents, request.currentlyListed);
     }
 
     function updateCarTokenUri(
@@ -328,17 +334,17 @@ contract RentalityCarToken is ERC721URIStorage, Ownable {
                 )) &&
             (bytes(searchCarParams.country).length == 0 ||
                 RentalityUtils.containWord(
-                    RentalityUtils.toLower(idToCarInfo[carId].country),
+                    RentalityUtils.toLower(geoService.getCarCountry(carId)),
                     RentalityUtils.toLower(searchCarParams.country)
                 )) &&
             (bytes(searchCarParams.state).length == 0 ||
                 RentalityUtils.containWord(
-                    RentalityUtils.toLower(idToCarInfo[carId].state),
+                    RentalityUtils.toLower(geoService.getCarState(carId)),
                     RentalityUtils.toLower(searchCarParams.state)
                 )) &&
             (bytes(searchCarParams.city).length == 0 ||
                 RentalityUtils.containWord(
-                    RentalityUtils.toLower(idToCarInfo[carId].city),
+                    RentalityUtils.toLower(geoService.getCarCity(carId)),
                     RentalityUtils.toLower(searchCarParams.city)
                 )) &&
             (searchCarParams.yearOfProductionFrom == 0 ||
@@ -416,6 +422,4 @@ contract RentalityCarToken is ERC721URIStorage, Ownable {
 
         return result;
     }
-
-    
 }
