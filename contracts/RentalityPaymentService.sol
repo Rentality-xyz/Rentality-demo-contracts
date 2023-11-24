@@ -17,7 +17,7 @@ contract RentalityPaymentService is Ownable {
     }
 
     function setPlatformFeeInPPM(uint32 valueInPPM) public  {
-        require(userService.isManager(msg.sender), "Only manager can change the platform fee");
+        require(userService.isAdmin(msg.sender), "Only manager can change the platform fee");
         require(valueInPPM > 0, "Make sure the value isn't negative");
         require(valueInPPM <= 1_000_000, "Value can't be more than 1000000");
 

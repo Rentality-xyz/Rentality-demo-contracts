@@ -105,6 +105,7 @@ async function deployDefaultFixture() {
   await rentalityGateway.deployed()
 
   await rentalityUserService.connect(owner).grantManagerRole(rentalityGateway.address)
+  await rentalityUserService.connect(owner).grantAdminRole(rentalityGateway.address)
 
 
   return {
