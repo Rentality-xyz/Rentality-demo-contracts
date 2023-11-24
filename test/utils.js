@@ -1,6 +1,7 @@
 const env = require('hardhat')
 
 function getMockCarRequest(seed) {
+
     const seedStr = seed?.toString() ?? ''
     const seedInt = Number(seed) ?? 0
 
@@ -14,11 +15,9 @@ function getMockCarRequest(seed) {
     const TANK_VOLUME = seedInt * 100 + 4
     const FUEL_PRICE = seedInt * 100 + 5
     const DISTANCE_INCLUDED = seedInt * 100 + 6
-    const COUNTRY = 'COUNTRY' + seedStr
-    const STATE = 'STATE' + seedStr
-    const CITY = 'CITY' + seedStr
-    const LOCATION_LATITUDE = seedInt * 100 + 7
-    const LOCATION_LONGITUDE = seedInt * 100 + 8
+    const location = 'kyiv ukraine'
+    const apiKey = process.env.GOOGLE_API_KEY || " "
+
 
     return {
         tokenUri: TOKEN_URI,
@@ -31,11 +30,8 @@ function getMockCarRequest(seed) {
         tankVolumeInGal: TANK_VOLUME,
         fuelPricePerGalInUsdCents: FUEL_PRICE,
         milesIncludedPerDay: DISTANCE_INCLUDED,
-        country: COUNTRY,
-        state: STATE,
-        city: CITY,
-        locationLatitudeInPPM: LOCATION_LATITUDE,
-        locationLongitudeInPPM: LOCATION_LONGITUDE,
+        locationAddress: location,
+        geoApiKey: apiKey,
     }
 }
 

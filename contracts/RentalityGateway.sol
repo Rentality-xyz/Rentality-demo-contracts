@@ -153,6 +153,19 @@ contract RentalityGateway is Ownable {
         return carService.addCar(request);
     }
 
+    function updateCarInfo(
+        RentalityCarToken.UpdateCarInfoRequest memory request
+    ) public onlyHost {
+        return
+            carService.updateCarInfo(request, "", "");
+    }
+    function updateCarInfoWithLocation(
+        RentalityCarToken.UpdateCarInfoRequest memory request,
+        string memory location,
+        string memory geoApiKey
+    ) public onlyHost {
+        return carService.updateCarInfo(request, location, geoApiKey);
+    }
     // function updateCarInfo(
     //     RentalityCarToken.UpdateCarInfoRequest memory request
     // ) public onlyHost {
@@ -171,35 +184,6 @@ contract RentalityGateway is Ownable {
     //             request.currentlyListed
     //         );
     // }
-
-    function updateCarInfo(
-        uint256 carId,
-        uint64 pricePerDayInUsdCents,
-        uint64 securityDepositPerTripInUsdCents,
-        uint64 fuelPricePerGalInUsdCents,
-        uint64 milesIncludedPerDay,
-        string memory country,
-        string memory state,
-        string memory city,
-        int64 locationLatitudeInPPM,
-        int64 locationLongitudeInPPM,
-        bool currentlyListed
-    ) public onlyHost {
-        return
-            carService.updateCarInfo(
-                carId,
-                pricePerDayInUsdCents,
-                securityDepositPerTripInUsdCents,
-                fuelPricePerGalInUsdCents,
-                milesIncludedPerDay,
-                country,
-                state,
-                city,
-                locationLatitudeInPPM,
-                locationLongitudeInPPM,
-                currentlyListed
-            );
-    }
 
     function updateCarTokenUri(
         uint256 carId,

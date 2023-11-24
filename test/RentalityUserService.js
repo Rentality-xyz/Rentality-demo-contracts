@@ -33,6 +33,11 @@ describe('RentalityUserService', function () {
     const RentalityPaymentService = await ethers.getContractFactory(
       'RentalityPaymentService',
     )
+    const RentalityGeoService = await ethers.getContractFactory(
+      'RentalityGeoMock');
+
+
+
     const RentalityCarToken =
       await ethers.getContractFactory('RentalityCarToken')
     const RentalityPlatform =
@@ -60,7 +65,12 @@ describe('RentalityUserService', function () {
     const rentalityCurrencyConverter = await RentalityCurrencyConverter.deploy(
       rentalityMockPriceFeed.address,
     )
-    const rentalityCarToken = await RentalityCarToken.deploy()
+
+    const rentalityGeoService = await RentalityGeoService.deploy();
+    await rentalityGeoService.deployed();
+
+    const rentalityCarToken = await RentalityCarToken.deploy(rentalityGeoService.address)
+
     await rentalityCarToken.deployed()
 
     const rentalityPaymentService = await RentalityPaymentService.deploy(rentalityUserService.address)
