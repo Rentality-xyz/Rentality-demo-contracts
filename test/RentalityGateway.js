@@ -40,6 +40,9 @@ async function deployDefaultFixture() {
             RentalityUtils: utils.address,
           },
       })
+  const RentalityGeoService =
+    await ethers.getContractFactory('RentalityGeoMock');
+
   let RentalityGateway = await ethers.getContractFactory(
     'RentalityGateway',
   )
@@ -62,8 +65,10 @@ async function deployDefaultFixture() {
     rentalityMockPriceFeed.address,
   )
   await rentalityCurrencyConverter.deployed()
+  const rentalityGeoService  = await RentalityGeoService.deploy();
+ await rentalityGeoService.deployed();
 
-  const rentalityCarToken = await RentalityCarToken.deploy()
+  const rentalityCarToken = await RentalityCarToken.deploy(rentalityGeoService.address)
   await rentalityCarToken.deployed()
   const rentalityPaymentService = await RentalityPaymentService.deploy(rentalityUserService.address)
   await rentalityPaymentService.deployed()
@@ -1055,43 +1060,29 @@ describe('RentalityGateway', function() {
     let addCarRequest = getMockCarRequest(0)
     await expect(rentalityGateway.connect(host).addCar(addCarRequest)).not.be.reverted
 
-      let carId = 1;
-      let pricePerDayInUsdCents = 1;
-      let securityDepositPerTripInUsdCents = 1;
-      let fuelPricePerGalInUsdCents = 1;
-      let milesIncludedPerDay = 1;
-      let country = "UA";
-      let state = "state";
-      let city = "DP";
-      let locationLatitudeInPPM = 1;
-      let locationLongitudeInPPM = 1;
-      let currentlyListed = true;
+    let update_params = {
+      carId: 1,
+      pricePerDayInUsdCents: 2,
+      securityDepositPerTripInUsdCents: 2,
+      fuelPricePerGalInUsdCents: 2,
+      milesIncludedPerDay: 2,
+      currentlyListed: false
+    }
 
-    await expect(rentalityGateway.connect(host).updateCarInfo(
-      carId,
-      pricePerDayInUsdCents,
-      securityDepositPerTripInUsdCents,
-      fuelPricePerGalInUsdCents,
-      milesIncludedPerDay,
-      country,
-      state,
-      city,
-      locationLatitudeInPPM,
-      locationLongitudeInPPM,
-      currentlyListed)).
+    await expect(rentalityGateway.connect(host).updateCarInfo(update_params)).
       not.to.be.reverted
 
-    await expect(rentalityGateway.connect(guest).updateCarInfo(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)).to.be.revertedWith('User is not a host')
+    await expect(rentalityGateway.connect(guest).updateCarInfo(update_params)).to.be.revertedWith('User is not a host')
 
-    await expect(rentalityGateway.connect(anonymous).updateCarInfo(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)).to.be.revertedWith('User is not a host')
+    await expect(rentalityGateway.connect(anonymous).updateCarInfo(update_params)).to.be.revertedWith('User is not a host')
 
-    let carInfo = await rentalityGateway.getCarInfoById(carId);
+    let carInfo = await rentalityGateway.getCarInfoById(update_params.carId);
 
-    expect(carInfo.city).to.be.equal(city)
-    expect(carInfo.locationLatitudeInPPM).to.be.equal(locationLatitudeInPPM)
-    expect(carInfo.locationLongitudeInPPM).to.be.equal(locationLongitudeInPPM)
-    expect(carInfo.state).to.be.equal(state)
-    expect(carInfo.country).to.be.equal(country)
+    expect(carInfo.currentlyListed).to.be.equal(false)
+    expect(carInfo.pricePerDayInUsdCents).to.be.equal(update_params.pricePerDayInUsdCents)
+    expect(carInfo.milesIncludedPerDay).to.be.equal(update_params.milesIncludedPerDay)
+    expect(carInfo.fuelPricePerGalInUsdCents).to.be.equal(update_params.fuelPricePerGalInUsdCents)
+    expect(carInfo.securityDepositPerTripInUsdCents).to.be.equal(update_params.securityDepositPerTripInUsdCents)
 
   })
 

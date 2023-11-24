@@ -2,7 +2,6 @@ const {
   time,
   loadFixture,
 } = require('@nomicfoundation/hardhat-network-helpers')
-const { anyValue } = require('@nomicfoundation/hardhat-chai-matchers/withArgs')
 const { expect } = require('chai')
 const { ethers } = require('hardhat')
 const {getMockCarRequest} = require("./utils");
@@ -33,17 +32,23 @@ describe('Rentality', function () {
     const RentalityPaymentService = await ethers.getContractFactory(
       'RentalityPaymentService',
     )
+    const RentalityGeoService = await ethers.getContractFactory(
+      'RentalityGeoMock');
+
+
+    const geoService = await RentalityGeoService.deploy();
+
     const RentalityCarToken =
       await ethers.getContractFactory('RentalityCarToken')
 
     const RentalityPlatform =
       await ethers.getContractFactory('RentalityPlatform',
-          {
-              libraries:
-                  {
-                      RentalityUtils: utils.address
-                  }
-          })
+        {
+          libraries:
+            {
+              RentalityUtils: utils.address
+            }
+        })
 
     let rentalityMockPriceFeed = await RentalityMockPriceFeed.deploy(
       8,
@@ -64,7 +69,7 @@ describe('Rentality', function () {
     )
     await rentalityCurrencyConverter.deployed()
 
-    const rentalityCarToken = await RentalityCarToken.deploy()
+    const rentalityCarToken = await RentalityCarToken.deploy(geoService.address)
     await rentalityCarToken.deployed()
     const rentalityPaymentService = await RentalityPaymentService.deploy(rentalityUserService.address)
     await rentalityPaymentService.deployed()

@@ -2,6 +2,7 @@
 require('@nomiclabs/hardhat-waffle')
 require('@nomiclabs/hardhat-ethers')
 require('dotenv').config()
+require('@nomicfoundation/hardhat-verify')
 
 module.exports = {
   defaultNetwork: 'localhost',
