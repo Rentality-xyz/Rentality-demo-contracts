@@ -6,8 +6,75 @@ import "./RentalityUserService.sol";
 import "./RentalityCarToken.sol";
 import "./IRentalityGateway.sol";
 import "@openzeppelin/contracts/utils/math/Math.sol";
+import './RentalityGeoService.sol';
 
 library RentalityUtils {
+
+    uint256 constant multiplier = 10**7;
+
+    function checkCoordinates(
+        string memory locationLat,
+        string memory locationLng,
+        string memory northeastLat,
+        string memory northeastLng,
+        string memory southwestLat,
+        string memory southwestLng
+    ) external pure returns (bool) {
+        int256 lat = parseInt(locationLat);
+        int256 lng = parseInt(locationLng);
+        int256 neLat = parseInt(northeastLat);
+        int256 neLng = parseInt(northeastLng);
+        int256 swLat = parseInt(southwestLat);
+        int256 swLng = parseInt(southwestLng);
+
+        return (lat >= swLat && lat <= neLat && lng >= swLng && lng <= neLng);
+    }
+
+    
+    function parseInt(string memory _a) internal pure returns (int256) {
+        bytes memory bresult = bytes(_a);
+        int256 mint = 0;
+        bool decimals = false;
+        for (uint i = 0; i < bresult.length; i++) {
+            if ((uint8(bresult[i]) >= 48) && (uint8(bresult[i]) <= 57)) {
+                if (decimals) {
+                    if (i - 1 - indexOf(bresult, ".") > 6) break;
+                    mint = mint * 10 + int256(uint256(uint8(bresult[i])) - 48); 
+                } else {
+                    mint = mint * 10 + int256(uint256(uint8(bresult[i])) - 48); 
+                }
+            } else if (uint8(bresult[i]) == 46) decimals = true;
+        }
+        if (indexOf(bresult, "-") == 0) {
+            return -mint * int256(multiplier); 
+        }
+        return mint * int256(multiplier); 
+    }
+
+
+    function indexOf(bytes memory haystack, string memory needle) internal pure returns (uint) {
+        bytes memory bneedle = bytes(needle);
+        if(bneedle.length > haystack.length) {
+            return haystack.length;
+        }
+
+        bool found = false;
+        uint i;
+        for(i = 0; i <= haystack.length - bneedle.length; i++) {
+            found = true;
+            for(uint j = 0; j < bneedle.length; j++) {
+                if(haystack[i+j] != bneedle[j]) {
+                    found = false;
+                    break;
+                }
+            }
+            if(found) {
+                break;
+            }
+        }
+        return i;
+    }
+
     function toLower(string memory str) internal pure returns (string memory) {
         bytes memory bStr = bytes(str);
         bytes memory bLower = new bytes(bStr.length);
@@ -90,5 +157,140 @@ library RentalityUtils {
         }
 
         return chatInfoList;
+    }
+
+    function parseResponse(string memory response) public pure returns (RentalityGeoService.ParsedGeolocationData memory) {
+        RentalityGeoService.ParsedGeolocationData memory result;
+
+        string[] memory pairs = splitString(response);
+        for (uint256 i = 0; i < pairs.length; i++) {
+            string[] memory keyValue = splitKeyValue(pairs[i]);
+            string memory key = keyValue[0];
+            string memory value = keyValue[1];
+            if (compareStrings(key, "status")) {
+                result.status = value;
+            } else if (compareStrings(key, "locationLat")) {
+                result.locationLat = value;
+            } else if (compareStrings(key, "locationLng")) {
+                result.locationLng = value;
+            } else if (compareStrings(key, "northeastLat")) {
+                result.northeastLat = value;
+            } else if (compareStrings(key, "northeastLng")) {
+                result.northeastLng = value;
+            } else if (compareStrings(key, "southwestLat")) {
+                result.southwestLat = value;
+            } else if (compareStrings(key, "southwestLng")) {
+                result.southwestLng = value;
+            } else if (compareStrings(key, "locality")) {
+                result.city = value;
+            } else if (compareStrings(key, "adminAreaLvl1")) {
+                result.state = value;
+            } else if (compareStrings(key, "country")) {
+                result.country = value;
+            }
+        }
+
+        return result;
+    }
+
+    function splitString(string memory input) internal pure returns (string[] memory) {
+        bytes memory inputBytes = bytes(input);
+        bytes memory delimiterBytes = bytes("|");
+
+        uint256 delimiterCount = 0;
+        for (uint256 i = 0; i < inputBytes.length; i++) {
+            if (inputBytes[i] == delimiterBytes[0]) {
+                delimiterCount++;
+            }
+        }
+
+        string[] memory parts = new string[](delimiterCount);
+
+        uint256 partIndex = 0;
+        uint256 startNewString = 0;
+
+        for (uint256 i = 0; i < inputBytes.length; i++) {
+            if (inputBytes[i] == delimiterBytes[0]) {
+                bytes memory newString = new bytes(i - startNewString);
+                uint256 newStringIndex = 0;
+                for (uint256 j = startNewString; j < i; j++) {
+                    newString[newStringIndex] = inputBytes[j];
+                    newStringIndex++;
+                    startNewString++;
+                }
+                startNewString++;
+                parts[partIndex] = string(newString);
+                partIndex++;
+            }
+        }
+
+        return parts;
+    }
+
+    function splitKeyValue(string memory input) internal pure returns (string[] memory) {
+        bytes memory inputBytes = bytes(input);
+        bytes memory delimiterBytes = bytes("^");
+
+        uint256 delimiterIndex = 0;
+        for (uint256 i = 0; i < inputBytes.length; i++) {
+            if (inputBytes[i] == delimiterBytes[0]) {
+                delimiterIndex = i;
+            }
+        }
+
+        string[] memory parts = new string[](2);
+        bytes memory keyString = new bytes(delimiterIndex);
+
+        for (uint256 i = 0; i < delimiterIndex; i++) {
+            keyString[i] = inputBytes[i];
+        }
+        parts[0] = string(keyString);
+
+        bytes memory valueString = new bytes(inputBytes.length - delimiterIndex - 1);
+
+        uint256 startValueString = 0;
+        for (uint256 i = (delimiterIndex + 1); i < inputBytes.length; i++) {
+            valueString[startValueString] = inputBytes[i];
+            startValueString++;
+        }
+
+        parts[1] = string(valueString);
+
+        return parts;
+    }
+
+    function compareStrings(string memory a, string memory b) internal pure returns (bool) {
+        return (keccak256(bytes(a)) == keccak256(bytes(b)));
+    }
+
+    function urlEncode(string memory input) internal pure returns (string memory) {
+        bytes memory inputBytes = bytes(input);
+        string memory output = "";
+
+        for (uint256 i = 0; i < inputBytes.length; i++) {
+            bytes memory spaceBytes = bytes(" ");
+            if (inputBytes[i] == spaceBytes[0]) {
+                output = string(
+                    abi.encodePacked(
+                        output,
+                        "%",
+                        bytes1(uint8(inputBytes[i]) / 16 + 48),
+                        bytes1(uint8(inputBytes[i]) % 16 + 48)
+                    )
+                );
+            } 
+            else {
+                output = string(
+                    abi.encodePacked(
+                        output,
+                        bytes1(inputBytes[i])
+                    )
+                );
+            }
+        }
+        return output;
+    }
+    function toBytes(bytes32 _data) public pure returns (bytes memory) {
+        return abi.encodePacked(_data);
     }
 }
