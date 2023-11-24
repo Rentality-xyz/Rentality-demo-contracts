@@ -157,14 +157,14 @@ contract RentalityGateway is Ownable {
         RentalityCarToken.UpdateCarInfoRequest memory request
     ) public onlyHost {
         return
-            carService.updateCarInfo(
-                request.carId,
-                request.pricePerDayInUsdCents,
-                request.securityDepositPerTripInUsdCents,
-                request.fuelPricePerGalInUsdCents,
-                request.milesIncludedPerDay,
-                request.currentlyListed
-            );
+            carService.updateCarInfo(request, "", "");
+    }
+    function updateCarInfoWithLocation(
+        RentalityCarToken.UpdateCarInfoRequest memory request,
+        string memory location,
+        string memory geoApiKey
+    ) public onlyHost {
+        return carService.updateCarInfo(request, location, geoApiKey);
     }
     // function updateCarInfo(
     //     RentalityCarToken.UpdateCarInfoRequest memory request

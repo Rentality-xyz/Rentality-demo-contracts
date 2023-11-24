@@ -158,7 +158,7 @@ describe('RentalityUserService', function () {
     const FUEL_PRICE = seedInt * 100 + 5
     const DISTANCE_INCLUDED = seedInt * 100 + 6
     const location = 'kyiv ukraine'
-    const apiKey = 'AIzaSyBZ9Ii2pMKHcJrMFvWSPxG8NPSIsdS0nLs'
+    const apiKey = process.env.GOOGLE_API_KEY || " "
 
 
     return {
