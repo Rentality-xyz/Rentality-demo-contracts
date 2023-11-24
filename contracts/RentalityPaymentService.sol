@@ -2,16 +2,22 @@
 pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "./RentalityUserService.sol";
 
 contract RentalityPaymentService is Ownable {
     uint32 platformFeeInPPM = 200_000;
+    RentalityUserService private userService;
+
+    constructor(address _userService) {
+        userService = RentalityUserService(_userService);
+    }
 
     function getPlatformFeeInPPM() public view returns (uint32) {
         return platformFeeInPPM;
     }
 
     function setPlatformFeeInPPM(uint32 valueInPPM) public  {
-        require(tx.origin == owner(), "Only owner can change the platform fee");
+        require(userService.isAdmin(msg.sender), "Only manager can change the platform fee");
         require(valueInPPM > 0, "Make sure the value isn't negative");
         require(valueInPPM <= 1_000_000, "Value can't be more than 1000000");
 
