@@ -1,6 +1,7 @@
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 const { expect } = require('chai')
 const { ethers } = require('hardhat')
+const { getMockCarRequest } = require('./utils')
 
 describe('RentalityCarToken', function () {
   async function deployDefaultFixture() {
@@ -38,13 +39,15 @@ describe('RentalityCarToken', function () {
       8,
       200000000000,
     )
-    const rentalityPaymentService = await RentalityPaymentService.deploy()
-    const rentalityCurrencyConverter = await RentalityCurrencyConverter.deploy(
-      rentalityMockPriceFeed.address,
-    )
     const rentalityUserService = await RentalityUserService.deploy()
 
     await rentalityUserService.deployed()
+
+    const rentalityPaymentService = await RentalityPaymentService.deploy(rentalityUserService.address)
+    const rentalityCurrencyConverter = await RentalityCurrencyConverter.deploy(
+      rentalityMockPriceFeed.address,
+    )
+
     await rentalityCurrencyConverter.deployed()
     await rentalityPaymentService.deployed()
     await rentalityMockPriceFeed.deployed()
@@ -123,39 +126,36 @@ describe('RentalityCarToken', function () {
     }
   }
 
+  async function deployFixtureWith2UserService() {
+    const [owner, admin1, admin2] = await ethers.getSigners()
 
-  function getMockCarRequest(seed) {
+    const RentalityUserService1 = await ethers.getContractFactory(
+      'RentalityUserService',
+    )
+    const RentalityUserService2 = await ethers.getContractFactory(
+      'RentalityUserService',
+    )
+    const RentalityCarToken =
+      await ethers.getContractFactory('RentalityCarToken')
 
-    const seedStr = seed?.toString() ?? ''
-    const seedInt = Number(seed) ?? 0
+    const rentalityUserService1 = await RentalityUserService1.deploy()
+    await rentalityUserService1.deployed()
 
-    const TOKEN_URI = 'TOKEN_URI' + seedStr
-    const VIN_NUMBER = 'VIN_NUMBER' + seedStr
-    const BRAND = 'BRAND' + seedStr
-    const MODEL = 'MODEL' + seedStr
-    const YEAR = '200' + seedStr
-    const PRICE_PER_DAY = seedInt * 100 + 2
-    const DEPOSIT = seedInt * 100 + 3
-    const TANK_VOLUME = seedInt * 100 + 4
-    const FUEL_PRICE = seedInt * 100 + 5
-    const DISTANCE_INCLUDED = seedInt * 100 + 6
-    const location = 'kyiv ukraine'
-    const apiKey = process.env.GOOGLE_API_KEY || " "
+    const rentalityUserService2 = await RentalityUserService2.deploy()
+    await rentalityUserService2.deployed()
 
+    await rentalityUserService1.connect(owner).grantAdminRole(admin1.address)
+    await rentalityUserService2.connect(owner).grantAdminRole(admin2.address)
+
+    const rentalityCarToken = await RentalityCarToken.deploy()
+    await rentalityCarToken.deployed()
 
     return {
-      tokenUri: TOKEN_URI,
-      carVinNumber: VIN_NUMBER,
-      brand: BRAND,
-      model: MODEL,
-      yearOfProduction: YEAR,
-      pricePerDayInUsdCents: PRICE_PER_DAY,
-      securityDepositPerTripInUsdCents: DEPOSIT,
-      tankVolumeInGal: TANK_VOLUME,
-      fuelPricePerGalInUsdCents: FUEL_PRICE,
-      milesIncludedPerDay: DISTANCE_INCLUDED,
-      locationAddress: location,
-      geoApiKey: apiKey,
+      rentalityCarToken,
+      rentalityUserService1,
+      rentalityUserService2,
+      admin1,
+      admin2,
     }
   }
 
@@ -749,6 +749,7 @@ describe('RentalityCarToken', function () {
     it('Search with city should work', async function () {
       const { rentalityGeoService, rentalityTripService, guest } =
         await loadFixture(deployFixtureWith1Car)
+
 
       let carId = 0;
       await rentalityGeoService.setCarCity(++carId,'kyiv'); //mock
