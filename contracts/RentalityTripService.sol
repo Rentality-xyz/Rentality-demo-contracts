@@ -249,6 +249,7 @@ contract RentalityTripService {
         uint64 startOdometr
     ) public {
         Trip memory trip = getTrip(tripId);
+        require(trip.host == tx.origin, "For host only");
 
         RentalityCarToken.CarInfo memory carInfo = carService.getCarInfoById(trip.carId);
         uint64 startFuelLevelInGal = (carInfo.tankVolumeInGal *
@@ -273,11 +274,11 @@ contract RentalityTripService {
         uint64 startOdometr
     ) public {
         RentalityTripService.Trip memory trip = getTrip(tripId);
+        require(trip.guest == tx.origin, "Only for guest");
+
         RentalityCarToken.CarInfo memory carInfo = carService.getCarInfoById(trip.carId);
         uint64 startFuelLevelInGal = (carInfo.tankVolumeInGal *
             startFuelLevelInPermille) / 1000;
-
-
 
         require(
             idToTripInfo[tripId].status == TripStatus.CheckedInByHost,
@@ -304,6 +305,9 @@ contract RentalityTripService {
         uint64 endOdometr
     ) public {
         RentalityTripService.Trip memory trip = getTrip(tripId);
+        require(
+            trip.guest == tx.origin, "For trip guest only"
+        );
         RentalityCarToken.CarInfo memory carInfo = carService.getCarInfoById(trip.carId);
         uint64 endFuelLevelInGal = (carInfo.tankVolumeInGal *
             endFuelLevelInPermille) / 1000;
@@ -330,10 +334,12 @@ contract RentalityTripService {
         uint64 endOdometr
     ) public {
         RentalityTripService.Trip memory trip = getTrip(tripId);
+        require(
+            trip.host == tx.origin, "For trip host only"
+        );
         RentalityCarToken.CarInfo memory carInfo = carService.getCarInfoById(trip.carId);
         uint64 endFuelLevelInGal = (carInfo.tankVolumeInGal *
             endFuelLevelInPermille) / 1000;
-
 
         require(
             idToTripInfo[tripId].status == TripStatus.CheckedOutByGuest,
