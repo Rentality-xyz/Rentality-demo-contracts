@@ -12,7 +12,9 @@ module.exports = {
     path: './docs', // Output directory for the generated documentation
     clear: true,     // Clear the output directory before generating documentation
     runOnCompile: false, // Generate documentation automatically when you compile
-    pages: 'files'
+    pages: 'files',   /*'single': all items in one page
+                    * 'items': one page per item
+                   'files': one page per input Solidity file  */
   },
 
   defaultNetwork:
@@ -25,16 +27,14 @@ module.exports = {
       ,
       localhost: {
         chainId: 1337,
-      }
-      ,
-      // ganache: {
-      //   url: process.env.URL_LOCALHOST_GANACHE,
-      //   accounts:
-      //     [process.env.GANACHE_PRIVATE_KEY],
-      //   chainId:
-      //     1337,
-      // },
-
+      },
+      ganache: {
+        url: process.env.URL_LOCALHOST_GANACHE,
+        accounts:
+          [process.env.GANACHE_PRIVATE_KEY],
+        chainId:
+          1337,
+      },
       goerli: {
         url: process.env.ALCHEMY_API_URL_GOERLI,
         accounts:
