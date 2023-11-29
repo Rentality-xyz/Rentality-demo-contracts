@@ -154,6 +154,8 @@ library RentalityUtils {
             chatInfoList[i].carModel = carInfo.model;
             chatInfoList[i].carYearOfProduction = carInfo.yearOfProduction;
             chatInfoList[i].carMetadataUrl = carService.tokenURI(trips[i].carId);
+            chatInfoList[i].startDateTime = trips[i].startDateTime;
+            chatInfoList[i].endDateTime = trips[i].endDateTime;
         }
 
         return chatInfoList;
