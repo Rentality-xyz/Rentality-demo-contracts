@@ -33,6 +33,8 @@ interface IRentalityGateway {
         string carModel;
         uint32 carYearOfProduction;
         string carMetadataUrl;
+        uint64 startDateTime;
+        uint64 endDateTime;
     }
 
     ///admin functions
