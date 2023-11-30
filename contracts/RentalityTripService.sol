@@ -72,6 +72,12 @@ contract RentalityTripService {
         uint checkedOutByHostDateTime;
     }
 
+    struct AvailableCarResponse {
+        RentalityCarToken.CarInfo car;
+        string hostPhotoUrl;
+        string hostName;
+    }
+
     mapping(uint256 => Trip) private idToTripInfo;
 
     event TripCreated(uint256 tripId);
@@ -166,15 +172,15 @@ contract RentalityTripService {
         );
 
         idToTripInfo[tripId].status = TripStatus.Approved;
-        idToTripInfo[tripId].approvedDateTime = block.timestamp; 
+        idToTripInfo[tripId].approvedDateTime = block.timestamp;
 
-        emit TripStatusChanged(tripId, TripStatus.Approved);    
+        emit TripStatusChanged(tripId, TripStatus.Approved);
     }
 
     function rejectTrip(uint256 tripId) public {
         require(
             idToTripInfo[tripId].host == tx.origin ||
-                idToTripInfo[tripId].guest == tx.origin,
+            idToTripInfo[tripId].guest == tx.origin,
             "Only host or guest of the trip can reject it"
         );
         require(
@@ -196,49 +202,57 @@ contract RentalityTripService {
         uint64 startDateTime,
         uint64 endDateTime,
         RentalityCarToken.SearchCarParams memory searchParams
-    ) public view returns (RentalityCarToken.CarInfo[] memory) {
-        // if (startDateTime < block.timestamp){
-        //     return new RentalityCarToken.CarInfo[](0);
-        // }
+    ) public view returns (AvailableCarResponse[] memory) {
+// if (startDateTime < block.timestamp){
+//     return new RentalityCarToken.CarInfo[](0);
+// }
         RentalityCarToken.CarInfo[] memory availableCars = carService.fetchAvailableCarsForUser(user, searchParams);
-        if (availableCars.length == 0) return availableCars;
+        if (availableCars.length == 0) return new AvailableCarResponse[](0);
 
         Trip[] memory trips = getTripsThatIntersect(startDateTime, endDateTime);
-        if (trips.length == 0) return availableCars;
+        RentalityCarToken.CarInfo[] memory temp;
+        uint256 resultCount;
 
-        RentalityCarToken.CarInfo[] memory temp = new RentalityCarToken.CarInfo[](availableCars.length);
-        uint256 resultCount = 0;
+        if (trips.length == 0)
+        {
+            temp = availableCars;
+            resultCount = availableCars.length;
+        }
+        else
+        {
+            temp = new RentalityCarToken.CarInfo[](availableCars.length);
+            resultCount = 0;
 
-        for (uint i = 0; i < availableCars.length; i++) {
-            bool hasIntersectTrip = false;
+            for (uint i = 0; i < availableCars.length; i++) {
+                bool hasIntersectTrip = false;
 
-            for (uint j = 0; j < trips.length; j++) {
-                if (
-                    trips[j].status == TripStatus.Created ||
-                    trips[j].status == TripStatus.Finished ||
-                    trips[j].status == TripStatus.Canceled
-                ) {
-                    continue;
+                for (uint j = 0; j < trips.length; j++) {
+                    if (
+                        trips[j].status == TripStatus.Created ||
+                        trips[j].status == TripStatus.Finished ||
+                        trips[j].status == TripStatus.Canceled
+                    ) {
+                        continue;
+                    }
+
+                    if (trips[j].carId == availableCars[i].carId) {
+                        hasIntersectTrip = true;
+                        break;
+                    }
                 }
 
-                if (trips[j].carId == availableCars[i].carId) {
-                    hasIntersectTrip = true;
-                    break;
+                if (!hasIntersectTrip) {
+                    temp[resultCount] = availableCars[i];
+                    resultCount++;
                 }
-            }
-
-            if (!hasIntersectTrip) {
-                temp[resultCount] = availableCars[i];
-                resultCount++;
             }
         }
-
-        if (availableCars.length == resultCount) return availableCars;
-
-        RentalityCarToken.CarInfo[] memory result = new RentalityCarToken.CarInfo[](resultCount);
+        AvailableCarResponse[] memory result = new AvailableCarResponse[](resultCount);
 
         for (uint i = 0; i < resultCount; i++) {
-            result[i] = temp[i];
+            string memory hostPhotoUrl = userService.getKYCInfo(temp[i].createdBy).profilePhoto;
+            string memory hostName = userService.getKYCInfo(temp[i].createdBy).name;
+            result[i] = AvailableCarResponse(temp[i], hostPhotoUrl, hostName);
         }
         return result;
     }
@@ -361,7 +375,7 @@ contract RentalityTripService {
     }
 
     function finishTrip(uint256 tripId) public {
-        //require(idToTripInfo[tripId].status != TripStatus.CheckedOutByHost,"The trip is not in status CheckedOutByHost");
+//require(idToTripInfo[tripId].status != TripStatus.CheckedOutByHost,"The trip is not in status CheckedOutByHost");
         require(
             idToTripInfo[tripId].status == TripStatus.CheckedOutByHost,
             "The trip is not in status CheckedOutByHost"
@@ -372,12 +386,12 @@ contract RentalityTripService {
             idToTripInfo[tripId]
         );
         idToTripInfo[tripId]
-            .paymentInfo
-            .resolveMilesAmountInUsdCents = resolveMilesAmountInUsdCents;
+        .paymentInfo
+        .resolveMilesAmountInUsdCents = resolveMilesAmountInUsdCents;
         idToTripInfo[tripId]
-            .paymentInfo
-            .resolveFuelAmountInUsdCents = resolveFuelAmountInUsdCents;
-            
+        .paymentInfo
+        .resolveFuelAmountInUsdCents = resolveFuelAmountInUsdCents;
+
         uint64 resolveAmountInUsdCents = resolveMilesAmountInUsdCents + resolveFuelAmountInUsdCents;
 
         if (
@@ -389,8 +403,8 @@ contract RentalityTripService {
                 .depositInUsdCents;
         }
         idToTripInfo[tripId]
-            .paymentInfo
-            .resolveAmountInUsdCents = resolveAmountInUsdCents;
+        .paymentInfo
+        .resolveAmountInUsdCents = resolveAmountInUsdCents;
 
         emit TripStatusChanged(tripId, TripStatus.Finished);
     }
@@ -403,15 +417,15 @@ contract RentalityTripService {
 
         return
             getResolveAmountInUsdCents(
-                tripInfo.startOdometr,
-                tripInfo.endOdometr,
-                tripInfo.milesIncludedPerDay,
-                tripInfo.pricePerDayInUsdCents,
-                tripDays,
-                tripInfo.startFuelLevelInGal,
-                tripInfo.endFuelLevelInGal,
-                tripInfo.fuelPricePerGalInUsdCents
-            );
+            tripInfo.startOdometr,
+            tripInfo.endOdometr,
+            tripInfo.milesIncludedPerDay,
+            tripInfo.pricePerDayInUsdCents,
+            tripDays,
+            tripInfo.startFuelLevelInGal,
+            tripInfo.endFuelLevelInGal,
+            tripInfo.fuelPricePerGalInUsdCents
+        );
     }
 
     function getResolveAmountInUsdCents(
@@ -426,17 +440,17 @@ contract RentalityTripService {
     ) public pure returns (uint64, uint64) {
         return (
             getDrivenMilesResolveAmountInUsdCents(
-                startOdometr,
-                endOdometr,
-                milesIncludedPerDay,
-                pricePerDayInUsdCents,
-                tripDays
-            ),
+            startOdometr,
+            endOdometr,
+            milesIncludedPerDay,
+            pricePerDayInUsdCents,
+            tripDays
+        ),
             getFuelResolveAmountInUsdCents(
-                startFuelLevelInGal,
-                endFuelLevelInGal,
-                fuelPricePerGalInUsdCents
-            ));
+            startFuelLevelInGal,
+            endFuelLevelInGal,
+            fuelPricePerGalInUsdCents
+        ));
     }
 
     function getDrivenMilesResolveAmountInUsdCents(
@@ -600,7 +614,7 @@ contract RentalityTripService {
             (idToTripInfo[tripId].endDateTime > startDateTime) &&
             (idToTripInfo[tripId].startDateTime < endDateTime);
     }
-    
+
     function getTripsThatIntersect(
         uint64 startDateTime,
         uint64 endDateTime

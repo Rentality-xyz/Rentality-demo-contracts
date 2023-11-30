@@ -45,8 +45,22 @@ const TripStatus = {
     Finished: 6,
     Canceled: 7
 };
+function getEmptySearchCarParams(seed) {
+    return {
+        country: '',
+        state: '',
+        city: '',
+        brand: '',
+        model: '',
+        yearOfProductionFrom: 0,
+        yearOfProductionTo: 0,
+        pricePerDayInUsdCentsFrom: 0,
+        pricePerDayInUsdCentsTo: 0,
+    }
+}
 
 module.exports = {
     getMockCarRequest,
-    TripStatus
+    TripStatus,
+    getEmptySearchCarParams
 };

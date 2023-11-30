@@ -222,7 +222,7 @@ contract RentalityGateway is Ownable {
         uint64 startDateTime,
         uint64 endDateTime,
         RentalityCarToken.SearchCarParams memory searchParams
-    ) public view returns (RentalityCarToken.CarInfo[] memory) {
+    ) public view returns (RentalityTripService.AvailableCarResponse[] memory) {
         return
             searchAvailableCarsForUser(
                 tx.origin,
@@ -237,7 +237,7 @@ contract RentalityGateway is Ownable {
         uint64 startDateTime,
         uint64 endDateTime,
         RentalityCarToken.SearchCarParams memory searchParams
-    ) public view returns (RentalityCarToken.CarInfo[] memory) {
+    ) public view returns (RentalityTripService.AvailableCarResponse[] memory) {
         return
             tripService.searchAvailableCarsForUser(
                 user,
