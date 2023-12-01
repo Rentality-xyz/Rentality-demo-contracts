@@ -1,22 +1,34 @@
 // SPDX-License-Identifier: MIT
+// NatSpec Documentation for RentalityPaymentService Contract
+
 pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./RentalityUserService.sol";
 
+/// @title Rentality Payment Service Contract
+/// @notice This contract manages platform fees and allows the adjustment of the platform fee by the manager.
+/// @dev It is connected to RentalityUserService to check if the caller is an admin.
 contract RentalityPaymentService is Ownable {
     uint32 platformFeeInPPM = 200_000;
     RentalityUserService private userService;
 
+    /// @notice Constructor to initialize the RentalityPaymentService.
+    /// @param _userService The address of the RentalityUserService contract.
     constructor(address _userService) {
         userService = RentalityUserService(_userService);
     }
 
+    /// @notice Get the current platform fee in parts per million (PPM).
+    /// @return The current platform fee in PPM.
     function getPlatformFeeInPPM() public view returns (uint32) {
         return platformFeeInPPM;
     }
 
-    function setPlatformFeeInPPM(uint32 valueInPPM) public  {
+    /// @notice Set the platform fee in parts per million (PPM).
+    /// @param valueInPPM The new value for the platform fee in PPM.
+    /// @dev Only callable by an admin. The value must be positive and not exceed 1,000,000.
+    function setPlatformFeeInPPM(uint32 valueInPPM) public {
         require(userService.isAdmin(msg.sender), "Only manager can change the platform fee");
         require(valueInPPM > 0, "Make sure the value isn't negative");
         require(valueInPPM <= 1_000_000, "Value can't be more than 1000000");
@@ -24,6 +36,9 @@ contract RentalityPaymentService is Ownable {
         platformFeeInPPM = valueInPPM;
     }
 
+    /// @notice Get the platform fee from a given value.
+    /// @param value The value from which to calculate the platform fee.
+    /// @return The platform fee calculated from the given value.
     function getPlatformFeeFrom(uint64 value) public view returns (uint64) {
         return (value * platformFeeInPPM) / 1_000_000;
     }
