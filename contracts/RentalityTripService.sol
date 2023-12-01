@@ -752,13 +752,10 @@ contract RentalityTripService {
             (idToTripInfo[tripId].startDateTime < endDateTime);
     }
 
-<<<<<<< HEAD
-=======
     /// @dev Retrieves an array of trips that intersect with a given time range.
     /// @param startDateTime The start date and time of the time range.
     /// @param endDateTime The end date and time of the time range.
     /// @return intersectingTrips An array of trips that intersect with the specified time range.
->>>>>>> eac5975e7b89c682e254160154fbe8ecc70cddc7
     function getTripsThatIntersect(
         uint64 startDateTime,
         uint64 endDateTime
