@@ -5,7 +5,7 @@ const {
   loadFixture,
 } = require('@nomicfoundation/hardhat-network-helpers')
 const { Contract } = require('hardhat/internal/hardhat-network/stack-traces/model')
-const { getMockCarRequest, TripStatus } = require('./utils')
+const { getMockCarRequest, TripStatus, getEmptySearchCarParams } = require('./utils')
 
 async function deployDefaultFixture() {
   const [owner, admin, manager, host, guest, anonymous] =
@@ -41,7 +41,7 @@ async function deployDefaultFixture() {
           },
       })
   const RentalityGeoService =
-    await ethers.getContractFactory('RentalityGeoMock');
+    await ethers.getContractFactory('RentalityGeoMock')
 
   let RentalityGateway = await ethers.getContractFactory(
     'RentalityGateway',
@@ -65,8 +65,8 @@ async function deployDefaultFixture() {
     rentalityMockPriceFeed.address,
   )
   await rentalityCurrencyConverter.deployed()
-  const rentalityGeoService  = await RentalityGeoService.deploy();
- await rentalityGeoService.deployed();
+  const rentalityGeoService = await RentalityGeoService.deploy()
+  await rentalityGeoService.deployed()
 
   const rentalityCarToken = await RentalityCarToken.deploy(rentalityGeoService.address)
   await rentalityCarToken.deployed()
@@ -285,7 +285,7 @@ describe('RentalityGateway', function() {
     ).to.equal(platformFeeInPMM)
 
   })
-  it('Host can add car to gateway', async function () {
+  it('Host can add car to gateway', async function() {
 
     await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0)))
       .not.to.be.reverted
@@ -294,7 +294,7 @@ describe('RentalityGateway', function() {
       .getMyCars()
     expect(myCars.length).to.equal(1)
   })
-  it('Host dont see own cars as available', async function () {
+  it('Host dont see own cars as available', async function() {
     await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0)))
       .not.to.be.reverted
     const myCars = await rentalityGateway
@@ -306,8 +306,8 @@ describe('RentalityGateway', function() {
       .getAvailableCarsForUser(host.address)
     expect(availableCars.length).to.equal(0)
   })
-  it('Guest see cars as available', async function () {
-     await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0)))
+  it('Guest see cars as available', async function() {
+    await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0)))
       .not.to.be.reverted
     const myCars = await rentalityGateway
       .connect(host)
@@ -318,7 +318,7 @@ describe('RentalityGateway', function() {
       .getAvailableCarsForUser(guest.address)
     expect(availableCars.length).to.equal(1)
   })
-  it('createTripRequest', async function () {
+  it('createTripRequest', async function() {
     await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0)))
       .not.to.be.reverted
     const myCars = await rentalityGateway
@@ -358,7 +358,7 @@ describe('RentalityGateway', function() {
     ).not.to.be.reverted
   })
 
-  it('Host can not create trip request for own car ', async function () {
+  it('Host can not create trip request for own car ', async function() {
     await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0)))
       .not.to.be.reverted
     const myCars = await rentalityGateway
@@ -395,11 +395,11 @@ describe('RentalityGateway', function() {
         },
         { value: rentPriceInEth },
       ),
-    ).to.be.revertedWith("Car is not available for creator")
+    ).to.be.revertedWith('Car is not available for creator')
 
-  });
+  })
 
-  it('host can reject created trip', async function () {
+  it('host can reject created trip', async function() {
 
     await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0)))
       .not.to.be.reverted
@@ -450,7 +450,7 @@ describe('RentalityGateway', function() {
     )
   })
 
-  it('guest can reject created trip', async function () {
+  it('guest can reject created trip', async function() {
     await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0)))
       .not.to.be.reverted
     const myCars = await rentalityGateway
@@ -499,7 +499,7 @@ describe('RentalityGateway', function() {
       [rentPriceInEth, -rentPriceInEth],
     )
   })
-  it('Only host or guest can reject trip', async function () {
+  it('Only host or guest can reject trip', async function() {
 
     await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0)))
       .not.to.be.reverted
@@ -554,12 +554,12 @@ describe('RentalityGateway', function() {
       rentalityGateway.connect(owner).rejectTripRequest(1),
     ).to.be.reverted
 
-    let trip = await rentalityGateway.getTrip(1);
+    let trip = await rentalityGateway.getTrip(1)
 
-    expect(trip.status).to.be.equal(TripStatus.Created);
+    expect(trip.status).to.be.equal(TripStatus.Created)
 
   })
-  it('Only host can approve the trip', async function () {
+  it('Only host can approve the trip', async function() {
 
     await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0)))
       .not.to.be.reverted
@@ -619,20 +619,20 @@ describe('RentalityGateway', function() {
       rentalityGateway.connect(owner).approveTripRequest(1),
     ).to.be.reverted
 
-    let trip = await rentalityGateway.getTrip(1);
+    let trip = await rentalityGateway.getTrip(1)
 
-    expect(trip.status).to.be.equal(TripStatus.Created);
+    expect(trip.status).to.be.equal(TripStatus.Created)
 
 
     await expect(
       rentalityGateway.connect(host).approveTripRequest(1),
     ).not.be.reverted
 
-    let trip_approved = await rentalityGateway.getTrip(1);
+    let trip_approved = await rentalityGateway.getTrip(1)
 
-    expect(trip_approved.status).to.be.equal(1);
+    expect(trip_approved.status).to.be.equal(1)
   })
-  it('Host can not cheng status before approve', async function () {
+  it('Host can not cheng status before approve', async function() {
     await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0)))
       .not.to.be.reverted
     const myCars = await rentalityGateway
@@ -683,13 +683,13 @@ describe('RentalityGateway', function() {
       rentalityPlatform.connect(host).finishTrip(1),
     ).to.be.reverted
 
-    let trip = await rentalityGateway.getTrip(1);
+    let trip = await rentalityGateway.getTrip(1)
 
-    expect(trip.status).to.be.equal(TripStatus.Created);
+    expect(trip.status).to.be.equal(TripStatus.Created)
 
   })
 
-  it('Only host can checkin after approve', async function () {
+  it('Only host can checkin after approve', async function() {
     await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0)))
       .not.to.be.reverted
     const myCars = await rentalityGateway
@@ -745,21 +745,21 @@ describe('RentalityGateway', function() {
     await expect(rentalityGateway.connect(owner).checkInByHost(1, 0, 0))
       .to.be.reverted
 
-    let trip = await rentalityGateway.getTrip(1);
+    let trip = await rentalityGateway.getTrip(1)
 
-    expect(trip.status).to.be.equal(TripStatus.Approved);
+    expect(trip.status).to.be.equal(TripStatus.Approved)
 
 
     await expect(rentalityGateway.connect(host).checkInByHost(1, 0, 0))
       .not.be.reverted
 
-    let trip_checkin = await rentalityGateway.getTrip(1);
+    let trip_checkin = await rentalityGateway.getTrip(1)
 
-    expect(trip_checkin.status).to.be.equal(2);
+    expect(trip_checkin.status).to.be.equal(2)
 
   })
 
-  it('Only guest can checkin after host', async function () {
+  it('Only guest can checkin after host', async function() {
     await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0)))
       .not.to.be.reverted
     const myCars = await rentalityGateway
@@ -818,20 +818,20 @@ describe('RentalityGateway', function() {
     await expect(rentalityGateway.connect(owner).checkInByGuest(1, 0, 0))
       .to.be.reverted
 
-    let trip = await rentalityGateway.getTrip(1);
+    let trip = await rentalityGateway.getTrip(1)
 
-    expect(trip.status).to.be.equal(TripStatus.CheckedInByHost);
+    expect(trip.status).to.be.equal(TripStatus.CheckedInByHost)
 
 
     await expect(rentalityGateway.connect(guest).checkInByGuest(1, 0, 0))
       .not.be.reverted
 
-    let trip_checkin = await rentalityGateway.connect(guest).getTrip(1);
+    let trip_checkin = await rentalityGateway.connect(guest).getTrip(1)
 
-    expect(trip_checkin.status).to.be.equal(TripStatus.CheckedInByGuest);
+    expect(trip_checkin.status).to.be.equal(TripStatus.CheckedInByGuest)
 
   })
-  it('Only guest can checkout after checkin', async function () {
+  it('Only guest can checkout after checkin', async function() {
     await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0)))
       .not.to.be.reverted
     const myCars = await rentalityGateway
@@ -893,20 +893,20 @@ describe('RentalityGateway', function() {
     await expect(rentalityGateway.connect(owner).checkOutByGuest(1, 0, 0))
       .to.be.reverted
 
-    let trip = await rentalityGateway.getTrip(1);
+    let trip = await rentalityGateway.getTrip(1)
 
-    expect(trip.status).to.be.equal(TripStatus.CheckedInByGuest);
+    expect(trip.status).to.be.equal(TripStatus.CheckedInByGuest)
 
 
     await expect(rentalityGateway.connect(guest).checkOutByGuest(1, 0, 0))
       .not.be.reverted
 
-    let trip_checkout = await rentalityGateway.connect(guest).getTrip(1);
+    let trip_checkout = await rentalityGateway.connect(guest).getTrip(1)
 
-    expect(trip_checkout.status).to.be.equal(TripStatus.CheckedOutByGuest);
+    expect(trip_checkout.status).to.be.equal(TripStatus.CheckedOutByGuest)
 
   })
-  it('Only host can checkout after guest checkout', async function () {
+  it('Only host can checkout after guest checkout', async function() {
     await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0)))
       .not.to.be.reverted
     const myCars = await rentalityGateway
@@ -971,21 +971,21 @@ describe('RentalityGateway', function() {
     await expect(rentalityGateway.connect(owner).checkOutByHost(1, 0, 0))
       .to.be.reverted
 
-    let trip = await rentalityGateway.getTrip(1);
+    let trip = await rentalityGateway.getTrip(1)
 
-    expect(trip.status).to.be.equal(TripStatus.CheckedOutByGuest);
+    expect(trip.status).to.be.equal(TripStatus.CheckedOutByGuest)
 
 
     await expect(rentalityGateway.connect(host).checkOutByHost(1, 0, 0))
       .not.be.reverted
 
-    let trip_checkout = await rentalityGateway.connect(guest).getTrip(1);
+    let trip_checkout = await rentalityGateway.connect(guest).getTrip(1)
 
-    expect(trip_checkout.status).to.be.equal(TripStatus.CheckedOutByHost);
+    expect(trip_checkout.status).to.be.equal(TripStatus.CheckedOutByHost)
 
   })
 
-  it('Happy case', async function () {
+  it('Happy case', async function() {
 
     await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0)))
       .not.to.be.reverted
@@ -1053,8 +1053,6 @@ describe('RentalityGateway', function() {
   })
 
 
-
-
   it('should allow only host to update car info', async function() {
 
     let addCarRequest = getMockCarRequest(0)
@@ -1066,17 +1064,16 @@ describe('RentalityGateway', function() {
       securityDepositPerTripInUsdCents: 2,
       fuelPricePerGalInUsdCents: 2,
       milesIncludedPerDay: 2,
-      currentlyListed: false
+      currentlyListed: false,
     }
 
-    await expect(rentalityGateway.connect(host).updateCarInfo(update_params)).
-      not.to.be.reverted
+    await expect(rentalityGateway.connect(host).updateCarInfo(update_params)).not.to.be.reverted
 
     await expect(rentalityGateway.connect(guest).updateCarInfo(update_params)).to.be.revertedWith('User is not a host')
 
     await expect(rentalityGateway.connect(anonymous).updateCarInfo(update_params)).to.be.revertedWith('User is not a host')
 
-    let carInfo = await rentalityGateway.getCarInfoById(update_params.carId);
+    let carInfo = await rentalityGateway.getCarInfoById(update_params.carId)
 
     expect(carInfo.currentlyListed).to.be.equal(false)
     expect(carInfo.pricePerDayInUsdCents).to.be.equal(update_params.pricePerDayInUsdCents)
@@ -1289,8 +1286,8 @@ describe('RentalityGateway', function() {
 
     let [guestPhoneNumber, hostPhoneNumber] = await rentalityGateway.connect(guest).getTripContactInfo(1)
 
-    expect(guestPhoneNumber).to.be.equal(guestNumber);
-    expect(hostPhoneNumber).to.be.equal(hostNumber);
+    expect(guestPhoneNumber).to.be.equal(guestNumber)
+    expect(hostPhoneNumber).to.be.equal(hostNumber)
   })
 
   it('Host should be able to get trip contacts', async function() {
@@ -1356,8 +1353,8 @@ describe('RentalityGateway', function() {
 
     let [guestPhoneNumber, hostPhoneNumber] = await rentalityGateway.connect(host).getTripContactInfo(1)
 
-    expect(guestPhoneNumber).to.be.equal(guestNumber);
-    expect(hostPhoneNumber).to.be.equal(hostNumber);
+    expect(guestPhoneNumber).to.be.equal(guestNumber)
+    expect(hostPhoneNumber).to.be.equal(hostNumber)
   })
 
   it('Only host and guest should be able to get trip contacts', async function() {
@@ -1427,7 +1424,6 @@ describe('RentalityGateway', function() {
   })
 
 
-
   it('Should have chat history by guest', async function() {
 
     let addCarRequest = getMockCarRequest(0)
@@ -1436,7 +1432,7 @@ describe('RentalityGateway', function() {
       .not.to.be.reverted
     const myCars = await rentalityGateway
       .connect(host)
-      .getMyCars();
+      .getMyCars()
 
     expect(myCars.length).to.equal(1)
     const availableCars = await rentalityGateway
@@ -1502,7 +1498,7 @@ describe('RentalityGateway', function() {
 
     let chatInfoArray = await rentalityGateway.connect(guest).getChatInfoForGuest()
     expect(chatInfoArray.length).to.be.equal(1)
-    let chatInfo = chatInfoArray[0];
+    let chatInfo = chatInfoArray[0]
 
     expect(chatInfo.tripId).to.be.equal(1)
     expect(chatInfo.guestAddress).to.be.equal(guest.address)
@@ -1584,7 +1580,7 @@ describe('RentalityGateway', function() {
 
     let chatInfoArray = await rentalityGateway.connect(host).getChatInfoForHost()
     expect(chatInfoArray.length).to.be.equal(1)
-    let chatInfo = chatInfoArray[0];
+    let chatInfo = chatInfoArray[0]
 
     expect(chatInfo.tripId).to.be.equal(1)
     expect(chatInfo.guestAddress).to.be.equal(guest.address)
@@ -1595,7 +1591,49 @@ describe('RentalityGateway', function() {
     expect(chatInfo.carModel).to.be.equal(addCarRequest.model)
     expect(chatInfo.carYearOfProduction).to.be.equal(Number(addCarRequest.yearOfProduction))
   })
+  it('Should have host photoUrl and host name in available car response ', async function() {
 
+    let addCarRequest = getMockCarRequest(0)
+    await expect(rentalityGateway.connect(host).addCar(addCarRequest))
+      .not.to.be.reverted
+    const myCars = await rentalityGateway
+      .connect(host)
+      .getMyCars()
+    expect(myCars.length).to.equal(1)
+
+    let name = 'name'
+    let surname = 'surname'
+    let number = '+380'
+    let photo = 'photo'
+    let licenseNumber = 'licenseNumber'
+    let expirationDate = 10
+
+    await
+      expect(
+        rentalityGateway.connect(host).setKYCInfo(
+          name + 'host',
+          surname + 'host',
+          number + 'host',
+          photo + 'host',
+          licenseNumber + 'host',
+          expirationDate,
+        )).not.be.reverted
+
+
+    const availableCars = await rentalityGateway
+      .connect(guest)
+      .searchAvailableCarsForUser(
+        guest.address,
+        0,
+        0,
+        getEmptySearchCarParams(0)
+      )
+    expect(availableCars.length).to.equal(1)
+
+    expect(availableCars[0].hostPhotoUrl).to.be.eq(photo + 'host');
+    expect(availableCars[0].hostName).to.be.eq(name + 'host');
+
+  })
 })
 
 

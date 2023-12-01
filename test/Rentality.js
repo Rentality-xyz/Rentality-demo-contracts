@@ -4,7 +4,7 @@ const {
 } = require('@nomicfoundation/hardhat-network-helpers')
 const { expect } = require('chai')
 const { ethers } = require('hardhat')
-const {getMockCarRequest} = require("./utils");
+const {getMockCarRequest, getEmptySearchCarParams} = require("./utils");
 
 describe('Rentality', function () {
   // We define a fixture to reuse the same setup in every test.
@@ -144,19 +144,7 @@ describe('Rentality', function () {
     }
   }
 
-  function getEmptySearchCarParams(seed) {
-    return {
-      country: '',
-      state: '',
-      city: '',
-      brand: '',
-      model: '',
-      yearOfProductionFrom: 0,
-      yearOfProductionTo: 0,
-      pricePerDayInUsdCentsFrom: 0,
-      pricePerDayInUsdCentsTo: 0,
-    }
-  }
+
 
   describe('Rentality', function () {
     it('Host can add car to rentality', async function () {
