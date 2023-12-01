@@ -7,7 +7,10 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "./RentalityUtils.sol";
 import "./IRentalityGeoService.sol";
 
-//deployed 26.05.2023 11:15 to sepolia at 0xcC66CdAfc3C39d96651220975855202960C08747
+/// @title RentalityCarToken
+/// @notice ERC-721 token for representing cars in the Rentality platform.
+/// @notice This contract allows users to add, update, and manage information about cars for rental.
+/// @notice Cars can be listed, updated, and verified for geographic coordinates.
 contract RentalityCarToken is ERC721URIStorage, Ownable {
     using Counters for Counters.Counter;
     Counters.Counter private _carIdCounter;
@@ -15,7 +18,7 @@ contract RentalityCarToken is ERC721URIStorage, Ownable {
     IRentalityGeoService private geoService;
     mapping(uint256 => CarInfo) private idToCarInfo;
 
-    //The structure to store info about a listed car
+    /// @notice Struct to store information about a listed car.
     struct CarInfo {
         uint256 carId;
         string carVinNumber;
@@ -33,6 +36,7 @@ contract RentalityCarToken is ERC721URIStorage, Ownable {
         bool geoVerified;
     }
 
+    /// @notice Struct to store input parameters for creating a new car.
     struct CreateCarRequest {
         string tokenUri;
         string carVinNumber;
@@ -48,8 +52,8 @@ contract RentalityCarToken is ERC721URIStorage, Ownable {
         string geoApiKey;
     }
 
-    struct UpdateCarInfoRequest
-    {
+    /// @notice Struct to store input parameters for updating car information.
+    struct UpdateCarInfoRequest {
         uint256 carId;
         uint64 pricePerDayInUsdCents;
         uint64 securityDepositPerTripInUsdCents;
@@ -58,6 +62,7 @@ contract RentalityCarToken is ERC721URIStorage, Ownable {
         bool currentlyListed;
     }
 
+    /// @notice Struct to store search parameters for querying cars.
     struct SearchCarParams {
         string country;
         string state;
@@ -70,6 +75,7 @@ contract RentalityCarToken is ERC721URIStorage, Ownable {
         uint64 pricePerDayInUsdCentsTo;
     }
 
+    /// @notice Event emitted when a new car is successfully added.
     event CarAddedSuccess(
         uint256 CarId,
         string carVinNumber,
@@ -78,37 +84,45 @@ contract RentalityCarToken is ERC721URIStorage, Ownable {
         bool currentlyListed
     );
 
+    /// @notice Event emitted when a car's information is successfully updated.
     event CarUpdatedSuccess(
         uint256 carId,
         uint64 pricePerDayInUsdCents,
         bool currentlyListed
     );
 
+    /// @notice Event emitted when a car is successfully removed.
     event CarRemovedSuccess(
         uint256 carId,
         string CarVinNumber,
         address removedBy
     );
 
+    /// @notice Constructor to initialize the RentalityCarToken contract.
+    /// @param _geoServiceAddress The address of the RentalityGeoService contract.
     constructor(
         address _geoServiceAddress
     ) ERC721("RentalityCarToken Test", "RTCT") {
         geoService = IRentalityGeoService(_geoServiceAddress);
     }
 
+    /// @notice Returns the total supply of cars.
+    /// @return The total number of cars in the system.
     function totalSupply() public view returns (uint) {
         return _carIdCounter.current();
     }
 
-    function getCarInfoById(
-        uint256 carId
-    ) public view returns (CarInfo memory) {
+    /// @notice Retrieves information about a car based on its ID.
+    /// @param carId The ID of the car.
+    /// @return A struct containing information about the specified car.
+    function getCarInfoById(uint256 carId) public view returns (CarInfo memory) {
         return idToCarInfo[carId];
     }
 
-    function isUniqueVinNumber(
-        string memory carVinNumber
-    ) public view returns (bool) {
+    /// @notice Checks if a VIN number is unique among the listed cars.
+    /// @param carVinNumber The VIN number to check for uniqueness.
+    /// @return True if the VIN number is unique, false otherwise.
+    function isUniqueVinNumber(string memory carVinNumber) public view returns (bool) {
         bytes32 carVinNumberHash = keccak256(abi.encodePacked(carVinNumber));
 
         for (uint i = 0; i < totalSupply(); i++) {
@@ -119,9 +133,10 @@ contract RentalityCarToken is ERC721URIStorage, Ownable {
         return true;
     }
 
-    function addCar(
-        CreateCarRequest memory request
-    ) public returns (uint) {
+    /// @notice Adds a new car to the system with the provided information.
+    /// @param request The input parameters for creating the new car.
+    /// @return The ID of the newly added car.
+    function addCar(CreateCarRequest memory request) public returns (uint) {
         require(
             request.pricePerDayInUsdCents > 0,
             "Make sure the price isn't negative"
@@ -136,7 +151,7 @@ contract RentalityCarToken is ERC721URIStorage, Ownable {
         );
         require(
             isUniqueVinNumber(request.carVinNumber),
-            "Car with this VIN number is already exist"
+            "Car with this VIN number already exists"
         );
 
         _carIdCounter.increment();
@@ -178,72 +193,82 @@ contract RentalityCarToken is ERC721URIStorage, Ownable {
         return newCarId;
     }
 
+    /// @notice Verifies the geographic coordinates for a given car.
+    /// @param carId The ID of the car to verify.
     function verifyGeo(uint256 carId) public {
         bool geoStatus = geoService.getCarCoordinateValidity(carId);
         CarInfo storage carInfo = idToCarInfo[carId];
         carInfo.geoVerified = geoStatus;
     }
 
+    /// @notice Updates the information for a specific car.
+    /// @param request The input parameters for updating the car.
+    /// @param location The location for verifying geographic coordinates.
+    ///  can be empty, for left old location information.
+    /// @param geoApiKey The API key for the geographic verification service.
+    /// can be empty, if location param is empty.
     function updateCarInfo(
-        UpdateCarInfoRequest memory request, string memory location, string memory geoApiKey
+        UpdateCarInfoRequest memory request,
+        string memory location,
+        string memory geoApiKey
     ) public {
         require(_exists(request.carId), "Token does not exist");
         require(
             ownerOf(request.carId) == tx.origin,
-            "Only owner of the car can update car info"
+            "Only the owner of the car can update car info"
         );
         require(
             request.fuelPricePerGalInUsdCents > 0,
-            "Make sure the price isn't negative"
+            "Make sure the fuel price isn't negative"
         );
-
         require(
             request.pricePerDayInUsdCents > 0,
             "Make sure the price isn't negative"
         );
-
         require(
             request.milesIncludedPerDay > 0,
             "Make sure the included distance isn't negative"
         );
-        if (bytes(location).length > 0)
-        {
-            require(bytes(geoApiKey).length > 0, "Make sure you have correct geo Api Key");
+
+        if (bytes(location).length > 0) {
+            require(bytes(geoApiKey).length > 0, "Provide a valid geo API key");
             geoService.executeRequest(location, geoApiKey, request.carId);
             idToCarInfo[request.carId].geoVerified = false;
         }
 
-
         idToCarInfo[request.carId].pricePerDayInUsdCents = request.pricePerDayInUsdCents;
-        idToCarInfo[request.carId]
-        .securityDepositPerTripInUsdCents = request.securityDepositPerTripInUsdCents;
-        idToCarInfo[request.carId]
-        .fuelPricePerGalInUsdCents = request.fuelPricePerGalInUsdCents;
+        idToCarInfo[request.carId].securityDepositPerTripInUsdCents = request.securityDepositPerTripInUsdCents;
+        idToCarInfo[request.carId].fuelPricePerGalInUsdCents = request.fuelPricePerGalInUsdCents;
         idToCarInfo[request.carId].milesIncludedPerDay = request.milesIncludedPerDay;
         idToCarInfo[request.carId].currentlyListed = request.currentlyListed;
 
-
-        emit CarUpdatedSuccess(request.carId, request.pricePerDayInUsdCents, request.currentlyListed);
+        emit CarUpdatedSuccess(
+            request.carId,
+            request.pricePerDayInUsdCents,
+            request.currentlyListed
+        );
     }
 
-    function updateCarTokenUri(
-        uint256 carId,
-        string memory tokenUri
-    ) public {
+    /// @notice Updates the token URI associated with a specific car.
+    /// @param carId The ID of the car.
+    /// @param tokenUri The new token URI.
+    function updateCarTokenUri(uint256 carId, string memory tokenUri) public {
         require(_exists(carId), "Token does not exist");
         require(
             ownerOf(carId) == tx.origin,
-            "Only owner of the car can update token"
+            "Only the owner of the car can update the token URI"
         );
 
         _setTokenURI(carId, tokenUri);
     }
 
+    /// @notice Burns a specific car token, removing it from the system.
+    /// @param carId The ID of the car to be burned.
     function burnCar(uint256 carId) public {
         require(_exists(carId), "Token does not exist");
         require(
             ownerOf(carId) == tx.origin,
-            "Only owner of the car can burn token"
+            "Only the owner of the car can burn the token"
         );
 
         _burn(carId);
@@ -256,6 +281,8 @@ contract RentalityCarToken is ERC721URIStorage, Ownable {
         );
     }
 
+    /// @notice Retrieves information about all cars in the system.
+    /// @return An array containing information about all cars.
     function getAllCars() public view returns (CarInfo[] memory) {
         uint itemCount = 0;
 
@@ -275,17 +302,21 @@ contract RentalityCarToken is ERC721URIStorage, Ownable {
         return result;
     }
 
-    function isCarAvailableForUser(
-        uint256 carId,
-        address sender
-    ) private view returns (bool) {
+    /// @notice Checks if a car is available for a specific user.
+    /// @param carId The ID of the car.
+    /// @param sender The address of the user.
+    /// @return True if the car is available for the user, false otherwise.
+    function isCarAvailableForUser(uint256 carId, address sender) private view returns (bool) {
         return
             _exists(carId) &&
             idToCarInfo[carId].currentlyListed &&
             ownerOf(carId) != sender;
     }
 
-    // Only used by main contract
+    /// @notice Retrieves available cars for a specific user.
+    /// @dev Only used by main contract
+    /// @param user The address of the user.
+    /// @return An array containing information about available cars for the user.
     function getAvailableCarsForUser(
         address user
     ) public view returns (CarInfo[] memory) {
@@ -312,7 +343,12 @@ contract RentalityCarToken is ERC721URIStorage, Ownable {
 
         return result;
     }
-
+    /// @notice Checks if a car is available for a specific user based on search parameters.
+    /// @dev Determines availability based on several conditions, including ownership and search parameters.
+    /// @param carId The ID of the car being checked.
+    /// @param sender The address of the user checking availability.
+    /// @param searchCarParams The parameters used to filter available cars.
+    /// @return A boolean indicating whether the car is available for the user.
     function isCarAvailableForUser(
         uint256 carId,
         address sender,
@@ -361,12 +397,18 @@ contract RentalityCarToken is ERC721URIStorage, Ownable {
                 searchCarParams.pricePerDayInUsdCentsTo);
     }
 
+    /// @notice Fetches available cars for a specific user based on search parameters.
+    /// @dev Iterates through all cars to find those that are available for the user.
+    /// @param user The address of the user for whom to fetch available cars.
+    /// @param searchCarParams The parameters used to filter available cars.
+    /// @return An array of CarInfo representing the available cars for the user.
     function fetchAvailableCarsForUser(
         address user,
         SearchCarParams memory searchCarParams
     ) public view returns (CarInfo[] memory) {
         uint itemCount = 0;
 
+        // Count the number of available cars for the user.
         for (uint i = 0; i < totalSupply(); i++) {
             uint currentId = i + 1;
             if (isCarAvailableForUser(currentId, user, searchCarParams)) {
@@ -374,9 +416,11 @@ contract RentalityCarToken is ERC721URIStorage, Ownable {
             }
         }
 
+        // Create an array to store the available cars.
         CarInfo[] memory result = new CarInfo[](itemCount);
         uint currentIndex = 0;
 
+        // Populate the array with available cars.
         for (uint i = 0; i < totalSupply(); i++) {
             uint currentId = i + 1;
             if (isCarAvailableForUser(currentId, user, searchCarParams)) {
@@ -389,6 +433,11 @@ contract RentalityCarToken is ERC721URIStorage, Ownable {
         return result;
     }
 
+    /// @notice Checks if a car belongs to a specific user.
+    /// @dev Determines ownership of a car.
+    /// @param carId The ID of the car being checked.
+    /// @param user The address of the user being checked.
+    /// @return A boolean indicating whether the car belongs to the user.
     function isCarOfUser(
         uint256 carId,
         address user
@@ -396,11 +445,16 @@ contract RentalityCarToken is ERC721URIStorage, Ownable {
         return _exists(carId) && (ownerOf(carId) == user);
     }
 
+    /// @notice Gets the cars owned by a specific user.
+    /// @dev Iterates through all cars to find those owned by the user.
+    /// @param user The address of the user for whom to fetch owned cars.
+    /// @return An array of CarInfo representing the cars owned by the user.
     function getCarsOwnedByUser(
         address user
     ) public view returns (CarInfo[] memory) {
         uint itemCount = 0;
 
+        // Count the number of cars owned by the user.
         for (uint i = 0; i < totalSupply(); i++) {
             uint currentId = i + 1;
             if (isCarOfUser(currentId, user)) {
@@ -408,9 +462,11 @@ contract RentalityCarToken is ERC721URIStorage, Ownable {
             }
         }
 
+        // Create an array to store the owned cars.
         CarInfo[] memory result = new CarInfo[](itemCount);
         uint currentIndex = 0;
 
+        // Populate the array with owned cars.
         for (uint i = 0; i < totalSupply(); i++) {
             uint currentId = i + 1;
             if (isCarOfUser(currentId, user)) {
@@ -422,4 +478,5 @@ contract RentalityCarToken is ERC721URIStorage, Ownable {
 
         return result;
     }
+
 }
