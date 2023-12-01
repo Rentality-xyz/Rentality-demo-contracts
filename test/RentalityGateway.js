@@ -1630,9 +1630,8 @@ describe('RentalityGateway', function() {
       )
     expect(availableCars.length).to.equal(1)
 
-    console.log(availableCars[0])
-    // expect(availableCars[0].hostPhotoUrl).to.be.eq(photo + 'host');
-    // expect(availableCars[0].hostName).to.be.eq(name + 'host');
+    expect(availableCars[0].hostPhotoUrl).to.be.eq(photo + 'host');
+    expect(availableCars[0].hostName).to.be.eq(name + 'host');
 
   })
 })
