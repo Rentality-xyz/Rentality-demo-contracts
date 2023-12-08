@@ -319,6 +319,20 @@ contract RentalityTripService {
         Trip memory trip = getTrip(tripId);
         require(trip.host == tx.origin, "For host only");
 
+        for (uint i = 1; i <= totalTripCount(); i++)
+        {
+            Trip memory check_trip = getTrip(i);
+
+            if (check_trip.carId == trip.carId &&
+                (check_trip.status == TripStatus.CheckedInByGuest ||
+                check_trip.status == TripStatus.CheckedInByHost ||
+                check_trip.status == TripStatus.CheckedOutByGuest)
+            )
+            {
+                revert("Car on the trip.");
+            }
+        }
+
         RentalityCarToken.CarInfo memory carInfo = carService.getCarInfoById(trip.carId);
         uint64 startFuelLevelInGal = (carInfo.tankVolumeInGal *
             startFuelLevelInPermille) / 1000;
