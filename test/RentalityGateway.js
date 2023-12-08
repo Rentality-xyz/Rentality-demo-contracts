@@ -45,6 +45,12 @@ async function deployDefaultFixture() {
 
   let RentalityGateway = await ethers.getContractFactory(
     'RentalityGateway',
+    {
+      libraries:
+        {
+          RentalityUtils: utils.address
+        }
+    }
   )
 
   let rentalityMockPriceFeed = await RentalityMockPriceFeed.deploy(

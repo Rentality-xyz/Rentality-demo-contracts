@@ -206,13 +206,49 @@ contract RentalityPlatform is Ownable {
             paymentInfo
         );
     }
+
+    // @dev Checks if a car has any active trips within the specified time range.
+    // @param carId The ID of the car to check for availability.
+    // @param startDateTime The start time of the time range.
+    // @param endDateTime The end time of the time range.
+    // @return A boolean indicating whether the car is unavailable during the specified time range.
+    function isCarUnavailable(uint256 carId, uint64 startDateTime, uint64 endDateTime) private view returns (bool) {
+
+        // Iterate through all trips to check for intersections with the specified car and time range.
+        for (uint256 tripId = 1; tripId <= tripService.totalTripCount(); tripId++) {
+
+            RentalityTripService.Trip memory trip = tripService.getTrip(tripId);
+
+            if (trip.carId == carId &&
+                trip.endDateTime > startDateTime &&
+                trip.startDateTime < endDateTime) {
+                RentalityTripService.TripStatus tripStatus = trip.status;
+
+                // Check if the trip is active (not in Created, Finished, or Canceled status).
+                bool isActiveTrip = (
+                    tripStatus != RentalityTripService.TripStatus.Created &&
+                    tripStatus != RentalityTripService.TripStatus.Finished &&
+                    tripStatus != RentalityTripService.TripStatus.Canceled
+                );
+
+                // Return true if an active trip is found.
+                if (isActiveTrip) {
+                    return true;
+                }
+            }
+        }
+
+        // If no active trips are found, return false indicating the car is available.
+        return false;
+    }
     /// @notice Approve a trip request on the Rentality platform.
     /// @param tripId The ID of the trip to approve.
     function approveTripRequest(uint256 tripId) public {
         tripService.approveTrip(tripId);
 
         RentalityTripService.Trip memory trip = tripService.getTrip(tripId);
-        RentalityTripService.Trip[] memory intersectedTrips = tripService.getTripsForCarThatIntersect(
+        RentalityTripService.Trip[] memory intersectedTrips = RentalityUtils.getTripsForCarThatIntersect(
+            tripService,
             trip.carId,
             trip.startDateTime,
             trip.endDateTime
@@ -343,14 +379,14 @@ contract RentalityPlatform is Ownable {
     /// @notice Get chat information for trips hosted by the caller on the Rentality platform.
     /// @return chatInfo An array of chat information for trips hosted by the caller.
     function getChatInfoForHost() public view returns (IRentalityGateway.ChatInfo[] memory) {
-        RentalityTripService.Trip[] memory trips = tripService.getTripsByHost(tx.origin);
+        RentalityTripService.Trip[] memory trips = RentalityUtils.getTripsByHost(tripService, tx.origin);
         return RentalityUtils.populateChatInfo(trips, userService, carService);
     }
 
     /// @notice Get chat information for trips attended by the caller on the Rentality platform.
     /// @return chatInfo An array of chat information for trips attended by the caller.
     function getChatInfoForGuest() public view returns (IRentalityGateway.ChatInfo[] memory) {
-        RentalityTripService.Trip[] memory trips = tripService.getTripsByGuest(tx.origin);
+        RentalityTripService.Trip[] memory trips = RentalityUtils.getTripsByGuest(tripService, tx.origin);
         return RentalityUtils.populateChatInfo(trips, userService, carService);
     }
 }
