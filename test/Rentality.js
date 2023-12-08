@@ -94,6 +94,9 @@ describe('Rentality', function () {
     await rentalityUserService
       .connect(owner)
       .grantHostRole(rentalityPlatform.address)
+    await rentalityUserService
+      .connect(owner)
+      .grantManagerRole(rentalityPlatform.address)
 
     await rentalityUserService
       .connect(owner)
