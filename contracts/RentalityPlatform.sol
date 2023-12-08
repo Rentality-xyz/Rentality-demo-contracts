@@ -153,6 +153,7 @@ contract RentalityPlatform is Ownable {
     ) public payable {
         require(msg.value > 0, "Rental fee must be greater than 0");
         require(carService.ownerOf(request.carId) != tx.origin, "Car is not available for creator");
+        require(!isCarUnavailable(request.carId, request.startDateTime, request.endDateTime), "Unavailable for current date.");
 
         uint64 valueSum = request.totalDayPriceInUsdCents +
                         request.taxPriceInUsdCents +

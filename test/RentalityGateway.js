@@ -1640,6 +1640,98 @@ describe('RentalityGateway', function() {
     expect(availableCars[0].hostName).to.be.eq(name + 'host');
 
   })
+
+
+  it('Should not be able to create trip request after approve on the same time', async function() {
+
+    let addCarRequest = getMockCarRequest(0)
+    await expect(rentalityGateway.connect(host).addCar(addCarRequest))
+      .not.to.be.reverted
+    const myCars = await rentalityGateway
+      .connect(host)
+      .getMyCars()
+    expect(myCars.length).to.equal(1)
+
+    const oneDayInMilliseconds = 24 * 60 * 60 * 1000;
+
+    const rentPriceInUsdCents = 1000
+    const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
+      await rentalityCurrencyConverter.getEthFromUsdLatest(
+        rentPriceInUsdCents,
+      )
+
+    await expect(
+      rentalityGateway.connect(guest).createTripRequest(
+
+        {
+          carId: 1,
+          host: host.address,
+          startDateTime: Date.now(),
+          endDateTime: Date.now() + oneDayInMilliseconds,
+          startLocation: '',
+          endLocation: '',
+          totalDayPriceInUsdCents: rentPriceInUsdCents,
+          taxPriceInUsdCents: 0,
+          depositInUsdCents: 0,
+          fuelPricePerGalInUsdCents: 400,
+          ethToCurrencyRate: ethToCurrencyRate,
+          ethToCurrencyDecimals: ethToCurrencyDecimals,
+        },
+        { value: rentPriceInEth },
+      ),
+    ).not.to.be.reverted
+
+    await expect(rentalityGateway.connect(host).approveTripRequest(1))
+      .not.to.be.reverted
+
+    await expect(
+      rentalityGateway.connect(guest).createTripRequest(
+
+        {
+          carId: 1,
+          host: host.address,
+          startDateTime: Date.now(),
+          endDateTime: Date.now() + oneDayInMilliseconds * 2,
+          startLocation: '',
+          endLocation: '',
+          totalDayPriceInUsdCents: rentPriceInUsdCents,
+          taxPriceInUsdCents: 0,
+          depositInUsdCents: 0,
+          fuelPricePerGalInUsdCents: 400,
+          ethToCurrencyRate: ethToCurrencyRate,
+          ethToCurrencyDecimals: ethToCurrencyDecimals,
+        },
+        { value: rentPriceInEth },
+      ),
+    ).to.be.revertedWith("Unavailable for current date.")
+
+
+    await expect(
+      rentalityGateway.connect(guest).createTripRequest(
+
+        {
+          carId: 1,
+          host: host.address,
+          startDateTime: Date.now() * 3,
+          endDateTime: Date.now() + oneDayInMilliseconds * 4,
+          startLocation: '',
+          endLocation: '',
+          totalDayPriceInUsdCents: rentPriceInUsdCents,
+          taxPriceInUsdCents: 0,
+          depositInUsdCents: 0,
+          fuelPricePerGalInUsdCents: 400,
+          ethToCurrencyRate: ethToCurrencyRate,
+          ethToCurrencyDecimals: ethToCurrencyDecimals,
+        },
+        { value: rentPriceInEth },
+      ),
+    ).not.to.be.reverted
+
+
+
+
+
+  })
 })
 
 
