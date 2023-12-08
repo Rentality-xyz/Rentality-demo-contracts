@@ -324,7 +324,9 @@ contract RentalityTripService {
             Trip memory check_trip = getTrip(i);
 
             if (check_trip.carId == trip.carId &&
-                check_trip.status == TripStatus.CheckedInByGuest
+                (check_trip.status == TripStatus.CheckedInByGuest ||
+                check_trip.status == TripStatus.CheckedInByHost ||
+                check_trip.status == TripStatus.CheckedOutByGuest)
             )
             {
                 revert("Car on the trip.");
