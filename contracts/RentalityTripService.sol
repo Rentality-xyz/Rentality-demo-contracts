@@ -150,6 +150,7 @@ contract RentalityTripService {
         uint64 fuelPricePerGalInUsdCents,
         PaymentInfo memory paymentInfo
     ) public {
+        require(userService.isManager(msg.sender), "Only from manager contract.");
         _tripIdCounter.increment();
         uint256 newTripId = _tripIdCounter.current();
         if (milesIncludedPerDay == 0) {
@@ -198,6 +199,7 @@ contract RentalityTripService {
     ///   - The trip must be in status Created.
     ///  @param tripId The ID of the trip to be approved.
     function approveTrip(uint256 tripId) public {
+        require(userService.isManager(msg.sender),"Only from manager contract.");
         require(
             idToTripInfo[tripId].host == tx.origin,
             "Only host of the trip can approve it"
@@ -219,6 +221,7 @@ contract RentalityTripService {
     ///   - The trip must be in status Created, Approved, or CheckedInByHost.
     ///  @param tripId The ID of the trip to be Rejected
     function rejectTrip(uint256 tripId) public {
+        require(userService.isManager(msg.sender),"Only from manager contract.");
         require(
             idToTripInfo[tripId].host == tx.origin ||
             idToTripInfo[tripId].guest == tx.origin,
@@ -256,7 +259,7 @@ contract RentalityTripService {
         RentalityCarToken.CarInfo[] memory availableCars = carService.fetchAvailableCarsForUser(user, searchParams);
         if (availableCars.length == 0) return new AvailableCarResponse[](0);
 
-        Trip[] memory trips = getTripsThatIntersect(startDateTime, endDateTime);
+        Trip[] memory trips = RentalityUtils.getTripsThatIntersect(this, startDateTime, endDateTime);
         RentalityCarToken.CarInfo[] memory temp;
         uint256 resultCount;
 
@@ -473,13 +476,14 @@ contract RentalityTripService {
     /// Emits a `TripStatusChanged` event with the new status Finished.
     function finishTrip(uint256 tripId) public {
 //require(idToTripInfo[tripId].status != TripStatus.CheckedOutByHost,"The trip is not in status CheckedOutByHost");
+        require(userService.isManager(msg.sender),"Only from manager contract.");
         require(
             idToTripInfo[tripId].status == TripStatus.CheckedOutByHost,
             "The trip is not in status CheckedOutByHost"
         );
         idToTripInfo[tripId].status = TripStatus.Finished;
 
-        (uint64 resolveMilesAmountInUsdCents, uint64 resolveFuelAmountInUsdCents) = getResolveAmountInUsdCents(
+        (uint64 resolveMilesAmountInUsdCents, uint64 resolveFuelAmountInUsdCents) = RentalityUtils.getResolveAmountInUsdCents(
             idToTripInfo[tripId]
         );
         idToTripInfo[tripId]
@@ -506,299 +510,11 @@ contract RentalityTripService {
         emit TripStatusChanged(tripId, TripStatus.Finished);
     }
 
-    ///  @dev Calculates the resolved amount in USD cents for a trip.
-    ///  @param tripInfo The information about the trip.
-    /// @return Returns the resolved amounts for miles and fuel in USD cents as a tuple.
-    function getResolveAmountInUsdCents(
-        Trip memory tripInfo
-    ) public pure returns (uint64, uint64) {
-        uint64 tripDays = RentalityUtils.getCeilDays(tripInfo.startDateTime, tripInfo.endDateTime);
-
-        return
-            getResolveAmountInUsdCents(
-            tripInfo.startOdometr,
-            tripInfo.endOdometr,
-            tripInfo.milesIncludedPerDay,
-            tripInfo.pricePerDayInUsdCents,
-            tripDays,
-            tripInfo.startFuelLevelInGal,
-            tripInfo.endFuelLevelInGal,
-            tripInfo.fuelPricePerGalInUsdCents
-        );
-    }
-
-    /// @dev Calculates the resolution amounts (miles and fuel) for a given set of parameters.
-    /// @param startOdometr The starting odometer reading.
-    /// @param endOdometr The ending odometer reading.
-    /// @param milesIncludedPerDay The number of miles included per day.
-    /// @param pricePerDayInUsdCents The rental price per day in USD cents.
-    /// @param tripDays The number of days for the trip.
-    /// @param startFuelLevelInGal The starting fuel level in gallons.
-    /// @param endFuelLevelInGal The ending fuel level in gallons.
-    /// @param fuelPricePerGalInUsdCents The fuel price per gallon in USD cents.
-    /// @return resolveMilesAmountInUsdCents The resolution amount for extra miles in USD cents.
-    /// @return resolveFuelAmountInUsdCents The resolution amount for extra fuel consumption in USD cents.
-    function getResolveAmountInUsdCents(
-        uint64 startOdometr,
-        uint64 endOdometr,
-        uint64 milesIncludedPerDay,
-        uint64 pricePerDayInUsdCents,
-        uint64 tripDays,
-        uint64 startFuelLevelInGal,
-        uint64 endFuelLevelInGal,
-        uint64 fuelPricePerGalInUsdCents
-    ) public pure returns (uint64, uint64) {
-        return (
-            getDrivenMilesResolveAmountInUsdCents(
-            startOdometr,
-            endOdometr,
-            milesIncludedPerDay,
-            pricePerDayInUsdCents,
-            tripDays
-        ),
-            getFuelResolveAmountInUsdCents(
-            startFuelLevelInGal,
-            endFuelLevelInGal,
-            fuelPricePerGalInUsdCents
-        ));
-    }
-
-    /// @dev Calculates the resolution amount for extra driven miles.
-    /// @param startOdometr The starting odometer reading.
-    /// @param endOdometr The ending odometer reading.
-    /// @param milesIncludedPerDay The number of miles included per day.
-    /// @param pricePerDayInUsdCents The rental price per day in USD cents.
-    /// @param tripDays The number of days for the trip.
-    /// @return resolveMilesAmountInUsdCents The resolution amount for extra miles in USD cents.
-    function getDrivenMilesResolveAmountInUsdCents(
-        uint64 startOdometr,
-        uint64 endOdometr,
-        uint64 milesIncludedPerDay,
-        uint64 pricePerDayInUsdCents,
-        uint64 tripDays
-    ) public pure returns (uint64) {
-        if (endOdometr - startOdometr <= milesIncludedPerDay * tripDays)
-            return 0;
-
-        return
-            ((endOdometr - startOdometr - milesIncludedPerDay * tripDays) *
-                pricePerDayInUsdCents) / milesIncludedPerDay;
-    }
-
-    /// @dev Calculates the resolution amount for extra fuel consumption.
-    /// @param startFuelLevelInGal The starting fuel level in gallons.
-    /// @param endFuelLevelInGal The ending fuel level in gallons.
-    /// @param fuelPricePerGalInUsdCents The fuel price per gallon in USD cents.
-    /// @return resolveFuelAmountInUsdCents The resolution amount for extra fuel consumption in USD cents.
-    function getFuelResolveAmountInUsdCents(
-        uint64 startFuelLevelInGal,
-        uint64 endFuelLevelInGal,
-        uint64 fuelPricePerGalInUsdCents
-    ) public pure returns (uint64) {
-        if (endFuelLevelInGal >= startFuelLevelInGal) return 0;
-
-        return
-            (startFuelLevelInGal - endFuelLevelInGal) *
-            fuelPricePerGalInUsdCents;
-    }
-
     /// @dev Retrieves the details of a specific trip by its ID.
     /// @param tripId The ID of the trip to retrieve.
     /// @return trip The details of the requested trip.
     function getTrip(uint256 tripId) public view returns (Trip memory) {
         return idToTripInfo[tripId];
-    }
-
-    /// @dev Retrieves an array of trips associated with a specific guest address.
-    /// @param guest The address of the guest.
-    /// @return trips An array of trips associated with the specified guest.
-    function getTripsByGuest(
-        address guest
-    ) public view returns (Trip[] memory) {
-        uint itemCount = 0;
-
-        for (uint i = 0; i < totalTripCount(); i++) {
-            uint currentId = i + 1;
-            if (idToTripInfo[currentId].guest == guest) {
-                itemCount += 1;
-            }
-        }
-
-        Trip[] memory result = new Trip[](itemCount);
-        uint currentIndex = 0;
-
-        for (uint i = 0; i < totalTripCount(); i++) {
-            uint currentId = i + 1;
-            if (idToTripInfo[currentId].guest == guest) {
-                Trip storage currentItem = idToTripInfo[currentId];
-                result[currentIndex] = currentItem;
-                currentIndex += 1;
-            }
-        }
-
-        return result;
-    }
-
-    /// @dev Retrieves an array of trips associated with a specific host address.
-    /// @param host The address of the host.
-    /// @return trips An array of trips associated with the specified host.
-    function getTripsByHost(address host) public view returns (Trip[] memory) {
-        uint itemCount = 0;
-
-        for (uint i = 0; i < totalTripCount(); i++) {
-            uint currentId = i + 1;
-            if (idToTripInfo[currentId].host == host) {
-                itemCount += 1;
-            }
-        }
-
-        Trip[] memory result = new Trip[](itemCount);
-        uint currentIndex = 0;
-
-        for (uint i = 0; i < totalTripCount(); i++) {
-            uint currentId = i + 1;
-            if (idToTripInfo[currentId].host == host) {
-                Trip storage currentItem = idToTripInfo[currentId];
-                result[currentIndex] = currentItem;
-                currentIndex += 1;
-            }
-        }
-
-        return result;
-    }
-
-    /// @dev Retrieves an array of trips associated with a specific car ID.
-    /// @param carId The ID of the car.
-    /// @return trips An array of trips associated with the specified car ID.
-    function getTripsByCar(uint256 carId) public view returns (Trip[] memory) {
-        uint itemCount = 0;
-
-        for (uint i = 0; i < totalTripCount(); i++) {
-            uint currentId = i + 1;
-            if (idToTripInfo[currentId].carId == carId) {
-                itemCount += 1;
-            }
-        }
-
-        Trip[] memory result = new Trip[](itemCount);
-        uint currentIndex = 0;
-
-        for (uint i = 0; i < totalTripCount(); i++) {
-            uint currentId = i + 1;
-            if (idToTripInfo[currentId].carId == carId) {
-                Trip storage currentItem = idToTripInfo[currentId];
-                result[currentIndex] = currentItem;
-                currentIndex += 1;
-            }
-        }
-
-        return result;
-    }
-
-/**
- * @dev Checks if a specific car has intersecting trip within a given time range.
- * @param tripId The ID of the trip to check.
- * @param startDateTime The start date and time of the time range.
- * @param endDateTime The end date and time of the time range.
- * @return hasIntersectingTrips A boolean indicating whether the car has intersecting trips within the specified time range.
- */
-    function isCarThatIntersect(
-        uint256 tripId,
-        uint256 carId,
-        uint64 startDateTime,
-        uint64 endDateTime
-    ) private view returns (bool) {
-        return
-            (idToTripInfo[tripId].carId == carId) &&
-            (idToTripInfo[tripId].endDateTime > startDateTime) &&
-            (idToTripInfo[tripId].startDateTime < endDateTime);
-    }
-
-    ///  @dev Checks if a specific car ID has intersecting trips within a given time range.
-    ///  @param carId The ID of the car to check.
-    ///  @param startDateTime The start date and time of the time range.
-    ///  @param endDateTime The end date and time of the time range.
-    ///  @return trips An array of intersecting trips for the specified car within the specified time range.
-    function getTripsForCarThatIntersect(
-        uint256 carId,
-        uint64 startDateTime,
-        uint64 endDateTime
-    ) public view returns (Trip[] memory) {
-        uint itemCount = 0;
-
-        for (uint i = 0; i < totalTripCount(); i++) {
-            uint currentId = i + 1;
-            if (
-                isCarThatIntersect(currentId, carId, startDateTime, endDateTime)
-            ) {
-                itemCount += 1;
-            }
-        }
-
-        Trip[] memory result = new Trip[](itemCount);
-        uint currentIndex = 0;
-
-        for (uint i = 0; i < totalTripCount(); i++) {
-            uint currentId = i + 1;
-            if (
-                isCarThatIntersect(currentId, carId, startDateTime, endDateTime)
-            ) {
-                result[currentIndex] = idToTripInfo[currentId];
-                currentIndex += 1;
-            }
-        }
-
-        return result;
-    }
-
-    /// @dev Checks if a specific trip has intersecting trips within a given time range.
-    /// @param tripId The ID of the trip to check.
-    /// @param startDateTime The start date and time of the time range.
-    /// @param endDateTime The end date and time of the time range.
-    /// @return hasIntersectingTrips A boolean indicating whether the trip has intersecting trips within the specified time range.
-    function isTripThatIntersect(
-        uint256 tripId,
-        uint64 startDateTime,
-        uint64 endDateTime
-    ) private view returns (bool) {
-        return
-            (idToTripInfo[tripId].endDateTime > startDateTime) &&
-            (idToTripInfo[tripId].startDateTime < endDateTime);
-    }
-
-    /// @dev Retrieves an array of trips that intersect with a given time range.
-    /// @param startDateTime The start date and time of the time range.
-    /// @param endDateTime The end date and time of the time range.
-    /// @return intersectingTrips An array of trips that intersect with the specified time range.
-    function getTripsThatIntersect(
-        uint64 startDateTime,
-        uint64 endDateTime
-    ) public view returns (Trip[] memory) {
-        uint itemCount = 0;
-
-        for (uint i = 0; i < totalTripCount(); i++) {
-            uint currentId = i + 1;
-            if (
-                isTripThatIntersect(currentId, startDateTime, endDateTime)
-            ) {
-                itemCount += 1;
-            }
-        }
-
-        Trip[] memory result = new Trip[](itemCount);
-        uint currentIndex = 0;
-
-        for (uint i = 0; i < totalTripCount(); i++) {
-            uint currentId = i + 1;
-            if (
-                isTripThatIntersect(currentId, startDateTime, endDateTime)
-            ) {
-                result[currentIndex] = idToTripInfo[currentId];
-                currentIndex += 1;
-            }
-        }
-
-        return result;
     }
 
     ///  @dev Retrieves the addresses of the host and guest associated with a specific trip ID.
