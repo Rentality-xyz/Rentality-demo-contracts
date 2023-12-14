@@ -16,7 +16,7 @@ contract RentalityTripService {
     using Counters for Counters.Counter;
     Counters.Counter private _tripIdCounter;
 
-    /// @dev Enumeration representing various states of a trip.
+    /// @dev Enumeration representing verious states of a trip.
     enum TripStatus {
         Created,
         Approved,
@@ -160,7 +160,7 @@ contract RentalityTripService {
         paymentInfo.tripId = newTripId;
 
         RentalityCarToken.CarInfo memory carInfo = carService.getCarInfoById(carId);
-        engineService.varifyFuelPrices(fuelPricesPerUnits, carInfo.engineType);
+        engineService.verifyResourcePrice(fuelPricesPerUnits, carInfo.engineType);
 
         uint256 panelParamsAmount = engineService.
             getPanelParamsAmount(carInfo.engineType);
@@ -337,9 +337,8 @@ contract RentalityTripService {
         }
 
         RentalityCarToken.CarInfo memory carInfo = carService.getCarInfoById(trip.carId);
-        uint64[] memory startParams = engineService.calculateFuellevels(panelParams,carInfo.engineType, carInfo.carId);
 
-        engineService.varifyStartParams(startParams, carInfo.engineType);
+        engineService.verifyStartParams(panelParams, carInfo.engineType);
 
         require(
             idToTripInfo[tripId].status == TripStatus.Approved,
@@ -348,7 +347,7 @@ contract RentalityTripService {
 
         idToTripInfo[tripId].status = TripStatus.CheckedInByHost;
         idToTripInfo[tripId].checkedInByHostDateTime = block.timestamp;
-        idToTripInfo[tripId].startParamLevels = startParams;
+        idToTripInfo[tripId].startParamLevels = panelParams;
         emit TripStatusChanged(tripId, TripStatus.CheckedInByHost);
     }
 
@@ -368,8 +367,7 @@ contract RentalityTripService {
         require(trip.guest == tx.origin, "Only for guest");
 
         RentalityCarToken.CarInfo memory carInfo = carService.getCarInfoById(trip.carId);
-        uint64[] memory startParams = engineService.calculateFuellevels(panelParams,carInfo.engineType, carInfo.carId);
-        engineService.compareParams(startParams, trip.startParamLevels, carInfo.engineType);
+        engineService.compareParams(panelParams, trip.startParamLevels, carInfo.engineType);
 
         require(
             idToTripInfo[tripId].status == TripStatus.CheckedInByHost,
@@ -400,8 +398,7 @@ contract RentalityTripService {
         );
         RentalityCarToken.CarInfo memory carInfo = carService.getCarInfoById(trip.carId);
 
-        uint64[] memory endParams = engineService.calculateFuellevels(panelParams, carInfo.engineType, carInfo.carId);
-        engineService.varifyEndParams(trip.startParamLevels, panelParams, carInfo.engineType);
+        engineService.verifyEndParams(trip.startParamLevels, panelParams, carInfo.engineType);
 
         require(
             idToTripInfo[tripId].status == TripStatus.CheckedInByGuest,
@@ -410,7 +407,7 @@ contract RentalityTripService {
 
         idToTripInfo[tripId].status = TripStatus.CheckedOutByGuest;
         idToTripInfo[tripId].checkedOutByGuestDateTime = block.timestamp;
-        idToTripInfo[tripId].endParamLevels = endParams;
+        idToTripInfo[tripId].endParamLevels = panelParams;
 
         emit TripStatusChanged(tripId, TripStatus.CheckedOutByGuest);
     }
@@ -433,8 +430,7 @@ contract RentalityTripService {
         );
         RentalityCarToken.CarInfo memory carInfo = carService.getCarInfoById(trip.carId);
 
-        uint64[] memory endParams = engineService.calculateFuellevels(panelParams, carInfo.engineType,carInfo.carId);
-        engineService.compareParams(trip.endParamLevels, endParams, carInfo.engineType);
+        engineService.compareParams(trip.endParamLevels, panelParams, carInfo.engineType);
 
         require(
             idToTripInfo[tripId].status == TripStatus.CheckedOutByGuest,
@@ -501,6 +497,7 @@ contract RentalityTripService {
             tripInfo.fuelPrices,
             tripInfo.startParamLevels,
             tripInfo.endParamLevels,
+            tripInfo.carId,
             tripInfo.milesIncludedPerDay,
             tripInfo.pricePerDayInUsdCents,
             tripDays
