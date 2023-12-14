@@ -19,7 +19,7 @@ contract RentalityPatrolEngine is ARentalityEngine
     {
         userService = RentalityUserService(_userService);
     }
-    function setEType(uint8 _eType) public override onlyManager {
+    function setEType(uint8 _eType) public override {
         require(userService.isAdmin(tx.origin), "only Admin.");
         eType = _eType;
     }

@@ -57,6 +57,22 @@ describe('RentalityUserService', function () {
     const rentalityUserService = await RentalityUserService.deploy()
     await rentalityUserService.deployed()
 
+    const electricEngine = await ethers.getContractFactory('RentalityElectricEngine')
+    const elEngine = await electricEngine.deploy(rentalityUserService.address)
+
+    const patrolEngine = await ethers.getContractFactory('RentalityPatrolEngine')
+    const pEngine = await patrolEngine.deploy(rentalityUserService.address)
+
+    const hybridEngine = await ethers.getContractFactory('RentalityHybridEngine')
+    const hEngine = await hybridEngine.deploy(rentalityUserService.address)
+
+    const EngineService = await ethers.getContractFactory('RentalityEnginesService')
+    const engineService = await EngineService.deploy(
+      rentalityUserService.address,
+      [pEngine.address,elEngine.address,hEngine.address]
+    );
+    await engineService.deployed();
+
     await rentalityUserService.connect(owner).grantAdminRole(admin.address)
     await rentalityUserService.connect(owner).grantManagerRole(manager.address)
     await rentalityUserService.connect(owner).grantHostRole(host.address)
@@ -69,17 +85,19 @@ describe('RentalityUserService', function () {
     const rentalityGeoService = await RentalityGeoService.deploy();
     await rentalityGeoService.deployed();
 
-    const rentalityCarToken = await RentalityCarToken.deploy(rentalityGeoService.address)
+    const rentalityCarToken = await RentalityCarToken.deploy(rentalityGeoService.address, engineService.address)
 
     await rentalityCarToken.deployed()
 
     const rentalityPaymentService = await RentalityPaymentService.deploy(rentalityUserService.address)
+    await rentalityPaymentService.deployed();
 
     const rentalityTripService = await RentalityTripService.deploy(
       rentalityCurrencyConverter.address,
       rentalityPaymentService.address,
       rentalityUserService.address,
       rentalityUserService.address,
+      engineService.address
     )
     await rentalityTripService.deployed()
 
@@ -101,6 +119,12 @@ describe('RentalityUserService', function () {
     await rentalityUserService
       .connect(owner)
       .grantManagerRole(rentalityTripService.address)
+    await rentalityUserService
+      .connect(owner)
+      .grantManagerRole(rentalityCarToken.address)
+    await rentalityUserService
+      .connect(owner)
+      .grantManagerRole(engineService.address)
 
     return {
       rentalityMockPriceFeed,
@@ -522,7 +546,10 @@ describe('RentalityUserService', function () {
       expect(kycInfo.licenseNumber).to.equal('licenseNumber')
       expect(kycInfo.expirationDate).to.equal(expirationDate)
     })
-
+// TODO! why?
+//  After a trip is requested, the host or guest can get the contact numbers of the host and guest:
+//   Error: Transaction reverted: function selector was not recognized and there's no fallback function
+//   at RentalityPaymentService.<unrecognized-selector> (contracts/RentalityPaymentService.sol:12)
     it('After a trip is requested, the host or guest can get the contact numbers of the host and guest', async function () {
       const {
         rentalityPlatform,
@@ -585,11 +612,11 @@ describe('RentalityUserService', function () {
             totalDayPriceInUsdCents: 1000,
             taxPriceInUsdCents: 200,
             depositInUsdCents: 400,
-            fuelPricePerGalInUsdCents: 400,
+            fuelPrices: [400],
             ethToCurrencyRate: ethToCurrencyRate,
             ethToCurrencyDecimals: ethToCurrencyDecimals,
           },
-          { value: rentPriceInEth },
+          { value: rentPriceInEth},
         ),
       ).not.to.be.reverted
       expect(
@@ -609,4 +636,4 @@ describe('RentalityUserService', function () {
       expect(hostPhoneNumber).to.equal('phoneNumberHost')
     })
   })
-})
+});
