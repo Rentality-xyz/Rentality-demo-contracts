@@ -20,7 +20,7 @@ contract RentalityElectricEngine is ARentalityEngine {
         userService = RentalityUserService(_userService);
     }
 
-    function setEType(uint8 _eType) public override onlyManager {
+    function setEType(uint8 _eType) public override {
         require(userService.isAdmin(tx.origin), "Only Admin.");
         eType = _eType;
     }
@@ -54,7 +54,7 @@ contract RentalityElectricEngine is ARentalityEngine {
     }
 
     function getResolveAmountInUsdCents(
-        uint64[] memory fuelPrices,
+        uint64[] memory _fuelPrices,
         uint64[] memory startParams,
         uint64[] memory endParams,
         uint256 carId,

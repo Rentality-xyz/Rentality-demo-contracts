@@ -459,7 +459,7 @@ contract RentalityGateway is Ownable {
     view
     returns (RentalityTripService.Trip[] memory)
     {
-        return tripService.getTripsByGuest(tx.origin);
+        return RentalityUtils.getTripsByGuest(tripService, tx.origin);
     }
 
     /// @notice Retrieves information about trips where the specified user is the guest.
@@ -468,7 +468,7 @@ contract RentalityGateway is Ownable {
     function getTripsByGuest(
         address guest
     ) public view returns (RentalityTripService.Trip[] memory) {
-        return tripService.getTripsByGuest(guest);
+        return RentalityUtils.getTripsByGuest(tripService ,guest);
     }
 
     /// @notice Retrieves information about trips where the caller is the host.
@@ -478,7 +478,7 @@ contract RentalityGateway is Ownable {
     view
     returns (RentalityTripService.Trip[] memory)
     {
-        return tripService.getTripsByHost(tx.origin);
+        return RentalityUtils.getTripsByHost(tripService, tx.origin);
     }
 
     /// @notice Retrieves information about trips where the specified user is the host.
@@ -487,7 +487,7 @@ contract RentalityGateway is Ownable {
     function getTripsByHost(
         address host
     ) public view returns (RentalityTripService.Trip[] memory) {
-        return tripService.getTripsByHost(host);
+        return RentalityUtils.getTripsByHost(tripService, host);
     }
 
     /// @notice Retrieves information about trips for a specific car.
@@ -496,7 +496,7 @@ contract RentalityGateway is Ownable {
     function getTripsByCar(
         uint256 carId
     ) public view returns (RentalityTripService.Trip[] memory) {
-        return tripService.getTripsByCar(carId);
+        return RentalityUtils.getTripsByCar(tripService, carId);
     }
 
     /// @notice Sets Know Your Customer (KYC) information for the caller.

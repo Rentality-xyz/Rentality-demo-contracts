@@ -12,7 +12,7 @@ contract RentalityEnginesService
 
     error Overflow();
 
-    constructor(address[] memory engineServices) {
+    constructor(address _userService, address[] memory engineServices) {
         if (engineServices.length >= type(uint8).max - 1)
         {
             revert Overflow();
@@ -23,6 +23,7 @@ contract RentalityEnginesService
             engineTypeToEngineContract[eTypeCounter].setEType(eTypeCounter);
             eTypeCounter += 1;
         }
+        userService = RentalityUserService(_userService);
     }
     modifier onlyAdmin()
     {
@@ -68,7 +69,7 @@ contract RentalityEnginesService
         engineTypeToEngineContract[eType].burnCar(carId);
     }
 
-    function verifyResourcePrice(uint64[] memory prices, uint8 eType) public {
+    function verifyResourcePrice(uint64[] memory prices, uint8 eType) public view {
         engineTypeToEngineContract[eType].verifyResourcePrice(prices);
     }
 

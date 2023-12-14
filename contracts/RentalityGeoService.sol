@@ -11,7 +11,7 @@ import "./RentalityUtils.sol";
 //#GEO sepolia
 //CHAINLINK_ORACLE="0x6090149792dAAeE9D1D568c9f9a6F6B46AA29eFD"
 //CHAINLINK_TOKEN="0x779877A7B0D9E8603169DdbD7836e478b4624789"
-    contract RentalityGeoService is ChainlinkClient, Ownable {
+contract RentalityGeoService is ChainlinkClient, Ownable {
     using Chainlink for Chainlink.Request;
 
     /// @notice Chainlink job ID for the geolocation API.
