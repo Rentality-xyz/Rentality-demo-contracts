@@ -16,9 +16,6 @@ abstract contract ARentalityEngine {
         require(userService.isManager(msg.sender), "Only for Manager.");
         _;
     }
-    function getEType() public view returns(uint8) {
-        return eType;
-        }
 
     function setEType(uint8 _eType) public virtual;
 
@@ -28,13 +25,65 @@ abstract contract ARentalityEngine {
 
     function burnCar(uint256 carId) public virtual;
 
-    function varifyFuelPrices(uint64[] memory prices) public virtual;
+    function extraCosts(uint64[] memory params) public virtual returns (uint64);
 
-    function varifyStartParams(uint64[] memory params) public virtual;
+    function getResolveAmountInUsdCents(
+        uint64[] memory fuelPrices,
+        uint64[] memory startParams,
+        uint64[] memory endParams,
+        uint256 carId,
+        uint64 milesIncludedPerDay,
+        uint64 pricePerDayInUsdCents,
+        uint64 tripDays) public virtual returns (uint64, uint64);
 
-    function varifyEndParams(uint64[] memory startParams, uint64[] memory endParams) public virtual;
+    function getEType() public view returns(uint8) {
+        return eType;
+    }
 
-    function calculateFuellevels(uint64[] memory fuelParams, uint256 carId) public virtual returns (uint64[] memory);
+    function getDrivenMilesResolveAmountInUsdCents(
+        uint64 startOdometr,
+        uint64 endOdometr,
+        uint64 milesIncludedPerDay,
+        uint64 pricePerDayInUsdCents,
+        uint64 tripDays) public virtual pure returns (uint64) {
+        if (
+            endOdometr - startOdometr
+            <= milesIncludedPerDay * tripDays)
+            return 0;
+
+        return
+            ((endOdometr - startOdometr - milesIncludedPerDay * tripDays) *
+                pricePerDayInUsdCents) / milesIncludedPerDay;
+    }
+
+
+    function verifyResourcePrice(uint64[] memory prices) public pure virtual {
+        isCorrectArgs(prices[0] != 0);
+    }
+
+    // @param  start fuel level in percents;
+    // @param  start Odometr;
+    function verifyStartParams(uint64[] memory params) public virtual {
+        isCorrectArgs(params.length == getParamsAmount() &&
+        (params[0] >= 0 && params[0] <= 100));
+
+    }
+
+    // @param  start fuel level in Gallon;
+    // @param  start Odometr;
+    function verifyEndParams(uint64[] memory startParams, uint64[] memory endParams) public virtual
+    {
+        isCorrectArgs(startParams.length == getParamsAmount() &&
+        endParams.length == getParamsAmount());
+
+        isCorrectArgs(endParams[0] >= 0 && endParams[0] <= 100);
+
+        uint64 startOdometr = startParams[1];
+        uint64 endOdometr = endParams[1];
+
+        require(endOdometr >= startOdometr, "End odometr can not be less.");
+    }
+
 
     function compareParams(uint64[] memory start, uint64[] memory end) public pure
     {
@@ -45,18 +94,12 @@ abstract contract ARentalityEngine {
             isMatch(start[0] == end[0]);
         }
     }
+    function getParamsAmount() public virtual returns (uint256)
+    {
+        return 2;
+    }
 
-    function getParamsAmount() public virtual returns (uint256);
 
-    function extraCosts(uint64[] memory params) public virtual returns (uint64);
-
-    function getResolveAmountInUsdCents(
-        uint64[] memory fuelPrices,
-        uint64[] memory startParams,
-        uint64[] memory endParams,
-        uint64 milesIncludedPerDay,
-        uint64 pricePerDayInUsdCents,
-        uint64 tripDays) public virtual returns (uint64, uint64);
 
     function isCorrectArgs(bool eq) internal pure {
         if (!eq)

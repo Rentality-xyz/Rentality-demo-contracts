@@ -68,21 +68,17 @@ contract RentalityEnginesService
         engineTypeToEngineContract[eType].burnCar(carId);
     }
 
-    function varifyFuelPrices(uint64[] memory prices, uint8 eType) public {
-        engineTypeToEngineContract[eType].varifyFuelPrices(prices);
+    function verifyResourcePrice(uint64[] memory prices, uint8 eType) public {
+        engineTypeToEngineContract[eType].verifyResourcePrice(prices);
     }
 
-    function varifyStartParams(uint64[] memory params, uint8 eType) public {
-        engineTypeToEngineContract[eType].varifyStartParams(params);
-    }
-    function calculateFuellevels(uint64[] memory fuelParams,uint8 eType, uint256 carId) public returns(uint64[] memory)
-    {
-        return engineTypeToEngineContract[eType].calculateFuellevels(fuelParams, carId);
+    function verifyStartParams(uint64[] memory params, uint8 eType) public {
+        engineTypeToEngineContract[eType].verifyStartParams(params);
     }
 
-    function varifyEndParams(uint64[] memory startParams, uint64[] memory endParams, uint8 eType) public
+    function verifyEndParams(uint64[] memory startParams, uint64[] memory endParams, uint8 eType) public
     {
-        engineTypeToEngineContract[eType].varifyEndParams(startParams, endParams);
+        engineTypeToEngineContract[eType].verifyEndParams(startParams, endParams);
 
     }
     function compareParams(uint64[] memory startParams, uint64[] memory endParams, uint8 eType) public view
@@ -106,6 +102,7 @@ contract RentalityEnginesService
         uint64[] memory fuelPrices,
         uint64[] memory startParams,
         uint64[] memory endParams,
+        uint256 carId,
         uint64 milesIncludedPerDay,
         uint64 pricePerDayInUsdCents,
         uint64 tripDays) public returns (uint64, uint64)
@@ -114,6 +111,7 @@ contract RentalityEnginesService
         fuelPrices,
         startParams,
         endParams,
+        carId,
         milesIncludedPerDay,
         pricePerDayInUsdCents,
         tripDays);

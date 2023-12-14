@@ -46,42 +46,6 @@ contract RentalityPatrolEngine is ARentalityEngine
         delete carIdToPatrolEngine[carId];
     }
 
-    // @param prices[0] patrol price per gallon In Usd Cents
-    function varifyFuelPrices(uint64[] memory prices) public pure override {
-        isCorrectArgs(prices[0] != 0);
-    }
-
-    // @param  start fuel level in Gallon;
-    // @param  start Odometr;
-    function varifyStartParams(uint64[] memory params) public pure override {
-        isCorrectArgs(params.length == getParamsAmount());
-
-    }
-
-    function calculateFuellevels(uint64[] memory fuelParams, uint256 carId) public override returns(uint64[] memory) {
-        uint64 startFuelLevelInGal = (carIdToPatrolEngine[carId].tankVolumeInGal *
-            fuelParams[0]) / 1000;
-        fuelParams[0] = startFuelLevelInGal;
-        return fuelParams;
-    }
-
-    // @param  start fuel level in Gallon;
-    // @param  start Odometr;
-    function varifyEndParams(uint64[] memory startParams, uint64[] memory endParams) public pure override
-    {
-        isCorrectArgs(startParams.length == getParamsAmount() && endParams.length == getParamsAmount());
-        uint64 endOdometr = endParams[0];
-        uint64 startOdometr = startParams[0];
-
-        require(endOdometr >= startOdometr, "End odometr can not be less.");
-
-    }
-
-    function getParamsAmount() public pure override returns(uint256) {
-        return 2;
-
-    }
-
     function extraCosts(uint64[] memory params) public pure override returns (uint64) {
         return 0;
     }
@@ -90,9 +54,10 @@ contract RentalityPatrolEngine is ARentalityEngine
         uint64[] memory fuelPrices,
         uint64[] memory startParams,
         uint64[] memory endParams,
+        uint256 carId,
         uint64 milesIncludedPerDay,
         uint64 pricePerDayInUsdCents,
-        uint64 tripDays) public pure override returns (uint64, uint64)
+        uint64 tripDays) public view override returns (uint64, uint64)
     {
         return (
             getDrivenMilesResolveAmountInUsdCents(
@@ -102,39 +67,26 @@ contract RentalityPatrolEngine is ARentalityEngine
             pricePerDayInUsdCents,
             tripDays
         ),
+
             getFuelResolveAmountInUsdCents(
             endParams[0],
             startParams[0],
+            carIdToPatrolEngine[carId].tankVolumeInGal,
             fuelPrices[0]
         ));
     }
 
-    function getDrivenMilesResolveAmountInUsdCents(
-        uint64 startOdometr,
-        uint64 endOdometr,
-        uint64 milesIncludedPerDay,
-        uint64 pricePerDayInUsdCents,
-        uint64 tripDays) public pure returns (uint64) {
-        if (
-            endOdometr - startOdometr
-            <= milesIncludedPerDay * tripDays)
-            return 0;
-
-        return
-            ((endOdometr - startOdometr - milesIncludedPerDay * tripDays) *
-                pricePerDayInUsdCents) / milesIncludedPerDay;
-    }
-
     function getFuelResolveAmountInUsdCents(
-        uint64 endFuelLevelInGal,
-        uint64 startFuelLevelInGal,
+        uint64 endFuelLevelInPercents,
+        uint64 startFuelLevelInPercents,
+        uint64 tankVolume,
         uint64 fuelPricePerGalInUsdCents
     ) public pure returns (uint64) {
-        if (endFuelLevelInGal >= startFuelLevelInGal) return 0;
+        if (endFuelLevelInPercents >= startFuelLevelInPercents) return 0;
 
         return
-            (startFuelLevelInGal - endFuelLevelInGal) *
-            fuelPricePerGalInUsdCents;
+            ((startFuelLevelInPercents - endFuelLevelInPercents) * tankVolume / 100)
+            * fuelPricePerGalInUsdCents;
     }
 
 }
