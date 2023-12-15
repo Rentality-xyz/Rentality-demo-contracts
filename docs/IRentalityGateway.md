@@ -19,7 +19,7 @@ struct CreateTripRequest {
   uint64 totalDayPriceInUsdCents;
   uint64 taxPriceInUsdCents;
   uint64 depositInUsdCents;
-  uint64 fuelPricePerGalInUsdCents;
+  uint64[] fuelPrices;
   int256 ethToCurrencyRate;
   uint8 ethToCurrencyDecimals;
 }
@@ -41,6 +41,8 @@ struct ChatInfo {
   string carModel;
   uint32 carYearOfProduction;
   string carMetadataUrl;
+  uint64 startDateTime;
+  uint64 endDateTime;
 }
 ```
 

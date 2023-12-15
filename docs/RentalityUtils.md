@@ -299,3 +299,134 @@ _Converts a bytes32 data to a bytes array._
 | ---- | ---- | ----------- |
 | [0] | bytes | Returns the packed representation of the input data as a bytes array. |
 
+### isTripThatIntersect
+
+```solidity
+function isTripThatIntersect(contract RentalityTripService tripService, uint256 tripId, uint64 startDateTime, uint64 endDateTime) internal view returns (bool)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| tripService | contract RentalityTripService |  |
+| tripId | uint256 | The ID of the trip to check. |
+| startDateTime | uint64 | The start date and time of the time range. |
+| endDateTime | uint64 | The end date and time of the time range. |
+
+#### Return Values
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| [0] | bool | hasIntersectingTrips A boolean indicating whether the trip has intersecting trips within the specified time range. |
+
+### getTripsThatIntersect
+
+```solidity
+function getTripsThatIntersect(contract RentalityTripService tripService, uint64 startDateTime, uint64 endDateTime) public view returns (struct RentalityTripService.Trip[])
+```
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| tripService | contract RentalityTripService |  |
+| startDateTime | uint64 | The start date and time of the time range. |
+| endDateTime | uint64 | The end date and time of the time range. |
+
+#### Return Values
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| [0] | struct RentalityTripService.Trip[] | intersectingTrips An array of trips that intersect with the specified time range. |
+
+### getTripsForCarThatIntersect
+
+```solidity
+function getTripsForCarThatIntersect(contract RentalityTripService tripService, uint256 carId, uint64 startDateTime, uint64 endDateTime) public view returns (struct RentalityTripService.Trip[])
+```
+
+@param carId The ID of the car to check.
+ @param startDateTime The start date and time of the time range.
+ @param endDateTime The end date and time of the time range.
+ @return trips An array of intersecting trips for the specified car within the specified time range.
+
+### getTripsByGuest
+
+```solidity
+function getTripsByGuest(contract RentalityTripService tripService, address guest) public view returns (struct RentalityTripService.Trip[])
+```
+
+_Retrieves an array of trips associated with a specific guest address._
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| tripService | contract RentalityTripService |  |
+| guest | address | The address of the guest. |
+
+#### Return Values
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| [0] | struct RentalityTripService.Trip[] | trips An array of trips associated with the specified guest. |
+
+### getTripsByHost
+
+```solidity
+function getTripsByHost(contract RentalityTripService tripService, address host) public view returns (struct RentalityTripService.Trip[])
+```
+
+_Retrieves an array of trips associated with a specific host address._
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| tripService | contract RentalityTripService |  |
+| host | address | The address of the host. |
+
+#### Return Values
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| [0] | struct RentalityTripService.Trip[] | trips An array of trips associated with the specified host. |
+
+### getTripsByCar
+
+```solidity
+function getTripsByCar(contract RentalityTripService tripService, uint256 carId) public view returns (struct RentalityTripService.Trip[])
+```
+
+_Retrieves an array of trips associated with a specific car ID._
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| tripService | contract RentalityTripService |  |
+| carId | uint256 | The ID of the car. |
+
+#### Return Values
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| [0] | struct RentalityTripService.Trip[] | trips An array of trips associated with the specified car ID. |
+
+### getResolveAmountInUsdCents
+
+```solidity
+function getResolveAmountInUsdCents(uint8 eType, struct RentalityTripService.Trip tripInfo, contract RentalityEnginesService engineService) public returns (uint64, uint64)
+```
+
+@dev Calculates the resolved amount in USD cents for a trip.
+ @param tripInfo The information about the trip.
+
+#### Return Values
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| [0] | uint64 | Returns the resolved amounts for miles and fuel in USD cents as a tuple. |
+| [1] | uint64 |  |
+
