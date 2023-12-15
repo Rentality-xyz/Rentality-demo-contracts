@@ -36,7 +36,7 @@ abstract contract ARentalityEngine {
         uint64 pricePerDayInUsdCents,
         uint64 tripDays) public virtual returns (uint64, uint64);
 
-    function getEType() public view returns(uint8) {
+    function getEType() public view returns (uint8) {
         return eType;
     }
 
@@ -69,7 +69,7 @@ abstract contract ARentalityEngine {
 
     }
 
-    // @param  start fuel level in Gallon;
+    // @param  start fuel level in percents;
     // @param  start Odometr;
     function verifyEndParams(uint64[] memory startParams, uint64[] memory endParams) public virtual
     {
@@ -91,14 +91,14 @@ abstract contract ARentalityEngine {
 
         for (uint256 i = 0; i < start.length; i++)
         {
-            isMatch(start[0] == end[0]);
+            isMatch(start[i] == end[i]);
         }
     }
+
     function getParamsAmount() public virtual returns (uint256)
     {
         return 2;
     }
-
 
 
     function isCorrectArgs(bool eq) internal pure {
