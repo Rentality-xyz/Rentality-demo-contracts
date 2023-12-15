@@ -53,6 +53,10 @@ contract RentalityElectricEngine is ARentalityEngine {
         return 0;
     }
 
+    function getEngineData(uint256 carId) public view returns(ChargePriceScaleInUsdCents memory) {
+        return carIdToElectricEngine[carId];
+    }
+
     function getResolveAmountInUsdCents(
         uint64[] memory _fuelPrices,
         uint64[] memory startParams,

@@ -50,6 +50,10 @@ contract RentalityPatrolEngine is ARentalityEngine
         return 0;
     }
 
+    function getEngineData(uint256 carId) public view returns(PatrolEngine memory) {
+        return carIdToPatrolEngine[carId];
+    }
+
     function getResolveAmountInUsdCents(
         uint64[] memory fuelPrices,
         uint64[] memory startParams,
@@ -85,8 +89,8 @@ contract RentalityPatrolEngine is ARentalityEngine
         if (endFuelLevelInPercents >= startFuelLevelInPercents) return 0;
 
         return
-            ((startFuelLevelInPercents - endFuelLevelInPercents) * tankVolume / 100)
-            * fuelPricePerGalInUsdCents;
+            (((startFuelLevelInPercents - endFuelLevelInPercents) * tankVolume ) * 1000 / 100)
+            * fuelPricePerGalInUsdCents / 1000;
     }
 
 }
