@@ -1,9 +1,11 @@
 /** @type import('hardhat/config').HardhatUserConfig */
-require('@nomiclabs/hardhat-waffle')
-require('@nomiclabs/hardhat-ethers')
+// require('@nomiclabs/hardhat-waffle')
+
 require('dotenv').config()
-require('@nomicfoundation/hardhat-verify')
+require("@nomicfoundation/hardhat-toolbox")
+require('@openzeppelin/hardhat-upgrades')
 require('solidity-docgen')
+
 
 module.exports = {
 
@@ -28,13 +30,13 @@ module.exports = {
       localhost: {
         chainId: 1337,
       },
-      ganache: {
-        url: process.env.URL_LOCALHOST_GANACHE,
-        accounts:
-          [process.env.GANACHE_PRIVATE_KEY],
-        chainId:
-          1337,
-      },
+      // ganache: {
+      //   url: process.env.URL_LOCALHOST_GANACHE,
+      //   accounts:
+      //     [process.env.GANACHE_PRIVATE_KEY],
+      //   chainId:
+      //     1337,
+      // },
       goerli: {
         url: process.env.ALCHEMY_API_URL_GOERLI,
         accounts:

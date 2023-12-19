@@ -1,6 +1,6 @@
 {
   "name": "demoappreact",
-  "version": "0.13.0",
+  "version": "0.15.0",
   "description": "",
   "main": "index.js",
   "private": true,
@@ -11,17 +11,15 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "@chainlink/contracts": "^0.6.1",
+    "@chainlink/contracts": "^0.8.0",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.8",
-    "@openzeppelin/contracts": "^4.9.0",
-    "chai": "^4.3.10",
-    "dotenv": "^16.0.3"
+    "@openzeppelin/contracts": "^4.8.0",
+    "dotenv": "^16.0.4"
   },
   "devDependencies": {
-    "@nomicfoundation/hardhat-toolbox": "^2.0.2",
-    "@nomicfoundation/hardhat-verify": "^2.0.1",
-    "@nomiclabs/hardhat-waffle": "^2.0.6",
-    "hardhat": "^2.19.1",
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "@openzeppelin/hardhat-upgrades": "^3.0.0",
+    "hardhat": "^2.19.2",
     "solidity-docgen": "^0.6.0-beta.36"
   }
 }
