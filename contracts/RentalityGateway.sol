@@ -2,6 +2,8 @@
 pragma solidity ^0.8.9;
 
 import '@openzeppelin/contracts/access/Ownable.sol';
+import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 import './IRentalityGateway.sol';
 import './RentalityCarToken.sol';
 import './RentalityCurrencyConverter.sol';
@@ -9,6 +11,7 @@ import './RentalityTripService.sol';
 import './RentalityUserService.sol';
 import './RentalityPlatform.sol';
 import './RentalityPaymentService.sol';
+
 
 /// @title RentalityGateway
 /// @notice The main gateway contract that connects various services in the Rentality platform.
@@ -18,7 +21,7 @@ import './RentalityPaymentService.sol';
 
 //deployed 26.05.2023 11:15 to sepolia at 0x12fB29Ed1f0E17605f488F640D49De29050cf855
 //deployed 27.06.2023 11:10 to sepolia at 0x18744A3f7D15930446B1dbc5A837562e468B2D8d
-contract RentalityGateway is Ownable {
+contract RentalityGateway is Ownable, Initializable, UUPSUpgradeable  {
     RentalityCarToken private carService;
     RentalityCurrencyConverter private currencyConverterService;
     RentalityTripService private tripService;
@@ -26,29 +29,8 @@ contract RentalityGateway is Ownable {
     RentalityPlatform private rentalityPlatform;
     RentalityPaymentService private paymentService;
 
-    /// @param carServiceAddress The address of the RentalityCarToken contract.
-    /// @param currencyConverterServiceAddress The address of the RentalityCurrencyConverter contract.
-    /// @param tripServiceAddress The address of the RentalityTripService contract.
-    /// @param userServiceAddress The address of the RentalityUserService contract.
-    /// @param rentalityPlatformAddress The address of the RentalityPlatform contract.
-    /// @param paymentServiceAddress The address of the RentalityPaymentService contract.
-    constructor(
-        address carServiceAddress,
-        address currencyConverterServiceAddress,
-        address tripServiceAddress,
-        address userServiceAddress,
-        address rentalityPlatformAddress,
-        address paymentServiceAddress
-    ) {
-        carService = RentalityCarToken(carServiceAddress);
-        currencyConverterService = RentalityCurrencyConverter(
-            currencyConverterServiceAddress
-        );
-        tripService = RentalityTripService(tripServiceAddress);
-        userService = RentalityUserService(userServiceAddress);
-        rentalityPlatform = RentalityPlatform(rentalityPlatformAddress);
-        paymentService = RentalityPaymentService(paymentServiceAddress);
-    }
+
+    constructor() {}
     /// @notice Ensures that the caller is either an admin, the contract owner, or an admin from the origin transaction.
     modifier onlyAdmin() {
         require(
@@ -570,5 +552,30 @@ contract RentalityGateway is Ownable {
     returns (IRentalityGateway.ChatInfo[] memory)
     {
         return rentalityPlatform.getChatInfoForGuest();
+    }
+
+    //Proxy
+
+    function _authorizeUpgrade(address newImplementation) internal override
+    {
+//        require(owner == msg.sender, "Only for owner.");
+    }
+
+    function initialize(  address carServiceAddress,
+        address currencyConverterServiceAddress,
+        address tripServiceAddress,
+        address userServiceAddress,
+        address rentalityPlatformAddress,
+        address paymentServiceAddress) public initializer  {
+
+        carService = RentalityCarToken(carServiceAddress);
+        currencyConverterService = RentalityCurrencyConverter(
+            currencyConverterServiceAddress
+        );
+        tripService = RentalityTripService(tripServiceAddress);
+        userService = RentalityUserService(userServiceAddress);
+        rentalityPlatform = RentalityPlatform(rentalityPlatformAddress);
+        paymentService = RentalityPaymentService(paymentServiceAddress);
+
     }
 }

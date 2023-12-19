@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
-
+import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 
 /// @title RentalityUserService Contract
@@ -12,7 +13,7 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 ///
 /// The contract includes functions to set and retrieve KYC information, check for valid KYC,
 /// grant and revoke roles, and check user roles
-contract RentalityUserService is AccessControl {
+contract RentalityUserService is AccessControl, Initializable, UUPSUpgradeable {
     // Struct to store KYC (Know Your Customer) information for each user
     struct KYCInfo {
         string name;
@@ -35,12 +36,7 @@ contract RentalityUserService is AccessControl {
     /// It grants the DEFAULT_ADMIN_ROLE, MANAGER_ROLE, HOST_ROLE, and GUEST_ROLE to the deployer.
     /// It sets the role admin for HOST_ROLE and GUEST_ROLE to MANAGER_ROLE.
     constructor() {
-        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        grantRole(MANAGER_ROLE, msg.sender);
-        grantRole(HOST_ROLE, msg.sender);
-        grantRole(GUEST_ROLE, msg.sender);
-        _setRoleAdmin(HOST_ROLE, MANAGER_ROLE);
-        _setRoleAdmin(GUEST_ROLE, MANAGER_ROLE);
+
     }
     /// @notice Sets KYC information for the caller (host or guest).
     /// @param name The user's name.
@@ -180,5 +176,20 @@ contract RentalityUserService is AccessControl {
     function isHostOrGuest(address user) public view returns (bool) {
         return isHost(user) || isGuest(user);
     }
+
+    function initialize() public virtual  {
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        grantRole(MANAGER_ROLE, msg.sender);
+        grantRole(HOST_ROLE, msg.sender);
+        grantRole(GUEST_ROLE, msg.sender);
+        _setRoleAdmin(HOST_ROLE, MANAGER_ROLE);
+        _setRoleAdmin(GUEST_ROLE, MANAGER_ROLE);
+    }
+
+    function _authorizeUpgrade(address newImplementation) internal override
+    {
+        require(isAdmin(msg.sender), "Only for admin.");
+    }
+
 }
 
