@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import '@openzeppelin/contracts/access/Ownable.sol';
-import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
+import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import {UUPSUpgradeable} from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 import './IRentalityGateway.sol';
 import './RentalityCarToken.sol';
 import './RentalityCurrencyConverter.sol';
@@ -11,7 +10,6 @@ import './RentalityTripService.sol';
 import './RentalityUserService.sol';
 import './RentalityPlatform.sol';
 import './RentalityPaymentService.sol';
-
 
 /// @title RentalityGateway
 /// @notice The main gateway contract that connects various services in the Rentality platform.
@@ -21,7 +19,7 @@ import './RentalityPaymentService.sol';
 
 //deployed 26.05.2023 11:15 to sepolia at 0x12fB29Ed1f0E17605f488F640D49De29050cf855
 //deployed 27.06.2023 11:10 to sepolia at 0x18744A3f7D15930446B1dbc5A837562e468B2D8d
-contract RentalityGateway is Ownable, Initializable, UUPSUpgradeable  {
+contract RentalityGateway is OwnableUpgradeable, UUPSUpgradeable {
     RentalityCarToken private carService;
     RentalityCurrencyConverter private currencyConverterService;
     RentalityTripService private tripService;
@@ -30,7 +28,6 @@ contract RentalityGateway is Ownable, Initializable, UUPSUpgradeable  {
     RentalityPaymentService private paymentService;
 
 
-    constructor() {}
     /// @notice Ensures that the caller is either an admin, the contract owner, or an admin from the origin transaction.
     modifier onlyAdmin() {
         require(
@@ -554,28 +551,41 @@ contract RentalityGateway is Ownable, Initializable, UUPSUpgradeable  {
         return rentalityPlatform.getChatInfoForGuest();
     }
 
-    //Proxy
-
+    //   @dev Checks whether the upgrade to a new implementation is authorized.
+    //  @param newImplementation The address of the new implementation contract.
+    //  Requirements:
+    //  - The owner must have authorized the upgrade.
     function _authorizeUpgrade(address newImplementation) internal override
     {
-//        require(owner == msg.sender, "Only for owner.");
+        _checkOwner();
     }
 
-    function initialize(  address carServiceAddress,
+    //  @dev Initializes the contract with the provided addresses for various services.
+    //  @param carServiceAddress The address of the RentalityCarToken contract.
+    //  @param currencyConverterServiceAddress The address of the RentalityCurrencyConverter contract.
+    //  @param tripServiceAddress The address of the RentalityTripService contract.
+    //  @param userServiceAddress The address of the RentalityUserService contract.
+    //  @param rentalityPlatformAddress The address of the RentalityPlatform contract.
+    //  @param paymentServiceAddress The address of the RentalityPaymentService contract.
+    //  Requirements:
+    //  - The contract must not have been initialized before.
+    function initialize(
+        address carServiceAddress,
         address currencyConverterServiceAddress,
         address tripServiceAddress,
         address userServiceAddress,
         address rentalityPlatformAddress,
-        address paymentServiceAddress) public initializer  {
+        address paymentServiceAddress
+    ) public initializer {
 
         carService = RentalityCarToken(carServiceAddress);
         currencyConverterService = RentalityCurrencyConverter(
-            currencyConverterServiceAddress
-        );
+            currencyConverterServiceAddress);
         tripService = RentalityTripService(tripServiceAddress);
         userService = RentalityUserService(userServiceAddress);
         rentalityPlatform = RentalityPlatform(rentalityPlatformAddress);
         paymentService = RentalityPaymentService(paymentServiceAddress);
 
+        __Ownable_init();
     }
 }

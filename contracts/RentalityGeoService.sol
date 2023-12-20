@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
+import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import {UUPSUpgradeable} from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "./RentalityUtils.sol";
 
 /// @title Rentality Geo Service Contract
@@ -11,7 +12,7 @@ import "./RentalityUtils.sol";
 //#GEO sepolia
 //CHAINLINK_ORACLE="0x6090149792dAAeE9D1D568c9f9a6F6B46AA29eFD"
 //CHAINLINK_TOKEN="0x779877A7B0D9E8603169DdbD7836e478b4624789"
-    contract RentalityGeoService is ChainlinkClient, Ownable {
+contract RentalityGeoService is ChainlinkClient, OwnableUpgradeable, UUPSUpgradeable {
     using Chainlink for Chainlink.Request;
 
     /// @notice Chainlink job ID for the geolocation API.
@@ -42,16 +43,6 @@ import "./RentalityUtils.sol";
         string city;
         string state;
         string country;
-    }
-
-    /// @notice Constructor to initialize Chainlink settings.
-    /// @param linkToken The address of the LINK token contract.
-    /// @param chainLinkOracle The address of the Chainlink oracle.
-    constructor(address linkToken, address chainLinkOracle) {
-        setChainlinkToken(linkToken);
-        setChainlinkOracle(chainLinkOracle);
-        jobId = "7d80a6386ef543a3abb52817f6707e3b";
-        fee = (1 * LINK_DIVISIBILITY) / 10;
     }
 
     /// @notice Function to execute a Chainlink request for geolocation data.
@@ -169,4 +160,27 @@ import "./RentalityUtils.sol";
     function getCarCountry(uint256 carId) public view returns (string memory) {
         return carIdToParsedGeolocationData[carId].country;
     }
+
+    //   @dev Checks whether the upgrade to a new implementation is authorized.
+    //  @param newImplementation The address of the new implementation contract.
+    //  Requirements:
+    //  - The owner must have authorized the upgrade.
+    function _authorizeUpgrade(address newImplementation) internal override
+    {
+        _checkOwner();
+    }
+
+    /// @notice Constructor to initialize Chainlink settings.
+    /// @param linkToken The address of the LINK token contract.
+    /// @param chainLinkOracle The address of the Chainlink oracle.
+    function initialize(address linkToken, address chainLinkOracle) public initializer {
+
+        setChainlinkToken(linkToken);
+        setChainlinkOracle(chainLinkOracle);
+        jobId = "7d80a6386ef543a3abb52817f6707e3b";
+        fee = (1 * LINK_DIVISIBILITY) / 10;
+
+        __Ownable_init();
+    }
 }
+

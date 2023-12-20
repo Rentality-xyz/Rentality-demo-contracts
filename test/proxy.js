@@ -15,8 +15,15 @@ describe('Proxy', function() {
     let { userService, owner, admin } = await deployUserService()
     let proxyAddress = await userService.getAddress()
 
-    // Note: Fix typo in property name from isMannager to isManager
     await expect(await userService.isManager(owner.address)).to.be.true
+    expect(await userService.setKYCInfo(
+        'name',
+        'surname',
+        'phone',
+        'photo',
+       'number',
+        11,
+      )).to.not.reverted
 
     const UserServiceV2 = await ethers.getContractFactory('UserServiceV2Test')
     const userServiceV2 = await UserServiceV2.deploy()
@@ -27,9 +34,11 @@ describe('Proxy', function() {
     const data = userServiceV2.interface.encodeFunctionData('initialize', [])
     await userService.upgradeToAndCall(v2address, data)
 
-    let v2 = await UserServiceV2.attach(proxyAddress)
+    const v2 = await UserServiceV2.attach(proxyAddress)
 
+    const kyc = await v2.getKYCInfo(owner.address);
     await expect(await v2.isManager(owner.address)).to.be.true
+    expect(kyc.name).to.be.eq("name")
     await expect(await v2.getNewData()).to.be.eq(5)
   })
 })

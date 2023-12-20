@@ -1,5 +1,5 @@
 const { expect } = require('chai')
-const { ethers } = require('hardhat')
+const { ethers,upgrades } = require('hardhat')
 const {
   time,
   loadFixture,
@@ -21,7 +21,7 @@ async function deployDefaultFixture() {
   )
   const RentalityTripService = await ethers.getContractFactory(
     'RentalityTripService',
-    { libraries: { RentalityUtils: utils.address } },
+    { libraries: { RentalityUtils: await utils.getAddress() } },
   )
   const RentalityCurrencyConverter = await ethers.getContractFactory(
     'RentalityCurrencyConverter',
@@ -37,7 +37,7 @@ async function deployDefaultFixture() {
       {
         libraries:
           {
-            RentalityUtils: utils.address,
+            RentalityUtils: await utils.getAddress(),
           },
       })
   const RentalityGeoService =
@@ -51,66 +51,68 @@ async function deployDefaultFixture() {
     8,
     200000000000,
   )
-  await rentalityMockPriceFeed.deployed()
+  await rentalityMockPriceFeed.waitForDeployment()
 
-  const rentalityUserService = await RentalityUserService.deploy()
-  await rentalityUserService.deployed()
+  const rentalityUserService = await upgrades.deployProxy(RentalityUserService)
+  await rentalityUserService.waitForDeployment()
 
   await rentalityUserService.connect(owner).grantAdminRole(admin.address)
   await rentalityUserService.connect(owner).grantManagerRole(manager.address)
   await rentalityUserService.connect(owner).grantHostRole(host.address)
   await rentalityUserService.connect(owner).grantGuestRole(guest.address)
 
-  const rentalityCurrencyConverter = await RentalityCurrencyConverter.deploy(
-    rentalityMockPriceFeed.address,
-  )
-  await rentalityCurrencyConverter.deployed()
+  const rentalityCurrencyConverter = await upgrades.deployProxy(RentalityCurrencyConverter,[await rentalityMockPriceFeed.getAddress(),await rentalityUserService.getAddress()]);
+  await rentalityCurrencyConverter.waitForDeployment()
+
   const rentalityGeoService = await RentalityGeoService.deploy()
-  await rentalityGeoService.deployed()
+  await rentalityGeoService.waitForDeployment()
 
-  const rentalityCarToken = await RentalityCarToken.deploy(rentalityGeoService.address)
-  await rentalityCarToken.deployed()
-  const rentalityPaymentService = await RentalityPaymentService.deploy(rentalityUserService.address)
-  await rentalityPaymentService.deployed()
+  const rentalityCarToken = await upgrades.deployProxy(RentalityCarToken,[await rentalityGeoService.getAddress()])
+  await rentalityCarToken.waitForDeployment()
 
-  const rentalityTripService = await RentalityTripService.deploy(
+  const rentalityPaymentService = await upgrades.deployProxy(RentalityPaymentService,[await rentalityUserService.getAddress()])
+  await rentalityPaymentService.waitForDeployment()
+
+  const rentalityTripService = await upgrades.deployProxy(RentalityTripService,[
     rentalityCurrencyConverter.address,
-    rentalityCarToken.address,
-    rentalityPaymentService.address,
-    rentalityUserService.address,
-  )
-  await rentalityTripService.deployed()
+    await rentalityCarToken.getAddress(),
+    await rentalityPaymentService.getAddress(),
+    await rentalityUserService.getAddress(),
+  ]);
+  await rentalityTripService.waitForDeployment()
 
-  const rentalityPlatform = await RentalityPlatform.deploy(
-    rentalityCarToken.address,
-    rentalityCurrencyConverter.address,
-    rentalityTripService.address,
-    rentalityUserService.address,
-    rentalityPaymentService.address,
-  )
-  await rentalityPlatform.deployed()
+
+  const rentalityPlatform = await upgrades.deployProxy(RentalityPlatform,[
+    await rentalityCarToken.getAddress(),
+    await rentalityCurrencyConverter.getAddress(),
+    await rentalityTripService.getAddress(),
+    await rentalityUserService.getAddress(),
+    await rentalityPaymentService.getAddress(),
+  ])
+  await rentalityPlatform.waitForDeployment()
+
 
   await rentalityUserService
     .connect(owner)
-    .grantHostRole(rentalityPlatform.address)
-  await rentalityUserService.connect(owner).grantManagerRole(rentalityPlatform.address)
+    .grantHostRole(await rentalityPlatform.getAddress())
+  await rentalityUserService.connect(owner).grantManagerRole(await rentalityPlatform.getAddress())
   await rentalityUserService
     .connect(owner)
-    .grantManagerRole(rentalityTripService.address)
-  await rentalityUserService.connect(owner).grantManagerRole(rentalityPlatform.address)
+    .grantManagerRole(await rentalityTripService.getAddress())
+  await rentalityUserService.connect(owner).grantManagerRole(await rentalityPlatform.getAddress())
 
   let rentalityGateway = await RentalityGateway.connect(owner).deploy(
-    rentalityCarToken.address,
-    rentalityCurrencyConverter.address,
-    rentalityTripService.address,
-    rentalityUserService.address,
-    rentalityPlatform.address,
-    rentalityPaymentService.address,
+    await rentalityCarToken.getAddress(),
+    await rentalityCurrencyConverter.getAddress(),
+    await rentalityTripService.getAddress(),
+    await rentalityUserService.getAddress(),
+    await rentalityPlatform.getAddress(),
+    await rentalityPaymentService.getAddress(),
   )
-  await rentalityGateway.deployed()
+  await rentalityGateway.waitForDeployment()
 
-  await rentalityUserService.connect(owner).grantManagerRole(rentalityGateway.address)
-  await rentalityUserService.connect(owner).grantAdminRole(rentalityGateway.address)
+  await rentalityUserService.connect(owner).grantManagerRole(await rentalityGateway.getAddress())
+  await rentalityUserService.connect(owner).grantAdminRole(await rentalityGateway.getAddress())
 
 
   return {
@@ -222,37 +224,37 @@ describe('RentalityGateway', function() {
   it('should allow only admin to update trip service address', async function() {
     await expect(
       rentalityGateway.connect(admin)
-        .updateTripService(rentalityTripService.address)).not.be.reverted
+        .updateTripService(await rentalityTripService.getAddress())).not.be.reverted
 
     await expect(
       rentalityGateway.connect(host)
-        .updateTripService(rentalityTripService.address)).to.be.reverted
+        .updateTripService(await rentalityTripService.getAddress())).to.be.reverted
 
     await expect(
       rentalityGateway.connect(guest)
-        .updateTripService(rentalityTripService.address)).to.be.reverted
+        .updateTripService(await rentalityTripService.getAddress())).to.be.reverted
 
     await expect(
       rentalityGateway.connect(anonymous)
-        .updateTripService(rentalityTripService.address)).to.be.reverted
+        .updateTripService(await rentalityTripService.getAddress())).to.be.reverted
   })
 
   it('should allow only admin to update user service address', async function() {
     await expect(
       rentalityGateway.connect(anonymous)
-        .updateUserService(rentalityUserService.address)).to.be.reverted
+        .updateUserService(await rentalityUserService.getAddress())).to.be.reverted
 
     await expect(
       rentalityGateway.connect(host)
-        .updateUserService(rentalityUserService.address)).to.be.reverted
+        .updateUserService(await rentalityUserService.getAddress())).to.be.reverted
 
     await expect(
       rentalityGateway.connect(guest)
-        .updateUserService(rentalityUserService.address)).to.be.reverted
+        .updateUserService(await rentalityUserService.getAddress())).to.be.reverted
 
     await expect(
       rentalityGateway.connect(admin)
-        .updateUserService(rentalityUserService.address)).not.be.reverted
+        .updateUserService(await rentalityUserService.getAddress())).not.be.reverted
 
   })
 

@@ -2,7 +2,7 @@
 // require('@nomiclabs/hardhat-waffle')
 
 require('dotenv').config()
-require("@nomicfoundation/hardhat-toolbox")
+require('@nomicfoundation/hardhat-toolbox')
 require('@openzeppelin/hardhat-upgrades')
 require('solidity-docgen')
 
@@ -64,11 +64,9 @@ module.exports = {
         optimizer: {
           enabled: true,
           runs:
-            200,
+            200
         }
-        ,
-      }
-    ,
+      },
+    unsafeAllowLinkedLibraries: true
   }
-  ,
 }

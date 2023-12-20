@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
+import {ERC721URIStorageUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
+import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
+import {UUPSUpgradeable} from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "./RentalityUtils.sol";
 import "./IRentalityGeoService.sol";
 
@@ -11,11 +13,11 @@ import "./IRentalityGeoService.sol";
 /// @notice ERC-721 token for representing cars in the Rentality platform.
 /// @notice This contract allows users to add, update, and manage information about cars for rental.
 /// @notice Cars can be listed, updated, and verified for geographic coordinates.
-contract RentalityCarToken is ERC721URIStorage, Ownable {
+contract RentalityCarToken is UUPSUpgradeable, ERC721URIStorageUpgradeable, OwnableUpgradeable {
     using Counters for Counters.Counter;
     Counters.Counter private _carIdCounter;
-
     IRentalityGeoService private geoService;
+
     mapping(uint256 => CarInfo) private idToCarInfo;
 
     /// @notice Struct to store information about a listed car.
@@ -97,14 +99,6 @@ contract RentalityCarToken is ERC721URIStorage, Ownable {
         string CarVinNumber,
         address removedBy
     );
-
-    /// @notice Constructor to initialize the RentalityCarToken contract.
-    /// @param _geoServiceAddress The address of the RentalityGeoService contract.
-    constructor(
-        address _geoServiceAddress
-    ) ERC721("RentalityCarToken Test", "RTCT") {
-        geoService = IRentalityGeoService(_geoServiceAddress);
-    }
 
     /// @notice Returns the total supply of cars.
     /// @return The total number of cars in the system.
@@ -478,5 +472,21 @@ contract RentalityCarToken is ERC721URIStorage, Ownable {
 
         return result;
     }
+
+    /// @notice Constructor to initialize the RentalityCarToken contract.
+    /// @param _geoServiceAddress The address of the RentalityGeoService contract.
+    function initialize(address _geoServiceAddress) public initializer {
+        geoService = IRentalityGeoService(_geoServiceAddress);
+        __ERC721_init("RentalityCarToken Test", "RTCT");
+        __Ownable_init();
+    }
+
+    /// @notice Only admins are allowed to authorize upgrades.
+    /// @param newImplementation The address of the new implementation contract.
+    function _authorizeUpgrade(address newImplementation) internal view override
+    {
+        _checkOwner();
+    }
+
 
 }

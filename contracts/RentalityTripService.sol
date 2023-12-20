@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 //deployed 26.05.2023 11:15 to sepolia at 0x417886Ca72048E92E8Bf2082cf193ab8DB4ED09f
-import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
 import "./RentalityCurrencyConverter.sol";
 import "./RentalityPaymentService.sol";
 import "./RentalityCarToken.sol";
@@ -11,7 +13,11 @@ import "./RentalityUserService.sol";
 
 /// @title RentalityTripService
 /// @dev Manages the lifecycle of rental trips, including creation, approval, and completion.
-contract RentalityTripService {
+/// @dev SAFETY: The linked library is not supported yet because it can modify the state or call
+///  selfdestruct, as far as RentalityUtils doesn't has this logic,
+/// it's completely safe for upgrade
+/// @custom:oz-upgrades-unsafe-allow external-library-linking
+contract RentalityTripService is Initializable, UUPSUpgradeable {
     using Counters for Counters.Counter;
     Counters.Counter private _tripIdCounter;
 
@@ -100,24 +106,6 @@ contract RentalityTripService {
     RentalityPaymentService private paymentService;
     RentalityUserService private userService;
 
-    /// @dev Constructor for the RentalityTripService contract.
-    /// @param currencyConverterServiceAddress The address of the currency converter service.
-    /// @param carServiceAddress The address of the car service.
-    /// @param paymentServiceAddress The address of the payment service.
-    /// @param userServiceAddress The address of the user service.
-    constructor(
-        address currencyConverterServiceAddress,
-        address carServiceAddress,
-        address paymentServiceAddress,
-        address userServiceAddress
-    ) {
-        currencyConverterService = RentalityCurrencyConverter(
-            currencyConverterServiceAddress
-        );
-        paymentService = RentalityPaymentService(paymentServiceAddress);
-        carService = RentalityCarToken(carServiceAddress);
-        userService = RentalityUserService(userServiceAddress);
-    }
 
     /// @dev Get the total number of trips created.
     /// @return The total number of trips.
@@ -326,7 +314,7 @@ contract RentalityTripService {
             if (check_trip.carId == trip.carId &&
                 (check_trip.status == TripStatus.CheckedInByGuest ||
                 check_trip.status == TripStatus.CheckedInByHost ||
-                check_trip.status == TripStatus.CheckedOutByGuest)
+                    check_trip.status == TripStatus.CheckedOutByGuest)
             )
             {
                 revert("Car on the trip.");
@@ -807,5 +795,29 @@ contract RentalityTripService {
     ///  @return guestAddress The address of the guest.
     function getAddressesByTripId(uint256 tripId) external view returns (address hostAddress, address guestAddress){
         return (idToTripInfo[tripId].host, idToTripInfo[tripId].guest);
+    }
+
+    /// @dev Constructor for the RentalityTripService contract.
+    /// @param currencyConverterServiceAddress The address of the currency converter service.
+    /// @param carServiceAddress The address of the car service.
+    /// @param paymentServiceAddress The address of the payment service.
+    /// @param userServiceAddress The address of the user service.
+    function initialize(
+        address currencyConverterServiceAddress,
+        address carServiceAddress,
+        address paymentServiceAddress,
+        address userServiceAddress
+    ) public virtual initializer {
+        currencyConverterService = RentalityCurrencyConverter(
+            currencyConverterServiceAddress
+        );
+        paymentService = RentalityPaymentService(paymentServiceAddress);
+        carService = RentalityCarToken(carServiceAddress);
+        userService = RentalityUserService(userServiceAddress);
+    }
+
+    function _authorizeUpgrade(address newImplementation) internal view override
+    {
+        require(userService.isAdmin(msg.sender), "Only for admin.");
     }
 }
