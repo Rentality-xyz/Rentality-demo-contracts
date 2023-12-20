@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
+import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import {UUPSUpgradeable} from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 import "./RentalityCarToken.sol";
 import "./RentalityCurrencyConverter.sol";
 import "./RentalityTripService.sol";
@@ -13,34 +14,13 @@ import "./IRentalityGateway.sol";
 /// @notice This contract manages various services related to the Rentality platform, including cars, trips, users, and payments.
 /// @dev It allows updating service contracts, creating and managing trips, handling payments, and more.
 
-contract RentalityPlatform is Ownable {
+contract RentalityPlatform is OwnableUpgradeable, UUPSUpgradeable {
     RentalityCarToken private carService;
     RentalityCurrencyConverter private currencyConverterService;
     RentalityTripService private tripService;
     RentalityUserService private userService;
     RentalityPaymentService private paymentService;
 
-    /// @notice Constructor to initialize the RentalityPlatform with service contract addresses.
-    /// @param carServiceAddress The address of the RentalityCarToken contract.
-    /// @param currencyConverterServiceAddress The address of the RentalityCurrencyConverter contract.
-    /// @param tripServiceAddress The address of the RentalityTripService contract.
-    /// @param userServiceAddress The address of the RentalityUserService contract.
-    /// @param paymentServiceAddress The address of the RentalityPaymentService contract.
-    constructor(
-        address carServiceAddress,
-        address currencyConverterServiceAddress,
-        address tripServiceAddress,
-        address userServiceAddress,
-        address paymentServiceAddress
-    ) {
-        carService = RentalityCarToken(carServiceAddress);
-        currencyConverterService = RentalityCurrencyConverter(
-            currencyConverterServiceAddress
-        );
-        tripService = RentalityTripService(tripServiceAddress);
-        userService = RentalityUserService(userServiceAddress);
-        paymentService = RentalityPaymentService(paymentServiceAddress);
-    }
 
     /// @dev Modifier to restrict access to admin users only.
     modifier onlyAdmin() {
@@ -353,4 +333,37 @@ contract RentalityPlatform is Ownable {
         RentalityTripService.Trip[] memory trips = tripService.getTripsByGuest(tx.origin);
         return RentalityUtils.populateChatInfo(trips, userService, carService);
     }
+    //   @dev Checks whether the upgrade to a new implementation is authorized.
+    //  @param newImplementation The address of the new implementation contract.
+    //  Requirements:
+    //  - The owner must have authorized the upgrade.
+    function _authorizeUpgrade(address newImplementation) internal override
+    {
+        _checkOwner();
+    }
+
+    /// @notice Constructor to initialize the RentalityPlatform with service contract addresses.
+    /// @param carServiceAddress The address of the RentalityCarToken contract.
+    /// @param currencyConverterServiceAddress The address of the RentalityCurrencyConverter contract.
+    /// @param tripServiceAddress The address of the RentalityTripService contract.
+    /// @param userServiceAddress The address of the RentalityUserService contract.
+    /// @param paymentServiceAddress The address of the RentalityPaymentService contract.
+    function initialize(
+        address carServiceAddress,
+        address currencyConverterServiceAddress,
+        address tripServiceAddress,
+        address userServiceAddress,
+        address paymentServiceAddress) public initializer {
+
+        carService = RentalityCarToken(carServiceAddress);
+        currencyConverterService = RentalityCurrencyConverter(
+            currencyConverterServiceAddress
+        );
+        tripService = RentalityTripService(tripServiceAddress);
+        userService = RentalityUserService(userServiceAddress);
+        paymentService = RentalityPaymentService(paymentServiceAddress);
+
+        __Ownable_init();
+    }
+
 }

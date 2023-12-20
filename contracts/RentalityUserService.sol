@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
-import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
-import "@openzeppelin/contracts/access/AccessControl.sol";
+import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 
 /// @title RentalityUserService Contract
 /// @notice
@@ -13,7 +12,7 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 ///
 /// The contract includes functions to set and retrieve KYC information, check for valid KYC,
 /// grant and revoke roles, and check user roles
-contract RentalityUserService is AccessControl, Initializable, UUPSUpgradeable {
+contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable  {
     // Struct to store KYC (Know Your Customer) information for each user
     struct KYCInfo {
         string name;
@@ -32,12 +31,8 @@ contract RentalityUserService is AccessControl, Initializable, UUPSUpgradeable {
 
     // Mapping to store KYC information for each user address
     mapping(address => KYCInfo) private kycInfos;
-    /// @notice Constructor to initialize roles and role admin relationships.
-    /// It grants the DEFAULT_ADMIN_ROLE, MANAGER_ROLE, HOST_ROLE, and GUEST_ROLE to the deployer.
-    /// It sets the role admin for HOST_ROLE and GUEST_ROLE to MANAGER_ROLE.
-    constructor() {
 
-    }
+
     /// @notice Sets KYC information for the caller (host or guest).
     /// @param name The user's name.
     /// @param surname The user's surname.
@@ -177,16 +172,19 @@ contract RentalityUserService is AccessControl, Initializable, UUPSUpgradeable {
         return isHost(user) || isGuest(user);
     }
 
-    function initialize() public virtual  {
+    function initialize() public virtual initializer {
+        __AccessControl_init();
+
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         grantRole(MANAGER_ROLE, msg.sender);
         grantRole(HOST_ROLE, msg.sender);
         grantRole(GUEST_ROLE, msg.sender);
         _setRoleAdmin(HOST_ROLE, MANAGER_ROLE);
         _setRoleAdmin(GUEST_ROLE, MANAGER_ROLE);
+
     }
 
-    function _authorizeUpgrade(address newImplementation) internal override
+    function _authorizeUpgrade(address newImplementation) internal view override
     {
         require(isAdmin(msg.sender), "Only for admin.");
     }
