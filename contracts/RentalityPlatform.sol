@@ -1,20 +1,22 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import {UUPSUpgradeable} from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 import "./RentalityCarToken.sol";
 import "./RentalityCurrencyConverter.sol";
 import "./RentalityTripService.sol";
 import "./RentalityUserService.sol";
 import "./RentalityPaymentService.sol";
 import "./IRentalityGateway.sol";
+import "./proxy/UUPSOwnable.sol";
 
 /// @title Rentality Platform Contract
 /// @notice This contract manages various services related to the Rentality platform, including cars, trips, users, and payments.
 /// @dev It allows updating service contracts, creating and managing trips, handling payments, and more.
-
-contract RentalityPlatform is OwnableUpgradeable, UUPSUpgradeable {
+/// @dev SAFETY: The linked library is not supported yet because it can modify the state or call
+///  selfdestruct, as far as RentalityUtils doesn't has this logic,
+/// it's completely safe for upgrade
+/// @custom:oz-upgrades-unsafe-allow external-library-linking
+contract RentalityPlatform is UUPSOwnable {
     RentalityCarToken private carService;
     RentalityCurrencyConverter private currencyConverterService;
     RentalityTripService private tripService;
@@ -133,6 +135,7 @@ contract RentalityPlatform is OwnableUpgradeable, UUPSUpgradeable {
     ) public payable {
         require(msg.value > 0, "Rental fee must be greater than 0");
         require(carService.ownerOf(request.carId) != tx.origin, "Car is not available for creator");
+        require(!isCarUnavailable(request.carId, request.startDateTime, request.endDateTime), "Unavailable for current date.");
 
         uint64 valueSum = request.totalDayPriceInUsdCents +
                         request.taxPriceInUsdCents +
@@ -186,13 +189,49 @@ contract RentalityPlatform is OwnableUpgradeable, UUPSUpgradeable {
             paymentInfo
         );
     }
+
+    // @dev Checks if a car has any active trips within the specified time range.
+    // @param carId The ID of the car to check for availability.
+    // @param startDateTime The start time of the time range.
+    // @param endDateTime The end time of the time range.
+    // @return A boolean indicating whether the car is unavailable during the specified time range.
+    function isCarUnavailable(uint256 carId, uint64 startDateTime, uint64 endDateTime) private view returns (bool) {
+
+        // Iterate through all trips to check for intersections with the specified car and time range.
+        for (uint256 tripId = 1; tripId <= tripService.totalTripCount(); tripId++) {
+
+            RentalityTripService.Trip memory trip = tripService.getTrip(tripId);
+
+            if (trip.carId == carId &&
+                trip.endDateTime > startDateTime &&
+                trip.startDateTime < endDateTime) {
+                RentalityTripService.TripStatus tripStatus = trip.status;
+
+                // Check if the trip is active (not in Created, Finished, or Canceled status).
+                bool isActiveTrip = (
+                    tripStatus != RentalityTripService.TripStatus.Created &&
+                    tripStatus != RentalityTripService.TripStatus.Finished &&
+                    tripStatus != RentalityTripService.TripStatus.Canceled
+                );
+
+                // Return true if an active trip is found.
+                if (isActiveTrip) {
+                    return true;
+                }
+            }
+        }
+
+        // If no active trips are found, return false indicating the car is available.
+        return false;
+    }
     /// @notice Approve a trip request on the Rentality platform.
     /// @param tripId The ID of the trip to approve.
     function approveTripRequest(uint256 tripId) public {
         tripService.approveTrip(tripId);
 
         RentalityTripService.Trip memory trip = tripService.getTrip(tripId);
-        RentalityTripService.Trip[] memory intersectedTrips = tripService.getTripsForCarThatIntersect(
+        RentalityTripService.Trip[] memory intersectedTrips = RentalityUtils.getTripsForCarThatIntersect(
+            tripService,
             trip.carId,
             trip.startDateTime,
             trip.endDateTime
@@ -323,23 +362,15 @@ contract RentalityPlatform is OwnableUpgradeable, UUPSUpgradeable {
     /// @notice Get chat information for trips hosted by the caller on the Rentality platform.
     /// @return chatInfo An array of chat information for trips hosted by the caller.
     function getChatInfoForHost() public view returns (IRentalityGateway.ChatInfo[] memory) {
-        RentalityTripService.Trip[] memory trips = tripService.getTripsByHost(tx.origin);
+        RentalityTripService.Trip[] memory trips = RentalityUtils.getTripsByHost(tripService, tx.origin);
         return RentalityUtils.populateChatInfo(trips, userService, carService);
     }
 
     /// @notice Get chat information for trips attended by the caller on the Rentality platform.
     /// @return chatInfo An array of chat information for trips attended by the caller.
     function getChatInfoForGuest() public view returns (IRentalityGateway.ChatInfo[] memory) {
-        RentalityTripService.Trip[] memory trips = tripService.getTripsByGuest(tx.origin);
+        RentalityTripService.Trip[] memory trips = RentalityUtils.getTripsByGuest(tripService, tx.origin);
         return RentalityUtils.populateChatInfo(trips, userService, carService);
-    }
-    //   @dev Checks whether the upgrade to a new implementation is authorized.
-    //  @param newImplementation The address of the new implementation contract.
-    //  Requirements:
-    //  - The owner must have authorized the upgrade.
-    function _authorizeUpgrade(address newImplementation) internal override
-    {
-        _checkOwner();
     }
 
     /// @notice Constructor to initialize the RentalityPlatform with service contract addresses.

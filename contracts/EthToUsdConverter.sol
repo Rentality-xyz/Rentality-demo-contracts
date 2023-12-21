@@ -3,15 +3,14 @@ pragma solidity ^0.8.9;
 
 import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 import "./IRentalityAccessControl.sol";
+import "./proxy/UUPSAccess.sol";
 /// @title EthToUsdConverter
 /// @dev A contract for converting Ethereum to USD using Chainlink price feeds.
-contract EthToUsdConverter is Initializable, UUPSUpgradeable {
+contract EthToUsdConverter is Initializable, UUPSAccess {
 
     AggregatorV3Interface internal ethToUsdPriceFeed;
     int256 private currentEthToUsdPrice;
-    IRentalityAccessControl private userService;
 
     /// @dev Get the latest ETH to USD price from the Chainlink price feed.
     /// @return int256 The latest ETH to USD price
@@ -58,10 +57,4 @@ contract EthToUsdConverter is Initializable, UUPSUpgradeable {
         userService = IRentalityAccessControl(_userService);
     }
 
-    /// @notice Only admins are allowed to authorize upgrades.
-    /// @param newImplementation The address of the new implementation contract.
-    function _authorizeUpgrade(address newImplementation) internal view override
-    {
-        require(userService.isAdmin(msg.sender), "Only for admin");
-    }
 }

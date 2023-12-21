@@ -3,7 +3,9 @@ const {
   loadFixture,
 } = require('@nomicfoundation/hardhat-network-helpers')
 const { expect } = require('chai')
-const { ethers } = require('hardhat')
+const { ethers, upgrades } = require('hardhat')
+
+
 const { getMockCarRequest } = require('./utils')
 
 describe('RentalityUserService', function () {
@@ -17,6 +19,8 @@ describe('RentalityUserService', function () {
     const RentalityUtils = await ethers.getContractFactory('RentalityUtils')
     const utils = await RentalityUtils.deploy()
 
+    await utils.waitForDeployment();
+
     const RentalityMockPriceFeed = await ethers.getContractFactory(
       'RentalityMockPriceFeed',
     )
@@ -25,7 +29,7 @@ describe('RentalityUserService', function () {
     )
     const RentalityTripService = await ethers.getContractFactory(
       'RentalityTripService',
-      { libraries: { RentalityUtils: utils.address } },
+      { libraries: { RentalityUtils: await utils.getAddress()} },
     )
     const RentalityCurrencyConverter = await ethers.getContractFactory(
       'RentalityCurrencyConverter',
@@ -44,7 +48,7 @@ describe('RentalityUserService', function () {
       await ethers.getContractFactory('RentalityPlatform',{
         libraries:
             {
-              RentalityUtils: utils.address
+              "RentalityUtils": await utils.getAddress()
             }
       })
 
@@ -52,55 +56,56 @@ describe('RentalityUserService', function () {
       8,
       200000000000,
     )
-    await rentalityMockPriceFeed.deployed()
+    await rentalityMockPriceFeed.waitForDeployment()
 
-    const rentalityUserService = await RentalityUserService.deploy()
-    await rentalityUserService.deployed()
+    const rentalityUserService = await upgrades.deployProxy(RentalityUserService)
+    await rentalityUserService.waitForDeployment()
 
     await rentalityUserService.connect(owner).grantAdminRole(admin.address)
     await rentalityUserService.connect(owner).grantManagerRole(manager.address)
     await rentalityUserService.connect(owner).grantHostRole(host.address)
     await rentalityUserService.connect(owner).grantGuestRole(guest.address)
 
-    const rentalityCurrencyConverter = await RentalityCurrencyConverter.deploy(
-      rentalityMockPriceFeed.address,
+    const rentalityCurrencyConverter = await upgrades.deployProxy(RentalityCurrencyConverter,
+     [await rentalityMockPriceFeed.getAddress(),
+          await rentalityUserService.getAddress()]
     )
 
     const rentalityGeoService = await RentalityGeoService.deploy();
-    await rentalityGeoService.deployed();
+    await rentalityGeoService.waitForDeployment();
 
-    const rentalityCarToken = await RentalityCarToken.deploy(rentalityGeoService.address)
+    const rentalityCarToken = await upgrades.deployProxy(RentalityCarToken,[await rentalityGeoService.getAddress()],{kind:'uups'})
 
-    await rentalityCarToken.deployed()
+    await rentalityCarToken.waitForDeployment()
 
-    const rentalityPaymentService = await RentalityPaymentService.deploy(rentalityUserService.address)
+    const rentalityPaymentService = await upgrades.deployProxy(RentalityPaymentService,[await rentalityUserService.getAddress()])
 
-    const rentalityTripService = await RentalityTripService.deploy(
-      rentalityCurrencyConverter.address,
-      rentalityPaymentService.address,
-      rentalityUserService.address,
-      rentalityUserService.address,
-    )
-    await rentalityTripService.deployed()
+    const rentalityTripService = await upgrades.deployProxy(RentalityTripService,[
+      await rentalityCurrencyConverter.getAddress(),
+      await rentalityCarToken.getAddress(),
+      await rentalityPaymentService.getAddress(),
+      await rentalityUserService.getAddress(),
+    ]);
 
-    const rentalityPlatform = await RentalityPlatform.deploy(
-      rentalityCarToken.address,
-      rentalityCurrencyConverter.address,
-      rentalityTripService.address,
-      rentalityUserService.address,
-      rentalityPaymentService.address,
-    )
-    await rentalityPlatform.deployed()
+    await rentalityTripService.waitForDeployment()
+    const rentalityPlatform = await upgrades.deployProxy(RentalityPlatform,[
+      await rentalityCarToken.getAddress(),
+      await rentalityCurrencyConverter.getAddress(),
+      await rentalityTripService.getAddress(),
+      await rentalityUserService.getAddress(),
+      await rentalityPaymentService.getAddress(),
+    ])
+    await rentalityPlatform.waitForDeployment()
 
     await rentalityUserService
       .connect(owner)
-      .grantHostRole(rentalityPlatform.address)
+      .grantHostRole(await rentalityPlatform.getAddress())
     await rentalityUserService
       .connect(owner)
-      .grantManagerRole(rentalityPlatform.address)
+      .grantManagerRole(await rentalityPlatform.getAddress())
     await rentalityUserService
       .connect(owner)
-      .grantManagerRole(rentalityTripService.address)
+      .grantManagerRole(await rentalityTripService.getAddress())
 
     return {
       rentalityMockPriceFeed,
@@ -125,8 +130,8 @@ describe('RentalityUserService', function () {
       'RentalityUserService',
     )
 
-    const rentalityUserService = await RentalityUserService.deploy()
-    await rentalityUserService.deployed()
+    const rentalityUserService = await upgrades.deployProxy(RentalityUserService)
+    await rentalityUserService.waitForDeployment();
 
     await rentalityUserService.connect(owner).grantAdminRole(admin.address)
     await rentalityUserService.connect(owner).grantManagerRole(manager.address)

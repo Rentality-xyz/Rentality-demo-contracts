@@ -3,14 +3,13 @@
 
 pragma solidity ^0.8.9;
 
-import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import {UUPSUpgradeable} from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 import "./IRentalityAccessControl.sol";
+import "./proxy/UUPSOwnable.sol";
 
 /// @title Rentality Payment Service Contract
 /// @notice This contract manages platform fees and allows the adjustment of the platform fee by the manager.
 /// @dev It is connected to RentalityUserService to check if the caller is an admin.
-contract RentalityPaymentService is OwnableUpgradeable, UUPSUpgradeable {
+contract RentalityPaymentService is UUPSOwnable{
     uint32 platformFeeInPPM;
     IRentalityAccessControl private userService;
 
@@ -38,14 +37,7 @@ contract RentalityPaymentService is OwnableUpgradeable, UUPSUpgradeable {
     function getPlatformFeeFrom(uint64 value) public view returns (uint64) {
         return (value * platformFeeInPPM) / 1_000_000;
     }
-    //   @dev Checks whether the upgrade to a new implementation is authorized.
-    //  @param newImplementation The address of the new implementation contract.
-    //  Requirements:
-    //  - The owner must have authorized the upgrade.
-    function _authorizeUpgrade(address newImplementation) internal override
-    {
-        _checkOwner();
-    }
+
 
     /// @notice Constructor to initialize the RentalityPaymentService.
     /// @param _userService The address of the RentalityUserService contract

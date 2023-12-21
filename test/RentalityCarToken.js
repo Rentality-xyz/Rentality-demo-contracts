@@ -1,6 +1,6 @@
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 const { expect } = require('chai')
-const { ethers } = require('hardhat')
+const { ethers, upgrades } = require('hardhat')
 const { getMockCarRequest } = require('./utils')
 
 describe('RentalityCarToken', function () {
@@ -16,7 +16,7 @@ describe('RentalityCarToken', function () {
       'RentalityGeoMock');
 
     const rentalityGeoService = await RentalityGeoService.deploy();
-    await rentalityGeoService.deployed();
+    await rentalityGeoService.waitForDeployment();
 
     const RentalityUserService = await ethers.getContractFactory(
       'RentalityUserService',
@@ -39,46 +39,44 @@ describe('RentalityCarToken', function () {
       8,
       200000000000,
     )
-    const rentalityUserService = await RentalityUserService.deploy()
+    const rentalityUserService = await upgrades.deployProxy(RentalityUserService)
 
-    await rentalityUserService.deployed()
+    await rentalityUserService.waitForDeployment()
 
-    const rentalityPaymentService = await RentalityPaymentService.deploy(rentalityUserService.address)
-    const rentalityCurrencyConverter = await RentalityCurrencyConverter.deploy(
-      rentalityMockPriceFeed.address,
-    )
+    const rentalityPaymentService = await upgrades.deployProxy(RentalityPaymentService,[await rentalityUserService.getAddress()])
 
-    await rentalityCurrencyConverter.deployed()
-    await rentalityPaymentService.deployed()
-    await rentalityMockPriceFeed.deployed()
+    const rentalityCurrencyConverter = await upgrades.deployProxy(RentalityCurrencyConverter,[await rentalityMockPriceFeed.getAddress(),await rentalityUserService.getAddress()]);
+
+    await rentalityCurrencyConverter.waitForDeployment()
+    await rentalityPaymentService.waitForDeployment()
+    await rentalityMockPriceFeed.waitForDeployment()
 
     await rentalityUserService.connect(owner).grantAdminRole(admin.address)
     await rentalityUserService.connect(owner).grantManagerRole(manager.address)
     await rentalityUserService.connect(owner).grantHostRole(host.address)
     await rentalityUserService.connect(owner).grantGuestRole(guest.address)
 
-    const rentalityCarToken = await RentalityCarToken.deploy(
-      rentalityGeoService.address,
-    )
-    const rentalityCarService = await rentalityCarToken.deployed()
+    const rentalityCarToken = await upgrades.deployProxy(RentalityCarToken,[await rentalityGeoService.getAddress()],{kind:'uups'})
+
+    await rentalityCarToken.waitForDeployment()
 
     const RentalityTripService = await ethers.getContractFactory(
       'RentalityTripService',
-      { libraries: { RentalityUtils: utils.address } },
+      { libraries: { RentalityUtils: await utils.getAddress() } },
     )
 
-    const rentalityTripService = await RentalityTripService.deploy(
-      rentalityCurrencyConverter.address,
-      rentalityCarService.address,
-      rentalityPaymentService.address,
-      rentalityUserService.address,
-    )
+    const rentalityTripService = await upgrades.deployProxy(RentalityTripService,[
+      await rentalityCurrencyConverter.getAddress(),
+      await rentalityCarToken.getAddress(),
+      await rentalityPaymentService.getAddress(),
+      await rentalityUserService.getAddress(),
+    ]);
 
-    await rentalityTripService.deployed()
+    await rentalityTripService.waitForDeployment()
 
     await rentalityUserService
       .connect(owner)
-      .grantManagerRole(rentalityTripService.address)
+      .grantManagerRole(await rentalityTripService.getAddress())
 
     return {
       rentalityCarToken,
@@ -139,16 +137,16 @@ describe('RentalityCarToken', function () {
       await ethers.getContractFactory('RentalityCarToken')
 
     const rentalityUserService1 = await RentalityUserService1.deploy()
-    await rentalityUserService1.deployed()
+    await rentalityUserService1.waitForDeployment()
 
     const rentalityUserService2 = await RentalityUserService2.deploy()
-    await rentalityUserService2.deployed()
+    await rentalityUserService2.waitForDeployment()
 
     await rentalityUserService1.connect(owner).grantAdminRole(admin1.address)
     await rentalityUserService2.connect(owner).grantAdminRole(admin2.address)
 
     const rentalityCarToken = await RentalityCarToken.deploy()
-    await rentalityCarToken.deployed()
+    await rentalityCarToken.waitForDeployment()
 
     return {
       rentalityCarToken,

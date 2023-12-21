@@ -2,8 +2,9 @@ const {
   time,
   loadFixture,
 } = require('@nomicfoundation/hardhat-network-helpers')
+
 const { expect } = require('chai')
-const { ethers } = require('hardhat')
+const { ethers, upgrades, artifacts } = require('hardhat')
 const {getMockCarRequest, getEmptySearchCarParams} = require("./utils");
 
 describe('Rentality', function () {
@@ -24,7 +25,7 @@ describe('Rentality', function () {
     )
     const RentalityTripService = await ethers.getContractFactory(
       'RentalityTripService',
-      { libraries: { RentalityUtils: utils.address } },
+      { libraries: { RentalityUtils: await utils.getAddress() } },
     )
     const RentalityCurrencyConverter = await ethers.getContractFactory(
       'RentalityCurrencyConverter',
@@ -36,7 +37,7 @@ describe('Rentality', function () {
       'RentalityGeoMock');
 
 
-    const geoService = await RentalityGeoService.deploy();
+    const rentalityGeoService = await RentalityGeoService.deploy();
 
     const RentalityCarToken =
       await ethers.getContractFactory('RentalityCarToken')
@@ -46,7 +47,7 @@ describe('Rentality', function () {
         {
           libraries:
             {
-              RentalityUtils: utils.address
+              RentalityUtils: await utils.getAddress()
             }
         })
 
@@ -54,50 +55,55 @@ describe('Rentality', function () {
       8,
       200000000000,
     )
-    await rentalityMockPriceFeed.deployed()
+    await rentalityMockPriceFeed.waitForDeployment()
 
-    const rentalityUserService = await RentalityUserService.deploy()
-    await rentalityUserService.deployed()
+    const rentalityUserService = await upgrades.deployProxy(RentalityUserService)
+    await rentalityUserService.waitForDeployment()
 
     await rentalityUserService.connect(owner).grantAdminRole(admin.address)
     await rentalityUserService.connect(owner).grantManagerRole(manager.address)
     await rentalityUserService.connect(owner).grantHostRole(host.address)
     await rentalityUserService.connect(owner).grantGuestRole(guest.address)
 
-    const rentalityCurrencyConverter = await RentalityCurrencyConverter.deploy(
-      rentalityMockPriceFeed.address,
+    const rentalityCurrencyConverter = await upgrades.deployProxy(RentalityCurrencyConverter,
+     [await rentalityMockPriceFeed.getAddress(),
+      await rentalityUserService.getAddress()]
     )
-    await rentalityCurrencyConverter.deployed()
+    await rentalityCurrencyConverter.waitForDeployment()
 
-    const rentalityCarToken = await RentalityCarToken.deploy(geoService.address)
-    await rentalityCarToken.deployed()
-    const rentalityPaymentService = await RentalityPaymentService.deploy(rentalityUserService.address)
-    await rentalityPaymentService.deployed()
+    const rentalityCarToken = await upgrades.deployProxy(RentalityCarToken,[await rentalityGeoService.getAddress()],{kind:'uups'})
+    await rentalityCarToken.waitForDeployment()
+    const rentalityPaymentService = await upgrades.deployProxy(RentalityPaymentService,[await rentalityUserService.getAddress()])
+    await rentalityPaymentService.waitForDeployment()
 
-    const rentalityTripService = await RentalityTripService.deploy(
-      rentalityCurrencyConverter.address,
-      rentalityCarToken.address,
-      rentalityPaymentService.address,
-      rentalityUserService.address,
-    )
-    await rentalityTripService.deployed()
+    const rentalityTripService = await upgrades.deployProxy(RentalityTripService,[
+      await rentalityCurrencyConverter.getAddress(),
+      await rentalityCarToken.getAddress(),
+      await rentalityPaymentService.getAddress(),
+      await rentalityUserService.getAddress(),
+    ]);
+    await rentalityTripService.waitForDeployment()
 
-    const rentalityPlatform = await RentalityPlatform.deploy(
-      rentalityCarToken.address,
-      rentalityCurrencyConverter.address,
-      rentalityTripService.address,
-      rentalityUserService.address,
-      rentalityPaymentService.address,
-    )
-    await rentalityPlatform.deployed()
+    const rentalityPlatform = await upgrades.deployProxy(RentalityPlatform,[
+      await rentalityCarToken.getAddress(),
+      await rentalityCurrencyConverter.getAddress(),
+      await rentalityTripService.getAddress(),
+      await rentalityUserService.getAddress(),
+      await rentalityPaymentService.getAddress(),
+    ])
+
+    await rentalityPlatform.waitForDeployment()
 
     await rentalityUserService
       .connect(owner)
-      .grantHostRole(rentalityPlatform.address)
+      .grantHostRole(await rentalityPlatform.getAddress())
+    await rentalityUserService
+      .connect(owner)
+      .grantManagerRole(await rentalityPlatform.getAddress())
 
     await rentalityUserService
       .connect(owner)
-      .grantManagerRole(rentalityTripService.address)
+      .grantManagerRole(await rentalityTripService.getAddress())
 
     return {
       rentalityMockPriceFeed,
@@ -414,7 +420,7 @@ describe('Rentality', function () {
         rentPriceInEth -
         (rentPriceInEth *
           (await rentalityPaymentService.getPlatformFeeInPPM())) /
-          1_000_000
+          BigInt(1_000_000)
 
       await expect(
         rentalityPlatform.connect(host).finishTrip(1),
@@ -797,7 +803,7 @@ describe('Rentality', function () {
         (await rentalityTripService.connect(host).getTrip(1)).status,
       ).to.equal(0)
 
-      const balanceAfterRequest = await guest.getBalance()
+      const balanceAfterRequest =  await ethers.provider.getBalance(await guest.getAddress())
 
       expect(await rentalityPlatform.connect(host).rejectTripRequest(1)).not.to
         .be.reverted
@@ -805,11 +811,11 @@ describe('Rentality', function () {
         (await rentalityTripService.connect(host).getTrip(1)).status,
       ).to.equal(7)
 
-      const balanceAfterRejection = await guest.getBalance()
+      const balanceAfterRejection = await ethers.provider.getBalance(await guest.getAddress())
       const returnAmountDifference =
-        rentPriceInEth - balanceAfterRejection.sub(balanceAfterRequest)
+        rentPriceInEth - (balanceAfterRejection - balanceAfterRequest)
       expect(
-        returnAmountDifference === 0,
+        returnAmountDifference === BigInt(0),
         'Balance should be refunded the amount which is deducted by a trip request',
       ).to.be.true
     })
@@ -864,22 +870,23 @@ describe('Rentality', function () {
         (await rentalityTripService.connect(host).getTrip(1)).status,
       ).to.equal(0)
 
-      const balanceBeforeRejection = await guest.getBalance()
+
+      const balanceBeforeRejection = await ethers.provider.getBalance(await guest.getAddress())
 
       const tx = await (
         await rentalityPlatform.connect(guest).rejectTripRequest(1)
       ).wait()
 
-      const gasCost = tx.gasUsed.mul(tx.effectiveGasPrice)
+      const gasCost = tx.gasUsed * tx.gasPrice
 
-      const balanceAfterRejection = await guest.getBalance()
+      const balanceAfterRejection =  await ethers.provider.getBalance(await guest.getAddress())
 
       const expectedBalance = balanceBeforeRejection
-        .add(rentPriceInEth)
-        .sub(gasCost)
+         + rentPriceInEth
+        - gasCost
 
       expect(
-        balanceAfterRejection.eq(expectedBalance),
+        balanceAfterRejection === BigInt(expectedBalance),
         'The guest should be refunded minus the gas cost',
       ).to.be.true
     })
@@ -944,23 +951,23 @@ describe('Rentality', function () {
         (await rentalityTripService.connect(host).getTrip(1)).status,
       ).to.equal(1)
 
-      const balanceBeforeRejection = await guest.getBalance()
+      const balanceBeforeRejection = await ethers.provider.getBalance(await guest.getAddress())
 
       const tx = await (
         await rentalityPlatform.connect(guest).rejectTripRequest(1)
       ).wait()
 
-      const gasCost = tx.gasUsed.mul(tx.effectiveGasPrice)
+      const gasCost = tx.gasUsed * tx.gasPrice
 
-      const balanceAfterRejection = await guest.getBalance()
+      const balanceAfterRejection =  await ethers.provider.getBalance(await guest.getAddress())
 
       const expectedBalance = balanceBeforeRejection
-        .add(rentPriceInEth)
-        .sub(gasCost)
-        .sub(pricePerDayInEth / 2)
+        + rentPriceInEth
+        - gasCost
+        - (pricePerDayInEth / BigInt(2))
 
       expect(
-        balanceAfterRejection.eq(expectedBalance),
+        balanceAfterRejection === expectedBalance,
         'The guest should be refunded minus the gas cost and minus 50% of daily price',
       ).to.be.true
     })
@@ -1031,23 +1038,23 @@ describe('Rentality', function () {
         (await rentalityTripService.connect(host).getTrip(1)).status,
       ).to.equal(2)
 
-      const balanceBeforeRejection = await guest.getBalance()
+      const balanceBeforeRejection = await ethers.provider.getBalance(await guest.getAddress())
 
       const tx = await (
         await rentalityPlatform.connect(guest).rejectTripRequest(1)
       ).wait()
 
-      const gasCost = tx.gasUsed.mul(tx.effectiveGasPrice)
+      const gasCost = tx.gasUsed * tx.gasPrice
 
-      const balanceAfterRejection = await guest.getBalance()
+      const balanceAfterRejection = await ethers.provider.getBalance(await guest.getAddress())
 
       const expectedBalance = balanceBeforeRejection
-        .add(rentPriceInEth)
-        .sub(gasCost)
-        .sub(pricePerDayInEth)
+        + rentPriceInEth
+        - gasCost
+        - pricePerDayInEth
 
       expect(
-        balanceAfterRejection.eq(expectedBalance),
+        balanceAfterRejection === BigInt(expectedBalance),
         'The guest should be refunded minus the gas cost and minus the daily price',
       ).to.be.true
     })

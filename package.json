@@ -13,14 +13,15 @@
   "dependencies": {
     "@chainlink/contracts": "^0.8.0",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.8",
-    "@openzeppelin/contracts": "^4.8.0",
-    "@openzeppelin/contracts-upgradeable": "^4.8.0",
-    "dotenv": "^16.0.4"
+    "@openzeppelin/contracts": "^4.9.0",
+    "@openzeppelin/contracts-upgradeable": "^4.9.0",
+    "dotenv": "^16.0.4",
+    "chai": "^4.3.10"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^4.0.0",
-    "@openzeppelin/hardhat-upgrades": "^3.0.0",
-    "hardhat": "^2.19.2",
+    "@openzeppelin/hardhat-upgrades": "^3.0.1",
+    "hardhat": "^2.19.1",
     "solidity-docgen": "^0.6.0-beta.36"
   }
 }

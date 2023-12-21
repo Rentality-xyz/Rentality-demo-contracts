@@ -4,13 +4,13 @@ pragma solidity ^0.8.9;
 
 import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 import "./IRentalityAccessControl.sol";
+import "./proxy/UUPSAccess.sol";
 
 /// @title RentalityCurrencyConverter
 /// @notice A contract for converting between Ether (ETH) and United States Dollar (USD) using Chainlink price feeds
 /// @dev Users can retrieve the latest ETH to USD price, convert between ETH and USD, and cache the price for efficiency.
-contract RentalityCurrencyConverter is Initializable, UUPSUpgradeable {
+contract RentalityCurrencyConverter is Initializable, UUPSAccess {
     // Interface for Chainlink ETH to USD price feed
     AggregatorV3Interface internal ethToUsdPriceFeed;
 
@@ -24,7 +24,6 @@ contract RentalityCurrencyConverter is Initializable, UUPSUpgradeable {
     // Timestamp of the last update of the ETH to USD price
     uint256 public lastUpdatePriceTimeStamp;
 
-    IRentalityAccessControl private userService;
 
     /// @notice Get the latest ETH to USD price from the Chainlink price feed
     /// @return The latest ETH to USD price
@@ -123,10 +122,4 @@ contract RentalityCurrencyConverter is Initializable, UUPSUpgradeable {
         (currentEthToUsdPrice, currentEthToUsdDecimals) = getEthToUsdPrice();
     }
 
-    /// @notice Only admins are allowed to authorize upgrades.
-    /// @param newImplementation The address of the new implementation contract.
-    function _authorizeUpgrade(address newImplementation) internal view override
-    {
-        require(userService.isAdmin(msg.sender), "Only for admin");
-    }
 }
