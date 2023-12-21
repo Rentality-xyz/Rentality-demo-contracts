@@ -1,14 +1,14 @@
 const saveJsonAbi = require("./utils/abiSaver");
-const { ethers } = require("hardhat");
+const { ethers,upgrades } = require("hardhat");
 const addressesContractsTestnets = require("./addressesContractsTestnets.json");
 
 async function main() {
   const contractName = "RentalityCarToken";
   const [deployer] = await ethers.getSigners();
-  const balance = await deployer.getBalance();
+  const balance = await ethers.provider.getBalance(deployer.address);
   console.log(
     "Deployer address is:",
-    deployer.getAddress(),
+   await deployer.getAddress(),
     " with balance:",
     balance
   );
@@ -25,8 +25,8 @@ async function main() {
 
   const contractFactory = await ethers.getContractFactory(contractName);
   const contract = await contractFactory.deploy();
-  await contract.deployed();
-  console.log(contractName + " deployed to:", contract.address);
+  await contract.waitForDeployment()
+  console.log(contractName + " deployed to:", await contract.getAddress());
 
   saveJsonAbi(contractName, chainId, contract);
 }
