@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
-
-import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import {UUPSUpgradeable} from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
+//deployed 26.05.2023 11:15 to sepolia at 0x12fB29Ed1f0E17605f488F640D49De29050cf855
+//deployed 27.06.2023 11:10 to sepolia at 0x18744A3f7D15930446B1dbc5A837562e468B2D8d
 import './IRentalityGateway.sol';
 import './RentalityCarToken.sol';
 import './RentalityCurrencyConverter.sol';
@@ -16,10 +15,11 @@ import './RentalityPaymentService.sol';
 /// Users can interact with the car service, trip service, user service, and payment service through this gateway.
 /// Admins can update the addresses of connected services.
 /// Hosts and guests can perform actions related to car rentals and trips.
-
-//deployed 26.05.2023 11:15 to sepolia at 0x12fB29Ed1f0E17605f488F640D49De29050cf855
-//deployed 27.06.2023 11:10 to sepolia at 0x18744A3f7D15930446B1dbc5A837562e468B2D8d
-contract RentalityGateway is OwnableUpgradeable, UUPSUpgradeable {
+/// @dev SAFETY: The linked library is not supported yet because it can modify the state or call
+///  selfdestruct, as far as RentalityUtils doesn't has this logic,
+/// it's completely safe for upgrade
+/// @custom:oz-upgrades-unsafe-allow external-library-linking
+contract RentalityGateway is UUPSOwnable {
     RentalityCarToken private carService;
     RentalityCurrencyConverter private currencyConverterService;
     RentalityTripService private tripService;
@@ -446,7 +446,7 @@ contract RentalityGateway is OwnableUpgradeable, UUPSUpgradeable {
     view
     returns (RentalityTripService.Trip[] memory)
     {
-        return tripService.getTripsByGuest(tx.origin);
+        return RentalityUtils.getTripsByGuest(tripService, tx.origin);
     }
 
     /// @notice Retrieves information about trips where the specified user is the guest.
@@ -455,7 +455,7 @@ contract RentalityGateway is OwnableUpgradeable, UUPSUpgradeable {
     function getTripsByGuest(
         address guest
     ) public view returns (RentalityTripService.Trip[] memory) {
-        return tripService.getTripsByGuest(guest);
+        return RentalityUtils.getTripsByGuest(tripService ,guest);
     }
 
     /// @notice Retrieves information about trips where the caller is the host.
@@ -465,7 +465,7 @@ contract RentalityGateway is OwnableUpgradeable, UUPSUpgradeable {
     view
     returns (RentalityTripService.Trip[] memory)
     {
-        return tripService.getTripsByHost(tx.origin);
+        return RentalityUtils.getTripsByHost(tripService, tx.origin);
     }
 
     /// @notice Retrieves information about trips where the specified user is the host.
@@ -474,7 +474,7 @@ contract RentalityGateway is OwnableUpgradeable, UUPSUpgradeable {
     function getTripsByHost(
         address host
     ) public view returns (RentalityTripService.Trip[] memory) {
-        return tripService.getTripsByHost(host);
+        return RentalityUtils.getTripsByHost(tripService, host);
     }
 
     /// @notice Retrieves information about trips for a specific car.
@@ -483,7 +483,7 @@ contract RentalityGateway is OwnableUpgradeable, UUPSUpgradeable {
     function getTripsByCar(
         uint256 carId
     ) public view returns (RentalityTripService.Trip[] memory) {
-        return tripService.getTripsByCar(carId);
+        return RentalityUtils.getTripsByCar(tripService, carId);
     }
 
     /// @notice Sets Know Your Customer (KYC) information for the caller.
@@ -551,14 +551,6 @@ contract RentalityGateway is OwnableUpgradeable, UUPSUpgradeable {
         return rentalityPlatform.getChatInfoForGuest();
     }
 
-    //   @dev Checks whether the upgrade to a new implementation is authorized.
-    //  @param newImplementation The address of the new implementation contract.
-    //  Requirements:
-    //  - The owner must have authorized the upgrade.
-    function _authorizeUpgrade(address newImplementation) internal override
-    {
-        _checkOwner();
-    }
 
     //  @dev Initializes the contract with the provided addresses for various services.
     //  @param carServiceAddress The address of the RentalityCarToken contract.

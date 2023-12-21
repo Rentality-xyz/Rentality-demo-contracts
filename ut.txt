@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import "./RentalityTripService.sol";
+import "./IRentalityGateway.sol";
 import "./RentalityUserService.sol";
 import "./RentalityCarToken.sol";
 import "./IRentalityGateway.sol";
 import "@openzeppelin/contracts/utils/math/Math.sol";
 import './RentalityGeoService.sol';
+import './RentalityTripService.sol';
 
 /// @title RentalityUtils Library
 /// @notice
@@ -149,12 +150,12 @@ library RentalityUtils {
         return uint64(Math.ceilDiv(duration, 1 days));
     }
     /// @notice Populates an array of chat information using data from trips, user service, and car service.
-    /// @param trips Array of RentalityTripService.Trip structures.
+    /// @param trips Array of IRentalityGateway.Trip structures.
     /// @param userService RentalityUserService contract instance.
     /// @param carService RentalityCarToken contract instance.
     /// @return chatInfoList Array of IRentalityGateway.ChatInfo structures.
     function populateChatInfo(
-        RentalityTripService.Trip[] memory trips,
+        IRentalityGateway.Trip[] memory trips,
         RentalityUserService userService,
         RentalityCarToken carService
     ) public view returns (IRentalityGateway.ChatInfo[] memory) {
@@ -348,7 +349,7 @@ library RentalityUtils {
         uint64 endDateTime
     ) internal view returns (bool)
     {
-        RentalityTripService.Trip memory trip = tripService.getTrip(tripId);
+        IRentalityGateway.Trip memory trip = tripService.getTrip(tripId);
         return
             (trip.endDateTime > startDateTime) &&
             (trip.startDateTime < endDateTime);
@@ -363,7 +364,7 @@ library RentalityUtils {
         RentalityTripService tripService,
         uint64 startDateTime,
         uint64 endDateTime
-    ) public view returns (RentalityTripService.Trip[] memory) {
+    ) public view returns (IRentalityGateway.Trip[] memory) {
         uint itemCount = 0;
 
         for (uint i = 0; i < tripService.totalTripCount(); i++) {
@@ -375,7 +376,7 @@ library RentalityUtils {
             }
         }
 
-        RentalityTripService.Trip[] memory result = new RentalityTripService.Trip[](itemCount);
+        IRentalityGateway.Trip[] memory result = new IRentalityGateway.Trip[](itemCount);
         uint currentIndex = 0;
 
         for (uint i = 0; i < tripService.totalTripCount(); i++) {
@@ -404,7 +405,7 @@ library RentalityUtils {
         uint64 startDateTime,
         uint64 endDateTime
     ) private view returns (bool) {
-        RentalityTripService.Trip memory trip = tripService.getTrip(tripId);
+        IRentalityGateway.Trip memory trip = tripService.getTrip(tripId);
         return
             (trip.carId == carId) &&
             (trip.endDateTime > startDateTime) &&
@@ -421,7 +422,7 @@ library RentalityUtils {
         uint256 carId,
         uint64 startDateTime,
         uint64 endDateTime
-    ) public view returns (RentalityTripService.Trip[] memory) {
+    ) public view returns (IRentalityGateway.Trip[] memory) {
         uint itemCount = 0;
 
         for (uint i = 0; i < tripService.totalTripCount(); i++) {
@@ -433,7 +434,7 @@ library RentalityUtils {
             }
         }
 
-        RentalityTripService.Trip[] memory result = new RentalityTripService.Trip[](itemCount);
+        IRentalityGateway.Trip[] memory result = new IRentalityGateway.Trip[](itemCount);
         uint currentIndex = 0;
 
         for (uint i = 0; i < tripService.totalTripCount(); i++) {
@@ -456,7 +457,7 @@ library RentalityUtils {
     function getTripsByGuest(
         RentalityTripService tripService,
         address guest
-    ) public view returns (RentalityTripService.Trip[] memory) {
+    ) public view returns (IRentalityGateway.Trip[] memory) {
         uint itemCount = 0;
 
         for (uint i = 0; i < tripService.totalTripCount(); i++) {
@@ -466,13 +467,13 @@ library RentalityUtils {
             }
         }
 
-        RentalityTripService.Trip[] memory result = new RentalityTripService.Trip[](itemCount);
+        IRentalityGateway.Trip[] memory result = new IRentalityGateway.Trip[](itemCount);
         uint currentIndex = 0;
 
         for (uint i = 0; i < tripService.totalTripCount(); i++) {
             uint currentId = i + 1;
             if (tripService.getTrip(currentId).guest == guest) {
-                RentalityTripService.Trip memory currentItem = tripService.getTrip(currentId);
+                IRentalityGateway.Trip memory currentItem = tripService.getTrip(currentId);
                 result[currentIndex] = currentItem;
                 currentIndex += 1;
             }
@@ -484,7 +485,7 @@ library RentalityUtils {
     /// @dev Retrieves an array of trips associated with a specific host address.
     /// @param host The address of the host.
     /// @return trips An array of trips associated with the specified host.
-    function getTripsByHost(RentalityTripService tripService, address host) public view returns (RentalityTripService.Trip[] memory) {
+    function getTripsByHost(RentalityTripService tripService, address host) public view returns (IRentalityGateway.Trip[] memory) {
         uint itemCount = 0;
 
         for (uint i = 0; i < tripService.totalTripCount(); i++) {
@@ -494,13 +495,13 @@ library RentalityUtils {
             }
         }
 
-        RentalityTripService.Trip[] memory result = new RentalityTripService.Trip[](itemCount);
+        IRentalityGateway.Trip[] memory result = new IRentalityGateway.Trip[](itemCount);
         uint currentIndex = 0;
 
         for (uint i = 0; i < tripService.totalTripCount(); i++) {
             uint currentId = i + 1;
             if (tripService.getTrip(currentId).host == host) {
-                RentalityTripService.Trip memory currentItem = tripService.getTrip(currentId);
+                IRentalityGateway.Trip memory currentItem = tripService.getTrip(currentId);
                 result[currentIndex] = currentItem;
                 currentIndex += 1;
             }
@@ -512,7 +513,7 @@ library RentalityUtils {
     /// @dev Retrieves an array of trips associated with a specific car ID.
     /// @param carId The ID of the car.
     /// @return trips An array of trips associated with the specified car ID.
-    function getTripsByCar(RentalityTripService tripService, uint256 carId) public view returns (RentalityTripService.Trip[] memory) {
+    function getTripsByCar(RentalityTripService tripService, uint256 carId) public view returns (IRentalityGateway.Trip[] memory) {
         uint itemCount = 0;
 
         for (uint i = 0; i < tripService.totalTripCount(); i++) {
@@ -522,13 +523,13 @@ library RentalityUtils {
             }
         }
 
-        RentalityTripService.Trip[] memory result = new RentalityTripService.Trip[](itemCount);
+        IRentalityGateway.Trip[] memory result = new IRentalityGateway.Trip[](itemCount);
         uint currentIndex = 0;
 
         for (uint i = 0; i < tripService.totalTripCount(); i++) {
             uint currentId = i + 1;
             if (tripService.getTrip(currentId).carId == carId) {
-                RentalityTripService.Trip memory currentItem = tripService.getTrip(currentId);
+                IRentalityGateway.Trip memory currentItem = tripService.getTrip(currentId);
                 result[currentIndex] = currentItem;
                 currentIndex += 1;
             }
@@ -541,7 +542,7 @@ library RentalityUtils {
     ///  @param tripInfo The information about the trip.
     /// @return Returns the resolved amounts for miles and fuel in USD cents as a tuple.
     function getResolveAmountInUsdCents(
-        RentalityTripService.Trip memory tripInfo
+        IRentalityGateway.Trip memory tripInfo
     ) public pure returns (uint64, uint64) {
         uint64 tripDays = getCeilDays(tripInfo.startDateTime, tripInfo.endDateTime);
 

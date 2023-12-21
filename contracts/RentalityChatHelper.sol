@@ -4,10 +4,11 @@ pragma solidity ^0.8.9;
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 import "./IRentalityAccessControl.sol";
+import "./proxy/UUPSAccess.sol";
 /// @title RentalityChatHelper
 /// @notice A contract to manage chat key pairs for users
 /// @dev Users can set and retrieve their chat key pairs, and get public keys of specified addresses.
-contract RentalityChatHelper is Initializable, UUPSUpgradeable {
+contract RentalityChatHelper is Initializable, UUPSAccess {
     /// @dev Struct to represent a pair of private and public chat keys
     struct ChatKeyPair {
         string privateKey;
@@ -22,7 +23,6 @@ contract RentalityChatHelper is Initializable, UUPSUpgradeable {
 
     // Mapping to store chat key pairs associated with Ethereum addresses
     mapping(address => ChatKeyPair) private addressToChatKeyPair;
-    IRentalityAccessControl private userService;
 
 
     /// @notice Set the chat key pair for the calling user
@@ -57,10 +57,4 @@ contract RentalityChatHelper is Initializable, UUPSUpgradeable {
         userService = IRentalityAccessControl(_userService);
     }
 
-    /// @notice Only admins are allowed to authorize upgrades.
-    /// @param newImplementation The address of the new implementation contract.
-    function _authorizeUpgrade(address newImplementation) internal view override
-    {
-        require(userService.isAdmin(msg.sender), "Only for admin");
-    }
 }

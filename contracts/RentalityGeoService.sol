@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import {UUPSUpgradeable} from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
 import "./RentalityUtils.sol";
+import "./proxy/UUPSOwnable.sol";
 
 /// @title Rentality Geo Service Contract
 /// @notice This contract provides geolocation services using Chainlink oracles.
@@ -12,7 +11,8 @@ import "./RentalityUtils.sol";
 //#GEO sepolia
 //CHAINLINK_ORACLE="0x6090149792dAAeE9D1D568c9f9a6F6B46AA29eFD"
 //CHAINLINK_TOKEN="0x779877A7B0D9E8603169DdbD7836e478b4624789"
-contract RentalityGeoService is ChainlinkClient, OwnableUpgradeable, UUPSUpgradeable {
+contract RentalityGeoService is ChainlinkClient, UUPSOwnable {
+
     using Chainlink for Chainlink.Request;
 
     /// @notice Chainlink job ID for the geolocation API.
@@ -159,15 +159,6 @@ contract RentalityGeoService is ChainlinkClient, OwnableUpgradeable, UUPSUpgrade
     /// @return country The country name.
     function getCarCountry(uint256 carId) public view returns (string memory) {
         return carIdToParsedGeolocationData[carId].country;
-    }
-
-    //   @dev Checks whether the upgrade to a new implementation is authorized.
-    //  @param newImplementation The address of the new implementation contract.
-    //  Requirements:
-    //  - The owner must have authorized the upgrade.
-    function _authorizeUpgrade(address newImplementation) internal override
-    {
-        _checkOwner();
     }
 
     /// @notice Constructor to initialize Chainlink settings.

@@ -10,6 +10,7 @@ import "./RentalityCurrencyConverter.sol";
 import "./RentalityPaymentService.sol";
 import "./RentalityCarToken.sol";
 import "./RentalityUtils.sol";
+import "./IRentalityGateway.sol";
 import "./RentalityUserService.sol";
 
 /// @title RentalityTripService
@@ -22,76 +23,8 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     using Counters for Counters.Counter;
     Counters.Counter private _tripIdCounter;
 
-    /// @dev Enumeration representing various states of a trip.
-    enum TripStatus {
-        Created,
-        Approved,
-        CheckedInByHost,
-        CheckedInByGuest,
-        CheckedOutByGuest,
-        CheckedOutByHost,
-        Finished,
-        Canceled
-    }
 
-    /// @dev Enumeration representing the currency type used for payments.
-    enum CurrencyType {
-        ETH
-    }
-
-    /// @dev Struct containing payment information for a trip.
-    struct PaymentInfo {
-        uint256 tripId;
-        address from;
-        address to;
-        uint64 totalDayPriceInUsdCents;
-        uint64 taxPriceInUsdCents;
-        uint64 depositInUsdCents;
-        uint64 resolveAmountInUsdCents;
-        CurrencyType currencyType;
-        int256 ethToCurrencyRate;
-        uint8 ethToCurrencyDecimals;
-        uint64 resolveFuelAmountInUsdCents;
-        uint64 resolveMilesAmountInUsdCents;
-    }
-
-    /// @dev Struct containing information about a trip.
-    struct Trip {
-        uint256 tripId;
-        uint256 carId;
-        TripStatus status;
-        address guest;
-        address host;
-        string guestName;
-        string hostName;
-        uint64 pricePerDayInUsdCents;
-        uint64 startDateTime;
-        uint64 endDateTime;
-        string startLocation;
-        string endLocation;
-        uint64 milesIncludedPerDay;
-        uint64 fuelPricePerGalInUsdCents;
-        PaymentInfo paymentInfo;
-        uint approvedDateTime;
-        uint rejectedDateTime;
-        address rejectedBy;
-        uint checkedInByHostDateTime;
-        uint64 startFuelLevelInGal;
-        uint64 startOdometr;
-        uint checkedInByGuestDateTime;
-        uint checkedOutByGuestDateTime;
-        uint64 endFuelLevelInGal;
-        uint64 endOdometr;
-        uint checkedOutByHostDateTime;
-    }
-
-    struct AvailableCarResponse {
-        RentalityCarToken.CarInfo car;
-        string hostPhotoUrl;
-        string hostName;
-    }
-
-    mapping(uint256 => Trip) private idToTripInfo;
+    mapping(uint256 => IRentalityGateway.Trip) private idToTripInfo;
 
     /// @dev Event emitted when a new trip is created.
     /// @param tripId The ID of the newly created trip.
@@ -100,13 +33,12 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     /// @dev Event emitted when the status of a trip is changed.
     /// @param tripId The ID of the trip whose status changed.
     /// @param newStatus The new status of the trip.
-    event TripStatusChanged(uint256 tripId, TripStatus newStatus);
+    event TripStatusChanged(uint256 tripId, IRentalityGateway.TripStatus newStatus);
 
     RentalityCurrencyConverter private currencyConverterService;
     RentalityCarToken private carService;
     RentalityPaymentService private paymentService;
     RentalityUserService private userService;
-
 
 
     /// @dev Get the total number of trips created.
@@ -138,7 +70,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
         string memory endLocation,
         uint64 milesIncludedPerDay,
         uint64 fuelPricePerGalInUsdCents,
-        PaymentInfo memory paymentInfo
+        IRentalityGateway.PaymentInfo memory paymentInfo
     ) public {
         require(userService.isManager(msg.sender), "Only from manager contract.");
         _tripIdCounter.increment();
@@ -151,10 +83,10 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
         string memory guestName = userService.getKYCInfo(tx.origin).name;
         string memory hostName = userService.getKYCInfo(host).name;
 
-        idToTripInfo[newTripId] = Trip(
+        idToTripInfo[newTripId] = IRentalityGateway.Trip(
             newTripId,
             carId,
-            TripStatus.Created,
+            IRentalityGateway.TripStatusCreated,
             guest,
             host,
             guestName,
@@ -195,14 +127,14 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
             "Only host of the trip can approve it"
         );
         require(
-            idToTripInfo[tripId].status == TripStatus.Created,
+            idToTripInfo[tripId].status == IRentalityGateway.TripStatusCreated,
             "The trip is not in status Created"
         );
 
-        idToTripInfo[tripId].status = TripStatus.Approved;
+        idToTripInfo[tripId].status = IRentalityGateway.TripStatusApproved;
         idToTripInfo[tripId].approvedDateTime = block.timestamp;
 
-        emit TripStatusChanged(tripId, TripStatus.Approved);
+        emit TripStatusChanged(tripId, IRentalityGateway.TripStatusApproved);
     }
 
     /// @notice Reject a trip by changing its status to Canceled.
@@ -218,17 +150,17 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
             "Only host or guest of the trip can reject it"
         );
         require(
-            idToTripInfo[tripId].status == TripStatus.Created ||
-            idToTripInfo[tripId].status == TripStatus.Approved ||
-            idToTripInfo[tripId].status == TripStatus.CheckedInByHost,
+            idToTripInfo[tripId].status == IRentalityGateway.TripStatusCreated ||
+            idToTripInfo[tripId].status == IRentalityGateway.TripStatusApproved ||
+            idToTripInfo[tripId].status == IRentalityGateway.TripStatusCheckedInByHost,
             "The trip is not in status Created, Approved or CheckedInByHost"
         );
 
-        idToTripInfo[tripId].status = TripStatus.Canceled;
+        idToTripInfo[tripId].status = IRentalityGateway.TripStatusCanceled;
         idToTripInfo[tripId].rejectedDateTime = block.timestamp;
         idToTripInfo[tripId].rejectedBy = tx.origin;
 
-        emit TripStatusChanged(tripId, TripStatus.Canceled);
+        emit TripStatusChanged(tripId, IRentalityGateway.TripStatusCanceled);
     }
 
     /// @dev Searches for available cars for a user within a specified time range and search parameters.
@@ -242,14 +174,14 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
         uint64 startDateTime,
         uint64 endDateTime,
         RentalityCarToken.SearchCarParams memory searchParams
-    ) public view returns (AvailableCarResponse[] memory) {
+    ) public view returns (IRentalityGateway.AvailableCarResponse[] memory) {
 // if (startDateTime < block.timestamp){
 //     return new RentalityCarToken.CarInfo[](0);
 // }
         RentalityCarToken.CarInfo[] memory availableCars = carService.fetchAvailableCarsForUser(user, searchParams);
-        if (availableCars.length == 0) return new AvailableCarResponse[](0);
+        if (availableCars.length == 0) return new IRentalityGateway.AvailableCarResponse[](0);
 
-        Trip[] memory trips = RentalityUtils.getTripsThatIntersect(this, startDateTime, endDateTime);
+        IRentalityGateway.Trip[] memory trips = RentalityUtils.getTripsThatIntersect(this, startDateTime, endDateTime);
         RentalityCarToken.CarInfo[] memory temp;
         uint256 resultCount;
 
@@ -268,9 +200,9 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
 
                 for (uint j = 0; j < trips.length; j++) {
                     if (
-                        trips[j].status == TripStatus.Created ||
-                        trips[j].status == TripStatus.Finished ||
-                        trips[j].status == TripStatus.Canceled
+                        trips[j].status == IRentalityGateway.TripStatusCreated ||
+                        trips[j].status == IRentalityGateway.TripStatusFinished ||
+                        trips[j].status == IRentalityGateway.TripStatusCanceled
                     ) {
                         continue;
                     }
@@ -287,12 +219,12 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
                 }
             }
         }
-        AvailableCarResponse[] memory result = new AvailableCarResponse[](resultCount);
+        IRentalityGateway.AvailableCarResponse[] memory result = new IRentalityGateway.AvailableCarResponse[](resultCount);
 
         for (uint i = 0; i < resultCount; i++) {
             string memory hostPhotoUrl = userService.getKYCInfo(temp[i].createdBy).profilePhoto;
             string memory hostName = userService.getKYCInfo(temp[i].createdBy).name;
-            result[i] = AvailableCarResponse(temp[i], hostPhotoUrl, hostName);
+            result[i] = IRentalityGateway.AvailableCarResponse(temp[i], hostPhotoUrl, hostName);
         }
         return result;
     }
@@ -309,17 +241,17 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
         uint64 startFuelLevelInPermille,
         uint64 startOdometr
     ) public {
-        Trip memory trip = getTrip(tripId);
+        IRentalityGateway.Trip memory trip = getTrip(tripId);
         require(trip.host == tx.origin, "For host only");
 
         for (uint i = 1; i <= totalTripCount(); i++)
         {
-            Trip memory check_trip = getTrip(i);
+            IRentalityGateway.Trip memory check_trip = getTrip(i);
 
             if (check_trip.carId == trip.carId &&
-                (check_trip.status == TripStatus.CheckedInByGuest ||
-                check_trip.status == TripStatus.CheckedInByHost ||
-                    check_trip.status == TripStatus.CheckedOutByGuest)
+                (check_trip.status == IRentalityGateway.TripStatus.CheckedInByGuest ||
+                check_trip.status == IRentalityGateway.TripStatus.CheckedInByHost ||
+                    check_trip.status == IRentalityGateway.TripStatus.CheckedOutByGuest)
             )
             {
                 revert("Car on the trip.");
@@ -331,16 +263,16 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
             startFuelLevelInPermille) / 1000;
 
         require(
-            idToTripInfo[tripId].status == TripStatus.Approved,
+            idToTripInfo[tripId].status == IRentalityGateway.TripStatus.Approved,
             "The trip is not in status Approved"
         );
 
-        idToTripInfo[tripId].status = TripStatus.CheckedInByHost;
+        idToTripInfo[tripId].status = IRentalityGateway.TripStatus.CheckedInByHost;
         idToTripInfo[tripId].checkedInByHostDateTime = block.timestamp;
         idToTripInfo[tripId].startFuelLevelInGal = startFuelLevelInGal;
         idToTripInfo[tripId].startOdometr = startOdometr;
 
-        emit TripStatusChanged(tripId, TripStatus.CheckedInByHost);
+        emit TripStatusChanged(tripId, IRentalityGateway.TripStatus.CheckedInByHost);
     }
 
     /// @notice Performs the check-in process by the guest, updating the trip status and details.
@@ -356,7 +288,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
         uint64 startFuelLevelInPermille,
         uint64 startOdometr
     ) public {
-        Trip memory trip = getTrip(tripId);
+        IRentalityGateway.Trip memory trip = getTrip(tripId);
         require(trip.guest == tx.origin, "Only for guest");
 
         RentalityCarToken.CarInfo memory carInfo = carService.getCarInfoById(trip.carId);
@@ -364,7 +296,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
             startFuelLevelInPermille) / 1000;
 
         require(
-            idToTripInfo[tripId].status == TripStatus.CheckedInByHost,
+            idToTripInfo[tripId].status == IRentalityGateway.TripStatus.CheckedInByHost,
             "The trip is not in status CheckedInByHost"
         );
         require(
@@ -376,10 +308,10 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
             "Start odometr does not match"
         );
 
-        idToTripInfo[tripId].status = TripStatus.CheckedInByGuest;
+        idToTripInfo[tripId].status = IRentalityGateway.TripStatus.CheckedInByGuest;
         idToTripInfo[tripId].checkedInByGuestDateTime = block.timestamp;
 
-        emit TripStatusChanged(tripId, TripStatus.CheckedInByGuest);
+        emit TripStatusChanged(tripId, IRentalityGateway.TripStatus.CheckedInByGuest);
     }
 
     ///  @dev Initiates the check-out process by the guest, updating trip status, and recording end details.
@@ -395,7 +327,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
         uint64 endFuelLevelInPermille,
         uint64 endOdometr
     ) public {
-        Trip memory trip = getTrip(tripId);
+        IRentalityGateway.Trip memory trip = getTrip(tripId);
         require(
             trip.guest == tx.origin, "For trip guest only"
         );
@@ -404,19 +336,19 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
             endFuelLevelInPermille) / 1000;
 
         require(
-            idToTripInfo[tripId].status == TripStatus.CheckedInByGuest,
+            idToTripInfo[tripId].status == IRentalityGateway.TripStatus.CheckedInByGuest,
             "The trip is not in status CheckedInByGuest"
         );
         require(
             idToTripInfo[tripId].startOdometr <= endOdometr,
             "End odometr should be greater than start odometr"
         );
-        idToTripInfo[tripId].status = TripStatus.CheckedOutByGuest;
+        idToTripInfo[tripId].status = IRentalityGateway.TripStatus.CheckedOutByGuest;
         idToTripInfo[tripId].checkedOutByGuestDateTime = block.timestamp;
         idToTripInfo[tripId].endFuelLevelInGal = endFuelLevelInGal;
         idToTripInfo[tripId].endOdometr = endOdometr;
 
-        emit TripStatusChanged(tripId, TripStatus.CheckedOutByGuest);
+        emit TripStatusChanged(tripId, IRentalityGateway.TripStatus.CheckedOutByGuest);
     }
 
     ///  @dev Initiates the check-out process by the host, updating trip status, and validating end details.
@@ -432,7 +364,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
         uint64 endFuelLevelInPermille,
         uint64 endOdometr
     ) public {
-        Trip memory trip = getTrip(tripId);
+        IRentalityGateway.Trip memory trip = getTrip(tripId);
         require(
             trip.host == tx.origin, "For trip host only"
         );
@@ -441,7 +373,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
             endFuelLevelInPermille) / 1000;
 
         require(
-            idToTripInfo[tripId].status == TripStatus.CheckedOutByGuest,
+            idToTripInfo[tripId].status == IRentalityGateway.TripStatus.CheckedOutByGuest,
             "The trip is not in status CheckedOutByGuest"
         );
         require(
@@ -453,10 +385,10 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
             "End odometr does not match"
         );
 
-        idToTripInfo[tripId].status = TripStatus.CheckedOutByHost;
+        idToTripInfo[tripId].status = IRentalityGateway.TripStatus.CheckedOutByHost;
         idToTripInfo[tripId].checkedOutByHostDateTime = block.timestamp;
 
-        emit TripStatusChanged(tripId, TripStatus.CheckedOutByHost);
+        emit TripStatusChanged(tripId, IRentalityGateway.TripStatus.CheckedOutByHost);
     }
 
     /// @dev Finalizes a trip, updating its status to Finished and calculating resolution amounts.
@@ -465,13 +397,13 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     /// @param tripId The ID of the trip to be finished.
     /// Emits a `TripStatusChanged` event with the new status Finished.
     function finishTrip(uint256 tripId) public {
-//require(idToTripInfo[tripId].status != TripStatus.CheckedOutByHost,"The trip is not in status CheckedOutByHost");
+//require(idToTripInfo[tripId].status != IRentalityGateway.TripStatusCheckedOutByHost,"The trip is not in status CheckedOutByHost");
         require(userService.isManager(msg.sender),"Only from manager contract.");
         require(
-            idToTripInfo[tripId].status == TripStatus.CheckedOutByHost,
+            idToTripInfo[tripId].status == IRentalityGateway.TripStatus.CheckedOutByHost,
             "The trip is not in status CheckedOutByHost"
         );
-        idToTripInfo[tripId].status = TripStatus.Finished;
+        idToTripInfo[tripId].status = IRentalityGateway.TripStatus.Finished;
 
         (uint64 resolveMilesAmountInUsdCents, uint64 resolveFuelAmountInUsdCents) = RentalityUtils.getResolveAmountInUsdCents(
             idToTripInfo[tripId]
@@ -497,13 +429,13 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
         .paymentInfo
         .resolveAmountInUsdCents = resolveAmountInUsdCents;
 
-        emit TripStatusChanged(tripId, TripStatus.Finished);
+        emit TripStatusChanged(tripId, IRentalityGateway.TripStatus.Finished);
     }
 
     /// @dev Retrieves the details of a specific trip by its ID.
     /// @param tripId The ID of the trip to retrieve.
     /// @return trip The details of the requested trip.
-    function getTrip(uint256 tripId) public view returns (Trip memory) {
+    function getTrip(uint256 tripId) public view returns (IRentalityGateway.Trip memory) {
         return idToTripInfo[tripId];
     }
 
@@ -515,6 +447,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
         return (idToTripInfo[tripId].host, idToTripInfo[tripId].guest);
     }
 
+    /// @dev Constructor for the RentalityTripService contract.
     /// @param currencyConverterServiceAddress The address of the currency converter service.
     /// @param carServiceAddress The address of the car service.
     /// @param paymentServiceAddress The address of the payment service.

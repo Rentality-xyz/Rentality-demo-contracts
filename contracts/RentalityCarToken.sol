@@ -2,18 +2,17 @@
 pragma solidity ^0.8.9;
 
 import {ERC721URIStorageUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
-import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import {UUPSUpgradeable} from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "./RentalityUtils.sol";
 import "./IRentalityGeoService.sol";
+import "./proxy/UUPSOwnable.sol";
 
 /// @title RentalityCarToken
 /// @notice ERC-721 token for representing cars in the Rentality platform.
 /// @notice This contract allows users to add, update, and manage information about cars for rental.
 /// @notice Cars can be listed, updated, and verified for geographic coordinates.
-contract RentalityCarToken is UUPSUpgradeable, ERC721URIStorageUpgradeable, OwnableUpgradeable {
+contract RentalityCarToken is  ERC721URIStorageUpgradeable, UUPSOwnable {
     using Counters for Counters.Counter;
     Counters.Counter private _carIdCounter;
     IRentalityGeoService private geoService;
@@ -481,12 +480,6 @@ contract RentalityCarToken is UUPSUpgradeable, ERC721URIStorageUpgradeable, Owna
         __Ownable_init();
     }
 
-    /// @notice Only admins are allowed to authorize upgrades.
-    /// @param newImplementation The address of the new implementation contract.
-    function _authorizeUpgrade(address newImplementation) internal view override
-    {
-        _checkOwner();
-    }
 
 
 }
