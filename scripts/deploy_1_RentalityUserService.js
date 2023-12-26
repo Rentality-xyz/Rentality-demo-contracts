@@ -1,5 +1,6 @@
 const saveJsonAbi = require("./utils/abiSaver");
 const { ethers,upgrades } = require("hardhat");
+const addressSaver = require('./utils/addressSaver')
 
 async function main() {
   const contractName = "RentalityUserService";
@@ -21,7 +22,13 @@ async function main() {
   await contract.waitForDeployment();
   console.log(contractName + " deployed to:",await contract.getAddress());
 
-  saveJsonAbi(contractName, chainId, contract);
+  await addressSaver(
+    await contract.getAddress(),
+    contractName,
+    true
+  );
+
+  await saveJsonAbi(contractName, chainId, contract);
 }
 
 main()
