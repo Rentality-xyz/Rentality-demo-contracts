@@ -30,13 +30,13 @@ module.exports = {
       localhost: {
         chainId: 1337,
       },
-      // ganache: {
-      //   url: process.env.URL_LOCALHOST_GANACHE,
-      //   accounts:
-      //     [process.env.GANACHE_PRIVATE_KEY],
-      //   chainId:
-      //     1337,
-      // },
+      ganache: {
+        url: process.env.URL_LOCALHOST_GANACHE,
+        accounts:
+          [process.env.GANACHE_PRIVATE_KEY],
+        chainId:
+          1337,
+      },
       goerli: {
         url: process.env.ALCHEMY_API_URL_GOERLI,
         accounts:
@@ -66,7 +66,6 @@ module.exports = {
           runs:
             200
         }
-      },
-    unsafeAllowLinkedLibraries: true
+      }
   }
 }
