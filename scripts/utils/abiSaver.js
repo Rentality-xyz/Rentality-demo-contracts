@@ -1,9 +1,9 @@
 const fs = require("fs");
 
-var saveJsonAbi = function (fileName, chainId, contract) {
+var saveJsonAbi = async function(fileName, chainId, contract) {
   const jsonData = {
-    address: contract.address,
-    abi: JSON.parse(contract.interface.format("json")),
+    address: await contract.getAddress(),
+    abi: JSON.parse(contract.interface.formatJson()),
   };
 
   const chainIdString = chainId !== 1337 ? chainId.toString() : "localhost";

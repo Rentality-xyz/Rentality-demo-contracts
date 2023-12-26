@@ -1,39 +1,45 @@
-const saveJsonAbi = require("./utils/abiSaver");
-const { ethers } = require("hardhat");
-const addressesContractsTestnets = require("./addressesContractsTestnets.json");
+const saveJsonAbi = require('./utils/abiSaver')
+const { ethers, upgrades } = require('hardhat')
+const addressesContractsTestnets = require('./addressesContractsTestnets.json')
+const getContractAddress = require('./utils/contractAddress')
+const addressSaver = require('./utils/addressSaver')
 
 async function main() {
-  const contractName = "RentalityPaymentService";
-  const [deployer] = await ethers.getSigners();
-  const balance = await deployer.getBalance();
+  const contractName = 'RentalityPaymentService'
+  const [deployer] = await ethers.getSigners()
+  const balance = await ethers.provider.getBalance(deployer)
   console.log(
-    "Deployer address is:",
+    'Deployer address is:',
     deployer.getAddress(),
-    " with balance:",
-    balance
-  );
+    ' with balance:',
+    balance,
+  )
 
-  const chainId = (await deployer.provider?.getNetwork())?.chainId ?? -1;
-  console.log("ChainId is:", chainId);
-  if (chainId < 0) return;
+  const chainId = (await deployer.provider?.getNetwork())?.chainId ?? -1
+  console.log('ChainId is:', chainId)
+  if (chainId < 0) return
 
-  const addresses = addressesContractsTestnets.find((i) => i.chainId === chainId);
-  if (addresses == null) {
-    console.error(`Addresses for chainId:${chainId} was not found in addressesContractsTestnets.json`);
-    return;
-  }
+  const contractFactory = await ethers.getContractFactory(contractName)
+  let userService = getContractAddress(
+    'RentalityUserService',
+    'scripts/deploy_1_RentalityUserService.js')
 
-  const contractFactory = await ethers.getContractFactory(contractName);
-  const contract = await contractFactory.deploy();
-  await contract.deployed();
-  console.log(contractName + " deployed to:", contract.address);
+  const contract = await upgrades.deployProxy(contractFactory, [userService])
+  await contract.waitForDeployment()
+  console.log(contractName + ' deployed to:', await contract.getAddress())
 
-  saveJsonAbi(contractName, chainId, contract);
+  await addressSaver(
+    await contract.getAddress(),
+    contractName,
+    true,
+  )
+
+  await saveJsonAbi(contractName, chainId, contract)
 }
 
 main()
   .then(() => process.exit(0))
   .catch((error) => {
-    console.error(error);
-    process.exit(1);
-  });
+    console.error(error)
+    process.exit(1)
+  })
