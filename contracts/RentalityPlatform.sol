@@ -207,7 +207,7 @@ contract RentalityPlatform is Ownable {
             request.startLocation,
             request.endLocation,
             carInfo.milesIncludedPerDay,
-            request.fuelPricePerGalInUsdCents,
+            request.fuelPrices,
             paymentInfo
         );
     }

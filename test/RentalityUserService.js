@@ -6,7 +6,7 @@ const { expect } = require('chai')
 const { ethers } = require('hardhat')
 const { getMockCarRequest } = require('./utils')
 
-describe('RentalityUserService', function () {
+describe('RentalityUserService', function() {
   // We define a fixture to reuse the same setup in every test.
   // We use loadFixture to run this setup once, snapshot that state,
   // and reset Hardhat Network to that snapshot in every test.
@@ -34,18 +34,17 @@ describe('RentalityUserService', function () {
       'RentalityPaymentService',
     )
     const RentalityGeoService = await ethers.getContractFactory(
-      'RentalityGeoMock');
-
+      'RentalityGeoMock')
 
 
     const RentalityCarToken =
       await ethers.getContractFactory('RentalityCarToken')
     const RentalityPlatform =
-      await ethers.getContractFactory('RentalityPlatform',{
+      await ethers.getContractFactory('RentalityPlatform', {
         libraries:
-            {
-              RentalityUtils: utils.address
-            }
+          {
+            RentalityUtils: utils.address,
+          },
       })
 
     let rentalityMockPriceFeed = await RentalityMockPriceFeed.deploy(
@@ -57,6 +56,25 @@ describe('RentalityUserService', function () {
     const rentalityUserService = await RentalityUserService.deploy()
     await rentalityUserService.deployed()
 
+    const electricEngine = await ethers.getContractFactory('RentalityElectricEngine')
+    const elEngine = await electricEngine.deploy(rentalityUserService.address)
+    await elEngine.deployed()
+
+    const patrolEngine = await ethers.getContractFactory('RentalityPatrolEngine')
+    const pEngine = await patrolEngine.deploy(rentalityUserService.address)
+    await pEngine.deployed()
+
+    const hybridEngine = await ethers.getContractFactory('RentalityHybridEngine')
+    const hEngine = await hybridEngine.deploy(rentalityUserService.address)
+    await hEngine.deployed()
+
+    const EngineService = await ethers.getContractFactory('RentalityEnginesService')
+    const engineService = await EngineService.deploy(
+      rentalityUserService.address,
+      [pEngine.address, elEngine.address, hEngine.address],
+    )
+    await engineService.deployed()
+
     await rentalityUserService.connect(owner).grantAdminRole(admin.address)
     await rentalityUserService.connect(owner).grantManagerRole(manager.address)
     await rentalityUserService.connect(owner).grantHostRole(host.address)
@@ -66,22 +84,30 @@ describe('RentalityUserService', function () {
       rentalityMockPriceFeed.address,
     )
 
-    const rentalityGeoService = await RentalityGeoService.deploy();
-    await rentalityGeoService.deployed();
+    const rentalityGeoService = await RentalityGeoService.deploy()
+    await rentalityGeoService.deployed()
 
-    const rentalityCarToken = await RentalityCarToken.deploy(rentalityGeoService.address)
+    const rentalityCarToken = await RentalityCarToken.deploy(rentalityGeoService.address, engineService.address)
 
     await rentalityCarToken.deployed()
 
     const rentalityPaymentService = await RentalityPaymentService.deploy(rentalityUserService.address)
+    await rentalityPaymentService.deployed()
 
     const rentalityTripService = await RentalityTripService.deploy(
       rentalityCurrencyConverter.address,
+      rentalityCarToken.address,
       rentalityPaymentService.address,
       rentalityUserService.address,
-      rentalityUserService.address,
+      engineService.address,
     )
+
     await rentalityTripService.deployed()
+
+    const RentalityClaimService = await ethers.getContractFactory('RentalityClaimService')
+    const claimService = await RentalityClaimService.deploy(10, rentalityUserService.address)
+    await claimService.deployed()
+
 
     const rentalityPlatform = await RentalityPlatform.deploy(
       rentalityCarToken.address,
@@ -89,6 +115,7 @@ describe('RentalityUserService', function () {
       rentalityTripService.address,
       rentalityUserService.address,
       rentalityPaymentService.address,
+      claimService.address
     )
     await rentalityPlatform.deployed()
 
@@ -101,6 +128,13 @@ describe('RentalityUserService', function () {
     await rentalityUserService
       .connect(owner)
       .grantManagerRole(rentalityTripService.address)
+    await rentalityUserService
+      .connect(owner)
+      .grantManagerRole(rentalityCarToken.address)
+    await rentalityUserService
+      .connect(owner)
+      .grantManagerRole(engineService.address)
+
 
     return {
       rentalityMockPriceFeed,
@@ -145,8 +179,8 @@ describe('RentalityUserService', function () {
   }
 
 
-  describe('Deployment', function () {
-    it('Owner should have all roles', async function () {
+  describe('Deployment', function() {
+    it('Owner should have all roles', async function() {
       const { rentalityUserService, owner } =
         await loadFixture(deployDefaultFixture)
 
@@ -156,7 +190,7 @@ describe('RentalityUserService', function () {
       expect(await rentalityUserService.isGuest(owner.address)).to.equal(true)
     })
 
-    it('deployFixtureWithUsers: users should have correct roles', async function () {
+    it('deployFixtureWithUsers: users should have correct roles', async function() {
       const { rentalityUserService, admin, manager, host, guest } =
         await loadFixture(deployFixtureWithUsers)
 
@@ -169,8 +203,8 @@ describe('RentalityUserService', function () {
     })
   })
 
-  describe('Role management', function () {
-    it('Admin should have Manager role', async function () {
+  describe('Role management', function() {
+    it('Admin should have Manager role', async function() {
       const { rentalityUserService, admin } = await loadFixture(
         deployFixtureWithUsers,
       )
@@ -181,7 +215,7 @@ describe('RentalityUserService', function () {
       expect(await rentalityUserService.isGuest(admin.address)).to.equal(false)
     })
 
-    it("Anonymous shouldn't get any role", async function () {
+    it('Anonymous shouldn\'t get any role', async function() {
       const { rentalityUserService, anonymous } = await loadFixture(
         deployFixtureWithUsers,
       )
@@ -200,7 +234,7 @@ describe('RentalityUserService', function () {
       )
     })
 
-    it('Only Admin can grandAdminRole', async function () {
+    it('Only Admin can grandAdminRole', async function() {
       const { rentalityUserService, admin, manager, host, guest, anonymous } =
         await loadFixture(deployFixtureWithUsers)
 
@@ -221,7 +255,7 @@ describe('RentalityUserService', function () {
       ).to.be.reverted
     })
 
-    it('Only Admin can revokeAdminRole', async function () {
+    it('Only Admin can revokeAdminRole', async function() {
       const {
         rentalityUserService,
         owner,
@@ -249,7 +283,7 @@ describe('RentalityUserService', function () {
       ).not.to.be.reverted
     })
 
-    it('Only Admin can grantManagerRole', async function () {
+    it('Only Admin can grantManagerRole', async function() {
       const { rentalityUserService, admin, manager, host, guest, anonymous } =
         await loadFixture(deployFixtureWithUsers)
 
@@ -272,7 +306,7 @@ describe('RentalityUserService', function () {
       ).to.be.reverted
     })
 
-    it('Only Admin can revokeManagerRole', async function () {
+    it('Only Admin can revokeManagerRole', async function() {
       const { rentalityUserService, admin, manager, host, guest, anonymous } =
         await loadFixture(deployFixtureWithUsers)
 
@@ -297,7 +331,7 @@ describe('RentalityUserService', function () {
       ).not.to.be.reverted
     })
 
-    it('Only Admin and Manager can grantHostRole', async function () {
+    it('Only Admin and Manager can grantHostRole', async function() {
       const { rentalityUserService, admin, manager, host, guest, anonymous } =
         await loadFixture(deployFixtureWithUsers)
 
@@ -318,7 +352,7 @@ describe('RentalityUserService', function () {
       ).to.be.reverted
     })
 
-    it('Only Admin and Manager can revokeHostRole', async function () {
+    it('Only Admin and Manager can revokeHostRole', async function() {
       const { rentalityUserService, admin, manager, host, guest, anonymous } =
         await loadFixture(deployFixtureWithUsers)
 
@@ -339,7 +373,7 @@ describe('RentalityUserService', function () {
       ).not.to.be.reverted
     })
 
-    it('Only Admin and Manager can grantGuestRole', async function () {
+    it('Only Admin and Manager can grantGuestRole', async function() {
       const { rentalityUserService, admin, manager, host, guest, anonymous } =
         await loadFixture(deployFixtureWithUsers)
 
@@ -360,7 +394,7 @@ describe('RentalityUserService', function () {
       ).to.be.reverted
     })
 
-    it('Only Admin and Manager can revokeGuestRole', async function () {
+    it('Only Admin and Manager can revokeGuestRole', async function() {
       const { rentalityUserService, admin, manager, host, guest, anonymous } =
         await loadFixture(deployFixtureWithUsers)
 
@@ -382,8 +416,8 @@ describe('RentalityUserService', function () {
     })
   })
 
-  describe('KYC management', function () {
-    it("By default user doesn't have valid KYC", async function () {
+  describe('KYC management', function() {
+    it('By default user doesn\'t have valid KYC', async function() {
       const { rentalityUserService, anonymous } = await loadFixture(
         deployFixtureWithUsers,
       )
@@ -393,7 +427,7 @@ describe('RentalityUserService', function () {
       ).to.equal(false)
     })
 
-    it('After adding valid KYCInfo user has valid KYC', async function () {
+    it('After adding valid KYCInfo user has valid KYC', async function() {
       const { rentalityUserService, guest } = await loadFixture(
         deployFixtureWithUsers,
       )
@@ -416,7 +450,7 @@ describe('RentalityUserService', function () {
       ).to.equal(true)
     })
 
-    it("After adding invalid KYCInfo user doesn't have valid KYC", async function () {
+    it('After adding invalid KYCInfo user doesn\'t have valid KYC', async function() {
       const { rentalityUserService, guest } = await loadFixture(
         deployFixtureWithUsers,
       )
@@ -440,7 +474,7 @@ describe('RentalityUserService', function () {
       ).to.equal(false)
     })
 
-    it('After adding valid KYCInfo, user can get their own KYCInfo', async function () {
+    it('After adding valid KYCInfo, user can get their own KYCInfo', async function() {
       const { rentalityUserService, guest } = await loadFixture(
         deployFixtureWithUsers,
       )
@@ -468,7 +502,7 @@ describe('RentalityUserService', function () {
       expect(kycInfo.expirationDate).to.equal(expirationDate)
     })
 
-    it('User cannot get other users KYCInfo', async function () {
+    it('User cannot get other users KYCInfo', async function() {
       const { rentalityUserService, guest, host } = await loadFixture(
         deployFixtureWithUsers,
       )
@@ -490,7 +524,7 @@ describe('RentalityUserService', function () {
         .to.be.reverted
     })
 
-    it('Manager can get other users KYCInfo', async function () {
+    it('Manager can get other users KYCInfo', async function() {
       const { rentalityUserService, guest, manager } = await loadFixture(
         deployFixtureWithUsers,
       )
@@ -522,8 +556,7 @@ describe('RentalityUserService', function () {
       expect(kycInfo.licenseNumber).to.equal('licenseNumber')
       expect(kycInfo.expirationDate).to.equal(expirationDate)
     })
-
-    it('After a trip is requested, the host or guest can get the contact numbers of the host and guest', async function () {
+    it('After a trip is requested, the host or guest can get the contact numbers of the host and guest', async function() {
       const {
         rentalityPlatform,
         rentalityCurrencyConverter,
@@ -541,13 +574,11 @@ describe('RentalityUserService', function () {
         .connect(guest)
         .getAvailableCarsForUser(guest.address)
       expect(availableCars.length).to.equal(1)
-
       const rentPriceInUsdCents = 1600
       const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
         await rentalityCurrencyConverter.getEthFromUsdLatest(
           rentPriceInUsdCents,
         )
-
       const ONE_YEAR_IN_SECS = 365 * 24 * 60 * 60
       const expirationDate = (await time.latest()) + ONE_YEAR_IN_SECS
 
@@ -585,7 +616,7 @@ describe('RentalityUserService', function () {
             totalDayPriceInUsdCents: 1000,
             taxPriceInUsdCents: 200,
             depositInUsdCents: 400,
-            fuelPricePerGalInUsdCents: 400,
+            fuelPrices: [400],
             ethToCurrencyRate: ethToCurrencyRate,
             ethToCurrencyDecimals: ethToCurrencyDecimals,
           },
@@ -596,6 +627,7 @@ describe('RentalityUserService', function () {
         (await rentalityTripService.connect(host).getTrip(1)).status,
       ).to.equal(0)
 
+
       let [guestPhoneNumber, hostPhoneNumber] = await rentalityPlatform
         .connect(guest)
         .getTripContactInfo(1)
@@ -603,7 +635,7 @@ describe('RentalityUserService', function () {
       expect(guestPhoneNumber).to.equal('phoneNumberGuest')
       expect(hostPhoneNumber).to.equal('phoneNumberHost')[
         (guestPhoneNumber, hostPhoneNumber)
-      ] = await rentalityPlatform.connect(host).getTripContactInfo(1)
+        ] = await rentalityPlatform.connect(host).getTripContactInfo(1)
 
       expect(guestPhoneNumber).to.equal('phoneNumberGuest')
       expect(hostPhoneNumber).to.equal('phoneNumberHost')
