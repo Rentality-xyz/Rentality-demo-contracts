@@ -23,7 +23,10 @@ contract RentalityClaimService {
         userService = RentalityUserService(_userService);
     }
     event ClaimStatusChanged(uint256 claimId, Status claimStatus);
-    event platformFeeChanged(uint8 newPlatformFee);
+
+    event PlatformFeeChanged(uint8 newPlatformFee);
+
+    event WaitingTimeChanged(uint256 newWaitingTime);
 
     // Struct to represent additional information about a claim
     struct FullClaimInfo {
@@ -89,7 +92,16 @@ contract RentalityClaimService {
         require(userService.isAdmin(msg.sender), "Only admin.");
         platformFeeInPercent = newPlatfromFeeInPercent;
 
-        emit platformFeeChanged(newPlatfromFeeInPercent);
+        emit PlatformFeeChanged(newPlatfromFeeInPercent);
+    }
+
+    /// @dev Sets the waiting time, only callable by administrators.
+    /// @param newWaitingTimeInSec, set old value to this
+    function setWaitingTime(uint256 newWaitingTimeInSec) public {
+        require(userService.isAdmin(msg.sender), "Only admin.");
+        waitingTimeForApproveInSec = newWaitingTimeInSec;
+
+        emit WaitingTimeChanged(newWaitingTimeInSec);
     }
 
     /// @dev Gets the current platform fee.
