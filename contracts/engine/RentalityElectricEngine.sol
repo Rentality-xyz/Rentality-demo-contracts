@@ -10,9 +10,9 @@ contract RentalityElectricEngine is ARentalityEngine {
     // Struct to store charge price scales in USD cents based on fuel level percentages.
     struct ChargePriceScaleInUsdCents {
         uint64 fromEmptyToTwenty;
-        uint64 fromTwentyOneToFifteen;
-        uint64 fromFifteenToOneEighteen;
-        uint64 fromEighteenToOneHundred;
+        uint64 fromTwentyOneToFifty;
+        uint64 fromFiftyOneToEighty;
+        uint64 fromEightyOneToOneHundred;
     }
 
     // Mapping from car ID to electric engine charge price scales.
@@ -38,9 +38,9 @@ contract RentalityElectricEngine is ARentalityEngine {
 
         ChargePriceScaleInUsdCents storage engine = carIdToElectricEngine[carId];
         engine.fromEmptyToTwenty = params[0];
-        engine.fromTwentyOneToFifteen = params[1];
-        engine.fromFifteenToOneEighteen = params[2];
-        engine.fromEighteenToOneHundred = params[3];
+        engine.fromTwentyOneToFifty = params[1];
+        engine.fromFiftyOneToEighty = params[2];
+        engine.fromEightyOneToOneHundred = params[3];
     }
 
     /// @dev Updates charge price scales for an existing electric car in the system.
@@ -50,9 +50,9 @@ contract RentalityElectricEngine is ARentalityEngine {
         isCorrectArgs(params.length == 4);
 
         carIdToElectricEngine[carId].fromEmptyToTwenty = params[0];
-        carIdToElectricEngine[carId].fromTwentyOneToFifteen = params[1];
-        carIdToElectricEngine[carId].fromFifteenToOneEighteen = params[2];
-        carIdToElectricEngine[carId].fromEighteenToOneHundred = params[3];
+        carIdToElectricEngine[carId].fromTwentyOneToFifty = params[1];
+        carIdToElectricEngine[carId].fromFiftyOneToEighty = params[2];
+        carIdToElectricEngine[carId].fromEightyOneToOneHundred = params[3];
     }
 
     /// @dev Removes an electric car from the system.
@@ -114,12 +114,16 @@ contract RentalityElectricEngine is ARentalityEngine {
     {
         if (endFuelLevelInPercents >= 0 && endFuelLevelInPercents <= 20) {
             return carIdToElectricEngine[carId].fromEmptyToTwenty;
-        } else if (endFuelLevelInPercents >= 21 && endFuelLevelInPercents <= 50) {
-            return carIdToElectricEngine[carId].fromTwentyOneToFifteen;
-        } else if (endFuelLevelInPercents >= 51 && endFuelLevelInPercents <= 80) {
-            return carIdToElectricEngine[carId].fromFifteenToOneEighteen;
+        } else if (
+            endFuelLevelInPercents >= 21 && endFuelLevelInPercents <= 50
+        ) {
+            return carIdToElectricEngine[carId].fromTwentyOneToFifty;
+        } else if (
+            endFuelLevelInPercents >= 51 && endFuelLevelInPercents <= 80
+        ) {
+            return carIdToElectricEngine[carId].fromFiftyOneToEighty;
         }
 
-        return carIdToElectricEngine[carId].fromEighteenToOneHundred;
+        return carIdToElectricEngine[carId].fromEightyOneToOneHundred;
     }
 }
