@@ -22,10 +22,14 @@ contract RentalityClaimService {
         platformFeeInPercent = platformFee;
         userService = RentalityUserService(_userService);
     }
+    event ClaimStatusChanged(uint256 claimId, Status claimStatus);
+    event platformFeeChanged(uint8 newPlatformFee);
 
     // Struct to represent additional information about a claim
     struct FullClaimInfo {
         Claim claim;
+        address host;
+        address guest;
         string carBrand;
         string carModel;
         uint32 carYearOfProduction;
@@ -84,6 +88,8 @@ contract RentalityClaimService {
     function setPlatfromFee(uint8 newPlatfromFeeInPercent) public {
         require(userService.isAdmin(msg.sender), "Only admin.");
         platformFeeInPercent = newPlatfromFeeInPercent;
+
+        emit platformFeeChanged(newPlatfromFeeInPercent);
     }
 
     /// @dev Gets the current platform fee.
@@ -98,12 +104,13 @@ contract RentalityClaimService {
         require(request.amountInUsdCents > 0, "Amount cannot be null.");
 
         claimId += 1;
+        uint256 newClaimId = claimId;
 
         uint256 deadline = block.timestamp + waitingTimeForApproveInSec;
 
         Claim memory newClaim = Claim(
             request.tripId,
-            claimId,
+            newClaimId,
             deadline,
             request.claimType,
             Status.NotPaid,
@@ -113,7 +120,9 @@ contract RentalityClaimService {
             address(0),
             0
         );
-        claimIdToClaim[claimId] = newClaim;
+        claimIdToClaim[newClaimId] = newClaim;
+
+        emit ClaimStatusChanged(newClaimId, Status.NotPaid);
     }
 
     /// @dev Rejects a claim, only callable by managers contracts.
@@ -126,6 +135,9 @@ contract RentalityClaimService {
         claim.status = Status.Cancel;
         claim.RejectedBy = rejectedBy;
         claim.rejectedDateInSec = block.timestamp;
+
+        emit ClaimStatusChanged(_claimId, Status.Cancel);
+
     }
 
     /// @dev Pays a claim, only callable by managers contracts.
@@ -137,6 +149,8 @@ contract RentalityClaimService {
 
         claim.payDateInSec = time;
         claim.status = Status.Paid;
+
+        emit ClaimStatusChanged(_claimId, Status.Paid);
     }
 
     /// @dev Updates the status of a claim based on the current timestamp.
@@ -148,6 +162,7 @@ contract RentalityClaimService {
 
         if (time >= claim.deadlineDateInSec) {
             claim.status = Status.Overdue;
+            emit ClaimStatusChanged(_claimId, Status.Overdue);
         }
     }
 

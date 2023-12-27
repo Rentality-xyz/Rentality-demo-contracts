@@ -433,6 +433,8 @@ contract RentalityPlatform is Ownable {
 
         return RentalityClaimService.FullClaimInfo(
             claim,
+            trip.host,
+            trip.guest,
             car.brand,
             car.model,
             car.yearOfProduction
@@ -465,6 +467,8 @@ contract RentalityPlatform is Ownable {
                 RentalityCarToken.CarInfo memory car = carService.getCarInfoById(trip.carId);
                 claims[counter++] = RentalityClaimService.FullClaimInfo(
                     claim,
+                    trip.host,
+                    trip.guest,
                     car.brand,
                     car.model,
                     car.yearOfProduction
