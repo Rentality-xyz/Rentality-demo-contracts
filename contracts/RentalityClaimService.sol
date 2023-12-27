@@ -94,7 +94,7 @@ contract RentalityClaimService {
     /// @dev Creates a new claim, only callable by managers contracts.
     /// @param request Details of the claim to be created.
     function createClaim(CreateClaimRequest memory request) public onlyManager {
-        require(request.amountInUsdCents > 0, "Amount cannot be null.");
+        require(request.amountInUsdCents > 0, "Amount can not be null.");
 
         claimId += 1;
         uint256 newClaimId = claimId;
