@@ -21,7 +21,7 @@ interface IRentalityGateway {
         uint64 totalDayPriceInUsdCents;
         uint64 taxPriceInUsdCents;
         uint64 depositInUsdCents;
-        uint64 fuelPricePerGalInUsdCents;
+        uint64[] fuelPrices;
         int256 ethToCurrencyRate;
         uint8 ethToCurrencyDecimals;
     }
