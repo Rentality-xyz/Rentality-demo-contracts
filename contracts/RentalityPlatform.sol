@@ -34,7 +34,7 @@ contract RentalityPlatform is Ownable {
         address tripServiceAddress,
         address userServiceAddress,
         address paymentServiceAddress,
-        address _claimService
+        address claimServiceAddress
     ) {
         carService = RentalityCarToken(carServiceAddress);
         currencyConverterService = RentalityCurrencyConverter(
@@ -43,7 +43,7 @@ contract RentalityPlatform is Ownable {
         tripService = RentalityTripService(tripServiceAddress);
         userService = RentalityUserService(userServiceAddress);
         paymentService = RentalityPaymentService(paymentServiceAddress);
-        claimService = RentalityClaimService(_claimService);
+        claimService = RentalityClaimService(claimServiceAddress);
     }
 
     /// @dev Modifier to restrict access to admin users only.
@@ -321,7 +321,7 @@ contract RentalityPlatform is Ownable {
         tripService.finishTrip(tripId);
         RentalityTripService.Trip memory trip = tripService.getTrip(tripId);
 
-        uint64 valueToHostInUsdCents = trip
+        uint256 valueToHostInUsdCents = trip
             .paymentInfo
             .totalDayPriceInUsdCents +
                             trip.paymentInfo.taxPriceInUsdCents +
@@ -335,7 +335,7 @@ contract RentalityPlatform is Ownable {
             trip.paymentInfo.ethToCurrencyRate,
             trip.paymentInfo.ethToCurrencyDecimals
         );
-        uint64 valueToGuestInUsdCents = trip.paymentInfo.depositInUsdCents -
+        uint256 valueToGuestInUsdCents = trip.paymentInfo.depositInUsdCents -
                             trip.paymentInfo.resolveAmountInUsdCents;
         uint256 valueToGuestInEth = currencyConverterService.getEthFromUsd(
             valueToGuestInUsdCents,
@@ -398,7 +398,8 @@ contract RentalityPlatform is Ownable {
             trip.paymentInfo.ethToCurrencyRate,
             trip.paymentInfo.ethToCurrencyDecimals
         );
-        uint256 platformFee = paymentService.getClaimPlatformFeeFrom(valueToPay);
+        uint256 platformFee = paymentService.getPlatformFeeFrom(valueToPay);
+
         uint256 totalAmount = valueToPay + platformFee;
 
         require(msg.value >= totalAmount, "Insufficient funds sent.");

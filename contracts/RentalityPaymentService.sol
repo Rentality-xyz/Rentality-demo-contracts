@@ -12,8 +12,6 @@ import "./RentalityUserService.sol";
 contract RentalityPaymentService is Ownable {
     uint32 platformFeeInPPM = 200_000;
 
-    uint8 private platformClaimFeeInPercent = 10;
-
     RentalityUserService private userService;
 
     /// @notice Constructor to initialize the RentalityPaymentService.
@@ -39,25 +37,11 @@ contract RentalityPaymentService is Ownable {
         platformFeeInPPM = valueInPPM;
     }
 
-    /// @dev Sets the platform fee, only callable by administrators.
-    /// @param newPlatfromFeeInPercent New platform fee in percentage.
-    function setClaimPlatfromFee(uint8 newPlatfromFeeInPercent) public {
-        require(userService.isAdmin(msg.sender), "Only admin.");
-        require(newPlatfromFeeInPercent >= 0 && newPlatfromFeeInPercent <= 100, "Wrong value.");
-
-        platformClaimFeeInPercent = newPlatfromFeeInPercent;
-    }
 
     /// @notice Get the platform fee from a given value.
     /// @param value The value from which to calculate the platform fee.
     /// @return The platform fee calculated from the given value.
-    function getPlatformFeeFrom(uint64 value) public view returns (uint64) {
+    function getPlatformFeeFrom(uint256 value) public view returns (uint256) {
         return (value * platformFeeInPPM) / 1_000_000;
-    }
-
-    /// @dev Gets the current claim platform fee.
-    /// @return Current platform fee in percentage.
-    function getClaimPlatformFeeFrom(uint256 value) public view returns (uint256) {
-        value * platformClaimFeeInPercent / 100;
     }
 }
