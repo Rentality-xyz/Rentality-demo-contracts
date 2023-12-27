@@ -224,25 +224,26 @@ describe('RentalityEngines', function() {
   })
   it('should correctly add electric car engine data', async function() {
     let fromEmptyToTwenty = 10
-    let fromTwentyOneToFifteen = 20
-    let fromFifteenToOneEighteen = 30
-    let fromEighteenToOneHundred = 50
+    let fromTwentyOneToFifty = 20
+    let fromFiftyOneToEighty = 30
+    let fromEightyOneToOneHundred = 50
     let engineTy = await elEngine.getEType()
 
-    await expect(engineService.addCar(1, engineTy, [
-      fromEmptyToTwenty,
-      fromTwentyOneToFifteen,
-      fromFifteenToOneEighteen,
-      fromEighteenToOneHundred,
-    ]))
-      .to.not.reverted
+    await expect(
+      engineService.addCar(1, engineTy, [
+        fromEmptyToTwenty,
+        fromTwentyOneToFifty,
+        fromFiftyOneToEighty,
+        fromEightyOneToOneHundred,
+      ]),
+    ).to.not.reverted
 
     let data = await elEngine.getEngineData(1)
 
     expect(data.fromEmptyToTwenty).to.be.eq(fromEmptyToTwenty)
-    expect(data.fromTwentyOneToFifteen).to.be.eq(fromTwentyOneToFifteen)
-    expect(data.fromFifteenToOneEighteen).to.be.eq(fromFifteenToOneEighteen)
-    expect(data.fromEighteenToOneHundred).to.be.eq(fromEighteenToOneHundred)
+    expect(data.fromTwentyOneToFifty).to.be.eq(fromTwentyOneToFifty)
+    expect(data.fromFiftyOneToEighty).to.be.eq(fromFiftyOneToEighty)
+    expect(data.fromEightyOneToOneHundred).to.be.eq(fromEightyOneToOneHundred)
   })
   it('should correctly add hybrid car engine data', async function() {
 
@@ -287,45 +288,49 @@ describe('RentalityEngines', function() {
   it('should correctly update electric car engine data', async function() {
 
     let fromEmptyToTwenty = 10
-    let fromTwentyOneToFifteen = 20
-    let fromFifteenToOneEighteen = 30
-    let fromEighteenToOneHundred = 50
+    let fromTwentyOneToFifty = 20
+    let fromFiftyOneToEighty = 30
+    let fromEightyOneToOneHundred = 50
     let engineTy = await elEngine.getEType()
 
-    await expect(engineService.addCar(1, engineTy, [
-      fromEmptyToTwenty,
-      fromTwentyOneToFifteen,
-      fromFifteenToOneEighteen,
-      fromEighteenToOneHundred,
-    ]))
-      .to.not.reverted
+    await expect(
+      engineService.addCar(1, engineTy, [
+        fromEmptyToTwenty,
+        fromTwentyOneToFifty,
+        fromFiftyOneToEighty,
+        fromEightyOneToOneHundred,
+      ]),
+    ).to.not.reverted
 
     let data = await elEngine.getEngineData(1)
 
     expect(data.fromEmptyToTwenty).to.be.eq(fromEmptyToTwenty)
-    expect(data.fromTwentyOneToFifteen).to.be.eq(fromTwentyOneToFifteen)
-    expect(data.fromFifteenToOneEighteen).to.be.eq(fromFifteenToOneEighteen)
-    expect(data.fromEighteenToOneHundred).to.be.eq(fromEighteenToOneHundred)
+    expect(data.fromTwentyOneToFifty).to.be.eq(fromTwentyOneToFifty)
+    expect(data.fromFiftyOneToEighty).to.be.eq(fromFiftyOneToEighty)
+    expect(data.fromEightyOneToOneHundred).to.be.eq(fromEightyOneToOneHundred)
 
     let newFromEmptyToTwenty = 15
-    let newFromTwentyOneToFifteen = 25
-    let newFromFifteenToOneEighteen = 35
-    let newFromEighteenToOneHundred = 55
+    let newFromTwentyOneToFifty = 25
+    let newFromFiftyOneToEighty = 35
+    let newFromEightyOneToOneHundred = 55
 
-    await expect(engineService.updateCar(1, engineTy, [
-      newFromEmptyToTwenty,
-      newFromTwentyOneToFifteen,
-      newFromFifteenToOneEighteen,
-      newFromEighteenToOneHundred,
-    ])).to.not.reverted
+    await expect(
+      engineService.updateCar(1, engineTy, [
+        newFromEmptyToTwenty,
+        newFromTwentyOneToFifty,
+        newFromFiftyOneToEighty,
+        newFromEightyOneToOneHundred,
+      ]),
+    ).to.not.reverted
 
     let newData = await elEngine.getEngineData(1)
 
     expect(newData.fromEmptyToTwenty).to.be.eq(newFromEmptyToTwenty)
-    expect(newData.fromTwentyOneToFifteen).to.be.eq(newFromTwentyOneToFifteen)
-    expect(newData.fromFifteenToOneEighteen).to.be.eq(newFromFifteenToOneEighteen)
-    expect(newData.fromEighteenToOneHundred).to.be.eq(newFromEighteenToOneHundred)
-
+    expect(newData.fromTwentyOneToFifty).to.be.eq(newFromTwentyOneToFifty)
+    expect(newData.fromFiftyOneToEighty).to.be.eq(newFromFiftyOneToEighty)
+    expect(newData.fromEightyOneToOneHundred).to.be.eq(
+      newFromEightyOneToOneHundred,
+    )
   })
   it('should correctly update hybrid car engine data', async function() {
 
@@ -381,35 +386,35 @@ describe('RentalityEngines', function() {
 
 
     let fromEmptyToTwenty = 10
-    let fromTwentyOneToFifteen = 20
-    let fromFifteenToOneEighteen = 30
-    let fromEighteenToOneHundred = 50
+    let fromTwentyOneToFifty = 20
+    let fromFiftyOneToEighty = 30
+    let fromEightyOneToOneHundred = 50
     let engineTy = await elEngine.getEType()
 
-    await expect(engineService.addCar(1, engineTy, [
-      fromEmptyToTwenty,
-      fromTwentyOneToFifteen,
-      fromFifteenToOneEighteen,
-      fromEighteenToOneHundred,
-    ]))
-      .to.not.reverted
+    await expect(
+      engineService.addCar(1, engineTy, [
+        fromEmptyToTwenty,
+        fromTwentyOneToFifty,
+        fromFiftyOneToEighty,
+        fromEightyOneToOneHundred,
+      ]),
+    ).to.not.reverted
 
     let data = await elEngine.getEngineData(1)
 
     expect(data.fromEmptyToTwenty).to.be.eq(fromEmptyToTwenty)
-    expect(data.fromTwentyOneToFifteen).to.be.eq(fromTwentyOneToFifteen)
-    expect(data.fromFifteenToOneEighteen).to.be.eq(fromFifteenToOneEighteen)
-    expect(data.fromEighteenToOneHundred).to.be.eq(fromEighteenToOneHundred)
+    expect(data.fromTwentyOneToFifty).to.be.eq(fromTwentyOneToFifty)
+    expect(data.fromFiftyOneToEighty).to.be.eq(fromFiftyOneToEighty)
+    expect(data.fromEightyOneToOneHundred).to.be.eq(fromEightyOneToOneHundred)
 
     await expect(engineService.burnCar(1, engineTy)).to.not.reverted
 
     let newData = await elEngine.getEngineData(1)
 
     expect(newData.fromEmptyToTwenty).to.be.eq(0)
-    expect(newData.fromTwentyOneToFifteen).to.be.eq(0)
-    expect(newData.fromFifteenToOneEighteen).to.be.eq(0)
-    expect(newData.fromEighteenToOneHundred).to.be.eq(0)
-
+    expect(newData.fromTwentyOneToFifty).to.be.eq(0)
+    expect(newData.fromFiftyOneToEighty).to.be.eq(0)
+    expect(newData.fromEightyOneToOneHundred).to.be.eq(0)
   })
   it('should correctly burn hybrid car engine data', async function() {
 
@@ -463,33 +468,42 @@ describe('RentalityEngines', function() {
     it('revert if not manager add electric car', async function() {
 
       let fromEmptyToTwenty = 10
-      let fromTwentyOneToFifteen = 20
-      let fromFifteenToOneEighteen = 30
-      let fromEighteenToOneHundred = 50
+      let fromTwentyOneToFifty = 20
+      let fromFiftyOneToEighty = 30
+      let fromEightyOneToOneHundred = 50
       let engineTy = await elEngine.getEType()
 
-      await expect(engineService.connect(anonymous).addCar(1, engineTy, [
-        fromEmptyToTwenty,
-        fromTwentyOneToFifteen,
-        fromFifteenToOneEighteen,
-        fromEighteenToOneHundred,
-      ]))
-        .to.be.revertedWith('Only for Manager.')
-      await expect(engineService.connect(guest).addCar(1, engineTy, [
-        fromEmptyToTwenty,
-        fromTwentyOneToFifteen,
-        fromFifteenToOneEighteen,
-        fromEighteenToOneHundred,
-      ]))
-        .to.be.revertedWith('Only for Manager.')
+      await expect(
+        engineService
+          .connect(anonymous)
+          .addCar(1, engineTy, [
+            fromEmptyToTwenty,
+            fromTwentyOneToFifty,
+            fromFiftyOneToEighty,
+            fromEightyOneToOneHundred,
+          ]),
+      ).to.be.revertedWith('Only for Manager.')
+      await expect(
+        engineService
+          .connect(guest)
+          .addCar(1, engineTy, [
+            fromEmptyToTwenty,
+            fromTwentyOneToFifty,
+            fromFiftyOneToEighty,
+            fromEightyOneToOneHundred,
+          ]),
+      ).to.be.revertedWith('Only for Manager.')
 
-      await expect(engineService.connect(host).addCar(1, engineTy, [
-        fromEmptyToTwenty,
-        fromTwentyOneToFifteen,
-        fromFifteenToOneEighteen,
-        fromEighteenToOneHundred,
-      ]))
-        .to.be.revertedWith('Only for Manager.')
+      await expect(
+        engineService
+          .connect(host)
+          .addCar(1, engineTy, [
+            fromEmptyToTwenty,
+            fromTwentyOneToFifty,
+            fromFiftyOneToEighty,
+            fromEightyOneToOneHundred,
+          ]),
+      ).to.be.revertedWith('Only for Manager.')
     })
   })
   describe('Correct params', function() {

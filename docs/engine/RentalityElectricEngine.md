@@ -9,9 +9,9 @@ This contract extends ARentalityEngine and adds functionality specific to electr
 ```solidity
 struct ChargePriceScaleInUsdCents {
   uint64 fromEmptyToTwenty;
-  uint64 fromTwentyOneToFifteen;
-  uint64 fromFifteenToOneEighteen;
-  uint64 fromEighteenToOneHundred;
+  uint64 fromTwentyOneToFifty;
+  uint64 fromFiftyOneToEighty;
+  uint64 fromEightyOneToOneHundred;
 }
 ```
 
