@@ -1603,7 +1603,7 @@ describe('RentalityGateway', function() {
 
 
   })
-  it('Connot checkInBy host while car on the trip', async function() {
+  it('Con not checkInBy host while car on the trip', async function() {
 
     await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0)))
       .not.to.be.reverted
