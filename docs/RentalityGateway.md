@@ -416,7 +416,7 @@ Retrieves information about available cars for a specific user.
 ### searchAvailableCars
 
 ```solidity
-function searchAvailableCars(uint64 startDateTime, uint64 endDateTime, struct RentalityCarToken.SearchCarParams searchParams) public view returns (struct RentalityCarToken.CarInfo[])
+function searchAvailableCars(uint64 startDateTime, uint64 endDateTime, struct RentalityCarToken.SearchCarParams searchParams) public view returns (struct RentalityTripService.AvailableCarResponse[])
 ```
 
 Searches for available cars based on specified criteria.
@@ -433,12 +433,12 @@ Searches for available cars based on specified criteria.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| [0] | struct RentalityCarToken.CarInfo[] | An array of available car information meeting the search criteria. |
+| [0] | struct RentalityTripService.AvailableCarResponse[] | An array of available car information meeting the search criteria. |
 
 ### searchAvailableCarsForUser
 
 ```solidity
-function searchAvailableCarsForUser(address user, uint64 startDateTime, uint64 endDateTime, struct RentalityCarToken.SearchCarParams searchParams) public view returns (struct RentalityCarToken.CarInfo[])
+function searchAvailableCarsForUser(address user, uint64 startDateTime, uint64 endDateTime, struct RentalityCarToken.SearchCarParams searchParams) public view returns (struct RentalityTripService.AvailableCarResponse[])
 ```
 
 Searches for available cars for a specific user based on specified criteria.
@@ -456,7 +456,7 @@ Searches for available cars for a specific user based on specified criteria.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| [0] | struct RentalityCarToken.CarInfo[] | An array of available car information meeting the search criteria for the specified user. |
+| [0] | struct RentalityTripService.AvailableCarResponse[] | An array of available car information meeting the search criteria for the specified user. |
 
 ### getMyCars
 
@@ -538,7 +538,7 @@ Rejects a trip request. Only callable by hosts.
 ### checkInByHost
 
 ```solidity
-function checkInByHost(uint256 tripId, uint64 startFuelLevelInPermille, uint64 startOdometr) public
+function checkInByHost(uint256 tripId, uint64[] panelParams) public
 ```
 
 Performs check-in by the host for a trip.
@@ -548,13 +548,12 @@ Performs check-in by the host for a trip.
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | tripId | uint256 | The ID of the trip. |
-| startFuelLevelInPermille | uint64 | The starting fuel level in permille. |
-| startOdometr | uint64 | The starting odometer reading. |
+| panelParams | uint64[] | An array representing parameters related to fuel, odometer, and other relevant details depends on engine. |
 
 ### checkInByGuest
 
 ```solidity
-function checkInByGuest(uint256 tripId, uint64 startFuelLevelInPermille, uint64 startOdometr) public
+function checkInByGuest(uint256 tripId, uint64[] panelParams) public
 ```
 
 Performs check-in by the guest for a trip.
@@ -564,13 +563,12 @@ Performs check-in by the guest for a trip.
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | tripId | uint256 | The ID of the trip. |
-| startFuelLevelInPermille | uint64 | The starting fuel level in permille. |
-| startOdometr | uint64 | The starting odometer reading. |
+| panelParams | uint64[] | An array representing parameters related to fuel, odometer, and other relevant details depends on engine. |
 
 ### checkOutByGuest
 
 ```solidity
-function checkOutByGuest(uint256 tripId, uint64 endFuelLevelInPermille, uint64 endOdometr) public
+function checkOutByGuest(uint256 tripId, uint64[] panelParams) public
 ```
 
 Performs check-out by the guest for a trip.
@@ -580,13 +578,12 @@ Performs check-out by the guest for a trip.
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | tripId | uint256 | The ID of the trip. |
-| endFuelLevelInPermille | uint64 | The ending fuel level in permille. |
-| endOdometr | uint64 | The ending odometer reading. |
+| panelParams | uint64[] | An array representing parameters related to fuel, odometer, and other relevant details depends on engine. |
 
 ### checkOutByHost
 
 ```solidity
-function checkOutByHost(uint256 tripId, uint64 endFuelLevelInPermille, uint64 endOdometr) public
+function checkOutByHost(uint256 tripId, uint64[] panelParams) public
 ```
 
 Performs check-out by the host for a trip.
@@ -596,8 +593,7 @@ Performs check-out by the host for a trip.
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | tripId | uint256 | The ID of the trip. |
-| endFuelLevelInPermille | uint64 | The ending fuel level in permille. |
-| endOdometr | uint64 | The ending odometer reading. |
+| panelParams | uint64[] | An array representing parameters related to fuel, odometer, and other relevant details depends on engine. |
 
 ### finishTrip
 

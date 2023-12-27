@@ -16,6 +16,7 @@ describe('Rentality', function () {
 
     const RentalityUtils = await ethers.getContractFactory('RentalityUtils')
     const utils = await RentalityUtils.deploy()
+
     const RentalityMockPriceFeed = await ethers.getContractFactory(
       'RentalityMockPriceFeed',
     )
@@ -59,6 +60,24 @@ describe('Rentality', function () {
     const rentalityUserService = await RentalityUserService.deploy()
     await rentalityUserService.deployed()
 
+    const patrolEngine = await ethers.getContractFactory('RentalityPatrolEngine')
+    const pEngine = await patrolEngine.deploy(rentalityUserService.address)
+
+    const electricEngine = await ethers.getContractFactory('RentalityElectricEngine')
+    const elEngine = await electricEngine.deploy(rentalityUserService.address)
+
+    const hybridEngine = await ethers.getContractFactory('RentalityHybridEngine')
+    const hEngine = await hybridEngine.deploy(rentalityUserService.address)
+
+    const EngineService = await ethers.getContractFactory('RentalityEnginesService')
+    const engineService = await EngineService.deploy(
+      rentalityUserService.address,
+      [pEngine.address, elEngine.address, hEngine.address]
+    );
+    await engineService.deployed();
+
+
+
     await rentalityUserService.connect(owner).grantAdminRole(admin.address)
     await rentalityUserService.connect(owner).grantManagerRole(manager.address)
     await rentalityUserService.connect(owner).grantHostRole(host.address)
@@ -69,7 +88,7 @@ describe('Rentality', function () {
     )
     await rentalityCurrencyConverter.deployed()
 
-    const rentalityCarToken = await RentalityCarToken.deploy(geoService.address)
+    const rentalityCarToken = await RentalityCarToken.deploy(geoService.address, engineService.address)
     await rentalityCarToken.deployed()
     const rentalityPaymentService = await RentalityPaymentService.deploy(rentalityUserService.address)
     await rentalityPaymentService.deployed()
@@ -79,6 +98,7 @@ describe('Rentality', function () {
       rentalityCarToken.address,
       rentalityPaymentService.address,
       rentalityUserService.address,
+      engineService.address
     )
     await rentalityTripService.deployed()
 
@@ -97,6 +117,12 @@ describe('Rentality', function () {
     await rentalityUserService
       .connect(owner)
       .grantManagerRole(rentalityPlatform.address)
+    await rentalityUserService
+      .connect(owner)
+      .grantManagerRole(rentalityCarToken.address)
+    await rentalityUserService
+      .connect(owner)
+      .grantManagerRole(engineService.address)
 
     await rentalityUserService
       .connect(owner)
@@ -230,7 +256,7 @@ describe('Rentality', function () {
             totalDayPriceInUsdCents: rentPriceInUsdCents,
             taxPriceInUsdCents: 0,
             depositInUsdCents: 0,
-            fuelPricePerGalInUsdCents: 400,
+            fuelPrices: [400],
             ethToCurrencyRate: ethToCurrencyRate,
             ethToCurrencyDecimals: ethToCurrencyDecimals,
           },
@@ -278,7 +304,7 @@ describe('Rentality', function () {
             totalDayPriceInUsdCents: rentPriceInUsdCents,
             taxPriceInUsdCents: 0,
             depositInUsdCents: 0,
-            fuelPricePerGalInUsdCents: 400,
+            fuelPrices: [400],
             ethToCurrencyRate: ethToCurrencyRate,
             ethToCurrencyDecimals: ethToCurrencyDecimals,
           },
@@ -336,7 +362,7 @@ describe('Rentality', function () {
             totalDayPriceInUsdCents: rentPriceInUsdCents,
             taxPriceInUsdCents: 0,
             depositInUsdCents: 0,
-            fuelPricePerGalInUsdCents: 400,
+            fuelPrices: [400],
             ethToCurrencyRate: ethToCurrencyRate,
             ethToCurrencyDecimals: ethToCurrencyDecimals,
           },
@@ -395,7 +421,7 @@ describe('Rentality', function () {
             totalDayPriceInUsdCents: rentPriceInUsdCents,
             taxPriceInUsdCents: 0,
             depositInUsdCents: 0,
-            fuelPricePerGalInUsdCents: 400,
+            fuelPrices: [400],
             ethToCurrencyRate: ethToCurrencyRate,
             ethToCurrencyDecimals: ethToCurrencyDecimals,
           },
@@ -405,13 +431,13 @@ describe('Rentality', function () {
 
       await expect(rentalityPlatform.connect(host).approveTripRequest(1)).not.to
         .be.reverted
-      await expect(rentalityTripService.connect(host).checkInByHost(1, 0, 0))
+      await expect(rentalityTripService.connect(host).checkInByHost(1, [0, 0]))
         .not.to.be.reverted
-      await expect(rentalityTripService.connect(guest).checkInByGuest(1, 0, 0))
+      await expect(rentalityTripService.connect(guest).checkInByGuest(1, [0, 0]))
         .not.to.be.reverted
-      await expect(rentalityTripService.connect(guest).checkOutByGuest(1, 0, 0))
+      await expect(rentalityTripService.connect(guest).checkOutByGuest(1, [0, 0]))
         .not.to.be.reverted
-      await expect(rentalityTripService.connect(host).checkOutByHost(1, 0, 0))
+      await expect(rentalityTripService.connect(host).checkOutByHost(1, [0, 0]))
         .not.to.be.reverted
       const returnToHost =
         rentPriceInEth -
@@ -466,7 +492,7 @@ describe('Rentality', function () {
             totalDayPriceInUsdCents: rentPriceInUsdCents,
             taxPriceInUsdCents: 0,
             depositInUsdCents: 0,
-            fuelPricePerGalInUsdCents: 400,
+            fuelPrices: [400],
             ethToCurrencyRate: ethToCurrencyRate,
             ethToCurrencyDecimals: ethToCurrencyDecimals,
           },
@@ -486,7 +512,7 @@ describe('Rentality', function () {
             totalDayPriceInUsdCents: rentPriceInUsdCents,
             taxPriceInUsdCents: 0,
             depositInUsdCents: 0,
-            fuelPricePerGalInUsdCents: 400,
+            fuelPrices: [400],
             ethToCurrencyRate: ethToCurrencyRate,
             ethToCurrencyDecimals: ethToCurrencyDecimals,
           },
@@ -553,7 +579,7 @@ describe('Rentality', function () {
             totalDayPriceInUsdCents: rentPriceInUsdCents,
             taxPriceInUsdCents: 0,
             depositInUsdCents: 0,
-            fuelPricePerGalInUsdCents: 400,
+            fuelPrices: [400],
             ethToCurrencyRate: ethToCurrencyRate,
             ethToCurrencyDecimals: ethToCurrencyDecimals,
           },
@@ -573,7 +599,7 @@ describe('Rentality', function () {
             totalDayPriceInUsdCents: rentPriceInUsdCents,
             taxPriceInUsdCents: 0,
             depositInUsdCents: 0,
-            fuelPricePerGalInUsdCents: 400,
+            fuelPrices: [400],
             ethToCurrencyRate: ethToCurrencyRate,
             ethToCurrencyDecimals: ethToCurrencyDecimals,
           },
@@ -645,7 +671,7 @@ describe('Rentality', function () {
             totalDayPriceInUsdCents: rentPriceInUsdCents,
             taxPriceInUsdCents: 0,
             depositInUsdCents: 0,
-            fuelPricePerGalInUsdCents: 400,
+            fuelPrices: [400],
             ethToCurrencyRate: ethToCurrencyRate,
             ethToCurrencyDecimals: ethToCurrencyDecimals,
           },
@@ -720,7 +746,7 @@ describe('Rentality', function () {
             totalDayPriceInUsdCents: rentPriceInUsdCents,
             taxPriceInUsdCents: 0,
             depositInUsdCents: 0,
-            fuelPricePerGalInUsdCents: 400,
+            fuelPrices: [400],
             ethToCurrencyRate: ethToCurrencyRate,
             ethToCurrencyDecimals: ethToCurrencyDecimals,
           },
@@ -789,7 +815,7 @@ describe('Rentality', function () {
             totalDayPriceInUsdCents: 1000,
             taxPriceInUsdCents: 200,
             depositInUsdCents: 400,
-            fuelPricePerGalInUsdCents: 400,
+            fuelPrices: [400],
             ethToCurrencyRate: ethToCurrencyRate,
             ethToCurrencyDecimals: ethToCurrencyDecimals,
           },
@@ -856,7 +882,7 @@ describe('Rentality', function () {
             totalDayPriceInUsdCents: 1000,
             taxPriceInUsdCents: 200,
             depositInUsdCents: 400,
-            fuelPricePerGalInUsdCents: 400,
+            fuelPrices: [400],
             ethToCurrencyRate: ethToCurrencyRate,
             ethToCurrencyDecimals: ethToCurrencyDecimals,
           },
@@ -932,7 +958,7 @@ describe('Rentality', function () {
             totalDayPriceInUsdCents: dailyPriceInUsdCents,
             taxPriceInUsdCents: 200,
             depositInUsdCents: 400,
-            fuelPricePerGalInUsdCents: 400,
+            fuelPrices: [400],
             ethToCurrencyRate: ethToCurrencyRate,
             ethToCurrencyDecimals: ethToCurrencyDecimals,
           },
@@ -1013,7 +1039,7 @@ describe('Rentality', function () {
             totalDayPriceInUsdCents: dailyPriceInUsdCents,
             taxPriceInUsdCents: 200,
             depositInUsdCents: 400,
-            fuelPricePerGalInUsdCents: 400,
+            fuelPrices: [400],
             ethToCurrencyRate: ethToCurrencyRate,
             ethToCurrencyDecimals: ethToCurrencyDecimals,
           },
@@ -1028,7 +1054,7 @@ describe('Rentality', function () {
       ).to.equal(1)
 
       await expect(
-        await rentalityTripService.connect(host).checkInByHost(1, 10, 10),
+        await rentalityTripService.connect(host).checkInByHost(1, [10, 10]),
       ).not.to.be.reverted
       expect(
         (await rentalityTripService.connect(host).getTrip(1)).status,

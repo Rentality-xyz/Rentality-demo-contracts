@@ -21,6 +21,7 @@ describe('RentalityCarToken', function () {
     const RentalityUserService = await ethers.getContractFactory(
       'RentalityUserService',
     )
+
     const RentalityCarToken = await ethers.getContractFactory(
       'RentalityCarToken',
     )
@@ -43,6 +44,22 @@ describe('RentalityCarToken', function () {
 
     await rentalityUserService.deployed()
 
+    const patrolEngine = await ethers.getContractFactory('RentalityPatrolEngine')
+    const pEngine = await patrolEngine.deploy(rentalityUserService.address)
+
+    const electricEngine = await ethers.getContractFactory('RentalityElectricEngine')
+    const elEngine = await electricEngine.deploy(rentalityUserService.address)
+
+    const hybridEngine = await ethers.getContractFactory('RentalityHybridEngine')
+    const hEngine = await hybridEngine.deploy(rentalityUserService.address)
+
+    const EngineService = await ethers.getContractFactory('RentalityEnginesService')
+    const engineService = await EngineService.deploy(
+      rentalityUserService.address,
+      [pEngine.address, elEngine.address, hEngine.address]
+    );
+    await engineService.deployed();
+
     const rentalityPaymentService = await RentalityPaymentService.deploy(rentalityUserService.address)
     const rentalityCurrencyConverter = await RentalityCurrencyConverter.deploy(
       rentalityMockPriceFeed.address,
@@ -59,6 +76,7 @@ describe('RentalityCarToken', function () {
 
     const rentalityCarToken = await RentalityCarToken.deploy(
       rentalityGeoService.address,
+      engineService.address,
     )
     const rentalityCarService = await rentalityCarToken.deployed()
 
@@ -72,6 +90,7 @@ describe('RentalityCarToken', function () {
       rentalityCarService.address,
       rentalityPaymentService.address,
       rentalityUserService.address,
+      engineService.address
     )
 
     await rentalityTripService.deployed()
@@ -79,6 +98,13 @@ describe('RentalityCarToken', function () {
     await rentalityUserService
       .connect(owner)
       .grantManagerRole(rentalityTripService.address)
+
+    await rentalityUserService
+      .connect(owner)
+      .grantManagerRole(rentalityCarToken.address)
+    await rentalityUserService
+      .connect(owner)
+      .grantManagerRole(engineService.address)
 
     return {
       rentalityCarToken,
@@ -190,7 +216,7 @@ describe('RentalityCarToken', function () {
       carId: 2,
       pricePerDayInUsdCents: 2,
       securityDepositPerTripInUsdCents: 2,
-      fuelPricePerGalInUsdCents: 2,
+      engineParams: [2],
       milesIncludedPerDay: 2,
       currentlyListed: false
     }
@@ -214,7 +240,7 @@ describe('RentalityCarToken', function () {
       carId: 2,
       pricePerDayInUsdCents: 2,
       securityDepositPerTripInUsdCents: 2,
-      fuelPricePerGalInUsdCents: 2,
+      engineParams: [2],
       milesIncludedPerDay: 2,
       currentlyListed: false
     }
@@ -232,7 +258,7 @@ describe('RentalityCarToken', function () {
       carId: 2,
       pricePerDayInUsdCents: 2,
       securityDepositPerTripInUsdCents: 2,
-      fuelPricePerGalInUsdCents: 2,
+      engineParams:[2],
       milesIncludedPerDay: 2,
       currentlyListed: false
     }
