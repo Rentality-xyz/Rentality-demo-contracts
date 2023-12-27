@@ -35,6 +35,17 @@ function getMockCarRequest(seed) {
     }
 }
 
+function createMockClaimRequest(tripId, amountToClaim) {
+
+    return {
+        tripId: tripId,
+        claimType: 1,
+        description: "Some des",
+        amountInUsdCents: amountToClaim
+
+    }
+}
+
 const TripStatus = {
     Created: 0,
     Approved: 1,
@@ -62,5 +73,6 @@ function getEmptySearchCarParams(seed) {
 module.exports = {
     getMockCarRequest,
     TripStatus,
-    getEmptySearchCarParams
+    getEmptySearchCarParams,
+    createMockClaimRequest
 };
