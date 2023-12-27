@@ -1,5 +1,6 @@
 const env = require('hardhat')
-
+const { ethers } = require('hardhat')
+const { Contract } = require('hardhat/internal/hardhat-network/stack-traces/model')
 function getMockCarRequest(seed) {
 
     const seedStr = seed?.toString() ?? ''
@@ -106,9 +107,171 @@ function getEmptySearchCarParams(seed) {
     }
 }
 
+
+
+async function deployDefaultFixture() {
+    const [owner, admin, manager, host, guest, anonymous] =
+      await ethers.getSigners()
+
+    const RentalityUtils = await ethers.getContractFactory('RentalityUtils')
+    const utils = await RentalityUtils.deploy()
+    const RentalityMockPriceFeed = await ethers.getContractFactory(
+      'RentalityMockPriceFeed',
+    )
+    const RentalityUserService = await ethers.getContractFactory(
+      'RentalityUserService',
+    )
+    const RentalityTripService = await ethers.getContractFactory(
+      'RentalityTripService',
+      { libraries: { RentalityUtils: utils.address } },
+    )
+    const RentalityCurrencyConverter = await ethers.getContractFactory(
+      'RentalityCurrencyConverter',
+    )
+    const RentalityPaymentService = await ethers.getContractFactory(
+      'RentalityPaymentService',
+    )
+    const RentalityCarToken =
+      await ethers.getContractFactory('RentalityCarToken')
+
+    const RentalityPlatform =
+      await ethers.getContractFactory('RentalityPlatform',
+        {
+            libraries:
+              {
+                  RentalityUtils: utils.address,
+              },
+        })
+    const RentalityGeoService =
+      await ethers.getContractFactory('RentalityGeoMock')
+
+    let RentalityGateway = await ethers.getContractFactory(
+      'RentalityGateway',
+      {
+          libraries:
+            {
+                RentalityUtils: utils.address,
+            },
+      },
+    )
+
+    let rentalityMockPriceFeed = await RentalityMockPriceFeed.deploy(
+      8,
+      200000000000,
+    )
+    await rentalityMockPriceFeed.deployed()
+
+    const rentalityUserService = await RentalityUserService.deploy()
+    await rentalityUserService.deployed()
+
+    const electricEngine = await ethers.getContractFactory('RentalityElectricEngine')
+    const elEngine = await electricEngine.deploy(rentalityUserService.address)
+
+    const patrolEngine = await ethers.getContractFactory('RentalityPatrolEngine')
+    const pEngine = await patrolEngine.deploy(rentalityUserService.address)
+
+    const hybridEngine = await ethers.getContractFactory('RentalityHybridEngine')
+    const hEngine = await hybridEngine.deploy(rentalityUserService.address)
+
+    const EngineService = await ethers.getContractFactory('RentalityEnginesService')
+    const engineService = await EngineService.deploy(
+      rentalityUserService.address,
+      [pEngine.address, elEngine.address, hEngine.address]
+    );
+    await engineService.deployed();
+
+    await rentalityUserService.connect(owner).grantAdminRole(admin.address)
+    await rentalityUserService.connect(owner).grantManagerRole(manager.address)
+    await rentalityUserService.connect(owner).grantHostRole(host.address)
+    await rentalityUserService.connect(owner).grantGuestRole(guest.address)
+
+    const rentalityCurrencyConverter = await RentalityCurrencyConverter.deploy(
+      rentalityMockPriceFeed.address,
+    )
+    await rentalityCurrencyConverter.deployed()
+    const rentalityGeoService = await RentalityGeoService.deploy()
+    await rentalityGeoService.deployed()
+
+    const rentalityCarToken = await RentalityCarToken.deploy(rentalityGeoService.address, engineService.address)
+    await rentalityCarToken.deployed()
+    const rentalityPaymentService = await RentalityPaymentService.deploy(rentalityUserService.address)
+    await rentalityPaymentService.deployed()
+
+    const rentalityTripService = await RentalityTripService.deploy(
+      rentalityCurrencyConverter.address,
+      rentalityCarToken.address,
+      rentalityPaymentService.address,
+      rentalityUserService.address,
+      engineService.address
+    )
+    await rentalityTripService.deployed()
+
+    const RentalityClaimService = await ethers.getContractFactory('RentalityClaimService')
+    const claimService = await RentalityClaimService.deploy(rentalityUserService.address)
+    await claimService.deployed()
+
+    const rentalityPlatform = await RentalityPlatform.deploy(
+      rentalityCarToken.address,
+      rentalityCurrencyConverter.address,
+      rentalityTripService.address,
+      rentalityUserService.address,
+      rentalityPaymentService.address,
+      claimService.address,
+    )
+    await rentalityPlatform.deployed()
+
+    await rentalityUserService
+      .connect(owner)
+      .grantHostRole(rentalityPlatform.address)
+    await rentalityUserService.connect(owner).grantManagerRole(rentalityPlatform.address)
+    await rentalityUserService
+      .connect(owner)
+      .grantManagerRole(rentalityTripService.address)
+    await rentalityUserService.connect(owner).grantManagerRole(rentalityPlatform.address)
+
+    let rentalityGateway = await RentalityGateway.connect(owner).deploy(
+      rentalityCarToken.address,
+      rentalityCurrencyConverter.address,
+      rentalityTripService.address,
+      rentalityUserService.address,
+      rentalityPlatform.address,
+      rentalityPaymentService.address,
+    )
+    await rentalityGateway.deployed()
+
+    await rentalityUserService.connect(owner).grantManagerRole(rentalityGateway.address)
+    await rentalityUserService.connect(owner).grantAdminRole(rentalityGateway.address)
+    await rentalityUserService
+      .connect(owner)
+      .grantManagerRole(rentalityCarToken.address)
+    await rentalityUserService
+      .connect(owner)
+      .grantManagerRole(engineService.address)
+
+    return {
+        rentalityGateway,
+        rentalityMockPriceFeed,
+        rentalityUserService,
+        rentalityTripService,
+        rentalityCurrencyConverter,
+        rentalityCarToken,
+        rentalityPaymentService,
+        rentalityPlatform,
+        claimService,
+        owner,
+        admin,
+        manager,
+        host,
+        guest,
+        anonymous,
+    }
+}
+
+
 module.exports = {
     getMockCarRequest,
     TripStatus,
     getEmptySearchCarParams,
-    createMockClaimRequest
+    createMockClaimRequest,
+    deployDefaultFixture
 };
