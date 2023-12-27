@@ -105,7 +105,7 @@ describe('RentalityUserService', function() {
     await rentalityTripService.deployed()
 
     const RentalityClaimService = await ethers.getContractFactory('RentalityClaimService')
-    const claimService = await RentalityClaimService.deploy(10, rentalityUserService.address)
+    const claimService = await RentalityClaimService.deploy(rentalityUserService.address)
     await claimService.deployed()
 
 

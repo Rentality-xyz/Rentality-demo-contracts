@@ -7,7 +7,6 @@ import "./RentalityUserService.sol";
 /// @dev This contract allows users with manager roles to create, reject, and pay claims.
 contract RentalityClaimService {
     // Private variables for platform configuration
-    uint8 private platformFeeInPercent;
     uint256 private waitingTimeForApproveInSec = 259_200;
     uint256 private claimId;
 
@@ -17,14 +16,11 @@ contract RentalityClaimService {
     // Reference to RentalityUserService contract
     RentalityUserService private userService;
 
-    constructor(uint8 platformFee, address _userService)
+    constructor(address _userService)
     {
-        platformFeeInPercent = platformFee;
         userService = RentalityUserService(_userService);
     }
     event ClaimStatusChanged(uint256 claimId, Status claimStatus);
-
-    event PlatformFeeChanged(uint8 newPlatformFee);
 
     event WaitingTimeChanged(uint256 newWaitingTime);
 
@@ -86,15 +82,6 @@ contract RentalityClaimService {
         _;
     }
 
-    /// @dev Sets the platform fee, only callable by administrators.
-    /// @param newPlatfromFeeInPercent New platform fee in percentage.
-    function setPlatfromFee(uint8 newPlatfromFeeInPercent) public {
-        require(userService.isAdmin(msg.sender), "Only admin.");
-        platformFeeInPercent = newPlatfromFeeInPercent;
-
-        emit PlatformFeeChanged(newPlatfromFeeInPercent);
-    }
-
     /// @dev Sets the waiting time, only callable by administrators.
     /// @param newWaitingTimeInSec, set old value to this
     function setWaitingTime(uint256 newWaitingTimeInSec) public {
@@ -102,12 +89,6 @@ contract RentalityClaimService {
         waitingTimeForApproveInSec = newWaitingTimeInSec;
 
         emit WaitingTimeChanged(newWaitingTimeInSec);
-    }
-
-    /// @dev Gets the current platform fee.
-    /// @return Current platform fee in percentage.
-    function getPlatformFee() public view returns (uint8) {
-        return platformFeeInPercent;
     }
 
     /// @dev Creates a new claim, only callable by managers contracts.

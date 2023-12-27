@@ -398,7 +398,7 @@ contract RentalityPlatform is Ownable {
             trip.paymentInfo.ethToCurrencyRate,
             trip.paymentInfo.ethToCurrencyDecimals
         );
-        uint256 platformFee = valueToPay * claimService.getPlatformFee() / 100;
+        uint256 platformFee = paymentService.getClaimPlatformFeeFrom(valueToPay);
         uint256 totalAmount = valueToPay + platformFee;
 
         require(msg.value >= totalAmount, "Insufficient funds sent.");
