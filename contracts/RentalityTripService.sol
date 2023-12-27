@@ -11,6 +11,7 @@ import "./RentalityPaymentService.sol";
 import "./RentalityCarToken.sol";
 import "./RentalityUtils.sol";
 import "./RentalityUserService.sol";
+import "./engine/RentalityEnginesService.sol";
 
 /// @title RentalityTripService
 /// @dev Manages the lifecycle of rental trips, including creation, approval, and completion.
@@ -22,7 +23,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     using Counters for Counters.Counter;
     Counters.Counter private _tripIdCounter;
 
-    /// @dev Enumeration representing various states of a trip.
+    /// @dev Enumeration representing verious states of a trip.
     enum TripStatus {
         Created,
         Approved,
@@ -70,18 +71,16 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
         string startLocation;
         string endLocation;
         uint64 milesIncludedPerDay;
-        uint64 fuelPricePerGalInUsdCents;
+        uint64[] fuelPrices;
         PaymentInfo paymentInfo;
         uint approvedDateTime;
         uint rejectedDateTime;
         address rejectedBy;
         uint checkedInByHostDateTime;
-        uint64 startFuelLevelInGal;
-        uint64 startOdometr;
+        uint64[] startParamLevels;
         uint checkedInByGuestDateTime;
         uint checkedOutByGuestDateTime;
-        uint64 endFuelLevelInGal;
-        uint64 endOdometr;
+        uint64[] endParamLevels;
         uint checkedOutByHostDateTime;
     }
 
@@ -106,7 +105,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     RentalityCarToken private carService;
     RentalityPaymentService private paymentService;
     RentalityUserService private userService;
-
+    RentalityEnginesService private engineService;
 
 
     /// @dev Get the total number of trips created.
@@ -125,7 +124,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     /// @param startLocation The starting location of the trip.
     /// @param endLocation The ending location of the trip.
     /// @param milesIncludedPerDay The number of miles included per day.
-    /// @param fuelPricePerGalInUsdCents The fuel price per gallon in USD cents.
+    /// @param fuelPricesPerUnits The fuel prices per units depends on engine.
     /// @param paymentInfo The payment information for the trip.
     function createNewTrip(
         uint256 carId,
@@ -137,7 +136,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
         string memory startLocation,
         string memory endLocation,
         uint64 milesIncludedPerDay,
-        uint64 fuelPricePerGalInUsdCents,
+        uint64[] memory fuelPricesPerUnits,
         PaymentInfo memory paymentInfo
     ) public {
         require(userService.isManager(msg.sender), "Only from manager contract.");
@@ -148,8 +147,11 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
         }
         paymentInfo.tripId = newTripId;
 
-        string memory guestName = userService.getKYCInfo(tx.origin).name;
-        string memory hostName = userService.getKYCInfo(host).name;
+        RentalityCarToken.CarInfo memory carInfo = carService.getCarInfoById(carId);
+        engineService.verifyResourcePrice(fuelPricesPerUnits, carInfo.engineType);
+
+        uint256 panelParamsAmount = engineService.
+            getPanelParamsAmount(carInfo.engineType);
 
         idToTripInfo[newTripId] = Trip(
             newTripId,
@@ -157,27 +159,26 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
             TripStatus.Created,
             guest,
             host,
-            guestName,
-            hostName,
+            userService.getKYCInfo(tx.origin).name,
+            userService.getKYCInfo(host).name,
             pricePerDayInUsdCents,
             startDateTime,
             endDateTime,
             startLocation,
             endLocation,
             milesIncludedPerDay,
-            fuelPricePerGalInUsdCents,
+            fuelPricesPerUnits,
             paymentInfo,
             0,
             0,
             address(0),
             0,
+            new uint64[](panelParamsAmount),
             0,
             0,
-            0,
-            0,
-            0,
-            0,
+            new uint64[](panelParamsAmount),
             0
+
         );
 
         emit TripCreated(newTripId);
@@ -302,12 +303,11 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     /// - The caller must be the host of the trip.
     /// - The trip must be in status Approved.
     /// @param tripId The ID of the trip to be checked in by the host.
-    /// @param startFuelLevelInPermille The starting fuel level of the car in permille.
-    /// @param startOdometr The starting odometer reading of the car.
+    /// @param panelParams An array representing parameters related to fuel, odometer,
+    /// and other relevant details depends on engine.
     function checkInByHost(
         uint256 tripId,
-        uint64 startFuelLevelInPermille,
-        uint64 startOdometr
+        uint64[] memory panelParams
     ) public {
         Trip memory trip = getTrip(tripId);
         require(trip.host == tx.origin, "For host only");
@@ -327,8 +327,8 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
         }
 
         RentalityCarToken.CarInfo memory carInfo = carService.getCarInfoById(trip.carId);
-        uint64 startFuelLevelInGal = (carInfo.tankVolumeInGal *
-            startFuelLevelInPermille) / 1000;
+
+        engineService.verifyStartParams(panelParams, carInfo.engineType);
 
         require(
             idToTripInfo[tripId].status == TripStatus.Approved,
@@ -337,9 +337,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
 
         idToTripInfo[tripId].status = TripStatus.CheckedInByHost;
         idToTripInfo[tripId].checkedInByHostDateTime = block.timestamp;
-        idToTripInfo[tripId].startFuelLevelInGal = startFuelLevelInGal;
-        idToTripInfo[tripId].startOdometr = startOdometr;
-
+        idToTripInfo[tripId].startParamLevels = panelParams;
         emit TripStatusChanged(tripId, TripStatus.CheckedInByHost);
     }
 
@@ -349,31 +347,21 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     /// - The trip must be in status CheckedInByHost.
     /// - The trip params must match.
     /// @param tripId The ID of the trip to be checked in by the guest.
-    /// @param startFuelLevelInPermille The starting fuel level of the car in permille.
-    /// @param startOdometr The starting odometer reading of the car.
+    /// @param panelParams An array representing parameters related to fuel, odometer,
+    /// and other relevant details depends on engine.
     function checkInByGuest(
         uint256 tripId,
-        uint64 startFuelLevelInPermille,
-        uint64 startOdometr
+        uint64[] memory panelParams
     ) public {
         Trip memory trip = getTrip(tripId);
         require(trip.guest == tx.origin, "Only for guest");
 
         RentalityCarToken.CarInfo memory carInfo = carService.getCarInfoById(trip.carId);
-        uint64 startFuelLevelInGal = (carInfo.tankVolumeInGal *
-            startFuelLevelInPermille) / 1000;
+        engineService.compareParams(panelParams, trip.startParamLevels, carInfo.engineType);
 
         require(
             idToTripInfo[tripId].status == TripStatus.CheckedInByHost,
             "The trip is not in status CheckedInByHost"
-        );
-        require(
-            idToTripInfo[tripId].startFuelLevelInGal == startFuelLevelInGal,
-            "Start fuel level does not match"
-        );
-        require(
-            idToTripInfo[tripId].startOdometr == startOdometr,
-            "Start odometr does not match"
         );
 
         idToTripInfo[tripId].status = TripStatus.CheckedInByGuest;
@@ -388,33 +376,28 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     ///  - The trip must be in status CheckedInByGuest.
     ///  - The end odometer reading must be greater than or equal to the start odometer reading.
     ///  @param tripId The ID of the trip to be checked out by the guest.
-    ///  @param endFuelLevelInPermille The fuel level at the end of the trip in permille.
-    ///  @param endOdometr The odometer reading at the end of the trip. than or equal to the start odometer reading.
+    /// @param panelParams An array representing parameters related to fuel, odometer,
+    /// and other relevant details depends on engine.
     function checkOutByGuest(
         uint256 tripId,
-        uint64 endFuelLevelInPermille,
-        uint64 endOdometr
+        uint64[] memory panelParams
     ) public {
         Trip memory trip = getTrip(tripId);
         require(
             trip.guest == tx.origin, "For trip guest only"
         );
         RentalityCarToken.CarInfo memory carInfo = carService.getCarInfoById(trip.carId);
-        uint64 endFuelLevelInGal = (carInfo.tankVolumeInGal *
-            endFuelLevelInPermille) / 1000;
+
+        engineService.verifyEndParams(trip.startParamLevels, panelParams, carInfo.engineType);
 
         require(
             idToTripInfo[tripId].status == TripStatus.CheckedInByGuest,
             "The trip is not in status CheckedInByGuest"
         );
-        require(
-            idToTripInfo[tripId].startOdometr <= endOdometr,
-            "End odometr should be greater than start odometr"
-        );
+
         idToTripInfo[tripId].status = TripStatus.CheckedOutByGuest;
         idToTripInfo[tripId].checkedOutByGuestDateTime = block.timestamp;
-        idToTripInfo[tripId].endFuelLevelInGal = endFuelLevelInGal;
-        idToTripInfo[tripId].endOdometr = endOdometr;
+        idToTripInfo[tripId].endParamLevels = panelParams;
 
         emit TripStatusChanged(tripId, TripStatus.CheckedOutByGuest);
     }
@@ -425,32 +408,23 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     ///      - The trip must be in status CheckedOutByGuest.
     ///      - End fuel level and odometer readings must match the recorded values at guest check-out.
     ///  @param tripId The ID of the trip to be checked out by the host.
-    ///  @param endFuelLevelInPermille The fuel level at the end of the trip in permille.
-    ///  @param endOdometr The odometer reading at the end of the trip.
+    /// @param panelParams An array representing parameters related to fuel, odometer,
+    /// and other relevant details depends on engine.
     function checkOutByHost(
         uint256 tripId,
-        uint64 endFuelLevelInPermille,
-        uint64 endOdometr
+        uint64[] memory panelParams
     ) public {
         Trip memory trip = getTrip(tripId);
         require(
             trip.host == tx.origin, "For trip host only"
         );
         RentalityCarToken.CarInfo memory carInfo = carService.getCarInfoById(trip.carId);
-        uint64 endFuelLevelInGal = (carInfo.tankVolumeInGal *
-            endFuelLevelInPermille) / 1000;
+
+        engineService.compareParams(trip.endParamLevels, panelParams, carInfo.engineType);
 
         require(
             idToTripInfo[tripId].status == TripStatus.CheckedOutByGuest,
             "The trip is not in status CheckedOutByGuest"
-        );
-        require(
-            idToTripInfo[tripId].endFuelLevelInGal == endFuelLevelInGal,
-            "End fuel level does not match"
-        );
-        require(
-            idToTripInfo[tripId].endOdometr == endOdometr,
-            "End odometr does not match"
         );
 
         idToTripInfo[tripId].status = TripStatus.CheckedOutByHost;
@@ -473,8 +447,12 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
         );
         idToTripInfo[tripId].status = TripStatus.Finished;
 
+        uint8 eType = carService.getCarInfoById(idToTripInfo[tripId].carId).engineType;
+
         (uint64 resolveMilesAmountInUsdCents, uint64 resolveFuelAmountInUsdCents) = RentalityUtils.getResolveAmountInUsdCents(
-            idToTripInfo[tripId]
+            eType,
+            idToTripInfo[tripId],
+            engineService
         );
         idToTripInfo[tripId]
         .paymentInfo
@@ -523,7 +501,8 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
         address currencyConverterServiceAddress,
         address carServiceAddress,
         address paymentServiceAddress,
-        address userServiceAddress
+        address userServiceAddress,
+        address engineServiceAddress
     ) public virtual initializer {
         currencyConverterService = RentalityCurrencyConverter(
             currencyConverterServiceAddress
@@ -531,6 +510,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
         carService = RentalityCarToken(carServiceAddress);
         paymentService = RentalityPaymentService(paymentServiceAddress);
         userService = RentalityUserService(userServiceAddress);
+        engineService = RentalityEnginesService(engineServiceAddress);
     }
 
     function _authorizeUpgrade(address newImplementation) internal view override

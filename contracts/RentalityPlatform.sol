@@ -185,7 +185,7 @@ contract RentalityPlatform is UUPSOwnable {
             request.startLocation,
             request.endLocation,
             carInfo.milesIncludedPerDay,
-            request.fuelPricePerGalInUsdCents,
+            request.fuelPrices,
             paymentInfo
         );
     }
