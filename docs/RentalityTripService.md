@@ -63,19 +63,27 @@ struct Trip {
   string startLocation;
   string endLocation;
   uint64 milesIncludedPerDay;
-  uint64 fuelPricePerGalInUsdCents;
+  uint64[] fuelPrices;
   struct RentalityTripService.PaymentInfo paymentInfo;
   uint256 approvedDateTime;
   uint256 rejectedDateTime;
   address rejectedBy;
   uint256 checkedInByHostDateTime;
-  uint64 startFuelLevelInGal;
-  uint64 startOdometr;
+  uint64[] startParamLevels;
   uint256 checkedInByGuestDateTime;
   uint256 checkedOutByGuestDateTime;
-  uint64 endFuelLevelInGal;
-  uint64 endOdometr;
+  uint64[] endParamLevels;
   uint256 checkedOutByHostDateTime;
+}
+```
+
+### AvailableCarResponse
+
+```solidity
+struct AvailableCarResponse {
+  struct RentalityCarToken.CarInfo car;
+  string hostPhotoUrl;
+  string hostName;
 }
 ```
 
@@ -111,7 +119,7 @@ _Event emitted when the status of a trip is changed._
 ### constructor
 
 ```solidity
-constructor(address currencyConverterServiceAddress, address carServiceAddress, address paymentServiceAddress, address userServiceAddress) public
+constructor(address currencyConverterServiceAddress, address carServiceAddress, address paymentServiceAddress, address userServiceAddress, address engineServiceAddress) public
 ```
 
 _Constructor for the RentalityTripService contract._
@@ -124,6 +132,7 @@ _Constructor for the RentalityTripService contract._
 | carServiceAddress | address | The address of the car service. |
 | paymentServiceAddress | address | The address of the payment service. |
 | userServiceAddress | address | The address of the user service. |
+| engineServiceAddress | address |  |
 
 ### totalTripCount
 
@@ -142,7 +151,7 @@ _Get the total number of trips created._
 ### createNewTrip
 
 ```solidity
-function createNewTrip(uint256 carId, address guest, address host, uint64 pricePerDayInUsdCents, uint64 startDateTime, uint64 endDateTime, string startLocation, string endLocation, uint64 milesIncludedPerDay, uint64 fuelPricePerGalInUsdCents, struct RentalityTripService.PaymentInfo paymentInfo) public
+function createNewTrip(uint256 carId, address guest, address host, uint64 pricePerDayInUsdCents, uint64 startDateTime, uint64 endDateTime, string startLocation, string endLocation, uint64 milesIncludedPerDay, uint64[] fuelPricesPerUnits, struct RentalityTripService.PaymentInfo paymentInfo) public
 ```
 
 _Create a new trip with the provided details._
@@ -160,7 +169,7 @@ _Create a new trip with the provided details._
 | startLocation | string | The starting location of the trip. |
 | endLocation | string | The ending location of the trip. |
 | milesIncludedPerDay | uint64 | The number of miles included per day. |
-| fuelPricePerGalInUsdCents | uint64 | The fuel price per gallon in USD cents. |
+| fuelPricesPerUnits | uint64[] | The fuel prices per units depends on engine. |
 | paymentInfo | struct RentalityTripService.PaymentInfo | The payment information for the trip. |
 
 ### approveTrip
@@ -190,7 +199,7 @@ Reject a trip by changing its status to Canceled.
 ### searchAvailableCarsForUser
 
 ```solidity
-function searchAvailableCarsForUser(address user, uint64 startDateTime, uint64 endDateTime, struct RentalityCarToken.SearchCarParams searchParams) public view returns (struct RentalityCarToken.CarInfo[])
+function searchAvailableCarsForUser(address user, uint64 startDateTime, uint64 endDateTime, struct RentalityCarToken.SearchCarParams searchParams) public view returns (struct RentalityTripService.AvailableCarResponse[])
 ```
 
 _Searches for available cars for a user within a specified time range and search parameters._
@@ -208,12 +217,12 @@ _Searches for available cars for a user within a specified time range and search
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| [0] | struct RentalityCarToken.CarInfo[] | An array of available car information matching the search criteria. |
+| [0] | struct RentalityTripService.AvailableCarResponse[] | An array of available car information matching the search criteria. |
 
 ### checkInByHost
 
 ```solidity
-function checkInByHost(uint256 tripId, uint64 startFuelLevelInPermille, uint64 startOdometr) public
+function checkInByHost(uint256 tripId, uint64[] panelParams) public
 ```
 
 Performs the check-in process by the host, updating the trip status and details.
@@ -226,13 +235,12 @@ Requirements:
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | tripId | uint256 | The ID of the trip to be checked in by the host. |
-| startFuelLevelInPermille | uint64 | The starting fuel level of the car in permille. |
-| startOdometr | uint64 | The starting odometer reading of the car. |
+| panelParams | uint64[] | An array representing parameters related to fuel, odometer, and other relevant details depends on engine. |
 
 ### checkInByGuest
 
 ```solidity
-function checkInByGuest(uint256 tripId, uint64 startFuelLevelInPermille, uint64 startOdometr) public
+function checkInByGuest(uint256 tripId, uint64[] panelParams) public
 ```
 
 Performs the check-in process by the guest, updating the trip status and details.
@@ -246,13 +254,12 @@ Requirements:
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | tripId | uint256 | The ID of the trip to be checked in by the guest. |
-| startFuelLevelInPermille | uint64 | The starting fuel level of the car in permille. |
-| startOdometr | uint64 | The starting odometer reading of the car. |
+| panelParams | uint64[] | An array representing parameters related to fuel, odometer, and other relevant details depends on engine. |
 
 ### checkOutByGuest
 
 ```solidity
-function checkOutByGuest(uint256 tripId, uint64 endFuelLevelInPermille, uint64 endOdometr) public
+function checkOutByGuest(uint256 tripId, uint64[] panelParams) public
 ```
 
 @dev Initiates the check-out process by the guest, updating trip status, and recording end details.
@@ -261,13 +268,18 @@ function checkOutByGuest(uint256 tripId, uint64 endFuelLevelInPermille, uint64 e
  - The trip must be in status CheckedInByGuest.
  - The end odometer reading must be greater than or equal to the start odometer reading.
  @param tripId The ID of the trip to be checked out by the guest.
- @param endFuelLevelInPermille The fuel level at the end of the trip in permille.
- @param endOdometr The odometer reading at the end of the trip. than or equal to the start odometer reading.
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| tripId | uint256 |  |
+| panelParams | uint64[] | An array representing parameters related to fuel, odometer, and other relevant details depends on engine. |
 
 ### checkOutByHost
 
 ```solidity
-function checkOutByHost(uint256 tripId, uint64 endFuelLevelInPermille, uint64 endOdometr) public
+function checkOutByHost(uint256 tripId, uint64[] panelParams) public
 ```
 
 @dev Initiates the check-out process by the host, updating trip status, and validating end details.
@@ -276,8 +288,13 @@ function checkOutByHost(uint256 tripId, uint64 endFuelLevelInPermille, uint64 en
      - The trip must be in status CheckedOutByGuest.
      - End fuel level and odometer readings must match the recorded values at guest check-out.
  @param tripId The ID of the trip to be checked out by the host.
- @param endFuelLevelInPermille The fuel level at the end of the trip in permille.
- @param endOdometr The odometer reading at the end of the trip.
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| tripId | uint256 |  |
+| panelParams | uint64[] | An array representing parameters related to fuel, odometer, and other relevant details depends on engine. |
 
 ### finishTrip
 
@@ -294,96 +311,6 @@ _Finalizes a trip, updating its status to Finished and calculating resolution am
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | tripId | uint256 | The ID of the trip to be finished. Emits a `TripStatusChanged` event with the new status Finished. |
-
-### getResolveAmountInUsdCents
-
-```solidity
-function getResolveAmountInUsdCents(struct RentalityTripService.Trip tripInfo) public pure returns (uint64, uint64)
-```
-
-@dev Calculates the resolved amount in USD cents for a trip.
- @param tripInfo The information about the trip.
-
-#### Return Values
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | uint64 | Returns the resolved amounts for miles and fuel in USD cents as a tuple. |
-| [1] | uint64 |  |
-
-### getResolveAmountInUsdCents
-
-```solidity
-function getResolveAmountInUsdCents(uint64 startOdometr, uint64 endOdometr, uint64 milesIncludedPerDay, uint64 pricePerDayInUsdCents, uint64 tripDays, uint64 startFuelLevelInGal, uint64 endFuelLevelInGal, uint64 fuelPricePerGalInUsdCents) public pure returns (uint64, uint64)
-```
-
-_Calculates the resolution amounts (miles and fuel) for a given set of parameters._
-
-#### Parameters
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| startOdometr | uint64 | The starting odometer reading. |
-| endOdometr | uint64 | The ending odometer reading. |
-| milesIncludedPerDay | uint64 | The number of miles included per day. |
-| pricePerDayInUsdCents | uint64 | The rental price per day in USD cents. |
-| tripDays | uint64 | The number of days for the trip. |
-| startFuelLevelInGal | uint64 | The starting fuel level in gallons. |
-| endFuelLevelInGal | uint64 | The ending fuel level in gallons. |
-| fuelPricePerGalInUsdCents | uint64 | The fuel price per gallon in USD cents. |
-
-#### Return Values
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | uint64 | resolveMilesAmountInUsdCents The resolution amount for extra miles in USD cents. |
-| [1] | uint64 | resolveFuelAmountInUsdCents The resolution amount for extra fuel consumption in USD cents. |
-
-### getDrivenMilesResolveAmountInUsdCents
-
-```solidity
-function getDrivenMilesResolveAmountInUsdCents(uint64 startOdometr, uint64 endOdometr, uint64 milesIncludedPerDay, uint64 pricePerDayInUsdCents, uint64 tripDays) public pure returns (uint64)
-```
-
-_Calculates the resolution amount for extra driven miles._
-
-#### Parameters
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| startOdometr | uint64 | The starting odometer reading. |
-| endOdometr | uint64 | The ending odometer reading. |
-| milesIncludedPerDay | uint64 | The number of miles included per day. |
-| pricePerDayInUsdCents | uint64 | The rental price per day in USD cents. |
-| tripDays | uint64 | The number of days for the trip. |
-
-#### Return Values
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | uint64 | resolveMilesAmountInUsdCents The resolution amount for extra miles in USD cents. |
-
-### getFuelResolveAmountInUsdCents
-
-```solidity
-function getFuelResolveAmountInUsdCents(uint64 startFuelLevelInGal, uint64 endFuelLevelInGal, uint64 fuelPricePerGalInUsdCents) public pure returns (uint64)
-```
-
-_Calculates the resolution amount for extra fuel consumption._
-
-#### Parameters
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| startFuelLevelInGal | uint64 | The starting fuel level in gallons. |
-| endFuelLevelInGal | uint64 | The ending fuel level in gallons. |
-| fuelPricePerGalInUsdCents | uint64 | The fuel price per gallon in USD cents. |
-
-#### Return Values
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | uint64 | resolveFuelAmountInUsdCents The resolution amount for extra fuel consumption in USD cents. |
 
 ### getTrip
 
@@ -404,99 +331,6 @@ _Retrieves the details of a specific trip by its ID._
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | [0] | struct RentalityTripService.Trip | trip The details of the requested trip. |
-
-### getTripsByGuest
-
-```solidity
-function getTripsByGuest(address guest) public view returns (struct RentalityTripService.Trip[])
-```
-
-_Retrieves an array of trips associated with a specific guest address._
-
-#### Parameters
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| guest | address | The address of the guest. |
-
-#### Return Values
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | struct RentalityTripService.Trip[] | trips An array of trips associated with the specified guest. |
-
-### getTripsByHost
-
-```solidity
-function getTripsByHost(address host) public view returns (struct RentalityTripService.Trip[])
-```
-
-_Retrieves an array of trips associated with a specific host address._
-
-#### Parameters
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| host | address | The address of the host. |
-
-#### Return Values
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | struct RentalityTripService.Trip[] | trips An array of trips associated with the specified host. |
-
-### getTripsByCar
-
-```solidity
-function getTripsByCar(uint256 carId) public view returns (struct RentalityTripService.Trip[])
-```
-
-_Retrieves an array of trips associated with a specific car ID._
-
-#### Parameters
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| carId | uint256 | The ID of the car. |
-
-#### Return Values
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | struct RentalityTripService.Trip[] | trips An array of trips associated with the specified car ID. |
-
-### getTripsForCarThatIntersect
-
-```solidity
-function getTripsForCarThatIntersect(uint256 carId, uint64 startDateTime, uint64 endDateTime) public view returns (struct RentalityTripService.Trip[])
-```
-
-@dev Checks if a specific car ID has intersecting trips within a given time range.
- @param carId The ID of the car to check.
- @param startDateTime The start date and time of the time range.
- @param endDateTime The end date and time of the time range.
- @return trips An array of intersecting trips for the specified car within the specified time range.
-
-### getTripsThatIntersect
-
-```solidity
-function getTripsThatIntersect(uint64 startDateTime, uint64 endDateTime) public view returns (struct RentalityTripService.Trip[])
-```
-
-_Retrieves an array of trips that intersect with a given time range._
-
-#### Parameters
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| startDateTime | uint64 | The start date and time of the time range. |
-| endDateTime | uint64 | The end date and time of the time range. |
-
-#### Return Values
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | struct RentalityTripService.Trip[] | intersectingTrips An array of trips that intersect with the specified time range. |
 
 ### getAddressesByTripId
 

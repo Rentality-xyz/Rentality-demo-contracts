@@ -19,8 +19,7 @@ struct CarInfo {
   uint32 yearOfProduction;
   uint64 pricePerDayInUsdCents;
   uint64 securityDepositPerTripInUsdCents;
-  uint64 tankVolumeInGal;
-  uint64 fuelPricePerGalInUsdCents;
+  uint8 engineType;
   uint64 milesIncludedPerDay;
   bool currentlyListed;
   bool geoVerified;
@@ -38,8 +37,8 @@ struct CreateCarRequest {
   uint32 yearOfProduction;
   uint64 pricePerDayInUsdCents;
   uint64 securityDepositPerTripInUsdCents;
-  uint64 tankVolumeInGal;
-  uint64 fuelPricePerGalInUsdCents;
+  uint64[] engineParams;
+  uint8 engineType;
   uint64 milesIncludedPerDay;
   string locationAddress;
   string geoApiKey;
@@ -53,7 +52,7 @@ struct UpdateCarInfoRequest {
   uint256 carId;
   uint64 pricePerDayInUsdCents;
   uint64 securityDepositPerTripInUsdCents;
-  uint64 fuelPricePerGalInUsdCents;
+  uint64[] engineParams;
   uint64 milesIncludedPerDay;
   bool currentlyListed;
 }
@@ -102,7 +101,7 @@ Event emitted when a car is successfully removed.
 ### constructor
 
 ```solidity
-constructor(address _geoServiceAddress) public
+constructor(address _geoServiceAddress, address _rentalityEngine) public
 ```
 
 Constructor to initialize the RentalityCarToken contract.
@@ -112,6 +111,7 @@ Constructor to initialize the RentalityCarToken contract.
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | _geoServiceAddress | address | The address of the RentalityGeoService contract. |
+| _rentalityEngine | address |  |
 
 ### totalSupply
 
