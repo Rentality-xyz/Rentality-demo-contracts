@@ -16,7 +16,7 @@ import './RentalityGeoService.sol';
 /// and URL encoding. The library is used in conjunction with other Rentality contracts.
 library RentalityUtils {
     // Constant multiplier for converting decimal coordinates to integers
-    uint256 constant multiplier = 10**7;
+    uint256 constant multiplier = 10 ** 7;
     /// @notice Checks if a set of coordinates falls within a specified bounding box.
     /// @param locationLat Latitude of the location to check.
     /// @param locationLng Longitude of the location to check.
@@ -449,7 +449,6 @@ library RentalityUtils {
         return result;
     }
 
-
     /// @dev Retrieves an array of trips associated with a specific guest address.
     /// @param guest The address of the guest.
     /// @return trips An array of trips associated with the specified guest.
@@ -541,96 +540,23 @@ library RentalityUtils {
     ///  @param tripInfo The information about the trip.
     /// @return Returns the resolved amounts for miles and fuel in USD cents as a tuple.
     function getResolveAmountInUsdCents(
-        RentalityTripService.Trip memory tripInfo
-    ) public pure returns (uint64, uint64) {
+        uint8 eType,
+        RentalityTripService.Trip memory tripInfo,
+        RentalityEnginesService engineService
+    ) public returns (uint64, uint64) {
         uint64 tripDays = getCeilDays(tripInfo.startDateTime, tripInfo.endDateTime);
 
         return
-            getResolveAmountInUsdCents(
-            tripInfo.startOdometr,
-            tripInfo.endOdometr,
+            engineService.getResolveAmountInUsdCents(
+            eType,
+            tripInfo.fuelPrices,
+            tripInfo.startParamLevels,
+            tripInfo.endParamLevels,
+            tripInfo.carId,
             tripInfo.milesIncludedPerDay,
             tripInfo.pricePerDayInUsdCents,
-            tripDays,
-            tripInfo.startFuelLevelInGal,
-            tripInfo.endFuelLevelInGal,
-            tripInfo.fuelPricePerGalInUsdCents
+            tripDays
+
         );
     }
-
-    /// @dev Calculates the resolution amounts (miles and fuel) for a given set of parameters.
-    /// @param startOdometr The starting odometer reading.
-    /// @param endOdometr The ending odometer reading.
-    /// @param milesIncludedPerDay The number of miles included per day.
-    /// @param pricePerDayInUsdCents The rental price per day in USD cents.
-    /// @param tripDays The number of days for the trip.
-    /// @param startFuelLevelInGal The starting fuel level in gallons.
-    /// @param endFuelLevelInGal The ending fuel level in gallons.
-    /// @param fuelPricePerGalInUsdCents The fuel price per gallon in USD cents.
-    /// @return resolveMilesAmountInUsdCents The resolution amount for extra miles in USD cents.
-    /// @return resolveFuelAmountInUsdCents The resolution amount for extra fuel consumption in USD cents.
-    function getResolveAmountInUsdCents(
-        uint64 startOdometr,
-        uint64 endOdometr,
-        uint64 milesIncludedPerDay,
-        uint64 pricePerDayInUsdCents,
-        uint64 tripDays,
-        uint64 startFuelLevelInGal,
-        uint64 endFuelLevelInGal,
-        uint64 fuelPricePerGalInUsdCents
-    ) public pure returns (uint64, uint64) {
-        return (
-            getDrivenMilesResolveAmountInUsdCents(
-            startOdometr,
-            endOdometr,
-            milesIncludedPerDay,
-            pricePerDayInUsdCents,
-            tripDays
-        ),
-            getFuelResolveAmountInUsdCents(
-            startFuelLevelInGal,
-            endFuelLevelInGal,
-            fuelPricePerGalInUsdCents
-        ));
-    }
-
-    /// @dev Calculates the resolution amount for extra driven miles.
-    /// @param startOdometr The starting odometer reading.
-    /// @param endOdometr The ending odometer reading.
-    /// @param milesIncludedPerDay The number of miles included per day.
-    /// @param pricePerDayInUsdCents The rental price per day in USD cents.
-    /// @param tripDays The number of days for the trip.
-    /// @return resolveMilesAmountInUsdCents The resolution amount for extra miles in USD cents.
-    function getDrivenMilesResolveAmountInUsdCents(
-        uint64 startOdometr,
-        uint64 endOdometr,
-        uint64 milesIncludedPerDay,
-        uint64 pricePerDayInUsdCents,
-        uint64 tripDays
-    ) public pure returns (uint64) {
-        if (endOdometr - startOdometr <= milesIncludedPerDay * tripDays)
-            return 0;
-
-        return
-            ((endOdometr - startOdometr - milesIncludedPerDay * tripDays) *
-                pricePerDayInUsdCents) / milesIncludedPerDay;
-    }
-
-    /// @dev Calculates the resolution amount for extra fuel consumption.
-    /// @param startFuelLevelInGal The starting fuel level in gallons.
-    /// @param endFuelLevelInGal The ending fuel level in gallons.
-    /// @param fuelPricePerGalInUsdCents The fuel price per gallon in USD cents.
-    /// @return resolveFuelAmountInUsdCents The resolution amount for extra fuel consumption in USD cents.
-    function getFuelResolveAmountInUsdCents(
-        uint64 startFuelLevelInGal,
-        uint64 endFuelLevelInGal,
-        uint64 fuelPricePerGalInUsdCents
-    ) public pure returns (uint64) {
-        if (endFuelLevelInGal >= startFuelLevelInGal) return 0;
-
-        return
-            (startFuelLevelInGal - endFuelLevelInGal) *
-            fuelPricePerGalInUsdCents;
-    }
 }
-

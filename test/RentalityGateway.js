@@ -62,6 +62,22 @@ async function deployDefaultFixture() {
   const rentalityUserService = await upgrades.deployProxy(RentalityUserService)
   await rentalityUserService.waitForDeployment()
 
+  const electricEngine = await ethers.getContractFactory('RentalityElectricEngine')
+  const elEngine = await electricEngine.deploy(await rentalityUserService.getAddress())
+
+  const patrolEngine = await ethers.getContractFactory('RentalityPatrolEngine')
+  const pEngine = await patrolEngine.deploy(await rentalityUserService.getAddress())
+
+  const hybridEngine = await ethers.getContractFactory('RentalityHybridEngine')
+  const hEngine = await hybridEngine.deploy(await rentalityUserService.getAddress())
+
+  const EngineService = await ethers.getContractFactory('RentalityEnginesService')
+  const engineService = await EngineService.deploy(
+    await rentalityUserService.getAddress(),
+    [await pEngine.getAddress(),await elEngine.getAddress(),await hEngine.getAddress()]
+  );
+  await engineService.waitForDeployment()
+
   await rentalityUserService.connect(owner).grantAdminRole(admin.address)
   await rentalityUserService.connect(owner).grantManagerRole(manager.address)
   await rentalityUserService.connect(owner).grantHostRole(host.address)
@@ -73,7 +89,7 @@ async function deployDefaultFixture() {
   const rentalityGeoService = await RentalityGeoService.deploy()
   await rentalityGeoService.waitForDeployment()
 
-  const rentalityCarToken = await upgrades.deployProxy(RentalityCarToken,[await rentalityGeoService.getAddress()],{kind:'uups'})
+  const rentalityCarToken = await upgrades.deployProxy(RentalityCarToken,[await rentalityGeoService.getAddress(),await rentalityGeoService.getAddress()],{kind:'uups'})
   await rentalityCarToken.waitForDeployment()
 
   const rentalityPaymentService = await upgrades.deployProxy(RentalityPaymentService,[await rentalityUserService.getAddress()])
@@ -84,6 +100,7 @@ async function deployDefaultFixture() {
     await rentalityCarToken.getAddress(),
     await rentalityPaymentService.getAddress(),
     await rentalityUserService.getAddress(),
+    await engineService.getAddress()
   ]);
   await rentalityTripService.waitForDeployment()
 
@@ -117,9 +134,15 @@ async function deployDefaultFixture() {
   )
   await rentalityGateway.waitForDeployment()
 
+
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityGateway.getAddress())
   await rentalityUserService.connect(owner).grantAdminRole(await rentalityGateway.getAddress())
-
+  await rentalityUserService
+    .connect(owner)
+    .grantManagerRole(await rentalityCarToken.getAddress())
+  await rentalityUserService
+    .connect(owner)
+    .grantManagerRole(await engineService.getAddress())
 
   return {
     rentalityGateway,
@@ -363,7 +386,7 @@ describe('RentalityGateway', function() {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPricePerGalInUsdCents: 400,
+          fuelPrices:[400],
           ethToCurrencyRate: ethToCurrencyRate,
           ethToCurrencyDecimals: ethToCurrencyDecimals,
         },
@@ -403,7 +426,7 @@ describe('RentalityGateway', function() {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPricePerGalInUsdCents: 400,
+          fuelPrices:[400],
           ethToCurrencyRate: ethToCurrencyRate,
           ethToCurrencyDecimals: ethToCurrencyDecimals,
         },
@@ -445,7 +468,7 @@ describe('RentalityGateway', function() {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPricePerGalInUsdCents: 400,
+          fuelPrices:[400],
           ethToCurrencyRate: ethToCurrencyRate,
           ethToCurrencyDecimals: ethToCurrencyDecimals,
         },
@@ -495,7 +518,7 @@ describe('RentalityGateway', function() {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPricePerGalInUsdCents: 400,
+          fuelPrices:[400],
           ethToCurrencyRate: ethToCurrencyRate,
           ethToCurrencyDecimals: ethToCurrencyDecimals,
         },
@@ -545,7 +568,7 @@ describe('RentalityGateway', function() {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPricePerGalInUsdCents: 400,
+          fuelPrices:[400],
           ethToCurrencyRate: ethToCurrencyRate,
           ethToCurrencyDecimals: ethToCurrencyDecimals,
         },
@@ -605,7 +628,7 @@ describe('RentalityGateway', function() {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPricePerGalInUsdCents: 400,
+          fuelPrices:[400],
           ethToCurrencyRate: ethToCurrencyRate,
           ethToCurrencyDecimals: ethToCurrencyDecimals,
         },
@@ -677,7 +700,7 @@ describe('RentalityGateway', function() {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPricePerGalInUsdCents: 400,
+          fuelPrices:[400],
           ethToCurrencyRate: ethToCurrencyRate,
           ethToCurrencyDecimals: ethToCurrencyDecimals,
         },
@@ -734,7 +757,7 @@ describe('RentalityGateway', function() {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPricePerGalInUsdCents: 400,
+          fuelPrices:[400],
           ethToCurrencyRate: ethToCurrencyRate,
           ethToCurrencyDecimals: ethToCurrencyDecimals,
         },
@@ -747,16 +770,16 @@ describe('RentalityGateway', function() {
     expect(await rentalityGateway.connect(host).approveTripRequest(1))
       .not.be.reverted
 
-    await expect(rentalityGateway.connect(guest).checkInByHost(1, 0, 0))
+    await expect(rentalityGateway.connect(guest).checkInByHost(1, [0, 0]))
       .to.be.reverted
 
-    await expect(rentalityGateway.connect(anonymous).checkInByHost(1, 0, 0))
+    await expect(rentalityGateway.connect(anonymous).checkInByHost(1, [0, 0]))
       .to.be.reverted
 
-    await expect(rentalityGateway.connect(admin).checkInByHost(1, 0, 0))
+    await expect(rentalityGateway.connect(admin).checkInByHost(1, [0, 0]))
       .to.be.reverted
 
-    await expect(rentalityGateway.connect(owner).checkInByHost(1, 0, 0))
+    await expect(rentalityGateway.connect(owner).checkInByHost(1, [0, 0]))
       .to.be.reverted
 
     let trip = await rentalityGateway.getTrip(1)
@@ -764,7 +787,7 @@ describe('RentalityGateway', function() {
     expect(trip.status).to.be.equal(TripStatus.Approved)
 
 
-    await expect(rentalityGateway.connect(host).checkInByHost(1, 0, 0))
+    await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0]))
       .not.be.reverted
 
     let trip_checkin = await rentalityGateway.getTrip(1)
@@ -804,7 +827,7 @@ describe('RentalityGateway', function() {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPricePerGalInUsdCents: 400,
+          fuelPrices:[400],
           ethToCurrencyRate: ethToCurrencyRate,
           ethToCurrencyDecimals: ethToCurrencyDecimals,
         },
@@ -817,19 +840,19 @@ describe('RentalityGateway', function() {
     expect(await rentalityGateway.connect(host).approveTripRequest(1))
       .not.be.reverted
 
-    await expect(rentalityGateway.connect(host).checkInByHost(1, 0, 0))
+    await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0]))
       .not.be.reverted
 
-    await expect(rentalityGateway.connect(anonymous).checkInByGuest(1, 0, 0))
+    await expect(rentalityGateway.connect(anonymous).checkInByGuest(1, [0, 0]))
       .to.be.reverted
 
-    await expect(rentalityGateway.connect(host).checkInByGuest(1, 0, 0))
+    await expect(rentalityGateway.connect(host).checkInByGuest(1, [0, 0]))
       .to.be.reverted
 
-    await expect(rentalityGateway.connect(admin).checkInByGuest(1, 0, 0))
+    await expect(rentalityGateway.connect(admin).checkInByGuest(1, [0, 0]))
       .to.be.reverted
 
-    await expect(rentalityGateway.connect(owner).checkInByGuest(1, 0, 0))
+    await expect(rentalityGateway.connect(owner).checkInByGuest(1, [0, 0]))
       .to.be.reverted
 
     let trip = await rentalityGateway.getTrip(1)
@@ -837,7 +860,7 @@ describe('RentalityGateway', function() {
     expect(trip.status).to.be.equal(TripStatus.CheckedInByHost)
 
 
-    await expect(rentalityGateway.connect(guest).checkInByGuest(1, 0, 0))
+    await expect(rentalityGateway.connect(guest).checkInByGuest(1, [0, 0]))
       .not.be.reverted
 
     let trip_checkin = await rentalityGateway.connect(guest).getTrip(1)
@@ -876,7 +899,7 @@ describe('RentalityGateway', function() {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPricePerGalInUsdCents: 400,
+          fuelPrices:[400],
           ethToCurrencyRate: ethToCurrencyRate,
           ethToCurrencyDecimals: ethToCurrencyDecimals,
         },
@@ -889,22 +912,22 @@ describe('RentalityGateway', function() {
     expect(await rentalityGateway.connect(host).approveTripRequest(1))
       .not.be.reverted
 
-    await expect(rentalityGateway.connect(host).checkInByHost(1, 0, 0))
+    await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0]))
       .not.be.reverted
 
-    await expect(rentalityGateway.connect(guest).checkInByGuest(1, 0, 0))
+    await expect(rentalityGateway.connect(guest).checkInByGuest(1, [0, 0]))
       .not.be.reverted
 
-    await expect(rentalityGateway.connect(anonymous).checkOutByGuest(1, 0, 0))
+    await expect(rentalityGateway.connect(anonymous).checkOutByGuest(1, [0, 0]))
       .to.be.reverted
 
-    await expect(rentalityGateway.connect(host).checkOutByGuest(1, 0, 0))
+    await expect(rentalityGateway.connect(host).checkOutByGuest(1, [0, 0]))
       .to.be.reverted
 
-    await expect(rentalityGateway.connect(admin).checkOutByGuest(1, 0, 0))
+    await expect(rentalityGateway.connect(admin).checkOutByGuest(1, [0, 0]))
       .to.be.reverted
 
-    await expect(rentalityGateway.connect(owner).checkOutByGuest(1, 0, 0))
+    await expect(rentalityGateway.connect(owner).checkOutByGuest(1, [0, 0]))
       .to.be.reverted
 
     let trip = await rentalityGateway.getTrip(1)
@@ -912,7 +935,7 @@ describe('RentalityGateway', function() {
     expect(trip.status).to.be.equal(TripStatus.CheckedInByGuest)
 
 
-    await expect(rentalityGateway.connect(guest).checkOutByGuest(1, 0, 0))
+    await expect(rentalityGateway.connect(guest).checkOutByGuest(1, [0, 0]))
       .not.be.reverted
 
     let trip_checkout = await rentalityGateway.connect(guest).getTrip(1)
@@ -951,7 +974,7 @@ describe('RentalityGateway', function() {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPricePerGalInUsdCents: 400,
+          fuelPrices:[400],
           ethToCurrencyRate: ethToCurrencyRate,
           ethToCurrencyDecimals: ethToCurrencyDecimals,
         },
@@ -964,25 +987,25 @@ describe('RentalityGateway', function() {
     expect(await rentalityGateway.connect(host).approveTripRequest(1))
       .not.be.reverted
 
-    await expect(rentalityGateway.connect(host).checkInByHost(1, 0, 0))
+    await expect(rentalityGateway.connect(host).checkInByHost(1, [0,0]))
       .not.be.reverted
 
-    await expect(rentalityGateway.connect(guest).checkInByGuest(1, 0, 0))
+    await expect(rentalityGateway.connect(guest).checkInByGuest(1, [0,0]))
       .not.be.reverted
 
-    await expect(rentalityGateway.connect(guest).checkOutByGuest(1, 0, 0))
+    await expect(rentalityGateway.connect(guest).checkOutByGuest(1, [0,0]))
       .not.be.reverted
 
-    await expect(rentalityGateway.connect(anonymous).checkOutByHost(1, 0, 0))
+    await expect(rentalityGateway.connect(anonymous).checkOutByHost(1,[0,0]))
       .to.be.reverted
 
-    await expect(rentalityGateway.connect(guest).checkOutByHost(1, 0, 0))
+    await expect(rentalityGateway.connect(guest).checkOutByHost(1, [0,0]))
       .to.be.reverted
 
-    await expect(rentalityGateway.connect(admin).checkOutByHost(1, 0, 0))
+    await expect(rentalityGateway.connect(admin).checkOutByHost(1, [0,0]))
       .to.be.reverted
 
-    await expect(rentalityGateway.connect(owner).checkOutByHost(1, 0, 0))
+    await expect(rentalityGateway.connect(owner).checkOutByHost(1, [0,0]))
       .to.be.reverted
 
     let trip = await rentalityGateway.getTrip(1)
@@ -990,7 +1013,7 @@ describe('RentalityGateway', function() {
     expect(trip.status).to.be.equal(TripStatus.CheckedOutByGuest)
 
 
-    await expect(rentalityGateway.connect(host).checkOutByHost(1, 0, 0))
+    await expect(rentalityGateway.connect(host).checkOutByHost(1, [0,0]))
       .not.be.reverted
 
     let trip_checkout = await rentalityGateway.connect(guest).getTrip(1)
@@ -1031,7 +1054,7 @@ describe('RentalityGateway', function() {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPricePerGalInUsdCents: 400,
+          fuelPrices:[400],
           ethToCurrencyRate: ethToCurrencyRate,
           ethToCurrencyDecimals: ethToCurrencyDecimals,
         },
@@ -1045,13 +1068,13 @@ describe('RentalityGateway', function() {
 
     await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to
       .be.reverted
-    await expect(rentalityGateway.connect(host).checkInByHost(1, 0, 0))
+    await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0]))
       .not.to.be.reverted
-    await expect(rentalityGateway.connect(guest).checkInByGuest(1, 0, 0))
+    await expect(rentalityGateway.connect(guest).checkInByGuest(1, [0, 0]))
       .not.to.be.reverted
-    await expect(rentalityGateway.connect(guest).checkOutByGuest(1, 0, 0))
+    await expect(rentalityGateway.connect(guest).checkOutByGuest(1, [0, 0]))
       .not.to.be.reverted
-    await expect(rentalityGateway.connect(host).checkOutByHost(1, 0, 0))
+    await expect(rentalityGateway.connect(host).checkOutByHost(1, [0, 0]))
       .not.to.be.reverted
 
     const returnToHost =
@@ -1078,7 +1101,7 @@ describe('RentalityGateway', function() {
       carId: 1,
       pricePerDayInUsdCents: 2,
       securityDepositPerTripInUsdCents: 2,
-      fuelPricePerGalInUsdCents: 2,
+      engineParams: [2],
       milesIncludedPerDay: 2,
       currentlyListed: false,
     }
@@ -1270,7 +1293,7 @@ describe('RentalityGateway', function() {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPricePerGalInUsdCents: 400,
+          fuelPrices:[400],
           ethToCurrencyRate: ethToCurrencyRate,
           ethToCurrencyDecimals: ethToCurrencyDecimals,
         },
@@ -1337,7 +1360,7 @@ describe('RentalityGateway', function() {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPricePerGalInUsdCents: 400,
+          fuelPrices:[400],
           ethToCurrencyRate: ethToCurrencyRate,
           ethToCurrencyDecimals: ethToCurrencyDecimals,
         },
@@ -1404,7 +1427,7 @@ describe('RentalityGateway', function() {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPricePerGalInUsdCents: 400,
+          fuelPrices:[400],
           ethToCurrencyRate: ethToCurrencyRate,
           ethToCurrencyDecimals: ethToCurrencyDecimals,
         },
@@ -1474,7 +1497,7 @@ describe('RentalityGateway', function() {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPricePerGalInUsdCents: 400,
+          fuelPrices:[400],
           ethToCurrencyRate: ethToCurrencyRate,
           ethToCurrencyDecimals: ethToCurrencyDecimals,
         },
@@ -1586,7 +1609,7 @@ describe('RentalityGateway', function() {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPricePerGalInUsdCents: 400,
+          fuelPrices:[400],
           ethToCurrencyRate: ethToCurrencyRate,
           ethToCurrencyDecimals: ethToCurrencyDecimals,
         },
@@ -1682,7 +1705,7 @@ describe('RentalityGateway', function() {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPricePerGalInUsdCents: 400,
+          fuelPrices:[400],
           ethToCurrencyRate: ethToCurrencyRate,
           ethToCurrencyDecimals: ethToCurrencyDecimals,
         },
@@ -1706,7 +1729,7 @@ describe('RentalityGateway', function() {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPricePerGalInUsdCents: 400,
+          fuelPrices:[400],
           ethToCurrencyRate: ethToCurrencyRate,
           ethToCurrencyDecimals: ethToCurrencyDecimals,
         },
@@ -1728,7 +1751,7 @@ describe('RentalityGateway', function() {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPricePerGalInUsdCents: 400,
+          fuelPrices:[400],
           ethToCurrencyRate: ethToCurrencyRate,
           ethToCurrencyDecimals: ethToCurrencyDecimals,
         },
@@ -1773,7 +1796,7 @@ it('Connot checkInBy host while car on the trip', async function() {
         totalDayPriceInUsdCents: rentPriceInUsdCents,
         taxPriceInUsdCents: 0,
         depositInUsdCents: 0,
-        fuelPricePerGalInUsdCents: 400,
+        fuelPrices:[400],
         ethToCurrencyRate: ethToCurrencyRate,
         ethToCurrencyDecimals: ethToCurrencyDecimals,
       },
@@ -1788,10 +1811,10 @@ it('Connot checkInBy host while car on the trip', async function() {
     rentalityGateway.connect(host).approveTripRequest(1),
   ).to.not.reverted
 
-  await expect(rentalityGateway.connect(host).checkInByHost(1, 0, 0))
+  await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0]))
     .to.not.reverted;
 
-  await expect(rentalityGateway.connect(guest).checkInByGuest(1, 0, 0))
+  await expect(rentalityGateway.connect(guest).checkInByGuest(1, [0, 0]))
     .to.not.reverted;
 
 
@@ -1807,7 +1830,7 @@ it('Connot checkInBy host while car on the trip', async function() {
         totalDayPriceInUsdCents: rentPriceInUsdCents,
         taxPriceInUsdCents: 0,
         depositInUsdCents: 0,
-        fuelPricePerGalInUsdCents: 400,
+        fuelPrices:[400],
         ethToCurrencyRate: ethToCurrencyRate,
         ethToCurrencyDecimals: ethToCurrencyDecimals,
       },
@@ -1824,7 +1847,7 @@ it('Connot checkInBy host while car on the trip', async function() {
     rentalityGateway.connect(host).approveTripRequest(2),
   ).not.be.reverted;
 
-  await expect(rentalityGateway.connect(host).checkInByHost(2, 0, 0))
+  await expect(rentalityGateway.connect(host).checkInByHost(2, [0, 0]))
     .to.be.revertedWith("Car on the trip.")
 
 

@@ -7,6 +7,8 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "./RentalityUtils.sol";
 import "./IRentalityGeoService.sol";
 import "./proxy/UUPSOwnable.sol";
+import "./engine/RentalityEnginesService.sol";
+
 
 /// @title RentalityCarToken
 /// @notice ERC-721 token for representing cars in the Rentality platform.
@@ -16,6 +18,7 @@ contract RentalityCarToken is  ERC721URIStorageUpgradeable, UUPSOwnable {
     using Counters for Counters.Counter;
     Counters.Counter private _carIdCounter;
     IRentalityGeoService private geoService;
+    RentalityEnginesService private engineService;
 
     mapping(uint256 => CarInfo) private idToCarInfo;
 
@@ -30,8 +33,7 @@ contract RentalityCarToken is  ERC721URIStorageUpgradeable, UUPSOwnable {
         uint32 yearOfProduction;
         uint64 pricePerDayInUsdCents;
         uint64 securityDepositPerTripInUsdCents;
-        uint64 tankVolumeInGal;
-        uint64 fuelPricePerGalInUsdCents;
+        uint8 engineType;
         uint64 milesIncludedPerDay;
         bool currentlyListed;
         bool geoVerified;
@@ -46,8 +48,8 @@ contract RentalityCarToken is  ERC721URIStorageUpgradeable, UUPSOwnable {
         uint32 yearOfProduction;
         uint64 pricePerDayInUsdCents;
         uint64 securityDepositPerTripInUsdCents;
-        uint64 tankVolumeInGal;
-        uint64 fuelPricePerGalInUsdCents;
+        uint64[] engineParams;
+        uint8 engineType;
         uint64 milesIncludedPerDay;
         string locationAddress;
         string geoApiKey;
@@ -58,7 +60,7 @@ contract RentalityCarToken is  ERC721URIStorageUpgradeable, UUPSOwnable {
         uint256 carId;
         uint64 pricePerDayInUsdCents;
         uint64 securityDepositPerTripInUsdCents;
-        uint64 fuelPricePerGalInUsdCents;
+        uint64[] engineParams;
         uint64 milesIncludedPerDay;
         bool currentlyListed;
     }
@@ -134,10 +136,7 @@ contract RentalityCarToken is  ERC721URIStorageUpgradeable, UUPSOwnable {
             request.pricePerDayInUsdCents > 0,
             "Make sure the price isn't negative"
         );
-        require(
-            request.tankVolumeInGal > 0,
-            "Make sure the tank volume isn't negative"
-        );
+
         require(
             request.milesIncludedPerDay > 0,
             "Make sure the included distance isn't negative"
@@ -149,6 +148,8 @@ contract RentalityCarToken is  ERC721URIStorageUpgradeable, UUPSOwnable {
 
         _carIdCounter.increment();
         uint256 newCarId = _carIdCounter.current();
+
+        engineService.addCar(newCarId, request.engineType, request.engineParams);
 
         _safeMint(tx.origin, newCarId);
         _setTokenURI(newCarId, request.tokenUri);
@@ -165,8 +166,7 @@ contract RentalityCarToken is  ERC721URIStorageUpgradeable, UUPSOwnable {
             request.yearOfProduction,
             request.pricePerDayInUsdCents,
             request.securityDepositPerTripInUsdCents,
-            request.tankVolumeInGal,
-            request.fuelPricePerGalInUsdCents,
+            request.engineType,
             request.milesIncludedPerDay,
             true,
             false
@@ -211,10 +211,6 @@ contract RentalityCarToken is  ERC721URIStorageUpgradeable, UUPSOwnable {
             "Only the owner of the car can update car info"
         );
         require(
-            request.fuelPricePerGalInUsdCents > 0,
-            "Make sure the fuel price isn't negative"
-        );
-        require(
             request.pricePerDayInUsdCents > 0,
             "Make sure the price isn't negative"
         );
@@ -229,9 +225,9 @@ contract RentalityCarToken is  ERC721URIStorageUpgradeable, UUPSOwnable {
             idToCarInfo[request.carId].geoVerified = false;
         }
 
+        engineService.updateCar(request.carId,idToCarInfo[request.carId].engineType, request.engineParams);
         idToCarInfo[request.carId].pricePerDayInUsdCents = request.pricePerDayInUsdCents;
         idToCarInfo[request.carId].securityDepositPerTripInUsdCents = request.securityDepositPerTripInUsdCents;
-        idToCarInfo[request.carId].fuelPricePerGalInUsdCents = request.fuelPricePerGalInUsdCents;
         idToCarInfo[request.carId].milesIncludedPerDay = request.milesIncludedPerDay;
         idToCarInfo[request.carId].currentlyListed = request.currentlyListed;
 
@@ -263,6 +259,8 @@ contract RentalityCarToken is  ERC721URIStorageUpgradeable, UUPSOwnable {
             ownerOf(carId) == tx.origin,
             "Only the owner of the car can burn the token"
         );
+
+        engineService.burnCar(carId, idToCarInfo[carId].engineType);
 
         _burn(carId);
         delete idToCarInfo[carId];
@@ -474,7 +472,8 @@ contract RentalityCarToken is  ERC721URIStorageUpgradeable, UUPSOwnable {
 
     /// @notice Constructor to initialize the RentalityCarToken contract.
     /// @param _geoServiceAddress The address of the RentalityGeoService contract.
-    function initialize(address _geoServiceAddress) public initializer {
+    function initialize(address _geoServiceAddress, address _engineService) public initializer {
+        engineService = RentalityEnginesService(_engineService);
         geoService = IRentalityGeoService(_geoServiceAddress);
         __ERC721_init("RentalityCarToken Test", "RTCT");
         __Ownable_init();

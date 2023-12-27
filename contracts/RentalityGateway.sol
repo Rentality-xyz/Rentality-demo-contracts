@@ -358,69 +358,61 @@ contract RentalityGateway is UUPSOwnable {
 
     /// @notice Performs check-in by the host for a trip.
     /// @param tripId The ID of the trip.
-    /// @param startFuelLevelInPermille The starting fuel level in permille.
-    /// @param startOdometr The starting odometer reading.
+    /// @param panelParams An array representing parameters related to fuel, odometer,
+    /// and other relevant details depends on engine.
     function checkInByHost(
         uint256 tripId,
-        uint64 startFuelLevelInPermille,
-        uint64 startOdometr
+        uint64[] memory panelParams
     ) public {
         return
             tripService.checkInByHost(
             tripId,
-            startFuelLevelInPermille,
-            startOdometr
+            panelParams
         );
     }
 
     /// @notice Performs check-in by the guest for a trip.
     /// @param tripId The ID of the trip.
-    /// @param startFuelLevelInPermille The starting fuel level in permille.
-    /// @param startOdometr The starting odometer reading.
+    /// @param panelParams An array representing parameters related to fuel, odometer,
+    /// and other relevant details depends on engine.
     function checkInByGuest(
         uint256 tripId,
-        uint64 startFuelLevelInPermille,
-        uint64 startOdometr
+        uint64[] memory panelParams
     ) public {
         return
             tripService.checkInByGuest(
             tripId,
-            startFuelLevelInPermille,
-            startOdometr
+            panelParams
         );
     }
 
     /// @notice Performs check-out by the guest for a trip.
     /// @param tripId The ID of the trip.
-    /// @param endFuelLevelInPermille The ending fuel level in permille.
-    /// @param endOdometr The ending odometer reading.
+    /// @param panelParams An array representing parameters related to fuel, odometer,
+    /// and other relevant details depends on engine.
     function checkOutByGuest(
         uint256 tripId,
-        uint64 endFuelLevelInPermille,
-        uint64 endOdometr
+        uint64[] memory panelParams
     ) public {
         return
             tripService.checkOutByGuest(
             tripId,
-            endFuelLevelInPermille,
-            endOdometr
+            panelParams
         );
     }
 
     /// @notice Performs check-out by the host for a trip.
     /// @param tripId The ID of the trip.
-    /// @param endFuelLevelInPermille The ending fuel level in permille.
-    /// @param endOdometr The ending odometer reading.
+    /// @param panelParams An array representing parameters related to fuel, odometer,
+    /// and other relevant details depends on engine.
     function checkOutByHost(
         uint256 tripId,
-        uint64 endFuelLevelInPermille,
-        uint64 endOdometr
+        uint64[] memory panelParams
     ) public {
         return
             tripService.checkOutByHost(
             tripId,
-            endFuelLevelInPermille,
-            endOdometr
+            panelParams
         );
     }
 
