@@ -414,7 +414,7 @@ describe('RentalityClaim', function() {
         await rentalityCurrencyConverter.getEthFromUsdLatest(
           amountToClaimInUsdCents,
         )
-      const platformFee = await rentalityPaymentService.getClaimPlatformFeeFrom(claimPriceInEth)
+      const platformFee = await rentalityPaymentService.getPlatformFeeFrom(claimPriceInEth)
 
 
       const claimInEth = ethers.utils.parseEther(claimPriceInEth.toString())

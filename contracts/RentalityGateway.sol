@@ -163,7 +163,7 @@ contract RentalityGateway is Ownable {
     /// @notice Retrieves the platform fee calculated from the given value.
     /// @param value The value from which to calculate the platform fee.
     /// @return The calculated platform fee.
-    function getPlatformFeeFrom(uint64 value) private view returns (uint64) {
+    function getPlatformFeeFrom(uint256 value) private view returns (uint256) {
         return paymentService.getPlatformFeeFrom(value);
     }
 

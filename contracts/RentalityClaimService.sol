@@ -42,7 +42,7 @@ contract RentalityClaimService {
         ClaimType claimType;
         Status status;
         string description;
-        uint256 amountInUsdCents;
+        uint64 amountInUsdCents;
         uint256 payDateInSec;
         address RejectedBy; // if so
         uint256 rejectedDateInSec; // if so
@@ -53,7 +53,7 @@ contract RentalityClaimService {
         uint256 tripId;
         ClaimType claimType;
         string description;
-        uint256 amountInUsdCents;
+        uint64 amountInUsdCents;
     }
 
     // Enumeration for types of claims
