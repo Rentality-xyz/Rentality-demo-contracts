@@ -2,6 +2,7 @@
 pragma solidity ^0.8.9;
 
 import '@openzeppelin/contracts/access/Ownable.sol';
+import "./RentalityClaimService.sol";
 import './IRentalityGateway.sol';
 import './RentalityCarToken.sol';
 import './RentalityCurrencyConverter.sol';
@@ -162,7 +163,7 @@ contract RentalityGateway is Ownable {
     /// @notice Retrieves the platform fee calculated from the given value.
     /// @param value The value from which to calculate the platform fee.
     /// @return The calculated platform fee.
-    function getPlatformFeeFrom(uint64 value) private view returns (uint64) {
+    function getPlatformFeeFrom(uint256 value) private view returns (uint256) {
         return paymentService.getPlatformFeeFrom(value);
     }
 
@@ -497,6 +498,50 @@ contract RentalityGateway is Ownable {
         uint256 carId
     ) public view returns (RentalityTripService.Trip[] memory) {
         return RentalityUtils.getTripsByCar(tripService, carId);
+    }
+
+    /// @notice Creates a new claim through the Rentality platform.
+    /// @dev This function delegates the claim creation to the Rentality platform contract.
+    /// @param request Details of the claim to be created.
+    function createClaim(RentalityClaimService.CreateClaimRequest memory request) public {
+        rentalityPlatform.createClaim(request);
+    }
+
+    /// @notice Rejects a specific claim through the Rentality platform.
+    /// @dev This function delegates the claim rejection to the Rentality platform contract.
+    /// @param claimId ID of the claim to be rejected.
+    function rejectClaim(uint256 claimId) public {
+        rentalityPlatform.rejectClaim(claimId);
+    }
+
+    /// @notice Pays a specific claim through the Rentality platform, transferring funds and handling excess.
+    /// @dev This function delegates the claim payment to the Rentality platform contract.
+    /// @param claimId ID of the claim to be paid.
+    function payClaim(uint256 claimId) public payable {
+        rentalityPlatform.payClaim{ value: msg.value }(claimId);
+    }
+
+    /// @notice Updates the status of a specific claim through the Rentality platform.
+    /// @dev This function delegates the claim update to the Rentality platform contract.
+    /// @param claimId ID of the claim to be updated.
+    function updateClaim(uint256 claimId) public {
+        rentalityPlatform.updateClaim(claimId);
+    }
+
+    /// @notice Gets detailed information about a specific claim through the Rentality platform.
+    /// @dev This function retrieves the claim information using the Rentality platform contract.
+    /// @param claimId ID of the claim.
+    /// @return Full information about the claim.
+    function getClaim(uint256 claimId) public view returns(RentalityClaimService.FullClaimInfo memory) {
+        return rentalityPlatform.getClaimInfo(claimId);
+    }
+
+    /// @notice Gets an array of claims associated with a specific trip through the Rentality platform.
+    /// @dev This function retrieves an array of detailed claim information for the given trip using the Rentality platform contract.
+    /// @param tripId ID of the trip.
+    /// @return Array of detailed claim information.
+    function getClaimsByTrip(uint256 tripId) public view returns(RentalityClaimService.FullClaimInfo[] memory) {
+        return rentalityPlatform.getClaimsByTrip(tripId);
     }
 
     /// @notice Sets Know Your Customer (KYC) information for the caller.
