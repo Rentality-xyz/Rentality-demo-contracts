@@ -19,7 +19,7 @@ describe('RentalityUserService', function() {
     const RentalityUtils = await ethers.getContractFactory('RentalityUtils')
     const utils = await RentalityUtils.deploy()
 
-    await utils.waitForDeployment();
+    await utils.waitForDeployment()
 
     const RentalityMockPriceFeed = await ethers.getContractFactory(
       'RentalityMockPriceFeed',
@@ -29,7 +29,7 @@ describe('RentalityUserService', function() {
     )
     const RentalityTripService = await ethers.getContractFactory(
       'RentalityTripService',
-      { libraries: { RentalityUtils: await utils.getAddress()} },
+      { libraries: { RentalityUtils: await utils.getAddress() } },
     )
     const RentalityCurrencyConverter = await ethers.getContractFactory(
       'RentalityCurrencyConverter',
@@ -46,9 +46,9 @@ describe('RentalityUserService', function() {
     const RentalityPlatform =
       await ethers.getContractFactory('RentalityPlatform', {
         libraries:
-            {
-              "RentalityUtils": await utils.getAddress()
-            }
+          {
+            'RentalityUtils': await utils.getAddress(),
+          },
 
       })
 
@@ -74,9 +74,10 @@ describe('RentalityUserService', function() {
     await hEngine.waitForDeployment()
 
     const EngineService = await ethers.getContractFactory('RentalityEnginesService')
-    const engineService = await EngineService.deploy(
-      await rentalityUserService.getAddress(),
-      [await pEngine.getAddress(),await elEngine.getAddress(),await hEngine.getAddress()],
+    const engineService = await upgrades.deployProxy(EngineService, [
+        await rentalityUserService.getAddress(),
+        [await pEngine.getAddress(), await elEngine.getAddress(), await hEngine.getAddress()],
+      ],
     )
     await engineService.waitForDeployment()
 
@@ -86,32 +87,32 @@ describe('RentalityUserService', function() {
     await rentalityUserService.connect(owner).grantGuestRole(guest.address)
 
     const rentalityCurrencyConverter = await upgrades.deployProxy(RentalityCurrencyConverter,
-     [await rentalityMockPriceFeed.getAddress(),
-          await rentalityUserService.getAddress()]
+      [await rentalityMockPriceFeed.getAddress(),
+        await rentalityUserService.getAddress()],
     )
 
-    const rentalityGeoService = await RentalityGeoService.deploy();
-    await rentalityGeoService.waitForDeployment();
+    const rentalityGeoService = await RentalityGeoService.deploy()
+    await rentalityGeoService.waitForDeployment()
 
-    const rentalityCarToken = await upgrades.deployProxy(RentalityCarToken,[await rentalityGeoService.getAddress(),await engineService.waitForDeployment()],{kind:'uups'})
+    const rentalityCarToken = await upgrades.deployProxy(RentalityCarToken, [await rentalityGeoService.getAddress(), await engineService.getAddress()], { kind: 'uups' })
 
 
     await rentalityCarToken.waitForDeployment()
 
 
-    const rentalityPaymentService = await upgrades.deployProxy(RentalityPaymentService,[await rentalityUserService.getAddress()])
+    const rentalityPaymentService = await upgrades.deployProxy(RentalityPaymentService, [await rentalityUserService.getAddress()])
 
-    const rentalityTripService = await upgrades.deployProxy(RentalityTripService,[
+    const rentalityTripService = await upgrades.deployProxy(RentalityTripService, [
       await rentalityCurrencyConverter.getAddress(),
       await rentalityCarToken.getAddress(),
       await rentalityPaymentService.getAddress(),
       await rentalityUserService.getAddress(),
-      await engineService.getAddress()
-    ]);
+      await engineService.getAddress(),
+    ])
 
 
     await rentalityTripService.waitForDeployment()
-    const rentalityPlatform = await upgrades.deployProxy(RentalityPlatform,[
+    const rentalityPlatform = await upgrades.deployProxy(RentalityPlatform, [
       await rentalityCarToken.getAddress(),
       await rentalityCurrencyConverter.getAddress(),
       await rentalityTripService.getAddress(),
@@ -161,7 +162,7 @@ describe('RentalityUserService', function() {
     )
 
     const rentalityUserService = await upgrades.deployProxy(RentalityUserService)
-    await rentalityUserService.waitForDeployment();
+    await rentalityUserService.waitForDeployment()
 
     await rentalityUserService.connect(owner).grantAdminRole(admin.address)
     await rentalityUserService.connect(owner).grantManagerRole(manager.address)
@@ -593,7 +594,6 @@ describe('RentalityUserService', function() {
           'licenseNumber',
           expirationDate,
         )
-
       await rentalityUserService
         .connect(host)
         .setKYCInfo(
@@ -604,7 +604,6 @@ describe('RentalityUserService', function() {
           'licenseNumber',
           expirationDate,
         )
-
       await expect(
         await rentalityPlatform.connect(guest).createTripRequest(
           {
@@ -628,7 +627,6 @@ describe('RentalityUserService', function() {
         (await rentalityTripService.connect(host).getTrip(1)).status,
       ).to.equal(0)
 
-
       let [guestPhoneNumber, hostPhoneNumber] = await rentalityPlatform
         .connect(guest)
         .getTripContactInfo(1)
@@ -637,7 +635,6 @@ describe('RentalityUserService', function() {
       expect(hostPhoneNumber).to.equal('phoneNumberHost')[
         (guestPhoneNumber, hostPhoneNumber)
         ] = await rentalityPlatform.connect(host).getTripContactInfo(1)
-
       expect(guestPhoneNumber).to.equal('phoneNumberGuest')
       expect(hostPhoneNumber).to.equal('phoneNumberHost')
     })

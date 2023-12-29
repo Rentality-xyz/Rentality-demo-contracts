@@ -81,9 +81,10 @@ describe('Rentality', function () {
 
     const EngineService = await ethers.getContractFactory('RentalityEnginesService')
 
-    const engineService = await EngineService.deploy(
+    const engineService = await upgrades.deployProxy(EngineService,[
       await rentalityUserService.getAddress(),
       [await pEngine.getAddress(),await elEngine.getAddress(),await hEngine.getAddress()]
+      ]
     );
     await engineService.waitForDeployment()
 

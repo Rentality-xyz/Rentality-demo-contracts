@@ -22,7 +22,7 @@ async function main() {
   await contract.waitForDeployment();
   console.log(contractName + " deployed to:",await contract.getAddress());
 
-  await addressSaver(
+  addressSaver(
     await contract.getAddress(),
     contractName,
     true

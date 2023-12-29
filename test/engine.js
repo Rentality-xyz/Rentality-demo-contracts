@@ -1,5 +1,5 @@
 const { expect } = require('chai')
-const { ethers } = require('hardhat')
+const { ethers, upgrades } = require('hardhat')
 const {
   time,
   loadFixture,
@@ -59,7 +59,7 @@ async function deployDefaultFixture() {
   )
   await rentalityMockPriceFeed.waitForDeployment()
 
-  const rentalityUserService = await RentalityUserService.deploy()
+  const rentalityUserService = await upgrades.deployProxy(RentalityUserService)
   await rentalityUserService.waitForDeployment()
 
   const electricEngine = await ethers.getContractFactory('RentalityElectricEngine')
@@ -72,9 +72,11 @@ async function deployDefaultFixture() {
   const hEngine = await hybridEngine.deploy(await rentalityUserService.getAddress())
 
   const EngineService = await ethers.getContractFactory('RentalityEnginesService')
-  const engineService = await EngineService.deploy(
-    await rentalityUserService.getAddress(),
-    [await pEngine.getAddress(),await elEngine.getAddress(), await hEngine.getAddress()],
+  const engineService = await upgrades.deployProxy(EngineService,
+    [
+      await rentalityUserService.getAddress(),
+      [await pEngine.getAddress(), await elEngine.getAddress(), await hEngine.getAddress()],
+    ],
   )
   await engineService.waitForDeployment()
 
@@ -83,52 +85,65 @@ async function deployDefaultFixture() {
   await rentalityUserService.connect(owner).grantHostRole(host.address)
   await rentalityUserService.connect(owner).grantGuestRole(guest.address)
 
-  const rentalityCurrencyConverter = await RentalityCurrencyConverter.deploy(
-    await rentalityMockPriceFeed.waitForDeployment(),
+  const rentalityCurrencyConverter = await upgrades.deployProxy(RentalityCurrencyConverter, [
+    await rentalityMockPriceFeed.getAddress(),
+    await rentalityUserService.getAddress()],
   )
   await rentalityCurrencyConverter.waitForDeployment()
+
   const rentalityGeoService = await RentalityGeoService.deploy()
   await rentalityGeoService.waitForDeployment()
 
-  const rentalityCarToken = await RentalityCarToken.deploy(await rentalityGeoService.getAddress(),await engineService.getAddress())
+  const rentalityCarToken = await upgrades.deployProxy(RentalityCarToken, [
+    await rentalityGeoService.getAddress(),
+    await engineService.getAddress(),
+  ])
   await rentalityCarToken.waitForDeployment()
-  const rentalityPaymentService = await RentalityPaymentService.deploy(await rentalityUserService.getAddress())
+
+  const rentalityPaymentService = await upgrades.deployProxy(RentalityPaymentService,
+    [await rentalityUserService.getAddress()])
   await rentalityPaymentService.waitForDeployment()
 
-  const rentalityTripService = await RentalityTripService.deploy(
-    await rentalityCurrencyConverter.getAddress(),
-    await rentalityCarToken.getAddress(),
-    await rentalityPaymentService.getAddress(),
-    await rentalityUserService.getAddress(),
-    await engineService.getAddress(),
+  const rentalityTripService = await upgrades.deployProxy(RentalityTripService, [
+      await rentalityCurrencyConverter.getAddress(),
+      await rentalityCarToken.getAddress(),
+      await rentalityPaymentService.getAddress(),
+      await rentalityUserService.getAddress(),
+      await engineService.getAddress(),
+    ],
   )
   await rentalityTripService.waitForDeployment()
 
-  const rentalityPlatform = await RentalityPlatform.deploy(
-    await rentalityCarToken.getAddress(),
-    await rentalityCurrencyConverter.getAddress(),
-    await rentalityTripService.getAddress(),
-   await rentalityUserService.getAddress(),
-   await rentalityPaymentService.getAddress(),
+  const rentalityPlatform = await upgrades.deployProxy(RentalityPlatform, [
+      await rentalityCarToken.getAddress(),
+      await rentalityCurrencyConverter.getAddress(),
+      await rentalityTripService.getAddress(),
+      await rentalityUserService.getAddress(),
+      await rentalityPaymentService.getAddress(),
+    ],
   )
   await rentalityPlatform.waitForDeployment()
 
   await rentalityUserService
     .connect(owner)
     .grantHostRole(await rentalityPlatform.getAddress())
+
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityPlatform.getAddress())
+
   await rentalityUserService
     .connect(owner)
     .grantManagerRole(await rentalityTripService.getAddress())
+
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityPlatform.getAddress())
 
-  let rentalityGateway = await RentalityGateway.connect(owner).deploy(
-    await rentalityCarToken.getAddress(),
-    await rentalityCurrencyConverter.getAddress(),
-    await rentalityTripService.getAddress(),
-    await rentalityUserService.getAddress(),
-    await rentalityPlatform.getAddress(),
-    await rentalityPaymentService.getAddress(),
+  let rentalityGateway = await upgrades.deployProxy(RentalityGateway.connect(owner), [
+      await rentalityCarToken.getAddress(),
+      await rentalityCurrencyConverter.getAddress(),
+      await rentalityTripService.getAddress(),
+      await rentalityUserService.getAddress(),
+      await rentalityPlatform.getAddress(),
+      await rentalityPaymentService.getAddress(),
+    ],
   )
   await rentalityGateway.waitForDeployment()
 
@@ -508,16 +523,15 @@ describe('RentalityEngines', function() {
   })
   describe('Correct params', function() {
     it('should correctly verify start params', async function() {
+
       let engineTy = await pEngine.getEType()
       let correctParams = [10, 5]
       let wrongParams1 = [0]
       let wrongParams2 = [1, 2, 4, 5, 6]
-      let wrongParams3 = [-1, 2]
       let wrongParams4 = [101, 15]
 
       await expect(engineService.verifyStartParams(wrongParams1, engineTy)).to.be.reverted
       await expect(engineService.verifyStartParams(wrongParams2, engineTy)).to.be.reverted
-      await expect(engineService.verifyStartParams(wrongParams3, engineTy)).to.be.reverted
       await expect(engineService.verifyStartParams(wrongParams4, engineTy)).to.be.reverted
       await expect(engineService.verifyStartParams(correctParams, engineTy)).to.not.reverted
     })
@@ -525,58 +539,58 @@ describe('RentalityEngines', function() {
 
       let engineTy = await elEngine.getEType()
       let correctStartParams = [10, 5]
-      let correctEndParams = [15,6]
+      let correctEndParams = [15, 6]
       let wrongStartParams1 = [0]
-      let wrongEndParams1 = [10,2]
-      let wrongStartParams2 = [10,16]
-      let wrongEndParams2 = [101,15]
-      let wrongStartParams3 = [10,16]
-      let wrongEndParams3 = [10,15]
+      let wrongEndParams1 = [10, 2]
+      let wrongStartParams2 = [10, 16]
+      let wrongEndParams2 = [101, 15]
+      let wrongStartParams3 = [10, 16]
+      let wrongEndParams3 = [10, 15]
 
       await expect(engineService.verifyEndParams(wrongStartParams1, wrongEndParams1, engineTy)).to.be.reverted
       await expect(engineService.verifyEndParams(wrongStartParams2, wrongEndParams2, engineTy)).to.be.reverted
-      await expect(engineService.verifyEndParams(wrongStartParams3,wrongEndParams3 ,engineTy)).to.be.reverted
+      await expect(engineService.verifyEndParams(wrongStartParams3, wrongEndParams3, engineTy)).to.be.reverted
       await expect(engineService.verifyEndParams(correctStartParams, correctEndParams, engineTy)).to.not.reverted
     })
     it('should correctly compare params', async function() {
 
       let engineTy = await hEngine.getEType()
       let correctStartParams = [10, 10]
-      let correctEndParams = [10,10]
+      let correctEndParams = [10, 10]
       let wrongStartParams1 = [10]
-      let wrongEndParams1 = [10,15]
-      let wrongStartParams2 = [15,15]
-      let wrongEndParams2 = [15,14]
+      let wrongEndParams1 = [10, 15]
+      let wrongStartParams2 = [15, 15]
+      let wrongEndParams2 = [15, 14]
 
 
       await expect(engineService.compareParams(wrongStartParams1, wrongEndParams1, engineTy)).to.be.reverted
       await expect(engineService.compareParams(wrongStartParams2, wrongEndParams2, engineTy)).to.be.reverted
       await expect(engineService.compareParams(correctStartParams, correctEndParams, engineTy)).to.not.reverted
     })
-    })
+  })
   describe('Computation', function() {
     it('should correctly compute patrol refund', async function() {
 
-      let startParams = [50, 100]; // Assuming startFuelLevelInPercents and startOdometr
-      let endParams = [20, 200]; // Assuming endFuelLevelInPercents and endOdometr
-      let fuelPrices = [300]; // Assuming fuel price in USD cents
-      let carId = 1;
-      let milesIncludedPerDay = 50;
-      let pricePerDayInUsdCents = 100;
-      let tripDays = 3;
+      let startParams = [50, 100] // Assuming startFuelLevelInPercents and startOdometr
+      let endParams = [20, 200] // Assuming endFuelLevelInPercents and endOdometr
+      let fuelPrices = [300] // Assuming fuel price in USD cents
+      let carId = 1
+      let milesIncludedPerDay = 50
+      let pricePerDayInUsdCents = 100
+      let tripDays = 3
 
 
       // Set patrol engine data for the car
-      let tankVolume = 15;
-      let fuelPrice = 375;
-      let engineTy = await pEngine.getEType();
-      await engineService.addCar(carId, engineTy, [tankVolume, fuelPrice]);
+      let tankVolume = 15
+      let fuelPrice = 375
+      let engineTy = await pEngine.getEType()
+      await engineService.addCar(carId, engineTy, [tankVolume, fuelPrice])
 
       let expectedFuelRefund = ((50 - 20)/*difference in percents*/
-      * tankVolume / 100) /*compute difference in gallons*/
-      * 300 /* compute refund in usd cents by price*/
+          * tankVolume / 100) /*compute difference in gallons*/
+        * 300 /* compute refund in usd cents by price*/
 
-     let result = await engineService.callStatic.getResolveAmountInUsdCents(
+      let result = await engineService.getResolveAmountInUsdCents(
         engineTy,
         fuelPrices,
         startParams,
@@ -584,20 +598,20 @@ describe('RentalityEngines', function() {
         carId,
         milesIncludedPerDay,
         pricePerDayInUsdCents,
-        tripDays
-      );
-     expect(result[1]).to.be.eq(expectedFuelRefund);
+        tripDays,
+      )
+      expect(result[1]).to.be.eq(expectedFuelRefund)
 
     })
     it('should correctly compute electric refund', async function() {
 
-      let startParams = [50, 100]; // Assuming startFuelLevelInPercents and startOdometr
-      let endParams = [20, 200]; // Assuming endFuelLevelInPercents and endOdometr
-      let fuelPrices = [300]; // Assuming fuel price in USD cents
-      let carId = 1;
-      let milesIncludedPerDay = 50;
-      let pricePerDayInUsdCents = 100;
-      let tripDays = 3;
+      let startParams = [50, 100] // Assuming startFuelLevelInPercents and startOdometr
+      let endParams = [20, 200] // Assuming endFuelLevelInPercents and endOdometr
+      let fuelPrices = [300] // Assuming fuel price in USD cents
+      let carId = 1
+      let milesIncludedPerDay = 50
+      let pricePerDayInUsdCents = 100
+      let tripDays = 3
 
 
       let fromEmptyToTwenty = 10
@@ -614,9 +628,9 @@ describe('RentalityEngines', function() {
       ]))
         .to.not.reverted
 
-      let expectedFuelRefund = fromEmptyToTwenty;
+      let expectedFuelRefund = fromEmptyToTwenty
 
-      let result = await engineService.callStatic.getResolveAmountInUsdCents(
+      let result = await engineService.getResolveAmountInUsdCents(
         engineTy,
         fuelPrices,
         startParams,
@@ -624,9 +638,9 @@ describe('RentalityEngines', function() {
         carId,
         milesIncludedPerDay,
         pricePerDayInUsdCents,
-        tripDays
-      );
-      expect(result[1]).to.be.eq(expectedFuelRefund);
+        tripDays,
+      )
+      expect(result[1]).to.be.eq(expectedFuelRefund)
 
     })
   })

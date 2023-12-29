@@ -19,7 +19,7 @@ async function main() {
   console.log('ChainId is:', chainId)
   if (chainId < 0) return
 
-  const rentalityUtilsAddress =  getContractAddress(
+  const rentalityUtilsAddress =   getContractAddress(
     'RentalityUtils',
     'scripts/deploy_0_RentalityUtils.js')
 
@@ -39,6 +39,12 @@ async function main() {
     'RentalityUserService',
     'scripts/deploy_1_RentalityUserService.js')
 
+  const engineAddress =  getContractAddress(
+    "RentalityEnginesService",
+    "scripts/deploy_2_RentalityEngineService.js"
+  )
+
+
   console.log('rentalityUtilsAddress is:', rentalityUtilsAddress)
   console.log('rentalityCarTokenAddress is:', rentalityCarTokenAddress)
   console.log(
@@ -51,6 +57,8 @@ async function main() {
   )
   console.log('rentalityUserServiceAddress is:', rentalityUserServiceAddress)
 
+  console.log("engineService is: ",engineAddress);
+
   const contractFactory = await ethers.getContractFactory(contractName, {
     libraries: {
       RentalityUtils: rentalityUtilsAddress,
@@ -61,13 +69,14 @@ async function main() {
       rentalityCurrencyConverterAddress,
       rentalityCarTokenAddress,
       rentalityPaymentServiceAddress,
-      rentalityUserServiceAddress
+      rentalityUserServiceAddress,
+      engineAddress
     ])
   await contract.waitForDeployment()
 
   console.log(contractName + ' deployed to:',await contract.getAddress())
 
-  await addressSaver(
+  addressSaver(
     await contract.getAddress(),
     contractName,
     true,

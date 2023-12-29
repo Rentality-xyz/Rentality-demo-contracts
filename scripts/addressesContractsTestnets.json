@@ -52,15 +52,19 @@
   {
     "name": "localhost",
     "chainId": 1337,
-    "RentalityUtils": "0x96F3Ce39Ad2BfDCf92C0F6E2C2CAbF83874660Fc",
-    "RentalityCurrencyConverter": "0xefc1aB2475ACb7E60499Efb171D173be19928a05",
-    "RentalityGeoService": "0x870526b7973b56163a6997bB7C886F5E4EA53638",
-    "RentalityCarToken": "0xD49a0e9A4CD5979aE36840f542D2d7f02C4817Be",
-    "RentalityPaymentService": "0xe1Fd27F4390DcBE165f4D60DBF821e4B9Bb02dEd",
-    "RentalityTripService": "0xB2b580ce436E6F77A5713D80887e14788Ef49c9A",
-    "RentalityPlatform": "0x66F625B8c4c635af8b74ECe2d7eD0D58b4af3C3d",
-    "RentalityGateway": "0x74Cf9087AD26D541930BaC724B7ab21bA8F00a27",
-    "RentalityChatHelper": "0xB06c856C8eaBd1d8321b687E188204C1018BC4E5",
-    "RentalityUserService": "0xddE78e6202518FF4936b5302cC2891ec180E8bFf"
+    "RentalityUtils": "0x7969c5eD335650692Bc04293B07F5BF2e7A673C0",
+    "RentalityUserService": "0xc351628EB244ec633d5f21fBD6621e1a683B1181",
+    "RentalityCurrencyConverter": "0xFD471836031dc5108809D173A067e8486B9047A3",
+    "RentalityGeoService": "0xcbEAF3BDe82155F56486Fb5a1072cb8baAf547cc",
+    "RentalityPatrolEngine": "0x1429859428C0aBc9C2C47C8Ee9FBaf82cFA0F20f",
+    "RentalityElectricEngine": "0xB0D4afd8879eD9F52b28595d31B441D079B2Ca07",
+    "RentalityHybridEngine": "0x162A433068F51e18b7d13932F27e66a3f99E6890",
+    "RentalityEnginesService": "0x922D6956C99E12DFeB3224DEA977D0939758A1Fe",
+    "RentalityChatHelper": "0x51A1ceB83B83F1985a81C295d1fF28Afef186E02",
+    "RentalityCarToken": "0x1fA02b2d6A771842690194Cf62D91bdd92BfE28d",
+    "RentalityPaymentService": "0xdbC43Ba45381e02825b14322cDdd15eC4B3164E6",
+    "RentalityTripService": "0x4C4a2f8c81640e47606d3fd77B353E87Ba015584",
+    "RentalityPlatform": "0x2E2Ed0Cfd3AD2f1d34481277b3204d807Ca2F8c2",
+    "RentalityGateway": "0xDC11f7E700A4c898AE5CAddB1082cFfa76512aDD"
   }
 ]

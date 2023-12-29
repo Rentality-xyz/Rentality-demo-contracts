@@ -20,7 +20,7 @@ contract RentalityElectricEngine is ARentalityEngine {
 
     /// @dev Constructor to set the RentalityUserService address during deployment.
     constructor(address _userService) {
-        userService = RentalityUserService(_userService);
+        userService = IRentalityAccessControl(_userService);
     }
 
     /// @dev Sets the engine type. Only callable by an admin.

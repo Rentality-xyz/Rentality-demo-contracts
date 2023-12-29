@@ -16,8 +16,9 @@
     "@openzeppelin/contracts": "^4.9.0",
     "@openzeppelin/contracts-upgradeable": "^4.9.0",
     "chai": "^4.3.10",
+    "child_process": "^1.0.2",
     "dotenv": "^16.0.4",
-    "child_process":"^1.0.2"
+    "readline-sync": "^1.4.10"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^4.0.0",
