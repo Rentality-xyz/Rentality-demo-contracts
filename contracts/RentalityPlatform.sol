@@ -1,20 +1,23 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "./RentalityCarToken.sol";
 import "./RentalityCurrencyConverter.sol";
 import "./RentalityTripService.sol";
 import "./RentalityUserService.sol";
 import "./RentalityPaymentService.sol";
 import "./IRentalityGateway.sol";
+import "./proxy/UUPSOwnable.sol";
 import "./RentalityClaimService.sol";
 
 /// @title Rentality Platform Contract
 /// @notice This contract manages various services related to the Rentality platform, including cars, trips, users, and payments.
 /// @dev It allows updating service contracts, creating and managing trips, handling payments, and more.
-
-contract RentalityPlatform is Ownable {
+/// @dev SAFETY: The linked library is not supported yet because it can modify the state or call
+///  selfdestruct, as far as RentalityUtils doesn't has this logic,
+/// it's completely safe for upgrade
+/// @custom:oz-upgrades-unsafe-allow external-library-linking
+contract RentalityPlatform is UUPSOwnable {
     RentalityCarToken private carService;
     RentalityCurrencyConverter private currencyConverterService;
     RentalityTripService private tripService;
@@ -22,29 +25,6 @@ contract RentalityPlatform is Ownable {
     RentalityPaymentService private paymentService;
     RentalityClaimService private claimService;
 
-    /// @notice Constructor to initialize the RentalityPlatform with service contract addresses.
-    /// @param carServiceAddress The address of the RentalityCarToken contract.
-    /// @param currencyConverterServiceAddress The address of the RentalityCurrencyConverter contract.
-    /// @param tripServiceAddress The address of the RentalityTripService contract.
-    /// @param userServiceAddress The address of the RentalityUserService contract.
-    /// @param paymentServiceAddress The address of the RentalityPaymentService contract.
-    constructor(
-        address carServiceAddress,
-        address currencyConverterServiceAddress,
-        address tripServiceAddress,
-        address userServiceAddress,
-        address paymentServiceAddress,
-        address claimServiceAddress
-    ) {
-        carService = RentalityCarToken(carServiceAddress);
-        currencyConverterService = RentalityCurrencyConverter(
-            currencyConverterServiceAddress
-        );
-        tripService = RentalityTripService(tripServiceAddress);
-        userService = RentalityUserService(userServiceAddress);
-        paymentService = RentalityPaymentService(paymentServiceAddress);
-        claimService = RentalityClaimService(claimServiceAddress);
-    }
 
     /// @dev Modifier to restrict access to admin users only.
     modifier onlyAdmin() {
@@ -521,4 +501,31 @@ contract RentalityPlatform is Ownable {
         RentalityTripService.Trip[] memory trips = RentalityUtils.getTripsByGuest(tripService, tx.origin);
         return RentalityUtils.populateChatInfo(trips, userService, carService);
     }
+
+    /// @notice Constructor to initialize the RentalityPlatform with service contract addresses.
+    /// @param carServiceAddress The address of the RentalityCarToken contract.
+    /// @param currencyConverterServiceAddress The address of the RentalityCurrencyConverter contract.
+    /// @param tripServiceAddress The address of the RentalityTripService contract.
+    /// @param userServiceAddress The address of the RentalityUserService contract.
+    /// @param paymentServiceAddress The address of the RentalityPaymentService contract.
+    function initialize(
+        address carServiceAddress,
+        address currencyConverterServiceAddress,
+        address tripServiceAddress,
+        address userServiceAddress,
+        address paymentServiceAddress,
+        address claimServiceAddress) public initializer {
+
+        carService = RentalityCarToken(carServiceAddress);
+        currencyConverterService = RentalityCurrencyConverter(
+            currencyConverterServiceAddress
+        );
+        tripService = RentalityTripService(tripServiceAddress);
+        userService = RentalityUserService(userServiceAddress);
+        paymentService = RentalityPaymentService(paymentServiceAddress);
+        claimService = RentalityClaimService(claimServiceAddress);
+
+        __Ownable_init();
+    }
+
 }

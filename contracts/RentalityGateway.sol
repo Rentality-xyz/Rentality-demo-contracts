@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import '@openzeppelin/contracts/access/Ownable.sol';
+//deployed 26.05.2023 11:15 to sepolia at 0x12fB29Ed1f0E17605f488F640D49De29050cf855
+//deployed 27.06.2023 11:10 to sepolia at 0x18744A3f7D15930446B1dbc5A837562e468B2D8d
+
+
 import "./RentalityClaimService.sol";
 import './IRentalityGateway.sol';
 import './RentalityCarToken.sol';
@@ -16,10 +19,11 @@ import './RentalityPaymentService.sol';
 /// Users can interact with the car service, trip service, user service, and payment service through this gateway.
 /// Admins can update the addresses of connected services.
 /// Hosts and guests can perform actions related to car rentals and trips.
-
-//deployed 26.05.2023 11:15 to sepolia at 0x12fB29Ed1f0E17605f488F640D49De29050cf855
-//deployed 27.06.2023 11:10 to sepolia at 0x18744A3f7D15930446B1dbc5A837562e468B2D8d
-contract RentalityGateway is Ownable {
+/// @dev SAFETY: The linked library is not supported yet because it can modify the state or call
+///  selfdestruct, as far as RentalityUtils doesn't has this logic,
+/// it's completely safe for upgrade
+/// @custom:oz-upgrades-unsafe-allow external-library-linking
+contract RentalityGateway is UUPSOwnable {
     RentalityCarToken private carService;
     RentalityCurrencyConverter private currencyConverterService;
     RentalityTripService private tripService;
@@ -27,29 +31,7 @@ contract RentalityGateway is Ownable {
     RentalityPlatform private rentalityPlatform;
     RentalityPaymentService private paymentService;
 
-    /// @param carServiceAddress The address of the RentalityCarToken contract.
-    /// @param currencyConverterServiceAddress The address of the RentalityCurrencyConverter contract.
-    /// @param tripServiceAddress The address of the RentalityTripService contract.
-    /// @param userServiceAddress The address of the RentalityUserService contract.
-    /// @param rentalityPlatformAddress The address of the RentalityPlatform contract.
-    /// @param paymentServiceAddress The address of the RentalityPaymentService contract.
-    constructor(
-        address carServiceAddress,
-        address currencyConverterServiceAddress,
-        address tripServiceAddress,
-        address userServiceAddress,
-        address rentalityPlatformAddress,
-        address paymentServiceAddress
-    ) {
-        carService = RentalityCarToken(carServiceAddress);
-        currencyConverterService = RentalityCurrencyConverter(
-            currencyConverterServiceAddress
-        );
-        tripService = RentalityTripService(tripServiceAddress);
-        userService = RentalityUserService(userServiceAddress);
-        rentalityPlatform = RentalityPlatform(rentalityPlatformAddress);
-        paymentService = RentalityPaymentService(paymentServiceAddress);
-    }
+
     /// @notice Ensures that the caller is either an admin, the contract owner, or an admin from the origin transaction.
     modifier onlyAdmin() {
         require(
@@ -607,5 +589,35 @@ contract RentalityGateway is Ownable {
     returns (IRentalityGateway.ChatInfo[] memory)
     {
         return rentalityPlatform.getChatInfoForGuest();
+    }
+
+
+    //  @dev Initializes the contract with the provided addresses for various services.
+    //  @param carServiceAddress The address of the RentalityCarToken contract.
+    //  @param currencyConverterServiceAddress The address of the RentalityCurrencyConverter contract.
+    //  @param tripServiceAddress The address of the RentalityTripService contract.
+    //  @param userServiceAddress The address of the RentalityUserService contract.
+    //  @param rentalityPlatformAddress The address of the RentalityPlatform contract.
+    //  @param paymentServiceAddress The address of the RentalityPaymentService contract.
+    //  Requirements:
+    //  - The contract must not have been initialized before.
+    function initialize(
+        address carServiceAddress,
+        address currencyConverterServiceAddress,
+        address tripServiceAddress,
+        address userServiceAddress,
+        address rentalityPlatformAddress,
+        address paymentServiceAddress
+    ) public initializer {
+
+        carService = RentalityCarToken(carServiceAddress);
+        currencyConverterService = RentalityCurrencyConverter(
+            currencyConverterServiceAddress);
+        tripService = RentalityTripService(tripServiceAddress);
+        userService = RentalityUserService(userServiceAddress);
+        rentalityPlatform = RentalityPlatform(rentalityPlatformAddress);
+        paymentService = RentalityPaymentService(paymentServiceAddress);
+
+        __Ownable_init();
     }
 }

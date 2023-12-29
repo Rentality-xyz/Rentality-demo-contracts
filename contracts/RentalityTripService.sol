@@ -1,8 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
+
 //deployed 26.05.2023 11:15 to sepolia at 0x417886Ca72048E92E8Bf2082cf193ab8DB4ED09f
-import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
 import "./RentalityCurrencyConverter.sol";
 import "./RentalityPaymentService.sol";
 import "./RentalityCarToken.sol";
@@ -12,7 +15,11 @@ import "./engine/RentalityEnginesService.sol";
 
 /// @title RentalityTripService
 /// @dev Manages the lifecycle of rental trips, including creation, approval, and completion.
-contract RentalityTripService {
+/// @dev SAFETY: The linked library is not supported yet because it can modify the state or call
+///  selfdestruct, as far as RentalityUtils doesn't has this logic,
+/// it's completely safe for upgrade
+/// @custom:oz-upgrades-unsafe-allow external-library-linking
+contract RentalityTripService is Initializable, UUPSUpgradeable {
     using Counters for Counters.Counter;
     Counters.Counter private _tripIdCounter;
 
@@ -100,26 +107,6 @@ contract RentalityTripService {
     RentalityUserService private userService;
     RentalityEnginesService private engineService;
 
-    /// @dev Constructor for the RentalityTripService contract.
-    /// @param currencyConverterServiceAddress The address of the currency converter service.
-    /// @param carServiceAddress The address of the car service.
-    /// @param paymentServiceAddress The address of the payment service.
-    /// @param userServiceAddress The address of the user service.
-    constructor(
-        address currencyConverterServiceAddress,
-        address carServiceAddress,
-        address paymentServiceAddress,
-        address userServiceAddress,
-        address engineServiceAddress
-    ) {
-        currencyConverterService = RentalityCurrencyConverter(
-            currencyConverterServiceAddress
-        );
-        paymentService = RentalityPaymentService(paymentServiceAddress);
-        carService = RentalityCarToken(carServiceAddress);
-        userService = RentalityUserService(userServiceAddress);
-        engineService = RentalityEnginesService(engineServiceAddress);
-    }
 
     /// @dev Get the total number of trips created.
     /// @return The total number of trips.
@@ -366,7 +353,7 @@ contract RentalityTripService {
         uint256 tripId,
         uint64[] memory panelParams
     ) public {
-        RentalityTripService.Trip memory trip = getTrip(tripId);
+        Trip memory trip = getTrip(tripId);
         require(trip.guest == tx.origin, "Only for guest");
 
         RentalityCarToken.CarInfo memory carInfo = carService.getCarInfoById(trip.carId);
@@ -395,7 +382,7 @@ contract RentalityTripService {
         uint256 tripId,
         uint64[] memory panelParams
     ) public {
-        RentalityTripService.Trip memory trip = getTrip(tripId);
+        Trip memory trip = getTrip(tripId);
         require(
             trip.guest == tx.origin, "For trip guest only"
         );
@@ -427,7 +414,7 @@ contract RentalityTripService {
         uint256 tripId,
         uint64[] memory panelParams
     ) public {
-        RentalityTripService.Trip memory trip = getTrip(tripId);
+        Trip memory trip = getTrip(tripId);
         require(
             trip.host == tx.origin, "For trip host only"
         );
@@ -504,6 +491,31 @@ contract RentalityTripService {
     ///  @return guestAddress The address of the guest.
     function getAddressesByTripId(uint256 tripId) external view returns (address hostAddress, address guestAddress){
         return (idToTripInfo[tripId].host, idToTripInfo[tripId].guest);
+    }
+
+    /// @param currencyConverterServiceAddress The address of the currency converter service.
+    /// @param carServiceAddress The address of the car service.
+    /// @param paymentServiceAddress The address of the payment service.
+    /// @param userServiceAddress The address of the user service.
+    function initialize(
+        address currencyConverterServiceAddress,
+        address carServiceAddress,
+        address paymentServiceAddress,
+        address userServiceAddress,
+        address engineServiceAddress
+    ) public virtual initializer {
+        currencyConverterService = RentalityCurrencyConverter(
+            currencyConverterServiceAddress
+        );
+        carService = RentalityCarToken(carServiceAddress);
+        paymentService = RentalityPaymentService(paymentServiceAddress);
+        userService = RentalityUserService(userServiceAddress);
+        engineService = RentalityEnginesService(engineServiceAddress);
+    }
+
+    function _authorizeUpgrade(address newImplementation) internal view override
+    {
+        require(userService.isAdmin(msg.sender), "Only for Admin.");
     }
 
 }

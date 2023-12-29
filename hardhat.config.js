@@ -1,9 +1,11 @@
 /** @type import('hardhat/config').HardhatUserConfig */
-require('@nomiclabs/hardhat-waffle')
-require('@nomiclabs/hardhat-ethers')
+// require('@nomiclabs/hardhat-waffle')
+
 require('dotenv').config()
-require('@nomicfoundation/hardhat-verify')
+require('@nomicfoundation/hardhat-toolbox')
+require('@openzeppelin/hardhat-upgrades')
 require('solidity-docgen')
+
 
 module.exports = {
 
@@ -18,7 +20,7 @@ module.exports = {
   },
 
   defaultNetwork:
-    'hardhat',
+    'localhost',
   networks:
     {
       hardhat: {
@@ -62,11 +64,8 @@ module.exports = {
         optimizer: {
           enabled: true,
           runs:
-            200,
+            200
         }
-        ,
       }
-    ,
   }
-  ,
 }

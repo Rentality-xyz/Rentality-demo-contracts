@@ -3,22 +3,16 @@
 
 pragma solidity ^0.8.9;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "./RentalityUserService.sol";
+import "./IRentalityAccessControl.sol";
+import "./proxy/UUPSOwnable.sol";
 
 /// @title Rentality Payment Service Contract
 /// @notice This contract manages platform fees and allows the adjustment of the platform fee by the manager.
 /// @dev It is connected to RentalityUserService to check if the caller is an admin.
-contract RentalityPaymentService is Ownable {
-    uint32 platformFeeInPPM = 200_000;
+contract RentalityPaymentService is UUPSOwnable{
+    uint32 platformFeeInPPM;
+    IRentalityAccessControl private userService;
 
-    RentalityUserService private userService;
-
-    /// @notice Constructor to initialize the RentalityPaymentService.
-    /// @param _userService The address of the RentalityUserService contract.
-    constructor(address _userService) {
-        userService = RentalityUserService(_userService);
-    }
 
     /// @notice Get the current platform fee in parts per million (PPM).
     /// @return The current platform fee in PPM.
@@ -43,5 +37,15 @@ contract RentalityPaymentService is Ownable {
     /// @return The platform fee calculated from the given value.
     function getPlatformFeeFrom(uint256 value) public view returns (uint256) {
         return (value * platformFeeInPPM) / 1_000_000;
+    }
+
+
+    /// @notice Constructor to initialize the RentalityPaymentService.
+    /// @param _userService The address of the RentalityUserService contract
+    function initialize(address _userService) public initializer {
+
+        userService = IRentalityAccessControl(_userService);
+        platformFeeInPPM = 200_000;
+        __Ownable_init();
     }
 }
