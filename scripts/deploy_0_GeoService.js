@@ -1,6 +1,5 @@
 const { ethers, network, upgrades } = require('hardhat')
 const saveJsonAbi = require('./utils/abiSaver')
-const { applyProviderWrappers } = require('hardhat/internal/core/providers/construction')
 const addressSaver = require('./utils/addressSaver')
 
 async function main() {
@@ -10,7 +9,7 @@ async function main() {
   const balance = await ethers.provider.getBalance(deployer)
   console.log(
     'Deployer address is:',
-    deployer.getAddress(),
+    await deployer.getAddress(),
     ' with balance:',
     balance,
   )
@@ -38,7 +37,7 @@ async function main() {
 
   console.log(contractName + ' deployed to:', await contract.getAddress())
 
-  await addressSaver(
+    addressSaver(
     await contract.getAddress(),
     contractName,
     true,

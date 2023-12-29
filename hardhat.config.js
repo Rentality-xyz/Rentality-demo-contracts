@@ -20,7 +20,7 @@ module.exports = {
   },
 
   defaultNetwork:
-    'hardhat',
+    'localhost',
   networks:
     {
       hardhat: {

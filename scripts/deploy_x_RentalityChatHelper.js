@@ -18,7 +18,7 @@ async function main() {
   console.log("ChainId is:", chainId);
   if (chainId < 0) return;
 
-  const rentalityUserServiceAddress =  getContractAddress(
+  const rentalityUserServiceAddress =  await getContractAddress(
     'RentalityUserService',
     'scripts/deploy_1_RentalityUserService.js')
 
@@ -27,7 +27,7 @@ async function main() {
   await contract.waitForDeployment();
   console.log(contractName + " deployed to:", await contract.getAddress());
 
-  await addressSaver(
+  addressSaver(
     await contract.getAddress(),
     contractName,
     true,

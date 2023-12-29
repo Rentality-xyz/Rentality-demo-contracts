@@ -20,7 +20,7 @@ async function main() {
   if (chainId < 0) return
 
 
-  const rentalityUtilsAddress =  getContractAddress(
+  const rentalityUtilsAddress =   getContractAddress(
     'RentalityUtils',
     'scripts/deploy_0_RentalityUtils.js')
 
@@ -40,7 +40,7 @@ async function main() {
     'RentalityUserService',
     'scripts/deploy_1_RentalityUserService.js')
 
-  const rentalityTripServiceAddress = getContractAddress('RentalityTripService',
+  const rentalityTripServiceAddress =  getContractAddress('RentalityTripService',
     'scripts/deploy_5_RentalityTripService.js');
 
 
@@ -76,7 +76,7 @@ async function main() {
 
   console.log(contractName + ' deployed to:', await contract.getAddress())
 
-  await addressSaver(
+  addressSaver(
     await contract.getAddress(),
     contractName,
     true,

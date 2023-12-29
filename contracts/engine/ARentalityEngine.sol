@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import "../RentalityUserService.sol";
+import "../IRentalityAccessControl.sol";
 
 /// @title ARentalityEngine - Abstract contract for a rental engine in the Rentality system.
 /// @notice This contract defines the basic structure and functions required for a rental engine.
@@ -16,7 +16,7 @@ abstract contract ARentalityEngine {
 
     // Internal state variables
     /// @notice The RentalityUserService contract used for user management.
-    RentalityUserService internal userService;
+    IRentalityAccessControl internal userService;
 
     /// @notice The type of the engine.
     uint8 internal eType;
@@ -53,7 +53,7 @@ abstract contract ARentalityEngine {
         uint64 milesIncludedPerDay,
         uint64 pricePerDayInUsdCents,
         uint64 tripDays
-    ) public virtual returns (uint64, uint64);
+    ) public view virtual returns (uint64, uint64);
 
     // Public functions
     /// @notice Retrieves the engine type.

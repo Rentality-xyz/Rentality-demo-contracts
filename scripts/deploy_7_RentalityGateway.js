@@ -24,19 +24,19 @@ async function main() {
     'RentalityUtils',
     'scripts/deploy_0_RentalityUtils.js')
 
-  const rentalityCurrencyConverterAddress =  getContractAddress(
+  const rentalityCurrencyConverterAddress = getContractAddress(
     'RentalityCurrencyConverter',
     'scripts/deploy_2_RentalityCurrencyConverter.js')
 
-  const rentalityCarTokenAddress  =  getContractAddress(
+  const rentalityCarTokenAddress  = getContractAddress(
     'RentalityCarToken',
     'scripts/deploy_3_RentalityCarToken.js')
 
-  const rentalityPaymentServiceAddress =  getContractAddress(
+  const rentalityPaymentServiceAddress = getContractAddress(
     'RentalityPaymentService',
     'scripts/deploy_4_RentalityPaymentService.js')
 
-  const rentalityUserServiceAddress =  getContractAddress(
+  const rentalityUserServiceAddress = getContractAddress(
     'RentalityUserService',
     'scripts/deploy_1_RentalityUserService.js')
 
@@ -80,7 +80,7 @@ async function main() {
 
   console.log(contractName + ' deployed to:',await contract.getAddress())
 
-  await addressSaver(
+  addressSaver(
     await contract.getAddress(),
     contractName,
     true,

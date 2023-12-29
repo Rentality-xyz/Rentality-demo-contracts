@@ -3,7 +3,7 @@ const { readFileSync } = require('fs')
 const fs = require('fs')
 const { network } = require('hardhat')
 
-module.exports = async function addressSaver(contractAddress, contractName, rewriteIfExist) {
+module.exports = function addressSaver(contractAddress, contractName, rewriteIfExist) {
   const data = readFileSync(path, 'utf-8')
   const jsonData = JSON.parse(data)
 

@@ -41,7 +41,7 @@ async function main() {
   contractName = "RentalityCurrencyConverter";
   const contractFactory = await ethers.getContractFactory(contractName);
 
-  let userService =  getContractAddress(
+  let userService = getContractAddress(
     "RentalityUserService",
     "scripts/deploy_1_RentalityUserService.js");
 
@@ -50,7 +50,7 @@ async function main() {
 
   console.log(contractName + " deployed to:", await contract.getAddress());
 
-  await addressSaver(
+  addressSaver(
     await contract.getAddress(),
     contractName,
     true,

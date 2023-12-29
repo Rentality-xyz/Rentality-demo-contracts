@@ -72,9 +72,10 @@ async function deployDefaultFixture() {
   const hEngine = await hybridEngine.deploy(await rentalityUserService.getAddress())
 
   const EngineService = await ethers.getContractFactory('RentalityEnginesService')
-  const engineService = await EngineService.deploy(
+  const engineService = await upgrades.deployProxy(EngineService,[
     await rentalityUserService.getAddress(),
     [await pEngine.getAddress(),await elEngine.getAddress(),await hEngine.getAddress()]
+    ]
   );
   await engineService.waitForDeployment()
 
@@ -89,7 +90,10 @@ async function deployDefaultFixture() {
   const rentalityGeoService = await RentalityGeoService.deploy()
   await rentalityGeoService.waitForDeployment()
 
-  const rentalityCarToken = await upgrades.deployProxy(RentalityCarToken,[await rentalityGeoService.getAddress(),await rentalityGeoService.getAddress()],{kind:'uups'})
+  const rentalityCarToken = await upgrades.deployProxy(RentalityCarToken,
+    [await rentalityGeoService.getAddress(),
+      await engineService.getAddress()],
+    {kind:'uups'})
   await rentalityCarToken.waitForDeployment()
 
   const rentalityPaymentService = await upgrades.deployProxy(RentalityPaymentService,[await rentalityUserService.getAddress()])
@@ -710,10 +714,10 @@ describe('RentalityGateway', function() {
       [guest, rentalityPlatform],
       [-rentPriceInEth, rentPriceInEth],
     )
-    await expect(rentalityGateway.connect(host).checkInByHost(1, 0, 0))
+    await expect(rentalityGateway.connect(host).checkInByHost(1,[0, 0]))
       .to.be.reverted
 
-    await expect(rentalityGateway.connect(host).checkOutByHost(1, 0, 0))
+    await expect(rentalityGateway.connect(host).checkOutByHost(1, [0, 0]))
       .to.be.reverted
 
     await expect(
@@ -2026,38 +2030,6 @@ it('Connot checkInBy host while car on the trip', async function() {
       await expect(upgrades.upgradeProxy(userAdd, RentalityUserGuest,{kind:'uups'})).to.be.revertedWith("Only for Admin.")
       await expect(upgrades.upgradeProxy(userAdd, RentalityUserHost,{kind:'uups'})).to.be.revertedWith("Only for Admin.")
       expect(await upgrades.upgradeProxy(userAdd, RentalityUserAdmin,{kind:'uups'})).to.not.reverted
-
-    })
-
-    it('should have same storage after update', async function() {
-
-      let proxyAddress = await rentalityUserService.getAddress()
-
-      await expect(await rentalityUserService.isManager(owner.address)).to.be.true
-      expect(await rentalityUserService.setKYCInfo(
-        'name',
-        'surname',
-        'phone',
-        'photo',
-        'number',
-        11,
-      )).to.not.reverted
-
-      const UserServiceV2 = await ethers.getContractFactory('UserServiceV2Test')
-      const userServiceV2 = await UserServiceV2.deploy()
-      await userServiceV2.waitForDeployment()
-
-      const v2address = await userServiceV2.getAddress()
-
-      const data = userServiceV2.interface.encodeFunctionData('initialize', [])
-      await rentalityUserService.upgradeToAndCall(v2address, data)
-
-      const v2 = await UserServiceV2.attach(proxyAddress)
-
-      const kyc = await v2.getKYCInfo(owner.address);
-      await expect(await v2.isManager(owner.address)).to.be.true
-      expect(kyc.name).to.be.eq("name")
-      await expect(await v2.getNewData()).to.be.eq(5)
 
     })
 

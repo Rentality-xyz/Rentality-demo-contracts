@@ -1,6 +1,5 @@
 const saveJsonAbi = require("./utils/abiSaver");
 const { ethers,upgrades, network } = require("hardhat");
-const addressesContractsTestnets = require("./addressesContractsTestnets.json");
 const getContractAddress = require("./utils/contractAddress")
 const addressSaver = require('./utils/addressSaver')
 
@@ -21,15 +20,21 @@ async function main() {
 
 
   const contractFactory = await ethers.getContractFactory(contractName);
+
   const geoAddress = getContractAddress(
     "RentalityGeoService",
     "scripts/deploy_0_GeoService.js");
 
-  const contract = await upgrades.deployProxy(contractFactory,[geoAddress])
+  const engineAddress = getContractAddress(
+    "RentalityEnginesService",
+    "scripts/deploy_2_RentalityEngineService.js"
+  )
+
+  const contract = await upgrades.deployProxy(contractFactory,[geoAddress, engineAddress])
   await contract.waitForDeployment()
   console.log(contractName + " deployed to:", await contract.getAddress());
 
-  await addressSaver(
+   addressSaver(
     await contract.getAddress(),
     contractName,
     true,

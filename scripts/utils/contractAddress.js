@@ -1,36 +1,54 @@
 const { readFileSync } = require('fs')
-const { network } = require('hardhat')
-const { execSync } = require('child_process')
-const exec = require('child_process').exec
+const { network, ethers } = require('hardhat')
+const readlineSync = require('readline-sync')
+const { spawnSync } = require('child_process')
 
-const path = 'scripts/deploy_0_'
 const pathToAddressFile = 'scripts/addressesContractsTestnets.json'
 
 
 module.exports = function getContractAddress(contractName, addressToDeployScript) {
   let address = readFromFile(contractName)
 
-
   if (address === null) {
+
+    const message = `Do you want to deploy ${contractName};`
+
+    if (!readlineSync.keyInYNStrict(message)) {
+      console.log('Finishing...')
+      process.exit(1)
+    }
+
     console.log(`The contract ${contractName} is not deployed. Starting deployment...`)
 
     const command = 'npx hardhat run ' + addressToDeployScript
     try {
-      const stdout = execSync(command);
-      console.log('stdout:', stdout.toString());
-    } catch (error) {
-      console.error('exec error:', error);
-    }
-    address = readFromFile(contractName);
+      const result = spawnSync(command, {
+        shell: true,
+        stdio: 'inherit',
+      })
 
-    if (address === null)
-    {
-    throw Error("Fail to deploy contract " + contractName)
+      if (result.error) {
+        console.error('Error:', result.error)
+        process.exit(1)
+      }
+      console.log('Deployment finished.')
+    } catch (error) {
+      console.error('Error:', error)
+      process.exit(1)
     }
-    setTimeout(() => {},2000); /// need,
+
+    address = readFromFile(contractName)
+
+    if (address === null) {
+      throw Error('Fail to deploy contract ' + contractName)
+    }
+    setTimeout(() => {
+    }, 2000) /// need,
     // because error in case of execution several scripts one by one
   }
+
   return address
+
 
 }
 
@@ -44,5 +62,5 @@ function readFromFile(contractName) {
     el[contractName] !== undefined &&
     el[contractName] !== '',
   )
-  return contract === undefined ? null: contract[contractName]
+  return contract === undefined ? null : contract[contractName]
 }
