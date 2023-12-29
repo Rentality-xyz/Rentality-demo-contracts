@@ -517,4 +517,5 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     {
         require(userService.isAdmin(msg.sender), "Only for Admin.");
     }
+
 }

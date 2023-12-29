@@ -43,6 +43,9 @@ async function main() {
   const rentalityTripServiceAddress =  getContractAddress('RentalityTripService',
     'scripts/deploy_5_RentalityTripService.js');
 
+  const rentalityClaimService =  getContractAddress('RentalityClaimService',
+    'scripts/deploy_2_RentalityClaimService.js');
+
 
   console.log('rentalityUtilsAddress is:', rentalityUtilsAddress)
   console.log('rentalityCarTokenAddress is:', rentalityCarTokenAddress)
@@ -56,6 +59,7 @@ async function main() {
   )
   console.log('rentalityUserServiceAddress is:', rentalityUserServiceAddress)
   console.log('rentalityTripServiceAddress is:', rentalityTripServiceAddress)
+  console.log('rentalityTripServiceAddress is:', rentalityClaimService)
 
   const contractFactory = await ethers.getContractFactory(contractName, {
     libraries: {
@@ -69,7 +73,8 @@ async function main() {
     rentalityCurrencyConverterAddress,
     rentalityTripServiceAddress,
     rentalityUserServiceAddress,
-    rentalityPaymentServiceAddress
+    rentalityPaymentServiceAddress,
+      rentalityClaimService
     ]
   )
   await contract.waitForDeployment()

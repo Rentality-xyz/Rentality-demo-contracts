@@ -8,6 +8,7 @@ import "./RentalityUserService.sol";
 import "./RentalityPaymentService.sol";
 import "./IRentalityGateway.sol";
 import "./proxy/UUPSOwnable.sol";
+import "./RentalityClaimService.sol";
 
 /// @title Rentality Platform Contract
 /// @notice This contract manages various services related to the Rentality platform, including cars, trips, users, and payments.
@@ -22,6 +23,7 @@ contract RentalityPlatform is UUPSOwnable {
     RentalityTripService private tripService;
     RentalityUserService private userService;
     RentalityPaymentService private paymentService;
+    RentalityClaimService private claimService;
 
 
     /// @dev Modifier to restrict access to admin users only.
@@ -203,7 +205,7 @@ contract RentalityPlatform is UUPSOwnable {
             RentalityTripService.Trip memory trip = tripService.getTrip(tripId);
 
             if (trip.carId == carId &&
-                trip.endDateTime > startDateTime &&
+            trip.endDateTime > startDateTime &&
                 trip.startDateTime < endDateTime) {
                 RentalityTripService.TripStatus tripStatus = trip.status;
 
@@ -299,7 +301,7 @@ contract RentalityPlatform is UUPSOwnable {
         tripService.finishTrip(tripId);
         RentalityTripService.Trip memory trip = tripService.getTrip(tripId);
 
-        uint64 valueToHostInUsdCents = trip
+        uint256 valueToHostInUsdCents = trip
             .paymentInfo
             .totalDayPriceInUsdCents +
                             trip.paymentInfo.taxPriceInUsdCents +
@@ -313,7 +315,7 @@ contract RentalityPlatform is UUPSOwnable {
             trip.paymentInfo.ethToCurrencyRate,
             trip.paymentInfo.ethToCurrencyDecimals
         );
-        uint64 valueToGuestInUsdCents = trip.paymentInfo.depositInUsdCents -
+        uint256 valueToGuestInUsdCents = trip.paymentInfo.depositInUsdCents -
                             trip.paymentInfo.resolveAmountInUsdCents;
         uint256 valueToGuestInEth = currencyConverterService.getEthFromUsd(
             valueToGuestInUsdCents,
@@ -330,6 +332,133 @@ contract RentalityPlatform is UUPSOwnable {
             }("");
         require(successHost, "Transfer failed.");
         require(successGuest, "Transfer failed.");
+    }
+
+    /// @notice Creates a new claim for a specific trip.
+    /// @dev Only the host of the trip can create a claim, and certain trip status checks are performed.
+    /// @param request Details of the claim to be created.
+    function createClaim(RentalityClaimService.CreateClaimRequest memory request) public {
+        RentalityTripService.Trip memory trip = tripService.getTrip(request.tripId);
+
+        require(trip.host == tx.origin, "Only for trip host.");
+        require(
+            trip.status != RentalityTripService.TripStatus.Canceled &&
+            trip.status != RentalityTripService.TripStatus.Created,
+            "Wrong trip status."
+        );
+
+        claimService.createClaim(request);
+    }
+
+    /// @notice Rejects a specific claim.
+    /// @dev Only the host or guest of the associated trip can reject the claim.
+    /// @param claimId ID of the claim to be rejected.
+    function rejectClaim(uint256 claimId) public {
+        RentalityClaimService.Claim memory claim = claimService.getClaim(claimId);
+        RentalityTripService.Trip memory trip = tripService.getTrip(claim.tripId);
+
+        require(trip.host == tx.origin || trip.guest == tx.origin, "Only for trip guest or host.");
+
+        claimService.rejectClaim(claimId, tx.origin);
+    }
+
+    /// @notice Pays a specific claim, transferring funds to the host and, if applicable, refunding excess to the guest.
+    /// @dev Only the guest of the associated trip can pay the claim, and certain checks are performed.
+    /// @param claimId ID of the claim to be paid.
+    function payClaim(uint256 claimId) public payable {
+        RentalityClaimService.Claim memory claim = claimService.getClaim(claimId);
+        RentalityTripService.Trip memory trip = tripService.getTrip(claim.tripId);
+
+        require(trip.guest == tx.origin, "Only guest.");
+        require(claim.status != RentalityClaimService.Status.Paid &&
+            claim.status != RentalityClaimService.Status.Cancel, "Wrong claim Status.");
+
+        uint256 valueToPay = currencyConverterService.getEthFromUsd(
+            claim.amountInUsdCents,
+            trip.paymentInfo.ethToCurrencyRate,
+            trip.paymentInfo.ethToCurrencyDecimals
+        );
+        uint256 platformFee = paymentService.getPlatformFeeFrom(valueToPay);
+
+        uint256 totalAmount = valueToPay + platformFee;
+
+        require(msg.value >= totalAmount, "Insufficient funds sent.");
+
+        claimService.payClaim(claimId);
+
+        (bool successHost,) = payable(trip.host).call{value: valueToPay}("");
+        require(successHost, "Transfer to host failed.");
+
+        if (msg.value > totalAmount) {
+            uint256 excessValue = msg.value - totalAmount;
+            (bool successRefund,) = payable(tx.origin).call{value: excessValue}("");
+            require(successRefund, "Refund to guest failed.");
+        }
+    }
+
+    /// @notice Updates the status of a specific claim based on the current timestamp.
+    /// @dev This function is typically called periodically to check and update claim status.
+    /// @param claimId ID of the claim to be updated.
+    function updateClaim(uint256 claimId) public {
+        claimService.updateClaim(claimId);
+    }
+
+    /// @notice Gets detailed information about a specific claim.
+    /// @dev Returns a structure containing information about the claim, associated trip, and car details.
+    /// @param claimId ID of the claim.
+    /// @return Full information about the claim.
+    function getClaimInfo(uint256 claimId) public view returns (RentalityClaimService.FullClaimInfo memory) {
+        RentalityClaimService.Claim memory claim = claimService.getClaim(claimId);
+        RentalityTripService.Trip memory trip = tripService.getTrip(claim.tripId);
+        RentalityCarToken.CarInfo memory car = carService.getCarInfoById(trip.carId);
+
+        return RentalityClaimService.FullClaimInfo(
+            claim,
+            trip.host,
+            trip.guest,
+            car.brand,
+            car.model,
+            car.yearOfProduction
+        );
+    }
+
+    /// @notice Gets an array of claims associated with a specific trip.
+    /// @dev Returns an array of detailed claim information for the given trip.
+    /// @param tripId ID of the trip.
+    /// @return Array of detailed claim information.
+    function getClaimsByTrip(uint256 tripId) public view returns (RentalityClaimService.FullClaimInfo[] memory) {
+
+        uint256 arraySize = 0;
+        for (uint256 i = 0; i <= claimService.getClaimsAmount(); i++)
+        {
+            RentalityClaimService.Claim memory claim = claimService.getClaim(i);
+            if (claim.tripId == tripId) {
+                arraySize += 1;
+            }
+        }
+        uint256 counter = 0;
+
+        RentalityClaimService.FullClaimInfo[] memory claims = new RentalityClaimService.FullClaimInfo[](arraySize);
+
+        for (uint256 i = 1; i <= claimService.getClaimsAmount(); i++) {
+            RentalityClaimService.Claim memory claim = claimService.getClaim(i);
+
+            if (claim.tripId == tripId) {
+                RentalityTripService.Trip memory trip = tripService.getTrip(tripId);
+                RentalityCarToken.CarInfo memory car = carService.getCarInfoById(trip.carId);
+                claims[counter++] = RentalityClaimService.FullClaimInfo(
+                    claim,
+                    trip.host,
+                    trip.guest,
+                    car.brand,
+                    car.model,
+                    car.yearOfProduction
+                );
+            }
+        }
+
+
+        return claims;
     }
 
     /// @notice Get contact information for a specific trip on the Rentality platform.
@@ -384,7 +513,8 @@ contract RentalityPlatform is UUPSOwnable {
         address currencyConverterServiceAddress,
         address tripServiceAddress,
         address userServiceAddress,
-        address paymentServiceAddress) public initializer {
+        address paymentServiceAddress,
+        address claimServiceAddress) public initializer {
 
         carService = RentalityCarToken(carServiceAddress);
         currencyConverterService = RentalityCurrencyConverter(
@@ -393,6 +523,7 @@ contract RentalityPlatform is UUPSOwnable {
         tripService = RentalityTripService(tripServiceAddress);
         userService = RentalityUserService(userServiceAddress);
         paymentService = RentalityPaymentService(paymentServiceAddress);
+        claimService = RentalityClaimService(claimServiceAddress);
 
         __Ownable_init();
     }
