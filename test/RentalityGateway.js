@@ -5,159 +5,13 @@ const {
   loadFixture,
 } = require('@nomicfoundation/hardhat-network-helpers')
 const { Contract } = require('hardhat/internal/hardhat-network/stack-traces/model')
-const { getMockCarRequest, TripStatus, getEmptySearchCarParams } = require('./utils')
-
-async function deployDefaultFixture() {
-  const [owner, admin, manager, host, guest, anonymous] =
-    await ethers.getSigners()
-
-  const RentalityUtils = await ethers.getContractFactory('RentalityUtils')
-  const utils = await RentalityUtils.deploy()
-  const RentalityMockPriceFeed = await ethers.getContractFactory(
-    'RentalityMockPriceFeed',
-  )
-  const RentalityUserService = await ethers.getContractFactory(
-    'RentalityUserService',
-  )
-  const RentalityTripService = await ethers.getContractFactory(
-    'RentalityTripService',
-    { libraries: { RentalityUtils: utils.address } },
-  )
-  const RentalityCurrencyConverter = await ethers.getContractFactory(
-    'RentalityCurrencyConverter',
-  )
-  const RentalityPaymentService = await ethers.getContractFactory(
-    'RentalityPaymentService',
-  )
-  const RentalityCarToken =
-    await ethers.getContractFactory('RentalityCarToken')
-
-  const RentalityPlatform =
-    await ethers.getContractFactory('RentalityPlatform',
-      {
-        libraries:
-          {
-            RentalityUtils: utils.address,
-          },
-      })
-  const RentalityGeoService =
-    await ethers.getContractFactory('RentalityGeoMock')
-
-  let RentalityGateway = await ethers.getContractFactory(
-    'RentalityGateway',
-    {
-      libraries:
-        {
-          RentalityUtils: utils.address
-        }
-    }
-  )
-
-  let rentalityMockPriceFeed = await RentalityMockPriceFeed.deploy(
-    8,
-    200000000000,
-  )
-  await rentalityMockPriceFeed.deployed()
-
-  const rentalityUserService = await RentalityUserService.deploy()
-  await rentalityUserService.deployed()
-
-  const electricEngine = await ethers.getContractFactory('RentalityElectricEngine')
-  const elEngine = await electricEngine.deploy(rentalityUserService.address)
-
-  const patrolEngine = await ethers.getContractFactory('RentalityPatrolEngine')
-  const pEngine = await patrolEngine.deploy(rentalityUserService.address)
-
-  const hybridEngine = await ethers.getContractFactory('RentalityHybridEngine')
-  const hEngine = await hybridEngine.deploy(rentalityUserService.address)
-
-  const EngineService = await ethers.getContractFactory('RentalityEnginesService')
-  const engineService = await EngineService.deploy(
-    rentalityUserService.address,
-    [pEngine.address, elEngine.address, hEngine.address]
-  );
-  await engineService.deployed();
-
-  await rentalityUserService.connect(owner).grantAdminRole(admin.address)
-  await rentalityUserService.connect(owner).grantManagerRole(manager.address)
-  await rentalityUserService.connect(owner).grantHostRole(host.address)
-  await rentalityUserService.connect(owner).grantGuestRole(guest.address)
-
-  const rentalityCurrencyConverter = await RentalityCurrencyConverter.deploy(
-    rentalityMockPriceFeed.address,
-  )
-  await rentalityCurrencyConverter.deployed()
-  const rentalityGeoService = await RentalityGeoService.deploy()
-  await rentalityGeoService.deployed()
-
-  const rentalityCarToken = await RentalityCarToken.deploy(rentalityGeoService.address, engineService.address)
-  await rentalityCarToken.deployed()
-  const rentalityPaymentService = await RentalityPaymentService.deploy(rentalityUserService.address)
-  await rentalityPaymentService.deployed()
-
-  const rentalityTripService = await RentalityTripService.deploy(
-    rentalityCurrencyConverter.address,
-    rentalityCarToken.address,
-    rentalityPaymentService.address,
-    rentalityUserService.address,
-    engineService.address
-  )
-  await rentalityTripService.deployed()
-
-  const rentalityPlatform = await RentalityPlatform.deploy(
-    rentalityCarToken.address,
-    rentalityCurrencyConverter.address,
-    rentalityTripService.address,
-    rentalityUserService.address,
-    rentalityPaymentService.address,
-  )
-  await rentalityPlatform.deployed()
-
-  await rentalityUserService
-    .connect(owner)
-    .grantHostRole(rentalityPlatform.address)
-  await rentalityUserService.connect(owner).grantManagerRole(rentalityPlatform.address)
-  await rentalityUserService
-    .connect(owner)
-    .grantManagerRole(rentalityTripService.address)
-  await rentalityUserService.connect(owner).grantManagerRole(rentalityPlatform.address)
-
-  let rentalityGateway = await RentalityGateway.connect(owner).deploy(
-    rentalityCarToken.address,
-    rentalityCurrencyConverter.address,
-    rentalityTripService.address,
-    rentalityUserService.address,
-    rentalityPlatform.address,
-    rentalityPaymentService.address,
-  )
-  await rentalityGateway.deployed()
-
-  await rentalityUserService.connect(owner).grantManagerRole(rentalityGateway.address)
-  await rentalityUserService.connect(owner).grantAdminRole(rentalityGateway.address)
-  await rentalityUserService
-    .connect(owner)
-    .grantManagerRole(rentalityCarToken.address)
-  await rentalityUserService
-    .connect(owner)
-    .grantManagerRole(engineService.address)
-
-  return {
-    rentalityGateway,
-    rentalityMockPriceFeed,
-    rentalityUserService,
-    rentalityTripService,
-    rentalityCurrencyConverter,
-    rentalityCarToken,
-    rentalityPaymentService,
-    rentalityPlatform,
-    owner,
-    admin,
-    manager,
-    host,
-    guest,
-    anonymous,
-  }
-}
+const {
+  getMockCarRequest,
+  TripStatus,
+  getEmptySearchCarParams,
+  createMockClaimRequest,
+  deployDefaultFixture,
+} = require('./utils')
 
 
 describe('RentalityGateway', function() {
@@ -170,6 +24,7 @@ describe('RentalityGateway', function() {
     rentalityCarToken,
     rentalityPaymentService,
     rentalityPlatform,
+    claimService,
     owner,
     admin,
     manager,
@@ -187,6 +42,7 @@ describe('RentalityGateway', function() {
       rentalityCarToken,
       rentalityPaymentService,
       rentalityPlatform,
+      claimService,
       owner,
       admin,
       manager,
@@ -377,7 +233,7 @@ describe('RentalityGateway', function() {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPrices:[400],
+          fuelPrices: [400],
           ethToCurrencyRate: ethToCurrencyRate,
           ethToCurrencyDecimals: ethToCurrencyDecimals,
         },
@@ -417,7 +273,7 @@ describe('RentalityGateway', function() {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPrices:[400],
+          fuelPrices: [400],
           ethToCurrencyRate: ethToCurrencyRate,
           ethToCurrencyDecimals: ethToCurrencyDecimals,
         },
@@ -459,7 +315,7 @@ describe('RentalityGateway', function() {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPrices:[400],
+          fuelPrices: [400],
           ethToCurrencyRate: ethToCurrencyRate,
           ethToCurrencyDecimals: ethToCurrencyDecimals,
         },
@@ -509,7 +365,7 @@ describe('RentalityGateway', function() {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPrices:[400],
+          fuelPrices: [400],
           ethToCurrencyRate: ethToCurrencyRate,
           ethToCurrencyDecimals: ethToCurrencyDecimals,
         },
@@ -559,7 +415,7 @@ describe('RentalityGateway', function() {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPrices:[400],
+          fuelPrices: [400],
           ethToCurrencyRate: ethToCurrencyRate,
           ethToCurrencyDecimals: ethToCurrencyDecimals,
         },
@@ -619,7 +475,7 @@ describe('RentalityGateway', function() {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPrices:[400],
+          fuelPrices: [400],
           ethToCurrencyRate: ethToCurrencyRate,
           ethToCurrencyDecimals: ethToCurrencyDecimals,
         },
@@ -691,7 +547,7 @@ describe('RentalityGateway', function() {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPrices:[400],
+          fuelPrices: [400],
           ethToCurrencyRate: ethToCurrencyRate,
           ethToCurrencyDecimals: ethToCurrencyDecimals,
         },
@@ -748,7 +604,7 @@ describe('RentalityGateway', function() {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPrices:[400],
+          fuelPrices: [400],
           ethToCurrencyRate: ethToCurrencyRate,
           ethToCurrencyDecimals: ethToCurrencyDecimals,
         },
@@ -818,7 +674,7 @@ describe('RentalityGateway', function() {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPrices:[400],
+          fuelPrices: [400],
           ethToCurrencyRate: ethToCurrencyRate,
           ethToCurrencyDecimals: ethToCurrencyDecimals,
         },
@@ -890,7 +746,7 @@ describe('RentalityGateway', function() {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPrices:[400],
+          fuelPrices: [400],
           ethToCurrencyRate: ethToCurrencyRate,
           ethToCurrencyDecimals: ethToCurrencyDecimals,
         },
@@ -965,7 +821,7 @@ describe('RentalityGateway', function() {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPrices:[400],
+          fuelPrices: [400],
           ethToCurrencyRate: ethToCurrencyRate,
           ethToCurrencyDecimals: ethToCurrencyDecimals,
         },
@@ -978,25 +834,25 @@ describe('RentalityGateway', function() {
     expect(await rentalityGateway.connect(host).approveTripRequest(1))
       .not.be.reverted
 
-    await expect(rentalityGateway.connect(host).checkInByHost(1, [0,0]))
+    await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0]))
       .not.be.reverted
 
-    await expect(rentalityGateway.connect(guest).checkInByGuest(1, [0,0]))
+    await expect(rentalityGateway.connect(guest).checkInByGuest(1, [0, 0]))
       .not.be.reverted
 
-    await expect(rentalityGateway.connect(guest).checkOutByGuest(1, [0,0]))
+    await expect(rentalityGateway.connect(guest).checkOutByGuest(1, [0, 0]))
       .not.be.reverted
 
-    await expect(rentalityGateway.connect(anonymous).checkOutByHost(1,[0,0]))
+    await expect(rentalityGateway.connect(anonymous).checkOutByHost(1, [0, 0]))
       .to.be.reverted
 
-    await expect(rentalityGateway.connect(guest).checkOutByHost(1, [0,0]))
+    await expect(rentalityGateway.connect(guest).checkOutByHost(1, [0, 0]))
       .to.be.reverted
 
-    await expect(rentalityGateway.connect(admin).checkOutByHost(1, [0,0]))
+    await expect(rentalityGateway.connect(admin).checkOutByHost(1, [0, 0]))
       .to.be.reverted
 
-    await expect(rentalityGateway.connect(owner).checkOutByHost(1, [0,0]))
+    await expect(rentalityGateway.connect(owner).checkOutByHost(1, [0, 0]))
       .to.be.reverted
 
     let trip = await rentalityGateway.getTrip(1)
@@ -1004,7 +860,7 @@ describe('RentalityGateway', function() {
     expect(trip.status).to.be.equal(TripStatus.CheckedOutByGuest)
 
 
-    await expect(rentalityGateway.connect(host).checkOutByHost(1, [0,0]))
+    await expect(rentalityGateway.connect(host).checkOutByHost(1, [0, 0]))
       .not.be.reverted
 
     let trip_checkout = await rentalityGateway.connect(guest).getTrip(1)
@@ -1045,7 +901,7 @@ describe('RentalityGateway', function() {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPrices:[400],
+          fuelPrices: [400],
           ethToCurrencyRate: ethToCurrencyRate,
           ethToCurrencyDecimals: ethToCurrencyDecimals,
         },
@@ -1282,7 +1138,7 @@ describe('RentalityGateway', function() {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPrices:[400],
+          fuelPrices: [400],
           ethToCurrencyRate: ethToCurrencyRate,
           ethToCurrencyDecimals: ethToCurrencyDecimals,
         },
@@ -1349,7 +1205,7 @@ describe('RentalityGateway', function() {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPrices:[400],
+          fuelPrices: [400],
           ethToCurrencyRate: ethToCurrencyRate,
           ethToCurrencyDecimals: ethToCurrencyDecimals,
         },
@@ -1416,7 +1272,7 @@ describe('RentalityGateway', function() {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPrices:[400],
+          fuelPrices: [400],
           ethToCurrencyRate: ethToCurrencyRate,
           ethToCurrencyDecimals: ethToCurrencyDecimals,
         },
@@ -1486,7 +1342,7 @@ describe('RentalityGateway', function() {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPrices:[400],
+          fuelPrices: [400],
           ethToCurrencyRate: ethToCurrencyRate,
           ethToCurrencyDecimals: ethToCurrencyDecimals,
         },
@@ -1598,7 +1454,7 @@ describe('RentalityGateway', function() {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPrices:[400],
+          fuelPrices: [400],
           ethToCurrencyRate: ethToCurrencyRate,
           ethToCurrencyDecimals: ethToCurrencyDecimals,
         },
@@ -1654,12 +1510,12 @@ describe('RentalityGateway', function() {
         guest.address,
         0,
         0,
-        getEmptySearchCarParams(0)
+        getEmptySearchCarParams(0),
       )
     expect(availableCars.length).to.equal(1)
 
-    expect(availableCars[0].hostPhotoUrl).to.be.eq(photo + 'host');
-    expect(availableCars[0].hostName).to.be.eq(name + 'host');
+    expect(availableCars[0].hostPhotoUrl).to.be.eq(photo + 'host')
+    expect(availableCars[0].hostName).to.be.eq(name + 'host')
 
   })
 
@@ -1673,7 +1529,7 @@ describe('RentalityGateway', function() {
       .getMyCars()
     expect(myCars.length).to.equal(1)
 
-    const oneDayInMilliseconds = 24 * 60 * 60 * 1000;
+    const oneDayInMilliseconds = 24 * 60 * 60 * 1000
 
     const rentPriceInUsdCents = 1000
     const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
@@ -1683,7 +1539,6 @@ describe('RentalityGateway', function() {
 
     await expect(
       rentalityGateway.connect(guest).createTripRequest(
-
         {
           carId: 1,
           host: host.address,
@@ -1694,7 +1549,7 @@ describe('RentalityGateway', function() {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPrices:[400],
+          fuelPrices: [400],
           ethToCurrencyRate: ethToCurrencyRate,
           ethToCurrencyDecimals: ethToCurrencyDecimals,
         },
@@ -1707,7 +1562,6 @@ describe('RentalityGateway', function() {
 
     await expect(
       rentalityGateway.connect(guest).createTripRequest(
-
         {
           carId: 1,
           host: host.address,
@@ -1718,18 +1572,17 @@ describe('RentalityGateway', function() {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPrices:[400],
+          fuelPrices: [400],
           ethToCurrencyRate: ethToCurrencyRate,
           ethToCurrencyDecimals: ethToCurrencyDecimals,
         },
         { value: rentPriceInEth },
       ),
-    ).to.be.revertedWith("Unavailable for current date.")
+    ).to.be.revertedWith('Unavailable for current date.')
 
 
     await expect(
       rentalityGateway.connect(guest).createTripRequest(
-
         {
           carId: 1,
           host: host.address,
@@ -1740,7 +1593,7 @@ describe('RentalityGateway', function() {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPrices:[400],
+          fuelPrices: [400],
           ethToCurrencyRate: ethToCurrencyRate,
           ethToCurrencyDecimals: ethToCurrencyDecimals,
         },
@@ -1749,96 +1602,94 @@ describe('RentalityGateway', function() {
     ).not.to.be.reverted
 
 
+  })
+  it('Con not checkInBy host while car on the trip', async function() {
 
+    await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0)))
+      .not.to.be.reverted
+    const myCars = await rentalityGateway
+      .connect(host)
+      .getMyCars()
+    expect(myCars.length).to.equal(1)
+
+    const availableCars = await rentalityGateway
+      .connect(guest)
+      .getAvailableCarsForUser(guest.address)
+    expect(availableCars.length).to.equal(1)
+
+    const rentPriceInUsdCents = 1000
+    const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
+      await rentalityCurrencyConverter.getEthFromUsdLatest(
+        rentPriceInUsdCents,
+      )
+    const oneDayInMilliseconds = 24 * 60 * 60 * 1000
+    await expect(
+      rentalityGateway.connect(guest).createTripRequest(
+        {
+          carId: 1,
+          host: host.address,
+          startDateTime: Date.now(),
+          endDateTime: Date.now() + oneDayInMilliseconds,
+          startLocation: '',
+          endLocation: '',
+          totalDayPriceInUsdCents: rentPriceInUsdCents,
+          taxPriceInUsdCents: 0,
+          depositInUsdCents: 0,
+          fuelPrices: [400],
+          ethToCurrencyRate: ethToCurrencyRate,
+          ethToCurrencyDecimals: ethToCurrencyDecimals,
+        },
+        { value: rentPriceInEth },
+      ),
+    ).to.changeEtherBalances(
+      [guest, rentalityPlatform],
+      [-rentPriceInEth, rentPriceInEth],
+    )
+
+    await expect(
+      rentalityGateway.connect(host).approveTripRequest(1),
+    ).to.not.reverted
+
+    await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0]))
+      .to.not.reverted
+
+    await expect(rentalityGateway.connect(guest).checkInByGuest(1, [0, 0]))
+      .to.not.reverted
+
+
+    await expect(
+      rentalityGateway.connect(guest).createTripRequest(
+        {
+          carId: 1,
+          host: host.address,
+          startDateTime: Date.now() + oneDayInMilliseconds * 3,
+          endDateTime: Date.now() + oneDayInMilliseconds * 4,
+          startLocation: '',
+          endLocation: '',
+          totalDayPriceInUsdCents: rentPriceInUsdCents,
+          taxPriceInUsdCents: 0,
+          depositInUsdCents: 0,
+          fuelPrices: [400],
+          ethToCurrencyRate: ethToCurrencyRate,
+          ethToCurrencyDecimals: ethToCurrencyDecimals,
+        },
+        { value: rentPriceInEth },
+      ),
+    ).to.changeEtherBalances(
+      [guest, rentalityPlatform],
+      [-rentPriceInEth, rentPriceInEth],
+    )
+
+
+    await expect(
+      rentalityGateway.connect(host).approveTripRequest(2),
+    ).not.be.reverted
+
+    await expect(rentalityGateway.connect(host).checkInByHost(2, [0, 0]))
+      .to.be.revertedWith('Car on the trip.')
 
 
   })
-it('Connot checkInBy host while car on the trip', async function() {
-
-  await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0)))
-    .not.to.be.reverted
-  const myCars = await rentalityGateway
-    .connect(host)
-    .getMyCars()
-  expect(myCars.length).to.equal(1)
-
-  const availableCars = await rentalityGateway
-    .connect(guest)
-    .getAvailableCarsForUser(guest.address)
-  expect(availableCars.length).to.equal(1)
-
-  const rentPriceInUsdCents = 1000
-  const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
-    await rentalityCurrencyConverter.getEthFromUsdLatest(
-      rentPriceInUsdCents,
-    )
-  const oneDayInMilliseconds = 24 * 60 * 60 * 1000;
-  await expect(
-    rentalityGateway.connect(guest).createTripRequest(
-      {
-        carId: 1,
-        host: host.address,
-        startDateTime: Date.now(),
-        endDateTime: Date.now() + oneDayInMilliseconds,
-        startLocation: '',
-        endLocation: '',
-        totalDayPriceInUsdCents: rentPriceInUsdCents,
-        taxPriceInUsdCents: 0,
-        depositInUsdCents: 0,
-        fuelPrices:[400],
-        ethToCurrencyRate: ethToCurrencyRate,
-        ethToCurrencyDecimals: ethToCurrencyDecimals,
-      },
-      { value: rentPriceInEth },
-    ),
-  ).to.changeEtherBalances(
-    [guest, rentalityPlatform],
-    [-rentPriceInEth, rentPriceInEth],
-  )
-
-  await expect(
-    rentalityGateway.connect(host).approveTripRequest(1),
-  ).to.not.reverted
-
-  await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0]))
-    .to.not.reverted;
-
-  await expect(rentalityGateway.connect(guest).checkInByGuest(1, [0, 0]))
-    .to.not.reverted;
-
-
-  await expect(
-    rentalityGateway.connect(guest).createTripRequest(
-      {
-        carId: 1,
-        host: host.address,
-        startDateTime: Date.now() + oneDayInMilliseconds * 3,
-        endDateTime: Date.now() + oneDayInMilliseconds * 4,
-        startLocation: '',
-        endLocation: '',
-        totalDayPriceInUsdCents: rentPriceInUsdCents,
-        taxPriceInUsdCents: 0,
-        depositInUsdCents: 0,
-        fuelPrices:[400],
-        ethToCurrencyRate: ethToCurrencyRate,
-        ethToCurrencyDecimals: ethToCurrencyDecimals,
-      },
-      { value: rentPriceInEth },
-    ),
-  ).to.changeEtherBalances(
-    [guest, rentalityPlatform],
-    [-rentPriceInEth, rentPriceInEth],
-  )
-
-
-
-  await expect(
-    rentalityGateway.connect(host).approveTripRequest(2),
-  ).not.be.reverted;
-
-  await expect(rentalityGateway.connect(host).checkInByHost(2, [0, 0]))
-    .to.be.revertedWith("Car on the trip.")
 
 
 })
-});
