@@ -16,7 +16,7 @@ var saveJsonAbi = async function(fileName, chainId, contract) {
   })
 
 
-  let filePath = './src/abis/' + fileName + '.' + version + '.abi.' + '.json'
+  let filePath = './src/abis/' + fileName + '.' + version + '.abi.' + 'json'
   fs.writeFileSync(filePath, JSON.stringify(onlyAbiJsonData))
   console.log('JSON abi saved to ' + filePath)
 
