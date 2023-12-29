@@ -31,10 +31,11 @@ contract RentalityPaymentService is UUPSOwnable{
         platformFeeInPPM = valueInPPM;
     }
 
+
     /// @notice Get the platform fee from a given value.
     /// @param value The value from which to calculate the platform fee.
     /// @return The platform fee calculated from the given value.
-    function getPlatformFeeFrom(uint64 value) public view returns (uint64) {
+    function getPlatformFeeFrom(uint256 value) public view returns (uint256) {
         return (value * platformFeeInPPM) / 1_000_000;
     }
 

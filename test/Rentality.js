@@ -103,12 +103,17 @@ describe('Rentality', function () {
     ]);
     await rentalityTripService.waitForDeployment()
 
-    const rentalityPlatform = await upgrades.deployProxy(RentalityPlatform,[
+    const RentalityClaimService = await ethers.getContractFactory('RentalityClaimService')
+    const claimService = await upgrades.deployProxy(RentalityClaimService, [await rentalityUserService.getAddress()])
+    await claimService.waitForDeployment()
+
+    const rentalityPlatform = await upgrades.deployProxy(RentalityPlatform, [
       await rentalityCarToken.getAddress(),
       await rentalityCurrencyConverter.getAddress(),
       await rentalityTripService.getAddress(),
       await rentalityUserService.getAddress(),
       await rentalityPaymentService.getAddress(),
+      await claimService.getAddress()
     ])
 
     await rentalityPlatform.waitForDeployment()
