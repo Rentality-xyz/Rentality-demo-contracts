@@ -18,13 +18,13 @@ contract RentalityPatrolEngine is ARentalityEngine {
 
     /// @notice Constructor to set the RentalityUserService address during deployment.
     constructor(address _userService) {
-        userService = RentalityUserService(_userService);
+        userService = IRentalityAccessControl(_userService);
     }
 
     /// @notice Sets the engine type. Only callable by an admin.
     /// @param _eType The new engine type to be set.
     function setEType(uint8 _eType) public override {
-        require(userService.isAdmin(tx.origin), "only Admin.");
+        require(userService.isAdmin(tx.origin), "Only Admin.");
         eType = _eType;
     }
 

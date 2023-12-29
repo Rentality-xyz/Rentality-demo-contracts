@@ -1,10 +1,11 @@
 const { expect } = require('chai')
-const { ethers } = require('hardhat')
+const { ethers,upgrades } = require('hardhat')
 const {
   time,
   loadFixture,
 } = require('@nomicfoundation/hardhat-network-helpers')
 const { Contract } = require('hardhat/internal/hardhat-network/stack-traces/model')
+
 const {
   getMockCarRequest,
   TripStatus,
@@ -12,6 +13,7 @@ const {
   createMockClaimRequest,
   deployDefaultFixture,
 } = require('./utils')
+
 
 
 describe('RentalityGateway', function() {
@@ -24,6 +26,8 @@ describe('RentalityGateway', function() {
     rentalityCarToken,
     rentalityPaymentService,
     rentalityPlatform,
+    rentalityGeoService,
+    utils,
     claimService,
     owner,
     admin,
@@ -42,6 +46,8 @@ describe('RentalityGateway', function() {
       rentalityCarToken,
       rentalityPaymentService,
       rentalityPlatform,
+      rentalityGeoService,
+      utils,
       claimService,
       owner,
       admin,
@@ -59,84 +65,84 @@ describe('RentalityGateway', function() {
 
   it('should allow only admin to update car service address', async function() {
     await expect(
-      rentalityGateway.connect(guest).updateCarService(rentalityCarToken.address)).to.be.reverted
+      rentalityGateway.connect(guest).updateCarService(await rentalityCarToken.getAddress())).to.be.reverted
 
     await expect(
-      rentalityGateway.connect(host).updateCarService(rentalityCarToken.address)).to.be.reverted
+      rentalityGateway.connect(host).updateCarService(await rentalityCarToken.getAddress())).to.be.reverted
 
     await expect(
-      rentalityGateway.connect(anonymous).updateCarService(rentalityCarToken.address)).to.be.reverted
+      rentalityGateway.connect(anonymous).updateCarService(await rentalityCarToken.getAddress())).to.be.reverted
 
     await expect(
       rentalityGateway.connect(admin)
-        .updateCarService(rentalityCarToken.address)).not.be.reverted
+        .updateCarService(await rentalityCarToken.getAddress())).not.be.reverted
 
   })
   it('should allow only admin to update rentality platform address', async function() {
     await expect(
-      rentalityGateway.connect(guest).updateRentalityPlatform(rentalityPlatform.address)).to.be.reverted
+      rentalityGateway.connect(guest).updateRentalityPlatform(await rentalityPlatform.getAddress())).to.be.reverted
 
     await expect(
-      rentalityGateway.connect(host).updateRentalityPlatform(rentalityPlatform.address)).to.be.reverted
+      rentalityGateway.connect(host).updateRentalityPlatform(await rentalityPlatform.getAddress())).to.be.reverted
 
     await expect(
-      rentalityGateway.connect(anonymous).updateRentalityPlatform(rentalityPlatform.address)).to.be.reverted
+      rentalityGateway.connect(anonymous).updateRentalityPlatform(await rentalityPlatform.getAddress())).to.be.reverted
 
     await expect(
       rentalityGateway.connect(admin)
-        .updateRentalityPlatform(rentalityPlatform.address)).not.be.reverted
+        .updateRentalityPlatform(await rentalityPlatform.getAddress())).not.be.reverted
   })
 
   it('should allow only admin to update currency converter service address', async function() {
     await expect(
-      rentalityGateway.connect(guest).updateCurrencyConverterService(rentalityCurrencyConverter.address)).to.be.reverted
+      rentalityGateway.connect(guest).updateCurrencyConverterService(await rentalityCurrencyConverter.getAddress())).to.be.reverted
 
     await expect(
-      rentalityGateway.connect(host).updateCurrencyConverterService(rentalityCurrencyConverter.address)).to.be.reverted
+      rentalityGateway.connect(host).updateCurrencyConverterService(await rentalityCurrencyConverter.getAddress())).to.be.reverted
 
     await expect(
-      rentalityGateway.connect(anonymous).updateCurrencyConverterService(rentalityCurrencyConverter.address)).to.be.reverted
+      rentalityGateway.connect(anonymous).updateCurrencyConverterService(await rentalityCurrencyConverter.getAddress())).to.be.reverted
 
 
     await expect(
       rentalityGateway.connect(admin)
-        .updateCurrencyConverterService(rentalityCurrencyConverter.address)).not.be.reverted
+        .updateCurrencyConverterService(await rentalityCurrencyConverter.getAddress())).not.be.reverted
   })
 
   it('should allow only admin to update trip service address', async function() {
     await expect(
       rentalityGateway.connect(admin)
-        .updateTripService(rentalityTripService.address)).not.be.reverted
+        .updateTripService(await rentalityTripService.getAddress())).not.be.reverted
 
     await expect(
       rentalityGateway.connect(host)
-        .updateTripService(rentalityTripService.address)).to.be.reverted
+        .updateTripService(await rentalityTripService.getAddress())).to.be.reverted
 
     await expect(
       rentalityGateway.connect(guest)
-        .updateTripService(rentalityTripService.address)).to.be.reverted
+        .updateTripService(await rentalityTripService.getAddress())).to.be.reverted
 
     await expect(
       rentalityGateway.connect(anonymous)
-        .updateTripService(rentalityTripService.address)).to.be.reverted
+        .updateTripService(await rentalityTripService.getAddress())).to.be.reverted
   })
 
   it('should allow only admin to update user service address', async function() {
     await expect(
       rentalityGateway.connect(anonymous)
-        .updateUserService(rentalityUserService.address)).to.be.reverted
+        .updateUserService(await rentalityUserService.getAddress())).to.be.reverted
 
     await expect(
       rentalityGateway.connect(host)
-        .updateUserService(rentalityUserService.address)).to.be.reverted
+        .updateUserService(await rentalityUserService.getAddress())).to.be.reverted
 
     await expect(
       rentalityGateway.connect(guest)
-        .updateUserService(rentalityUserService.address)).to.be.reverted
+        .updateUserService(await rentalityUserService.getAddress())).to.be.reverted
 
     await expect(
       rentalityGateway.connect(admin)
-        .updateUserService(rentalityUserService.address)).not.be.reverted
+        .updateUserService(await rentalityUserService.getAddress())).not.be.reverted
 
   })
 
@@ -557,10 +563,10 @@ describe('RentalityGateway', function() {
       [guest, rentalityPlatform],
       [-rentPriceInEth, rentPriceInEth],
     )
-    await expect(rentalityGateway.connect(host).checkInByHost(1, 0, 0))
+    await expect(rentalityGateway.connect(host).checkInByHost(1,[0, 0]))
       .to.be.reverted
 
-    await expect(rentalityGateway.connect(host).checkOutByHost(1, 0, 0))
+    await expect(rentalityGateway.connect(host).checkOutByHost(1, [0, 0]))
       .to.be.reverted
 
     await expect(
@@ -912,6 +918,7 @@ describe('RentalityGateway', function() {
       [-rentPriceInEth, rentPriceInEth],
     )
 
+
     await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to
       .be.reverted
     await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0]))
@@ -922,11 +929,12 @@ describe('RentalityGateway', function() {
       .not.to.be.reverted
     await expect(rentalityGateway.connect(host).checkOutByHost(1, [0, 0]))
       .not.to.be.reverted
+
     const returnToHost =
       rentPriceInEth -
       (rentPriceInEth *
         (await rentalityGateway.getPlatformFeeInPPM())) /
-      1_000_000
+      BigInt(1_000_000)
 
     await expect(
       rentalityGateway.connect(host).finishTrip(1),
@@ -1691,5 +1699,184 @@ describe('RentalityGateway', function() {
 
   })
 
+  describe('Proxy test', function() {
+    it('should not be able to update carToken without access', async function() {
+      const RentalityCarToken = await ethers.getContractFactory(
+        'RentalityCarToken',
+          anonymous
+      )
+      const RentalityCarTokenHost = await ethers.getContractFactory(
+        'RentalityCarToken',
+        host
+      )
+      const RentalityCarTokenGuest = await ethers.getContractFactory(
+        'RentalityCarToken',
+        guest
+      )
+      const RentalityCarTokenOwner = await ethers.getContractFactory(
+        'RentalityCarToken'
+      )
+      const carTokenAddress = await rentalityCarToken.getAddress();
 
-})
+      await expect(upgrades.upgradeProxy(carTokenAddress, RentalityCarToken,{kind:'uups'})).to.be.revertedWith("Ownable: caller is not the owner")
+      await expect(upgrades.upgradeProxy(carTokenAddress, RentalityCarTokenHost,{kind:'uups'})).to.be.revertedWith("Ownable: caller is not the owner")
+      await expect(upgrades.upgradeProxy(carTokenAddress, RentalityCarTokenGuest,{kind:'uups'})).to.be.revertedWith("Ownable: caller is not the owner")
+      expect(await upgrades.upgradeProxy(carTokenAddress, RentalityCarTokenOwner,{kind:'uups'})).to.not.reverted
+
+    })
+    it('should not be able to update chatHelper without access', async function() {
+      const ChatHelper = await ethers.getContractFactory(
+        'RentalityChatHelper'
+      )
+      const chatHelper = await upgrades.deployProxy(ChatHelper,[await rentalityUserService.getAddress()]);
+      await chatHelper.waitForDeployment()
+
+      const ChatHelperAnon = await ethers.getContractFactory(
+        'RentalityChatHelper',
+        anonymous
+      )
+      const ChatHelperGuest = await ethers.getContractFactory(
+        'RentalityChatHelper',
+        guest
+      )
+      const ChatHelperHost = await ethers.getContractFactory(
+        'RentalityChatHelper',
+        host
+      )
+      const ChatHelperAdmin = await ethers.getContractFactory(
+        'RentalityChatHelper',
+        admin
+      )
+      const chatHelperAdd = await chatHelper.getAddress();
+
+      await expect(upgrades.upgradeProxy(chatHelperAdd, ChatHelperAnon,{kind:'uups'})).to.be.revertedWith("Only for Admin.")
+      await expect(upgrades.upgradeProxy(chatHelperAdd, ChatHelperGuest,{kind:'uups'})).to.be.revertedWith("Only for Admin.")
+      await expect(upgrades.upgradeProxy(chatHelperAdd, ChatHelperHost,{kind:'uups'})).to.be.revertedWith("Only for Admin.")
+      expect(await upgrades.upgradeProxy(chatHelperAdd, ChatHelperAdmin,{kind:'uups'})).to.not.reverted
+
+    })
+    it('should not be able to update gateway without access', async function() {
+
+    const utilAddress = await utils.getAddress();
+
+      const GatewayAnonn = await ethers.getContractFactory(
+        'RentalityGateway',
+        {
+          libraries: {"RentalityUtils":utilAddress},
+          signer: anonymous
+        },
+      )
+      const GatewayGuest = await ethers.getContractFactory(
+        'RentalityGateway',
+        {
+          libraries: {"RentalityUtils":utilAddress},
+          signer: guest
+        },
+
+      )
+      const GatewayHost = await ethers.getContractFactory(
+        'RentalityGateway',
+        {
+          libraries: {"RentalityUtils":utilAddress},
+          signer:host
+        },
+
+      )
+      const GatewayOwner = await ethers.getContractFactory(
+        'RentalityGateway',
+        {
+          libraries: {"RentalityUtils":utilAddress},
+          signer:owner
+        },
+      )
+      const gatewayAdd= await rentalityGateway.getAddress();
+
+      await expect(upgrades.upgradeProxy(gatewayAdd, GatewayAnonn,{kind:'uups'})).to.be.revertedWith("Ownable: caller is not the owner")
+      await expect(upgrades.upgradeProxy(gatewayAdd, GatewayGuest,{kind:'uups'})).to.be.revertedWith("Ownable: caller is not the owner")
+      await expect(upgrades.upgradeProxy(gatewayAdd, GatewayHost,{kind:'uups'})).to.be.revertedWith("Ownable: caller is not the owner")
+      expect(await upgrades.upgradeProxy(gatewayAdd, GatewayOwner,{kind:'uups'})).to.not.reverted
+
+    })
+
+    it('should not be able to update platform without access', async function() {
+
+
+      const RentalityPlatformAnnon =
+        await ethers.getContractFactory('RentalityPlatform',
+          {
+            libraries:
+              {
+                RentalityUtils: await utils.getAddress(),
+              },
+            signer: anonymous
+          })
+      const RentalityPlatformHost =
+        await ethers.getContractFactory('RentalityPlatform',
+          {
+            libraries:
+              {
+                RentalityUtils: await utils.getAddress(),
+              },
+            signer: host
+          })
+      const RentalityPlatformGuest =
+        await ethers.getContractFactory('RentalityPlatform',
+          {
+            libraries:
+              {
+                RentalityUtils: await utils.getAddress(),
+              },
+            signer: guest
+          })
+      const RentalityPlatformOwner =
+        await ethers.getContractFactory('RentalityPlatform',
+          {
+            libraries:
+              {
+                RentalityUtils: await utils.getAddress(),
+              },
+            signer: owner
+          })
+      const platformAdd= await rentalityPlatform.getAddress();
+
+      await expect(upgrades.upgradeProxy(platformAdd, RentalityPlatformAnnon,{kind:'uups'})).to.be.revertedWith("Ownable: caller is not the owner")
+      await expect(upgrades.upgradeProxy(platformAdd, RentalityPlatformGuest,{kind:'uups'})).to.be.revertedWith("Ownable: caller is not the owner")
+      await expect(upgrades.upgradeProxy(platformAdd, RentalityPlatformHost,{kind:'uups'})).to.be.revertedWith("Ownable: caller is not the owner")
+      expect(await upgrades.upgradeProxy(platformAdd, RentalityPlatformOwner,{kind:'uups'})).to.not.reverted
+
+
+    })
+
+    it('should not be able to update userService without access', async function() {
+
+      const utilAddress = await utils.getAddress();
+
+      const RentalityUserAnonn = await ethers.getContractFactory(
+        'RentalityUserService',
+        anonymous)
+
+      const RentalityUserHost = await ethers.getContractFactory(
+        'RentalityUserService',
+        host)
+
+      const RentalityUserGuest = await ethers.getContractFactory(
+        'RentalityUserService',
+        guest)
+
+      const RentalityUserAdmin = await ethers.getContractFactory(
+        'RentalityUserService',
+        admin)
+      const userAdd = await rentalityUserService.getAddress();
+
+      await expect(upgrades.upgradeProxy(userAdd, RentalityUserAnonn,{kind:'uups'})).to.be.revertedWith("Only for Admin.")
+      await expect(upgrades.upgradeProxy(userAdd, RentalityUserGuest,{kind:'uups'})).to.be.revertedWith("Only for Admin.")
+      await expect(upgrades.upgradeProxy(userAdd, RentalityUserHost,{kind:'uups'})).to.be.revertedWith("Only for Admin.")
+      expect(await upgrades.upgradeProxy(userAdd, RentalityUserAdmin,{kind:'uups'})).to.not.reverted
+
+    })
+
+  })
+
+
+});
+

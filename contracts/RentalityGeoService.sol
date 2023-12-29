@@ -2,8 +2,8 @@
 pragma solidity ^0.8.9;
 
 import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "./RentalityUtils.sol";
+import "./proxy/UUPSOwnable.sol";
 
 /// @title Rentality Geo Service Contract
 /// @notice This contract provides geolocation services using Chainlink oracles.
@@ -11,7 +11,8 @@ import "./RentalityUtils.sol";
 //#GEO sepolia
 //CHAINLINK_ORACLE="0x6090149792dAAeE9D1D568c9f9a6F6B46AA29eFD"
 //CHAINLINK_TOKEN="0x779877A7B0D9E8603169DdbD7836e478b4624789"
-contract RentalityGeoService is ChainlinkClient, Ownable {
+contract RentalityGeoService is ChainlinkClient, UUPSOwnable {
+
     using Chainlink for Chainlink.Request;
 
     /// @notice Chainlink job ID for the geolocation API.
@@ -42,16 +43,6 @@ contract RentalityGeoService is ChainlinkClient, Ownable {
         string city;
         string state;
         string country;
-    }
-
-    /// @notice Constructor to initialize Chainlink settings.
-    /// @param linkToken The address of the LINK token contract.
-    /// @param chainLinkOracle The address of the Chainlink oracle.
-    constructor(address linkToken, address chainLinkOracle) {
-        setChainlinkToken(linkToken);
-        setChainlinkOracle(chainLinkOracle);
-        jobId = "7d80a6386ef543a3abb52817f6707e3b";
-        fee = (1 * LINK_DIVISIBILITY) / 10;
     }
 
     /// @notice Function to execute a Chainlink request for geolocation data.
@@ -169,4 +160,18 @@ contract RentalityGeoService is ChainlinkClient, Ownable {
     function getCarCountry(uint256 carId) public view returns (string memory) {
         return carIdToParsedGeolocationData[carId].country;
     }
+
+    /// @notice Constructor to initialize Chainlink settings.
+    /// @param linkToken The address of the LINK token contract.
+    /// @param chainLinkOracle The address of the Chainlink oracle.
+    function initialize(address linkToken, address chainLinkOracle) public initializer {
+
+        setChainlinkToken(linkToken);
+        setChainlinkOracle(chainLinkOracle);
+        jobId = "7d80a6386ef543a3abb52817f6707e3b";
+        fee = (1 * LINK_DIVISIBILITY) / 10;
+
+        __Ownable_init();
+    }
 }
+

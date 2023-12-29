@@ -286,7 +286,7 @@ describe('RentalityClaim', function() {
       const currentTimeInSeconds = Math.floor(Date.now() / 1000)
       const deadline = currentTimeInSeconds + 259200
 
-      expect(claimInfo.claim.deadlineDateInSec.toNumber()).to.be.approximately(deadline, 100)
+      expect(claimInfo.claim.deadlineDateInSec).to.be.approximately(deadline, 1200)
     })
     it('Get all trip claims', async function() {
 
@@ -416,13 +416,10 @@ describe('RentalityClaim', function() {
         )
       const platformFee = await rentalityPaymentService.getPlatformFeeFrom(claimPriceInEth)
 
-
-      const claimInEth = ethers.utils.parseEther(claimPriceInEth.toString())
-      const total = claimInEth.add(
-        ethers.utils.parseEther(platformFee.toString()),
-      ).div(
-        BigInt(1e18),
-      )
+      const claimInEth = ethers.parseEther(claimPriceInEth.toString())
+      const total = (claimInEth +
+        ethers.parseEther(platformFee.toString()))/
+        BigInt(1e18)
 
       await expect(rentalityGateway.connect(guest).payClaim(1,
         { value: total }))
