@@ -1,14 +1,15 @@
 const saveJsonAbi = require("./utils/abiSaver");
-const { ethers } = require("hardhat");
-const addressesContractsTestnets = require("./addressesContractsTestnets.json");
+const { ethers,upgrades, network } = require("hardhat");
+const getContractAddress = require("./utils/contractAddress")
+const addressSaver = require('./utils/addressSaver')
 
 async function main() {
   const contractName = "RentalityCarToken";
   const [deployer] = await ethers.getSigners();
-  const balance = await deployer.getBalance();
+  const balance = await ethers.provider.getBalance(deployer.address);
   console.log(
     "Deployer address is:",
-    deployer.getAddress(),
+   await deployer.getAddress(),
     " with balance:",
     balance
   );
@@ -17,18 +18,28 @@ async function main() {
   console.log("ChainId is:", chainId);
   if (chainId < 0) return;
 
-  const addresses = addressesContractsTestnets.find((i) => i.chainId === chainId);
-  if (addresses == null) {
-    console.error(`Addresses for chainId:${chainId} was not found in addressesContractsTestnets.json`);
-    return;
-  }
 
   const contractFactory = await ethers.getContractFactory(contractName);
-  const contract = await contractFactory.deploy();
-  await contract.deployed();
-  console.log(contractName + " deployed to:", contract.address);
 
-  saveJsonAbi(contractName, chainId, contract);
+  const geoAddress = getContractAddress(
+    "RentalityGeoService",
+    "scripts/deploy_0_GeoService.js");
+
+  const engineAddress = getContractAddress(
+    "RentalityEnginesService",
+    "scripts/deploy_2_RentalityEngineService.js"
+  )
+
+  const contract = await upgrades.deployProxy(contractFactory,[geoAddress, engineAddress])
+  await contract.waitForDeployment()
+  console.log(contractName + " deployed to:", await contract.getAddress());
+
+   addressSaver(
+    await contract.getAddress(),
+    contractName,
+    true,
+  )
+ await saveJsonAbi(contractName, chainId, contract);
 }
 
 main()

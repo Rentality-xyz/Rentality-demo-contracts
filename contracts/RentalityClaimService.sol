@@ -1,25 +1,21 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
+import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import "./RentalityUserService.sol";
+import "./proxy/UUPSAccess.sol";
 
 /// @title RentalityClaimService - Manages claims and related operations.
 /// @dev This contract allows users with manager roles to create, reject, and pay claims.
-contract RentalityClaimService {
+contract RentalityClaimService is Initializable, UUPSAccess {
     // Private variables for platform configuration
-    uint256 private waitingTimeForApproveInSec = 259_200;
+    uint256 private waitingTimeForApproveInSec;
     uint256 private claimId;
 
     // Mapping to store claims using claimId as the key
     mapping(uint256 => Claim) private claimIdToClaim;
 
-    // Reference to RentalityUserService contract
-    RentalityUserService private userService;
 
-    constructor(address _userService)
-    {
-        userService = RentalityUserService(_userService);
-    }
     event ClaimStatusChanged(uint256 claimId, Status claimStatus);
 
     event WaitingTimeChanged(uint256 newWaitingTime);
@@ -177,5 +173,14 @@ contract RentalityClaimService {
     /// @return True if the claim exists, false otherwise.
     function exists(uint256 _claimId) public view returns (bool) {
         return claimIdToClaim[_claimId].deadlineDateInSec > 0;
+    }
+
+    /// @dev constructor to initialize proxy contract
+    /// @param _userService, contract for access control
+    function initialize(
+        address _userService
+    ) public initializer {
+        userService = IRentalityAccessControl(_userService);
+        waitingTimeForApproveInSec = 259_200;
     }
 }
