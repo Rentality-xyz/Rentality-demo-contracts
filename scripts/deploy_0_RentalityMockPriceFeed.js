@@ -4,7 +4,7 @@ const { ethers } = require("hardhat");
 async function main() {
   const contractName = "RentalityMockPriceFeed";
   const [deployer] = await ethers.getSigners();
-  const balance = await deployer.getBalance();
+  const balance = await ethers.provider.getBalance(deployer)
   console.log(
     "Deployer address is:",
     deployer.getAddress(),
@@ -21,10 +21,10 @@ async function main() {
 
   const contractFactory = await ethers.getContractFactory(contractName);
   const contract = await contractFactory.deploy(8, 200000000000);
-  await contract.deployed();
-  console.log(contractName + " deployed to:", contract.address);
+  await contract.waitForDeployment();
+  console.log(contractName + " deployed to:", await contract.getAddress());
 
-  saveJsonAbi(contractName, chainId, contract);
+  await saveJsonAbi(contractName, chainId, contract);
 }
 
 main()

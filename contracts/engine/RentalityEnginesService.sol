@@ -1,14 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
+import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import "./ARentalityEngine.sol";
-import "../RentalityUserService.sol";
+import "../proxy/UUPSAccess.sol";
 
 /// @title RentalityEnginesService - Manages different types of Rentality engines.
 /// @notice This contract allows the addition, update, and interaction with various Rentality engines.
-contract RentalityEnginesService {
-    RentalityUserService private userService;
-    uint8 private eTypeCounter = 1;
+contract RentalityEnginesService is Initializable, UUPSAccess {
+
+    uint8 private eTypeCounter;
     mapping(uint8 => ARentalityEngine) private engineTypeToEngineContract;
 
     error Overflow();
@@ -16,18 +17,6 @@ contract RentalityEnginesService {
     /// @notice Constructor to initialize the RentalityEnginesService contract.
     /// @param _userService The address of the RentalityUserService contract.
     /// @param engineServices An array of addresses representing existing engine contracts.
-    constructor(address _userService, address[] memory engineServices) {
-        if (engineServices.length >= type(uint8).max - 1) {
-            revert Overflow();
-        }
-
-        for (uint256 i = 0; i < engineServices.length; i++) {
-            engineTypeToEngineContract[eTypeCounter] = ARentalityEngine(engineServices[i]);
-            engineTypeToEngineContract[eTypeCounter].setEType(eTypeCounter);
-            eTypeCounter += 1;
-        }
-        userService = RentalityUserService(_userService);
-    }
 
     /// @notice Modifier to restrict access to only administrators.
     modifier onlyAdmin() {
@@ -153,7 +142,7 @@ contract RentalityEnginesService {
         uint64 milesIncludedPerDay,
         uint64 pricePerDayInUsdCents,
         uint64 tripDays
-    ) public returns (uint64, uint64) {
+    ) public view returns (uint64, uint64) {
         return engineTypeToEngineContract[engineType].getResolveAmountInUsdCents(
             fuelPrices,
             startParams,
@@ -162,5 +151,20 @@ contract RentalityEnginesService {
             milesIncludedPerDay,
             pricePerDayInUsdCents,
             tripDays);
+    }
+
+    function initialize(address _userService, address[] memory engineServices) public virtual initializer  {
+        if (engineServices.length >= type(uint8).max - 1) {
+            revert Overflow();
+        }
+        userService = IRentalityAccessControl(_userService);
+        eTypeCounter = 1;
+
+        for (uint256 i = 0; i < engineServices.length; i++) {
+            engineTypeToEngineContract[eTypeCounter] = ARentalityEngine(engineServices[i]);
+            engineTypeToEngineContract[eTypeCounter].setEType(eTypeCounter);
+            eTypeCounter += 1;
+        }
+
     }
 }
