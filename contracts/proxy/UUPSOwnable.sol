@@ -13,7 +13,7 @@ abstract contract UUPSOwnable is OwnableUpgradeable, UUPSUpgradeable {
     //  @notice Only admins are allowed to authorize upgrades.
     //  @dev Ensures that the owner is the caller during the upgrade process.
     //  @param newImplementation The address of the new implementation contract.
-    function _authorizeUpgrade(address newImplementation) internal view override {
+    function _authorizeUpgrade(address /*newImplementation*/) internal view override {
         _checkOwner();
     }
 }

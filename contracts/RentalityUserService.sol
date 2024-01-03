@@ -184,7 +184,7 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable  {
 
     }
 
-    function _authorizeUpgrade(address newImplementation) internal view override
+    function _authorizeUpgrade(address /*newImplementation*/) internal view override
     {
         require(isAdmin(msg.sender), "Only for Admin.");
     }

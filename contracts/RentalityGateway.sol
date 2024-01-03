@@ -31,7 +31,6 @@ contract RentalityGateway is UUPSOwnable {
     RentalityPlatform private rentalityPlatform;
     RentalityPaymentService private paymentService;
 
-
     /// @notice Ensures that the caller is either an admin, the contract owner, or an admin from the origin transaction.
     modifier onlyAdmin() {
         require(
@@ -451,7 +450,7 @@ contract RentalityGateway is UUPSOwnable {
     function getTripsByGuest(
         address guest
     ) public view returns (RentalityTripService.Trip[] memory) {
-        return RentalityUtils.getTripsByGuest(tripService ,guest);
+        return RentalityUtils.getTripsByGuest(tripService, guest);
     }
 
     /// @notice Retrieves information about trips where the caller is the host.
@@ -500,7 +499,7 @@ contract RentalityGateway is UUPSOwnable {
     /// @dev This function delegates the claim payment to the Rentality platform contract.
     /// @param claimId ID of the claim to be paid.
     function payClaim(uint256 claimId) public payable {
-        rentalityPlatform.payClaim{ value: msg.value }(claimId);
+        rentalityPlatform.payClaim{value: msg.value}(claimId);
     }
 
     /// @notice Updates the status of a specific claim through the Rentality platform.
@@ -514,7 +513,7 @@ contract RentalityGateway is UUPSOwnable {
     /// @dev This function retrieves the claim information using the Rentality platform contract.
     /// @param claimId ID of the claim.
     /// @return Full information about the claim.
-    function getClaim(uint256 claimId) public view returns(RentalityClaimService.FullClaimInfo memory) {
+    function getClaim(uint256 claimId) public view returns (RentalityClaimService.FullClaimInfo memory) {
         return rentalityPlatform.getClaimInfo(claimId);
     }
 
@@ -522,7 +521,7 @@ contract RentalityGateway is UUPSOwnable {
     /// @dev This function retrieves an array of detailed claim information for the given trip using the Rentality platform contract.
     /// @param tripId ID of the trip.
     /// @return Array of detailed claim information.
-    function getClaimsByTrip(uint256 tripId) public view returns(RentalityClaimService.FullClaimInfo[] memory) {
+    function getClaimsByTrip(uint256 tripId) public view returns (RentalityClaimService.FullClaimInfo[] memory) {
         return rentalityPlatform.getClaimsByTrip(tripId);
     }
 
@@ -590,7 +589,6 @@ contract RentalityGateway is UUPSOwnable {
     {
         return rentalityPlatform.getChatInfoForGuest();
     }
-
 
     //  @dev Initializes the contract with the provided addresses for various services.
     //  @param carServiceAddress The address of the RentalityCarToken contract.
