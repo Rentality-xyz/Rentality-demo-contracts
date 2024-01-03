@@ -543,7 +543,7 @@ library RentalityUtils {
         uint8 eType,
         RentalityTripService.Trip memory tripInfo,
         RentalityEnginesService engineService
-    ) public returns (uint64, uint64) {
+    ) public view returns (uint64, uint64) {
         uint64 tripDays = getCeilDays(tripInfo.startDateTime, tripInfo.endDateTime);
 
         return

@@ -46,6 +46,9 @@ async function main() {
   const rentalityClaimService =  getContractAddress('RentalityClaimService',
     'scripts/deploy_2_RentalityClaimService.js');
 
+  const rentalityHistoryService =  getContractAddress('RentalityHistoryService',
+    'scripts/deploy_2_RentalityHistoryService.js');
+
 
   console.log('rentalityUtilsAddress is:', rentalityUtilsAddress)
   console.log('rentalityCarTokenAddress is:', rentalityCarTokenAddress)
@@ -74,7 +77,8 @@ async function main() {
     rentalityTripServiceAddress,
     rentalityUserServiceAddress,
     rentalityPaymentServiceAddress,
-      rentalityClaimService
+      rentalityClaimService,
+      rentalityHistoryService
     ]
   )
   await contract.waitForDeployment()

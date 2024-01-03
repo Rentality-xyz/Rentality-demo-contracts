@@ -84,6 +84,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
         uint checkedOutByHostDateTime;
     }
 
+
     struct AvailableCarResponse {
         RentalityCarToken.CarInfo car;
         string hostPhotoUrl;
@@ -513,7 +514,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
         engineService = RentalityEnginesService(engineServiceAddress);
     }
 
-    function _authorizeUpgrade(address newImplementation) internal view override
+    function _authorizeUpgrade(address /*newImplementation*/) internal view override
     {
         require(userService.isAdmin(msg.sender), "Only for Admin.");
     }
