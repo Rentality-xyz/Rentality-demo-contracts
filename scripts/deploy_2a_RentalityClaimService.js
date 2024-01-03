@@ -4,7 +4,7 @@ const getContractAddress = require('./utils/contractAddress')
 const addressSaver = require('./utils/addressSaver')
 
 async function main() {
-  const contractName = 'RentalityCarToken'
+  const contractName = 'RentalityClaimService'
   const [deployer] = await ethers.getSigners()
   const balance = await ethers.provider.getBalance(deployer.address)
   console.log(
@@ -20,20 +20,12 @@ async function main() {
 
   const contractFactory = await ethers.getContractFactory(contractName)
 
-  const geoAddress = getContractAddress(
-    'RentalityGeoService',
-    'scripts/deploy_1c_GeoService.js',
+  const userService = getContractAddress(
+    'RentalityUserService',
+    'scripts/deploy_1b_RentalityUserService.js',
   )
 
-  const engineAddress = getContractAddress(
-    'RentalityEnginesService',
-    'scripts/deploy_2b_RentalityEngineService.js',
-  )
-
-  const contract = await upgrades.deployProxy(contractFactory, [
-    geoAddress,
-    engineAddress,
-  ])
+  const contract = await upgrades.deployProxy(contractFactory, [userService])
   await contract.waitForDeployment()
   console.log(contractName + ' deployed to:', await contract.getAddress())
 

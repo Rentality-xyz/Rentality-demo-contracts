@@ -17,20 +17,16 @@ async function main() {
 
   const userService = getContractAddress(
     'RentalityUserService',
-    'scripts/deploy_1_RentalityUserService.js')
+    'scripts/deploy_1b_RentalityUserService.js',
+  )
 
   const patrolName = 'RentalityPatrolEngine'
   const patrolEngine = await ethers.getContractFactory(patrolName)
   const pEngine = await patrolEngine.deploy(userService)
   await pEngine.waitForDeployment()
 
-  addressSaver(
-    await pEngine.getAddress(),
-    patrolName,
-    true,
-  )
+  addressSaver(await pEngine.getAddress(), patrolName, true)
   await saveJsonAbi(patrolName, chainId, pEngine)
-
 
   const electricName = 'RentalityElectricEngine'
   const electricEngine = await ethers.getContractFactory(electricName)
@@ -38,13 +34,8 @@ async function main() {
 
   await elEngine.waitForDeployment()
 
-  addressSaver(
-    await elEngine.getAddress(),
-    electricName,
-    true,
-  )
+  addressSaver(await elEngine.getAddress(), electricName, true)
   await saveJsonAbi(electricName, chainId, elEngine)
-
 
   const hybridName = 'RentalityHybridEngine'
   const hybridEngine = await ethers.getContractFactory(hybridName)
@@ -52,11 +43,7 @@ async function main() {
 
   await hEngine.waitForDeployment()
 
-  addressSaver(
-    await hEngine.getAddress(),
-    hybridName,
-    true,
-  )
+  addressSaver(await hEngine.getAddress(), hybridName, true)
   await saveJsonAbi(hybridName, chainId, hEngine)
 
   const contractName = 'RentalityEnginesService'
@@ -66,27 +53,24 @@ async function main() {
     console.log('WARNING: might have admin role issue in hardhat network')
   }
   const contract = await upgrades.deployProxy(EngineService, [
-      userService,
-      [await pEngine.getAddress(), await elEngine.getAddress(), await hEngine.getAddress()],
+    userService,
+    [
+      await pEngine.getAddress(),
+      await elEngine.getAddress(),
+      await hEngine.getAddress(),
     ],
-  )
+  ])
   await contract.waitForDeployment()
-
 
   console.log(contractName + ' deployed to:', await contract.getAddress())
 
-  addressSaver(
-    await contract.getAddress(),
-    contractName,
-    true,
-  )
+  addressSaver(await contract.getAddress(), contractName, true)
   await saveJsonAbi(contractName, chainId, contract)
 }
 
 main()
   .then(() => process.exit(0))
   .catch((error) => {
-
     console.error(error)
     process.exit(1)
   })

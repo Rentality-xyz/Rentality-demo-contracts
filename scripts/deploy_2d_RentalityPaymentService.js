@@ -22,17 +22,14 @@ async function main() {
   const contractFactory = await ethers.getContractFactory(contractName)
   let userService = getContractAddress(
     'RentalityUserService',
-    'scripts/deploy_1_RentalityUserService.js')
+    'scripts/deploy_1b_RentalityUserService.js',
+  )
 
   const contract = await upgrades.deployProxy(contractFactory, [userService])
   await contract.waitForDeployment()
   console.log(contractName + ' deployed to:', await contract.getAddress())
 
-  addressSaver(
-    await contract.getAddress(),
-    contractName,
-    true,
-  )
+  addressSaver(await contract.getAddress(), contractName, true)
 
   await saveJsonAbi(contractName, chainId, contract)
 }
