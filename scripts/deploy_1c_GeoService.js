@@ -16,20 +16,18 @@ async function main() {
 
   let contract
 
-  if (network.name !== 'sepolia') {
-    const contractName = 'RentalityGeoMock'
-
-    const contractFactory = await ethers.getContractFactory(contractName)
-    contract = await contractFactory.deploy()
-
-
-  } else {
+  if (network.name === 'sepolia') {
     const linkToken = '0x779877A7B0D9E8603169DdbD7836e478b4624789'
     const oracle = '0x6090149792dAAeE9D1D568c9f9a6F6B46AA29eFD'
     const contractName = 'RentalityGeoService'
     const contractFactory = await ethers.getContractFactory(contractName)
 
     contract = await upgrades.deployProxy(contractFactory, [linkToken, oracle])
+  } else {
+    const contractName = 'RentalityGeoMock'
+
+    const contractFactory = await ethers.getContractFactory(contractName)
+    contract = await contractFactory.deploy()
   }
 
   await contract.waitForDeployment()
@@ -37,11 +35,7 @@ async function main() {
 
   console.log(contractName + ' deployed to:', await contract.getAddress())
 
-    addressSaver(
-    await contract.getAddress(),
-    contractName,
-    true,
-  )
+  addressSaver(await contract.getAddress(), contractName, true)
   await saveJsonAbi(contractName, chainId, contract)
 }
 

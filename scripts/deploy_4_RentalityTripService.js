@@ -19,31 +19,35 @@ async function main() {
   console.log('ChainId is:', chainId)
   if (chainId < 0) return
 
-  const rentalityUtilsAddress =   getContractAddress(
+  const rentalityUtilsAddress = getContractAddress(
     'RentalityUtils',
-    'scripts/deploy_0_RentalityUtils.js')
-
-  const rentalityCurrencyConverterAddress =  getContractAddress(
-    'RentalityCurrencyConverter',
-    'scripts/deploy_2_RentalityCurrencyConverter.js')
-
-  const rentalityCarTokenAddress  =  getContractAddress(
-    'RentalityCarToken',
-    'scripts/deploy_3_RentalityCarToken.js')
-
-  const rentalityPaymentServiceAddress =  getContractAddress(
-    'RentalityPaymentService',
-    'scripts/deploy_4_RentalityPaymentService.js')
-
-  const rentalityUserServiceAddress =  getContractAddress(
-    'RentalityUserService',
-    'scripts/deploy_1_RentalityUserService.js')
-
-  const engineAddress =  getContractAddress(
-    "RentalityEnginesService",
-    "scripts/deploy_2_RentalityEngineService.js"
+    'scripts/deploy_1a_RentalityUtils.js',
   )
 
+  const rentalityCurrencyConverterAddress = getContractAddress(
+    'RentalityCurrencyConverter',
+    'scripts/deploy_2c_RentalityCurrencyConverter.js',
+  )
+
+  const rentalityCarTokenAddress = getContractAddress(
+    'RentalityCarToken',
+    'scripts/deploy_3_RentalityCarToken.js',
+  )
+
+  const rentalityPaymentServiceAddress = getContractAddress(
+    'RentalityPaymentService',
+    'scripts/deploy_2d_RentalityPaymentService.js',
+  )
+
+  const rentalityUserServiceAddress = getContractAddress(
+    'RentalityUserService',
+    'scripts/deploy_1b_RentalityUserService.js',
+  )
+
+  const engineAddress = getContractAddress(
+    'RentalityEnginesService',
+    'scripts/deploy_2b_RentalityEngineService.js',
+  )
 
   console.log('rentalityUtilsAddress is:', rentalityUtilsAddress)
   console.log('rentalityCarTokenAddress is:', rentalityCarTokenAddress)
@@ -57,33 +61,27 @@ async function main() {
   )
   console.log('rentalityUserServiceAddress is:', rentalityUserServiceAddress)
 
-  console.log("engineService is: ",engineAddress);
+  console.log('engineService is: ', engineAddress)
 
   const contractFactory = await ethers.getContractFactory(contractName, {
     libraries: {
       RentalityUtils: rentalityUtilsAddress,
     },
   })
-  const contract = await upgrades.deployProxy(contractFactory,
-    [
-      rentalityCurrencyConverterAddress,
-      rentalityCarTokenAddress,
-      rentalityPaymentServiceAddress,
-      rentalityUserServiceAddress,
-      engineAddress
-    ])
+  const contract = await upgrades.deployProxy(contractFactory, [
+    rentalityCurrencyConverterAddress,
+    rentalityCarTokenAddress,
+    rentalityPaymentServiceAddress,
+    rentalityUserServiceAddress,
+    engineAddress,
+  ])
   await contract.waitForDeployment()
 
-  console.log(contractName + ' deployed to:',await contract.getAddress())
+  console.log(contractName + ' deployed to:', await contract.getAddress())
 
-  addressSaver(
-    await contract.getAddress(),
-    contractName,
-    true,
-  )
+  addressSaver(await contract.getAddress(), contractName, true)
 
-
- await saveJsonAbi(contractName, chainId, contract)
+  await saveJsonAbi(contractName, chainId, contract)
 }
 
 main()
