@@ -1,15 +1,15 @@
 const saveJsonAbi = require('./utils/abiSaver')
-const { ethers, upgrades, network } = require('hardhat')
+const { ethers, network, upgrades } = require('hardhat')
 const getContractAddress = require('./utils/contractAddress')
 const addressSaver = require('./utils/addressSaver')
 
 async function main() {
-  const contractName = 'RentalityCarToken'
+  const contractName = 'RentalityChatHelper'
   const [deployer] = await ethers.getSigners()
-  const balance = await ethers.provider.getBalance(deployer.address)
+  const balance = await ethers.provider.getBalance(deployer)
   console.log(
     'Deployer address is:',
-    await deployer.getAddress(),
+    deployer.getAddress(),
     ' with balance:',
     balance,
   )
@@ -18,26 +18,20 @@ async function main() {
   console.log('ChainId is:', chainId)
   if (chainId < 0) return
 
+  const rentalityUserServiceAddress = await getContractAddress(
+    'RentalityUserService',
+    'scripts/deploy_1b_RentalityUserService.js',
+  )
+
   const contractFactory = await ethers.getContractFactory(contractName)
-
-  const geoAddress = getContractAddress(
-    'RentalityGeoService',
-    'scripts/deploy_1c_GeoService.js',
-  )
-
-  const engineAddress = getContractAddress(
-    'RentalityEnginesService',
-    'scripts/deploy_2b_RentalityEngineService.js',
-  )
-
   const contract = await upgrades.deployProxy(contractFactory, [
-    geoAddress,
-    engineAddress,
+    rentalityUserServiceAddress,
   ])
   await contract.waitForDeployment()
   console.log(contractName + ' deployed to:', await contract.getAddress())
 
   addressSaver(await contract.getAddress(), contractName, true)
+
   await saveJsonAbi(contractName, chainId, contract)
 }
 
