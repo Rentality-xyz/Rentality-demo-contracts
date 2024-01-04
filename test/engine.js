@@ -57,11 +57,11 @@ describe('RentalityEngines', function() {
     let fuelPrice = 375
     let engineTy = await pEngine.getEType()
 
-    await expect(engineService.addCar(engineTy, [tankVolume, fuelPrice]))
+    await expect(engineService.verifyCreateParams(engineTy, [tankVolume, fuelPrice]))
       .to.not.reverted
-    await expect(engineService.addCar(engineTy, [0, fuelPrice]))
+    await expect(engineService.verifyCreateParams(engineTy, [0, fuelPrice]))
       .to.be.reverted
-    await expect(engineService.addCar(engineTy, [tankVolume, 0]))
+    await expect(engineService.verifyCreateParams(engineTy, [tankVolume, 0]))
       .to.be.reverted
 
 
@@ -74,7 +74,7 @@ describe('RentalityEngines', function() {
     let engineTy = await elEngine.getEType()
 
     await expect(
-      engineService.addCar(engineTy, [
+      engineService.verifyCreateParams(engineTy, [
         fromEmptyToTwenty,
         fromTwentyOneToFifty,
         fromFiftyOneToEighty,
@@ -82,7 +82,7 @@ describe('RentalityEngines', function() {
       ]),
     ).to.not.reverted
     await expect(
-      engineService.addCar(engineTy, [
+      engineService.verifyCreateParams(engineTy, [
         fromTwentyOneToFifty,
         fromFiftyOneToEighty,
         fromEightyOneToOneHundred,
@@ -96,11 +96,11 @@ describe('RentalityEngines', function() {
     let fuelPrice = 375
     let engineTy = await pEngine.getEType()
 
-    await expect(engineService.addCar(engineTy, [tankVolume, fuelPrice]))
+    await expect(engineService.verifyCreateParams(engineTy, [tankVolume, fuelPrice]))
       .to.not.reverted
-    await expect(engineService.addCar(engineTy, [0, fuelPrice]))
+    await expect(engineService.verifyCreateParams(engineTy, [0, fuelPrice]))
       .to.be.reverted
-    await expect(engineService.addCar(engineTy, [tankVolume, 0]))
+    await expect(engineService.verifyCreateParams(engineTy, [tankVolume, 0]))
       .to.be.reverted
   })
   it('should correctly update patrol car engine data', async function() {
@@ -110,10 +110,10 @@ describe('RentalityEngines', function() {
     let engineTy = await pEngine.getEType()
 
 
-    await expect(engineService.updateCar(engineTy, [0], oldParams))
+    await expect(engineService.verifyUpdateParams(engineTy, [0], oldParams))
       .to.be.reverted
 
-    let newCorrectParams = await engineService.updateCar(engineTy, newParams, oldParams)
+    let newCorrectParams = await engineService.verifyUpdateParams(engineTy, newParams, oldParams)
 
     expect(newCorrectParams[1]).to.be.eq(newParams[0])
   })
@@ -126,12 +126,12 @@ describe('RentalityEngines', function() {
     let newParams = [5, 6, 7, 9]
 
     await expect(
-      engineService.updateCar(engineTy, [
+      engineService.verifyUpdateParams(engineTy, [
         0, 0, 0,
       ], [1, 1, 1, 1]),
     ).to.be.reverted
 
-    let newVeryfParams = await engineService.updateCar(engineTy,newParams,oldParams);
+    let newVeryfParams = await engineService.verifyUpdateParams(engineTy,newParams,oldParams);
 
      expect(newVeryfParams[0]).to.be.eq(newParams[0])
     expect(newVeryfParams[1]).to.be.eq(newParams[1])
@@ -146,10 +146,10 @@ describe('RentalityEngines', function() {
     let engineTy = await pEngine.getEType()
 
 
-    await expect(engineService.updateCar(engineTy, [0], oldParams))
+    await expect(engineService.verifyUpdateParams(engineTy, [0], oldParams))
       .to.be.reverted
 
-    let newCorrectParams = await engineService.updateCar(engineTy, newParams, oldParams)
+    let newCorrectParams = await engineService.verifyUpdateParams(engineTy, newParams, oldParams)
 
     expect(newCorrectParams[1]).to.be.eq(newParams[0])
   })

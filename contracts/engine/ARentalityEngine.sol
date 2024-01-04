@@ -33,10 +33,10 @@ abstract contract ARentalityEngine {
     function setEType(uint8 _eType) public virtual;
 
     /// @notice Verify engine params
-    function addCar(uint64[] memory params) public virtual view;
+    function verifyCreateParams(uint64[] memory params) public virtual view;
 
     /// @notice Verify end return engine params.
-    function updateCar(uint64[] memory newParams, uint64[] memory oldParams) public virtual view returns(uint64[] memory);
+    function verifyUpdateParams(uint64[] memory newParams, uint64[] memory oldParams) public virtual view returns(uint64[] memory);
 
     /// @notice Calculates and returns extra costs based on given parameters.
     function extraCosts(uint64[] memory params) public virtual returns (uint64);

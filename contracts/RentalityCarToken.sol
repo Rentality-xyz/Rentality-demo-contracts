@@ -150,7 +150,7 @@ contract RentalityCarToken is  ERC721URIStorageUpgradeable, UUPSOwnable {
         _carIdCounter.increment();
         uint256 newCarId = _carIdCounter.current();
 
-        engineService.addCar(request.engineType, request.engineParams);
+        engineService.verifyCreateParams(request.engineType, request.engineParams);
 
         _safeMint(tx.origin, newCarId);
         _setTokenURI(newCarId, request.tokenUri);
@@ -227,7 +227,7 @@ contract RentalityCarToken is  ERC721URIStorageUpgradeable, UUPSOwnable {
             idToCarInfo[request.carId].geoVerified = false;
         }
 
-        uint64[] memory engineParams = engineService.updateCar(
+        uint64[] memory engineParams = engineService.verifyUpdateParams(
             idToCarInfo[request.carId].engineType,
             request.engineParams,
             idToCarInfo[request.carId].engineParams
