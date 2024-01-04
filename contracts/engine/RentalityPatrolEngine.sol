@@ -7,16 +7,8 @@ import "./ARentalityEngine.sol";
 /// @notice This contract extends ARentalityEngine and adds functionality specific to patrol engines.
 contract RentalityPatrolEngine is ARentalityEngine {
 
-    // Struct to store patrol engine details.
-    struct PatrolEngine {
-        uint64 tankVolumeInGal;
-        uint64 fuelPricePerGalInUsdCents;
-    }
 
-    // Mapping from car ID to patrol engine details.
-    mapping(uint256 => PatrolEngine) private carIdToPatrolEngine;
 
-    /// @notice Constructor to set the RentalityUserService address during deployment.
     constructor(address _userService) {
         userService = IRentalityAccessControl(_userService);
     }
@@ -28,49 +20,43 @@ contract RentalityPatrolEngine is ARentalityEngine {
         eType = _eType;
     }
 
-    /// @notice Adds a new patrol car to the system with specified tank volume and fuel price.
-    /// @param carId The unique identifier of the patrol car.
+    /// @notice Verify a new patrol car tank volume, and fuel price.
     /// @param params An array of two uint64 values representing tank volume and fuel price.
-    function addCar(uint256 carId, uint64[] memory params) public override onlyManager {
+    /// @param params[0] The tank volume of the patrol car in liters.
+    /// @param params[1] The initial fuel price per gallon in USD cents.
+    function addCar(uint64[] memory params) public view override onlyManager {
         isCorrectArgs((params[0] != 0 && params[1] != 0));
-
-        PatrolEngine storage engine = carIdToPatrolEngine[carId];
-        engine.tankVolumeInGal = params[0];
-        engine.fuelPricePerGalInUsdCents = params[1];
     }
 
     /// @notice Updates the fuel price for an existing patrol car in the system.
-    /// @param carId The unique identifier of the patrol car.
-    /// @param params An array containing the new fuel price.
-    /// @param params[0] The new fuel price per gallon in USD cents.
-    function updateCar(uint256 carId, uint64[] memory params) public override onlyManager {
-        isCorrectArgs(params[0] != 0);
-        carIdToPatrolEngine[carId].fuelPricePerGalInUsdCents = params[0];
-    }
+/// @param newParams An array containing the new fuel price.
+/// @param newParams[0] The new fuel price per gallon in USD cents.
+/// @param oldParams An array containing the existing fuel price.
+/// @param oldParams[1] The existing fuel price per gallon in USD cents.
+/// @return Updated oldParams array with the new fuel price.
+    function updateCar(uint64[] memory newParams, uint64[] memory oldParams)
+    public view override onlyManager returns(uint64[] memory)
+    {
+        // Ensure that the new fuel price is not zero.
+        isCorrectArgs(newParams[0] != 0);
 
-    /// @notice Removes a patrol car from the system.
-    /// @param carId The unique identifier of the patrol car to be removed.
-    function burnCar(uint256 carId) public override onlyManager {
-        delete carIdToPatrolEngine[carId];
+        // Update the existing fuel price with the new fuel price.
+        oldParams[1] = newParams[0];
+
+        // Return the updated parameters array.
+        return oldParams;
     }
 
     /// @notice Returns zero extra costs for patrol cars.
-    /// @param params An array of uint64 values representing parameters (not used for patrol engines).
-    function extraCosts(uint64[] memory params) public pure override returns (uint64) {
+    function extraCosts(uint64[] memory /*params*/) public pure override returns (uint64) {
         return 0;
-    }
-
-    /// @notice Retrieves patrol engine details for a specific patrol car.
-    /// @param carId The unique identifier of the patrol car.
-    function getEngineData(uint256 carId) public view returns (PatrolEngine memory) {
-        return carIdToPatrolEngine[carId];
     }
 
     /// @notice Calculates the resolve amount in USD cents for a patrol car rental.
     /// @param fuelPrices An array of uint64 values representing fuel prices (not used for patrol engines).
     /// @param startParams An array of uint64 values representing the initial parameters of the rental.
     /// @param endParams An array of uint64 values representing the final parameters of the rental.
-    /// @param carId The unique identifier of the patrol car.
+    /// @param engineParams, represent the patrol engine params
     /// @param milesIncludedPerDay The number of miles included per day in the rental.
     /// @param pricePerDayInUsdCents The rental price per day in USD cents.
     /// @param tripDays The total number of days in the rental trip.
@@ -79,11 +65,11 @@ contract RentalityPatrolEngine is ARentalityEngine {
         uint64[] memory fuelPrices,
         uint64[] memory startParams,
         uint64[] memory endParams,
-        uint256 carId,
+        uint64[] memory engineParams,
         uint64 milesIncludedPerDay,
         uint64 pricePerDayInUsdCents,
         uint64 tripDays
-    ) public view override returns (uint64, uint64) {
+    ) public pure override returns (uint64, uint64) {
         return (
             getDrivenMilesResolveAmountInUsdCents(
             startParams[1],
@@ -95,7 +81,7 @@ contract RentalityPatrolEngine is ARentalityEngine {
             getFuelResolveAmountInUsdCents(
             endParams[0],
             startParams[0],
-            carIdToPatrolEngine[carId].tankVolumeInGal,
+            engineParams,
             fuelPrices[0]
         )
         );
@@ -104,19 +90,19 @@ contract RentalityPatrolEngine is ARentalityEngine {
     /// @notice Calculates the resolve amount in USD cents based on fuel consumption for a patrol car.
     /// @param endFuelLevelInPercents The final fuel level of the patrol car in percentages.
     /// @param startFuelLevelInPercents The initial fuel level of the patrol car in percentages.
-    /// @param tankVolume The tank volume of the patrol car in gallons.
+    /// @param engineParams, represent the patrol engine params
     /// @param fuelPricePerGalInUsdCents The fuel price per gallon in USD cents.
     /// @return The fuel-specific resolve amount in USD cents.
     function getFuelResolveAmountInUsdCents(
         uint64 endFuelLevelInPercents,
         uint64 startFuelLevelInPercents,
-        uint64 tankVolume,
+        uint64[] memory engineParams,
         uint64 fuelPricePerGalInUsdCents
     ) public pure returns (uint64) {
         if (endFuelLevelInPercents >= startFuelLevelInPercents) return 0;
 
         return (
-            (((startFuelLevelInPercents - endFuelLevelInPercents) * tankVolume ) * 1000 / 100)
+            (((startFuelLevelInPercents - endFuelLevelInPercents) * engineParams[0] ) * 1000 / 100)
             * fuelPricePerGalInUsdCents / 1000);
     }
 }

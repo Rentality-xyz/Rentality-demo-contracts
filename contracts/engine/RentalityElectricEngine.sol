@@ -7,16 +7,6 @@ import "./ARentalityEngine.sol";
 /// @notice This contract extends ARentalityEngine and adds functionality specific to electric engines.
 contract RentalityElectricEngine is ARentalityEngine {
 
-    // Struct to store charge price scales in USD cents based on fuel level percentages.
-    struct ChargePriceScaleInUsdCents {
-        uint64 fromEmptyToTwenty;
-        uint64 fromTwentyOneToFifty;
-        uint64 fromFiftyOneToEighty;
-        uint64 fromEightyOneToOneHundred;
-    }
-
-    // Mapping from car ID to electric engine charge price scales.
-    mapping(uint256 => ChargePriceScaleInUsdCents) private carIdToElectricEngine;
 
     /// @dev Constructor to set the RentalityUserService address during deployment.
     constructor(address _userService) {
@@ -30,67 +20,45 @@ contract RentalityElectricEngine is ARentalityEngine {
         eType = _eType;
     }
 
-    /// @dev Adds a new electric car to the system with charge price scales.
-    /// @param carId The unique identifier of the electric car.
+    /// @dev Verify patrol engine params
     /// @param params An array of four uint64 values representing charge price scales.
-    function addCar(uint256 carId, uint64[] memory params) public override onlyManager {
+    function addCar(uint64[] memory params) public view override {
         isCorrectArgs(params.length == 4);
-
-        ChargePriceScaleInUsdCents storage engine = carIdToElectricEngine[carId];
-        engine.fromEmptyToTwenty = params[0];
-        engine.fromTwentyOneToFifty = params[1];
-        engine.fromFiftyOneToEighty = params[2];
-        engine.fromEightyOneToOneHundred = params[3];
     }
 
-    /// @dev Updates charge price scales for an existing electric car in the system.
-    /// @param carId The unique identifier of the electric car.
-    /// @param params An array of four uint64 values representing updated charge price scales.
-    function updateCar(uint256 carId, uint64[] memory params) public override onlyManager {
-        isCorrectArgs(params.length == 4);
+    /// @dev verify and return new electric engine data
+    /// @param newParams An array of four uint64 values representing updated charge price scales.
+    function updateCar(uint64[] memory newParams, uint64[] memory/*oldParams*/)
+    public view override returns(uint64[] memory) {
+        isCorrectArgs(newParams.length == 4);
 
-        carIdToElectricEngine[carId].fromEmptyToTwenty = params[0];
-        carIdToElectricEngine[carId].fromTwentyOneToFifty = params[1];
-        carIdToElectricEngine[carId].fromFiftyOneToEighty = params[2];
-        carIdToElectricEngine[carId].fromEightyOneToOneHundred = params[3];
+      return newParams;
     }
 
-    /// @dev Removes an electric car from the system.
-    /// @param carId The unique identifier of the electric car to be removed.
-    function burnCar(uint256 carId) public override onlyManager {
-        delete carIdToElectricEngine[carId];
-    }
 
     /// @dev Returns zero extra costs for electric cars.
-    /// @param params An array of uint64 values representing parameters (not used for electric engines).
-    function extraCosts(uint64[] memory params) public pure override returns (uint64) {
+    function extraCosts(uint64[] memory /*params*/) public pure override returns (uint64) {
         return 0;
     }
 
-    /// @dev Retrieves charge price scales for a specific electric car.
-    /// @param carId The unique identifier of the electric car.
-    function getEngineData(uint256 carId) public view returns (ChargePriceScaleInUsdCents memory) {
-        return carIdToElectricEngine[carId];
-    }
 
     /// @dev Calculates the resolve amount in USD cents for an electric car rental.
-    /// @param _fuelPrices An array of uint64 values representing fuel prices (not used for electric engines).
     /// @param startParams An array of uint64 values representing the initial parameters of the rental.
     /// @param endParams An array of uint64 values representing the final parameters of the rental.
-    /// @param carId The unique identifier of the electric car.
+    /// @param engineParams represent electric engineParams
     /// @param milesIncludedPerDay The number of miles included per day in the rental.
     /// @param pricePerDayInUsdCents The rental price per day in USD cents.
     /// @param tripDays The total number of days in the rental trip.
     /// @return The total resolve amount and the fuel-specific resolve amount in USD cents.
     function getResolveAmountInUsdCents(
-        uint64[] memory _fuelPrices,
+        uint64[] memory /*_fuelPrices*/,
         uint64[] memory startParams,
         uint64[] memory endParams,
-        uint256 carId,
+        uint64[] memory engineParams,
         uint64 milesIncludedPerDay,
         uint64 pricePerDayInUsdCents,
         uint64 tripDays
-    ) public view override returns (uint64, uint64) {
+    ) public pure override returns (uint64, uint64) {
         return (
             getDrivenMilesResolveAmountInUsdCents(
             startParams[1],
@@ -99,31 +67,31 @@ contract RentalityElectricEngine is ARentalityEngine {
             pricePerDayInUsdCents,
             tripDays
         ),
-            getFuelResolveAmountInUsdCents(endParams[0], carId)
+            getFuelResolveAmountInUsdCents(endParams[0], engineParams)
         );
     }
 
     /// @dev Calculates the resolve amount in USD cents based on the remaining charge of an electric car.
     /// @param endFuelLevelInPercents The final fuel level of the electric car in percentages.
-    /// @param carId The unique identifier of the electric car.
+    /// @param engineParams represent electric engine type
     /// @return The fuel-specific resolve amount in USD cents.
-    function getFuelResolveAmountInUsdCents(uint64 endFuelLevelInPercents, uint256 carId)
+    function getFuelResolveAmountInUsdCents(uint64 endFuelLevelInPercents, uint64[] memory engineParams)
     public
-    view
+    pure
     returns (uint64)
     {
         if (endFuelLevelInPercents >= 0 && endFuelLevelInPercents <= 20) {
-            return carIdToElectricEngine[carId].fromEmptyToTwenty;
+            return engineParams[0];
         } else if (
             endFuelLevelInPercents >= 21 && endFuelLevelInPercents <= 50
         ) {
-            return carIdToElectricEngine[carId].fromTwentyOneToFifty;
+            return engineParams[1];
         } else if (
             endFuelLevelInPercents >= 51 && endFuelLevelInPercents <= 80
         ) {
-            return carIdToElectricEngine[carId].fromFiftyOneToEighty;
+            return engineParams[2];
         }
 
-        return carIdToElectricEngine[carId].fromEightyOneToOneHundred;
+        return engineParams[3];
     }
 }
