@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="4168f911-1cb4-4b03-a0c9-8db9a7e6fd64" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/contracts/RentalityHistoryService.sol" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/contracts/RentalityPaymentService.sol" beforeDir="false" afterPath="$PROJECT_DIR$/contracts/RentalityPaymentService.sol" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/contracts/RentalityPlatform.sol" beforeDir="false" afterPath="$PROJECT_DIR$/contracts/RentalityPlatform.sol" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/contracts/RentalityTripService.sol" beforeDir="false" afterPath="$PROJECT_DIR$/contracts/RentalityTripService.sol" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hardhat.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/hardhat.config.js" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="JavaScript File" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MacroExpansionManager">
+    <option name="directoryName" value="qszjdhb8" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 2
+}</component>
+  <component name="ProjectId" id="2ZiHQ658O8CWYT5gv8cxCEOkab6" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "rty__58",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "ts.external.directory.path": "C:\\Program Files\\JetBrains\\RustRover 233.11799.306\\plugins\\javascript-impl\\jsLanguageServicesImpl\\external",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\Eigenmethod\Desktop\dev\rentality\refactoring\demo-rentality-web3-contracts2\contracts\test" />
+    </key>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="4168f911-1cb4-4b03-a0c9-8db9a7e6fd64" name="Changes" comment="" />
+      <created>1702897962449</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1702897962449</updated>
+      <workItem from="1702897963684" duration="93283000" />
+      <workItem from="1703237542958" duration="2390000" />
+      <workItem from="1703253062238" duration="1803000" />
+      <workItem from="1703265380698" duration="40000" />
+      <workItem from="1703329375328" duration="37426000" />
+      <workItem from="1703667766944" duration="24945000" />
+      <workItem from="1703750223263" duration="27282000" />
+      <workItem from="1703778956120" duration="25971000" />
+      <workItem from="1704192725605" duration="29864000" />
+      <workItem from="1704282257115" duration="10000" />
+      <workItem from="1704282285331" duration="6000" />
+      <workItem from="1704282324546" duration="49000" />
+      <workItem from="1704282478878" duration="143000" />
+      <workItem from="1704282646290" duration="8000" />
+      <workItem from="1704282671251" duration="10754000" />
+      <workItem from="1704352142733" duration="15803000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>

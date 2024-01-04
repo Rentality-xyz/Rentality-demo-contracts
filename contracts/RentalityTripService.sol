@@ -35,27 +35,6 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
         Canceled
     }
 
-    /// @dev Enumeration representing the currency type used for payments.
-    enum CurrencyType {
-        ETH
-    }
-
-    /// @dev Struct containing payment information for a trip.
-    struct PaymentInfo {
-        uint256 tripId;
-        address from;
-        address to;
-        uint64 totalDayPriceInUsdCents;
-        uint64 taxPriceInUsdCents;
-        uint64 depositInUsdCents;
-        uint64 resolveAmountInUsdCents;
-        CurrencyType currencyType;
-        int256 ethToCurrencyRate;
-        uint8 ethToCurrencyDecimals;
-        uint64 resolveFuelAmountInUsdCents;
-        uint64 resolveMilesAmountInUsdCents;
-    }
-
     /// @dev Struct containing information about a trip.
     struct Trip {
         uint256 tripId;
@@ -72,7 +51,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
         string endLocation;
         uint64 milesIncludedPerDay;
         uint64[] fuelPrices;
-        PaymentInfo paymentInfo;
+        RentalityPaymentService.PaymentInfo paymentInfo;
         uint approvedDateTime;
         uint rejectedDateTime;
         address rejectedBy;
@@ -82,6 +61,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
         uint checkedOutByGuestDateTime;
         uint64[] endParamLevels;
         uint checkedOutByHostDateTime;
+        RentalityPaymentService.TransactionInfo transactionInfo;
     }
 
 
@@ -107,7 +87,6 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     RentalityPaymentService private paymentService;
     RentalityUserService private userService;
     RentalityEnginesService private engineService;
-
 
     /// @dev Get the total number of trips created.
     /// @return The total number of trips.
@@ -138,7 +117,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
         string memory endLocation,
         uint64 milesIncludedPerDay,
         uint64[] memory fuelPricesPerUnits,
-        PaymentInfo memory paymentInfo
+        RentalityPaymentService.PaymentInfo memory paymentInfo
     ) public {
         require(userService.isManager(msg.sender), "Only from manager contract.");
         _tripIdCounter.increment();
@@ -178,7 +157,8 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
             0,
             0,
             new uint64[](panelParamsAmount),
-            0
+            0,
+            RentalityPaymentService.TransactionInfo(0, 0, 0, 0, TripStatus.Created)
 
         );
 
@@ -191,7 +171,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     ///   - The trip must be in status Created.
     ///  @param tripId The ID of the trip to be approved.
     function approveTrip(uint256 tripId) public {
-        require(userService.isManager(msg.sender),"Only from manager contract.");
+        require(userService.isManager(msg.sender), "Only from manager contract.");
         require(
             idToTripInfo[tripId].host == tx.origin,
             "Only host of the trip can approve it"
@@ -213,7 +193,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     ///   - The trip must be in status Created, Approved, or CheckedInByHost.
     ///  @param tripId The ID of the trip to be Rejected
     function rejectTrip(uint256 tripId) public {
-        require(userService.isManager(msg.sender),"Only from manager contract.");
+        require(userService.isManager(msg.sender), "Only from manager contract.");
         require(
             idToTripInfo[tripId].host == tx.origin ||
             idToTripInfo[tripId].guest == tx.origin,
@@ -440,8 +420,8 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     /// @param tripId The ID of the trip to be finished.
     /// Emits a `TripStatusChanged` event with the new status Finished.
     function finishTrip(uint256 tripId) public {
-//require(idToTripInfo[tripId].status != TripStatus.CheckedOutByHost,"The trip is not in status CheckedOutByHost");
-        require(userService.isManager(msg.sender),"Only from manager contract.");
+        //require(idToTripInfo[tripId].status != TripStatus.CheckedOutByHost,"The trip is not in status CheckedOutByHost");
+        require(userService.isManager(msg.sender), "Only from manager contract.");
         require(
             idToTripInfo[tripId].status == TripStatus.CheckedOutByHost,
             "The trip is not in status CheckedOutByHost"
@@ -478,6 +458,28 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
 
         emit TripStatusChanged(tripId, TripStatus.Finished);
     }
+    /// @dev Function to save transaction information for a finished trip.
+    /// @param tripId Trip ID for which the transaction information is saved.
+    /// @param rentalityFee Rentality fee for the transaction.
+    /// @param depositRefund Amount refunded as deposit.
+    /// @param tripEarnings Earnings from the completed trip.
+    function saveTransactionInfo(
+        uint256 tripId,
+        uint256 rentalityFee,
+        TripStatus status,
+        uint256 depositRefund,
+        uint256 tripEarnings
+    ) public {
+        require(userService.isManager(msg.sender), "Manager only.");
+
+        idToTripInfo[tripId].transactionInfo.rentalityFee = rentalityFee;
+        idToTripInfo[tripId].transactionInfo.depositRefund = depositRefund;
+        idToTripInfo[tripId].transactionInfo.tripEarnings = tripEarnings;
+        idToTripInfo[tripId].transactionInfo.dateTime = block.timestamp;
+        idToTripInfo[tripId].transactionInfo.statusBeforeCancellation = status;
+
+    }
+
 
     /// @dev Retrieves the details of a specific trip by its ID.
     /// @param tripId The ID of the trip to retrieve.

@@ -9,7 +9,6 @@ import "./RentalityPaymentService.sol";
 import "./IRentalityGateway.sol";
 import "./proxy/UUPSOwnable.sol";
 import "./RentalityClaimService.sol";
-import "./RentalityHistoryService.sol";
 
 /// @title Rentality Platform Contract
 /// @notice This contract manages various services related to the Rentality platform, including cars, trips, users, and payments.
@@ -25,7 +24,6 @@ contract RentalityPlatform is UUPSOwnable {
     RentalityUserService private userService;
     RentalityPaymentService private paymentService;
     RentalityClaimService private claimService;
-    RentalityHistoryService private transactionHistory;
 
     /// @dev Modifier to restrict access to admin users only.
     modifier onlyAdmin() {
@@ -55,12 +53,6 @@ contract RentalityPlatform is UUPSOwnable {
     //     );
     //     _;
     // }
-
-    struct TransactionDetails
-    {
-        RentalityTripService.Trip trip;
-        RentalityHistoryService.TransactionHistory transactionInfo;
-    }
 
     /// @notice Get the address of the Car service on the Rentality platform.
     /// @return The address of the Car service.
@@ -164,8 +156,8 @@ contract RentalityPlatform is UUPSOwnable {
             userService.grantGuestRole(tx.origin);
         }
 
-        RentalityTripService.PaymentInfo
-        memory paymentInfo = RentalityTripService.PaymentInfo(
+        RentalityPaymentService.PaymentInfo
+        memory paymentInfo = RentalityPaymentService.PaymentInfo(
             0,
             tx.origin,
             address(this),
@@ -173,7 +165,7 @@ contract RentalityPlatform is UUPSOwnable {
             request.taxPriceInUsdCents,
             request.depositInUsdCents,
             0,
-            RentalityTripService.CurrencyType.ETH,
+            RentalityPaymentService.CurrencyType.ETH,
             request.ethToCurrencyRate,
             request.ethToCurrencyDecimals,
             0,
@@ -283,12 +275,12 @@ contract RentalityPlatform is UUPSOwnable {
 
         valueToReturnInUsdCents -= subtractAmount;
 
-        transactionHistory.saveCanceledTripInfo(
+        tripService.saveTransactionInfo(
             tripId,
-            statusBeforeCancellation,
-            returnToHost,
             platformFee,
-            valueToReturnInUsdCents
+            statusBeforeCancellation,
+            valueToReturnInUsdCents,
+            returnToHost
         );
 
         uint256 valueToReturnInEth = currencyConverterService.getEthFromUsd(
@@ -341,9 +333,10 @@ contract RentalityPlatform is UUPSOwnable {
             trip.paymentInfo.ethToCurrencyRate,
             trip.paymentInfo.ethToCurrencyDecimals
         );
-        transactionHistory.saveFinishedTripInfo(
+        tripService.saveTransactionInfo(
             tripId,
             rentalityFee,
+            RentalityTripService.TripStatus.Finished,
             valueToGuestInUsdCents,
             valueToHostInUsdCents
         );
@@ -527,19 +520,6 @@ contract RentalityPlatform is UUPSOwnable {
         return RentalityUtils.populateChatInfo(trips, userService, carService);
     }
 
-    /// @notice This function allows users to obtain comprehensive details about a trip's transaction.
-    /// It fetches information from the RentalityTripService and RentalityTransactionInfo contracts.
-    /// The collected information is encapsulated in a TransactionDetails struct and returned to the caller.
-    /// @param tripId The unique identifier of the trip for which details are requested.
-    /// @return A TransactionDetails struct containing trip information and transaction history details.
-    function getTransactionDetails(uint256 tripId) public view returns (TransactionDetails memory) {
-        RentalityTripService.Trip memory trip = tripService.getTrip(tripId);
-        RentalityHistoryService.TransactionHistory memory transactionInfo =
-                            transactionHistory.getTransactionHistory(tripId);
-
-        return (TransactionDetails(trip, transactionInfo));
-    }
-
     /// @notice Constructor to initialize the RentalityPlatform with service contract addresses.
     /// @param carServiceAddress The address of the RentalityCarToken contract.
     /// @param currencyConverterServiceAddress The address of the RentalityCurrencyConverter contract.
@@ -552,8 +532,7 @@ contract RentalityPlatform is UUPSOwnable {
         address tripServiceAddress,
         address userServiceAddress,
         address paymentServiceAddress,
-        address claimServiceAddress,
-        address transactionHistoryAddress
+        address claimServiceAddress
     ) public initializer {
 
         carService = RentalityCarToken(carServiceAddress);
@@ -564,7 +543,6 @@ contract RentalityPlatform is UUPSOwnable {
         userService = RentalityUserService(userServiceAddress);
         paymentService = RentalityPaymentService(paymentServiceAddress);
         claimService = RentalityClaimService(claimServiceAddress);
-        transactionHistory = RentalityHistoryService(transactionHistoryAddress);
 
         __Ownable_init();
     }
