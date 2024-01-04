@@ -34,6 +34,7 @@ contract RentalityCarToken is  ERC721URIStorageUpgradeable, UUPSOwnable {
         uint64 pricePerDayInUsdCents;
         uint64 securityDepositPerTripInUsdCents;
         uint8 engineType;
+        uint64[] engineParams;
         uint64 milesIncludedPerDay;
         bool currentlyListed;
         bool geoVerified;
@@ -149,7 +150,7 @@ contract RentalityCarToken is  ERC721URIStorageUpgradeable, UUPSOwnable {
         _carIdCounter.increment();
         uint256 newCarId = _carIdCounter.current();
 
-        engineService.addCar(newCarId, request.engineType, request.engineParams);
+        engineService.addCar(request.engineType, request.engineParams);
 
         _safeMint(tx.origin, newCarId);
         _setTokenURI(newCarId, request.tokenUri);
@@ -167,6 +168,7 @@ contract RentalityCarToken is  ERC721URIStorageUpgradeable, UUPSOwnable {
             request.pricePerDayInUsdCents,
             request.securityDepositPerTripInUsdCents,
             request.engineType,
+            request.engineParams,
             request.milesIncludedPerDay,
             true,
             false
@@ -225,10 +227,15 @@ contract RentalityCarToken is  ERC721URIStorageUpgradeable, UUPSOwnable {
             idToCarInfo[request.carId].geoVerified = false;
         }
 
-        engineService.updateCar(request.carId,idToCarInfo[request.carId].engineType, request.engineParams);
+        uint64[] memory engineParams = engineService.updateCar(
+            idToCarInfo[request.carId].engineType,
+            request.engineParams,
+            idToCarInfo[request.carId].engineParams
+        );
         idToCarInfo[request.carId].pricePerDayInUsdCents = request.pricePerDayInUsdCents;
         idToCarInfo[request.carId].securityDepositPerTripInUsdCents = request.securityDepositPerTripInUsdCents;
         idToCarInfo[request.carId].milesIncludedPerDay = request.milesIncludedPerDay;
+        idToCarInfo[request.carId].engineParams = engineParams;
         idToCarInfo[request.carId].currentlyListed = request.currentlyListed;
 
         emit CarUpdatedSuccess(
@@ -259,8 +266,6 @@ contract RentalityCarToken is  ERC721URIStorageUpgradeable, UUPSOwnable {
             ownerOf(carId) == tx.origin,
             "Only the owner of the car can burn the token"
         );
-
-        engineService.burnCar(carId, idToCarInfo[carId].engineType);
 
         _burn(carId);
         delete idToCarInfo[carId];

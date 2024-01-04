@@ -55,28 +55,22 @@ contract RentalityEnginesService is Initializable, UUPSAccess {
         return address(engineTypeToEngineContract[eType]);
     }
 
-    /// @notice Adds a new car to the system using a specific engine type.
-    /// @param carId The unique identifier of the car.
+    /// @notice Verify engine params
     /// @param eType The engine type associated with the car.
     /// @param params An array of parameters required for adding the car.
-    function addCar(uint256 carId, uint8 eType, uint64[] memory params) public onlyManager {
-        engineTypeToEngineContract[eType].addCar(carId, params);
+    function addCar(uint8 eType, uint64[] memory params) public view onlyManager {
+        engineTypeToEngineContract[eType].addCar(params);
     }
 
-    /// @notice Updates an existing car in the system using a specific engine type.
-    /// @param carId The unique identifier of the car.
+    /// @notice Verify end return engine params
     /// @param eType The engine type associated with the car.
-    /// @param params An array of parameters required for updating the car.
-    function updateCar(uint256 carId, uint8 eType, uint64[] memory params) public onlyManager {
-        engineTypeToEngineContract[eType].updateCar(carId, params);
+    /// @param newParams An array of new parameters required for updating the car.
+    /// @param oldParams An array of old engine params
+    function updateCar(uint8 eType, uint64[] memory newParams, uint64[] memory oldParams)
+    public view onlyManager returns(uint64[] memory)  {
+        return engineTypeToEngineContract[eType].updateCar( newParams, oldParams);
     }
 
-    /// @notice Removes a car from the system using a specific engine type.
-    /// @param carId The unique identifier of the car.
-    /// @param eType The engine type associated with the car.
-    function burnCar(uint256 carId, uint8 eType) public onlyManager {
-        engineTypeToEngineContract[eType].burnCar(carId);
-    }
 
     /// @notice Verifies resource prices for a specific engine type.
     /// @param prices An array of uint64 values representing resource prices.
@@ -128,7 +122,7 @@ contract RentalityEnginesService is Initializable, UUPSAccess {
     /// @param fuelPrices An array of uint64 values representing fuel prices.
     /// @param startParams An array of uint64 values representing the initial parameters of the rental.
     /// @param endParams An array of uint64 values representing the final parameters of the rental.
-    /// @param carId The unique identifier of the car.
+    /// @param engineParams represent engine params
     /// @param milesIncludedPerDay The number of miles included per day in the rental.
     /// @param pricePerDayInUsdCents The rental price per day in USD cents.
     /// @param tripDays The total number of days in the rental trip.
@@ -138,7 +132,7 @@ contract RentalityEnginesService is Initializable, UUPSAccess {
         uint64[] memory fuelPrices,
         uint64[] memory startParams,
         uint64[] memory endParams,
-        uint256 carId,
+        uint64[] memory engineParams,
         uint64 milesIncludedPerDay,
         uint64 pricePerDayInUsdCents,
         uint64 tripDays
@@ -147,7 +141,7 @@ contract RentalityEnginesService is Initializable, UUPSAccess {
             fuelPrices,
             startParams,
             endParams,
-            carId,
+            engineParams,
             milesIncludedPerDay,
             pricePerDayInUsdCents,
             tripDays);
