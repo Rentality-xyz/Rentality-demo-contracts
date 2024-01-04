@@ -541,6 +541,9 @@ contract RentalityGateway is UUPSOwnable {
         string memory licenseNumber,
         uint64 expirationDate
     ) public {
+        if (!userService.isGuest(msg.sender)) {
+            userService.grantGuestRole(msg.sender);
+        }
         return
             userService.setKYCInfo(
             name,

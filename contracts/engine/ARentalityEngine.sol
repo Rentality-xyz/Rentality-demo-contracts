@@ -32,14 +32,11 @@ abstract contract ARentalityEngine {
     /// @notice Sets the engine type.
     function setEType(uint8 _eType) public virtual;
 
-    /// @notice Adds a new car to the system.
-    function addCar(uint256 carId, uint64[] memory params) public virtual;
+    /// @notice Verify engine params
+    function verifyCreateParams(uint64[] memory params) public virtual view;
 
-    /// @notice Updates information about an existing car.
-    function updateCar(uint256 carId, uint64[] memory params) public virtual;
-
-    /// @notice Removes a car from the system.
-    function burnCar(uint256 carId) public virtual;
+    /// @notice Verify end return engine params.
+    function verifyUpdateParams(uint64[] memory newParams, uint64[] memory oldParams) public virtual view returns(uint64[] memory);
 
     /// @notice Calculates and returns extra costs based on given parameters.
     function extraCosts(uint64[] memory params) public virtual returns (uint64);
@@ -49,7 +46,7 @@ abstract contract ARentalityEngine {
         uint64[] memory fuelPrices,
         uint64[] memory startParams,
         uint64[] memory endParams,
-        uint256 carId,
+        uint64[] memory engineParams,
         uint64 milesIncludedPerDay,
         uint64 pricePerDayInUsdCents,
         uint64 tripDays
@@ -109,7 +106,6 @@ abstract contract ARentalityEngine {
     function getParamsAmount() public virtual returns (uint256) {
         return 2;
     }
-
     // Internal helper functions
     /// @notice Reverts if the provided condition is not met, indicating incorrect arguments.
     function isCorrectArgs(bool eq) internal pure {
