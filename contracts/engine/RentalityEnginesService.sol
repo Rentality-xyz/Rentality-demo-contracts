@@ -58,17 +58,17 @@ contract RentalityEnginesService is Initializable, UUPSAccess {
     /// @notice Verify engine params
     /// @param eType The engine type associated with the car.
     /// @param params An array of parameters required for adding the car.
-    function addCar(uint8 eType, uint64[] memory params) public view onlyManager {
-        engineTypeToEngineContract[eType].addCar(params);
+    function verifyCreateParams(uint8 eType, uint64[] memory params) public view onlyManager {
+        engineTypeToEngineContract[eType].verifyCreateParams(params);
     }
 
     /// @notice Verify end return engine params
     /// @param eType The engine type associated with the car.
     /// @param newParams An array of new parameters required for updating the car.
     /// @param oldParams An array of old engine params
-    function updateCar(uint8 eType, uint64[] memory newParams, uint64[] memory oldParams)
+    function verifyUpdateParams(uint8 eType, uint64[] memory newParams, uint64[] memory oldParams)
     public view onlyManager returns(uint64[] memory)  {
-        return engineTypeToEngineContract[eType].updateCar( newParams, oldParams);
+        return engineTypeToEngineContract[eType].verifyUpdateParams( newParams, oldParams);
     }
 
 
