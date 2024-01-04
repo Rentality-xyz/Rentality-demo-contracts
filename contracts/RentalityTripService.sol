@@ -422,17 +422,19 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     function finishTrip(uint256 tripId) public {
         //require(idToTripInfo[tripId].status != TripStatus.CheckedOutByHost,"The trip is not in status CheckedOutByHost");
         require(userService.isManager(msg.sender), "Only from manager contract.");
+
         require(
             idToTripInfo[tripId].status == TripStatus.CheckedOutByHost,
             "The trip is not in status CheckedOutByHost"
         );
         idToTripInfo[tripId].status = TripStatus.Finished;
 
-        uint8 eType = carService.getCarInfoById(idToTripInfo[tripId].carId).engineType;
+        RentalityCarToken.CarInfo memory car = carService.getCarInfoById(idToTripInfo[tripId].carId);
 
         (uint64 resolveMilesAmountInUsdCents, uint64 resolveFuelAmountInUsdCents) = RentalityUtils.getResolveAmountInUsdCents(
-            eType,
+            car.engineType,
             idToTripInfo[tripId],
+            car.engineParams,
             engineService
         );
         idToTripInfo[tripId]
@@ -479,7 +481,6 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
         idToTripInfo[tripId].transactionInfo.statusBeforeCancellation = status;
 
     }
-
 
     /// @dev Retrieves the details of a specific trip by its ID.
     /// @param tripId The ID of the trip to retrieve.
