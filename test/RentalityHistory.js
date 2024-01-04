@@ -33,7 +33,6 @@ describe('Rentality History Service', function() {
     ({
       rentalityPlatform,
       rentalityGateway,
-      transactionHistory,
       rentalityCurrencyConverter,
       owner,
       admin,
@@ -44,34 +43,7 @@ describe('Rentality History Service', function() {
     } = await loadFixture(deployDefaultFixture))
   })
 
-  it('should not be able to store history without access', async function() {
 
-    await expect(transactionHistory.connect(anonymous).saveCanceledTripInfo(
-      1,
-      0,
-      0,
-      0,
-      0,
-    )).to.be.revertedWith('Manager only.')
-    await expect(transactionHistory.connect(host).saveCanceledTripInfo(
-      1,
-      0,
-      0,
-      0,
-      0,
-    )).to.be.revertedWith('Manager only.')
-    await expect(transactionHistory.connect(guest).saveCanceledTripInfo(
-      1,
-      0,
-      0,
-      0,
-      0,
-    )).to.be.revertedWith('Manager only.')
-
-    await expect(transactionHistory.connect(anonymous).saveFinishedTripInfo(0, 0, 0, 0)).to.be.revertedWith('Manager only.')
-    await expect(transactionHistory.connect(host).saveFinishedTripInfo(0, 0, 0, 0)).to.be.revertedWith('Manager only.')
-    await expect(transactionHistory.connect(guest).saveFinishedTripInfo(0, 0, 0, 0)).to.be.revertedWith('Manager only.')
-  })
   it('should create history in case of cancellation', async function() {
     await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0)))
       .not.to.be.reverted
@@ -112,7 +84,7 @@ describe('Rentality History Service', function() {
     ).not.to.be.reverted
 
     await expect(rentalityGateway.connect(host).rejectTripRequest(1)).to.not.reverted
-    const details = await rentalityPlatform.getTransactionDetails(1)
+    const details = await rentalityGateway.getTrip(1)
 
     const currentTimeMillis = Date.now()
     const currentTimeSeconds = Math.floor(currentTimeMillis / 1000)
@@ -189,14 +161,14 @@ describe('Rentality History Service', function() {
       [host, rentalityPlatform],
       [returnToHost, -returnToHost],
     )
-    const details = await rentalityPlatform.getTransactionDetails(1)
+    const details = await rentalityGateway.getTrip(1)
 
     const currentTimeMillis = Date.now()
     const currentTimeSeconds = Math.floor(currentTimeMillis / 1000)
 
     expect(details.transactionInfo.depositRefund).to.be.eq(0)
     expect(details.transactionInfo.dateTime).to.be.approximately(currentTimeSeconds, 2000)
-    expect(dgietails.transactionInfo.tripEarnings).to.be.eq((rentPriceInUsdCents - (rentPriceInUsdCents * 20 / 100 )) )
+    expect(details.transactionInfo.tripEarnings).to.be.eq((rentPriceInUsdCents - (rentPriceInUsdCents * 20 / 100 )) )
     expect(details.transactionInfo.rentalityFee).to.be.eq((rentPriceInUsdCents * 20 / 100 ))
     expect(details.transactionInfo.statusBeforeCancellation).to.be.eq(TripStatus.Finished)
 

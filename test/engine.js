@@ -52,21 +52,21 @@ describe('RentalityEngines', function() {
     } = await loadFixture(deployDefaultFixture))
   })
 
-  it('should correctly add car patrol engine data', async function() {
+  it('should correctly verify patrol data', async function() {
     let tankVolume = 15
     let fuelPrice = 375
     let engineTy = await pEngine.getEType()
 
-    await expect(engineService.addCar(1, engineTy, [tankVolume, fuelPrice]))
+    await expect(engineService.verifyCreateParams(engineTy, [tankVolume, fuelPrice]))
       .to.not.reverted
+    await expect(engineService.verifyCreateParams(engineTy, [0, fuelPrice]))
+      .to.be.reverted
+    await expect(engineService.verifyCreateParams(engineTy, [tankVolume, 0]))
+      .to.be.reverted
 
-    let data = await pEngine.getEngineData(1)
-
-    expect(data.tankVolumeInGal).to.be.eq(tankVolume)
-    expect(data.fuelPricePerGalInUsdCents).to.be.eq(fuelPrice)
 
   })
-  it('should correctly add electric car engine data', async function() {
+  it('should correctly verify electric car engine data', async function() {
     let fromEmptyToTwenty = 10
     let fromTwentyOneToFifty = 20
     let fromFiftyOneToEighty = 30
@@ -74,282 +74,86 @@ describe('RentalityEngines', function() {
     let engineTy = await elEngine.getEType()
 
     await expect(
-      engineService.addCar(1, engineTy, [
+      engineService.verifyCreateParams(engineTy, [
         fromEmptyToTwenty,
         fromTwentyOneToFifty,
         fromFiftyOneToEighty,
         fromEightyOneToOneHundred,
       ]),
     ).to.not.reverted
-
-    let data = await elEngine.getEngineData(1)
-
-    expect(data.fromEmptyToTwenty).to.be.eq(fromEmptyToTwenty)
-    expect(data.fromTwentyOneToFifty).to.be.eq(fromTwentyOneToFifty)
-    expect(data.fromFiftyOneToEighty).to.be.eq(fromFiftyOneToEighty)
-    expect(data.fromEightyOneToOneHundred).to.be.eq(fromEightyOneToOneHundred)
+    await expect(
+      engineService.verifyCreateParams(engineTy, [
+        fromTwentyOneToFifty,
+        fromFiftyOneToEighty,
+        fromEightyOneToOneHundred,
+      ]),
+    ).to.be.reverted
   })
-  it('should correctly add hybrid car engine data', async function() {
+
+  it('should correctly verify hybrid car engine data', async function() {
 
     let tankVolume = 15
     let fuelPrice = 375
-    let engineTy = await hEngine.getEType()
+    let engineTy = await pEngine.getEType()
 
-    await expect(engineService.addCar(1, engineTy, [tankVolume, fuelPrice]))
+    await expect(engineService.verifyCreateParams(engineTy, [tankVolume, fuelPrice]))
       .to.not.reverted
-
-    let data = await hEngine.getEngineData(1)
-
-    expect(data.tankVolumeInGal).to.be.eq(tankVolume)
-    expect(data.fuelPricePerGalInUsdCents).to.be.eq(fuelPrice)
+    await expect(engineService.verifyCreateParams(engineTy, [0, fuelPrice]))
+      .to.be.reverted
+    await expect(engineService.verifyCreateParams(engineTy, [tankVolume, 0]))
+      .to.be.reverted
   })
   it('should correctly update patrol car engine data', async function() {
 
-    let tankVolume = 50
-    let fuelPrice = 375
+    let oldParams = [10, 15]
+    let newParams = [1]
     let engineTy = await pEngine.getEType()
 
-    await expect(engineService.addCar(1, engineTy, [tankVolume, fuelPrice]))
-      .to.not.reverted
 
-    let data = await pEngine.getEngineData(1)
-
-    expect(data.tankVolumeInGal).to.be.eq(tankVolume)
-    expect(data.fuelPricePerGalInUsdCents).to.be.eq(fuelPrice)
-
-    await expect(engineService.updateCar(1, engineTy, [0]))
+    await expect(engineService.verifyUpdateParams(engineTy, [0], oldParams))
       .to.be.reverted
 
-    let newFprice = 1
+    let newCorrectParams = await engineService.verifyUpdateParams(engineTy, newParams, oldParams)
 
-    await expect(engineService.updateCar(1, engineTy, [newFprice]))
-      .to.not.reverted
-
-    let data1 = await pEngine.getEngineData(1)
-
-    expect(data1.fuelPricePerGalInUsdCents).to.be.eq(newFprice)
+    expect(newCorrectParams[1]).to.be.eq(newParams[0])
   })
   it('should correctly update electric car engine data', async function() {
 
-    let fromEmptyToTwenty = 10
-    let fromTwentyOneToFifty = 20
-    let fromFiftyOneToEighty = 30
-    let fromEightyOneToOneHundred = 50
+    let oldParams = [1, 2, 3, 4]
     let engineTy = await elEngine.getEType()
 
-    await expect(
-      engineService.addCar(1, engineTy, [
-        fromEmptyToTwenty,
-        fromTwentyOneToFifty,
-        fromFiftyOneToEighty,
-        fromEightyOneToOneHundred,
-      ]),
-    ).to.not.reverted
 
-    let data = await elEngine.getEngineData(1)
-
-    expect(data.fromEmptyToTwenty).to.be.eq(fromEmptyToTwenty)
-    expect(data.fromTwentyOneToFifty).to.be.eq(fromTwentyOneToFifty)
-    expect(data.fromFiftyOneToEighty).to.be.eq(fromFiftyOneToEighty)
-    expect(data.fromEightyOneToOneHundred).to.be.eq(fromEightyOneToOneHundred)
-
-    let newFromEmptyToTwenty = 15
-    let newFromTwentyOneToFifty = 25
-    let newFromFiftyOneToEighty = 35
-    let newFromEightyOneToOneHundred = 55
+    let newParams = [5, 6, 7, 9]
 
     await expect(
-      engineService.updateCar(1, engineTy, [
-        newFromEmptyToTwenty,
-        newFromTwentyOneToFifty,
-        newFromFiftyOneToEighty,
-        newFromEightyOneToOneHundred,
-      ]),
-    ).to.not.reverted
+      engineService.verifyUpdateParams(engineTy, [
+        0, 0, 0,
+      ], [1, 1, 1, 1]),
+    ).to.be.reverted
 
-    let newData = await elEngine.getEngineData(1)
+    let newVeryfParams = await engineService.verifyUpdateParams(engineTy,newParams,oldParams);
 
-    expect(newData.fromEmptyToTwenty).to.be.eq(newFromEmptyToTwenty)
-    expect(newData.fromTwentyOneToFifty).to.be.eq(newFromTwentyOneToFifty)
-    expect(newData.fromFiftyOneToEighty).to.be.eq(newFromFiftyOneToEighty)
-    expect(newData.fromEightyOneToOneHundred).to.be.eq(
-      newFromEightyOneToOneHundred,
-    )
+     expect(newVeryfParams[0]).to.be.eq(newParams[0])
+    expect(newVeryfParams[1]).to.be.eq(newParams[1])
+    expect(newVeryfParams[2]).to.be.eq(newParams[2])
+    expect(newVeryfParams[3]).to.be.eq(newParams[3])
+
   })
   it('should correctly update hybrid car engine data', async function() {
 
-
-    let tankVolume = 50
-    let fuelPrice = 375
-    let engineTy = await hEngine.getEType()
-
-    await expect(engineService.addCar(1, engineTy, [tankVolume, fuelPrice]))
-      .to.not.reverted
-
-    let data = await hEngine.getEngineData(1)
-
-    expect(data.tankVolumeInGal).to.be.eq(tankVolume)
-    expect(data.fuelPricePerGalInUsdCents).to.be.eq(fuelPrice)
-
-    await expect(engineService.updateCar(1, engineTy, [0]))
-      .to.be.reverted
-
-    let newFprice = 1
-
-    await expect(engineService.updateCar(1, engineTy, [newFprice]))
-      .to.not.reverted
-
-    let data1 = await hEngine.getEngineData(1)
-
-    expect(data1.fuelPricePerGalInUsdCents).to.be.eq(newFprice)
-  })
-  it('should correctly burn patrol car engine data', async function() {
-
-
-    let tankVolume = 50
-    let fuelPrice = 375
+    let oldParams = [10, 15]
+    let newParams = [1]
     let engineTy = await pEngine.getEType()
 
-    await expect(engineService.addCar(1, engineTy, [tankVolume, fuelPrice]))
-      .to.not.reverted
 
-    let data = await pEngine.getEngineData(1)
+    await expect(engineService.verifyUpdateParams(engineTy, [0], oldParams))
+      .to.be.reverted
 
-    expect(data.tankVolumeInGal).to.be.eq(tankVolume)
-    expect(data.fuelPricePerGalInUsdCents).to.be.eq(fuelPrice)
+    let newCorrectParams = await engineService.verifyUpdateParams(engineTy, newParams, oldParams)
 
-
-    await expect(engineService.burnCar(1, engineTy))
-      .to.not.reverted
-
-    let data1 = await pEngine.getEngineData(1)
-
-    expect(data1.fuelPricePerGalInUsdCents).to.be.eq(0)
+    expect(newCorrectParams[1]).to.be.eq(newParams[0])
   })
-  it('should correctly burn electric car engine data', async function() {
 
-
-    let fromEmptyToTwenty = 10
-    let fromTwentyOneToFifty = 20
-    let fromFiftyOneToEighty = 30
-    let fromEightyOneToOneHundred = 50
-    let engineTy = await elEngine.getEType()
-
-    await expect(
-      engineService.addCar(1, engineTy, [
-        fromEmptyToTwenty,
-        fromTwentyOneToFifty,
-        fromFiftyOneToEighty,
-        fromEightyOneToOneHundred,
-      ]),
-    ).to.not.reverted
-
-    let data = await elEngine.getEngineData(1)
-
-    expect(data.fromEmptyToTwenty).to.be.eq(fromEmptyToTwenty)
-    expect(data.fromTwentyOneToFifty).to.be.eq(fromTwentyOneToFifty)
-    expect(data.fromFiftyOneToEighty).to.be.eq(fromFiftyOneToEighty)
-    expect(data.fromEightyOneToOneHundred).to.be.eq(fromEightyOneToOneHundred)
-
-    await expect(engineService.burnCar(1, engineTy)).to.not.reverted
-
-    let newData = await elEngine.getEngineData(1)
-
-    expect(newData.fromEmptyToTwenty).to.be.eq(0)
-    expect(newData.fromTwentyOneToFifty).to.be.eq(0)
-    expect(newData.fromFiftyOneToEighty).to.be.eq(0)
-    expect(newData.fromEightyOneToOneHundred).to.be.eq(0)
-  })
-  it('should correctly burn hybrid car engine data', async function() {
-
-
-    let tankVolume = 50
-    let fuelPrice = 375
-    let engineTy = await hEngine.getEType()
-
-    await expect(engineService.addCar(1, engineTy, [tankVolume, fuelPrice]))
-      .to.not.reverted
-
-    let data = await hEngine.getEngineData(1)
-
-    expect(data.tankVolumeInGal).to.be.eq(tankVolume)
-    expect(data.fuelPricePerGalInUsdCents).to.be.eq(fuelPrice)
-
-
-    await expect(engineService.burnCar(1, engineTy))
-      .to.not.reverted
-
-    let data1 = await hEngine.getEngineData(1)
-
-    expect(data1.fuelPricePerGalInUsdCents).to.be.eq(0)
-  })
-  describe('Access control tests', function() {
-    it('revert if not manager add patrol car', async function() {
-
-      let tankVolume = 50
-      let fuelPrice = 375
-      let engineTy = await pEngine.getEType()
-
-      await expect(engineService.connect(anonymous).addCar(1, engineTy, [tankVolume, fuelPrice]))
-        .to.be.revertedWith('Only for Manager.')
-      await expect(engineService.connect(host).addCar(1, engineTy, [tankVolume, fuelPrice]))
-        .to.be.revertedWith('Only for Manager.')
-      await expect(engineService.connect(guest).addCar(1, engineTy, [tankVolume, fuelPrice]))
-        .to.be.revertedWith('Only for Manager.')
-    })
-    it('revert if not manager add hybrid car', async function() {
-      let tankVolume = 50
-      let fuelPrice = 375
-      let engineTy = await hEngine.getEType()
-
-      await expect(engineService.connect(anonymous).addCar(1, engineTy, [tankVolume, fuelPrice]))
-        .to.be.revertedWith('Only for Manager.')
-      await expect(engineService.connect(host).addCar(1, engineTy, [tankVolume, fuelPrice]))
-        .to.be.revertedWith('Only for Manager.')
-      await expect(engineService.connect(guest).addCar(1, engineTy, [tankVolume, fuelPrice]))
-        .to.be.revertedWith('Only for Manager.')
-    })
-    it('revert if not manager add electric car', async function() {
-
-      let fromEmptyToTwenty = 10
-      let fromTwentyOneToFifty = 20
-      let fromFiftyOneToEighty = 30
-      let fromEightyOneToOneHundred = 50
-      let engineTy = await elEngine.getEType()
-
-      await expect(
-        engineService
-          .connect(anonymous)
-          .addCar(1, engineTy, [
-            fromEmptyToTwenty,
-            fromTwentyOneToFifty,
-            fromFiftyOneToEighty,
-            fromEightyOneToOneHundred,
-          ]),
-      ).to.be.revertedWith('Only for Manager.')
-      await expect(
-        engineService
-          .connect(guest)
-          .addCar(1, engineTy, [
-            fromEmptyToTwenty,
-            fromTwentyOneToFifty,
-            fromFiftyOneToEighty,
-            fromEightyOneToOneHundred,
-          ]),
-      ).to.be.revertedWith('Only for Manager.')
-
-      await expect(
-        engineService
-          .connect(host)
-          .addCar(1, engineTy, [
-            fromEmptyToTwenty,
-            fromTwentyOneToFifty,
-            fromFiftyOneToEighty,
-            fromEightyOneToOneHundred,
-          ]),
-      ).to.be.revertedWith('Only for Manager.')
-    })
-  })
   describe('Correct params', function() {
     it('should correctly verify start params', async function() {
 
@@ -413,7 +217,6 @@ describe('RentalityEngines', function() {
       let tankVolume = 15
       let fuelPrice = 375
       let engineTy = await pEngine.getEType()
-      await engineService.addCar(carId, engineTy, [tankVolume, fuelPrice])
 
       let expectedFuelRefund = ((50 - 20)/*difference in percents*/
           * tankVolume / 100) /*compute difference in gallons*/
@@ -424,7 +227,7 @@ describe('RentalityEngines', function() {
         fuelPrices,
         startParams,
         endParams,
-        carId,
+        [tankVolume,fuelPrice],
         milesIncludedPerDay,
         pricePerDayInUsdCents,
         tripDays,
@@ -449,13 +252,12 @@ describe('RentalityEngines', function() {
       let fromEighteenToOneHundred = 50
       let engineTy = await elEngine.getEType()
 
-      await expect(engineService.addCar(1, engineTy, [
-        fromEmptyToTwenty,
+      let engineParams =
+        [fromEmptyToTwenty,
         fromTwentyOneToFifteen,
         fromFifteenToOneEighteen,
-        fromEighteenToOneHundred,
-      ]))
-        .to.not.reverted
+        fromEighteenToOneHundred]
+
 
       let expectedFuelRefund = fromEmptyToTwenty
 
@@ -464,7 +266,7 @@ describe('RentalityEngines', function() {
         fuelPrices,
         startParams,
         endParams,
-        carId,
+        engineParams,
         milesIncludedPerDay,
         pricePerDayInUsdCents,
         tripDays,
