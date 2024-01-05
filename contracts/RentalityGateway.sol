@@ -30,7 +30,7 @@ contract RentalityGateway is UUPSOwnable {
     RentalityUserService private userService;
     RentalityPlatform private rentalityPlatform;
     RentalityPaymentService private paymentService;
-
+    RentalityClaimService private claimService;
 
     /// @notice Ensures that the caller is either an admin, the contract owner, or an admin from the origin transaction.
     modifier onlyAdmin() {
@@ -64,71 +64,71 @@ contract RentalityGateway is UUPSOwnable {
         _;
     }
 
-    /// @notice Retrieves the address of the RentalityCarToken contract.
-    /// @return The address of the RentalityCarToken contract.
-    function getCarServiceAddress() public view returns (address) {
-        return address(carService);
-    }
-
-    /// @notice Updates the address of the RentalityCarToken contract. Only callable by admins.
-    /// @param contractAddress The new address of the RentalityCarToken contract.
-    function updateCarService(address contractAddress) public onlyAdmin {
-        carService = RentalityCarToken(contractAddress);
-    }
-
-    /// @notice Retrieves the address of the RentalityPlatform contract.
-    /// @return The address of the RentalityPlatform contract.
-    function getRentalityPlatformAddress() public view returns (address) {
-        return address(rentalityPlatform);
-    }
-
-    /// @notice Updates the address of the RentalityPlatform contract. Only callable by admins.
-    /// @param contractAddress The new address of the RentalityPlatform contract.
-    function updateRentalityPlatform(address contractAddress) public onlyAdmin {
-        rentalityPlatform = RentalityPlatform(contractAddress);
-    }
-
-    /// @notice Retrieves the address of the RentalityCurrencyConverter contract.
-    /// @return The address of the RentalityCurrencyConverter contract.
-    function getCurrencyConverterServiceAddress()
-    public
-    view
-    returns (address)
-    {
-        return address(currencyConverterService);
-    }
-
-    /// @notice Updates the address of the RentalityCurrencyConverter contract. Only callable by admins.
-    /// @param contractAddress The new address of the RentalityCurrencyConverter contract.
-    function updateCurrencyConverterService(
-        address contractAddress
-    ) public onlyAdmin {
-        currencyConverterService = RentalityCurrencyConverter(contractAddress);
-    }
-
-    /// @notice Retrieves the address of the RentalityTripService contract.
-    /// @return The address of the RentalityTripService contract.
-    function getTripServiceAddress() public view returns (address) {
-        return address(tripService);
-    }
-
-    /// @notice Updates the address of the RentalityTripService contract. Only callable by admins.
-    /// @param contractAddress The new address of the RentalityTripService contract.
-    function updateTripService(address contractAddress) public onlyAdmin {
-        tripService = RentalityTripService(contractAddress);
-    }
-
-    /// @notice Retrieves the address of the RentalityUserService contract.
-    /// @return The address of the RentalityUserService contract.
-    function getUserServiceAddress() public view returns (address) {
-        return address(userService);
-    }
-
-    /// @notice Updates the address of the RentalityUserService contract. Only callable by admins.
-    /// @param contractAddress The new address of the RentalityUserService contract.
-    function updateUserService(address contractAddress) public onlyAdmin {
-        userService = RentalityUserService(contractAddress);
-    }
+//    /// @notice Retrieves the address of the RentalityCarToken contract.
+//    /// @return The address of the RentalityCarToken contract.
+//    function getCarServiceAddress() public view returns (address) {
+//        return address(carService);
+//    }
+//
+//    /// @notice Updates the address of the RentalityCarToken contract. Only callable by admins.
+//    /// @param contractAddress The new address of the RentalityCarToken contract.
+//    function updateCarService(address contractAddress) public onlyAdmin {
+//        carService = RentalityCarToken(contractAddress);
+//    }
+//
+//    /// @notice Retrieves the address of the RentalityPlatform contract.
+//    /// @return The address of the RentalityPlatform contract.
+//    function getRentalityPlatformAddress() public view returns (address) {
+//        return address(rentalityPlatform);
+//    }
+//
+//    /// @notice Updates the address of the RentalityPlatform contract. Only callable by admins.
+//    /// @param contractAddress The new address of the RentalityPlatform contract.
+//    function updateRentalityPlatform(address contractAddress) public onlyAdmin {
+//        rentalityPlatform = RentalityPlatform(contractAddress);
+//    }
+//
+//    /// @notice Retrieves the address of the RentalityCurrencyConverter contract.
+//    /// @return The address of the RentalityCurrencyConverter contract.
+//    function getCurrencyConverterServiceAddress()
+//    public
+//    view
+//    returns (address)
+//    {
+//        return address(currencyConverterService);
+//    }
+//
+//    /// @notice Updates the address of the RentalityCurrencyConverter contract. Only callable by admins.
+//    /// @param contractAddress The new address of the RentalityCurrencyConverter contract.
+//    function updateCurrencyConverterService(
+//        address contractAddress
+//    ) public onlyAdmin {
+//        currencyConverterService = RentalityCurrencyConverter(contractAddress);
+//    }
+//
+//    /// @notice Retrieves the address of the RentalityTripService contract.
+//    /// @return The address of the RentalityTripService contract.
+//    function getTripServiceAddress() public view returns (address) {
+//        return address(tripService);
+//    }
+//
+//    /// @notice Updates the address of the RentalityTripService contract. Only callable by admins.
+//    /// @param contractAddress The new address of the RentalityTripService contract.
+//    function updateTripService(address contractAddress) public onlyAdmin {
+//        tripService = RentalityTripService(contractAddress);
+//    }
+//
+//    /// @notice Retrieves the address of the RentalityUserService contract.
+//    /// @return The address of the RentalityUserService contract.
+//    function getUserServiceAddress() public view returns (address) {
+//        return address(userService);
+//    }
+//
+//    /// @notice Updates the address of the RentalityUserService contract. Only callable by admins.
+//    /// @param contractAddress The new address of the RentalityUserService contract.
+//    function updateUserService(address contractAddress) public onlyAdmin {
+//        userService = RentalityUserService(contractAddress);
+//    }
 
     /// @notice Retrieves the platform fee in parts per million (PPM).
     /// @return The platform fee in PPM.
@@ -451,7 +451,7 @@ contract RentalityGateway is UUPSOwnable {
     function getTripsByGuest(
         address guest
     ) public view returns (RentalityTripService.Trip[] memory) {
-        return RentalityUtils.getTripsByGuest(tripService ,guest);
+        return RentalityUtils.getTripsByGuest(tripService, guest);
     }
 
     /// @notice Retrieves information about trips where the caller is the host.
@@ -500,7 +500,7 @@ contract RentalityGateway is UUPSOwnable {
     /// @dev This function delegates the claim payment to the Rentality platform contract.
     /// @param claimId ID of the claim to be paid.
     function payClaim(uint256 claimId) public payable {
-        rentalityPlatform.payClaim{ value: msg.value }(claimId);
+        rentalityPlatform.payClaim{value: msg.value}(claimId);
     }
 
     /// @notice Updates the status of a specific claim through the Rentality platform.
@@ -514,7 +514,7 @@ contract RentalityGateway is UUPSOwnable {
     /// @dev This function retrieves the claim information using the Rentality platform contract.
     /// @param claimId ID of the claim.
     /// @return Full information about the claim.
-    function getClaim(uint256 claimId) public view returns(RentalityClaimService.FullClaimInfo memory) {
+    function getClaim(uint256 claimId) public view returns (RentalityClaimService.FullClaimInfo memory) {
         return rentalityPlatform.getClaimInfo(claimId);
     }
 
@@ -522,8 +522,22 @@ contract RentalityGateway is UUPSOwnable {
     /// @dev This function retrieves an array of detailed claim information for the given trip using the Rentality platform contract.
     /// @param tripId ID of the trip.
     /// @return Array of detailed claim information.
-    function getClaimsByTrip(uint256 tripId) public view returns(RentalityClaimService.FullClaimInfo[] memory) {
-        return rentalityPlatform.getClaimsByTrip(tripId);
+    function getClaimsByTrip(uint256 tripId) public view returns (RentalityClaimService.FullClaimInfo[] memory) {
+        return RentalityUtils.getClaimsByTrip(claimService, tripService, carService, tripId);
+    }
+
+    /// @notice Retrieves all claims where the caller is the host.
+    /// @dev The caller is assumed to be the host of the claims.
+    /// @return An array of FullClaimInfo containing information about each claim.
+    function getMyClaimsAsHost() public view returns (RentalityClaimService.FullClaimInfo[] memory) {
+        return RentalityUtils.getClaimsByHost(claimService, tripService, carService, msg.sender);
+    }
+
+    ///  @notice Retrieves all claims where the caller is the guest.
+    ///  @dev The caller is assumed to be the guest of the claims.
+    ///  @return An array of FullClaimInfo containing information about each claim.
+    function getMyClaimsAsGuest() public view returns (RentalityClaimService.FullClaimInfo[] memory) {
+        return RentalityUtils.getClaimsByGuest(claimService, tripService, carService, msg.sender);
     }
 
     /// @notice Sets Know Your Customer (KYC) information for the caller.
@@ -594,7 +608,6 @@ contract RentalityGateway is UUPSOwnable {
         return rentalityPlatform.getChatInfoForGuest();
     }
 
-
     //  @dev Initializes the contract with the provided addresses for various services.
     //  @param carServiceAddress The address of the RentalityCarToken contract.
     //  @param currencyConverterServiceAddress The address of the RentalityCurrencyConverter contract.
@@ -610,7 +623,8 @@ contract RentalityGateway is UUPSOwnable {
         address tripServiceAddress,
         address userServiceAddress,
         address rentalityPlatformAddress,
-        address paymentServiceAddress
+        address paymentServiceAddress,
+        address claimServiceAddress
     ) public initializer {
 
         carService = RentalityCarToken(carServiceAddress);
@@ -620,6 +634,7 @@ contract RentalityGateway is UUPSOwnable {
         userService = RentalityUserService(userServiceAddress);
         rentalityPlatform = RentalityPlatform(rentalityPlatformAddress);
         paymentService = RentalityPaymentService(paymentServiceAddress);
+        claimService = RentalityClaimService(claimServiceAddress);
 
         __Ownable_init();
     }
