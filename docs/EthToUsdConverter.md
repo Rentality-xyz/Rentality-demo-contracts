@@ -20,8 +20,8 @@ _Constructor function to initialize the contract with the specified Chainlink ET
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name                     | Type    | Description                                      |
+| ------------------------ | ------- | ------------------------------------------------ |
 | ethToUsdPriceFeedAddress | address | The address of the Chainlink ETH/USD price feed. |
 
 ### getLatestEthToUsdPrice
@@ -34,9 +34,9 @@ _Get the latest ETH to USD price from the Chainlink price feed._
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | int256 | int256 The latest ETH to USD price |
+| Name | Type   | Description                        |
+| ---- | ------ | ---------------------------------- |
+| [0]  | int256 | int256 The latest ETH to USD price |
 
 ### getPriceFeedDecimals
 
@@ -48,9 +48,9 @@ _Get the decimals of the price feed._
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | uint8 | uint8 The decimals of the price feed. |
+| Name | Type  | Description                           |
+| ---- | ----- | ------------------------------------- |
+| [0]  | uint8 | uint8 The decimals of the price feed. |
 
 ### getEthFromUsd
 
@@ -62,15 +62,15 @@ _Convert a given USD value to ETH._
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name            | Type    | Description                               |
+| --------------- | ------- | ----------------------------------------- |
 | valueInUsdCents | uint256 | The value in USD cents to convert to ETH. |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | uint256 | uint256 The equivalent amount in ETH. |
+| Name | Type    | Description                           |
+| ---- | ------- | ------------------------------------- |
+| [0]  | uint256 | uint256 The equivalent amount in ETH. |
 
 ### getUsdFromEth
 
@@ -82,13 +82,12 @@ _Convert a given ETH value to USD._
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name       | Type    | Description        |
+| ---------- | ------- | ------------------ |
 | valueInEth | uint256 | to convert to USD. |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | uint256 | uint256 The equivalent amount in USD. |
-
+| Name | Type    | Description                           |
+| ---- | ------- | ------------------------------------- |
+| [0]  | uint256 | uint256 The equivalent amount in USD. |

@@ -22,8 +22,7 @@ _This function can only be called by the contract owner._
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| to | address | The address to which the minted tokens will be assigned. |
-| amount | uint256 | The amount of tokens to mint. |
-
+| Name   | Type    | Description                                              |
+| ------ | ------- | -------------------------------------------------------- |
+| to     | address | The address to which the minted tokens will be assigned. |
+| amount | uint256 | The amount of tokens to mint.                            |

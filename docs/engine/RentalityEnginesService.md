@@ -20,9 +20,9 @@ Constructor to initialize the RentalityEnginesService contract.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| _userService | address | The address of the RentalityUserService contract. |
+| Name           | Type      | Description                                                   |
+| -------------- | --------- | ------------------------------------------------------------- |
+| \_userService  | address   | The address of the RentalityUserService contract.             |
 | engineServices | address[] | An array of addresses representing existing engine contracts. |
 
 ### onlyAdmin
@@ -51,8 +51,8 @@ Adds a new engine service contract to the system.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name          | Type    | Description                                     |
+| ------------- | ------- | ----------------------------------------------- |
 | engineService | address | The address of the new engine service contract. |
 
 ### updateEngineService
@@ -65,10 +65,10 @@ Updates an existing engine service contract in the system.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name          | Type    | Description                                         |
+| ------------- | ------- | --------------------------------------------------- |
 | engineService | address | The address of the updated engine service contract. |
-| eType | uint8 | The engine type associated with the contract. |
+| eType         | uint8   | The engine type associated with the contract.       |
 
 ### getEngineAddressById
 
@@ -80,15 +80,15 @@ Retrieves the address of an engine contract based on its engine type.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name  | Type  | Description                                        |
+| ----- | ----- | -------------------------------------------------- |
 | eType | uint8 | The engine type for which to retrieve the address. |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | address | The address of the specified engine contract. |
+| Name | Type    | Description                                   |
+| ---- | ------- | --------------------------------------------- |
+| [0]  | address | The address of the specified engine contract. |
 
 ### addCar
 
@@ -100,10 +100,10 @@ Adds a new car to the system using a specific engine type.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| carId | uint256 | The unique identifier of the car. |
-| eType | uint8 | The engine type associated with the car. |
+| Name   | Type     | Description                                         |
+| ------ | -------- | --------------------------------------------------- |
+| carId  | uint256  | The unique identifier of the car.                   |
+| eType  | uint8    | The engine type associated with the car.            |
 | params | uint64[] | An array of parameters required for adding the car. |
 
 ### updateCar
@@ -116,10 +116,10 @@ Updates an existing car in the system using a specific engine type.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| carId | uint256 | The unique identifier of the car. |
-| eType | uint8 | The engine type associated with the car. |
+| Name   | Type     | Description                                           |
+| ------ | -------- | ----------------------------------------------------- |
+| carId  | uint256  | The unique identifier of the car.                     |
+| eType  | uint8    | The engine type associated with the car.              |
 | params | uint64[] | An array of parameters required for updating the car. |
 
 ### burnCar
@@ -132,10 +132,10 @@ Removes a car from the system using a specific engine type.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| carId | uint256 | The unique identifier of the car. |
-| eType | uint8 | The engine type associated with the car. |
+| Name  | Type    | Description                              |
+| ----- | ------- | ---------------------------------------- |
+| carId | uint256 | The unique identifier of the car.        |
+| eType | uint8   | The engine type associated with the car. |
 
 ### verifyResourcePrice
 
@@ -147,10 +147,10 @@ Verifies resource prices for a specific engine type.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| prices | uint64[] | An array of uint64 values representing resource prices. |
-| eType | uint8 | The engine type for which to verify the resource prices. |
+| Name   | Type     | Description                                              |
+| ------ | -------- | -------------------------------------------------------- |
+| prices | uint64[] | An array of uint64 values representing resource prices.  |
+| eType  | uint8    | The engine type for which to verify the resource prices. |
 
 ### verifyStartParams
 
@@ -162,10 +162,10 @@ Verifies the start parameters for a specific engine type.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| params | uint64[] | An array of uint64 values representing start parameters. |
-| eType | uint8 | The engine type for which to verify the start parameters. |
+| Name   | Type     | Description                                               |
+| ------ | -------- | --------------------------------------------------------- |
+| params | uint64[] | An array of uint64 values representing start parameters.  |
+| eType  | uint8    | The engine type for which to verify the start parameters. |
 
 ### verifyEndParams
 
@@ -177,11 +177,11 @@ Verifies the end parameters for a specific engine type.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name        | Type     | Description                                              |
+| ----------- | -------- | -------------------------------------------------------- |
 | startParams | uint64[] | An array of uint64 values representing start parameters. |
-| endParams | uint64[] | An array of uint64 values representing end parameters. |
-| eType | uint8 | The engine type for which to verify the end parameters. |
+| endParams   | uint64[] | An array of uint64 values representing end parameters.   |
+| eType       | uint8    | The engine type for which to verify the end parameters.  |
 
 ### compareParams
 
@@ -193,11 +193,11 @@ Compares parameters for a specific engine type.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name        | Type     | Description                                              |
+| ----------- | -------- | -------------------------------------------------------- |
 | startParams | uint64[] | An array of uint64 values representing start parameters. |
-| endParams | uint64[] | An array of uint64 values representing end parameters. |
-| eType | uint8 | The engine type for which to compare the parameters. |
+| endParams   | uint64[] | An array of uint64 values representing end parameters.   |
+| eType       | uint8    | The engine type for which to compare the parameters.     |
 
 ### getPanelParamsAmount
 
@@ -209,15 +209,15 @@ Retrieves the number of parameters expected by the panel for a specific engine t
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name  | Type  | Description                                                   |
+| ----- | ----- | ------------------------------------------------------------- |
 | eType | uint8 | The engine type for which to get the panel parameters amount. |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | uint256 | The number of parameters expected by the panel. |
+| Name | Type    | Description                                     |
+| ---- | ------- | ----------------------------------------------- |
+| [0]  | uint256 | The number of parameters expected by the panel. |
 
 ### extraCosts
 
@@ -229,16 +229,16 @@ Computes extra costs for a specific engine type.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| eType | uint8 | The engine type for which to compute extra costs. |
+| Name   | Type     | Description                                        |
+| ------ | -------- | -------------------------------------------------- |
+| eType  | uint8    | The engine type for which to compute extra costs.  |
 | params | uint64[] | An array of uint64 values representing parameters. |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | uint64 | The computed extra costs in USD cents. |
+| Name | Type   | Description                            |
+| ---- | ------ | -------------------------------------- |
+| [0]  | uint64 | The computed extra costs in USD cents. |
 
 ### getResolveAmountInUsdCents
 
@@ -250,21 +250,20 @@ Computes the resolve amount in USD cents for a specific engine type and car rent
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| engineType | uint8 | The engine type associated with the car. |
-| fuelPrices | uint64[] | An array of uint64 values representing fuel prices. |
-| startParams | uint64[] | An array of uint64 values representing the initial parameters of the rental. |
-| endParams | uint64[] | An array of uint64 values representing the final parameters of the rental. |
-| carId | uint256 | The unique identifier of the car. |
-| milesIncludedPerDay | uint64 | The number of miles included per day in the rental. |
-| pricePerDayInUsdCents | uint64 | The rental price per day in USD cents. |
-| tripDays | uint64 | The total number of days in the rental trip. |
+| Name                  | Type     | Description                                                                  |
+| --------------------- | -------- | ---------------------------------------------------------------------------- |
+| engineType            | uint8    | The engine type associated with the car.                                     |
+| fuelPrices            | uint64[] | An array of uint64 values representing fuel prices.                          |
+| startParams           | uint64[] | An array of uint64 values representing the initial parameters of the rental. |
+| endParams             | uint64[] | An array of uint64 values representing the final parameters of the rental.   |
+| carId                 | uint256  | The unique identifier of the car.                                            |
+| milesIncludedPerDay   | uint64   | The number of miles included per day in the rental.                          |
+| pricePerDayInUsdCents | uint64   | The rental price per day in USD cents.                                       |
+| tripDays              | uint64   | The total number of days in the rental trip.                                 |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | uint64 | The total resolve amount and the fuel-specific resolve amount in USD cents. |
-| [1] | uint64 |  |
-
+| Name | Type   | Description                                                                 |
+| ---- | ------ | --------------------------------------------------------------------------- |
+| [0]  | uint64 | The total resolve amount and the fuel-specific resolve amount in USD cents. |
+| [1]  | uint64 |                                                                             |
