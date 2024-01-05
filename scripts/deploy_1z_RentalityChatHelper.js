@@ -1,6 +1,6 @@
 const saveJsonAbi = require('./utils/abiSaver')
 const { ethers, network, upgrades } = require('hardhat')
-const getContractAddress = require('./utils/contractAddress')
+const {getContractAddress} = require('./utils/contractAddress')
 const addressSaver = require('./utils/addressSaver')
 
 async function main() {

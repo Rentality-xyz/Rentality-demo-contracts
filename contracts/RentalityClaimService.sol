@@ -40,7 +40,7 @@ contract RentalityClaimService is Initializable, UUPSAccess {
         string description;
         uint64 amountInUsdCents;
         uint256 payDateInSec;
-        address RejectedBy; // if so
+        address rejectedBy; // if so
         uint256 rejectedDateInSec; // if so
     }
 
@@ -122,7 +122,7 @@ contract RentalityClaimService is Initializable, UUPSAccess {
         require(claim.status != Status.Paid && claim.status != Status.Cancel, "Wrong claim status.");
 
         claim.status = Status.Cancel;
-        claim.RejectedBy = rejectedBy;
+        claim.rejectedBy = rejectedBy;
         claim.rejectedDateInSec = block.timestamp;
 
         emit ClaimStatusChanged(_claimId, Status.Cancel);
