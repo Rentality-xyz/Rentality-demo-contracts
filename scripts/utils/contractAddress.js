@@ -6,7 +6,7 @@ const { spawnSync } = require('child_process')
 const pathToAddressFile = 'scripts/addressesContractsTestnets.json'
 
 
-module.exports = function getContractAddress(contractName, addressToDeployScript) {
+function getContractAddress(contractName, addressToDeployScript) {
   let address = readFromFile(contractName)
 
   if (address === null) {
@@ -63,4 +63,9 @@ function readFromFile(contractName) {
     el[contractName] !== '',
   )
   return contract === undefined ? null : contract[contractName]
+}
+
+module.exports = {
+  readFromFile,
+  getContractAddress
 }
