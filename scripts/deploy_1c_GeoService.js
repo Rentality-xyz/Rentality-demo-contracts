@@ -7,12 +7,7 @@ async function main() {
 
   const [deployer] = await ethers.getSigners()
   const balance = await ethers.provider.getBalance(deployer)
-  console.log(
-    'Deployer address is:',
-    await deployer.getAddress(),
-    ' with balance:',
-    balance,
-  )
+  console.log('Deployer address is:', await deployer.getAddress(), ' with balance:', balance)
 
   let contract
 

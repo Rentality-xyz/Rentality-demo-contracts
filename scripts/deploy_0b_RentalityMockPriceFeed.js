@@ -5,12 +5,7 @@ async function main() {
   const contractName = 'RentalityMockPriceFeed'
   const [deployer] = await ethers.getSigners()
   const balance = await ethers.provider.getBalance(deployer)
-  console.log(
-    'Deployer address is:',
-    deployer.getAddress(),
-    ' with balance:',
-    balance,
-  )
+  console.log('Deployer address is:', deployer.getAddress(), ' with balance:', balance)
 
   const chainId = (await deployer.provider?.getNetwork())?.chainId ?? -1
   console.log('ChainId is:', chainId)
