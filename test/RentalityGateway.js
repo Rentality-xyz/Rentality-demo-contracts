@@ -27,6 +27,7 @@ describe('RentalityGateway', function() {
     rentalityPaymentService,
     rentalityPlatform,
     rentalityGeoService,
+    rentalityAdminGateway,
     utils,
     claimService,
     owner,
@@ -47,6 +48,7 @@ describe('RentalityGateway', function() {
       rentalityPaymentService,
       rentalityPlatform,
       rentalityGeoService,
+      rentalityAdminGateway,
       utils,
       claimService,
       owner,
@@ -148,17 +150,17 @@ describe('RentalityGateway', function() {
 
   it('should allow only admin to set platform fee in PPM', async function() {
     await expect(
-      rentalityGateway.connect(admin)
+      rentalityAdminGateway.connect(admin)
         .setPlatformFeeInPPM(10)).not.to.be.reverted
 
     await expect(
-      rentalityGateway.connect(host).setPlatformFeeInPPM(10)).to.be.reverted
+      rentalityAdminGateway.connect(host).setPlatformFeeInPPM(10)).to.be.reverted
 
     await expect(
-      rentalityGateway.connect(guest).setPlatformFeeInPPM(10)).to.be.reverted
+      rentalityAdminGateway.connect(guest).setPlatformFeeInPPM(10)).to.be.reverted
 
     await expect(
-      rentalityGateway.connect(anonymous).setPlatformFeeInPPM(10)).to.be.reverted
+      rentalityAdminGateway.connect(anonymous).setPlatformFeeInPPM(10)).to.be.reverted
 
   })
 
@@ -167,7 +169,7 @@ describe('RentalityGateway', function() {
     let platformFeeInPMM = 10101
 
     await expect(
-      rentalityGateway.connect(owner)
+      rentalityAdminGateway.connect(owner)
         .setPlatformFeeInPPM(platformFeeInPMM)).not.to.be.reverted
 
 

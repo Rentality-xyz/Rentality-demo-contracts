@@ -31,6 +31,7 @@ async function main() {
   const rentalityPlatformAddress = addresses['RentalityPlatform']
   const rentalityCarTokenAddress = addresses['RentalityCarToken']
   const rentalityEngineAddress = addresses['RentalityEnginesService']
+  const rentalityAdminGatewayAddress = addresses['RentalityAdminGateway']
 
   if (!rentalityUserServiceAddress) {
     console.log('rentalityUserServiceAddress is not set')
@@ -57,6 +58,10 @@ async function main() {
     console.log('rentalityAddress is not set')
     return
   }
+  if (!rentalityAdminGatewayAddress) {
+    console.log('rentalityAddress is not set')
+    return
+  }
 
   console.log('rentalityUserServiceAddress is:', rentalityUserServiceAddress)
   console.log('rentalityGatewayAddress is:', rentalityGatewayAddress)
@@ -64,6 +69,7 @@ async function main() {
   console.log('rentalityPlatformAddress is:', rentalityPlatformAddress)
   console.log('rentalityCarToken is:', rentalityCarTokenAddress)
   console.log('rentalityEngine service is:', rentalityEngineAddress)
+  console.log('rentalityAdminGateway service is:', rentalityAdminGatewayAddress)
 
   let rentalityUserServiceContract = new ethers.Contract(
     rentalityUserServiceAddress,
@@ -80,6 +86,12 @@ async function main() {
     )
     await rentalityUserServiceContract.grantManagerRole(
       rentalityCarTokenAddress,
+    )
+    await rentalityUserServiceContract.grantManagerRole(
+      rentalityGatewayAddress
+    )
+    await rentalityUserServiceContract.grantManagerRole(
+      rentalityAdminGatewayAddress
     )
     await rentalityUserServiceContract.grantManagerRole(rentalityEngineAddress)
     console.log('manager role granded')
