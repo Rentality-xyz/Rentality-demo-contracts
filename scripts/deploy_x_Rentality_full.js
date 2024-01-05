@@ -1,7 +1,7 @@
 const { spawnSync } = require('child_process')
 const command = 'npx hardhat run scripts/'
 async function main() {
-  const commands = [deployGateway, deployChatHelper, grandManagerRole]
+  const commands = [deployGateway, deployAdminGateway, deployChatHelper, grandManagerRole]
 
   for (let i = 0; i < commands.length; i++) {
     try {
@@ -11,7 +11,7 @@ async function main() {
       })
     } catch (error) {
       console.error('Error:', error)
-      process.exit(1)
+      return;
     }
   }
 }
@@ -27,6 +27,12 @@ function deployGateway() {
   console.log('Deploying contracts..')
   return command + 'deploy_6_RentalityGateway.js'
 }
+
+function deployAdminGateway() {
+  console.log('Deploying admin gateway contract..')
+  return command + 'deploy_3b_RentalityAdminGateway.js'
+}
+
 function deployChatHelper() {
   console.log('Deploying chat helper..')
   return command + 'deploy_1z_RentalityChatHelper.js'
