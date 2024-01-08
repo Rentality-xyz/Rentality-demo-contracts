@@ -29,6 +29,7 @@ contract RentalityGateway is UUPSOwnable {
   RentalityUserService private userService;
   RentalityPlatform private rentalityPlatform;
   RentalityPaymentService private paymentService;
+  RentalityClaimService private claimService;
 
   /// @notice Ensures that the caller is either an admin, the contract owner, or an admin from the origin transaction.
   modifier onlyAdmin() {
@@ -422,7 +423,21 @@ contract RentalityGateway is UUPSOwnable {
   /// @param tripId ID of the trip.
   /// @return Array of detailed claim information.
   function getClaimsByTrip(uint256 tripId) public view returns (RentalityClaimService.FullClaimInfo[] memory) {
-    return rentalityPlatform.getClaimsByTrip(tripId);
+    return RentalityUtils.getClaimsByTrip(claimService, tripService, carService, tripId);
+  }
+
+  /// @notice Retrieves all claims where the caller is the host.
+  /// @dev The caller is assumed to be the host of the claims.
+  /// @return An array of FullClaimInfo containing information about each claim.
+  function getMyClaimsAsHost() public view returns (RentalityClaimService.FullClaimInfo[] memory) {
+    return RentalityUtils.getClaimsByHost(claimService, tripService, carService, msg.sender);
+  }
+
+  ///  @notice Retrieves all claims where the caller is the guest.
+  ///  @dev The caller is assumed to be the guest of the claims.
+  ///  @return An array of FullClaimInfo containing information about each claim.
+  function getMyClaimsAsGuest() public view returns (RentalityClaimService.FullClaimInfo[] memory) {
+    return RentalityUtils.getClaimsByGuest(claimService, tripService, carService, msg.sender);
   }
 
   /// @notice Sets Know Your Customer (KYC) information for the caller.
@@ -486,7 +501,8 @@ contract RentalityGateway is UUPSOwnable {
     address tripServiceAddress,
     address userServiceAddress,
     address rentalityPlatformAddress,
-    address paymentServiceAddress
+    address paymentServiceAddress,
+    address claimServiceAddress
   ) public initializer {
     carService = RentalityCarToken(carServiceAddress);
     currencyConverterService = RentalityCurrencyConverter(currencyConverterServiceAddress);
@@ -494,6 +510,7 @@ contract RentalityGateway is UUPSOwnable {
     userService = RentalityUserService(userServiceAddress);
     rentalityPlatform = RentalityPlatform(rentalityPlatformAddress);
     paymentService = RentalityPaymentService(paymentServiceAddress);
+    claimService = RentalityClaimService(claimServiceAddress);
 
     __Ownable_init();
   }
