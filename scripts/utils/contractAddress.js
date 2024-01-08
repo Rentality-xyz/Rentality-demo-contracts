@@ -12,12 +12,10 @@ function getContractAddress(contractName, addressToDeployScript) {
   if (address === null) {
 
     const message = `Do you want to deploy ${contractName};`
-
     if (!readlineSync.keyInYNStrict(message)) {
       console.log('Finishing...')
       process.exit(1)
     }
-
     console.log(`The contract ${contractName} is not deployed. Starting deployment...`)
 
     const command = 'npx hardhat run ' + addressToDeployScript
