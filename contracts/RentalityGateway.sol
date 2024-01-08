@@ -495,8 +495,6 @@ contract RentalityGateway is UUPSOwnable {
     paymentService = RentalityPaymentService(paymentServiceAddress);
     claimService = RentalityClaimService(claimServiceAddress);
 
-      __Ownable_init();
-    }
-
-
+    __Ownable_init();
+  }
 }
