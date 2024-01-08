@@ -8,31 +8,19 @@ async function main() {
   const contractName = 'Rentality'
   const [deployer] = await ethers.getSigners()
   const balance = await deployer.getBalance()
-  console.log(
-    'Deployer address is:',
-    deployer.getAddress(),
-    ' with balance:',
-    balance,
-  )
+  console.log('Deployer address is:', deployer.getAddress(), ' with balance:', balance)
 
   const chainId = (await deployer.provider?.getNetwork())?.chainId ?? -1
   console.log('ChainId is:', chainId)
   if (chainId < 0) return
 
-  const addresses = addressesContractsTestnets.find(
-    (i) => i.chainId === chainId,
-  )
+  const addresses = addressesContractsTestnets.find((i) => i.chainId === chainId)
   if (addresses == null) {
-    console.error(
-      `Addresses for chainId:${chainId} was not found in addressesContractsTestnets.json`,
-    )
+    console.error(`Addresses for chainId:${chainId} was not found in addressesContractsTestnets.json`)
     return
   }
 
-  const RentalityUserServiceJSON =
-    chainId === 1337
-      ? RentalityUserServiceJSONLocal
-      : RentalityUserServiceJSONNet
+  const RentalityUserServiceJSON = chainId === 1337 ? RentalityUserServiceJSONLocal : RentalityUserServiceJSONNet
 
   const rentalityUtilsAddress = addresses.RentalityUtils
   const rentalityCarTokenAddress = addresses.RentalityCarToken
@@ -63,10 +51,7 @@ async function main() {
 
   console.log('rentalityUtilsAddress is:', rentalityUtilsAddress)
   console.log('rentalityCarTokenAddress is:', rentalityCarTokenAddress)
-  console.log(
-    'rentalityCurrencyConverterAddress is:',
-    rentalityCurrencyConverterAddress,
-  )
+  console.log('rentalityCurrencyConverterAddress is:', rentalityCurrencyConverterAddress)
   console.log('rentalityTripServiceAddress is:', rentalityTripServiceAddress)
   console.log('rentalityUserServiceAddress is:', rentalityUserServiceAddress)
 
@@ -79,7 +64,7 @@ async function main() {
     rentalityCarTokenAddress,
     rentalityCurrencyConverterAddress,
     rentalityTripServiceAddress,
-    rentalityUserServiceAddress,
+    rentalityUserServiceAddress
   )
   await contract.deployed()
   console.log(contractName + ' deployed to:', contract.address)
@@ -87,7 +72,7 @@ async function main() {
   let rentalityUserServiceContract = new ethers.Contract(
     RentalityUserServiceJSON.address,
     RentalityUserServiceJSON.abi,
-    deployer,
+    deployer
   )
   try {
     await rentalityUserServiceContract.grantManagerRole(contract.address)

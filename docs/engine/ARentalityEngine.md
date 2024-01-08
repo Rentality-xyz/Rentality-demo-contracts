@@ -163,4 +163,3 @@ function isMatch(bool eq) internal pure
 ```
 
 Reverts if the provided condition is not met, indicating mismatched parameters.
-

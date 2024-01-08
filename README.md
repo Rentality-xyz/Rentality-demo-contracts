@@ -9,6 +9,7 @@ npx hardhat help
 npx hardhat test
 npx hardhat compile
 npx hardhat docgen
+npm run format
 REPORT_GAS=true npx hardhat test
 npx hardhat node
 npx hardhat run scripts/deploy.js
@@ -85,10 +86,10 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
 
-
 ### localhost deployment
+
 //create local network
-npx hardhat node   
+npx hardhat node
 
 //compile the smart contracts
 npx hardhat compile
@@ -99,16 +100,15 @@ npx hardhat run scripts/deploy_EthToUsd_mock.js --network localhost
 // copy smartcontract address from log
 // MockEthToUsdPriceFeed deployed to: 0x5FbDB2315678afecb367f032d93F642f64180aa3
 // and paste to deploy.js script to ethToUsdPriceFeedAddress for chainId === 1337
-//       : chainId === 1337
-//        ? "0x5FbDB2315678afecb367f032d93F642f64180aa3"
-//        : "";
+// : chainId === 1337
+// ? "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+// : "";
 
 //run deploy.js script to deploy rentality contract
 npx hardhat run scripts/deploy.js --network localhost
 
-// set env variable in .env 
+// set env variable in .env
 REACT_APP_USE_LOCALHOST_BLOCKCHAIN = "true"
 
 //start app
-npm start 
-
+npm start

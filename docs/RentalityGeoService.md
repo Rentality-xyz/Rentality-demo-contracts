@@ -58,10 +58,10 @@ Constructor to initialize Chainlink settings.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| linkToken | address | The address of the LINK token contract. |
-| chainLinkOracle | address | The address of the Chainlink oracle. |
+| Name            | Type    | Description                             |
+| --------------- | ------- | --------------------------------------- |
+| linkToken       | address | The address of the LINK token contract. |
+| chainLinkOracle | address | The address of the Chainlink oracle.    |
 
 ### executeRequest
 
@@ -73,16 +73,16 @@ Function to execute a Chainlink request for geolocation data.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| addr | string | The address for geolocation lookup. |
-| key | string | The API key for accessing the geolocation service. |
+| Name  | Type    | Description                                           |
+| ----- | ------- | ----------------------------------------------------- |
+| addr  | string  | The address for geolocation lookup.                   |
+| key   | string  | The API key for accessing the geolocation service.    |
 | carId | uint256 | The ID of the car for which geolocation is requested. |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name      | Type    | Description                      |
+| --------- | ------- | -------------------------------- |
 | requestId | bytes32 | The ID of the Chainlink request. |
 
 ### fulfill
@@ -95,10 +95,10 @@ Function called by Chainlink when the request is fulfilled.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| _requestId | bytes32 | The ID of the Chainlink request. |
-| _response | string | The geolocation response from the API. |
+| Name        | Type    | Description                            |
+| ----------- | ------- | -------------------------------------- |
+| \_requestId | bytes32 | The ID of the Chainlink request.       |
+| \_response  | string  | The geolocation response from the API. |
 
 ### withdrawLink
 
@@ -118,8 +118,8 @@ Function to parse the geolocation response and store parsed data.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name  | Type    | Description                                        |
+| ----- | ------- | -------------------------------------------------- |
 | carId | uint256 | The ID of the car for which geolocation is parsed. |
 
 ### getCarCoordinateValidity
@@ -132,15 +132,15 @@ Function to get the validity of geolocation coordinates for a car.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name  | Type    | Description        |
+| ----- | ------- | ------------------ |
 | carId | uint256 | The ID of the car. |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | bool | validCoordinates A boolean indicating the validity of coordinates. |
+| Name | Type | Description                                                        |
+| ---- | ---- | ------------------------------------------------------------------ |
+| [0]  | bool | validCoordinates A boolean indicating the validity of coordinates. |
 
 ### getCarCity
 
@@ -152,15 +152,15 @@ Function to get the city of geolocation for a car.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name  | Type    | Description        |
+| ----- | ------- | ------------------ |
 | carId | uint256 | The ID of the car. |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | string | city The city name. |
+| Name | Type   | Description         |
+| ---- | ------ | ------------------- |
+| [0]  | string | city The city name. |
 
 ### getCarState
 
@@ -172,15 +172,15 @@ Function to get the state of geolocation for a car.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name  | Type    | Description        |
+| ----- | ------- | ------------------ |
 | carId | uint256 | The ID of the car. |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | string | state The state name. |
+| Name | Type   | Description           |
+| ---- | ------ | --------------------- |
+| [0]  | string | state The state name. |
 
 ### getCarCountry
 
@@ -192,13 +192,12 @@ Function to get the country of geolocation for a car.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name  | Type    | Description        |
+| ----- | ------- | ------------------ |
 | carId | uint256 | The ID of the car. |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | string | country The country name. |
-
+| Name | Type   | Description               |
+| ---- | ------ | ------------------------- |
+| [0]  | string | country The country name. |

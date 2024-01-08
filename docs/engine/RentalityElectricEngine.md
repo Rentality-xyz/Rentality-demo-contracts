@@ -33,9 +33,9 @@ _Sets the engine type. Only callable by an admin._
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| _eType | uint8 | The new engine type to be set. |
+| Name    | Type  | Description                    |
+| ------- | ----- | ------------------------------ |
+| \_eType | uint8 | The new engine type to be set. |
 
 ### addCar
 
@@ -47,9 +47,9 @@ _Adds a new electric car to the system with charge price scales._
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| carId | uint256 | The unique identifier of the electric car. |
+| Name   | Type     | Description                                                      |
+| ------ | -------- | ---------------------------------------------------------------- |
+| carId  | uint256  | The unique identifier of the electric car.                       |
 | params | uint64[] | An array of four uint64 values representing charge price scales. |
 
 ### updateCar
@@ -62,9 +62,9 @@ _Updates charge price scales for an existing electric car in the system._
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| carId | uint256 | The unique identifier of the electric car. |
+| Name   | Type     | Description                                                              |
+| ------ | -------- | ------------------------------------------------------------------------ |
+| carId  | uint256  | The unique identifier of the electric car.                               |
 | params | uint64[] | An array of four uint64 values representing updated charge price scales. |
 
 ### burnCar
@@ -77,8 +77,8 @@ _Removes an electric car from the system._
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name  | Type    | Description                                              |
+| ----- | ------- | -------------------------------------------------------- |
 | carId | uint256 | The unique identifier of the electric car to be removed. |
 
 ### extraCosts
@@ -91,8 +91,8 @@ _Returns zero extra costs for electric cars._
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name   | Type     | Description                                                                        |
+| ------ | -------- | ---------------------------------------------------------------------------------- |
 | params | uint64[] | An array of uint64 values representing parameters (not used for electric engines). |
 
 ### getEngineData
@@ -105,8 +105,8 @@ _Retrieves charge price scales for a specific electric car._
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name  | Type    | Description                                |
+| ----- | ------- | ------------------------------------------ |
 | carId | uint256 | The unique identifier of the electric car. |
 
 ### getResolveAmountInUsdCents
@@ -119,22 +119,22 @@ _Calculates the resolve amount in USD cents for an electric car rental._
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| _fuelPrices | uint64[] | An array of uint64 values representing fuel prices (not used for electric engines). |
-| startParams | uint64[] | An array of uint64 values representing the initial parameters of the rental. |
-| endParams | uint64[] | An array of uint64 values representing the final parameters of the rental. |
-| carId | uint256 | The unique identifier of the electric car. |
-| milesIncludedPerDay | uint64 | The number of miles included per day in the rental. |
-| pricePerDayInUsdCents | uint64 | The rental price per day in USD cents. |
-| tripDays | uint64 | The total number of days in the rental trip. |
+| Name                  | Type     | Description                                                                         |
+| --------------------- | -------- | ----------------------------------------------------------------------------------- |
+| \_fuelPrices          | uint64[] | An array of uint64 values representing fuel prices (not used for electric engines). |
+| startParams           | uint64[] | An array of uint64 values representing the initial parameters of the rental.        |
+| endParams             | uint64[] | An array of uint64 values representing the final parameters of the rental.          |
+| carId                 | uint256  | The unique identifier of the electric car.                                          |
+| milesIncludedPerDay   | uint64   | The number of miles included per day in the rental.                                 |
+| pricePerDayInUsdCents | uint64   | The rental price per day in USD cents.                                              |
+| tripDays              | uint64   | The total number of days in the rental trip.                                        |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | uint64 | The total resolve amount and the fuel-specific resolve amount in USD cents. |
-| [1] | uint64 |  |
+| Name | Type   | Description                                                                 |
+| ---- | ------ | --------------------------------------------------------------------------- |
+| [0]  | uint64 | The total resolve amount and the fuel-specific resolve amount in USD cents. |
+| [1]  | uint64 |                                                                             |
 
 ### getFuelResolveAmountInUsdCents
 
@@ -146,14 +146,13 @@ _Calculates the resolve amount in USD cents based on the remaining charge of an 
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| endFuelLevelInPercents | uint64 | The final fuel level of the electric car in percentages. |
-| carId | uint256 | The unique identifier of the electric car. |
+| Name                   | Type    | Description                                              |
+| ---------------------- | ------- | -------------------------------------------------------- |
+| endFuelLevelInPercents | uint64  | The final fuel level of the electric car in percentages. |
+| carId                  | uint256 | The unique identifier of the electric car.               |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | uint64 | The fuel-specific resolve amount in USD cents. |
-
+| Name | Type   | Description                                    |
+| ---- | ------ | ---------------------------------------------- |
+| [0]  | uint64 | The fuel-specific resolve amount in USD cents. |
