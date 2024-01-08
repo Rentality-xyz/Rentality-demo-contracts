@@ -372,44 +372,7 @@ contract RentalityPlatform is UUPSOwnable {
     RentalityTripService.Trip memory trip = tripService.getTrip(claim.tripId);
     RentalityCarToken.CarInfo memory car = carService.getCarInfoById(trip.carId);
 
-    return
-      RentalityClaimService.FullClaimInfo(claim, trip.host, trip.guest, car.brand, car.model, car.yearOfProduction);
-  }
-
-  /// @notice Gets an array of claims associated with a specific trip.
-  /// @dev Returns an array of detailed claim information for the given trip.
-  /// @param tripId ID of the trip.
-  /// @return Array of detailed claim information.
-  function getClaimsByTrip(uint256 tripId) public view returns (RentalityClaimService.FullClaimInfo[] memory) {
-    uint256 arraySize = 0;
-    for (uint256 i = 0; i <= claimService.getClaimsAmount(); i++) {
-      RentalityClaimService.Claim memory claim = claimService.getClaim(i);
-      if (claim.tripId == tripId) {
-        arraySize += 1;
-      }
-    }
-    uint256 counter = 0;
-
-    RentalityClaimService.FullClaimInfo[] memory claims = new RentalityClaimService.FullClaimInfo[](arraySize);
-
-    for (uint256 i = 1; i <= claimService.getClaimsAmount(); i++) {
-      RentalityClaimService.Claim memory claim = claimService.getClaim(i);
-
-      if (claim.tripId == tripId) {
-        RentalityTripService.Trip memory trip = tripService.getTrip(tripId);
-        RentalityCarToken.CarInfo memory car = carService.getCarInfoById(trip.carId);
-        claims[counter++] = RentalityClaimService.FullClaimInfo(
-          claim,
-          trip.host,
-          trip.guest,
-          car.brand,
-          car.model,
-          car.yearOfProduction
-        );
-      }
-    }
-
-    return claims;
+    return RentalityClaimService.FullClaimInfo(claim, trip.host, trip.guest, car);
   }
 
   /// @notice Get contact information for a specific trip on the Rentality platform.
