@@ -16,17 +16,17 @@ Execute a request to verify geo-related information.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| addr | string | The address for the geo-related request. |
-| key | string | The key for the geo-related request. |
+| Name  | Type    | Description                                                       |
+| ----- | ------- | ----------------------------------------------------------------- |
+| addr  | string  | The address for the geo-related request.                          |
+| key   | string  | The key for the geo-related request.                              |
 | carId | uint256 | The ID of the car for which geo-related information is requested. |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | bytes32 | A bytes32 value representing the requestId of the geo-related request. |
+| Name | Type    | Description                                                            |
+| ---- | ------- | ---------------------------------------------------------------------- |
+| [0]  | bytes32 | A bytes32 value representing the requestId of the geo-related request. |
 
 ### getCarCoordinateValidity
 
@@ -38,15 +38,15 @@ Get the validity of the coordinates for a specific car.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name  | Type    | Description        |
+| ----- | ------- | ------------------ |
 | carId | uint256 | The ID of the car. |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | bool | A boolean indicating the validity of the car's coordinates. |
+| Name | Type | Description                                                 |
+| ---- | ---- | ----------------------------------------------------------- |
+| [0]  | bool | A boolean indicating the validity of the car's coordinates. |
 
 ### getCarCity
 
@@ -58,15 +58,15 @@ Get the city of a specific car.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name  | Type    | Description        |
+| ----- | ------- | ------------------ |
 | carId | uint256 | The ID of the car. |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | string | A string representing the city associated with the car. |
+| Name | Type   | Description                                             |
+| ---- | ------ | ------------------------------------------------------- |
+| [0]  | string | A string representing the city associated with the car. |
 
 ### getCarState
 
@@ -78,15 +78,15 @@ Get the state of a specific car.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name  | Type    | Description        |
+| ----- | ------- | ------------------ |
 | carId | uint256 | The ID of the car. |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | string | A string representing the state associated with the car. |
+| Name | Type   | Description                                              |
+| ---- | ------ | -------------------------------------------------------- |
+| [0]  | string | A string representing the state associated with the car. |
 
 ### getCarCountry
 
@@ -98,13 +98,12 @@ Get the country of a specific car.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name  | Type    | Description        |
+| ----- | ------- | ------------------ |
 | carId | uint256 | The ID of the car. |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | string | A string representing the country associated with the car. |
-
+| Name | Type   | Description                                                |
+| ---- | ------ | ---------------------------------------------------------- |
+| [0]  | string | A string representing the country associated with the car. |

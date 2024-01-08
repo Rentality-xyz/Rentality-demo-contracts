@@ -9,19 +9,14 @@ module.exports = function addressSaver(contractAddress, contractName, rewriteIfE
 
   const chainId = network.config.chainId
   const networkName = network.name
-  const exist = jsonData.find((element) =>
-    element.name === networkName &&
-    element.chainId === chainId) != null
+  const exist = jsonData.find((element) => element.name === networkName && element.chainId === chainId) != null
   if (exist) {
     jsonData.forEach((element) => {
-
       if (element.chainId === chainId && element.name === networkName) {
-
         if (element[contractName] === undefined || element[contractName] === '' || rewriteIfExist) {
           element[contractName] = contractAddress
           fs.writeFileSync(path, JSON.stringify(jsonData, null, 2))
         }
-
       }
     })
   } else {
@@ -33,5 +28,4 @@ module.exports = function addressSaver(contractAddress, contractName, rewriteIfE
     jsonData.push(newNetwork)
     fs.writeFileSync(path, JSON.stringify(jsonData, null, 2))
   }
-
 }

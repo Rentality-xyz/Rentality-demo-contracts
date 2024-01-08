@@ -15,14 +15,14 @@ constructor(address carServiceAddress, address currencyConverterServiceAddress, 
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| carServiceAddress | address | The address of the RentalityCarToken contract. |
+| Name                            | Type    | Description                                             |
+| ------------------------------- | ------- | ------------------------------------------------------- |
+| carServiceAddress               | address | The address of the RentalityCarToken contract.          |
 | currencyConverterServiceAddress | address | The address of the RentalityCurrencyConverter contract. |
-| tripServiceAddress | address | The address of the RentalityTripService contract. |
-| userServiceAddress | address | The address of the RentalityUserService contract. |
-| rentalityPlatformAddress | address | The address of the RentalityPlatform contract. |
-| paymentServiceAddress | address | The address of the RentalityPaymentService contract. |
+| tripServiceAddress              | address | The address of the RentalityTripService contract.       |
+| userServiceAddress              | address | The address of the RentalityUserService contract.       |
+| rentalityPlatformAddress        | address | The address of the RentalityPlatform contract.          |
+| paymentServiceAddress           | address | The address of the RentalityPaymentService contract.    |
 
 ### onlyAdmin
 
@@ -66,9 +66,9 @@ Retrieves the address of the RentalityCarToken contract.
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | address | The address of the RentalityCarToken contract. |
+| Name | Type    | Description                                    |
+| ---- | ------- | ---------------------------------------------- |
+| [0]  | address | The address of the RentalityCarToken contract. |
 
 ### updateCarService
 
@@ -80,8 +80,8 @@ Updates the address of the RentalityCarToken contract. Only callable by admins.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name            | Type    | Description                                        |
+| --------------- | ------- | -------------------------------------------------- |
 | contractAddress | address | The new address of the RentalityCarToken contract. |
 
 ### getRentalityPlatformAddress
@@ -94,9 +94,9 @@ Retrieves the address of the RentalityPlatform contract.
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | address | The address of the RentalityPlatform contract. |
+| Name | Type    | Description                                    |
+| ---- | ------- | ---------------------------------------------- |
+| [0]  | address | The address of the RentalityPlatform contract. |
 
 ### updateRentalityPlatform
 
@@ -108,8 +108,8 @@ Updates the address of the RentalityPlatform contract. Only callable by admins.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name            | Type    | Description                                        |
+| --------------- | ------- | -------------------------------------------------- |
 | contractAddress | address | The new address of the RentalityPlatform contract. |
 
 ### getCurrencyConverterServiceAddress
@@ -122,9 +122,9 @@ Retrieves the address of the RentalityCurrencyConverter contract.
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | address | The address of the RentalityCurrencyConverter contract. |
+| Name | Type    | Description                                             |
+| ---- | ------- | ------------------------------------------------------- |
+| [0]  | address | The address of the RentalityCurrencyConverter contract. |
 
 ### updateCurrencyConverterService
 
@@ -136,8 +136,8 @@ Updates the address of the RentalityCurrencyConverter contract. Only callable by
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name            | Type    | Description                                                 |
+| --------------- | ------- | ----------------------------------------------------------- |
 | contractAddress | address | The new address of the RentalityCurrencyConverter contract. |
 
 ### getTripServiceAddress
@@ -150,9 +150,9 @@ Retrieves the address of the RentalityTripService contract.
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | address | The address of the RentalityTripService contract. |
+| Name | Type    | Description                                       |
+| ---- | ------- | ------------------------------------------------- |
+| [0]  | address | The address of the RentalityTripService contract. |
 
 ### updateTripService
 
@@ -164,8 +164,8 @@ Updates the address of the RentalityTripService contract. Only callable by admin
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name            | Type    | Description                                           |
+| --------------- | ------- | ----------------------------------------------------- |
 | contractAddress | address | The new address of the RentalityTripService contract. |
 
 ### getUserServiceAddress
@@ -178,9 +178,9 @@ Retrieves the address of the RentalityUserService contract.
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | address | The address of the RentalityUserService contract. |
+| Name | Type    | Description                                       |
+| ---- | ------- | ------------------------------------------------- |
+| [0]  | address | The address of the RentalityUserService contract. |
 
 ### updateUserService
 
@@ -192,8 +192,8 @@ Updates the address of the RentalityUserService contract. Only callable by admin
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name            | Type    | Description                                           |
+| --------------- | ------- | ----------------------------------------------------- |
 | contractAddress | address | The new address of the RentalityUserService contract. |
 
 ### getPlatformFeeInPPM
@@ -206,9 +206,9 @@ Retrieves the platform fee in parts per million (PPM).
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | uint32 | The platform fee in PPM. |
+| Name | Type   | Description              |
+| ---- | ------ | ------------------------ |
+| [0]  | uint32 | The platform fee in PPM. |
 
 ### setPlatformFeeInPPM
 
@@ -220,8 +220,8 @@ Sets the platform fee in parts per million (PPM). Only callable by admins.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name       | Type   | Description                        |
+| ---------- | ------ | ---------------------------------- |
 | valueInPPM | uint32 | The new platform fee value in PPM. |
 
 ### withdrawFromPlatform
@@ -234,8 +234,8 @@ Withdraws the specified amount from the RentalityPlatform contract.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name   | Type    | Description             |
+| ------ | ------- | ----------------------- |
 | amount | uint256 | The amount to withdraw. |
 
 ### withdrawAllFromPlatform
@@ -256,15 +256,15 @@ Retrieves information about a car by its ID.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name  | Type    | Description        |
+| ----- | ------- | ------------------ |
 | carId | uint256 | The ID of the car. |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | struct RentalityCarToken.CarInfo | Car information as a struct. |
+| Name | Type                             | Description                  |
+| ---- | -------------------------------- | ---------------------------- |
+| [0]  | struct RentalityCarToken.CarInfo | Car information as a struct. |
 
 ### getCarMetadataURI
 
@@ -276,15 +276,15 @@ Retrieves the metadata URI of a car by its ID.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name  | Type    | Description        |
+| ----- | ------- | ------------------ |
 | carId | uint256 | The ID of the car. |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | string | The metadata URI of the car. |
+| Name | Type   | Description                  |
+| ---- | ------ | ---------------------------- |
+| [0]  | string | The metadata URI of the car. |
 
 ### addCar
 
@@ -296,15 +296,15 @@ Adds a new car using the provided request. Grants host role to the caller if not
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name    | Type                                      | Description                             |
+| ------- | ----------------------------------------- | --------------------------------------- |
 | request | struct RentalityCarToken.CreateCarRequest | The request containing car information. |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | uint256 | The ID of the newly added car. |
+| Name | Type    | Description                    |
+| ---- | ------- | ------------------------------ |
+| [0]  | uint256 | The ID of the newly added car. |
 
 ### updateCarInfo
 
@@ -316,8 +316,8 @@ Updates the information of a car. Only callable by hosts.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name    | Type                                          | Description                                     |
+| ------- | --------------------------------------------- | ----------------------------------------------- |
 | request | struct RentalityCarToken.UpdateCarInfoRequest | The request containing updated car information. |
 
 ### updateCarInfoWithLocation
@@ -330,11 +330,11 @@ Updates the information of a car, including location details. Only callable by h
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| request | struct RentalityCarToken.UpdateCarInfoRequest | The request containing updated car information. |
-| location | string | The new location of the car. |
-| geoApiKey | string | The API key for geocoding purposes. |
+| Name      | Type                                          | Description                                     |
+| --------- | --------------------------------------------- | ----------------------------------------------- |
+| request   | struct RentalityCarToken.UpdateCarInfoRequest | The request containing updated car information. |
+| location  | string                                        | The new location of the car.                    |
+| geoApiKey | string                                        | The API key for geocoding purposes.             |
 
 ### updateCarTokenUri
 
@@ -346,10 +346,10 @@ Updates the token URI of a car. Only callable by hosts.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| carId | uint256 | The ID of the car to update. |
-| tokenUri | string | The new token URI. |
+| Name     | Type    | Description                  |
+| -------- | ------- | ---------------------------- |
+| carId    | uint256 | The ID of the car to update. |
+| tokenUri | string  | The new token URI.           |
 
 ### burnCar
 
@@ -361,8 +361,8 @@ Burns (disables) a car. Only callable by hosts.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name  | Type    | Description                |
+| ----- | ------- | -------------------------- |
 | carId | uint256 | The ID of the car to burn. |
 
 ### getAllCars
@@ -375,9 +375,9 @@ Retrieves information about all cars.
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | struct RentalityCarToken.CarInfo[] | An array of car information. |
+| Name | Type                               | Description                  |
+| ---- | ---------------------------------- | ---------------------------- |
+| [0]  | struct RentalityCarToken.CarInfo[] | An array of car information. |
 
 ### getAvailableCars
 
@@ -389,9 +389,9 @@ Retrieves information about available cars.
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | struct RentalityCarToken.CarInfo[] | An array of available car information. |
+| Name | Type                               | Description                            |
+| ---- | ---------------------------------- | -------------------------------------- |
+| [0]  | struct RentalityCarToken.CarInfo[] | An array of available car information. |
 
 ### getAvailableCarsForUser
 
@@ -403,15 +403,15 @@ Retrieves information about available cars for a specific user.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name | Type    | Description              |
+| ---- | ------- | ------------------------ |
 | user | address | The address of the user. |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | struct RentalityCarToken.CarInfo[] | An array of available car information for the specified user. |
+| Name | Type                               | Description                                                   |
+| ---- | ---------------------------------- | ------------------------------------------------------------- |
+| [0]  | struct RentalityCarToken.CarInfo[] | An array of available car information for the specified user. |
 
 ### searchAvailableCars
 
@@ -423,17 +423,17 @@ Searches for available cars based on specified criteria.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| startDateTime | uint64 | The start date and time of the search. |
-| endDateTime | uint64 | The end date and time of the search. |
-| searchParams | struct RentalityCarToken.SearchCarParams | Additional search parameters. |
+| Name          | Type                                     | Description                            |
+| ------------- | ---------------------------------------- | -------------------------------------- |
+| startDateTime | uint64                                   | The start date and time of the search. |
+| endDateTime   | uint64                                   | The end date and time of the search.   |
+| searchParams  | struct RentalityCarToken.SearchCarParams | Additional search parameters.          |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | struct RentalityTripService.AvailableCarResponse[] | An array of available car information meeting the search criteria. |
+| Name | Type                                               | Description                                                        |
+| ---- | -------------------------------------------------- | ------------------------------------------------------------------ |
+| [0]  | struct RentalityTripService.AvailableCarResponse[] | An array of available car information meeting the search criteria. |
 
 ### searchAvailableCarsForUser
 
@@ -445,18 +445,18 @@ Searches for available cars for a specific user based on specified criteria.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| user | address | The address of the user. |
-| startDateTime | uint64 | The start date and time of the search. |
-| endDateTime | uint64 | The end date and time of the search. |
-| searchParams | struct RentalityCarToken.SearchCarParams | Additional search parameters. |
+| Name          | Type                                     | Description                            |
+| ------------- | ---------------------------------------- | -------------------------------------- |
+| user          | address                                  | The address of the user.               |
+| startDateTime | uint64                                   | The start date and time of the search. |
+| endDateTime   | uint64                                   | The end date and time of the search.   |
+| searchParams  | struct RentalityCarToken.SearchCarParams | Additional search parameters.          |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | struct RentalityTripService.AvailableCarResponse[] | An array of available car information meeting the search criteria for the specified user. |
+| Name | Type                                               | Description                                                                               |
+| ---- | -------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| [0]  | struct RentalityTripService.AvailableCarResponse[] | An array of available car information meeting the search criteria for the specified user. |
 
 ### getMyCars
 
@@ -468,9 +468,9 @@ Retrieves information about cars owned by the caller.
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | struct RentalityCarToken.CarInfo[] | An array of car information owned by the caller. |
+| Name | Type                               | Description                                      |
+| ---- | ---------------------------------- | ------------------------------------------------ |
+| [0]  | struct RentalityCarToken.CarInfo[] | An array of car information owned by the caller. |
 
 ### createTripRequest
 
@@ -482,8 +482,8 @@ Creates a trip request. Callable by users with payment.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name    | Type                                       | Description               |
+| ------- | ------------------------------------------ | ------------------------- |
 | request | struct IRentalityGateway.CreateTripRequest | The trip request details. |
 
 ### getTripContactInfo
@@ -496,16 +496,16 @@ Retrieves contact information for a trip. Only callable by hosts or guests.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name   | Type    | Description         |
+| ------ | ------- | ------------------- |
 | tripId | uint256 | The ID of the trip. |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| guestPhoneNumber | string |  |
-| hostPhoneNumber | string |  |
+| Name             | Type   | Description |
+| ---------------- | ------ | ----------- |
+| guestPhoneNumber | string |             |
+| hostPhoneNumber  | string |             |
 
 ### approveTripRequest
 
@@ -517,8 +517,8 @@ Approves a trip request. Only callable by hosts.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name   | Type    | Description                    |
+| ------ | ------- | ------------------------------ |
 | tripId | uint256 | The ID of the trip to approve. |
 
 ### rejectTripRequest
@@ -531,8 +531,8 @@ Rejects a trip request. Only callable by hosts.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name   | Type    | Description                   |
+| ------ | ------- | ----------------------------- |
 | tripId | uint256 | The ID of the trip to reject. |
 
 ### checkInByHost
@@ -545,9 +545,9 @@ Performs check-in by the host for a trip.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| tripId | uint256 | The ID of the trip. |
+| Name        | Type     | Description                                                                                               |
+| ----------- | -------- | --------------------------------------------------------------------------------------------------------- |
+| tripId      | uint256  | The ID of the trip.                                                                                       |
 | panelParams | uint64[] | An array representing parameters related to fuel, odometer, and other relevant details depends on engine. |
 
 ### checkInByGuest
@@ -560,9 +560,9 @@ Performs check-in by the guest for a trip.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| tripId | uint256 | The ID of the trip. |
+| Name        | Type     | Description                                                                                               |
+| ----------- | -------- | --------------------------------------------------------------------------------------------------------- |
+| tripId      | uint256  | The ID of the trip.                                                                                       |
 | panelParams | uint64[] | An array representing parameters related to fuel, odometer, and other relevant details depends on engine. |
 
 ### checkOutByGuest
@@ -575,9 +575,9 @@ Performs check-out by the guest for a trip.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| tripId | uint256 | The ID of the trip. |
+| Name        | Type     | Description                                                                                               |
+| ----------- | -------- | --------------------------------------------------------------------------------------------------------- |
+| tripId      | uint256  | The ID of the trip.                                                                                       |
 | panelParams | uint64[] | An array representing parameters related to fuel, odometer, and other relevant details depends on engine. |
 
 ### checkOutByHost
@@ -590,9 +590,9 @@ Performs check-out by the host for a trip.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| tripId | uint256 | The ID of the trip. |
+| Name        | Type     | Description                                                                                               |
+| ----------- | -------- | --------------------------------------------------------------------------------------------------------- |
+| tripId      | uint256  | The ID of the trip.                                                                                       |
 | panelParams | uint64[] | An array representing parameters related to fuel, odometer, and other relevant details depends on engine. |
 
 ### finishTrip
@@ -605,8 +605,8 @@ Finishes a trip. Only callable by RentalityPlatform.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name   | Type    | Description                   |
+| ------ | ------- | ----------------------------- |
 | tripId | uint256 | The ID of the trip to finish. |
 
 ### getTrip
@@ -619,15 +619,15 @@ Retrieves information about a trip by ID.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name   | Type    | Description         |
+| ------ | ------- | ------------------- |
 | tripId | uint256 | The ID of the trip. |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | struct RentalityTripService.Trip | Trip information. |
+| Name | Type                             | Description       |
+| ---- | -------------------------------- | ----------------- |
+| [0]  | struct RentalityTripService.Trip | Trip information. |
 
 ### getTripsAsGuest
 
@@ -639,9 +639,9 @@ Retrieves information about trips where the caller is the guest.
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | struct RentalityTripService.Trip[] | An array of trip information. |
+| Name | Type                               | Description                   |
+| ---- | ---------------------------------- | ----------------------------- |
+| [0]  | struct RentalityTripService.Trip[] | An array of trip information. |
 
 ### getTripsByGuest
 
@@ -653,15 +653,15 @@ Retrieves information about trips where the specified user is the guest.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name  | Type    | Description               |
+| ----- | ------- | ------------------------- |
 | guest | address | The address of the guest. |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | struct RentalityTripService.Trip[] | An array of trip information for the specified guest. |
+| Name | Type                               | Description                                           |
+| ---- | ---------------------------------- | ----------------------------------------------------- |
+| [0]  | struct RentalityTripService.Trip[] | An array of trip information for the specified guest. |
 
 ### getTripsAsHost
 
@@ -673,9 +673,9 @@ Retrieves information about trips where the caller is the host.
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | struct RentalityTripService.Trip[] | An array of trip information. |
+| Name | Type                               | Description                   |
+| ---- | ---------------------------------- | ----------------------------- |
+| [0]  | struct RentalityTripService.Trip[] | An array of trip information. |
 
 ### getTripsByHost
 
@@ -687,15 +687,15 @@ Retrieves information about trips where the specified user is the host.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name | Type    | Description              |
+| ---- | ------- | ------------------------ |
 | host | address | The address of the host. |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | struct RentalityTripService.Trip[] | An array of trip information for the specified host. |
+| Name | Type                               | Description                                          |
+| ---- | ---------------------------------- | ---------------------------------------------------- |
+| [0]  | struct RentalityTripService.Trip[] | An array of trip information for the specified host. |
 
 ### getTripsByCar
 
@@ -707,15 +707,15 @@ Retrieves information about trips for a specific car.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name  | Type    | Description        |
+| ----- | ------- | ------------------ |
 | carId | uint256 | The ID of the car. |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | struct RentalityTripService.Trip[] | An array of trip information for the specified car. |
+| Name | Type                               | Description                                         |
+| ---- | ---------------------------------- | --------------------------------------------------- |
+| [0]  | struct RentalityTripService.Trip[] | An array of trip information for the specified car. |
 
 ### setKYCInfo
 
@@ -727,14 +727,14 @@ Sets Know Your Customer (KYC) information for the caller.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| name | string | The name of the user. |
-| surname | string | The surname of the user. |
-| mobilePhoneNumber | string | The mobile phone number of the user. |
-| profilePhoto | string | The URL of the user's profile photo. |
-| licenseNumber | string | The user's license number. |
-| expirationDate | uint64 | The expiration date of the user's license. |
+| Name              | Type   | Description                                |
+| ----------------- | ------ | ------------------------------------------ |
+| name              | string | The name of the user.                      |
+| surname           | string | The surname of the user.                   |
+| mobilePhoneNumber | string | The mobile phone number of the user.       |
+| profilePhoto      | string | The URL of the user's profile photo.       |
+| licenseNumber     | string | The user's license number.                 |
+| expirationDate    | uint64 | The expiration date of the user's license. |
 
 ### getKYCInfo
 
@@ -746,15 +746,15 @@ Retrieves KYC information for the specified user.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name | Type    | Description              |
+| ---- | ------- | ------------------------ |
 | user | address | The address of the user. |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | struct RentalityUserService.KYCInfo | KYC information for the specified user. |
+| Name | Type                                | Description                             |
+| ---- | ----------------------------------- | --------------------------------------- |
+| [0]  | struct RentalityUserService.KYCInfo | KYC information for the specified user. |
 
 ### getMyKYCInfo
 
@@ -766,9 +766,9 @@ Retrieves KYC information for the caller.
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | struct RentalityUserService.KYCInfo | KYC information for the caller. |
+| Name | Type                                | Description                     |
+| ---- | ----------------------------------- | ------------------------------- |
+| [0]  | struct RentalityUserService.KYCInfo | KYC information for the caller. |
 
 ### getChatInfoForHost
 
@@ -780,9 +780,9 @@ Retrieves chat information for the caller acting as a host.
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | struct IRentalityGateway.ChatInfo[] | An array of chat information. |
+| Name | Type                                | Description                   |
+| ---- | ----------------------------------- | ----------------------------- |
+| [0]  | struct IRentalityGateway.ChatInfo[] | An array of chat information. |
 
 ### getChatInfoForGuest
 
@@ -794,7 +794,6 @@ Retrieves chat information for the caller acting as a guest.
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | struct IRentalityGateway.ChatInfo[] | An array of chat information. |
-
+| Name | Type                                | Description                   |
+| ---- | ----------------------------------- | ----------------------------- |
+| [0]  | struct IRentalityGateway.ChatInfo[] | An array of chat information. |

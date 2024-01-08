@@ -1,24 +1,16 @@
 const { ethers, network, upgrades } = require('hardhat')
 const saveJsonAbi = require('./utils/abiSaver')
 const addressSaver = require('./utils/addressSaver')
-const getContractAddress = require('./utils/contractAddress')
+const { getContractAddress } = require('./utils/contractAddress')
 
 async function main() {
   const chainId = network.config.chainId
 
   const [deployer] = await ethers.getSigners()
   const balance = await ethers.provider.getBalance(deployer)
-  console.log(
-    'Deployer address is:',
-    await deployer.getAddress(),
-    ' with balance:',
-    balance,
-  )
+  console.log('Deployer address is:', await deployer.getAddress(), ' with balance:', balance)
 
-  const userService = getContractAddress(
-    'RentalityUserService',
-    'scripts/deploy_1b_RentalityUserService.js',
-  )
+  const userService = getContractAddress('RentalityUserService', 'scripts/deploy_1b_RentalityUserService.js')
 
   const patrolName = 'RentalityPatrolEngine'
   const patrolEngine = await ethers.getContractFactory(patrolName)
@@ -54,11 +46,7 @@ async function main() {
   }
   const contract = await upgrades.deployProxy(EngineService, [
     userService,
-    [
-      await pEngine.getAddress(),
-      await elEngine.getAddress(),
-      await hEngine.getAddress(),
-    ],
+    [await pEngine.getAddress(), await elEngine.getAddress(), await hEngine.getAddress()],
   ])
   await contract.waitForDeployment()
 
