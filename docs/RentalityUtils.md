@@ -18,20 +18,20 @@ Checks if a set of coordinates falls within a specified bounding box.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| locationLat | string | Latitude of the location to check. |
-| locationLng | string | Longitude of the location to check. |
-| northeastLat | string | Latitude of the northeast corner of the bounding box. |
+| Name         | Type   | Description                                            |
+| ------------ | ------ | ------------------------------------------------------ |
+| locationLat  | string | Latitude of the location to check.                     |
+| locationLng  | string | Longitude of the location to check.                    |
+| northeastLat | string | Latitude of the northeast corner of the bounding box.  |
 | northeastLng | string | Longitude of the northeast corner of the bounding box. |
-| southwestLat | string | Latitude of the southwest corner of the bounding box. |
+| southwestLat | string | Latitude of the southwest corner of the bounding box.  |
 | southwestLng | string | Longitude of the southwest corner of the bounding box. |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | bool | Returns true if the coordinates are within the bounding box, false otherwise. |
+| Name | Type | Description                                                                   |
+| ---- | ---- | ----------------------------------------------------------------------------- |
+| [0]  | bool | Returns true if the coordinates are within the bounding box, false otherwise. |
 
 ### parseInt
 
@@ -43,15 +43,15 @@ Parses an integer from a string.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| _a | string | The input string to parse. |
+| Name | Type   | Description                |
+| ---- | ------ | -------------------------- |
+| \_a  | string | The input string to parse. |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | int256 | Returns the parsed integer value. |
+| Name | Type   | Description                       |
+| ---- | ------ | --------------------------------- |
+| [0]  | int256 | Returns the parsed integer value. |
 
 ### indexOf
 
@@ -63,16 +63,16 @@ Finds the index of a substring in a given string.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| haystack | bytes | The string to search within. |
-| needle | string | The substring to search for. |
+| Name     | Type   | Description                  |
+| -------- | ------ | ---------------------------- |
+| haystack | bytes  | The string to search within. |
+| needle   | string | The substring to search for. |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | uint256 | Returns the index of the first occurrence of the substring, or the length of the string if not found. |
+| Name | Type    | Description                                                                                           |
+| ---- | ------- | ----------------------------------------------------------------------------------------------------- |
+| [0]  | uint256 | Returns the index of the first occurrence of the substring, or the length of the string if not found. |
 
 ### toLower
 
@@ -84,15 +84,15 @@ Converts a string to lowercase.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| str | string | The input string to convert. |
+| Name | Type   | Description                  |
+| ---- | ------ | ---------------------------- |
+| str  | string | The input string to convert. |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | string | Returns the lowercase version of the input string. |
+| Name | Type   | Description                                        |
+| ---- | ------ | -------------------------------------------------- |
+| [0]  | string | Returns the lowercase version of the input string. |
 
 ### containWord
 
@@ -104,15 +104,15 @@ Checks if a string contains a specific word.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name  | Type   | Description                  |
+| ----- | ------ | ---------------------------- |
 | where | string | The string to search within. |
-| what | string | The word to search for. |
+| what  | string | The word to search for.      |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name  | Type | Description                                         |
+| ----- | ---- | --------------------------------------------------- |
 | found | bool | Returns true if the word is found, false otherwise. |
 
 ### getHashFromString
@@ -125,15 +125,15 @@ Generates a hash from a string.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| str | string | The input string to hash. |
+| Name | Type   | Description               |
+| ---- | ------ | ------------------------- |
+| str  | string | The input string to hash. |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | bytes32 | Returns the keccak256 hash of the input string. |
+| Name | Type    | Description                                     |
+| ---- | ------- | ----------------------------------------------- |
+| [0]  | bytes32 | Returns the keccak256 hash of the input string. |
 
 ### getCeilDays
 
@@ -145,16 +145,16 @@ Calculates the ceiling of the division of two numbers.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| startDateTime | uint64 | The numerator of the division. |
-| endDateTime | uint64 | The denominator of the division. |
+| Name          | Type   | Description                      |
+| ------------- | ------ | -------------------------------- |
+| startDateTime | uint64 | The numerator of the division.   |
+| endDateTime   | uint64 | The denominator of the division. |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | uint64 | Returns the result of the division rounded up to the nearest whole number. |
+| Name | Type   | Description                                                                |
+| ---- | ------ | -------------------------------------------------------------------------- |
+| [0]  | uint64 | Returns the result of the division rounded up to the nearest whole number. |
 
 ### populateChatInfo
 
@@ -166,17 +166,17 @@ Populates an array of chat information using data from trips, user service, and 
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| trips | struct RentalityTripService.Trip[] | Array of RentalityTripService.Trip structures. |
-| userService | contract RentalityUserService | RentalityUserService contract instance. |
-| carService | contract RentalityCarToken | RentalityCarToken contract instance. |
+| Name        | Type                               | Description                                    |
+| ----------- | ---------------------------------- | ---------------------------------------------- |
+| trips       | struct RentalityTripService.Trip[] | Array of RentalityTripService.Trip structures. |
+| userService | contract RentalityUserService      | RentalityUserService contract instance.        |
+| carService  | contract RentalityCarToken         | RentalityCarToken contract instance.           |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | struct IRentalityGateway.ChatInfo[] | chatInfoList Array of IRentalityGateway.ChatInfo structures. |
+| Name | Type                                | Description                                                  |
+| ---- | ----------------------------------- | ------------------------------------------------------------ |
+| [0]  | struct IRentalityGateway.ChatInfo[] | chatInfoList Array of IRentalityGateway.ChatInfo structures. |
 
 ### parseResponse
 
@@ -188,15 +188,15 @@ Parses a response string containing geolocation data.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name     | Type   | Description                   |
+| -------- | ------ | ----------------------------- |
 | response | string | The response string to parse. |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | struct RentalityGeoService.ParsedGeolocationData | result Parsed geolocation data in RentalityGeoService.ParsedGeolocationData structure. |
+| Name | Type                                             | Description                                                                            |
+| ---- | ------------------------------------------------ | -------------------------------------------------------------------------------------- |
+| [0]  | struct RentalityGeoService.ParsedGeolocationData | result Parsed geolocation data in RentalityGeoService.ParsedGeolocationData structure. |
 
 ### splitString
 
@@ -208,15 +208,15 @@ Splits a string into an array of substrings based on a delimiter.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name  | Type   | Description                |
+| ----- | ------ | -------------------------- |
 | input | string | The input string to split. |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | string[] | parts Array of substrings. |
+| Name | Type     | Description                |
+| ---- | -------- | -------------------------- |
+| [0]  | string[] | parts Array of substrings. |
 
 ### splitKeyValue
 
@@ -228,15 +228,15 @@ Splits a key-value pair string into an array of key and value.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name  | Type   | Description                |
+| ----- | ------ | -------------------------- |
 | input | string | The input string to split. |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | string[] | parts Array containing key and value. |
+| Name | Type     | Description                           |
+| ---- | -------- | ------------------------------------- |
+| [0]  | string[] | parts Array containing key and value. |
 
 ### compareStrings
 
@@ -248,16 +248,16 @@ Compares two strings for equality.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| a | string | The first string. |
-| b | string | The second string. |
+| Name | Type   | Description        |
+| ---- | ------ | ------------------ |
+| a    | string | The first string.  |
+| b    | string | The second string. |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | bool | Returns true if the strings are equal, false otherwise. |
+| Name | Type | Description                                             |
+| ---- | ---- | ------------------------------------------------------- |
+| [0]  | bool | Returns true if the strings are equal, false otherwise. |
 
 ### urlEncode
 
@@ -269,15 +269,15 @@ URL encodes a string.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name  | Type   | Description                 |
+| ----- | ------ | --------------------------- |
 | input | string | The input string to encode. |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | string | output The URL-encoded string. |
+| Name | Type   | Description                    |
+| ---- | ------ | ------------------------------ |
+| [0]  | string | output The URL-encoded string. |
 
 ### toBytes
 
@@ -289,15 +289,15 @@ _Converts a bytes32 data to a bytes array._
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| _data | bytes32 | The input bytes32 data to convert. |
+| Name   | Type    | Description                        |
+| ------ | ------- | ---------------------------------- |
+| \_data | bytes32 | The input bytes32 data to convert. |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | bytes | Returns the packed representation of the input data as a bytes array. |
+| Name | Type  | Description                                                           |
+| ---- | ----- | --------------------------------------------------------------------- |
+| [0]  | bytes | Returns the packed representation of the input data as a bytes array. |
 
 ### isTripThatIntersect
 
@@ -307,18 +307,18 @@ function isTripThatIntersect(contract RentalityTripService tripService, uint256 
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| tripService | contract RentalityTripService |  |
-| tripId | uint256 | The ID of the trip to check. |
-| startDateTime | uint64 | The start date and time of the time range. |
-| endDateTime | uint64 | The end date and time of the time range. |
+| Name          | Type                          | Description                                |
+| ------------- | ----------------------------- | ------------------------------------------ |
+| tripService   | contract RentalityTripService |                                            |
+| tripId        | uint256                       | The ID of the trip to check.               |
+| startDateTime | uint64                        | The start date and time of the time range. |
+| endDateTime   | uint64                        | The end date and time of the time range.   |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | bool | hasIntersectingTrips A boolean indicating whether the trip has intersecting trips within the specified time range. |
+| Name | Type | Description                                                                                                        |
+| ---- | ---- | ------------------------------------------------------------------------------------------------------------------ |
+| [0]  | bool | hasIntersectingTrips A boolean indicating whether the trip has intersecting trips within the specified time range. |
 
 ### getTripsThatIntersect
 
@@ -328,17 +328,17 @@ function getTripsThatIntersect(contract RentalityTripService tripService, uint64
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| tripService | contract RentalityTripService |  |
-| startDateTime | uint64 | The start date and time of the time range. |
-| endDateTime | uint64 | The end date and time of the time range. |
+| Name          | Type                          | Description                                |
+| ------------- | ----------------------------- | ------------------------------------------ |
+| tripService   | contract RentalityTripService |                                            |
+| startDateTime | uint64                        | The start date and time of the time range. |
+| endDateTime   | uint64                        | The end date and time of the time range.   |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | struct RentalityTripService.Trip[] | intersectingTrips An array of trips that intersect with the specified time range. |
+| Name | Type                               | Description                                                                       |
+| ---- | ---------------------------------- | --------------------------------------------------------------------------------- |
+| [0]  | struct RentalityTripService.Trip[] | intersectingTrips An array of trips that intersect with the specified time range. |
 
 ### getTripsForCarThatIntersect
 
@@ -347,9 +347,9 @@ function getTripsForCarThatIntersect(contract RentalityTripService tripService, 
 ```
 
 @param carId The ID of the car to check.
- @param startDateTime The start date and time of the time range.
- @param endDateTime The end date and time of the time range.
- @return trips An array of intersecting trips for the specified car within the specified time range.
+@param startDateTime The start date and time of the time range.
+@param endDateTime The end date and time of the time range.
+@return trips An array of intersecting trips for the specified car within the specified time range.
 
 ### getTripsByGuest
 
@@ -361,16 +361,16 @@ _Retrieves an array of trips associated with a specific guest address._
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| tripService | contract RentalityTripService |  |
-| guest | address | The address of the guest. |
+| Name        | Type                          | Description               |
+| ----------- | ----------------------------- | ------------------------- |
+| tripService | contract RentalityTripService |                           |
+| guest       | address                       | The address of the guest. |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | struct RentalityTripService.Trip[] | trips An array of trips associated with the specified guest. |
+| Name | Type                               | Description                                                  |
+| ---- | ---------------------------------- | ------------------------------------------------------------ |
+| [0]  | struct RentalityTripService.Trip[] | trips An array of trips associated with the specified guest. |
 
 ### getTripsByHost
 
@@ -382,16 +382,16 @@ _Retrieves an array of trips associated with a specific host address._
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| tripService | contract RentalityTripService |  |
-| host | address | The address of the host. |
+| Name        | Type                          | Description              |
+| ----------- | ----------------------------- | ------------------------ |
+| tripService | contract RentalityTripService |                          |
+| host        | address                       | The address of the host. |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | struct RentalityTripService.Trip[] | trips An array of trips associated with the specified host. |
+| Name | Type                               | Description                                                 |
+| ---- | ---------------------------------- | ----------------------------------------------------------- |
+| [0]  | struct RentalityTripService.Trip[] | trips An array of trips associated with the specified host. |
 
 ### getTripsByCar
 
@@ -403,16 +403,16 @@ _Retrieves an array of trips associated with a specific car ID._
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| tripService | contract RentalityTripService |  |
-| carId | uint256 | The ID of the car. |
+| Name        | Type                          | Description        |
+| ----------- | ----------------------------- | ------------------ |
+| tripService | contract RentalityTripService |                    |
+| carId       | uint256                       | The ID of the car. |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | struct RentalityTripService.Trip[] | trips An array of trips associated with the specified car ID. |
+| Name | Type                               | Description                                                   |
+| ---- | ---------------------------------- | ------------------------------------------------------------- |
+| [0]  | struct RentalityTripService.Trip[] | trips An array of trips associated with the specified car ID. |
 
 ### getResolveAmountInUsdCents
 
@@ -421,12 +421,11 @@ function getResolveAmountInUsdCents(uint8 eType, struct RentalityTripService.Tri
 ```
 
 @dev Calculates the resolved amount in USD cents for a trip.
- @param tripInfo The information about the trip.
+@param tripInfo The information about the trip.
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | uint64 | Returns the resolved amounts for miles and fuel in USD cents as a tuple. |
-| [1] | uint64 |  |
-
+| Name | Type   | Description                                                              |
+| ---- | ------ | ------------------------------------------------------------------------ |
+| [0]  | uint64 | Returns the resolved amounts for miles and fuel in USD cents as a tuple. |
+| [1]  | uint64 |                                                                          |

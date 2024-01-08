@@ -2,19 +2,16 @@ const fs = require('fs')
 const package = require('../../package.json')
 const { readFileSync, existsSync } = require('fs')
 const { network } = require('hardhat')
-var saveJsonAbi = async function(fileName, chainId, contract) {
+var saveJsonAbi = async function (fileName, chainId, contract) {
   const version = extractVersion()
-
 
   const onlyAbiJsonData = {
     abi: JSON.parse(contract.interface.formatJson()),
   }
 
-
   fs.mkdirSync('./src/abis', { recursive: true }, (err) => {
     if (err) throw err
   })
-
 
   let filePath = './src/abis/' + fileName + '.' + version + '.abi.' + 'json'
   fs.writeFileSync(filePath, JSON.stringify(onlyAbiJsonData))
@@ -22,7 +19,6 @@ var saveJsonAbi = async function(fileName, chainId, contract) {
 
   filePath = updateAddress(fileName, await contract.getAddress())
   console.log('JSON abi saved to ' + filePath)
-
 }
 
 module.exports = saveJsonAbi
@@ -38,9 +34,7 @@ function updateAddress(contractName, newAddress) {
 
   let dataToSave
 
-
   const fileExist = existsSync(path)
-
 
   if (fileExist) {
     const data = readFileSync(path, 'utf-8')
@@ -70,10 +64,7 @@ function updateAddress(contractName, newAddress) {
         },
       ],
     }
-
   }
   fs.writeFileSync(path, JSON.stringify(dataToSave))
   return path
-
-
 }

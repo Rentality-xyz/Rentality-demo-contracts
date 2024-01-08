@@ -54,14 +54,14 @@ Sets KYC information for the caller (host or guest).
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| name | string | The user's name. |
-| surname | string | The user's surname. |
-| mobilePhoneNumber | string | The user's mobile phone number. |
-| profilePhoto | string | The URL or identifier of the user's profile photo. |
-| licenseNumber | string | The user's license number. |
-| expirationDate | uint64 | The expiration date of the user's license. Requirements: - Caller must be a host or guest. |
+| Name              | Type   | Description                                                                                |
+| ----------------- | ------ | ------------------------------------------------------------------------------------------ |
+| name              | string | The user's name.                                                                           |
+| surname           | string | The user's surname.                                                                        |
+| mobilePhoneNumber | string | The user's mobile phone number.                                                            |
+| profilePhoto      | string | The URL or identifier of the user's profile photo.                                         |
+| licenseNumber     | string | The user's license number.                                                                 |
+| expirationDate    | uint64 | The expiration date of the user's license. Requirements: - Caller must be a host or guest. |
 
 ### getKYCInfo
 
@@ -73,14 +73,14 @@ Retrieves KYC information for a specified user.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name | Type    | Description                                                   |
+| ---- | ------- | ------------------------------------------------------------- |
 | user | address | The address of the user for whom to retrieve KYC information. |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name    | Type                                | Description                                                                                    |
+| ------- | ----------------------------------- | ---------------------------------------------------------------------------------------------- |
 | kycInfo | struct RentalityUserService.KYCInfo | KYCInfo structure containing user's KYC information. Requirements: - Caller must be a manager. |
 
 ### getMyKYCInfo
@@ -93,8 +93,8 @@ Retrieves KYC information for the caller.
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name    | Type                                | Description                                            |
+| ------- | ----------------------------------- | ------------------------------------------------------ |
 | kycInfo | struct RentalityUserService.KYCInfo | KYCInfo structure containing caller's KYC information. |
 
 ### hasValidKYC
@@ -107,14 +107,14 @@ Checks if the KYC information for a specified user is valid.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name | Type    | Description                                     |
+| ---- | ------- | ----------------------------------------------- |
 | user | address | The address of the user to check for valid KYC. |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name    | Type | Description                                                      |
+| ------- | ---- | ---------------------------------------------------------------- |
 | isValid | bool | A boolean indicating whether the user has valid KYC information. |
 
 ### grantAdminRole
@@ -125,12 +125,13 @@ function grantAdminRole(address user) public
 
 Grants admin role to a specified user.
 Requirements:
+
 - Caller must have DEFAULT_ADMIN_ROLE.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name | Type    | Description                                  |
+| ---- | ------- | -------------------------------------------- |
 | user | address | The address of the user to grant admin role. |
 
 ### revokeAdminRole
@@ -141,12 +142,13 @@ function revokeAdminRole(address user) public
 
 Revokes admin role from a specified user.
 Requirements:
+
 - Caller must have DEFAULT_ADMIN_ROLE.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name | Type    | Description                                   |
+| ---- | ------- | --------------------------------------------- |
 | user | address | The address of the user to revoke admin role. |
 
 ### grantManagerRole
@@ -157,12 +159,13 @@ function grantManagerRole(address user) public
 
 Grants manager role to a specified user.
 Requirements:
+
 - Caller must have DEFAULT_ADMIN_ROLE.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name | Type    | Description                                    |
+| ---- | ------- | ---------------------------------------------- |
 | user | address | The address of the user to grant manager role. |
 
 ### revokeManagerRole
@@ -173,12 +176,13 @@ function revokeManagerRole(address user) public
 
 Revokes manager role from a specified user.
 Requirements:
+
 - Caller must have DEFAULT_ADMIN_ROLE.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name | Type    | Description                                     |
+| ---- | ------- | ----------------------------------------------- |
 | user | address | The address of the user to revoke manager role. |
 
 ### grantHostRole
@@ -189,12 +193,13 @@ function grantHostRole(address user) public
 
 Grants host role to a specified user.
 Requirements:
+
 - Caller must have MANAGER_ROLE.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name | Type    | Description                                 |
+| ---- | ------- | ------------------------------------------- |
 | user | address | The address of the user to grant host role. |
 
 ### revokeHostRole
@@ -205,12 +210,13 @@ function revokeHostRole(address user) public
 
 Revokes host role from a specified user.
 Requirements:
+
 - Caller must have MANAGER_ROLE.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name | Type    | Description                                  |
+| ---- | ------- | -------------------------------------------- |
 | user | address | The address of the user to revoke host role. |
 
 ### grantGuestRole
@@ -221,12 +227,13 @@ function grantGuestRole(address user) public
 
 Grants guest role to a specified user.
 Requirements:
+
 - Caller must have MANAGER_ROLE.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name | Type    | Description                                  |
+| ---- | ------- | -------------------------------------------- |
 | user | address | The address of the user to grant guest role. |
 
 ### revokeGuestRole
@@ -237,12 +244,13 @@ function revokeGuestRole(address user) public
 
 Revokes guest role from a specified user.
 Requirements:
+
 - Caller must have MANAGER_ROLE.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name | Type    | Description                                   |
+| ---- | ------- | --------------------------------------------- |
 | user | address | The address of the user to revoke guest role. |
 
 ### isAdmin
@@ -255,15 +263,15 @@ Checks if a user has admin role.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name | Type    | Description                                      |
+| ---- | ------- | ------------------------------------------------ |
 | user | address | The address of the user to check for admin role. |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | bool | isAdmin A boolean indicating whether the user has admin role. |
+| Name | Type | Description                                                   |
+| ---- | ---- | ------------------------------------------------------------- |
+| [0]  | bool | isAdmin A boolean indicating whether the user has admin role. |
 
 ### isManager
 
@@ -275,15 +283,15 @@ Checks if a user has manager role.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name | Type    | Description                                        |
+| ---- | ------- | -------------------------------------------------- |
 | user | address | The address of the user to check for manager role. |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | bool | isManager A boolean indicating whether the user has manager role. |
+| Name | Type | Description                                                       |
+| ---- | ---- | ----------------------------------------------------------------- |
+| [0]  | bool | isManager A boolean indicating whether the user has manager role. |
 
 ### isHost
 
@@ -295,15 +303,15 @@ Checks if a user has host role.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name | Type    | Description                                     |
+| ---- | ------- | ----------------------------------------------- |
 | user | address | The address of the user to check for host role. |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | bool | isHost A boolean indicating whether the user has host role. |
+| Name | Type | Description                                                 |
+| ---- | ---- | ----------------------------------------------------------- |
+| [0]  | bool | isHost A boolean indicating whether the user has host role. |
 
 ### isGuest
 
@@ -315,15 +323,15 @@ Checks if a user has guest role.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name | Type    | Description                                      |
+| ---- | ------- | ------------------------------------------------ |
 | user | address | The address of the user to check for guest role. |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | bool | isGuest A boolean indicating whether the user has guest role. |
+| Name | Type | Description                                                   |
+| ---- | ---- | ------------------------------------------------------------- |
+| [0]  | bool | isGuest A boolean indicating whether the user has guest role. |
 
 ### isHostOrGuest
 
@@ -335,13 +343,12 @@ Checks if a user has host or guest role.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name | Type    | Description                                              |
+| ---- | ------- | -------------------------------------------------------- |
 | user | address | The address of the user to check for host or guest role. |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | bool | isHostOrGuest A boolean indicating whether the user has host or guest role. |
-
+| Name | Type | Description                                                                 |
+| ---- | ---- | --------------------------------------------------------------------------- |
+| [0]  | bool | isHostOrGuest A boolean indicating whether the user has host or guest role. |
