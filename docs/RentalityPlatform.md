@@ -16,13 +16,13 @@ Constructor to initialize the RentalityPlatform with service contract addresses.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| carServiceAddress | address | The address of the RentalityCarToken contract. |
+| Name                            | Type    | Description                                             |
+| ------------------------------- | ------- | ------------------------------------------------------- |
+| carServiceAddress               | address | The address of the RentalityCarToken contract.          |
 | currencyConverterServiceAddress | address | The address of the RentalityCurrencyConverter contract. |
-| tripServiceAddress | address | The address of the RentalityTripService contract. |
-| userServiceAddress | address | The address of the RentalityUserService contract. |
-| paymentServiceAddress | address | The address of the RentalityPaymentService contract. |
+| tripServiceAddress              | address | The address of the RentalityTripService contract.       |
+| userServiceAddress              | address | The address of the RentalityUserService contract.       |
+| paymentServiceAddress           | address | The address of the RentalityPaymentService contract.    |
 
 ### onlyAdmin
 
@@ -42,9 +42,9 @@ Get the address of the Car service on the Rentality platform.
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | address | The address of the Car service. |
+| Name | Type    | Description                     |
+| ---- | ------- | ------------------------------- |
+| [0]  | address | The address of the Car service. |
 
 ### updateCarService
 
@@ -58,8 +58,8 @@ _This function can only be called by the platform admin._
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name            | Type    | Description                         |
+| --------------- | ------- | ----------------------------------- |
 | contractAddress | address | The new address of the Car service. |
 
 ### getCurrencyConverterServiceAddress
@@ -72,9 +72,9 @@ Get the address of the currency converter service on the Rentality platform.
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | address | The address of the currency converter service. |
+| Name | Type    | Description                                    |
+| ---- | ------- | ---------------------------------------------- |
+| [0]  | address | The address of the currency converter service. |
 
 ### updateCurrencyConverterService
 
@@ -88,8 +88,8 @@ _This function can only be called by the platform admin._
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name            | Type    | Description                                        |
+| --------------- | ------- | -------------------------------------------------- |
 | contractAddress | address | The new address of the currency converter service. |
 
 ### getTripServiceAddress
@@ -108,8 +108,8 @@ Update the RentalityTripService service contract address.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name            | Type    | Description                                           |
+| --------------- | ------- | ----------------------------------------------------- |
 | contractAddress | address | The new address of the RentalityTripService contract. |
 
 ### getUserServiceAddress
@@ -130,8 +130,8 @@ Update the RentalityUserService service contract address.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name            | Type    | Description                                           |
+| --------------- | ------- | ----------------------------------------------------- |
 | contractAddress | address | The new address of the RentalityUserService contract. |
 
 ### withdrawFromPlatform
@@ -144,8 +144,8 @@ Withdraw a specific amount of funds from the contract.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name   | Type    | Description                               |
+| ------ | ------- | ----------------------------------------- |
 | amount | uint256 | The amount to withdraw from the contract. |
 
 ### withdrawAllFromPlatform
@@ -164,8 +164,8 @@ Create a new trip request on the Rentality platform.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name    | Type                                       | Description                                                                          |
+| ------- | ------------------------------------------ | ------------------------------------------------------------------------------------ |
 | request | struct IRentalityGateway.CreateTripRequest | The details of the trip request as specified in IRentalityGateway.CreateTripRequest. |
 
 ### approveTripRequest
@@ -178,8 +178,8 @@ Approve a trip request on the Rentality platform.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name   | Type    | Description                    |
+| ------ | ------- | ------------------------------ |
 | tripId | uint256 | The ID of the trip to approve. |
 
 ### rejectTripRequest
@@ -192,8 +192,8 @@ Reject a trip request on the Rentality platform.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name   | Type    | Description                   |
+| ------ | ------- | ----------------------------- |
 | tripId | uint256 | The ID of the trip to reject. |
 
 ### finishTrip
@@ -206,8 +206,8 @@ Finish a trip on the Rentality platform.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name   | Type    | Description                   |
+| ------ | ------- | ----------------------------- |
 | tripId | uint256 | The ID of the trip to finish. |
 
 ### getTripContactInfo
@@ -220,16 +220,16 @@ Get contact information for a specific trip on the Rentality platform.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name   | Type    | Description                                             |
+| ------ | ------- | ------------------------------------------------------- |
 | tripId | uint256 | The ID of the trip to retrieve contact information for. |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name             | Type   | Description                                |
+| ---------------- | ------ | ------------------------------------------ |
 | guestPhoneNumber | string | The phone number of the guest on the trip. |
-| hostPhoneNumber | string | The phone number of the host on the trip. |
+| hostPhoneNumber  | string | The phone number of the host on the trip.  |
 
 ### getMyKYCInfo
 
@@ -241,8 +241,8 @@ Get KYC (Know Your Customer) information for the caller on the Rentality platfor
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name    | Type                                | Description                         |
+| ------- | ----------------------------------- | ----------------------------------- |
 | kycInfo | struct RentalityUserService.KYCInfo | The KYC information for the caller. |
 
 ### getChatInfoForHost
@@ -255,9 +255,9 @@ Get chat information for trips hosted by the caller on the Rentality platform.
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | struct IRentalityGateway.ChatInfo[] | chatInfo An array of chat information for trips hosted by the caller. |
+| Name | Type                                | Description                                                           |
+| ---- | ----------------------------------- | --------------------------------------------------------------------- |
+| [0]  | struct IRentalityGateway.ChatInfo[] | chatInfo An array of chat information for trips hosted by the caller. |
 
 ### getChatInfoForGuest
 
@@ -269,7 +269,6 @@ Get chat information for trips attended by the caller on the Rentality platform.
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | struct IRentalityGateway.ChatInfo[] | chatInfo An array of chat information for trips attended by the caller. |
-
+| Name | Type                                | Description                                                             |
+| ---- | ----------------------------------- | ----------------------------------------------------------------------- |
+| [0]  | struct IRentalityGateway.ChatInfo[] | chatInfo An array of chat information for trips attended by the caller. |

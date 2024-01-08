@@ -16,8 +16,7 @@ Constructor to initialize the mock price feed.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| _decimals | uint8 | The number of decimals for the price feed. |
-| _initialAnswer | int256 | The initial answer (price) for the price feed. |
-
+| Name            | Type   | Description                                    |
+| --------------- | ------ | ---------------------------------------------- |
+| \_decimals      | uint8  | The number of decimals for the price feed.     |
+| \_initialAnswer | int256 | The initial answer (price) for the price feed. |
