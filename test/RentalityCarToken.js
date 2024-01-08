@@ -240,6 +240,7 @@ describe('RentalityCarToken', function() {
       securityDepositPerTripInUsdCents: 2,
       engineParams: [2],
       milesIncludedPerDay: 2,
+      timeBufferBetweenTripsInSec: 0,
       currentlyListed: false,
     }
 
@@ -249,7 +250,7 @@ describe('RentalityCarToken', function() {
 
     expect(car_info.pricePerDayInUsdCents).to.be.equal(update_params.pricePerDayInUsdCents)
     expect(car_info.securityDepositPerTripInUsdCents).to.be.equal(update_params.securityDepositPerTripInUsdCents)
-    expect(car_info.fuelPricePerGalInUsdCents).to.be.equal(update_params.fuelPricePerGalInUsdCents)
+    expect(car_info.engineParams[1]).to.be.equal(update_params.engineParams[0])
     expect(car_info.milesIncludedPerDay).to.be.equal(update_params.milesIncludedPerDay)
   })
   it('Update car with location, but without api should revert', async function() {
@@ -264,6 +265,7 @@ describe('RentalityCarToken', function() {
       securityDepositPerTripInUsdCents: 2,
       engineParams: [2],
       milesIncludedPerDay: 2,
+      timeBufferBetweenTripsInSec: 0,
       currentlyListed: false,
     }
 
@@ -281,6 +283,7 @@ describe('RentalityCarToken', function() {
       pricePerDayInUsdCents: 2,
       securityDepositPerTripInUsdCents: 2,
       engineParams: [2],
+      timeBufferBetweenTripsInSec: 0,
       milesIncludedPerDay: 2,
       currentlyListed: false,
     }

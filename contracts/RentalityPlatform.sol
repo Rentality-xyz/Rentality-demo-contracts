@@ -203,11 +203,13 @@ contract RentalityPlatform is UUPSOwnable {
         for (uint256 tripId = 1; tripId <= tripService.totalTripCount(); tripId++) {
 
             RentalityTripService.Trip memory trip = tripService.getTrip(tripId);
+            RentalityCarToken.CarInfo memory car = carService.getCarInfoById(carId);
 
             if (trip.carId == carId &&
-            trip.endDateTime > startDateTime &&
+            trip.endDateTime + car.timeBufferBetweenTripsInSec > startDateTime &&
                 trip.startDateTime < endDateTime) {
                 RentalityTripService.TripStatus tripStatus = trip.status;
+
 
                 // Check if the trip is active (not in Created, Finished, or Canceled status).
                 bool isActiveTrip = (
@@ -234,6 +236,7 @@ contract RentalityPlatform is UUPSOwnable {
         RentalityTripService.Trip memory trip = tripService.getTrip(tripId);
         RentalityTripService.Trip[] memory intersectedTrips = RentalityUtils.getTripsForCarThatIntersect(
             tripService,
+            carService,
             trip.carId,
             trip.startDateTime,
             trip.endDateTime
