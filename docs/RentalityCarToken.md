@@ -108,10 +108,10 @@ Constructor to initialize the RentalityCarToken contract.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| _geoServiceAddress | address | The address of the RentalityGeoService contract. |
-| _rentalityEngine | address |  |
+| Name                | Type    | Description                                      |
+| ------------------- | ------- | ------------------------------------------------ |
+| \_geoServiceAddress | address | The address of the RentalityGeoService contract. |
+| \_rentalityEngine   | address |                                                  |
 
 ### totalSupply
 
@@ -123,9 +123,9 @@ Returns the total supply of cars.
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | uint256 | The total number of cars in the system. |
+| Name | Type    | Description                             |
+| ---- | ------- | --------------------------------------- |
+| [0]  | uint256 | The total number of cars in the system. |
 
 ### getCarInfoById
 
@@ -137,15 +137,15 @@ Retrieves information about a car based on its ID.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name  | Type    | Description        |
+| ----- | ------- | ------------------ |
 | carId | uint256 | The ID of the car. |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | struct RentalityCarToken.CarInfo | A struct containing information about the specified car. |
+| Name | Type                             | Description                                              |
+| ---- | -------------------------------- | -------------------------------------------------------- |
+| [0]  | struct RentalityCarToken.CarInfo | A struct containing information about the specified car. |
 
 ### isUniqueVinNumber
 
@@ -157,15 +157,15 @@ Checks if a VIN number is unique among the listed cars.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name         | Type   | Description                             |
+| ------------ | ------ | --------------------------------------- |
 | carVinNumber | string | The VIN number to check for uniqueness. |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | bool | True if the VIN number is unique, false otherwise. |
+| Name | Type | Description                                        |
+| ---- | ---- | -------------------------------------------------- |
+| [0]  | bool | True if the VIN number is unique, false otherwise. |
 
 ### addCar
 
@@ -177,15 +177,15 @@ Adds a new car to the system with the provided information.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name    | Type                                      | Description                                    |
+| ------- | ----------------------------------------- | ---------------------------------------------- |
 | request | struct RentalityCarToken.CreateCarRequest | The input parameters for creating the new car. |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | uint256 | The ID of the newly added car. |
+| Name | Type    | Description                    |
+| ---- | ------- | ------------------------------ |
+| [0]  | uint256 | The ID of the newly added car. |
 
 ### verifyGeo
 
@@ -197,8 +197,8 @@ Verifies the geographic coordinates for a given car.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name  | Type    | Description                  |
+| ----- | ------- | ---------------------------- |
 | carId | uint256 | The ID of the car to verify. |
 
 ### updateCarInfo
@@ -211,11 +211,11 @@ Updates the information for a specific car.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| request | struct RentalityCarToken.UpdateCarInfoRequest | The input parameters for updating the car. |
-| location | string | The location for verifying geographic coordinates.  can be empty, for left old location information. |
-| geoApiKey | string | The API key for the geographic verification service. can be empty, if location param is empty. |
+| Name      | Type                                          | Description                                                                                         |
+| --------- | --------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| request   | struct RentalityCarToken.UpdateCarInfoRequest | The input parameters for updating the car.                                                          |
+| location  | string                                        | The location for verifying geographic coordinates. can be empty, for left old location information. |
+| geoApiKey | string                                        | The API key for the geographic verification service. can be empty, if location param is empty.      |
 
 ### updateCarTokenUri
 
@@ -227,10 +227,10 @@ Updates the token URI associated with a specific car.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| carId | uint256 | The ID of the car. |
-| tokenUri | string | The new token URI. |
+| Name     | Type    | Description        |
+| -------- | ------- | ------------------ |
+| carId    | uint256 | The ID of the car. |
+| tokenUri | string  | The new token URI. |
 
 ### burnCar
 
@@ -242,8 +242,8 @@ Burns a specific car token, removing it from the system.
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name  | Type    | Description                     |
+| ----- | ------- | ------------------------------- |
 | carId | uint256 | The ID of the car to be burned. |
 
 ### getAllCars
@@ -256,9 +256,9 @@ Retrieves information about all cars in the system.
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | struct RentalityCarToken.CarInfo[] | An array containing information about all cars. |
+| Name | Type                               | Description                                     |
+| ---- | ---------------------------------- | ----------------------------------------------- |
+| [0]  | struct RentalityCarToken.CarInfo[] | An array containing information about all cars. |
 
 ### getAvailableCarsForUser
 
@@ -272,15 +272,15 @@ _Only used by main contract_
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name | Type    | Description              |
+| ---- | ------- | ------------------------ |
 | user | address | The address of the user. |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | struct RentalityCarToken.CarInfo[] | An array containing information about available cars for the user. |
+| Name | Type                               | Description                                                        |
+| ---- | ---------------------------------- | ------------------------------------------------------------------ |
+| [0]  | struct RentalityCarToken.CarInfo[] | An array containing information about available cars for the user. |
 
 ### fetchAvailableCarsForUser
 
@@ -294,16 +294,16 @@ _Iterates through all cars to find those that are available for the user._
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| user | address | The address of the user for whom to fetch available cars. |
-| searchCarParams | struct RentalityCarToken.SearchCarParams | The parameters used to filter available cars. |
+| Name            | Type                                     | Description                                               |
+| --------------- | ---------------------------------------- | --------------------------------------------------------- |
+| user            | address                                  | The address of the user for whom to fetch available cars. |
+| searchCarParams | struct RentalityCarToken.SearchCarParams | The parameters used to filter available cars.             |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | struct RentalityCarToken.CarInfo[] | An array of CarInfo representing the available cars for the user. |
+| Name | Type                               | Description                                                       |
+| ---- | ---------------------------------- | ----------------------------------------------------------------- |
+| [0]  | struct RentalityCarToken.CarInfo[] | An array of CarInfo representing the available cars for the user. |
 
 ### getCarsOwnedByUser
 
@@ -317,13 +317,12 @@ _Iterates through all cars to find those owned by the user._
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name | Type    | Description                                           |
+| ---- | ------- | ----------------------------------------------------- |
 | user | address | The address of the user for whom to fetch owned cars. |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | struct RentalityCarToken.CarInfo[] | An array of CarInfo representing the cars owned by the user. |
-
+| Name | Type                               | Description                                                  |
+| ---- | ---------------------------------- | ------------------------------------------------------------ |
+| [0]  | struct RentalityCarToken.CarInfo[] | An array of CarInfo representing the cars owned by the user. |
