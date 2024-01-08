@@ -55,10 +55,10 @@ function readFromFile(contractName) {
   const jsonData = JSON.parse(data)
 
   const contract = jsonData.find((el) =>
-    el.name === network.name &&
-    el.chainId === network.config.chainId &&
-    el[contractName] !== undefined &&
-    el[contractName] !== '',
+      el.name === network.name &&
+      el.chainId === network.config.chainId &&
+      el[contractName] !== undefined &&
+      el[contractName] !== '',
   )
   return contract === undefined ? null : contract[contractName]
 }
