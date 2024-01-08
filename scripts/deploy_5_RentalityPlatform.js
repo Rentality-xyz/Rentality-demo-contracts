@@ -66,7 +66,7 @@ async function main() {
   )
   console.log('rentalityUserServiceAddress is:', rentalityUserServiceAddress)
   console.log('rentalityTripServiceAddress is:', rentalityTripServiceAddress)
-  console.log('rentalityTripServiceAddress is:', rentalityClaimService)
+  console.log('rentalityClaimsServiceAddress is:', rentalityClaimService)
 
   const contractFactory = await ethers.getContractFactory(contractName, {
     libraries: {
