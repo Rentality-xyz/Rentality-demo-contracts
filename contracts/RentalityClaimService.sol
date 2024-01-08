@@ -4,6 +4,7 @@ pragma solidity ^0.8.9;
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import "./RentalityUserService.sol";
 import "./proxy/UUPSAccess.sol";
+import "./RentalityCarToken.sol";
 
 /// @title RentalityClaimService - Manages claims and related operations.
 /// @dev This contract allows users with manager roles to create, reject, and pay claims.
@@ -25,9 +26,7 @@ contract RentalityClaimService is Initializable, UUPSAccess {
         Claim claim;
         address host;
         address guest;
-        string carBrand;
-        string carModel;
-        uint32 carYearOfProduction;
+        RentalityCarToken.CarInfo carInfo;
     }
 
     // Struct to represent a claim
@@ -40,7 +39,7 @@ contract RentalityClaimService is Initializable, UUPSAccess {
         string description;
         uint64 amountInUsdCents;
         uint256 payDateInSec;
-        address RejectedBy; // if so
+        address rejectedBy; // if so
         uint256 rejectedDateInSec; // if so
     }
 
@@ -122,7 +121,7 @@ contract RentalityClaimService is Initializable, UUPSAccess {
         require(claim.status != Status.Paid && claim.status != Status.Cancel, "Wrong claim status.");
 
         claim.status = Status.Cancel;
-        claim.RejectedBy = rejectedBy;
+        claim.rejectedBy = rejectedBy;
         claim.rejectedDateInSec = block.timestamp;
 
         emit ClaimStatusChanged(_claimId, Status.Cancel);

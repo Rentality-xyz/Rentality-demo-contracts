@@ -251,6 +251,7 @@ async function deployDefaultFixture() {
           await rentalityUserService.getAddress(),
           await rentalityPlatform.getAddress(),
           await rentalityPaymentService.getAddress(),
+          await claimService.getAddress()
       ],
     )
     await rentalityGateway.waitForDeployment()
