@@ -6,12 +6,7 @@ async function main() {
   const contractName = 'RentalityUtils'
   const [deployer] = await ethers.getSigners()
   const balance = await ethers.provider.getBalance(await deployer.getAddress())
-  console.log(
-    'Deployer address is:',
-    await deployer.getAddress(),
-    ' with balance:',
-    balance,
-  )
+  console.log('Deployer address is:', await deployer.getAddress(), ' with balance:', balance)
 
   const chainId = (await deployer.provider?.getNetwork())?.chainId ?? -1
 

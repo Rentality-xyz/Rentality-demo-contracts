@@ -5,12 +5,10 @@ const { spawnSync } = require('child_process')
 
 const pathToAddressFile = 'scripts/addressesContractsTestnets.json'
 
-
 function getContractAddress(contractName, addressToDeployScript) {
   let address = readFromFile(contractName)
 
   if (address === null) {
-
     const message = `Do you want to deploy ${contractName};`
     if (!readlineSync.keyInYNStrict(message)) {
       console.log('Finishing...')
@@ -40,30 +38,28 @@ function getContractAddress(contractName, addressToDeployScript) {
     if (address === null) {
       throw Error('Fail to deploy contract ' + contractName)
     }
-    setTimeout(() => {
-    }, 2000) /// need,
+    setTimeout(() => {}, 2000) /// need,
     // because error in case of execution several scripts one by one
   }
 
   return address
-
-
 }
 
 function readFromFile(contractName) {
   const data = readFileSync(pathToAddressFile, 'utf-8')
   const jsonData = JSON.parse(data)
 
-  const contract = jsonData.find((el) =>
+  const contract = jsonData.find(
+    (el) =>
       el.name === network.name &&
       el.chainId === network.config.chainId &&
       el[contractName] !== undefined &&
-      el[contractName] !== '',
+      el[contractName] !== ''
   )
   return contract === undefined ? null : contract[contractName]
 }
 
 module.exports = {
   readFromFile,
-  getContractAddress
+  getContractAddress,
 }
