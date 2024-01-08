@@ -14,7 +14,6 @@ _Constructor to set the RentalityUserService address during deployment._
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| _userService | address | The address of the RentalityUserService contract. |
-
+| Name          | Type    | Description                                       |
+| ------------- | ------- | ------------------------------------------------- |
+| \_userService | address | The address of the RentalityUserService contract. |
