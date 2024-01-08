@@ -6,22 +6,13 @@ const net = require('net')
 async function main() {
   const [deployer] = await ethers.getSigners()
   const balance = await ethers.provider.getBalance(deployer)
-  console.log(
-    'Deployer address is:',
-    deployer.getAddress(),
-    ' with balance:',
-    balance,
-  )
+  console.log('Deployer address is:', deployer.getAddress(), ' with balance:', balance)
 
   const chainId = network.config.chainId
 
-  const addresses = addressesContractsTestnets.find(
-    (i) => i.chainId === chainId && i.name === network.name,
-  )
+  const addresses = addressesContractsTestnets.find((i) => i.chainId === chainId && i.name === network.name)
   if (addresses == null) {
-    console.error(
-      `Addresses for chainId:${chainId} was not found in addressesContractsTestnets.json`,
-    )
+    console.error(`Addresses for chainId:${chainId} was not found in addressesContractsTestnets.json`)
     return
   }
 
@@ -68,19 +59,13 @@ async function main() {
   let rentalityUserServiceContract = new ethers.Contract(
     rentalityUserServiceAddress,
     RentalityUserServiceJSON_ABI.abi,
-    deployer,
+    deployer
   )
   try {
     await rentalityUserServiceContract.grantManagerRole(rentalityGatewayAddress)
-    await rentalityUserServiceContract.grantManagerRole(
-      rentalityTripServiceAddress,
-    )
-    await rentalityUserServiceContract.grantManagerRole(
-      rentalityPlatformAddress,
-    )
-    await rentalityUserServiceContract.grantManagerRole(
-      rentalityCarTokenAddress,
-    )
+    await rentalityUserServiceContract.grantManagerRole(rentalityTripServiceAddress)
+    await rentalityUserServiceContract.grantManagerRole(rentalityPlatformAddress)
+    await rentalityUserServiceContract.grantManagerRole(rentalityCarTokenAddress)
     await rentalityUserServiceContract.grantManagerRole(rentalityEngineAddress)
     console.log('manager role granded')
   } catch (e) {

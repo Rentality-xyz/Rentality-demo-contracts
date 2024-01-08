@@ -1,9 +1,6 @@
 const { expect } = require('chai')
 const { ethers, upgrades } = require('hardhat')
-const {
-  time,
-  loadFixture,
-} = require('@nomicfoundation/hardhat-network-helpers')
+const { time, loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 const { Contract } = require('hardhat/internal/hardhat-network/stack-traces/model')
 
 const {
@@ -14,11 +11,8 @@ const {
   deployDefaultFixture,
 } = require('./utils')
 
-
-describe('Rentality History Service', function() {
-
-  let
-    rentalityPlatform,
+describe('Rentality History Service', function () {
+  let rentalityPlatform,
     rentalityGateway,
     transactionHistory,
     rentalityCurrencyConverter,
@@ -29,8 +23,8 @@ describe('Rentality History Service', function() {
     guest,
     anonymous
 
-  beforeEach(async function() {
-    ({
+  beforeEach(async function () {
+    ;({
       rentalityPlatform,
       rentalityGateway,
       rentalityCurrencyConverter,
@@ -43,25 +37,17 @@ describe('Rentality History Service', function() {
     } = await loadFixture(deployDefaultFixture))
   })
 
-
-  it('should create history in case of cancellation', async function() {
-    await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0)))
-      .not.to.be.reverted
-    const myCars = await rentalityGateway
-      .connect(host)
-      .getMyCars()
+  it('should create history in case of cancellation', async function () {
+    await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
+    const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
-    const availableCars = await rentalityGateway
-      .connect(guest)
-      .getAvailableCarsForUser(guest.address)
+    const availableCars = await rentalityGateway.connect(guest).getAvailableCarsForUser(guest.address)
     expect(availableCars.length).to.equal(1)
 
     const rentPriceInUsdCents = 1000
     const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
-      await rentalityCurrencyConverter.getEthFromUsdLatest(
-        rentPriceInUsdCents,
-      )
+      await rentalityCurrencyConverter.getEthFromUsdLatest(rentPriceInUsdCents)
 
     await expect(
       rentalityGateway.connect(guest).createTripRequest(
@@ -79,8 +65,8 @@ describe('Rentality History Service', function() {
           ethToCurrencyRate: ethToCurrencyRate,
           ethToCurrencyDecimals: ethToCurrencyDecimals,
         },
-        { value: rentPriceInEth },
-      ),
+        { value: rentPriceInEth }
+      )
     ).not.to.be.reverted
 
     await expect(rentalityGateway.connect(host).rejectTripRequest(1)).to.not.reverted
@@ -94,25 +80,17 @@ describe('Rentality History Service', function() {
     expect(details.transactionInfo.tripEarnings).to.be.eq(0)
     expect(details.transactionInfo.statusBeforeCancellation).to.be.eq(TripStatus.Created)
   })
-  it('Happy case has history', async function() {
-
-    await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0)))
-      .not.to.be.reverted
-    const myCars = await rentalityGateway
-      .connect(host)
-      .getMyCars()
+  it('Happy case has history', async function () {
+    await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
+    const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
-    const availableCars = await rentalityGateway
-      .connect(guest)
-      .getAvailableCarsForUser(guest.address)
+    const availableCars = await rentalityGateway.connect(guest).getAvailableCarsForUser(guest.address)
     expect(availableCars.length).to.equal(1)
 
     const rentPriceInUsdCents = 1000
     const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
-      await rentalityCurrencyConverter.getEthFromUsdLatest(
-        rentPriceInUsdCents,
-      )
+      await rentalityCurrencyConverter.getEthFromUsdLatest(rentPriceInUsdCents)
 
     await expect(
       rentalityGateway.connect(guest).createTripRequest(
@@ -130,36 +108,22 @@ describe('Rentality History Service', function() {
           ethToCurrencyRate: ethToCurrencyRate,
           ethToCurrencyDecimals: ethToCurrencyDecimals,
         },
-        { value: rentPriceInEth },
-      ),
-    ).to.changeEtherBalances(
-      [guest, rentalityPlatform],
-      [-rentPriceInEth, rentPriceInEth],
-    )
+        { value: rentPriceInEth }
+      )
+    ).to.changeEtherBalances([guest, rentalityPlatform], [-rentPriceInEth, rentPriceInEth])
 
-
-    await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to
-      .be.reverted
-    await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0]))
-      .not.to.be.reverted
-    await expect(rentalityGateway.connect(guest).checkInByGuest(1, [0, 0]))
-      .not.to.be.reverted
-    await expect(rentalityGateway.connect(guest).checkOutByGuest(1, [0, 0]))
-      .not.to.be.reverted
-    await expect(rentalityGateway.connect(host).checkOutByHost(1, [0, 0]))
-      .not.to.be.reverted
+    await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0])).not.to.be.reverted
+    await expect(rentalityGateway.connect(guest).checkInByGuest(1, [0, 0])).not.to.be.reverted
+    await expect(rentalityGateway.connect(guest).checkOutByGuest(1, [0, 0])).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).checkOutByHost(1, [0, 0])).not.to.be.reverted
 
     const returnToHost =
-      rentPriceInEth -
-      (rentPriceInEth *
-        (await rentalityGateway.getPlatformFeeInPPM())) /
-      BigInt(1_000_000)
+      rentPriceInEth - (rentPriceInEth * (await rentalityGateway.getPlatformFeeInPPM())) / BigInt(1_000_000)
 
-    await expect(
-      rentalityGateway.connect(host).finishTrip(1),
-    ).to.changeEtherBalances(
+    await expect(rentalityGateway.connect(host).finishTrip(1)).to.changeEtherBalances(
       [host, rentalityPlatform],
-      [returnToHost, -returnToHost],
+      [returnToHost, -returnToHost]
     )
     const details = await rentalityGateway.getTrip(1)
 
@@ -168,12 +132,8 @@ describe('Rentality History Service', function() {
 
     expect(details.transactionInfo.depositRefund).to.be.eq(0)
     expect(details.transactionInfo.dateTime).to.be.approximately(currentTimeSeconds, 2000)
-    expect(details.transactionInfo.tripEarnings).to.be.eq((rentPriceInUsdCents - (rentPriceInUsdCents * 20 / 100 )) )
-    expect(details.transactionInfo.rentalityFee).to.be.eq((rentPriceInUsdCents * 20 / 100 ))
+    expect(details.transactionInfo.tripEarnings).to.be.eq(rentPriceInUsdCents - (rentPriceInUsdCents * 20) / 100)
+    expect(details.transactionInfo.rentalityFee).to.be.eq((rentPriceInUsdCents * 20) / 100)
     expect(details.transactionInfo.statusBeforeCancellation).to.be.eq(TripStatus.Finished)
-
-
   })
-
-
 })

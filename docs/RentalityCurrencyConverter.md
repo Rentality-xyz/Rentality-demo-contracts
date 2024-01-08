@@ -32,8 +32,8 @@ constructor(address ethToUsdPriceFeedAddress) public
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name                     | Type    | Description                                        |
+| ------------------------ | ------- | -------------------------------------------------- |
 | ethToUsdPriceFeedAddress | address | The address of the Chainlink ETH to USD price feed |
 
 ### getEthToUsdPrice
@@ -46,10 +46,10 @@ Get the current ETH to USD price and decimals
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | int256 | The current ETH to USD price and decimals |
-| [1] | uint8 |  |
+| Name | Type   | Description                               |
+| ---- | ------ | ----------------------------------------- |
+| [0]  | int256 | The current ETH to USD price and decimals |
+| [1]  | uint8  |                                           |
 
 ### getEthFromUsdLatest
 
@@ -61,17 +61,17 @@ Get the amount of ETH equivalent to a specified value in USD cents
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name            | Type    | Description                              |
+| --------------- | ------- | ---------------------------------------- |
 | valueInUsdCents | uint256 | The value in USD cents to convert to ETH |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | uint256 | The equivalent amount of ETH, ETH to USD price, and ETH to USD decimals |
-| [1] | int256 |  |
-| [2] | uint8 |  |
+| Name | Type    | Description                                                             |
+| ---- | ------- | ----------------------------------------------------------------------- |
+| [0]  | uint256 | The equivalent amount of ETH, ETH to USD price, and ETH to USD decimals |
+| [1]  | int256  |                                                                         |
+| [2]  | uint8   |                                                                         |
 
 ### getUsdFromEthLatest
 
@@ -83,17 +83,17 @@ Get the amount of USD cents equivalent to a specified amount of ETH
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name       | Type    | Description                               |
+| ---------- | ------- | ----------------------------------------- |
 | valueInEth | uint256 | The amount of ETH to convert to USD cents |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | uint256 | The equivalent amount in USD cents, ETH to USD price, and ETH to USD decimals |
-| [1] | int256 |  |
-| [2] | uint8 |  |
+| Name | Type    | Description                                                                   |
+| ---- | ------- | ----------------------------------------------------------------------------- |
+| [0]  | uint256 | The equivalent amount in USD cents, ETH to USD price, and ETH to USD decimals |
+| [1]  | int256  |                                                                               |
+| [2]  | uint8   |                                                                               |
 
 ### getEthFromUsd
 
@@ -105,17 +105,17 @@ Get the amount of ETH equivalent to a specified value in USD cents
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| valueInUsdCents | uint256 | The value in USD cents to convert to ETH |
-| ethToUsdPrice | int256 | The specific ETH to USD price to use for conversion |
-| ethToUsdDecimals | uint8 | The specific ETH to USD decimals to use for conversion |
+| Name             | Type    | Description                                            |
+| ---------------- | ------- | ------------------------------------------------------ |
+| valueInUsdCents  | uint256 | The value in USD cents to convert to ETH               |
+| ethToUsdPrice    | int256  | The specific ETH to USD price to use for conversion    |
+| ethToUsdDecimals | uint8   | The specific ETH to USD decimals to use for conversion |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | uint256 | The equivalent amount of ETH |
+| Name | Type    | Description                  |
+| ---- | ------- | ---------------------------- |
+| [0]  | uint256 | The equivalent amount of ETH |
 
 ### getUsdFromEth
 
@@ -127,17 +127,17 @@ Get the amount of USD cents equivalent to a specified amount of ETH
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| valueInEth | uint256 | The amount of ETH to convert to USD cents |
-| ethToUsdPrice | int256 | The specific ETH to USD price to use for conversion |
-| ethToUsdDecimals | uint8 | The specific ETH to USD decimals to use for conversion |
+| Name             | Type    | Description                                            |
+| ---------------- | ------- | ------------------------------------------------------ |
+| valueInEth       | uint256 | The amount of ETH to convert to USD cents              |
+| ethToUsdPrice    | int256  | The specific ETH to USD price to use for conversion    |
+| ethToUsdDecimals | uint8   | The specific ETH to USD decimals to use for conversion |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | uint256 | The equivalent amount in USD cents |
+| Name | Type    | Description                        |
+| ---- | ------- | ---------------------------------- |
+| [0]  | uint256 | The equivalent amount in USD cents |
 
 ### getEthToUsdPriceWithCache
 
@@ -149,10 +149,10 @@ Get the ETH to USD price and decimals with caching
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | int256 | The current ETH to USD price and decimals |
-| [1] | uint8 |  |
+| Name | Type   | Description                               |
+| ---- | ------ | ----------------------------------------- |
+| [0]  | int256 | The current ETH to USD price and decimals |
+| [1]  | uint8  |                                           |
 
 ### getEthFromUsdWithCache
 
@@ -164,15 +164,15 @@ Get the amount of ETH equivalent to a specified value in USD cents with caching
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name            | Type    | Description                              |
+| --------------- | ------- | ---------------------------------------- |
 | valueInUsdCents | uint256 | The value in USD cents to convert to ETH |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | uint256 | The equivalent amount of ETH |
+| Name | Type    | Description                  |
+| ---- | ------- | ---------------------------- |
+| [0]  | uint256 | The equivalent amount of ETH |
 
 ### getUsdFromEthWithCache
 
@@ -184,13 +184,12 @@ Get the amount of USD cents equivalent to a specified amount of ETH with caching
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name       | Type    | Description                               |
+| ---------- | ------- | ----------------------------------------- |
 | valueInEth | uint256 | The amount of ETH to convert to USD cents |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | uint256 | The equivalent amount in USD cents |
-
+| Name | Type    | Description                        |
+| ---- | ------- | ---------------------------------- |
+| [0]  | uint256 | The equivalent amount in USD cents |
