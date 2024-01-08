@@ -9,65 +9,50 @@ async function main() {
   const [deployer] = await ethers.getSigners()
   const balance = await ethers.provider.getBalance(deployer)
 
-  console.log(
-    'Deployer address is:',
-    await deployer.getAddress(),
-    ' with balance:',
-    balance,
-  )
+  console.log('Deployer address is:', await deployer.getAddress(), ' with balance:', balance)
 
   const chainId = (await deployer.provider?.getNetwork())?.chainId ?? -1
   console.log('ChainId is:', chainId)
   if (chainId < 0) return
 
-  const rentalityUtilsAddress = getContractAddress(
-    'RentalityUtils',
-    'scripts/deploy_1a_RentalityUtils.js',
-  )
+  const rentalityUtilsAddress = getContractAddress('RentalityUtils', 'scripts/deploy_1a_RentalityUtils.js')
 
   const rentalityCurrencyConverterAddress = getContractAddress(
     'RentalityCurrencyConverter',
-    'scripts/deploy_2c_RentalityCurrencyConverter.js',
+    'scripts/deploy_2c_RentalityCurrencyConverter.js'
   )
 
-  const rentalityCarTokenAddress = getContractAddress(
-    'RentalityCarToken',
-    'scripts/deploy_3_RentalityCarToken.js',
-  )
+  const rentalityCarTokenAddress = getContractAddress('RentalityCarToken', 'scripts/deploy_3_RentalityCarToken.js')
 
   const rentalityPaymentServiceAddress = getContractAddress(
     'RentalityPaymentService',
-    'scripts/deploy_2d_RentalityPaymentService.js',
+    'scripts/deploy_2d_RentalityPaymentService.js'
   )
 
   const rentalityUserServiceAddress = getContractAddress(
     'RentalityUserService',
-    'scripts/deploy_1b_RentalityUserService.js',
+    'scripts/deploy_1b_RentalityUserService.js'
   )
 
   const rentalityTripServiceAddress = getContractAddress(
     'RentalityTripService',
-    'scripts/deploy_4_RentalityTripService.js',
+    'scripts/deploy_4_RentalityTripService.js'
   )
 
-  const rentalityPlatformAddress = getContractAddress(
-    'RentalityPlatform',
-    'scripts/deploy_5_RentalityPlatform.js',
+  const rentalityPlatformAddress = getContractAddress('RentalityPlatform', 'scripts/deploy_5_RentalityPlatform.js')
+  const rentalityClaimService = getContractAddress(
+    'RentalityClaimService',
+    'scripts/deploy_2a_RentalityClaimService.js'
   )
 
   console.log('rentalityUtilsAddress is:', rentalityUtilsAddress)
   console.log('rentalityCarTokenAddress is:', rentalityCarTokenAddress)
-  console.log(
-    'rentalityPaymentServiceAddress is:',
-    rentalityPaymentServiceAddress,
-  )
-  console.log(
-    'rentalityCurrencyConverterAddress is:',
-    rentalityCurrencyConverterAddress,
-  )
+  console.log('rentalityPaymentServiceAddress is:', rentalityPaymentServiceAddress)
+  console.log('rentalityCurrencyConverterAddress is:', rentalityCurrencyConverterAddress)
   console.log('rentalityUserServiceAddress is:', rentalityUserServiceAddress)
   console.log('rentalityPlatformAddress is:', rentalityPlatformAddress)
   console.log('rentalityTripServiceAddress is:', rentalityTripServiceAddress)
+  console.log('rentalityClaimsServiceAddress is:', rentalityClaimService)
 
   const contractFactory = await ethers.getContractFactory(contractName, {
     libraries: {
@@ -81,6 +66,7 @@ async function main() {
     rentalityUserServiceAddress,
     rentalityPlatformAddress,
     rentalityPaymentServiceAddress,
+    rentalityClaimService,
   ])
   await contract.waitForDeployment()
 
