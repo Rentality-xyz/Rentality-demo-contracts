@@ -34,10 +34,10 @@ Set the chat key pair for the calling user
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name           | Type   | Description                      |
+| -------------- | ------ | -------------------------------- |
 | chatPrivateKey | string | The private chat key of the user |
-| chatPublicKey | string | The public chat key of the user |
+| chatPublicKey  | string | The public chat key of the user  |
 
 ### getMyChatKeys
 
@@ -49,10 +49,10 @@ Get the chat key pair of the calling user
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | string | The private and public chat keys of the calling user |
-| [1] | string |  |
+| Name | Type   | Description                                          |
+| ---- | ------ | ---------------------------------------------------- |
+| [0]  | string | The private and public chat keys of the calling user |
+| [1]  | string |                                                      |
 
 ### getChatPublicKeys
 
@@ -64,13 +64,12 @@ Get the public chat keys associated with specified addresses
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name      | Type      | Description                    |
+| --------- | --------- | ------------------------------ |
 | addresses | address[] | An array of Ethereum addresses |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | struct RentalityChatHelper.AddressPublicKey[] | An array of AddressPublicKey structs containing user addresses and their public chat keys |
-
+| Name | Type                                          | Description                                                                               |
+| ---- | --------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| [0]  | struct RentalityChatHelper.AddressPublicKey[] | An array of AddressPublicKey structs containing user addresses and their public chat keys |
