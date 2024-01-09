@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import "./RentalityTripService.sol";
-import "./RentalityUserService.sol";
-import "./RentalityCarToken.sol";
-import "./IRentalityGateway.sol";
-import "@openzeppelin/contracts/utils/math/Math.sol";
+import './RentalityTripService.sol';
+import './RentalityUserService.sol';
+import './RentalityCarToken.sol';
+import './IRentalityGateway.sol';
+import '@openzeppelin/contracts/utils/math/Math.sol';
 import './RentalityGeoService.sol';
+import './RentalityClaimService.sol';
 
 /// @title RentalityUtils Library
 /// @notice
@@ -52,15 +53,15 @@ library RentalityUtils {
         for (uint i = 0; i < bresult.length; i++) {
             if ((uint8(bresult[i]) >= 48) && (uint8(bresult[i]) <= 57)) {
                 if (decimals) {
-                    if (i - 1 - indexOf(bresult, ".") > 6) break;
+                    if (i - 1 - indexOf(bresult, '.') > 6) break;
                     mint = mint * 10 + int256(uint256(uint8(bresult[i])) - 48);
                 } else {
                     mint = mint * 10 + int256(uint256(uint8(bresult[i])) - 48);
                 }
             } else if (uint8(bresult[i]) == 46) decimals = true;
         }
-        if (indexOf(bresult, "-") == 0) {
-            return - mint * int256(multiplier);
+        if (indexOf(bresult, '-') == 0) {
+            return -mint * int256(multiplier);
         }
         return mint * int256(multiplier);
     }
@@ -166,10 +167,10 @@ library RentalityUtils {
 
             chatInfoList[i].tripId = trips[i].tripId;
             chatInfoList[i].guestAddress = trips[i].guest;
-            chatInfoList[i].guestName = string(abi.encodePacked(guestInfo.name, " ", guestInfo.surname));
+            chatInfoList[i].guestName = string(abi.encodePacked(guestInfo.name, ' ', guestInfo.surname));
             chatInfoList[i].guestPhotoUrl = guestInfo.profilePhoto;
             chatInfoList[i].hostAddress = trips[i].host;
-            chatInfoList[i].hostName = string(abi.encodePacked(hostInfo.name, " ", hostInfo.surname));
+            chatInfoList[i].hostName = string(abi.encodePacked(hostInfo.name, ' ', hostInfo.surname));
             chatInfoList[i].hostPhotoUrl = hostInfo.profilePhoto;
             chatInfoList[i].tripStatus = uint256(trips[i].status);
 
@@ -187,7 +188,9 @@ library RentalityUtils {
     /// @notice Parses a response string containing geolocation data.
     /// @param response The response string to parse.
     /// @return result Parsed geolocation data in RentalityGeoService.ParsedGeolocationData structure.
-    function parseResponse(string memory response) public pure returns (RentalityGeoService.ParsedGeolocationData memory) {
+    function parseResponse(
+        string memory response
+    ) public pure returns (RentalityGeoService.ParsedGeolocationData memory) {
         RentalityGeoService.ParsedGeolocationData memory result;
 
         string[] memory pairs = splitString(response);
@@ -195,25 +198,25 @@ library RentalityUtils {
             string[] memory keyValue = splitKeyValue(pairs[i]);
             string memory key = keyValue[0];
             string memory value = keyValue[1];
-            if (compareStrings(key, "status")) {
+            if (compareStrings(key, 'status')) {
                 result.status = value;
-            } else if (compareStrings(key, "locationLat")) {
+            } else if (compareStrings(key, 'locationLat')) {
                 result.locationLat = value;
-            } else if (compareStrings(key, "locationLng")) {
+            } else if (compareStrings(key, 'locationLng')) {
                 result.locationLng = value;
-            } else if (compareStrings(key, "northeastLat")) {
+            } else if (compareStrings(key, 'northeastLat')) {
                 result.northeastLat = value;
-            } else if (compareStrings(key, "northeastLng")) {
+            } else if (compareStrings(key, 'northeastLng')) {
                 result.northeastLng = value;
-            } else if (compareStrings(key, "southwestLat")) {
+            } else if (compareStrings(key, 'southwestLat')) {
                 result.southwestLat = value;
-            } else if (compareStrings(key, "southwestLng")) {
+            } else if (compareStrings(key, 'southwestLng')) {
                 result.southwestLng = value;
-            } else if (compareStrings(key, "locality")) {
+            } else if (compareStrings(key, 'locality')) {
                 result.city = value;
-            } else if (compareStrings(key, "adminAreaLvl1")) {
+            } else if (compareStrings(key, 'adminAreaLvl1')) {
                 result.state = value;
-            } else if (compareStrings(key, "country")) {
+            } else if (compareStrings(key, 'country')) {
                 result.country = value;
             }
         }
@@ -225,7 +228,7 @@ library RentalityUtils {
     /// @return parts Array of substrings.
     function splitString(string memory input) internal pure returns (string[] memory) {
         bytes memory inputBytes = bytes(input);
-        bytes memory delimiterBytes = bytes("|");
+        bytes memory delimiterBytes = bytes('|');
 
         uint256 delimiterCount = 0;
         for (uint256 i = 0; i < inputBytes.length; i++) {
@@ -261,7 +264,7 @@ library RentalityUtils {
     /// @return parts Array containing key and value.
     function splitKeyValue(string memory input) internal pure returns (string[] memory) {
         bytes memory inputBytes = bytes(input);
-        bytes memory delimiterBytes = bytes("^");
+        bytes memory delimiterBytes = bytes('^');
 
         uint256 delimiterIndex = 0;
         for (uint256 i = 0; i < inputBytes.length; i++) {
@@ -302,27 +305,21 @@ library RentalityUtils {
     /// @return output The URL-encoded string.
     function urlEncode(string memory input) internal pure returns (string memory) {
         bytes memory inputBytes = bytes(input);
-        string memory output = "";
+        string memory output = '';
 
         for (uint256 i = 0; i < inputBytes.length; i++) {
-            bytes memory spaceBytes = bytes(" ");
+            bytes memory spaceBytes = bytes(' ');
             if (inputBytes[i] == spaceBytes[0]) {
                 output = string(
                     abi.encodePacked(
                         output,
-                        "%",
+                        '%',
                         bytes1(uint8(inputBytes[i]) / 16 + 48),
-                        bytes1(uint8(inputBytes[i]) % 16 + 48)
+                        bytes1((uint8(inputBytes[i]) % 16) + 48)
                     )
                 );
-            }
-            else {
-                output = string(
-                    abi.encodePacked(
-                        output,
-                        bytes1(inputBytes[i])
-                    )
-                );
+            } else {
+                output = string(abi.encodePacked(output, bytes1(inputBytes[i])));
             }
         }
         return output;
@@ -356,11 +353,11 @@ library RentalityUtils {
             (trip.startDateTime < endDateTime);
 
     }
-    /// @dev Retrieves an array of trips that intersect with a given time range.
-    //  @param TripService to getTrip by id
-    /// @param startDateTime The start date and time of the time range.
-    /// @param endDateTime The end date and time of the time range.
-    /// @return intersectingTrips An array of trips that intersect with the specified time range.
+/// @dev Retrieves an array of trips that intersect with a given time range.
+//  @param TripService to getTrip by id
+/// @param startDateTime The start date and time of the time range.
+/// @param endDateTime The end date and time of the time range.
+/// @return intersectingTrips An array of trips that intersect with the specified time range.
     function getTripsThatIntersect(
         RentalityTripService tripService,
         RentalityCarToken carService,
@@ -464,9 +461,8 @@ library RentalityUtils {
     ) public view returns (RentalityTripService.Trip[] memory) {
         uint itemCount = 0;
 
-        for (uint i = 0; i < tripService.totalTripCount(); i++) {
-            uint currentId = i + 1;
-            if (tripService.getTrip(currentId).guest == guest) {
+        for (uint i = 1; i <= tripService.totalTripCount(); i++) {
+            if (tripService.getTrip(i).guest == guest) {
                 itemCount += 1;
             }
         }
@@ -474,10 +470,9 @@ library RentalityUtils {
         RentalityTripService.Trip[] memory result = new RentalityTripService.Trip[](itemCount);
         uint currentIndex = 0;
 
-        for (uint i = 0; i < tripService.totalTripCount(); i++) {
-            uint currentId = i + 1;
-            if (tripService.getTrip(currentId).guest == guest) {
-                RentalityTripService.Trip memory currentItem = tripService.getTrip(currentId);
+        for (uint i = 1; i <= tripService.totalTripCount(); i++) {
+            if (tripService.getTrip(i).guest == guest) {
+                RentalityTripService.Trip memory currentItem = tripService.getTrip(i);
                 result[currentIndex] = currentItem;
                 currentIndex += 1;
             }
@@ -489,12 +484,14 @@ library RentalityUtils {
     /// @dev Retrieves an array of trips associated with a specific host address.
     /// @param host The address of the host.
     /// @return trips An array of trips associated with the specified host.
-    function getTripsByHost(RentalityTripService tripService, address host) public view returns (RentalityTripService.Trip[] memory) {
+    function getTripsByHost(
+        RentalityTripService tripService,
+        address host
+    ) public view returns (RentalityTripService.Trip[] memory) {
         uint itemCount = 0;
 
-        for (uint i = 0; i < tripService.totalTripCount(); i++) {
-            uint currentId = i + 1;
-            if (tripService.getTrip(currentId).host == host) {
+        for (uint i = 1; i <= tripService.totalTripCount(); i++) {
+            if (tripService.getTrip(i).host == host) {
                 itemCount += 1;
             }
         }
@@ -502,10 +499,9 @@ library RentalityUtils {
         RentalityTripService.Trip[] memory result = new RentalityTripService.Trip[](itemCount);
         uint currentIndex = 0;
 
-        for (uint i = 0; i < tripService.totalTripCount(); i++) {
-            uint currentId = i + 1;
-            if (tripService.getTrip(currentId).host == host) {
-                RentalityTripService.Trip memory currentItem = tripService.getTrip(currentId);
+        for (uint i = 1; i <= tripService.totalTripCount(); i++) {
+            if (tripService.getTrip(i).host == host) {
+                RentalityTripService.Trip memory currentItem = tripService.getTrip(i);
                 result[currentIndex] = currentItem;
                 currentIndex += 1;
             }
@@ -517,12 +513,14 @@ library RentalityUtils {
     /// @dev Retrieves an array of trips associated with a specific car ID.
     /// @param carId The ID of the car.
     /// @return trips An array of trips associated with the specified car ID.
-    function getTripsByCar(RentalityTripService tripService, uint256 carId) public view returns (RentalityTripService.Trip[] memory) {
+    function getTripsByCar(
+        RentalityTripService tripService,
+        uint256 carId
+    ) public view returns (RentalityTripService.Trip[] memory) {
         uint itemCount = 0;
 
-        for (uint i = 0; i < tripService.totalTripCount(); i++) {
-            uint currentId = i + 1;
-            if (tripService.getTrip(currentId).carId == carId) {
+        for (uint i = 1; i <= tripService.totalTripCount(); i++) {
+            if (tripService.getTrip(i).carId == carId) {
                 itemCount += 1;
             }
         }
@@ -530,16 +528,116 @@ library RentalityUtils {
         RentalityTripService.Trip[] memory result = new RentalityTripService.Trip[](itemCount);
         uint currentIndex = 0;
 
-        for (uint i = 0; i < tripService.totalTripCount(); i++) {
-            uint currentId = i + 1;
-            if (tripService.getTrip(currentId).carId == carId) {
-                RentalityTripService.Trip memory currentItem = tripService.getTrip(currentId);
+        for (uint i = 1; i <= tripService.totalTripCount(); i++) {
+            if (tripService.getTrip(i).carId == carId) {
+                RentalityTripService.Trip memory currentItem = tripService.getTrip(i);
                 result[currentIndex] = currentItem;
                 currentIndex += 1;
             }
         }
 
         return result;
+    }
+
+    /// @notice Gets an array of claims associated with a specific trip.
+    /// @dev Returns an array of detailed claim information for the given trip.
+    /// @param tripId ID of the trip.
+    /// @return Array of detailed claim information.
+    function getClaimsByTrip(
+        RentalityClaimService claimService,
+        RentalityTripService tripService,
+        RentalityCarToken carService,
+        uint256 tripId
+    ) public view returns (RentalityClaimService.FullClaimInfo[] memory) {
+        uint256 arraySize = 0;
+        for (uint256 i = 1; i <= claimService.getClaimsAmount(); i++) {
+            RentalityClaimService.Claim memory claim = claimService.getClaim(i);
+            if (claim.tripId == tripId) {
+                arraySize += 1;
+            }
+        }
+        uint256 counter = 0;
+
+        RentalityClaimService.FullClaimInfo[] memory claims = new RentalityClaimService.FullClaimInfo[](arraySize);
+
+        for (uint256 i = 1; i <= claimService.getClaimsAmount(); i++) {
+            RentalityClaimService.Claim memory claim = claimService.getClaim(i);
+
+            if (claim.tripId == tripId) {
+                RentalityTripService.Trip memory trip = tripService.getTrip(tripId);
+                RentalityCarToken.CarInfo memory car = carService.getCarInfoById(trip.carId);
+                claims[counter++] = RentalityClaimService.FullClaimInfo(claim, trip.host, trip.guest, car);
+            }
+        }
+
+        return claims;
+    }
+
+    /// @notice Retrieves all claims by host.
+    /// @return An array of FullClaimInfo containing information about each claim.
+    function getClaimsByHost(
+        RentalityClaimService claimService,
+        RentalityTripService tripService,
+        RentalityCarToken carService,
+        address host
+    ) public view returns (RentalityClaimService.FullClaimInfo[] memory) {
+        uint256 arraySize = 0;
+
+        for (uint256 i = 1; i <= claimService.getClaimsAmount(); i++) {
+            RentalityClaimService.Claim memory claim = claimService.getClaim(i);
+            RentalityTripService.Trip memory trip = tripService.getTrip(claim.tripId);
+
+            if (trip.host == host) {
+                arraySize++;
+            }
+        }
+        RentalityClaimService.FullClaimInfo[] memory claimInfos = new RentalityClaimService.FullClaimInfo[](arraySize);
+        uint256 counter = 0;
+
+        for (uint256 i = 1; i <= claimService.getClaimsAmount(); i++) {
+            RentalityClaimService.Claim memory claim = claimService.getClaim(i);
+            RentalityTripService.Trip memory trip = tripService.getTrip(claim.tripId);
+
+            if (trip.host == host) {
+                RentalityCarToken.CarInfo memory carInfo = carService.getCarInfoById(trip.tripId);
+                claimInfos[counter++] = RentalityClaimService.FullClaimInfo(claim, host, trip.guest, carInfo);
+            }
+        }
+
+        return claimInfos;
+    }
+    ///  @notice Retrieves all claims by guest.
+    ///  @return An array of FullClaimInfo containing information about each claim.
+    function getClaimsByGuest(
+        RentalityClaimService claimService,
+        RentalityTripService tripService,
+        RentalityCarToken carService,
+        address guest
+    ) public view returns (RentalityClaimService.FullClaimInfo[] memory) {
+        uint256 arraySize = 0;
+
+        for (uint256 i = 1; i <= claimService.getClaimsAmount(); i++) {
+            RentalityClaimService.Claim memory claim = claimService.getClaim(i);
+            RentalityTripService.Trip memory trip = tripService.getTrip(claim.tripId);
+
+            if (trip.guest == guest) {
+                arraySize++;
+            }
+        }
+        RentalityClaimService.FullClaimInfo[] memory claimInfos = new RentalityClaimService.FullClaimInfo[](arraySize);
+        uint256 counter = 0;
+
+        for (uint256 i = 0; i < claimService.getClaimsAmount(); i++) {
+            RentalityClaimService.Claim memory claim = claimService.getClaim(i);
+            RentalityTripService.Trip memory trip = tripService.getTrip(claim.tripId);
+
+            if (trip.guest == guest) {
+                RentalityCarToken.CarInfo memory carInfo = carService.getCarInfoById(trip.tripId);
+                claimInfos[counter++] = RentalityClaimService.FullClaimInfo(claim, trip.host, guest, carInfo);
+            }
+        }
+
+        return claimInfos;
     }
 
     ///  @dev Calculates the resolved amount in USD cents for a trip.
@@ -565,7 +663,6 @@ library RentalityUtils {
             tripInfo.milesIncludedPerDay,
             tripInfo.pricePerDayInUsdCents,
             tripDays
-
         );
     }
 }

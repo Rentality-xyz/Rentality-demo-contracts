@@ -14,10 +14,10 @@ _Function: setCarCoordinateValidity_
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| carId | uint256 | The ID of the car. |
-| validity | bool | The validity status to be set. |
+| Name     | Type    | Description                    |
+| -------- | ------- | ------------------------------ |
+| carId    | uint256 | The ID of the car.             |
+| validity | bool    | The validity status to be set. |
 
 ### setCarCity
 
@@ -31,10 +31,10 @@ _Function: setCarCity_
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| carId | uint256 | The ID of the car. |
-| city | string | The city information to be set. |
+| Name  | Type    | Description                     |
+| ----- | ------- | ------------------------------- |
+| carId | uint256 | The ID of the car.              |
+| city  | string  | The city information to be set. |
 
 ### setCarState
 
@@ -48,10 +48,10 @@ _Function: setCarState_
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| carId | uint256 | The ID of the car. |
-| state | string | The state information to be set. |
+| Name  | Type    | Description                      |
+| ----- | ------- | -------------------------------- |
+| carId | uint256 | The ID of the car.               |
+| state | string  | The state information to be set. |
 
 ### setCarCountry
 
@@ -65,10 +65,10 @@ _Function: setCarCountry_
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| carId | uint256 | The ID of the car. |
-| country | string | The country information to be set. |
+| Name    | Type    | Description                        |
+| ------- | ------- | ---------------------------------- |
+| carId   | uint256 | The ID of the car.                 |
+| country | string  | The country information to be set. |
 
 ### executeRequest
 
@@ -82,17 +82,17 @@ _Function: executeRequest_
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| addr | string | The address parameter for the mock request. |
-| key | string | The key parameter for the mock request. |
-| carId | uint256 | The ID of the car. |
+| Name  | Type    | Description                                 |
+| ----- | ------- | ------------------------------------------- |
+| addr  | string  | The address parameter for the mock request. |
+| key   | string  | The key parameter for the mock request.     |
+| carId | uint256 | The ID of the car.                          |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | bytes32 | The car ID as bytes32 (mock response). |
+| Name | Type    | Description                            |
+| ---- | ------- | -------------------------------------- |
+| [0]  | bytes32 | The car ID as bytes32 (mock response). |
 
 ### getCarCoordinateValidity
 
@@ -106,15 +106,15 @@ _Function: getCarCoordinateValidity_
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name  | Type    | Description        |
+| ----- | ------- | ------------------ |
 | carId | uint256 | The ID of the car. |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | bool | The validity status of car coordinates. |
+| Name | Type | Description                             |
+| ---- | ---- | --------------------------------------- |
+| [0]  | bool | The validity status of car coordinates. |
 
 ### getCarCity
 
@@ -128,15 +128,15 @@ _Function: getCarCity_
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name  | Type    | Description        |
+| ----- | ------- | ------------------ |
 | carId | uint256 | The ID of the car. |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | string | The city information. |
+| Name | Type   | Description           |
+| ---- | ------ | --------------------- |
+| [0]  | string | The city information. |
 
 ### getCarState
 
@@ -150,15 +150,15 @@ _Function: getCarState_
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name  | Type    | Description        |
+| ----- | ------- | ------------------ |
 | carId | uint256 | The ID of the car. |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | string | The state information. |
+| Name | Type   | Description            |
+| ---- | ------ | ---------------------- |
+| [0]  | string | The state information. |
 
 ### getCarCountry
 
@@ -172,13 +172,12 @@ _Function: getCarCountry_
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name  | Type    | Description        |
+| ----- | ------- | ------------------ |
 | carId | uint256 | The ID of the car. |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | string | The country information. |
-
+| Name | Type   | Description              |
+| ---- | ------ | ------------------------ |
+| [0]  | string | The country information. |
