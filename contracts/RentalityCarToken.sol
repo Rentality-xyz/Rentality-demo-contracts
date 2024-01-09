@@ -21,88 +21,80 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
 
   mapping(uint256 => CarInfo) private idToCarInfo;
 
-    /// @notice Struct to store information about a listed car.
-    struct CarInfo {
-        uint256 carId;
-        string carVinNumber;
-        bytes32 carVinNumberHash;
-        address createdBy;
-        string brand;
-        string model;
-        uint32 yearOfProduction;
-        uint64 pricePerDayInUsdCents;
-        uint64 securityDepositPerTripInUsdCents;
-        uint8 engineType;
-        uint64[] engineParams;
-        uint64 milesIncludedPerDay;
-        uint32 timeBufferBetweenTripsInSec;
-        bool currentlyListed;
-        bool geoVerified;
-    }
+  /// @notice Struct to store information about a listed car.
+  struct CarInfo {
+    uint256 carId;
+    string carVinNumber;
+    bytes32 carVinNumberHash;
+    address createdBy;
+    string brand;
+    string model;
+    uint32 yearOfProduction;
+    uint64 pricePerDayInUsdCents;
+    uint64 securityDepositPerTripInUsdCents;
+    uint8 engineType;
+    uint64[] engineParams;
+    uint64 milesIncludedPerDay;
+    uint32 timeBufferBetweenTripsInSec;
+    bool currentlyListed;
+    bool geoVerified;
+  }
 
-    /// @notice Struct to store input parameters for creating a new car.
-    struct CreateCarRequest {
-        string tokenUri;
-        string carVinNumber;
-        string brand;
-        string model;
-        uint32 yearOfProduction;
-        uint64 pricePerDayInUsdCents;
-        uint64 securityDepositPerTripInUsdCents;
-        uint64[] engineParams;
-        uint8 engineType;
-        uint64 milesIncludedPerDay;
-        uint32 timeBufferBetweenTripsInSec;
-        string locationAddress;
-        string geoApiKey;
-    }
+  /// @notice Struct to store input parameters for creating a new car.
+  struct CreateCarRequest {
+    string tokenUri;
+    string carVinNumber;
+    string brand;
+    string model;
+    uint32 yearOfProduction;
+    uint64 pricePerDayInUsdCents;
+    uint64 securityDepositPerTripInUsdCents;
+    uint64[] engineParams;
+    uint8 engineType;
+    uint64 milesIncludedPerDay;
+    uint32 timeBufferBetweenTripsInSec;
+    string locationAddress;
+    string geoApiKey;
+  }
 
-    /// @notice Struct to store input parameters for updating car information.
-    struct UpdateCarInfoRequest {
-        uint256 carId;
-        uint64 pricePerDayInUsdCents;
-        uint64 securityDepositPerTripInUsdCents;
-        uint64[] engineParams;
-        uint64 milesIncludedPerDay;
-        uint32 timeBufferBetweenTripsInSec;
-        bool currentlyListed;
-    }
+  /// @notice Struct to store input parameters for updating car information.
+  struct UpdateCarInfoRequest {
+    uint256 carId;
+    uint64 pricePerDayInUsdCents;
+    uint64 securityDepositPerTripInUsdCents;
+    uint64[] engineParams;
+    uint64 milesIncludedPerDay;
+    uint32 timeBufferBetweenTripsInSec;
+    bool currentlyListed;
+  }
 
-    /// @notice Struct to store search parameters for querying cars.
-    struct SearchCarParams {
-        string country;
-        string state;
-        string city;
-        string brand;
-        string model;
-        uint32 yearOfProductionFrom;
-        uint32 yearOfProductionTo;
-        uint64 pricePerDayInUsdCentsFrom;
-        uint64 pricePerDayInUsdCentsTo;
-    }
+  /// @notice Struct to store search parameters for querying cars.
+  struct SearchCarParams {
+    string country;
+    string state;
+    string city;
+    string brand;
+    string model;
+    uint32 yearOfProductionFrom;
+    uint32 yearOfProductionTo;
+    uint64 pricePerDayInUsdCentsFrom;
+    uint64 pricePerDayInUsdCentsTo;
+  }
 
-    /// @notice Event emitted when a new car is successfully added.
-    event CarAddedSuccess(
-        uint256 CarId,
-        string carVinNumber,
-        address createdBy,
-        uint64 pricePerDayInUsdCents,
-        bool currentlyListed
-    );
+  /// @notice Event emitted when a new car is successfully added.
+  event CarAddedSuccess(
+    uint256 CarId,
+    string carVinNumber,
+    address createdBy,
+    uint64 pricePerDayInUsdCents,
+    bool currentlyListed
+  );
 
-    /// @notice Event emitted when a car's information is successfully updated.
-    event CarUpdatedSuccess(
-        uint256 carId,
-        uint64 pricePerDayInUsdCents,
-        bool currentlyListed
-    );
+  /// @notice Event emitted when a car's information is successfully updated.
+  event CarUpdatedSuccess(uint256 carId, uint64 pricePerDayInUsdCents, bool currentlyListed);
 
-    /// @notice Event emitted when a car is successfully removed.
-    event CarRemovedSuccess(
-        uint256 carId,
-        string CarVinNumber,
-        address removedBy
-    );
+  /// @notice Event emitted when a car is successfully removed.
+  event CarRemovedSuccess(uint256 carId, string CarVinNumber, address removedBy);
 
   /// @notice Returns the total supply of cars.
   /// @return The total number of cars in the system.
@@ -130,51 +122,42 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     return true;
   }
 
-    /// @notice Adds a new car to the system with the provided information.
-    /// @param request The input parameters for creating the new car.
-    /// @return The ID of the newly added car.
-    function addCar(CreateCarRequest memory request) public returns (uint) {
-        require(
-            request.pricePerDayInUsdCents > 0,
-            "Make sure the price isn't negative"
-        );
+  /// @notice Adds a new car to the system with the provided information.
+  /// @param request The input parameters for creating the new car.
+  /// @return The ID of the newly added car.
+  function addCar(CreateCarRequest memory request) public returns (uint) {
+    require(request.pricePerDayInUsdCents > 0, "Make sure the price isn't negative");
 
-        require(
-            request.milesIncludedPerDay > 0,
-            "Make sure the included distance isn't negative"
-        );
-        require(
-            isUniqueVinNumber(request.carVinNumber),
-            "Car with this VIN number already exists"
-        );
+    require(request.milesIncludedPerDay > 0, "Make sure the included distance isn't negative");
+    require(isUniqueVinNumber(request.carVinNumber), 'Car with this VIN number already exists');
 
-        _carIdCounter.increment();
-        uint256 newCarId = _carIdCounter.current();
+    _carIdCounter.increment();
+    uint256 newCarId = _carIdCounter.current();
 
-        engineService.verifyCreateParams(request.engineType, request.engineParams);
+    engineService.verifyCreateParams(request.engineType, request.engineParams);
 
-        _safeMint(tx.origin, newCarId);
-        _setTokenURI(newCarId, request.tokenUri);
+    _safeMint(tx.origin, newCarId);
+    _setTokenURI(newCarId, request.tokenUri);
 
-        geoService.executeRequest(request.locationAddress, request.geoApiKey, newCarId);
+    geoService.executeRequest(request.locationAddress, request.geoApiKey, newCarId);
 
-        idToCarInfo[newCarId] = CarInfo(
-            newCarId,
-            request.carVinNumber,
-            keccak256(abi.encodePacked(request.carVinNumber)),
-            tx.origin,
-            request.brand,
-            request.model,
-            request.yearOfProduction,
-            request.pricePerDayInUsdCents,
-            request.securityDepositPerTripInUsdCents,
-            request.engineType,
-            request.engineParams,
-            request.milesIncludedPerDay,
-            request.timeBufferBetweenTripsInSec,
-            true,
-            false
-        );
+    idToCarInfo[newCarId] = CarInfo(
+      newCarId,
+      request.carVinNumber,
+      keccak256(abi.encodePacked(request.carVinNumber)),
+      tx.origin,
+      request.brand,
+      request.model,
+      request.yearOfProduction,
+      request.pricePerDayInUsdCents,
+      request.securityDepositPerTripInUsdCents,
+      request.engineType,
+      request.engineParams,
+      request.milesIncludedPerDay,
+      request.timeBufferBetweenTripsInSec,
+      true,
+      false
+    );
 
     _approve(address(this), newCarId);
     //_transfer(msg.sender, address(this), carId);
@@ -210,17 +193,17 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
       idToCarInfo[request.carId].geoVerified = false;
     }
 
-        uint64[] memory engineParams = engineService.verifyUpdateParams(
-            idToCarInfo[request.carId].engineType,
-            request.engineParams,
-            idToCarInfo[request.carId].engineParams
-        );
-        idToCarInfo[request.carId].pricePerDayInUsdCents = request.pricePerDayInUsdCents;
-        idToCarInfo[request.carId].securityDepositPerTripInUsdCents = request.securityDepositPerTripInUsdCents;
-        idToCarInfo[request.carId].milesIncludedPerDay = request.milesIncludedPerDay;
-        idToCarInfo[request.carId].engineParams = engineParams;
-        idToCarInfo[request.carId].timeBufferBetweenTripsInSec = request.timeBufferBetweenTripsInSec;
-        idToCarInfo[request.carId].currentlyListed = request.currentlyListed;
+    uint64[] memory engineParams = engineService.verifyUpdateParams(
+      idToCarInfo[request.carId].engineType,
+      request.engineParams,
+      idToCarInfo[request.carId].engineParams
+    );
+    idToCarInfo[request.carId].pricePerDayInUsdCents = request.pricePerDayInUsdCents;
+    idToCarInfo[request.carId].securityDepositPerTripInUsdCents = request.securityDepositPerTripInUsdCents;
+    idToCarInfo[request.carId].milesIncludedPerDay = request.milesIncludedPerDay;
+    idToCarInfo[request.carId].engineParams = engineParams;
+    idToCarInfo[request.carId].timeBufferBetweenTripsInSec = request.timeBufferBetweenTripsInSec;
+    idToCarInfo[request.carId].currentlyListed = request.currentlyListed;
 
     emit CarUpdatedSuccess(request.carId, request.pricePerDayInUsdCents, request.currentlyListed);
   }
@@ -293,14 +276,14 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     CarInfo[] memory result = new CarInfo[](itemCount);
     uint currentIndex = 0;
 
-        for (uint i = 0; i < totalSupply(); i++) {
-            uint currentId = i + 1;
-            if (isCarAvailableForUser(currentId, user)) {
-                CarInfo storage currentItem = idToCarInfo[currentId];
-                result[currentIndex] = currentItem;
-                currentIndex += 1;
-            }
-        }
+    for (uint i = 0; i < totalSupply(); i++) {
+      uint currentId = i + 1;
+      if (isCarAvailableForUser(currentId, user)) {
+        CarInfo storage currentItem = idToCarInfo[currentId];
+        result[currentIndex] = currentItem;
+        currentIndex += 1;
+      }
+    }
 
     return result;
   }
@@ -377,15 +360,15 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     CarInfo[] memory result = new CarInfo[](itemCount);
     uint currentIndex = 0;
 
-        // Populate the array with available cars.
-        for (uint i = 0; i < totalSupply(); i++) {
-            uint currentId = i + 1;
-            if (isCarAvailableForUser(currentId, user, searchCarParams)) {
-                CarInfo storage currentItem = idToCarInfo[currentId];
-                result[currentIndex] = currentItem;
-                currentIndex += 1;
-            }
-        }
+    // Populate the array with available cars.
+    for (uint i = 0; i < totalSupply(); i++) {
+      uint currentId = i + 1;
+      if (isCarAvailableForUser(currentId, user, searchCarParams)) {
+        CarInfo storage currentItem = idToCarInfo[currentId];
+        result[currentIndex] = currentItem;
+        currentIndex += 1;
+      }
+    }
 
     return result;
   }
