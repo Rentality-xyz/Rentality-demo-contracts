@@ -371,8 +371,10 @@ contract RentalityPlatform is UUPSOwnable {
     RentalityClaimService.Claim memory claim = claimService.getClaim(claimId);
     RentalityTripService.Trip memory trip = tripService.getTrip(claim.tripId);
     RentalityCarToken.CarInfo memory car = carService.getCarInfoById(trip.carId);
+    string memory guestPhoneNumber = userService.getKYCInfo(trip.guest).mobilePhoneNumber;
+    string memory hostPhoneNumber = userService.getKYCInfo(trip.host).mobilePhoneNumber;
 
-    return RentalityClaimService.FullClaimInfo(claim, trip.host, trip.guest, car);
+    return RentalityClaimService.FullClaimInfo(claim, trip.host, trip.guest, guestPhoneNumber, hostPhoneNumber, car);
   }
 
   /// @notice Get contact information for a specific trip on the Rentality platform.

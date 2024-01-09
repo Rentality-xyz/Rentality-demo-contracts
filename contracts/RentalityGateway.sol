@@ -406,21 +406,21 @@ contract RentalityGateway is UUPSOwnable {
   /// @param tripId ID of the trip.
   /// @return Array of detailed claim information.
   function getClaimsByTrip(uint256 tripId) public view returns (RentalityClaimService.FullClaimInfo[] memory) {
-    return RentalityUtils.getClaimsByTrip(claimService, tripService, carService, tripId);
+    return RentalityUtils.getClaimsByTrip(claimService, tripService, carService, userService, tripId);
   }
 
   /// @notice Retrieves all claims where the caller is the host.
   /// @dev The caller is assumed to be the host of the claims.
   /// @return An array of FullClaimInfo containing information about each claim.
   function getMyClaimsAsHost() public view returns (RentalityClaimService.FullClaimInfo[] memory) {
-    return RentalityUtils.getClaimsByHost(claimService, tripService, carService, msg.sender);
+    return RentalityUtils.getClaimsByHost(claimService, tripService, carService, userService, msg.sender);
   }
 
   ///  @notice Retrieves all claims where the caller is the guest.
   ///  @dev The caller is assumed to be the guest of the claims.
   ///  @return An array of FullClaimInfo containing information about each claim.
   function getMyClaimsAsGuest() public view returns (RentalityClaimService.FullClaimInfo[] memory) {
-    return RentalityUtils.getClaimsByGuest(claimService, tripService, carService, msg.sender);
+    return RentalityUtils.getClaimsByGuest(claimService, tripService, carService, userService, msg.sender);
   }
 
   /// @notice Sets Know Your Customer (KYC) information for the caller.
