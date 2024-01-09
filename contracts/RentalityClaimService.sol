@@ -25,6 +25,8 @@ contract RentalityClaimService is Initializable, UUPSAccess {
     Claim claim;
     address host;
     address guest;
+    string guestPhoneNumber;
+    string hostPhoneNumber;
     RentalityCarToken.CarInfo carInfo;
   }
 

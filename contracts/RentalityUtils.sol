@@ -533,6 +533,7 @@ library RentalityUtils {
     RentalityClaimService claimService,
     RentalityTripService tripService,
     RentalityCarToken carService,
+    RentalityUserService userService,
     uint256 tripId
   ) public view returns (RentalityClaimService.FullClaimInfo[] memory) {
     uint256 arraySize = 0;
@@ -544,19 +545,29 @@ library RentalityUtils {
     }
     uint256 counter = 0;
 
-    RentalityClaimService.FullClaimInfo[] memory claims = new RentalityClaimService.FullClaimInfo[](arraySize);
+    RentalityClaimService.FullClaimInfo[] memory claimInfos = new RentalityClaimService.FullClaimInfo[](arraySize);
 
     for (uint256 i = 1; i <= claimService.getClaimsAmount(); i++) {
       RentalityClaimService.Claim memory claim = claimService.getClaim(i);
 
       if (claim.tripId == tripId) {
         RentalityTripService.Trip memory trip = tripService.getTrip(tripId);
-        RentalityCarToken.CarInfo memory car = carService.getCarInfoById(trip.carId);
-        claims[counter++] = RentalityClaimService.FullClaimInfo(claim, trip.host, trip.guest, car);
+        RentalityCarToken.CarInfo memory carInfo = carService.getCarInfoById(trip.carId);
+        string memory guestPhoneNumber = userService.getKYCInfo(trip.guest).mobilePhoneNumber;
+        string memory hostPhoneNumber = userService.getKYCInfo(trip.host).mobilePhoneNumber;
+
+        claimInfos[counter++] = RentalityClaimService.FullClaimInfo(
+          claim,
+          trip.host,
+          trip.guest,
+          guestPhoneNumber,
+          hostPhoneNumber,
+          carInfo
+        );
       }
     }
 
-    return claims;
+    return claimInfos;
   }
 
   /// @notice Retrieves all claims by host.
@@ -565,6 +576,7 @@ library RentalityUtils {
     RentalityClaimService claimService,
     RentalityTripService tripService,
     RentalityCarToken carService,
+    RentalityUserService userService,
     address host
   ) public view returns (RentalityClaimService.FullClaimInfo[] memory) {
     uint256 arraySize = 0;
@@ -586,7 +598,17 @@ library RentalityUtils {
 
       if (trip.host == host) {
         RentalityCarToken.CarInfo memory carInfo = carService.getCarInfoById(trip.tripId);
-        claimInfos[counter++] = RentalityClaimService.FullClaimInfo(claim, host, trip.guest, carInfo);
+        string memory guestPhoneNumber = userService.getKYCInfo(trip.guest).mobilePhoneNumber;
+        string memory hostPhoneNumber = userService.getKYCInfo(host).mobilePhoneNumber;
+
+        claimInfos[counter++] = RentalityClaimService.FullClaimInfo(
+          claim,
+          host,
+          trip.guest,
+          guestPhoneNumber,
+          hostPhoneNumber,
+          carInfo
+        );
       }
     }
 
@@ -598,6 +620,7 @@ library RentalityUtils {
     RentalityClaimService claimService,
     RentalityTripService tripService,
     RentalityCarToken carService,
+    RentalityUserService userService,
     address guest
   ) public view returns (RentalityClaimService.FullClaimInfo[] memory) {
     uint256 arraySize = 0;
@@ -619,7 +642,17 @@ library RentalityUtils {
 
       if (trip.guest == guest) {
         RentalityCarToken.CarInfo memory carInfo = carService.getCarInfoById(trip.tripId);
-        claimInfos[counter++] = RentalityClaimService.FullClaimInfo(claim, trip.host, guest, carInfo);
+        string memory guestPhoneNumber = userService.getKYCInfo(guest).mobilePhoneNumber;
+        string memory hostPhoneNumber = userService.getKYCInfo(trip.host).mobilePhoneNumber;
+
+        claimInfos[counter++] = RentalityClaimService.FullClaimInfo(
+          claim,
+          trip.host,
+          guest,
+          guestPhoneNumber,
+          hostPhoneNumber,
+          carInfo
+        );
       }
     }
 

@@ -21,6 +21,7 @@ describe('RentalityGateway', function () {
     rentalityPaymentService,
     rentalityPlatform,
     rentalityGeoService,
+    rentalityAdminGateway,
     utils,
     claimService,
     owner,
@@ -41,6 +42,7 @@ describe('RentalityGateway', function () {
       rentalityPaymentService,
       rentalityPlatform,
       rentalityGeoService,
+      rentalityAdminGateway,
       utils,
       claimService,
       owner,
@@ -127,19 +129,19 @@ describe('RentalityGateway', function () {
   })
 
   it('should allow only admin to set platform fee in PPM', async function () {
-    await expect(rentalityGateway.connect(admin).setPlatformFeeInPPM(10)).not.to.be.reverted
+    await expect(rentalityAdminGateway.connect(admin).setPlatformFeeInPPM(10)).not.to.be.reverted
 
-    await expect(rentalityGateway.connect(host).setPlatformFeeInPPM(10)).to.be.reverted
+    await expect(rentalityAdminGateway.connect(host).setPlatformFeeInPPM(10)).to.be.reverted
 
-    await expect(rentalityGateway.connect(guest).setPlatformFeeInPPM(10)).to.be.reverted
+    await expect(rentalityAdminGateway.connect(guest).setPlatformFeeInPPM(10)).to.be.reverted
 
-    await expect(rentalityGateway.connect(anonymous).setPlatformFeeInPPM(10)).to.be.reverted
+    await expect(rentalityAdminGateway.connect(anonymous).setPlatformFeeInPPM(10)).to.be.reverted
   })
 
   it('should update platform Fee in PMM', async function () {
     let platformFeeInPMM = 10101
 
-    await expect(rentalityGateway.connect(owner).setPlatformFeeInPPM(platformFeeInPMM)).not.to.be.reverted
+    await expect(rentalityAdminGateway.connect(owner).setPlatformFeeInPPM(platformFeeInPMM)).not.to.be.reverted
 
     expect(await rentalityGateway.getPlatformFeeInPPM()).to.equal(platformFeeInPMM)
   })
