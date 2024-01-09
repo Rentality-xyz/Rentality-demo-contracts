@@ -1845,7 +1845,7 @@ describe('RentalityGateway', function () {
 
         })
     })
-    describe.only("Time buffer between trips", async function () {
+    describe("Time buffer between trips", async function () {
         it('should not show car, while time buffer not expired', async function () {
             const oneDayInSec = 86400;
             const createCarRequest = {

@@ -254,47 +254,43 @@ async function deployDefaultFixture() {
           await rentalityUserService.getAddress(),
           await rentalityPlatform.getAddress(),
           await rentalityPaymentService.getAddress(),
+          await claimService.getAddress()
       ],
     )
     await rentalityGateway.waitForDeployment()
 
-    await rentalityUserService.connect(owner).grantManagerRole(await rentalityGateway.getAddress())
-    await rentalityUserService.connect(owner).grantAdminRole(await rentalityGateway.getAddress())
-    await rentalityUserService
-      .connect(owner)
-      .grantManagerRole(await rentalityCarToken.getAddress())
-    await rentalityUserService
-      .connect(owner)
-      .grantManagerRole(await engineService.getAddress())
+  await rentalityUserService.connect(owner).grantManagerRole(await rentalityGateway.getAddress())
+  await rentalityUserService.connect(owner).grantAdminRole(await rentalityGateway.getAddress())
+  await rentalityUserService.connect(owner).grantManagerRole(await rentalityCarToken.getAddress())
+  await rentalityUserService.connect(owner).grantManagerRole(await engineService.getAddress())
 
-    return {
-        rentalityGateway,
-        rentalityMockPriceFeed,
-        rentalityUserService,
-        rentalityTripService,
-        rentalityCurrencyConverter,
-        rentalityCarToken,
-        rentalityPaymentService,
-        rentalityPlatform,
-        utils,
-        engineService,
-        elEngine,
-        pEngine,
-        hEngine,
-        owner,
-        admin,
-        manager,
-        host,
-        guest,
-        anonymous,
-    }
+  return {
+    rentalityGateway,
+    rentalityMockPriceFeed,
+    rentalityUserService,
+    rentalityTripService,
+    rentalityCurrencyConverter,
+    rentalityCarToken,
+    rentalityPaymentService,
+    rentalityPlatform,
+    utils,
+    engineService,
+    elEngine,
+    pEngine,
+    hEngine,
+    owner,
+    admin,
+    manager,
+    host,
+    guest,
+    anonymous,
+  }
 }
 
 module.exports = {
-    getMockCarRequest,
-    getEmptySearchCarParams,
-    createMockClaimRequest,
-    deployDefaultFixture,
-    TripStatus
-};
-
+  getMockCarRequest,
+  getEmptySearchCarParams,
+  createMockClaimRequest,
+  deployDefaultFixture,
+  TripStatus,
+}
