@@ -124,28 +124,11 @@ contract RentalityGateway is UUPSOwnable {
     return paymentService.getPlatformFeeInPPM();
   }
 
-  /// @notice Sets the platform fee in parts per million (PPM). Only callable by admins.
-  /// @param valueInPPM The new platform fee value in PPM.
-  function setPlatformFeeInPPM(uint32 valueInPPM) public onlyAdmin {
-    paymentService.setPlatformFeeInPPM(valueInPPM);
-  }
-
   /// @notice Retrieves the platform fee calculated from the given value.
   /// @param value The value from which to calculate the platform fee.
   /// @return The calculated platform fee.
   function getPlatformFeeFrom(uint256 value) private view returns (uint256) {
     return paymentService.getPlatformFeeFrom(value);
-  }
-
-  /// @notice Withdraws the specified amount from the RentalityPlatform contract.
-  /// @param amount The amount to withdraw.
-  function withdrawFromPlatform(uint256 amount) public {
-    rentalityPlatform.withdrawFromPlatform(amount);
-  }
-
-  /// @notice Withdraws the entire balance from the RentalityPlatform contract.
-  function withdrawAllFromPlatform() public {
-    rentalityPlatform.withdrawFromPlatform(address(this).balance);
   }
 
   /// @notice Retrieves information about a car by its ID.
