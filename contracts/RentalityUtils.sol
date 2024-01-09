@@ -340,12 +340,15 @@ library RentalityUtils {
   /// @return hasIntersectingTrips A boolean indicating whether the trip has intersecting trips within the specified time range.
   function isTripThatIntersect(
     RentalityTripService tripService,
+    RentalityCarToken carService,
     uint256 tripId,
     uint64 startDateTime,
     uint64 endDateTime
   ) internal view returns (bool) {
     RentalityTripService.Trip memory trip = tripService.getTrip(tripId);
-    return (trip.endDateTime > startDateTime) && (trip.startDateTime < endDateTime);
+    RentalityCarToken.CarInfo memory carInfo = carService.getCarInfoById(trip.carId);
+    return
+      (trip.endDateTime + carInfo.timeBufferBetweenTripsInSec > startDateTime) && (trip.startDateTime < endDateTime);
   }
   /// @dev Retrieves an array of trips that intersect with a given time range.
   //  @param TripService to getTrip by id
@@ -354,13 +357,15 @@ library RentalityUtils {
   /// @return intersectingTrips An array of trips that intersect with the specified time range.
   function getTripsThatIntersect(
     RentalityTripService tripService,
+    RentalityCarToken carService,
     uint64 startDateTime,
     uint64 endDateTime
   ) public view returns (RentalityTripService.Trip[] memory) {
     uint itemCount = 0;
 
-    for (uint i = 1; i <= tripService.totalTripCount(); i++) {
-      if (isTripThatIntersect(tripService, i, startDateTime, endDateTime)) {
+    for (uint i = 0; i < tripService.totalTripCount(); i++) {
+      uint currentId = i + 1;
+      if (isTripThatIntersect(tripService, carService, currentId, startDateTime, endDateTime)) {
         itemCount += 1;
       }
     }
@@ -368,9 +373,10 @@ library RentalityUtils {
     RentalityTripService.Trip[] memory result = new RentalityTripService.Trip[](itemCount);
     uint currentIndex = 0;
 
-    for (uint i = 1; i <= tripService.totalTripCount(); i++) {
-      if (isTripThatIntersect(tripService, i, startDateTime, endDateTime)) {
-        result[currentIndex] = tripService.getTrip(i);
+    for (uint i = 0; i < tripService.totalTripCount(); i++) {
+      uint currentId = i + 1;
+      if (isTripThatIntersect(tripService, carService, currentId, startDateTime, endDateTime)) {
+        result[currentIndex] = tripService.getTrip(currentId);
         currentIndex += 1;
       }
     }
@@ -402,14 +408,18 @@ library RentalityUtils {
   ///  @return trips An array of intersecting trips for the specified car within the specified time range.
   function getTripsForCarThatIntersect(
     RentalityTripService tripService,
+    RentalityCarToken carService,
     uint256 carId,
     uint64 startDateTime,
     uint64 endDateTime
   ) public view returns (RentalityTripService.Trip[] memory) {
     uint itemCount = 0;
 
-    for (uint i = 1; i <= tripService.totalTripCount(); i++) {
-      if (isCarThatIntersect(tripService, i, carId, startDateTime, endDateTime)) {
+    uint32 timeBuffer = carService.getCarInfoById(carId).timeBufferBetweenTripsInSec;
+
+    for (uint i = 0; i < tripService.totalTripCount(); i++) {
+      uint currentId = i + 1;
+      if (isCarThatIntersect(tripService, currentId, carId, startDateTime, endDateTime + timeBuffer)) {
         itemCount += 1;
       }
     }
@@ -417,9 +427,10 @@ library RentalityUtils {
     RentalityTripService.Trip[] memory result = new RentalityTripService.Trip[](itemCount);
     uint currentIndex = 0;
 
-    for (uint i = 1; i <= tripService.totalTripCount(); i++) {
-      if (isCarThatIntersect(tripService, i, carId, startDateTime, endDateTime)) {
-        result[currentIndex] = tripService.getTrip(i);
+    for (uint i = 0; i < tripService.totalTripCount(); i++) {
+      uint currentId = i + 1;
+      if (isCarThatIntersect(tripService, currentId, carId, startDateTime, endDateTime + timeBuffer)) {
+        result[currentIndex] = tripService.getTrip(currentId);
         currentIndex += 1;
       }
     }
