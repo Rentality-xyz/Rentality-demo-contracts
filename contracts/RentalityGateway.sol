@@ -124,28 +124,11 @@ contract RentalityGateway is UUPSOwnable {
     return paymentService.getPlatformFeeInPPM();
   }
 
-  /// @notice Sets the platform fee in parts per million (PPM). Only callable by admins.
-  /// @param valueInPPM The new platform fee value in PPM.
-  function setPlatformFeeInPPM(uint32 valueInPPM) public onlyAdmin {
-    paymentService.setPlatformFeeInPPM(valueInPPM);
-  }
-
   /// @notice Retrieves the platform fee calculated from the given value.
   /// @param value The value from which to calculate the platform fee.
   /// @return The calculated platform fee.
   function getPlatformFeeFrom(uint256 value) private view returns (uint256) {
     return paymentService.getPlatformFeeFrom(value);
-  }
-
-  /// @notice Withdraws the specified amount from the RentalityPlatform contract.
-  /// @param amount The amount to withdraw.
-  function withdrawFromPlatform(uint256 amount) public {
-    rentalityPlatform.withdrawFromPlatform(amount);
-  }
-
-  /// @notice Withdraws the entire balance from the RentalityPlatform contract.
-  function withdrawAllFromPlatform() public {
-    rentalityPlatform.withdrawFromPlatform(address(this).balance);
   }
 
   /// @notice Retrieves information about a car by its ID.
@@ -423,21 +406,21 @@ contract RentalityGateway is UUPSOwnable {
   /// @param tripId ID of the trip.
   /// @return Array of detailed claim information.
   function getClaimsByTrip(uint256 tripId) public view returns (RentalityClaimService.FullClaimInfo[] memory) {
-    return RentalityUtils.getClaimsByTrip(claimService, tripService, carService, tripId);
+    return RentalityUtils.getClaimsByTrip(claimService, tripService, carService, userService, tripId);
   }
 
   /// @notice Retrieves all claims where the caller is the host.
   /// @dev The caller is assumed to be the host of the claims.
   /// @return An array of FullClaimInfo containing information about each claim.
   function getMyClaimsAsHost() public view returns (RentalityClaimService.FullClaimInfo[] memory) {
-    return RentalityUtils.getClaimsByHost(claimService, tripService, carService, msg.sender);
+    return RentalityUtils.getClaimsByHost(claimService, tripService, carService, userService, msg.sender);
   }
 
   ///  @notice Retrieves all claims where the caller is the guest.
   ///  @dev The caller is assumed to be the guest of the claims.
   ///  @return An array of FullClaimInfo containing information about each claim.
   function getMyClaimsAsGuest() public view returns (RentalityClaimService.FullClaimInfo[] memory) {
-    return RentalityUtils.getClaimsByGuest(claimService, tripService, carService, msg.sender);
+    return RentalityUtils.getClaimsByGuest(claimService, tripService, carService, userService, msg.sender);
   }
 
   /// @notice Sets Know Your Customer (KYC) information for the caller.
