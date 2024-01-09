@@ -35,6 +35,7 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     uint8 engineType;
     uint64[] engineParams;
     uint64 milesIncludedPerDay;
+    uint32 timeBufferBetweenTripsInSec;
     bool currentlyListed;
     bool geoVerified;
   }
@@ -51,6 +52,7 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     uint64[] engineParams;
     uint8 engineType;
     uint64 milesIncludedPerDay;
+    uint32 timeBufferBetweenTripsInSec;
     string locationAddress;
     string geoApiKey;
   }
@@ -62,6 +64,7 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     uint64 securityDepositPerTripInUsdCents;
     uint64[] engineParams;
     uint64 milesIncludedPerDay;
+    uint32 timeBufferBetweenTripsInSec;
     bool currentlyListed;
   }
 
@@ -151,6 +154,7 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
       request.engineType,
       request.engineParams,
       request.milesIncludedPerDay,
+      request.timeBufferBetweenTripsInSec,
       true,
       false
     );
@@ -198,6 +202,7 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     idToCarInfo[request.carId].securityDepositPerTripInUsdCents = request.securityDepositPerTripInUsdCents;
     idToCarInfo[request.carId].milesIncludedPerDay = request.milesIncludedPerDay;
     idToCarInfo[request.carId].engineParams = engineParams;
+    idToCarInfo[request.carId].timeBufferBetweenTripsInSec = request.timeBufferBetweenTripsInSec;
     idToCarInfo[request.carId].currentlyListed = request.currentlyListed;
 
     emit CarUpdatedSuccess(request.carId, request.pricePerDayInUsdCents, request.currentlyListed);

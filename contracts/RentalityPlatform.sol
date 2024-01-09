@@ -179,8 +179,13 @@ contract RentalityPlatform is UUPSOwnable {
     // Iterate through all trips to check for intersections with the specified car and time range.
     for (uint256 tripId = 1; tripId <= tripService.totalTripCount(); tripId++) {
       RentalityTripService.Trip memory trip = tripService.getTrip(tripId);
+      RentalityCarToken.CarInfo memory car = carService.getCarInfoById(trip.carId);
 
-      if (trip.carId == carId && trip.endDateTime > startDateTime && trip.startDateTime < endDateTime) {
+      if (
+        trip.carId == carId &&
+        trip.endDateTime + car.timeBufferBetweenTripsInSec > startDateTime &&
+        trip.startDateTime < endDateTime
+      ) {
         RentalityTripService.TripStatus tripStatus = trip.status;
 
         // Check if the trip is active (not in Created, Finished, or Canceled status).
@@ -198,6 +203,7 @@ contract RentalityPlatform is UUPSOwnable {
     // If no active trips are found, return false indicating the car is available.
     return false;
   }
+
   /// @notice Approve a trip request on the Rentality platform.
   /// @param tripId The ID of the trip to approve.
   function approveTripRequest(uint256 tripId) public {
@@ -206,6 +212,7 @@ contract RentalityPlatform is UUPSOwnable {
     RentalityTripService.Trip memory trip = tripService.getTrip(tripId);
     RentalityTripService.Trip[] memory intersectedTrips = RentalityUtils.getTripsForCarThatIntersect(
       tripService,
+      carService,
       trip.carId,
       trip.startDateTime,
       trip.endDateTime
@@ -218,7 +225,6 @@ contract RentalityPlatform is UUPSOwnable {
       }
     }
   }
-
   /// @notice Reject a trip request on the Rentality platform.
   /// @param tripId The ID of the trip to reject.
   function rejectTripRequest(uint256 tripId) public {

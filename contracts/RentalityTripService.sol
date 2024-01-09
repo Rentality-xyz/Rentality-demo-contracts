@@ -240,7 +240,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     RentalityCarToken.CarInfo[] memory availableCars = carService.fetchAvailableCarsForUser(user, searchParams);
     if (availableCars.length == 0) return new AvailableCarResponse[](0);
 
-    Trip[] memory trips = RentalityUtils.getTripsThatIntersect(this, startDateTime, endDateTime);
+    Trip[] memory trips = RentalityUtils.getTripsThatIntersect(this, carService, startDateTime, endDateTime);
     RentalityCarToken.CarInfo[] memory temp;
     uint256 resultCount;
 
