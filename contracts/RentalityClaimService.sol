@@ -5,6 +5,7 @@ import '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 import './RentalityUserService.sol';
 import './proxy/UUPSAccess.sol';
 import './RentalityCarToken.sol';
+import './Schemas.sol';
 
 /// @title RentalityClaimService - Manages claims and related operations.
 /// @dev This contract allows users with manager roles to create, reject, and pay claims.
@@ -14,63 +15,11 @@ contract RentalityClaimService is Initializable, UUPSAccess {
   uint256 private claimId;
 
   // Mapping to store claims using claimId as the key
-  mapping(uint256 => Claim) private claimIdToClaim;
+  mapping(uint256 => Schemas.Claim) private claimIdToClaim;
 
-  event ClaimStatusChanged(uint256 claimId, Status claimStatus);
+  event ClaimStatusChanged(uint256 claimId, Schemas.ClaimStatus claimStatus);
 
   event WaitingTimeChanged(uint256 newWaitingTime);
-
-  // Struct to represent additional information about a claim
-  struct FullClaimInfo {
-    Claim claim;
-    address host;
-    address guest;
-    string guestPhoneNumber;
-    string hostPhoneNumber;
-    RentalityCarToken.CarInfo carInfo;
-  }
-
-  // Struct to represent a claim
-  struct Claim {
-    uint256 tripId;
-    uint256 claimId;
-    uint256 deadlineDateInSec;
-    ClaimType claimType;
-    Status status;
-    string description;
-    uint64 amountInUsdCents;
-    uint256 payDateInSec;
-    address rejectedBy; // if so
-    uint256 rejectedDateInSec; // if so
-  }
-
-  // Struct to represent a request to create a new claim
-  struct CreateClaimRequest {
-    uint256 tripId;
-    ClaimType claimType;
-    string description;
-    uint64 amountInUsdCents;
-  }
-
-  // Enumeration for types of claims
-  enum ClaimType {
-    Tolls,
-    Tickets,
-    LateReturn,
-    Cleanliness,
-    Smoking,
-    ExteriorDamage,
-    InteriorDamage,
-    Other
-  }
-
-  // Enumeration for claim statuses
-  enum Status {
-    NotPaid,
-    Paid,
-    Cancel,
-    Overdue
-  }
 
   // Modifier to restrict access to only managers contracts
   modifier onlyManager() {
@@ -89,7 +38,7 @@ contract RentalityClaimService is Initializable, UUPSAccess {
 
   /// @dev Creates a new claim, only callable by managers contracts.
   /// @param request Details of the claim to be created.
-  function createClaim(CreateClaimRequest memory request) public onlyManager {
+  function createClaim(Schemas.CreateClaimRequest memory request) public onlyManager {
     require(request.amountInUsdCents > 0, 'Amount can not be null.');
 
     claimId += 1;
@@ -97,12 +46,12 @@ contract RentalityClaimService is Initializable, UUPSAccess {
 
     uint256 deadline = block.timestamp + waitingTimeForApproveInSec;
 
-    Claim memory newClaim = Claim(
+    Schemas.Claim memory newClaim = Schemas.Claim(
       request.tripId,
       newClaimId,
       deadline,
       request.claimType,
-      Status.NotPaid,
+      Schemas.ClaimStatus.NotPaid,
       request.description,
       request.amountInUsdCents,
       0,
@@ -111,53 +60,54 @@ contract RentalityClaimService is Initializable, UUPSAccess {
     );
     claimIdToClaim[newClaimId] = newClaim;
 
-    emit ClaimStatusChanged(newClaimId, Status.NotPaid);
+    emit ClaimStatusChanged(newClaimId, Schemas.ClaimStatus.NotPaid);
   }
 
   /// @dev Rejects a claim, only callable by managers contracts.
   /// @param _claimId ID of the claim to be rejected.
   /// @param rejectedBy Address of the user rejecting the claim.
   function rejectClaim(uint256 _claimId, address rejectedBy) public onlyManager {
-    Claim storage claim = claimIdToClaim[_claimId];
-    require(claim.status != Status.Paid && claim.status != Status.Cancel, 'Wrong claim status.');
+    Schemas.Claim storage claim = claimIdToClaim[_claimId];
+    require(claim.status != Schemas.ClaimStatus.Paid && claim.status != Schemas.ClaimStatus.Cancel,
+      'Wrong claim status.');
 
-    claim.status = Status.Cancel;
+    claim.status = Schemas.ClaimStatus.Cancel;
     claim.rejectedBy = rejectedBy;
     claim.rejectedDateInSec = block.timestamp;
 
-    emit ClaimStatusChanged(_claimId, Status.Cancel);
+    emit ClaimStatusChanged(_claimId, Schemas.ClaimStatus.Cancel);
   }
 
   /// @dev Pays a claim, only callable by managers contracts.
   /// @param _claimId ID of the claim to be paid.
   function payClaim(uint256 _claimId) public onlyManager {
-    Claim storage claim = claimIdToClaim[_claimId];
+    Schemas.Claim storage claim = claimIdToClaim[_claimId];
 
     uint256 time = block.timestamp;
 
     claim.payDateInSec = time;
-    claim.status = Status.Paid;
+    claim.status = Schemas.ClaimStatus.Paid;
 
-    emit ClaimStatusChanged(_claimId, Status.Paid);
+    emit ClaimStatusChanged(_claimId, Schemas.ClaimStatus.Paid);
   }
 
   /// @dev Updates the status of a claim based on the current timestamp.
   /// @param _claimId ID of the claim to be updated.
   function updateClaim(uint256 _claimId) public {
-    Claim storage claim = claimIdToClaim[_claimId];
+    Schemas.Claim storage claim = claimIdToClaim[_claimId];
 
     uint256 time = block.timestamp;
 
     if (time >= claim.deadlineDateInSec) {
-      claim.status = Status.Overdue;
-      emit ClaimStatusChanged(_claimId, Status.Overdue);
+      claim.status = Schemas.ClaimStatus.Overdue;
+      emit ClaimStatusChanged(_claimId, Schemas.ClaimStatus.Overdue);
     }
   }
 
   /// @dev Gets the details of a claim by its ID.
   /// @param _claimId ID of the claim.
   /// @return Details of the claim.
-  function getClaim(uint256 _claimId) public view returns (Claim memory) {
+  function getClaim(uint256 _claimId) public view returns (Schemas.Claim memory) {
     return claimIdToClaim[_claimId];
   }
 

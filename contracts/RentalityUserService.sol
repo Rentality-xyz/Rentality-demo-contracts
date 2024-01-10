@@ -2,7 +2,7 @@
 pragma solidity ^0.8.9;
 import '@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol';
 import {AccessControlUpgradeable} from '@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol';
-
+import "./Schemas.sol";
 /// @title RentalityUserService Contract
 /// @notice
 /// This contract manages user roles and KYC (Know Your Customer) information.
@@ -13,16 +13,7 @@ import {AccessControlUpgradeable} from '@openzeppelin/contracts-upgradeable/acce
 /// The contract includes functions to set and retrieve KYC information, check for valid KYC,
 /// grant and revoke roles, and check user roles
 contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
-  // Struct to store KYC (Know Your Customer) information for each user
-  struct KYCInfo {
-    string name;
-    string surname;
-    string mobilePhoneNumber;
-    string profilePhoto;
-    string licenseNumber;
-    uint64 expirationDate;
-    uint createDate;
-  }
+
 
   // Role identifiers for access control
   bytes32 public constant MANAGER_ROLE = keccak256('MANAGER_ROLE');
@@ -30,7 +21,7 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
   bytes32 public constant GUEST_ROLE = keccak256('GUEST_ROLE');
 
   // Mapping to store KYC information for each user address
-  mapping(address => KYCInfo) private kycInfos;
+  mapping(address => Schemas.KYCInfo) private kycInfos;
 
   /// @notice Sets KYC information for the caller (host or guest).
   /// @param name The user's name.
@@ -51,7 +42,7 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
   ) public {
     require(isHostOrGuest(tx.origin), 'Only for hosts or guests');
 
-    kycInfos[tx.origin] = KYCInfo(
+    kycInfos[tx.origin] = Schemas.KYCInfo(
       name,
       surname,
       mobilePhoneNumber,
@@ -66,20 +57,20 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
   /// @return kycInfo KYCInfo structure containing user's KYC information.
   /// Requirements:
   /// - Caller must be a manager.
-  function getKYCInfo(address user) external view returns (KYCInfo memory kycInfo) {
+  function getKYCInfo(address user) external view returns (Schemas.KYCInfo memory kycInfo) {
     require(isManager(msg.sender), 'Only the manager can get other users KYC info');
     return kycInfos[user];
   }
   /// @notice Retrieves KYC information for the caller.
   /// @return kycInfo KYCInfo structure containing caller's KYC information.
-  function getMyKYCInfo() external view returns (KYCInfo memory kycInfo) {
+  function getMyKYCInfo() external view returns (Schemas.KYCInfo memory kycInfo) {
     return kycInfos[tx.origin];
   }
   /// @notice Checks if the KYC information for a specified user is valid.
   /// @param user The address of the user to check for valid KYC.
   /// @return isValid A boolean indicating whether the user has valid KYC information.
   function hasValidKYC(address user) public view returns (bool isValid) {
-    KYCInfo memory kycInfo = kycInfos[user];
+    Schemas.KYCInfo memory kycInfo = kycInfos[user];
     return kycInfo.createDate > 0 && kycInfo.expirationDate > block.timestamp;
   }
   /// @notice Grants admin role to a specified user.

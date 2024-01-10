@@ -4,6 +4,7 @@ pragma solidity ^0.8.9;
 import '@chainlink/contracts/src/v0.8/ChainlinkClient.sol';
 import './RentalityUtils.sol';
 import './proxy/UUPSOwnable.sol';
+import './Schemas.sol';
 
 /// @title Rentality Geo Service Contract
 /// @notice This contract provides geolocation services using Chainlink oracles.
@@ -27,22 +28,8 @@ contract RentalityGeoService is ChainlinkClient, UUPSOwnable {
   mapping(uint256 => string) public carIdToGeolocationResponse;
 
   /// @notice Mapping to store parsed geolocation data for each car ID.
-  mapping(uint256 => ParsedGeolocationData) public carIdToParsedGeolocationData;
+  mapping(uint256 => Schemas.ParsedGeolocationData) public carIdToParsedGeolocationData;
 
-  /// @dev Struct to store parsed geolocation data.
-  struct ParsedGeolocationData {
-    string status;
-    bool validCoordinates;
-    string locationLat;
-    string locationLng;
-    string northeastLat;
-    string northeastLng;
-    string southwestLat;
-    string southwestLng;
-    string city;
-    string state;
-    string country;
-  }
 
   /// @notice Function to execute a Chainlink request for geolocation data.
   /// @param addr The address for geolocation lookup.
@@ -90,7 +77,7 @@ contract RentalityGeoService is ChainlinkClient, UUPSOwnable {
     string memory response = carIdToGeolocationResponse[carId];
     string[] memory pairs = RentalityUtils.splitString(response);
 
-    ParsedGeolocationData memory result;
+    Schemas.ParsedGeolocationData memory result;
 
     for (uint256 i = 0; i < pairs.length; i++) {
       string[] memory keyValue = RentalityUtils.splitKeyValue(pairs[i]);
