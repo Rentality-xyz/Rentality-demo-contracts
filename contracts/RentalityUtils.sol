@@ -8,6 +8,7 @@ import './IRentalityGateway.sol';
 import '@openzeppelin/contracts/utils/math/Math.sol';
 import './RentalityGeoService.sol';
 import './RentalityClaimService.sol';
+import './Schemas.sol';
 
 /// @title RentalityUtils Library
 /// @notice
@@ -155,15 +156,15 @@ library RentalityUtils {
   /// @param carService RentalityCarToken contract instance.
   /// @return chatInfoList Array of IRentalityGateway.ChatInfo structures.
   function populateChatInfo(
-    RentalityTripService.Trip[] memory trips,
+    Schemas.Trip[] memory trips,
     RentalityUserService userService,
     RentalityCarToken carService
-  ) public view returns (IRentalityGateway.ChatInfo[] memory) {
-    IRentalityGateway.ChatInfo[] memory chatInfoList = new IRentalityGateway.ChatInfo[](trips.length);
+  ) public view returns (Schemas.ChatInfo[] memory) {
+    Schemas.ChatInfo[] memory chatInfoList = new Schemas.ChatInfo[](trips.length);
 
     for (uint i = 0; i < trips.length; i++) {
-      RentalityUserService.KYCInfo memory guestInfo = userService.getKYCInfo(trips[i].guest);
-      RentalityUserService.KYCInfo memory hostInfo = userService.getKYCInfo(trips[i].host);
+      Schemas.KYCInfo memory guestInfo = userService.getKYCInfo(trips[i].guest);
+      Schemas.KYCInfo memory hostInfo = userService.getKYCInfo(trips[i].host);
 
       chatInfoList[i].tripId = trips[i].tripId;
       chatInfoList[i].guestAddress = trips[i].guest;
@@ -174,7 +175,7 @@ library RentalityUtils {
       chatInfoList[i].hostPhotoUrl = hostInfo.profilePhoto;
       chatInfoList[i].tripStatus = uint256(trips[i].status);
 
-      RentalityCarToken.CarInfo memory carInfo = carService.getCarInfoById(trips[i].carId);
+      Schemas.CarInfo memory carInfo = carService.getCarInfoById(trips[i].carId);
       chatInfoList[i].carBrand = carInfo.brand;
       chatInfoList[i].carModel = carInfo.model;
       chatInfoList[i].carYearOfProduction = carInfo.yearOfProduction;
@@ -188,10 +189,8 @@ library RentalityUtils {
   /// @notice Parses a response string containing geolocation data.
   /// @param response The response string to parse.
   /// @return result Parsed geolocation data in RentalityGeoService.ParsedGeolocationData structure.
-  function parseResponse(
-    string memory response
-  ) public pure returns (RentalityGeoService.ParsedGeolocationData memory) {
-    RentalityGeoService.ParsedGeolocationData memory result;
+  function parseResponse(string memory response) public pure returns (Schemas.ParsedGeolocationData memory) {
+    Schemas.ParsedGeolocationData memory result;
 
     string[] memory pairs = splitString(response);
     for (uint256 i = 0; i < pairs.length; i++) {
@@ -345,8 +344,8 @@ library RentalityUtils {
     uint64 startDateTime,
     uint64 endDateTime
   ) internal view returns (bool) {
-    RentalityTripService.Trip memory trip = tripService.getTrip(tripId);
-    RentalityCarToken.CarInfo memory carInfo = carService.getCarInfoById(trip.carId);
+    Schemas.Trip memory trip = tripService.getTrip(tripId);
+    Schemas.CarInfo memory carInfo = carService.getCarInfoById(trip.carId);
     return
       (trip.endDateTime + carInfo.timeBufferBetweenTripsInSec > startDateTime) && (trip.startDateTime < endDateTime);
   }
@@ -360,7 +359,7 @@ library RentalityUtils {
     RentalityCarToken carService,
     uint64 startDateTime,
     uint64 endDateTime
-  ) public view returns (RentalityTripService.Trip[] memory) {
+  ) public view returns (Schemas.Trip[] memory) {
     uint itemCount = 0;
 
     for (uint i = 0; i < tripService.totalTripCount(); i++) {
@@ -370,7 +369,7 @@ library RentalityUtils {
       }
     }
 
-    RentalityTripService.Trip[] memory result = new RentalityTripService.Trip[](itemCount);
+    Schemas.Trip[] memory result = new Schemas.Trip[](itemCount);
     uint currentIndex = 0;
 
     for (uint i = 0; i < tripService.totalTripCount(); i++) {
@@ -397,7 +396,7 @@ library RentalityUtils {
     uint64 startDateTime,
     uint64 endDateTime
   ) private view returns (bool) {
-    RentalityTripService.Trip memory trip = tripService.getTrip(tripId);
+    Schemas.Trip memory trip = tripService.getTrip(tripId);
     return (trip.carId == carId) && (trip.endDateTime > startDateTime) && (trip.startDateTime < endDateTime);
   }
   ///  @dev Checks if a specific car ID has intersecting trips within a given time range.
@@ -412,7 +411,7 @@ library RentalityUtils {
     uint256 carId,
     uint64 startDateTime,
     uint64 endDateTime
-  ) public view returns (RentalityTripService.Trip[] memory) {
+  ) public view returns (Schemas.Trip[] memory) {
     uint itemCount = 0;
 
     uint32 timeBuffer = carService.getCarInfoById(carId).timeBufferBetweenTripsInSec;
@@ -424,7 +423,7 @@ library RentalityUtils {
       }
     }
 
-    RentalityTripService.Trip[] memory result = new RentalityTripService.Trip[](itemCount);
+    Schemas.Trip[] memory result = new Schemas.Trip[](itemCount);
     uint currentIndex = 0;
 
     for (uint i = 0; i < tripService.totalTripCount(); i++) {
@@ -444,7 +443,7 @@ library RentalityUtils {
   function getTripsByGuest(
     RentalityTripService tripService,
     address guest
-  ) public view returns (RentalityTripService.Trip[] memory) {
+  ) public view returns (Schemas.Trip[] memory) {
     uint itemCount = 0;
 
     for (uint i = 1; i <= tripService.totalTripCount(); i++) {
@@ -453,12 +452,12 @@ library RentalityUtils {
       }
     }
 
-    RentalityTripService.Trip[] memory result = new RentalityTripService.Trip[](itemCount);
+    Schemas.Trip[] memory result = new Schemas.Trip[](itemCount);
     uint currentIndex = 0;
 
     for (uint i = 1; i <= tripService.totalTripCount(); i++) {
       if (tripService.getTrip(i).guest == guest) {
-        RentalityTripService.Trip memory currentItem = tripService.getTrip(i);
+        Schemas.Trip memory currentItem = tripService.getTrip(i);
         result[currentIndex] = currentItem;
         currentIndex += 1;
       }
@@ -470,10 +469,7 @@ library RentalityUtils {
   /// @dev Retrieves an array of trips associated with a specific host address.
   /// @param host The address of the host.
   /// @return trips An array of trips associated with the specified host.
-  function getTripsByHost(
-    RentalityTripService tripService,
-    address host
-  ) public view returns (RentalityTripService.Trip[] memory) {
+  function getTripsByHost(RentalityTripService tripService, address host) public view returns (Schemas.Trip[] memory) {
     uint itemCount = 0;
 
     for (uint i = 1; i <= tripService.totalTripCount(); i++) {
@@ -482,12 +478,12 @@ library RentalityUtils {
       }
     }
 
-    RentalityTripService.Trip[] memory result = new RentalityTripService.Trip[](itemCount);
+    Schemas.Trip[] memory result = new Schemas.Trip[](itemCount);
     uint currentIndex = 0;
 
     for (uint i = 1; i <= tripService.totalTripCount(); i++) {
       if (tripService.getTrip(i).host == host) {
-        RentalityTripService.Trip memory currentItem = tripService.getTrip(i);
+        Schemas.Trip memory currentItem = tripService.getTrip(i);
         result[currentIndex] = currentItem;
         currentIndex += 1;
       }
@@ -499,10 +495,7 @@ library RentalityUtils {
   /// @dev Retrieves an array of trips associated with a specific car ID.
   /// @param carId The ID of the car.
   /// @return trips An array of trips associated with the specified car ID.
-  function getTripsByCar(
-    RentalityTripService tripService,
-    uint256 carId
-  ) public view returns (RentalityTripService.Trip[] memory) {
+  function getTripsByCar(RentalityTripService tripService, uint256 carId) public view returns (Schemas.Trip[] memory) {
     uint itemCount = 0;
 
     for (uint i = 1; i <= tripService.totalTripCount(); i++) {
@@ -511,12 +504,12 @@ library RentalityUtils {
       }
     }
 
-    RentalityTripService.Trip[] memory result = new RentalityTripService.Trip[](itemCount);
+    Schemas.Trip[] memory result = new Schemas.Trip[](itemCount);
     uint currentIndex = 0;
 
     for (uint i = 1; i <= tripService.totalTripCount(); i++) {
       if (tripService.getTrip(i).carId == carId) {
-        RentalityTripService.Trip memory currentItem = tripService.getTrip(i);
+        Schemas.Trip memory currentItem = tripService.getTrip(i);
         result[currentIndex] = currentItem;
         currentIndex += 1;
       }
@@ -535,28 +528,28 @@ library RentalityUtils {
     RentalityCarToken carService,
     RentalityUserService userService,
     uint256 tripId
-  ) public view returns (RentalityClaimService.FullClaimInfo[] memory) {
+  ) public view returns (Schemas.FullClaimInfo[] memory) {
     uint256 arraySize = 0;
     for (uint256 i = 1; i <= claimService.getClaimsAmount(); i++) {
-      RentalityClaimService.Claim memory claim = claimService.getClaim(i);
+      Schemas.Claim memory claim = claimService.getClaim(i);
       if (claim.tripId == tripId) {
         arraySize += 1;
       }
     }
     uint256 counter = 0;
 
-    RentalityClaimService.FullClaimInfo[] memory claimInfos = new RentalityClaimService.FullClaimInfo[](arraySize);
+    Schemas.FullClaimInfo[] memory claimInfos = new Schemas.FullClaimInfo[](arraySize);
 
     for (uint256 i = 1; i <= claimService.getClaimsAmount(); i++) {
-      RentalityClaimService.Claim memory claim = claimService.getClaim(i);
+      Schemas.Claim memory claim = claimService.getClaim(i);
 
       if (claim.tripId == tripId) {
-        RentalityTripService.Trip memory trip = tripService.getTrip(tripId);
-        RentalityCarToken.CarInfo memory carInfo = carService.getCarInfoById(trip.carId);
+        Schemas.Trip memory trip = tripService.getTrip(tripId);
+        Schemas.CarInfo memory carInfo = carService.getCarInfoById(trip.carId);
         string memory guestPhoneNumber = userService.getKYCInfo(trip.guest).mobilePhoneNumber;
         string memory hostPhoneNumber = userService.getKYCInfo(trip.host).mobilePhoneNumber;
 
-        claimInfos[counter++] = RentalityClaimService.FullClaimInfo(
+        claimInfos[counter++] = Schemas.FullClaimInfo(
           claim,
           trip.host,
           trip.guest,
@@ -578,30 +571,30 @@ library RentalityUtils {
     RentalityCarToken carService,
     RentalityUserService userService,
     address host
-  ) public view returns (RentalityClaimService.FullClaimInfo[] memory) {
+  ) public view returns (Schemas.FullClaimInfo[] memory) {
     uint256 arraySize = 0;
 
     for (uint256 i = 1; i <= claimService.getClaimsAmount(); i++) {
-      RentalityClaimService.Claim memory claim = claimService.getClaim(i);
-      RentalityTripService.Trip memory trip = tripService.getTrip(claim.tripId);
+      Schemas.Claim memory claim = claimService.getClaim(i);
+      Schemas.Trip memory trip = tripService.getTrip(claim.tripId);
 
       if (trip.host == host) {
         arraySize++;
       }
     }
-    RentalityClaimService.FullClaimInfo[] memory claimInfos = new RentalityClaimService.FullClaimInfo[](arraySize);
+    Schemas.FullClaimInfo[] memory claimInfos = new Schemas.FullClaimInfo[](arraySize);
     uint256 counter = 0;
 
     for (uint256 i = 1; i <= claimService.getClaimsAmount(); i++) {
-      RentalityClaimService.Claim memory claim = claimService.getClaim(i);
-      RentalityTripService.Trip memory trip = tripService.getTrip(claim.tripId);
+      Schemas.Claim memory claim = claimService.getClaim(i);
+      Schemas.Trip memory trip = tripService.getTrip(claim.tripId);
 
       if (trip.host == host) {
-        RentalityCarToken.CarInfo memory carInfo = carService.getCarInfoById(trip.tripId);
+        Schemas.CarInfo memory carInfo = carService.getCarInfoById(trip.tripId);
         string memory guestPhoneNumber = userService.getKYCInfo(trip.guest).mobilePhoneNumber;
         string memory hostPhoneNumber = userService.getKYCInfo(host).mobilePhoneNumber;
 
-        claimInfos[counter++] = RentalityClaimService.FullClaimInfo(
+        claimInfos[counter++] = Schemas.FullClaimInfo(
           claim,
           host,
           trip.guest,
@@ -622,30 +615,30 @@ library RentalityUtils {
     RentalityCarToken carService,
     RentalityUserService userService,
     address guest
-  ) public view returns (RentalityClaimService.FullClaimInfo[] memory) {
+  ) public view returns (Schemas.FullClaimInfo[] memory) {
     uint256 arraySize = 0;
 
     for (uint256 i = 1; i <= claimService.getClaimsAmount(); i++) {
-      RentalityClaimService.Claim memory claim = claimService.getClaim(i);
-      RentalityTripService.Trip memory trip = tripService.getTrip(claim.tripId);
+      Schemas.Claim memory claim = claimService.getClaim(i);
+      Schemas.Trip memory trip = tripService.getTrip(claim.tripId);
 
       if (trip.guest == guest) {
         arraySize++;
       }
     }
-    RentalityClaimService.FullClaimInfo[] memory claimInfos = new RentalityClaimService.FullClaimInfo[](arraySize);
+    Schemas.FullClaimInfo[] memory claimInfos = new Schemas.FullClaimInfo[](arraySize);
     uint256 counter = 0;
 
     for (uint256 i = 0; i < claimService.getClaimsAmount(); i++) {
-      RentalityClaimService.Claim memory claim = claimService.getClaim(i);
-      RentalityTripService.Trip memory trip = tripService.getTrip(claim.tripId);
+      Schemas.Claim memory claim = claimService.getClaim(i);
+      Schemas.Trip memory trip = tripService.getTrip(claim.tripId);
 
       if (trip.guest == guest) {
-        RentalityCarToken.CarInfo memory carInfo = carService.getCarInfoById(trip.tripId);
+        Schemas.CarInfo memory carInfo = carService.getCarInfoById(trip.tripId);
         string memory guestPhoneNumber = userService.getKYCInfo(guest).mobilePhoneNumber;
         string memory hostPhoneNumber = userService.getKYCInfo(trip.host).mobilePhoneNumber;
 
-        claimInfos[counter++] = RentalityClaimService.FullClaimInfo(
+        claimInfos[counter++] = Schemas.FullClaimInfo(
           claim,
           trip.host,
           guest,
@@ -666,7 +659,7 @@ library RentalityUtils {
   ///  @return Returns the resolved amounts for miles and fuel in USD cents as a tuple.
   function getResolveAmountInUsdCents(
     uint8 eType,
-    RentalityTripService.Trip memory tripInfo,
+    Schemas.Trip memory tripInfo,
     uint64[] memory engineParams,
     RentalityEnginesService engineService
   ) public view returns (uint64, uint64) {
