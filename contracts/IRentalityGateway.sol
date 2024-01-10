@@ -84,20 +84,11 @@ interface IRentalityGateway {
   /// @param contractAddress The new address of the Rentality Platform contract.
   function updateRentalityPlatform(address contractAddress) external;
 
-  /// @notice Withdraw a specified amount of funds from the platform.
-  /// @param amount The amount of funds to withdraw.
-  function withdrawFromPlatform(uint256 amount) external;
-
-  /// @notice Withdraw all funds from the platform.
-  function withdrawAllFromPlatform() external;
 
   /// @notice Get the platform fee in parts per million (PPM).
   /// @return The platform fee in PPM.
   function getPlatformFeeInPPM() external view returns (uint32);
 
-  /// @notice Set the platform fee in parts per million (PPM).
-  /// @param valueInPPM The new platform fee in PPM.
-  function setPlatformFeeInPPM(uint32 valueInPPM) external;
 
   /// @host functions
 
@@ -121,6 +112,11 @@ interface IRentalityGateway {
     string memory geoApiKey
   ) external;
 
+  /// @notice Updates the token URI of a car. Only callable by hosts.
+  /// @param carId The ID of the car to update.
+  /// @param tokenUri The new token URI.
+  function updateCarTokenUri(uint256 carId, string memory tokenUri) external;
+
   /// @notice Get the metadata URI for a specific car.
   /// @param carId The ID of the car.
   /// @return The metadata URI for the specified car.
@@ -135,6 +131,10 @@ interface IRentalityGateway {
   /// @return An array of CarInfo structures containing details about the caller's cars.
   function getMyCars() external view returns (RentalityCarToken.CarInfo[] memory);
 
+  /// @notice Burns (disables) a car. Only callable by hosts.
+  /// @param carId The ID of the car to burn.
+  function burnCar(uint256 carId) external;
+
   /// @notice Get information about all trips where the caller is the host.
   /// @return An array of Trip structures containing details about trips where the caller is the host.
   function getTripsAsHost() external view returns (RentalityTripService.Trip[] memory);
@@ -147,17 +147,17 @@ interface IRentalityGateway {
   /// @param tripId The ID of the trip to reject.
   function rejectTripRequest(uint256 tripId) external;
 
-  /// @notice Perform check-in for a trip as the host.
-  /// @param tripId The ID of the trip to check in.
-  /// @param startFuelLevelInPermille The start fuel level in permille.
-  /// @param startOdometr The start odometer reading.
-  function checkInByHost(uint256 tripId, uint64 startFuelLevelInPermille, uint64 startOdometr) external;
+  /// @notice Performs check-in by the host for a trip.
+  /// @param tripId The ID of the trip.
+  /// @param panelParams An array representing parameters related to fuel, odometer,
+  /// and other relevant details depends on engine.
+  function checkInByHost(uint256 tripId, uint64[] memory panelParams) external;
 
-  /// @notice Perform check-out for a trip as the host.
-  /// @param tripId The ID of the trip to check out.
-  /// @param endFuelLevelInPermille The end fuel level in permille.
-  /// @param endOdometr The end odometer reading.
-  function checkOutByHost(uint256 tripId, uint64 endFuelLevelInPermille, uint64 endOdometr) external;
+  /// @notice Performs check-out by the host for a trip.
+  /// @param tripId The ID of the trip.
+  /// @param panelParams An array representing parameters related to fuel, odometer,
+  /// and other relevant details depends on engine.
+  function checkOutByHost(uint256 tripId, uint64[] memory panelParams) external;
 
   /// @notice Finish a trip as the host.
   /// @param tripId The ID of the trip to finish.
@@ -169,6 +169,15 @@ interface IRentalityGateway {
   /// @return An array of CarInfo structures containing details about available cars.
   function getAvailableCars() external view returns (RentalityCarToken.CarInfo[] memory);
 
+  /// @notice Retrieves information about all cars.
+  /// @return An array of car information.
+  function getAllCars() external view returns (RentalityCarToken.CarInfo[] memory);
+
+  /// @notice Retrieves information about available cars for a specific user.
+  /// @param user The address of the user.
+  /// @return An array of available car information for the specified user.
+  function getAvailableCarsForUser(address user) external view returns (RentalityCarToken.CarInfo[] memory);
+
   /// @notice Search for available cars based on specified criteria.
   /// @param startDateTime The start date and time of the trip.
   /// @param endDateTime The end date and time of the trip.
@@ -178,7 +187,20 @@ interface IRentalityGateway {
     uint64 startDateTime,
     uint64 endDateTime,
     RentalityCarToken.SearchCarParams memory searchParams
-  ) external view returns (RentalityCarToken.CarInfo[] memory);
+  ) external view returns (RentalityTripService.AvailableCarResponse[] memory);
+
+  /// @notice Searches for available cars for a specific user based on specified criteria.
+  /// @param user The address of the user.
+  /// @param startDateTime The start date and time of the search.
+  /// @param endDateTime The end date and time of the search.
+  /// @param searchParams Additional search parameters.
+  /// @return An array of available car information meeting the search criteria for the specified user.
+  function searchAvailableCarsForUser(
+    address user,
+    uint64 startDateTime,
+    uint64 endDateTime,
+    RentalityCarToken.SearchCarParams memory searchParams
+  ) external view returns (RentalityTripService.AvailableCarResponse[] memory);
 
   /// @notice Create a trip request.
   /// @param request The request parameters for creating a new trip.
@@ -188,28 +210,80 @@ interface IRentalityGateway {
   /// @return An array of Trip structures containing details about trips where the caller is the guest.
   function getTripsAsGuest() external view returns (RentalityTripService.Trip[] memory);
 
-  /// @notice Perform check-in for a trip as the guest.
-  /// @param tripId The ID of the trip to check in.
-  /// @param startFuelLevelInPermille The start fuel level in permille.
-  /// @param startOdometr The start odometer reading.
-  function checkInByGuest(uint256 tripId, uint64 startFuelLevelInPermille, uint64 startOdometr) external;
+  /// @notice Performs check-in by the guest for a trip.
+  /// @param tripId The ID of the trip.
+  /// @param panelParams An array representing parameters related to fuel, odometer,
+  /// and other relevant details depends on engine.
+  function checkInByGuest(uint256 tripId, uint64[] memory panelParams) external;
 
-  /// @notice Perform check-out for a trip as the guest.
-  /// @param tripId The ID of the trip to check out.
-  /// @param endFuelLevelInPermille The end fuel level in permille.
-  /// @param endOdometr The end odometer reading.
-  function checkOutByGuest(uint256 tripId, uint64 endFuelLevelInPermille, uint64 endOdometr) external;
+  /// @notice Performs check-out by the guest for a trip.
+  /// @param tripId The ID of the trip.
+  /// @param panelParams An array representing parameters related to fuel, odometer,
+  /// and other relevant details depends on engine.
+  function checkOutByGuest(uint256 tripId, uint64[] memory panelParams) external;
 
   /// @notice Get information about a specific trip.
   /// @param tripId The ID of the trip.
   /// @return Trip structure containing details about the specified trip.
   function getTrip(uint256 tripId) external view returns (RentalityTripService.Trip memory);
 
-  /// @notice Get the addresses (host and guest) associated with a trip ID.
-  /// @param tripId The ID of the trip.
-  /// @return hostAddress The address of the host associated with the trip.
-  /// @return guestAddress The address of the guest associated with the trip.
-  function getAddressesByTripId(uint256 tripId) external view returns (address hostAddress, address guestAddress);
+  /// @notice Retrieves information about trips where the specified user is the guest.
+  /// @param guest The address of the guest.
+  /// @return An array of trip information for the specified guest.
+  function getTripsByGuest(address guest) external view returns (RentalityTripService.Trip[] memory);
+
+  /// @notice Retrieves information about trips where the specified user is the host.
+  /// @param host The address of the host.
+  /// @return An array of trip information for the specified host.
+  function getTripsByHost(address host) external view returns (RentalityTripService.Trip[] memory);
+
+  /// @notice Retrieves information about trips for a specific car.
+  /// @param carId The ID of the car.
+  /// @return An array of trip information for the specified car.
+  function getTripsByCar(uint256 carId) external view returns (RentalityTripService.Trip[] memory);
+
+  /// @notice Creates a new claim through the Rentality platform.
+  /// @dev This function delegates the claim creation to the Rentality platform contract.
+  /// @param request Details of the claim to be created.
+  function createClaim(RentalityClaimService.CreateClaimRequest memory request) external;
+
+  /// @notice Rejects a specific claim through the Rentality platform.
+  /// @dev This function delegates the claim rejection to the Rentality platform contract.
+  /// @param claimId ID of the claim to be rejected.
+  function rejectClaim(uint256 claimId) external;
+
+  /// @notice Pays a specific claim through the Rentality platform, transferring funds and handling excess.
+  /// @dev This function delegates the claim payment to the Rentality platform contract.
+  /// @param claimId ID of the claim to be paid.
+  function payClaim(uint256 claimId) external payable;
+
+  /// @notice Updates the status of a specific claim through the Rentality platform.
+  /// @dev This function delegates the claim update to the Rentality platform contract.
+  /// @param claimId ID of the claim to be updated.
+  function updateClaim(uint256 claimId) external;
+
+  /// @notice Gets detailed information about a specific claim through the Rentality platform.
+  /// @dev This function retrieves the claim information using the Rentality platform contract.
+  /// @param claimId ID of the claim.
+  /// @return Full information about the claim.
+  function getClaim(uint256 claimId) external view returns (RentalityClaimService.FullClaimInfo memory);
+
+  /// @notice Gets an array of claims associated with a specific trip through the Rentality platform.
+  /// @dev This function retrieves an array of detailed claim information for the given trip using the Rentality platform contract.
+  /// @param tripId ID of the trip.
+  /// @return Array of detailed claim information.
+  function getClaimsByTrip(uint256 tripId) external view returns (RentalityClaimService.FullClaimInfo[] memory);
+
+  /// @notice Retrieves all claims where the caller is the host.
+  /// @dev The caller is assumed to be the host of the claims.
+  /// @return An array of FullClaimInfo containing information about each claim.
+  function getMyClaimsAsHost() external view returns (RentalityClaimService.FullClaimInfo[] memory);
+
+  ///  @notice Retrieves all claims where the caller is the guest.
+  ///  @dev The caller is assumed to be the guest of the claims.
+  ///  @return An array of FullClaimInfo containing information about each claim.
+  function getMyClaimsAsGuest() external view returns (RentalityClaimService.FullClaimInfo[] memory);
+
 
   /// @notice Get contact information for a trip.
   /// @param tripId The ID of the trip.
@@ -243,4 +317,12 @@ interface IRentalityGateway {
   /// @notice Get KYC (Know Your Customer) information for the caller.
   /// @return KYCInfo structure containing details about the KYC information of the caller.
   function getMyKYCInfo() external view returns (RentalityUserService.KYCInfo memory);
+
+  /// @notice Retrieves chat information for the caller acting as a host.
+  /// @return An array of chat information.
+  function getChatInfoForHost() external view returns (IRentalityGateway.ChatInfo[] memory);
+
+  /// @notice Retrieves chat information for the caller acting as a guest.
+  /// @return An array of chat information.
+  function getChatInfoForGuest() external view returns (IRentalityGateway.ChatInfo[] memory);
 }

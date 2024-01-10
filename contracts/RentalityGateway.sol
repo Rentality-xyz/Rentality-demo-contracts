@@ -22,7 +22,7 @@ import './RentalityPaymentService.sol';
 ///  selfdestruct, as far as RentalityUtils doesn't has this logic,
 /// it's completely safe for upgrade
 /// @custom:oz-upgrades-unsafe-allow external-library-linking
-contract RentalityGateway is UUPSOwnable {
+contract RentalityGateway is UUPSOwnable, IRentalityGateway {
   RentalityCarToken private carService;
   RentalityCurrencyConverter private currencyConverterService;
   RentalityTripService private tripService;
