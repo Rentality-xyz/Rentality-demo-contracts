@@ -30,7 +30,6 @@ contract RentalityGeoService is ChainlinkClient, UUPSOwnable {
   /// @notice Mapping to store parsed geolocation data for each car ID.
   mapping(uint256 => Schemas.ParsedGeolocationData) public carIdToParsedGeolocationData;
 
-
   /// @notice Function to execute a Chainlink request for geolocation data.
   /// @param addr The address for geolocation lookup.
   /// @param key The API key for accessing the geolocation service.

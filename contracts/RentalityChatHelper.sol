@@ -5,14 +5,12 @@ import '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 import '@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol';
 import './IRentalityAccessControl.sol';
 import './proxy/UUPSAccess.sol';
-import "./Schemas.sol";
+import './Schemas.sol';
 
 /// @title RentalityChatHelper
 /// @notice A contract to manage chat key pairs for users
 /// @dev Users can set and retrieve their chat key pairs, and get public keys of specified addresses.
 contract RentalityChatHelper is Initializable, UUPSAccess {
-
-
   // Mapping to store chat key pairs associated with Ethereum addresses
   mapping(address => Schemas.ChatKeyPair) private addressToChatKeyPair;
 

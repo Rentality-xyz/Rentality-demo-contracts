@@ -22,7 +22,6 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
 
   mapping(uint256 => Schemas.CarInfo) private idToCarInfo;
 
-
   /// @notice Event emitted when a new car is successfully added.
   event CarAddedSuccess(
     uint256 CarId,
@@ -123,7 +122,11 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
   ///  can be empty, for left old location information.
   /// @param geoApiKey The API key for the geographic verification service.
   /// can be empty, if location param is empty.
-  function updateCarInfo(Schemas.UpdateCarInfoRequest memory request, string memory location, string memory geoApiKey) public {
+  function updateCarInfo(
+    Schemas.UpdateCarInfoRequest memory request,
+    string memory location,
+    string memory geoApiKey
+  ) public {
     require(_exists(request.carId), 'Token does not exist');
     require(ownerOf(request.carId) == tx.origin, 'Only the owner of the car can update car info');
     require(request.pricePerDayInUsdCents > 0, "Make sure the price isn't negative");

@@ -189,9 +189,7 @@ library RentalityUtils {
   /// @notice Parses a response string containing geolocation data.
   /// @param response The response string to parse.
   /// @return result Parsed geolocation data in RentalityGeoService.ParsedGeolocationData structure.
-  function parseResponse(
-    string memory response
-  ) public pure returns (Schemas.ParsedGeolocationData memory) {
+  function parseResponse(string memory response) public pure returns (Schemas.ParsedGeolocationData memory) {
     Schemas.ParsedGeolocationData memory result;
 
     string[] memory pairs = splitString(response);
@@ -471,10 +469,7 @@ library RentalityUtils {
   /// @dev Retrieves an array of trips associated with a specific host address.
   /// @param host The address of the host.
   /// @return trips An array of trips associated with the specified host.
-  function getTripsByHost(
-    RentalityTripService tripService,
-    address host
-  ) public view returns (Schemas.Trip[] memory) {
+  function getTripsByHost(RentalityTripService tripService, address host) public view returns (Schemas.Trip[] memory) {
     uint itemCount = 0;
 
     for (uint i = 1; i <= tripService.totalTripCount(); i++) {
@@ -500,10 +495,7 @@ library RentalityUtils {
   /// @dev Retrieves an array of trips associated with a specific car ID.
   /// @param carId The ID of the car.
   /// @return trips An array of trips associated with the specified car ID.
-  function getTripsByCar(
-    RentalityTripService tripService,
-    uint256 carId
-  ) public view returns (Schemas.Trip[] memory) {
+  function getTripsByCar(RentalityTripService tripService, uint256 carId) public view returns (Schemas.Trip[] memory) {
     uint itemCount = 0;
 
     for (uint i = 1; i <= tripService.totalTripCount(); i++) {

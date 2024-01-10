@@ -8,7 +8,6 @@ import './RentalityTripService.sol';
 /// @notice This contract defines the interface for the Rentality Gateway, which facilitates interactions between various services in the Rentality platform.
 /// @dev All functions in this interface are meant to be implemented by the Rentality Gateway contract.
 interface IRentalityGateway {
-
   /// @admin functions
 
   /// @notice Get the address of the Car Service contract.
@@ -51,11 +50,9 @@ interface IRentalityGateway {
   /// @param contractAddress The new address of the Rentality Platform contract.
   function updateRentalityPlatform(address contractAddress) external;
 
-
   /// @notice Get the platform fee in parts per million (PPM).
   /// @return The platform fee in PPM.
   function getPlatformFeeInPPM() external view returns (uint32);
-
 
   /// @host functions
 
@@ -74,7 +71,7 @@ interface IRentalityGateway {
   /// @param location Single string that contains the car location
   /// @param geoApiKey the key to verify location by google geo api
   function updateCarInfoWithLocation(
-  Schemas.UpdateCarInfoRequest memory request,
+    Schemas.UpdateCarInfoRequest memory request,
     string memory location,
     string memory geoApiKey
   ) external;
@@ -250,7 +247,6 @@ interface IRentalityGateway {
   ///  @dev The caller is assumed to be the guest of the claims.
   ///  @return An array of FullClaimInfo containing information about each claim.
   function getMyClaimsAsGuest() external view returns (Schemas.FullClaimInfo[] memory);
-
 
   /// @notice Get contact information for a trip.
   /// @param tripId The ID of the trip.
