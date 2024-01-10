@@ -2,7 +2,7 @@
 pragma solidity ^0.8.9;
 import '@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol';
 import {AccessControlUpgradeable} from '@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol';
-import "./Schemas.sol";
+import './Schemas.sol';
 /// @title RentalityUserService Contract
 /// @notice
 /// This contract manages user roles and KYC (Know Your Customer) information.
@@ -13,8 +13,6 @@ import "./Schemas.sol";
 /// The contract includes functions to set and retrieve KYC information, check for valid KYC,
 /// grant and revoke roles, and check user roles
 contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
-
-
   // Role identifiers for access control
   bytes32 public constant MANAGER_ROLE = keccak256('MANAGER_ROLE');
   bytes32 public constant HOST_ROLE = keccak256('HOST_ROLE');

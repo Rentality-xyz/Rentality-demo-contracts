@@ -3,7 +3,7 @@ pragma solidity ^0.8.9;
 
 import './RentalityPaymentService.sol';
 import './RentalityPlatform.sol';
-import "./IRentalityAdminGateway.sol";
+import './IRentalityAdminGateway.sol';
 
 contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
   IRentalityAccessControl private userService;

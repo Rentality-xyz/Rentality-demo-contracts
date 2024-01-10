@@ -68,8 +68,10 @@ contract RentalityClaimService is Initializable, UUPSAccess {
   /// @param rejectedBy Address of the user rejecting the claim.
   function rejectClaim(uint256 _claimId, address rejectedBy) public onlyManager {
     Schemas.Claim storage claim = claimIdToClaim[_claimId];
-    require(claim.status != Schemas.ClaimStatus.Paid && claim.status != Schemas.ClaimStatus.Cancel,
-      'Wrong claim status.');
+    require(
+      claim.status != Schemas.ClaimStatus.Paid && claim.status != Schemas.ClaimStatus.Cancel,
+      'Wrong claim status.'
+    );
 
     claim.status = Schemas.ClaimStatus.Cancel;
     claim.rejectedBy = rejectedBy;

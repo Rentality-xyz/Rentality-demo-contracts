@@ -24,7 +24,6 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
   using Counters for Counters.Counter;
   Counters.Counter private _tripIdCounter;
 
-
   mapping(uint256 => Schemas.Trip) private idToTripInfo;
 
   /// @dev Event emitted when a new trip is created.
@@ -271,7 +270,10 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     Schemas.CarInfo memory carInfo = carService.getCarInfoById(trip.carId);
     engineService.compareParams(panelParams, trip.startParamLevels, carInfo.engineType);
 
-    require(idToTripInfo[tripId].status == Schemas.TripStatus.CheckedInByHost, 'The trip is not in status CheckedInByHost');
+    require(
+      idToTripInfo[tripId].status == Schemas.TripStatus.CheckedInByHost,
+      'The trip is not in status CheckedInByHost'
+    );
 
     idToTripInfo[tripId].status = Schemas.TripStatus.CheckedInByGuest;
     idToTripInfo[tripId].checkedInByGuestDateTime = block.timestamp;
@@ -294,7 +296,10 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
 
     engineService.verifyEndParams(trip.startParamLevels, panelParams, carInfo.engineType);
 
-    require(idToTripInfo[tripId].status == Schemas.TripStatus.CheckedInByGuest, 'The trip is not in status CheckedInByGuest');
+    require(
+      idToTripInfo[tripId].status == Schemas.TripStatus.CheckedInByGuest,
+      'The trip is not in status CheckedInByGuest'
+    );
 
     idToTripInfo[tripId].status = Schemas.TripStatus.CheckedOutByGuest;
     idToTripInfo[tripId].checkedOutByGuestDateTime = block.timestamp;
@@ -318,7 +323,10 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
 
     engineService.compareParams(trip.endParamLevels, panelParams, carInfo.engineType);
 
-    require(idToTripInfo[tripId].status == Schemas.TripStatus.CheckedOutByGuest, 'The trip is not in status CheckedOutByGuest');
+    require(
+      idToTripInfo[tripId].status == Schemas.TripStatus.CheckedOutByGuest,
+      'The trip is not in status CheckedOutByGuest'
+    );
 
     idToTripInfo[tripId].status = Schemas.TripStatus.CheckedOutByHost;
     idToTripInfo[tripId].checkedOutByHostDateTime = block.timestamp;
@@ -334,7 +342,10 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
   function finishTrip(uint256 tripId) public {
     //require(idToTripInfo[tripId].status != TripStatus.CheckedOutByHost,"The trip is not in status CheckedOutByHost");
     require(userService.isManager(msg.sender), 'Only from manager contract.');
-    require(idToTripInfo[tripId].status == Schemas.TripStatus.CheckedOutByHost, 'The trip is not in status CheckedOutByHost');
+    require(
+      idToTripInfo[tripId].status == Schemas.TripStatus.CheckedOutByHost,
+      'The trip is not in status CheckedOutByHost'
+    );
     idToTripInfo[tripId].status = Schemas.TripStatus.Finished;
 
     Schemas.CarInfo memory car = carService.getCarInfoById(idToTripInfo[tripId].carId);
