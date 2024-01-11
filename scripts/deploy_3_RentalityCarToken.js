@@ -1,30 +1,33 @@
 const saveJsonAbi = require('./utils/abiSaver')
-const { ethers, upgrades, network } = require('hardhat')
+const { ethers, upgrades } = require('hardhat')
 const { getContractAddress } = require('./utils/contractAddress')
 const addressSaver = require('./utils/addressSaver')
+const { checkNotNull, startDeploy } = require('./utils/deployHelper')
 
 async function main() {
-  const contractName = 'RentalityCarToken'
-  const [deployer] = await ethers.getSigners()
-  const balance = await ethers.provider.getBalance(deployer.address)
-  console.log('Deployer address is:', await deployer.getAddress(), ' with balance:', balance)
+  const { contractName, chainId } = await startDeploy('RentalityCarToken')
 
-  const chainId = (await deployer.provider?.getNetwork())?.chainId ?? -1
-  console.log('ChainId is:', chainId)
-  if (chainId < 0) return
+  if (chainId < 0) throw new Error('chainId is not set')
+
+  const geoAddress = checkNotNull(
+    getContractAddress('RentalityGeoService', 'scripts/deploy_1c_GeoService.js'),
+    'RentalityGeoService'
+  )
+
+  const engineAddress = checkNotNull(
+    getContractAddress('RentalityEnginesService', 'scripts/deploy_2b_RentalityEngineService.js'),
+    'RentalityEnginesService'
+  )
 
   const contractFactory = await ethers.getContractFactory(contractName)
-
-  const geoAddress = getContractAddress('RentalityGeoService', 'scripts/deploy_1c_GeoService.js')
-
-  const engineAddress = getContractAddress('RentalityEnginesService', 'scripts/deploy_2b_RentalityEngineService.js')
-
   const contract = await upgrades.deployProxy(contractFactory, [geoAddress, engineAddress])
   await contract.waitForDeployment()
-  console.log(contractName + ' deployed to:', await contract.getAddress())
+  const contractAddress = await contract.getAddress()
 
-  addressSaver(await contract.getAddress(), contractName, true)
+  console.log(`${contractName} was deployed to: ${contractAddress}`)
+  addressSaver(contractAddress, contractName, true)
   await saveJsonAbi(contractName, chainId, contract)
+  console.log()
 }
 
 main()

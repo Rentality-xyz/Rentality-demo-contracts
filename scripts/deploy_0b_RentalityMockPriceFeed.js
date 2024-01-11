@@ -1,25 +1,22 @@
 const saveJsonAbi = require('./utils/abiSaver')
 const { ethers } = require('hardhat')
+const addressSaver = require('./utils/addressSaver')
+const { startDeploy } = require('./utils/deployHelper')
 
 async function main() {
-  const contractName = 'RentalityMockPriceFeed'
-  const [deployer] = await ethers.getSigners()
-  const balance = await ethers.provider.getBalance(deployer)
-  console.log('Deployer address is:', deployer.getAddress(), ' with balance:', balance)
+  const { contractName, chainId } = await startDeploy('RentalityMockPriceFeed')
 
-  const chainId = (await deployer.provider?.getNetwork())?.chainId ?? -1
-  console.log('ChainId is:', chainId)
-  if (chainId !== 1337n) {
-    console.log('Can be deployed only on chainId: 1337')
-    return
-  }
+  if (chainId !== 1337n) throw new Error('Can be deployed only on chainId: 1337')
 
   const contractFactory = await ethers.getContractFactory(contractName)
   const contract = await contractFactory.deploy(8, 200000000000)
   await contract.waitForDeployment()
-  console.log(contractName + ' deployed to:', await contract.getAddress())
+  const contractAddress = await contract.getAddress()
 
+  console.log(`${contractName} was deployed to: ${contractAddress}`)
+  addressSaver(contractAddress, 'EthToUsdPriceFeedAddress', true)
   await saveJsonAbi(contractName, chainId, contract)
+  console.log()
 }
 
 main()

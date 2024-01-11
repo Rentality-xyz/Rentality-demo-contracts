@@ -117,7 +117,7 @@ contract RentalityPlatform is UUPSOwnable {
 
   /// @notice Create a new trip request on the Rentality platform.
   /// @param request The details of the trip request as specified in IRentalityGateway.CreateTripRequest.
-  function createTripRequest(IRentalityGateway.CreateTripRequest memory request) public payable {
+  function createTripRequest(Schemas.CreateTripRequest memory request) public payable {
     require(msg.value > 0, 'Rental fee must be greater than 0');
     require(carService.ownerOf(request.carId) != tx.origin, 'Car is not available for creator');
     require(
@@ -138,7 +138,7 @@ contract RentalityPlatform is UUPSOwnable {
       userService.grantGuestRole(tx.origin);
     }
 
-    RentalityPaymentService.PaymentInfo memory paymentInfo = RentalityPaymentService.PaymentInfo(
+    Schemas.PaymentInfo memory paymentInfo = Schemas.PaymentInfo(
       0,
       tx.origin,
       address(this),
@@ -146,14 +146,14 @@ contract RentalityPlatform is UUPSOwnable {
       request.taxPriceInUsdCents,
       request.depositInUsdCents,
       0,
-      RentalityPaymentService.CurrencyType.ETH,
+      Schemas.CurrencyType.ETH,
       request.ethToCurrencyRate,
       request.ethToCurrencyDecimals,
       0,
       0
     );
 
-    RentalityCarToken.CarInfo memory carInfo = carService.getCarInfoById(request.carId);
+    Schemas.CarInfo memory carInfo = carService.getCarInfoById(request.carId);
 
     tripService.createNewTrip(
       request.carId,
@@ -178,15 +178,20 @@ contract RentalityPlatform is UUPSOwnable {
   function isCarUnavailable(uint256 carId, uint64 startDateTime, uint64 endDateTime) private view returns (bool) {
     // Iterate through all trips to check for intersections with the specified car and time range.
     for (uint256 tripId = 1; tripId <= tripService.totalTripCount(); tripId++) {
-      RentalityTripService.Trip memory trip = tripService.getTrip(tripId);
+      Schemas.Trip memory trip = tripService.getTrip(tripId);
+      Schemas.CarInfo memory car = carService.getCarInfoById(trip.carId);
 
-      if (trip.carId == carId && trip.endDateTime > startDateTime && trip.startDateTime < endDateTime) {
-        RentalityTripService.TripStatus tripStatus = trip.status;
+      if (
+        trip.carId == carId &&
+        trip.endDateTime + car.timeBufferBetweenTripsInSec > startDateTime &&
+        trip.startDateTime < endDateTime
+      ) {
+        Schemas.TripStatus tripStatus = trip.status;
 
         // Check if the trip is active (not in Created, Finished, or Canceled status).
-        bool isActiveTrip = (tripStatus != RentalityTripService.TripStatus.Created &&
-          tripStatus != RentalityTripService.TripStatus.Finished &&
-          tripStatus != RentalityTripService.TripStatus.Canceled);
+        bool isActiveTrip = (tripStatus != Schemas.TripStatus.Created &&
+          tripStatus != Schemas.TripStatus.Finished &&
+          tripStatus != Schemas.TripStatus.Canceled);
 
         // Return true if an active trip is found.
         if (isActiveTrip) {
@@ -198,32 +203,34 @@ contract RentalityPlatform is UUPSOwnable {
     // If no active trips are found, return false indicating the car is available.
     return false;
   }
+
   /// @notice Approve a trip request on the Rentality platform.
   /// @param tripId The ID of the trip to approve.
   function approveTripRequest(uint256 tripId) public {
     tripService.approveTrip(tripId);
 
-    RentalityTripService.Trip memory trip = tripService.getTrip(tripId);
-    RentalityTripService.Trip[] memory intersectedTrips = RentalityUtils.getTripsForCarThatIntersect(
+    Schemas.Trip memory trip = tripService.getTrip(tripId);
+    Schemas.Trip[] memory intersectedTrips = RentalityUtils.getTripsForCarThatIntersect(
       tripService,
+      carService,
       trip.carId,
       trip.startDateTime,
       trip.endDateTime
     );
     if (intersectedTrips.length > 0) {
       for (uint256 i = 0; i < intersectedTrips.length; i++) {
-        if (intersectedTrips[i].status == RentalityTripService.TripStatus.Created) {
+        if (intersectedTrips[i].status == Schemas.TripStatus.Created) {
           rejectTripRequest(intersectedTrips[i].tripId);
         }
       }
     }
   }
-
   /// @notice Reject a trip request on the Rentality platform.
   /// @param tripId The ID of the trip to reject.
   function rejectTripRequest(uint256 tripId) public {
-    RentalityTripService.Trip memory trip = tripService.getTrip(tripId);
-    RentalityTripService.TripStatus statusBeforeCancellation = trip.status;
+    Schemas.Trip memory trip = tripService.getTrip(tripId);
+    Schemas.TripStatus statusBeforeCancellation = trip.status;
+
     tripService.rejectTrip(tripId);
 
     uint64 valueToReturnInUsdCents = trip.paymentInfo.totalDayPriceInUsdCents +
@@ -231,9 +238,9 @@ contract RentalityPlatform is UUPSOwnable {
       trip.paymentInfo.depositInUsdCents;
 
     uint64 subtractAmount;
-    if (trip.status == RentalityTripService.TripStatus.Approved) {
+    if (trip.status == Schemas.TripStatus.Approved) {
       subtractAmount = trip.pricePerDayInUsdCents / 2;
-    } else if (trip.status == RentalityTripService.TripStatus.CheckedInByHost) {
+    } else if (trip.status == Schemas.TripStatus.CheckedInByHost) {
       subtractAmount = trip.pricePerDayInUsdCents;
     } else {
       subtractAmount = 0;
@@ -277,7 +284,7 @@ contract RentalityPlatform is UUPSOwnable {
   /// @param tripId The ID of the trip to finish.
   function finishTrip(uint256 tripId) public {
     tripService.finishTrip(tripId);
-    RentalityTripService.Trip memory trip = tripService.getTrip(tripId);
+    Schemas.Trip memory trip = tripService.getTrip(tripId);
 
     uint256 rentalityFee = paymentService.getPlatformFeeFrom(
       trip.paymentInfo.totalDayPriceInUsdCents + trip.paymentInfo.taxPriceInUsdCents
@@ -302,7 +309,7 @@ contract RentalityPlatform is UUPSOwnable {
     tripService.saveTransactionInfo(
       tripId,
       rentalityFee,
-      RentalityTripService.TripStatus.Finished,
+      Schemas.TripStatus.Finished,
       valueToGuestInUsdCents,
       valueToHostInUsdCents
     );
@@ -317,12 +324,12 @@ contract RentalityPlatform is UUPSOwnable {
   /// @notice Creates a new claim for a specific trip.
   /// @dev Only the host of the trip can create a claim, and certain trip status checks are performed.
   /// @param request Details of the claim to be created.
-  function createClaim(RentalityClaimService.CreateClaimRequest memory request) public {
-    RentalityTripService.Trip memory trip = tripService.getTrip(request.tripId);
+  function createClaim(Schemas.CreateClaimRequest memory request) public {
+    Schemas.Trip memory trip = tripService.getTrip(request.tripId);
 
     require(trip.host == tx.origin, 'Only for trip host.');
     require(
-      trip.status != RentalityTripService.TripStatus.Canceled && trip.status != RentalityTripService.TripStatus.Created,
+      trip.status != Schemas.TripStatus.Canceled && trip.status != Schemas.TripStatus.Created,
       'Wrong trip status.'
     );
 
@@ -333,8 +340,8 @@ contract RentalityPlatform is UUPSOwnable {
   /// @dev Only the host or guest of the associated trip can reject the claim.
   /// @param claimId ID of the claim to be rejected.
   function rejectClaim(uint256 claimId) public {
-    RentalityClaimService.Claim memory claim = claimService.getClaim(claimId);
-    RentalityTripService.Trip memory trip = tripService.getTrip(claim.tripId);
+    Schemas.Claim memory claim = claimService.getClaim(claimId);
+    Schemas.Trip memory trip = tripService.getTrip(claim.tripId);
 
     require(trip.host == tx.origin || trip.guest == tx.origin, 'Only for trip guest or host.');
 
@@ -345,12 +352,12 @@ contract RentalityPlatform is UUPSOwnable {
   /// @dev Only the guest of the associated trip can pay the claim, and certain checks are performed.
   /// @param claimId ID of the claim to be paid.
   function payClaim(uint256 claimId) public payable {
-    RentalityClaimService.Claim memory claim = claimService.getClaim(claimId);
-    RentalityTripService.Trip memory trip = tripService.getTrip(claim.tripId);
+    Schemas.Claim memory claim = claimService.getClaim(claimId);
+    Schemas.Trip memory trip = tripService.getTrip(claim.tripId);
 
     require(trip.guest == tx.origin, 'Only guest.');
     require(
-      claim.status != RentalityClaimService.Status.Paid && claim.status != RentalityClaimService.Status.Cancel,
+      claim.status != Schemas.ClaimStatus.Paid && claim.status != Schemas.ClaimStatus.Cancel,
       'Wrong claim Status.'
     );
 
@@ -388,41 +395,14 @@ contract RentalityPlatform is UUPSOwnable {
   /// @dev Returns a structure containing information about the claim, associated trip, and car details.
   /// @param claimId ID of the claim.
   /// @return Full information about the claim.
-  function getClaimInfo(uint256 claimId) public view returns (RentalityClaimService.FullClaimInfo memory) {
-    RentalityClaimService.Claim memory claim = claimService.getClaim(claimId);
-    RentalityTripService.Trip memory trip = tripService.getTrip(claim.tripId);
-    RentalityCarToken.CarInfo memory car = carService.getCarInfoById(trip.carId);
+  function getClaimInfo(uint256 claimId) public view returns (Schemas.FullClaimInfo memory) {
+    Schemas.Claim memory claim = claimService.getClaim(claimId);
+    Schemas.Trip memory trip = tripService.getTrip(claim.tripId);
+    Schemas.CarInfo memory car = carService.getCarInfoById(trip.carId);
+    string memory guestPhoneNumber = userService.getKYCInfo(trip.guest).mobilePhoneNumber;
+    string memory hostPhoneNumber = userService.getKYCInfo(trip.host).mobilePhoneNumber;
 
-    return RentalityClaimService.FullClaimInfo(claim, trip.host, trip.guest, car);
-  }
-
-  /// @notice Gets an array of claims associated with a specific trip.
-  /// @dev Returns an array of detailed claim information for the given trip.
-  /// @param tripId ID of the trip.
-  /// @return Array of detailed claim information.
-  function getClaimsByTrip(uint256 tripId) public view returns (RentalityClaimService.FullClaimInfo[] memory) {
-    uint256 arraySize = 0;
-    for (uint256 i = 0; i <= claimService.getClaimsAmount(); i++) {
-      RentalityClaimService.Claim memory claim = claimService.getClaim(i);
-      if (claim.tripId == tripId) {
-        arraySize += 1;
-      }
-    }
-    uint256 counter = 0;
-
-    RentalityClaimService.FullClaimInfo[] memory claims = new RentalityClaimService.FullClaimInfo[](arraySize);
-
-    for (uint256 i = 1; i <= claimService.getClaimsAmount(); i++) {
-      RentalityClaimService.Claim memory claim = claimService.getClaim(i);
-
-      if (claim.tripId == tripId) {
-        RentalityTripService.Trip memory trip = tripService.getTrip(tripId);
-        RentalityCarToken.CarInfo memory car = carService.getCarInfoById(trip.carId);
-        claims[counter++] = RentalityClaimService.FullClaimInfo(claim, trip.host, trip.guest, car);
-      }
-    }
-
-    return claims;
+    return Schemas.FullClaimInfo(claim, trip.host, trip.guest, guestPhoneNumber, hostPhoneNumber, car);
   }
 
   /// @notice Get contact information for a specific trip on the Rentality platform.
@@ -432,31 +412,31 @@ contract RentalityPlatform is UUPSOwnable {
   function getTripContactInfo(
     uint256 tripId
   ) public view returns (string memory guestPhoneNumber, string memory hostPhoneNumber) {
-    RentalityTripService.Trip memory trip = tripService.getTrip(tripId);
+    Schemas.Trip memory trip = tripService.getTrip(tripId);
 
-    RentalityUserService.KYCInfo memory guestInfo = userService.getKYCInfo(trip.guest);
-    RentalityUserService.KYCInfo memory hostInfo = userService.getKYCInfo(trip.host);
+    Schemas.KYCInfo memory guestInfo = userService.getKYCInfo(trip.guest);
+    Schemas.KYCInfo memory hostInfo = userService.getKYCInfo(trip.host);
 
     return (guestInfo.mobilePhoneNumber, hostInfo.mobilePhoneNumber);
   }
 
   /// @notice Get KYC (Know Your Customer) information for the caller on the Rentality platform.
   /// @return kycInfo The KYC information for the caller.
-  function getMyKYCInfo() external view returns (RentalityUserService.KYCInfo memory kycInfo) {
+  function getMyKYCInfo() external view returns (Schemas.KYCInfo memory kycInfo) {
     return userService.getMyKYCInfo();
   }
 
   /// @notice Get chat information for trips hosted by the caller on the Rentality platform.
   /// @return chatInfo An array of chat information for trips hosted by the caller.
-  function getChatInfoForHost() public view returns (IRentalityGateway.ChatInfo[] memory) {
-    RentalityTripService.Trip[] memory trips = RentalityUtils.getTripsByHost(tripService, tx.origin);
+  function getChatInfoForHost() public view returns (Schemas.ChatInfo[] memory) {
+    Schemas.Trip[] memory trips = RentalityUtils.getTripsByHost(tripService, tx.origin);
     return RentalityUtils.populateChatInfo(trips, userService, carService);
   }
 
   /// @notice Get chat information for trips attended by the caller on the Rentality platform.
   /// @return chatInfo An array of chat information for trips attended by the caller.
-  function getChatInfoForGuest() public view returns (IRentalityGateway.ChatInfo[] memory) {
-    RentalityTripService.Trip[] memory trips = RentalityUtils.getTripsByGuest(tripService, tx.origin);
+  function getChatInfoForGuest() public view returns (Schemas.ChatInfo[] memory) {
+    Schemas.Trip[] memory trips = RentalityUtils.getTripsByGuest(tripService, tx.origin);
     return RentalityUtils.populateChatInfo(trips, userService, carService);
   }
 

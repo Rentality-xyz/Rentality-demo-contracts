@@ -12,39 +12,6 @@ contract RentalityPaymentService is UUPSOwnable {
   uint32 platformFeeInPPM;
   IRentalityAccessControl private userService;
 
-  /// @dev Enumeration representing the currency type used for payments.
-  enum CurrencyType {
-    ETH
-  }
-
-  /// @dev Struct containing payment information for a trip.
-  struct PaymentInfo {
-    uint256 tripId;
-    address from;
-    address to;
-    uint64 totalDayPriceInUsdCents;
-    uint64 taxPriceInUsdCents;
-    uint64 depositInUsdCents;
-    uint64 resolveAmountInUsdCents;
-    CurrencyType currencyType;
-    int256 ethToCurrencyRate;
-    uint8 ethToCurrencyDecimals;
-    uint64 resolveFuelAmountInUsdCents;
-    uint64 resolveMilesAmountInUsdCents;
-  }
-
-  // Struct to store transaction history details for a trip
-  struct TransactionInfo {
-    uint256 rentalityFee;
-    uint256 depositRefund;
-    // Earnings from the trip (cancellation or completion)
-    uint256 tripEarnings;
-    // Timestamp of the transaction
-    uint256 dateTime;
-    // Status before trip cancellation, will be 'Finished' in case of completed trip.
-    RentalityTripService.TripStatus statusBeforeCancellation;
-  }
-
   /// @notice Get the current platform fee in parts per million (PPM).
   /// @return The current platform fee in PPM.
   function getPlatformFeeInPPM() public view returns (uint32) {

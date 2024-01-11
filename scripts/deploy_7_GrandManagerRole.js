@@ -1,60 +1,26 @@
 const RentalityUserServiceJSON_ABI = require('../src/abis/RentalityUserService.v0_15_0.abi.json')
 const { ethers, network } = require('hardhat')
 const addressesContractsTestnets = require('./addressesContractsTestnets.json')
-const net = require('net')
+const { checkNotNull, startDeploy } = require('./utils/deployHelper')
 
 async function main() {
-  const [deployer] = await ethers.getSigners()
-  const balance = await ethers.provider.getBalance(deployer)
-  console.log('Deployer address is:', deployer.getAddress(), ' with balance:', balance)
+  const { chainId, deployer } = await startDeploy('')
 
-  const chainId = network.config.chainId
+  if (chainId < 0) throw new Error('chainId is not set')
 
-  const addresses = addressesContractsTestnets.find((i) => i.chainId === chainId && i.name === network.name)
+  const addresses = addressesContractsTestnets.find((i) => i.chainId === Number(chainId) && i.name === network.name)
   if (addresses == null) {
     console.error(`Addresses for chainId:${chainId} was not found in addressesContractsTestnets.json`)
     return
   }
 
-  const rentalityUserServiceAddress = addresses['RentalityUserService']
-  const rentalityGatewayAddress = addresses['RentalityGateway']
-  const rentalityTripServiceAddress = addresses['RentalityTripService']
-  const rentalityPlatformAddress = addresses['RentalityPlatform']
-  const rentalityCarTokenAddress = addresses['RentalityCarToken']
-  const rentalityEngineAddress = addresses['RentalityEnginesService']
-
-  if (!rentalityUserServiceAddress) {
-    console.log('rentalityUserServiceAddress is not set')
-    return
-  }
-  if (!rentalityGatewayAddress) {
-    console.log('rentalityAddress is not set')
-    return
-  }
-  if (!rentalityTripServiceAddress) {
-    console.log('rentalityTripServiceAddress is not set')
-    return
-  }
-  if (!rentalityPlatformAddress) {
-    console.log('rentalityAddress is not set')
-    return
-  }
-  if (!rentalityCarTokenAddress) {
-    console.log('rentalityAddress is not set')
-    return
-  }
-
-  if (!rentalityEngineAddress) {
-    console.log('rentalityAddress is not set')
-    return
-  }
-
-  console.log('rentalityUserServiceAddress is:', rentalityUserServiceAddress)
-  console.log('rentalityGatewayAddress is:', rentalityGatewayAddress)
-  console.log('rentalityTripServiceAddress is:', rentalityTripServiceAddress)
-  console.log('rentalityPlatformAddress is:', rentalityPlatformAddress)
-  console.log('rentalityCarToken is:', rentalityCarTokenAddress)
-  console.log('rentalityEngine service is:', rentalityEngineAddress)
+  const rentalityUserServiceAddress = checkNotNull(addresses['RentalityUserService'], 'rentalityUserServiceAddress')
+  const rentalityGatewayAddress = checkNotNull(addresses['RentalityGateway'], 'rentalityGatewayAddress')
+  const rentalityTripServiceAddress = checkNotNull(addresses['RentalityTripService'], 'rentalityTripServiceAddress')
+  const rentalityPlatformAddress = checkNotNull(addresses['RentalityPlatform'], 'rentalityPlatformAddress')
+  const rentalityCarTokenAddress = checkNotNull(addresses['RentalityCarToken'], 'rentalityCarTokenAddress')
+  const rentalityEngineAddress = checkNotNull(addresses['RentalityEnginesService'], 'rentalityEngineAddress')
+  const rentalityAdminGatewayAddress = checkNotNull(addresses['RentalityAdminGateway'], 'rentalityAdminGatewayAddress')
 
   let rentalityUserServiceContract = new ethers.Contract(
     rentalityUserServiceAddress,
@@ -66,6 +32,8 @@ async function main() {
     await rentalityUserServiceContract.grantManagerRole(rentalityTripServiceAddress)
     await rentalityUserServiceContract.grantManagerRole(rentalityPlatformAddress)
     await rentalityUserServiceContract.grantManagerRole(rentalityCarTokenAddress)
+    await rentalityUserServiceContract.grantManagerRole(rentalityGatewayAddress)
+    await rentalityUserServiceContract.grantManagerRole(rentalityAdminGatewayAddress)
     await rentalityUserServiceContract.grantManagerRole(rentalityEngineAddress)
     console.log('manager role granded')
   } catch (e) {
