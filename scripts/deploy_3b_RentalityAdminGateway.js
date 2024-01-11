@@ -5,22 +5,31 @@ const addressSaver = require('./utils/addressSaver')
 const { checkNotNull, startDeploy } = require('./utils/deployHelper')
 
 async function main() {
-  const { contractName, chainId } = await startDeploy('RentalityCurrencyConverter')
+  const { contractName, chainId } = await startDeploy('RentalityAdminGateway')
 
   if (chainId < 0) throw new Error('chainId is not set')
 
-  const ethToUsdPriceFeedAddress = checkNotNull(
-    getContractAddress('EthToUsdPriceFeedAddress', 'scripts/deploy_0b_RentalityMockPriceFeed.js'),
-    'EthToUsdPriceFeedAddress'
-  )
-
-  const userService = checkNotNull(
+  const rentalityUserServiceAddress = checkNotNull(
     getContractAddress('RentalityUserService', 'scripts/deploy_1b_RentalityUserService.js'),
     'RentalityUserService'
   )
 
+  const rentalityPaymentServiceAddress = checkNotNull(
+    getContractAddress('RentalityPaymentService', 'scripts/deploy_2d_RentalityPaymentService.js'),
+    'RentalityPaymentService'
+  )
+
+  const rentalityPlatformAddress = checkNotNull(
+    getContractAddress('RentalityPlatform', 'scripts/deploy_5_RentalityPlatform.js'),
+    'RentalityPlatform'
+  )
+
   const contractFactory = await ethers.getContractFactory(contractName)
-  const contract = await upgrades.deployProxy(contractFactory, [ethToUsdPriceFeedAddress, userService])
+  const contract = await upgrades.deployProxy(contractFactory, [
+    rentalityUserServiceAddress,
+    rentalityPlatformAddress,
+    rentalityPaymentServiceAddress,
+  ])
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()
 

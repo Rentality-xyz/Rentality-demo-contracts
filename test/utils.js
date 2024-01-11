@@ -19,6 +19,7 @@ function getMockCarRequest(seed) {
   const DISTANCE_INCLUDED = seedInt * 100 + 6
   const location = 'kyiv ukraine'
   const apiKey = process.env.GOOGLE_API_KEY || ' '
+  const timeBufferBetweenTripsInSec = 0
 
   return {
     tokenUri: TOKEN_URI,
@@ -31,6 +32,7 @@ function getMockCarRequest(seed) {
     engineParams: ENGINE_PARAMS,
     engineType: ETYPE,
     milesIncludedPerDay: DISTANCE_INCLUDED,
+    timeBufferBetweenTripsInSec: timeBufferBetweenTripsInSec,
     locationAddress: location,
     geoApiKey: apiKey,
   }
@@ -183,6 +185,7 @@ async function deployDefaultFixture() {
     await engineService.getAddress(),
   ])
   await rentalityTripService.waitForDeployment()
+
   const RentalityClaimService = await ethers.getContractFactory('RentalityClaimService')
   const claimService = await upgrades.deployProxy(RentalityClaimService, [await rentalityUserService.getAddress()])
   await claimService.waitForDeployment()
@@ -195,6 +198,14 @@ async function deployDefaultFixture() {
     await rentalityPaymentService.getAddress(),
     await claimService.getAddress(),
   ])
+
+  const RentalityAdminGateway = await ethers.getContractFactory('RentalityAdminGateway')
+  const rentalityAdminGateway = await upgrades.deployProxy(RentalityAdminGateway, [
+    await rentalityUserService.getAddress(),
+    await rentalityPlatform.getAddress(),
+    await rentalityPaymentService.getAddress(),
+  ])
+  await rentalityAdminGateway.waitForDeployment()
 
   await rentalityPlatform.waitForDeployment()
 
@@ -217,8 +228,10 @@ async function deployDefaultFixture() {
   ])
   await rentalityGateway.waitForDeployment()
 
+  await rentalityUserService.connect(owner).grantManagerRole(await rentalityAdminGateway.getAddress())
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityGateway.getAddress())
   await rentalityUserService.connect(owner).grantAdminRole(await rentalityGateway.getAddress())
+  await rentalityUserService.connect(owner).grantAdminRole(await rentalityAdminGateway.getAddress())
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityCarToken.getAddress())
   await rentalityUserService.connect(owner).grantManagerRole(await engineService.getAddress())
 
@@ -231,6 +244,7 @@ async function deployDefaultFixture() {
     rentalityCarToken,
     rentalityPaymentService,
     rentalityPlatform,
+    rentalityAdminGateway,
     utils,
     engineService,
     elEngine,
