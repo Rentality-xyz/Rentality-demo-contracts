@@ -1,53 +1,48 @@
 const saveJsonAbi = require('./utils/abiSaver')
 const { ethers, upgrades } = require('hardhat')
-const addressesContractsTestnets = require('./addressesContractsTestnets.json')
 const { getContractAddress } = require('./utils/contractAddress')
 const addressSaver = require('./utils/addressSaver')
+const { checkNotNull, startDeploy } = require('./utils/deployHelper')
 
 async function main() {
-  const contractName = 'RentalityTripService'
-  const [deployer] = await ethers.getSigners()
-  const balance = await ethers.provider.getBalance(deployer)
-  console.log('Deployer address is:', deployer.getAddress(), ' with balance:', balance)
+  const { contractName, chainId } = await startDeploy('RentalityTripService')
 
-  const chainId = (await deployer.provider?.getNetwork())?.chainId ?? -1
-  console.log('ChainId is:', chainId)
-  if (chainId < 0) return
+  if (chainId < 0) throw new Error('chainId is not set')
 
-  const rentalityUtilsAddress = getContractAddress('RentalityUtils', 'scripts/deploy_1a_RentalityUtils.js')
-
-  const rentalityCurrencyConverterAddress = getContractAddress(
-    'RentalityCurrencyConverter',
-    'scripts/deploy_2c_RentalityCurrencyConverter.js'
+  const rentalityUtilsAddress = checkNotNull(
+    getContractAddress('RentalityUtils', 'scripts/deploy_1a_RentalityUtils.js'),
+    'RentalityUtils'
   )
 
-  const rentalityCarTokenAddress = getContractAddress('RentalityCarToken', 'scripts/deploy_3_RentalityCarToken.js')
-
-  const rentalityPaymentServiceAddress = getContractAddress(
-    'RentalityPaymentService',
-    'scripts/deploy_2d_RentalityPaymentService.js'
+  const rentalityUserServiceAddress = checkNotNull(
+    getContractAddress('RentalityUserService', 'scripts/deploy_1b_RentalityUserService.js'),
+    'RentalityUserService'
   )
 
-  const rentalityUserServiceAddress = getContractAddress(
-    'RentalityUserService',
-    'scripts/deploy_1b_RentalityUserService.js'
+  const engineAddress = checkNotNull(
+    getContractAddress('RentalityEnginesService', 'scripts/deploy_2b_RentalityEngineService.js'),
+    'RentalityEnginesService'
   )
 
-  const engineAddress = getContractAddress('RentalityEnginesService', 'scripts/deploy_2b_RentalityEngineService.js')
+  const rentalityCurrencyConverterAddress = checkNotNull(
+    getContractAddress('RentalityCurrencyConverter', 'scripts/deploy_2c_RentalityCurrencyConverter.js'),
+    'RentalityCurrencyConverter'
+  )
 
-  console.log('rentalityUtilsAddress is:', rentalityUtilsAddress)
-  console.log('rentalityCarTokenAddress is:', rentalityCarTokenAddress)
-  console.log('rentalityPaymentServiceAddress is:', rentalityPaymentServiceAddress)
-  console.log('rentalityCurrencyConverterAddress is:', rentalityCurrencyConverterAddress)
-  console.log('rentalityUserServiceAddress is:', rentalityUserServiceAddress)
+  const rentalityPaymentServiceAddress = checkNotNull(
+    getContractAddress('RentalityPaymentService', 'scripts/deploy_2d_RentalityPaymentService.js'),
+    'RentalityPaymentService'
+  )
 
-  console.log('engineService is: ', engineAddress)
+  const rentalityCarTokenAddress = checkNotNull(
+    getContractAddress('RentalityCarToken', 'scripts/deploy_3_RentalityCarToken.js'),
+    'RentalityCarToken'
+  )
 
   const contractFactory = await ethers.getContractFactory(contractName, {
-    libraries: {
-      RentalityUtils: rentalityUtilsAddress,
-    },
+    libraries: { RentalityUtils: rentalityUtilsAddress },
   })
+
   const contract = await upgrades.deployProxy(contractFactory, [
     rentalityCurrencyConverterAddress,
     rentalityCarTokenAddress,
@@ -56,12 +51,12 @@ async function main() {
     engineAddress,
   ])
   await contract.waitForDeployment()
+  const contractAddress = await contract.getAddress()
 
-  console.log(contractName + ' deployed to:', await contract.getAddress())
-
-  addressSaver(await contract.getAddress(), contractName, true)
-
+  console.log(`${contractName} was deployed to: ${contractAddress}`)
+  addressSaver(contractAddress, contractName, true)
   await saveJsonAbi(contractName, chainId, contract)
+  console.log()
 }
 
 main()
