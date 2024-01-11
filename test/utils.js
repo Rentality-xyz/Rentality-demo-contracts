@@ -19,6 +19,7 @@ function getMockCarRequest(seed) {
   const DISTANCE_INCLUDED = seedInt * 100 + 6
   const location = 'kyiv ukraine'
   const apiKey = process.env.GOOGLE_API_KEY || ' '
+  const timeBufferBetweenTripsInSec = 0
 
   return {
     tokenUri: TOKEN_URI,
@@ -31,6 +32,7 @@ function getMockCarRequest(seed) {
     engineParams: ENGINE_PARAMS,
     engineType: ETYPE,
     milesIncludedPerDay: DISTANCE_INCLUDED,
+    timeBufferBetweenTripsInSec: timeBufferBetweenTripsInSec,
     locationAddress: location,
     geoApiKey: apiKey,
   }
