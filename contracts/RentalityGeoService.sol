@@ -4,6 +4,7 @@ pragma solidity ^0.8.9;
 import '@chainlink/contracts/src/v0.8/ChainlinkClient.sol';
 import './RentalityUtils.sol';
 import './Schemas.sol';
+import './IRentalityGeoService.sol';
 import {Ownable} from '@openzeppelin/contracts/access/Ownable.sol';
 //#GEO sepolia
 //CHAINLINK_ORACLE="0x6090149792dAAeE9D1D568c9f9a6F6B46AA29eFD"
@@ -12,7 +13,7 @@ import {Ownable} from '@openzeppelin/contracts/access/Ownable.sol';
 /// @title Rentality Geo Service Contract
 /// @notice This contract provides geolocation services using Chainlink oracles.
 /// @dev It interacts with an external geolocation API and stores the results for cars.
-contract RentalityGeoService is ChainlinkClient, Ownable {
+contract RentalityGeoService is ChainlinkClient, Ownable, IRentalityGeoService {
   using Chainlink for Chainlink.Request;
 
   /// @notice Chainlink job ID for the geolocation API.
@@ -167,7 +168,7 @@ contract RentalityGeoService is ChainlinkClient, Ownable {
   /// @dev Retrieves the time zone information associated with a specific car.
   /// @param carId The unique identifier of the car for which the time zone information is requested.
   /// @return timeZone A string representing the time zone of the specified car's geolocation data.
-  function getTimeZoneId(uint256 carId) public view returns (string memory) {
+  function getCarTimeZoneId(uint256 carId) public view returns (string memory) {
     return carIdToParsedGeolocationData[carId].timeZoneId;
   }
 }
