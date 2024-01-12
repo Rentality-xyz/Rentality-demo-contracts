@@ -37,6 +37,19 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
   /// @notice Event emitted when a car is successfully removed.
   event CarRemovedSuccess(uint256 carId, string CarVinNumber, address removedBy);
 
+  /// @notice returns RentalityGeoService address
+  function getGeoServiceAddress() public view returns(address)
+  {
+    return address(geoService);
+  }
+  /// @notice update RentalityGeoService address
+  /// @param _geoService address of service
+  function updateGeoServiceAddress(address _geoService) public
+  {
+    require(owner() == msg.sender, "Only owner.");
+    geoService = IRentalityGeoService(_geoService);
+  }
+
   /// @notice Returns the total supply of cars.
   /// @return The total number of cars in the system.
   function totalSupply() public view returns (uint) {
@@ -80,7 +93,7 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     _safeMint(tx.origin, newCarId);
     _setTokenURI(newCarId, request.tokenUri);
 
-    geoService.executeRequest(request.locationAddress, request.geoApiKey, newCarId);
+    geoService.executeRequest(request.locationAddress, request.locationCoordinates , request.geoApiKey, newCarId);
 
     idToCarInfo[newCarId] = Schemas.CarInfo(
       newCarId,
@@ -97,7 +110,8 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
       request.milesIncludedPerDay,
       request.timeBufferBetweenTripsInSec,
       true,
-      false
+      false,
+      ""
     );
 
     _approve(address(this), newCarId);
@@ -114,17 +128,20 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     bool geoStatus = geoService.getCarCoordinateValidity(carId);
     Schemas.CarInfo storage carInfo = idToCarInfo[carId];
     carInfo.geoVerified = geoStatus;
+    carInfo.timeZoneId = geoService.getCarTimeZoneId(carId);
   }
 
   /// @notice Updates the information for a specific car.
   /// @param request The input parameters for updating the car.
-  /// @param location The location for verifying geographic coordinates.
+  /// @param locationAddress The location for verifying geographic coordinates.
+  /// @param locationCoordinates Single string that contains the car coordinates
   ///  can be empty, for left old location information.
   /// @param geoApiKey The API key for the geographic verification service.
   /// can be empty, if location param is empty.
   function updateCarInfo(
     Schemas.UpdateCarInfoRequest memory request,
-    string memory location,
+    string memory locationAddress,
+    string memory locationCoordinates,
     string memory geoApiKey
   ) public {
     require(_exists(request.carId), 'Token does not exist');
@@ -132,9 +149,9 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     require(request.pricePerDayInUsdCents > 0, "Make sure the price isn't negative");
     require(request.milesIncludedPerDay > 0, "Make sure the included distance isn't negative");
 
-    if (bytes(location).length > 0) {
-      require(bytes(geoApiKey).length > 0, 'Provide a valid geo API key');
-      geoService.executeRequest(location, geoApiKey, request.carId);
+    if (bytes(locationAddress).length > 0) {
+      require(bytes(geoApiKey).length > 0 && bytes(locationCoordinates).length > 0, 'Provide a valid geo API key');
+      geoService.executeRequest(locationAddress, locationCoordinates, geoApiKey, request.carId);
       idToCarInfo[request.carId].geoVerified = false;
     }
 
@@ -242,7 +259,7 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     uint256 carId,
     address sender,
     Schemas.SearchCarParams memory searchCarParams
-  ) private view returns (bool) {
+  ) public view returns (bool) {
     return
       _exists(carId) &&
       idToCarInfo[carId].currentlyListed &&
@@ -291,31 +308,7 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     address user,
     Schemas.SearchCarParams memory searchCarParams
   ) public view returns (Schemas.CarInfo[] memory) {
-    uint itemCount = 0;
-
-    // Count the number of available cars for the user.
-    for (uint i = 0; i < totalSupply(); i++) {
-      uint currentId = i + 1;
-      if (isCarAvailableForUser(currentId, user, searchCarParams)) {
-        itemCount += 1;
-      }
-    }
-
-    // Create an array to store the available cars.
-    Schemas.CarInfo[] memory result = new Schemas.CarInfo[](itemCount);
-    uint currentIndex = 0;
-
-    // Populate the array with available cars.
-    for (uint i = 0; i < totalSupply(); i++) {
-      uint currentId = i + 1;
-      if (isCarAvailableForUser(currentId, user, searchCarParams)) {
-        Schemas.CarInfo storage currentItem = idToCarInfo[currentId];
-        result[currentIndex] = currentItem;
-        currentIndex += 1;
-      }
-    }
-
-    return result;
+    return RentalityUtils.fetchAvailableCarsForUser(user, searchCarParams,this);
   }
 
   /// @notice Checks if a car belongs to a specific user.
@@ -350,7 +343,7 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     for (uint i = 0; i < totalSupply(); i++) {
       uint currentId = i + 1;
       if (isCarOfUser(currentId, user)) {
-        Schemas.CarInfo storage currentItem = idToCarInfo[currentId];
+        Schemas.CarInfo memory currentItem = idToCarInfo[currentId];
         result[currentIndex] = currentItem;
         currentIndex += 1;
       }
