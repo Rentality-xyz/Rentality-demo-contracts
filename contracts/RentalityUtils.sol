@@ -590,7 +590,7 @@ library RentalityUtils {
       Schemas.Trip memory trip = tripService.getTrip(claim.tripId);
 
       if (trip.host == host) {
-        Schemas.CarInfo memory carInfo = carService.getCarInfoById(trip.tripId);
+        Schemas.CarInfo memory carInfo = carService.getCarInfoById(trip.carId);
         string memory guestPhoneNumber = userService.getKYCInfo(trip.guest).mobilePhoneNumber;
         string memory hostPhoneNumber = userService.getKYCInfo(host).mobilePhoneNumber;
 
@@ -634,7 +634,7 @@ library RentalityUtils {
       Schemas.Trip memory trip = tripService.getTrip(claim.tripId);
 
       if (trip.guest == guest) {
-        Schemas.CarInfo memory carInfo = carService.getCarInfoById(trip.tripId);
+        Schemas.CarInfo memory carInfo = carService.getCarInfoById(trip.carId);
         string memory guestPhoneNumber = userService.getKYCInfo(guest).mobilePhoneNumber;
         string memory hostPhoneNumber = userService.getKYCInfo(trip.host).mobilePhoneNumber;
 
