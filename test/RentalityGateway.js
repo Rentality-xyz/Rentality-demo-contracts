@@ -1300,10 +1300,32 @@ describe('RentalityGateway', function () {
 
   describe('Proxy test', function () {
     it('should not be able to update carToken without access', async function () {
-      const RentalityCarToken = await ethers.getContractFactory('RentalityCarToken', anonymous)
-      const RentalityCarTokenHost = await ethers.getContractFactory('RentalityCarToken', host)
-      const RentalityCarTokenGuest = await ethers.getContractFactory('RentalityCarToken', guest)
-      const RentalityCarTokenOwner = await ethers.getContractFactory('RentalityCarToken')
+      const RentalityCarToken = await ethers.getContractFactory('RentalityCarToken', {
+        libraries: {
+          RentalityUtils: await utils.getAddress(),
+        },
+        signer: anonymous,
+      })
+
+      const RentalityCarTokenHost = await ethers.getContractFactory('RentalityCarToken', {
+        libraries: {
+          RentalityUtils: await utils.getAddress(),
+        },
+        signer: host,
+      })
+
+      const RentalityCarTokenGuest = await ethers.getContractFactory('RentalityCarToken', {
+        libraries: {
+          RentalityUtils: await utils.getAddress(),
+        },
+        signer: guest,
+      })
+      const RentalityCarTokenOwner = await ethers.getContractFactory('RentalityCarToken', {
+        libraries: {
+          RentalityUtils: await utils.getAddress(),
+        },
+        signer: owner,
+      })
       const carTokenAddress = await rentalityCarToken.getAddress()
 
       await expect(upgrades.upgradeProxy(carTokenAddress, RentalityCarToken, { kind: 'uups' })).to.be.revertedWith(
@@ -1427,6 +1449,7 @@ describe('RentalityGateway', function () {
         milesIncludedPerDay: 10,
         timeBufferBetweenTripsInSec: oneDayInSec * 2,
         locationAddress: 'location',
+        locationCoordinates: '1.4',
         geoApiKey: 'key',
       }
 
@@ -1485,6 +1508,7 @@ describe('RentalityGateway', function () {
         milesIncludedPerDay: 10,
         timeBufferBetweenTripsInSec: oneDayInSec,
         locationAddress: 'location',
+        locationCoordinates: '1.4',
         geoApiKey: 'key',
       }
 
@@ -1544,6 +1568,7 @@ describe('RentalityGateway', function () {
         milesIncludedPerDay: 10,
         timeBufferBetweenTripsInSec: oneDayInSec,
         locationAddress: 'location',
+        locationCoordinates: '1.4',
         geoApiKey: 'key',
       }
 
@@ -1613,6 +1638,7 @@ describe('RentalityGateway', function () {
         milesIncludedPerDay: 10,
         timeBufferBetweenTripsInSec: oneDayInSec,
         locationAddress: 'location',
+        locationCoordinates: '1.4',
         geoApiKey: 'key',
       }
 

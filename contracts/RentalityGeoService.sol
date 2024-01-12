@@ -12,164 +12,162 @@ import {Ownable} from '@openzeppelin/contracts/access/Ownable.sol';
 /// @title Rentality Geo Service Contract
 /// @notice This contract provides geolocation services using Chainlink oracles.
 /// @dev It interacts with an external geolocation API and stores the results for cars.
-/// @dev SAFETY: The linked library is not supported yet because it can modify the state or call
-///  selfdestruct, as far as RentalityUtils doesn't has this logic,
-/// it's completely safe for upgrade
-/// @custom:oz-upgrades-unsafe-allow external-library-linking
 contract RentalityGeoService is ChainlinkClient, Ownable {
-    using Chainlink for Chainlink.Request;
+  using Chainlink for Chainlink.Request;
 
-    /// @notice Chainlink job ID for the geolocation API.
-    bytes32 private jobId;
+  /// @notice Chainlink job ID for the geolocation API.
+  bytes32 private jobId;
 
-    /// @notice Fee required for Chainlink requests.
-    uint256 private fee;
+  /// @notice Fee required for Chainlink requests.
+  uint256 private fee;
 
-    /// @notice Mapping to store the relationship between request ID and car ID.
-    mapping(bytes32 => uint256) public requestIdToCarId;
+  /// @notice Mapping to store the relationship between request ID and car ID.
+  mapping(bytes32 => uint256) public requestIdToCarId;
 
-    /// @notice Mapping to store geolocation response for each car ID.
-    mapping(uint256 => string) public carIdToGeolocationResponse;
+  /// @notice Mapping to store geolocation response for each car ID.
+  mapping(uint256 => string) public carIdToGeolocationResponse;
 
-    /// @notice Mapping to store parsed geolocation data for each car ID.
-    mapping(uint256 => Schemas.ParsedGeolocationData) public carIdToParsedGeolocationData;
+  /// @notice Mapping to store parsed geolocation data for each car ID.
+  mapping(uint256 => Schemas.ParsedGeolocationData) public carIdToParsedGeolocationData;
 
-    constructor(address linkToken, address chainLinkOracle) {
-        setChainlinkToken(linkToken);
-        setChainlinkOracle(chainLinkOracle);
-        jobId = '7d80a6386ef543a3abb52817f6707e3b';
-        fee = (1 * LINK_DIVISIBILITY) / 10;
+  constructor(address linkToken, address chainLinkOracle) {
+    setChainlinkToken(linkToken);
+    setChainlinkOracle(chainLinkOracle);
+    jobId = '7d80a6386ef543a3abb52817f6707e3b';
+    fee = (1 * LINK_DIVISIBILITY) / 10;
+  }
+
+  /// @notice Function to execute a Chainlink request for geolocation data.
+  /// @param addr The address for geolocation lookup.
+  /// @param location represents car coordinates
+  /// @param key The API key for accessing the geolocation service.
+  /// @param carId The ID of the car for which geolocation is requested.
+  /// @return requestId The ID of the Chainlink request.
+  function executeRequest(
+    string memory addr,
+    string memory location,
+    string memory key,
+    uint256 carId
+  ) public returns (bytes32 requestId) {
+    // Build the URL for the geolocation API request.
+    string memory urlApi = string.concat(
+      'https://rentality-location-service-dq3ggp3yqq-lm.a.run.app/geolocation?address=',
+      RentalityUtils.urlEncode(addr),
+      '&location=',
+      RentalityUtils.urlEncode(location),
+      '0&key=',
+      RentalityUtils.urlEncode(key)
+    );
+    //https://rentality-location-service-dq3ggp3yqq-lm.a.run.app/geolocation?address=miami&location=39.6034810,-119.6822510&key=AIzaSyDhuhAxL2C-JehZvQMRWiJtlU2PUZcZiqE
+
+    // Build the Chainlink request.
+    Chainlink.Request memory req = buildChainlinkRequest(jobId, address(this), this.fulfill.selector);
+
+    req.add('get', urlApi);
+    req.add('path', '0,resultInOneLine');
+
+    // Send the Chainlink request and store the request ID.
+    bytes32 reqId = sendChainlinkRequest(req, fee);
+    requestIdToCarId[reqId] = carId;
+    return reqId;
+  }
+
+  /// @notice Function called by Chainlink when the request is fulfilled.
+  /// @param _requestId The ID of the Chainlink request.
+  /// @param _response The geolocation response from the API.
+  function fulfill(bytes32 _requestId, string memory _response) public recordChainlinkFulfillment(_requestId) {
+    uint256 carId = requestIdToCarId[_requestId];
+    carIdToGeolocationResponse[carId] = _response;
+  }
+
+  /// @notice Function to withdraw LINK tokens from the contract (onlyOwner).
+  function withdrawLink() public onlyOwner {
+    LinkTokenInterface link = LinkTokenInterface(chainlinkTokenAddress());
+    require(link.transfer(msg.sender, link.balanceOf(address(this))), 'Unable to transfer');
+  }
+
+  /// @notice Function to parse the geolocation response and store parsed data.
+  /// @param carId The ID of the car for which geolocation is parsed.
+  function parseGeoResponse(uint256 carId) public {
+    string memory response = carIdToGeolocationResponse[carId];
+    string[] memory pairs = RentalityUtils.splitString(response);
+
+    Schemas.ParsedGeolocationData memory result;
+
+    for (uint256 i = 0; i < pairs.length; i++) {
+      string[] memory keyValue = RentalityUtils.splitKeyValue(pairs[i]);
+      string memory key = keyValue[0];
+      string memory value = keyValue[1];
+      if (RentalityUtils.compareStrings(key, 'status')) {
+        result.status = value;
+      } else if (RentalityUtils.compareStrings(key, 'locationLat')) {
+        result.locationLat = value;
+      } else if (RentalityUtils.compareStrings(key, 'locationLng')) {
+        result.locationLng = value;
+      } else if (RentalityUtils.compareStrings(key, 'northeastLat')) {
+        result.northeastLat = value;
+      } else if (RentalityUtils.compareStrings(key, 'northeastLng')) {
+        result.northeastLng = value;
+      } else if (RentalityUtils.compareStrings(key, 'southwestLat')) {
+        result.southwestLat = value;
+      } else if (RentalityUtils.compareStrings(key, 'southwestLng')) {
+        result.southwestLng = value;
+      } else if (RentalityUtils.compareStrings(key, 'locality')) {
+        result.city = value;
+      } else if (RentalityUtils.compareStrings(key, 'adminAreaLvl1')) {
+        result.state = value;
+      } else if (RentalityUtils.compareStrings(key, 'country')) {
+        result.country = value;
+      } else if (RentalityUtils.compareStrings(key, 'timeZoneID')) {
+        result.timeZoneId = value;
+      }
     }
 
-    /// @notice Function to execute a Chainlink request for geolocation data.
-    /// @param addr The address for geolocation lookup.
-    /// @param location represents car coordinates
-    /// @param key The API key for accessing the geolocation service.
-    /// @param carId The ID of the car for which geolocation is requested.
-    /// @return requestId The ID of the Chainlink request.
-    function executeRequest(string memory addr, string memory location, string memory key, uint256 carId) public returns (bytes32 requestId) {
-        // Build the URL for the geolocation API request.
-        string memory urlApi = string.concat(
-            'https://rentality-location-service-dq3ggp3yqq-lm.a.run.app/geolocation?address=',
-            RentalityUtils.urlEncode(addr),
-            '&location=',
-            RentalityUtils.urlEncode(location),
-            '0&key=',
-            RentalityUtils.urlEncode(key)
-        );
-        //https://rentality-location-service-dq3ggp3yqq-lm.a.run.app/geolocation?address=miami&location=39.6034810,-119.6822510&key=AIzaSyDhuhAxL2C-JehZvQMRWiJtlU2PUZcZiqE
+    bool coordinatesAreValid = RentalityUtils.checkCoordinates(
+      result.locationLat,
+      result.locationLng,
+      result.northeastLat,
+      result.northeastLng,
+      result.southwestLat,
+      result.southwestLng
+    );
 
-        // Build the Chainlink request.
-        Chainlink.Request memory req = buildChainlinkRequest(jobId, address(this), this.fulfill.selector);
+    result.validCoordinates = coordinatesAreValid;
+    carIdToParsedGeolocationData[carId] = result;
+  }
 
-        req.add('get', urlApi);
-        req.add('path', '0,resultInOneLine');
+  /// @notice Function to get the validity of geolocation coordinates for a car.
+  /// @param carId The ID of the car.
+  /// @return validCoordinates A boolean indicating the validity of coordinates.
+  function getCarCoordinateValidity(uint256 carId) public view returns (bool) {
+    return carIdToParsedGeolocationData[carId].validCoordinates;
+  }
 
-        // Send the Chainlink request and store the request ID.
-        bytes32 reqId = sendChainlinkRequest(req, fee);
-        requestIdToCarId[reqId] = carId;
-        return reqId;
-    }
+  /// @notice Function to get the city of geolocation for a car.
+  /// @param carId The ID of the car.
+  /// @return city The city name.
+  function getCarCity(uint256 carId) public view returns (string memory) {
+    return carIdToParsedGeolocationData[carId].city;
+  }
 
-    /// @notice Function called by Chainlink when the request is fulfilled.
-    /// @param _requestId The ID of the Chainlink request.
-    /// @param _response The geolocation response from the API.
-    function fulfill(bytes32 _requestId, string memory _response) public recordChainlinkFulfillment(_requestId) {
-        uint256 carId = requestIdToCarId[_requestId];
-        carIdToGeolocationResponse[carId] = _response;
-    }
+  /// @notice Function to get the state of geolocation for a car.
+  /// @param carId The ID of the car.
+  /// @return state The state name.
+  function getCarState(uint256 carId) public view returns (string memory) {
+    return carIdToParsedGeolocationData[carId].state;
+  }
 
-    /// @notice Function to withdraw LINK tokens from the contract (onlyOwner).
-    function withdrawLink() public onlyOwner {
-        LinkTokenInterface link = LinkTokenInterface(chainlinkTokenAddress());
-        require(link.transfer(msg.sender, link.balanceOf(address(this))), 'Unable to transfer');
-    }
+  /// @notice Function to get the country of geolocation for a car.
+  /// @param carId The ID of the car.
+  /// @return country The country name.
+  function getCarCountry(uint256 carId) public view returns (string memory) {
+    return carIdToParsedGeolocationData[carId].country;
+  }
 
-    /// @notice Function to parse the geolocation response and store parsed data.
-    /// @param carId The ID of the car for which geolocation is parsed.
-    function parseGeoResponse(uint256 carId) public {
-        string memory response = carIdToGeolocationResponse[carId];
-        string[] memory pairs = RentalityUtils.splitString(response);
-
-        Schemas.ParsedGeolocationData memory result;
-
-        for (uint256 i = 0; i < pairs.length; i++) {
-            string[] memory keyValue = RentalityUtils.splitKeyValue(pairs[i]);
-            string memory key = keyValue[0];
-            string memory value = keyValue[1];
-            if (RentalityUtils.compareStrings(key, 'status')) {
-                result.status = value;
-            } else if (RentalityUtils.compareStrings(key, 'locationLat')) {
-                result.locationLat = value;
-            } else if (RentalityUtils.compareStrings(key, 'locationLng')) {
-                result.locationLng = value;
-            } else if (RentalityUtils.compareStrings(key, 'northeastLat')) {
-                result.northeastLat = value;
-            } else if (RentalityUtils.compareStrings(key, 'northeastLng')) {
-                result.northeastLng = value;
-            } else if (RentalityUtils.compareStrings(key, 'southwestLat')) {
-                result.southwestLat = value;
-            } else if (RentalityUtils.compareStrings(key, 'southwestLng')) {
-                result.southwestLng = value;
-            } else if (RentalityUtils.compareStrings(key, 'locality')) {
-                result.city = value;
-            } else if (RentalityUtils.compareStrings(key, 'adminAreaLvl1')) {
-                result.state = value;
-            } else if (RentalityUtils.compareStrings(key, 'country')) {
-                result.country = value;
-            }
-            else if (RentalityUtils.compareStrings(key, 'timeZoneID'))
-            {
-                result.timeZoneId = value;
-            }
-        }
-
-        bool coordinatesAreValid = RentalityUtils.checkCoordinates(
-            result.locationLat,
-            result.locationLng,
-            result.northeastLat,
-            result.northeastLng,
-            result.southwestLat,
-            result.southwestLng
-        );
-
-        result.validCoordinates = coordinatesAreValid;
-        carIdToParsedGeolocationData[carId] = result;
-    }
-
-    /// @notice Function to get the validity of geolocation coordinates for a car.
-    /// @param carId The ID of the car.
-    /// @return validCoordinates A boolean indicating the validity of coordinates.
-    function getCarCoordinateValidity(uint256 carId) public view returns (bool) {
-        return carIdToParsedGeolocationData[carId].validCoordinates;
-    }
-
-    /// @notice Function to get the city of geolocation for a car.
-    /// @param carId The ID of the car.
-    /// @return city The city name.
-    function getCarCity(uint256 carId) public view returns (string memory) {
-        return carIdToParsedGeolocationData[carId].city;
-    }
-
-    /// @notice Function to get the state of geolocation for a car.
-    /// @param carId The ID of the car.
-    /// @return state The state name.
-    function getCarState(uint256 carId) public view returns (string memory) {
-        return carIdToParsedGeolocationData[carId].state;
-    }
-
-    /// @notice Function to get the country of geolocation for a car.
-    /// @param carId The ID of the car.
-    /// @return country The country name.
-    function getCarCountry(uint256 carId) public view returns (string memory) {
-        return carIdToParsedGeolocationData[carId].country;
-    }
-
-    /// @dev Retrieves the time zone information associated with a specific car.
-    /// @param carId The unique identifier of the car for which the time zone information is requested.
-    /// @return timeZone A string representing the time zone of the specified car's geolocation data.
-    function getTimeZoneId(uint256 carId) public view returns (string memory) {
-        return carIdToParsedGeolocationData[carId].timeZoneId;
-    }
-
+  /// @dev Retrieves the time zone information associated with a specific car.
+  /// @param carId The unique identifier of the car for which the time zone information is requested.
+  /// @return timeZone A string representing the time zone of the specified car's geolocation data.
+  function getTimeZoneId(uint256 carId) public view returns (string memory) {
+    return carIdToParsedGeolocationData[carId].timeZoneId;
+  }
 }

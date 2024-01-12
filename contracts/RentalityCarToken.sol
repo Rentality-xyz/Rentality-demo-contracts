@@ -14,6 +14,10 @@ import './Schemas.sol';
 /// @notice ERC-721 token for representing cars in the Rentality platform.
 /// @notice This contract allows users to add, update, and manage information about cars for rental.
 /// @notice Cars can be listed, updated, and verified for geographic coordinates.
+/// @dev SAFETY: The linked library is not supported yet because it can modify the state or call
+///  selfdestruct, as far as RentalityUtils doesn't has this logic,
+/// it's completely safe for upgrade
+/// @custom:oz-upgrades-unsafe-allow external-library-linking
 contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
   using Counters for Counters.Counter;
   Counters.Counter private _carIdCounter;
@@ -38,15 +42,13 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
   event CarRemovedSuccess(uint256 carId, string CarVinNumber, address removedBy);
 
   /// @notice returns RentalityGeoService address
-  function getGeoServiceAddress() public view returns(address)
-  {
+  function getGeoServiceAddress() public view returns (address) {
     return address(geoService);
   }
   /// @notice update RentalityGeoService address
   /// @param _geoService address of service
-  function updateGeoServiceAddress(address _geoService) public
-  {
-    require(owner() == msg.sender, "Only owner.");
+  function updateGeoServiceAddress(address _geoService) public {
+    require(owner() == msg.sender, 'Only owner.');
     geoService = IRentalityGeoService(_geoService);
   }
 
@@ -93,7 +95,7 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     _safeMint(tx.origin, newCarId);
     _setTokenURI(newCarId, request.tokenUri);
 
-    geoService.executeRequest(request.locationAddress, request.locationCoordinates , request.geoApiKey, newCarId);
+    geoService.executeRequest(request.locationAddress, request.locationCoordinates, request.geoApiKey, newCarId);
 
     idToCarInfo[newCarId] = Schemas.CarInfo(
       newCarId,
@@ -111,7 +113,7 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
       request.timeBufferBetweenTripsInSec,
       true,
       false,
-      ""
+      ''
     );
 
     _approve(address(this), newCarId);
@@ -264,39 +266,7 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
       _exists(carId) &&
       idToCarInfo[carId].currentlyListed &&
       ownerOf(carId) != sender &&
-      (bytes(searchCarParams.brand).length == 0 ||
-        RentalityUtils.containWord(
-          RentalityUtils.toLower(idToCarInfo[carId].brand),
-          RentalityUtils.toLower(searchCarParams.brand)
-        )) &&
-      (bytes(searchCarParams.model).length == 0 ||
-        RentalityUtils.containWord(
-          RentalityUtils.toLower(idToCarInfo[carId].model),
-          RentalityUtils.toLower(searchCarParams.model)
-        )) &&
-      (bytes(searchCarParams.country).length == 0 ||
-        RentalityUtils.containWord(
-          RentalityUtils.toLower(geoService.getCarCountry(carId)),
-          RentalityUtils.toLower(searchCarParams.country)
-        )) &&
-      (bytes(searchCarParams.state).length == 0 ||
-        RentalityUtils.containWord(
-          RentalityUtils.toLower(geoService.getCarState(carId)),
-          RentalityUtils.toLower(searchCarParams.state)
-        )) &&
-      (bytes(searchCarParams.city).length == 0 ||
-        RentalityUtils.containWord(
-          RentalityUtils.toLower(geoService.getCarCity(carId)),
-          RentalityUtils.toLower(searchCarParams.city)
-        )) &&
-      (searchCarParams.yearOfProductionFrom == 0 ||
-        idToCarInfo[carId].yearOfProduction >= searchCarParams.yearOfProductionFrom) &&
-      (searchCarParams.yearOfProductionTo == 0 ||
-        idToCarInfo[carId].yearOfProduction <= searchCarParams.yearOfProductionTo) &&
-      (searchCarParams.pricePerDayInUsdCentsFrom == 0 ||
-        idToCarInfo[carId].pricePerDayInUsdCents >= searchCarParams.pricePerDayInUsdCentsFrom) &&
-      (searchCarParams.pricePerDayInUsdCentsTo == 0 ||
-        idToCarInfo[carId].pricePerDayInUsdCents <= searchCarParams.pricePerDayInUsdCentsTo);
+      RentalityUtils.isCarAvailableForUser(carId, searchCarParams, this, geoService);
   }
 
   /// @notice Fetches available cars for a specific user based on search parameters.
@@ -308,7 +278,31 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     address user,
     Schemas.SearchCarParams memory searchCarParams
   ) public view returns (Schemas.CarInfo[] memory) {
-    return RentalityUtils.fetchAvailableCarsForUser(user, searchCarParams,this);
+    uint itemCount = 0;
+
+    // Count the number of available cars for the user.
+    for (uint i = 0; i < totalSupply(); i++) {
+      uint currentId = i + 1;
+      if (isCarAvailableForUser(currentId, user, searchCarParams)) {
+        itemCount += 1;
+      }
+    }
+
+    // Create an array to store the available cars.
+    Schemas.CarInfo[] memory result = new Schemas.CarInfo[](itemCount);
+    uint currentIndex = 0;
+
+    // Populate the array with available cars.
+    for (uint i = 0; i < totalSupply(); i++) {
+      uint currentId = i + 1;
+      if (isCarAvailableForUser(currentId, user, searchCarParams)) {
+        Schemas.CarInfo memory currentItem = idToCarInfo[currentId];
+        result[currentIndex] = currentItem;
+        currentIndex += 1;
+      }
+    }
+
+    return result;
   }
 
   /// @notice Checks if a car belongs to a specific user.

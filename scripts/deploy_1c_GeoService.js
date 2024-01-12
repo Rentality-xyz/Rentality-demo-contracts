@@ -16,7 +16,7 @@ async function main() {
 
     console.log(`Deploying RentalityGeoService for sepolia ...`)
     const contractFactory = await ethers.getContractFactory(contractName)
-    contract = await upgrades.deployProxy(contractFactory, [linkToken, oracle])
+    contract = await contractFactory.deploy(linkToken, oracle)
   } else {
     const mockContractName = 'RentalityGeoMock'
 
