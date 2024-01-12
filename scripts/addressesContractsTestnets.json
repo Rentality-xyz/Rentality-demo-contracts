@@ -48,5 +48,9 @@
     "RentalityPlatform": "",
     "RentalityGateway": "",
     "RentalityChatHelper": ""
+  },
+  {
+    "name": "sepolia",
+    "RentalityUtils": "0xC7D46686cD671E002979c41B3570dD5dFA7882B2"
   }
 ]
