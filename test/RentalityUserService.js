@@ -25,7 +25,11 @@ describe('RentalityUserService', function () {
     const RentalityPaymentService = await ethers.getContractFactory('RentalityPaymentService')
     const RentalityGeoService = await ethers.getContractFactory('RentalityGeoMock')
 
-    const RentalityCarToken = await ethers.getContractFactory('RentalityCarToken')
+    const RentalityCarToken = await ethers.getContractFactory('RentalityCarToken', {
+      libraries: {
+        RentalityUtils: await utils.getAddress(),
+      },
+    })
     const RentalityPlatform = await ethers.getContractFactory('RentalityPlatform', {
       libraries: {
         RentalityUtils: await utils.getAddress(),
