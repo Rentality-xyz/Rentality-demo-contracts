@@ -19,6 +19,7 @@ import './Schemas.sol';
 library RentalityUtils {
   // Constant multiplier for converting decimal coordinates to integers
   uint256 constant multiplier = 10 ** 7;
+
   /// @notice Checks if a set of coordinates falls within a specified bounding box.
   /// @param locationLat Latitude of the location to check.
   /// @param locationLng Longitude of the location to check.
@@ -44,6 +45,7 @@ library RentalityUtils {
 
     return (lat >= swLat && lat <= neLat && lng >= swLng && lng <= neLng);
   }
+
   /// @notice Parses an integer from a string.
   /// @param _a The input string to parse.
   /// @return Returns the parsed integer value.
@@ -66,6 +68,7 @@ library RentalityUtils {
     }
     return mint * int256(multiplier);
   }
+
   /// @notice Finds the index of a substring in a given string.
   /// @param haystack The string to search within.
   /// @param needle The substring to search for.
@@ -92,6 +95,7 @@ library RentalityUtils {
     }
     return i;
   }
+
   /// @notice Converts a string to lowercase.
   /// @param str The input string to convert.
   /// @return Returns the lowercase version of the input string.
@@ -109,6 +113,7 @@ library RentalityUtils {
     }
     return string(bLower);
   }
+
   /// @notice Checks if a string contains a specific word.
   /// @param where The string to search within.
   /// @param what The word to search for.
@@ -136,12 +141,14 @@ library RentalityUtils {
     }
     return found;
   }
+
   /// @notice Generates a hash from a string.
   /// @param str The input string to hash.
   /// @return Returns the keccak256 hash of the input string.
   function getHashFromString(string memory str) internal pure returns (bytes32) {
     return keccak256(abi.encodePacked(str));
   }
+
   /// @notice Calculates the ceiling of the division of two numbers.
   /// @param startDateTime The numerator of the division.
   /// @param endDateTime The denominator of the division.
@@ -150,6 +157,7 @@ library RentalityUtils {
     uint64 duration = endDateTime - startDateTime;
     return uint64(Math.ceilDiv(duration, 1 days));
   }
+
   /// @notice Populates an array of chat information using data from trips, user service, and car service.
   /// @param trips Array of RentalityTripService.Trip structures.
   /// @param userService RentalityUserService contract instance.
@@ -186,6 +194,7 @@ library RentalityUtils {
 
     return chatInfoList;
   }
+
   /// @notice Parses a response string containing geolocation data.
   /// @param response The response string to parse.
   /// @return result Parsed geolocation data in RentalityGeoService.ParsedGeolocationData structure.
@@ -222,6 +231,7 @@ library RentalityUtils {
 
     return result;
   }
+
   /// @notice Splits a string into an array of substrings based on a delimiter.
   /// @param input The input string to split.
   /// @return parts Array of substrings.
@@ -258,6 +268,7 @@ library RentalityUtils {
 
     return parts;
   }
+
   /// @notice Splits a key-value pair string into an array of key and value.
   /// @param input The input string to split.
   /// @return parts Array containing key and value.
@@ -292,6 +303,7 @@ library RentalityUtils {
 
     return parts;
   }
+
   /// @notice Compares two strings for equality.
   /// @param a The first string.
   /// @param b The second string.
@@ -299,6 +311,7 @@ library RentalityUtils {
   function compareStrings(string memory a, string memory b) internal pure returns (bool) {
     return (keccak256(bytes(a)) == keccak256(bytes(b)));
   }
+
   /// @notice URL encodes a string.
   /// @param input The input string to encode.
   /// @return output The URL-encoded string.
@@ -349,6 +362,7 @@ library RentalityUtils {
     return
       (trip.endDateTime + carInfo.timeBufferBetweenTripsInSec > startDateTime) && (trip.startDateTime < endDateTime);
   }
+
   /// @dev Retrieves an array of trips that intersect with a given time range.
   //  @param TripService to getTrip by id
   /// @param startDateTime The start date and time of the time range.
@@ -399,6 +413,7 @@ library RentalityUtils {
     Schemas.Trip memory trip = tripService.getTrip(tripId);
     return (trip.carId == carId) && (trip.endDateTime > startDateTime) && (trip.startDateTime < endDateTime);
   }
+
   ///  @dev Checks if a specific car ID has intersecting trips within a given time range.
   //  @param TripService to getTrip by id
   ///  @param carId The ID of the car to check.
@@ -607,6 +622,7 @@ library RentalityUtils {
 
     return claimInfos;
   }
+
   ///  @notice Retrieves all claims by guest.
   ///  @return An array of FullClaimInfo containing information about each claim.
   function getClaimsByGuest(
@@ -629,7 +645,7 @@ library RentalityUtils {
     Schemas.FullClaimInfo[] memory claimInfos = new Schemas.FullClaimInfo[](arraySize);
     uint256 counter = 0;
 
-    for (uint256 i = 0; i < claimService.getClaimsAmount(); i++) {
+    for (uint256 i = 1; i <= claimService.getClaimsAmount(); i++) {
       Schemas.Claim memory claim = claimService.getClaim(i);
       Schemas.Trip memory trip = tripService.getTrip(claim.tripId);
 
