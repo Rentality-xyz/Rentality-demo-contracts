@@ -95,7 +95,7 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     _safeMint(tx.origin, newCarId);
     _setTokenURI(newCarId, request.tokenUri);
 
-    geoService.executeRequest(request.locationAddress, request.locationCoordinates, request.geoApiKey, newCarId);
+    geoService.executeRequest(request.locationAddress, request.geoApiKey, newCarId);
 
     idToCarInfo[newCarId] = Schemas.CarInfo(
       newCarId,
@@ -136,14 +136,12 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
   /// @notice Updates the information for a specific car.
   /// @param request The input parameters for updating the car.
   /// @param locationAddress The location for verifying geographic coordinates.
-  /// @param locationCoordinates Single string that contains the car coordinates
   ///  can be empty, for left old location information.
   /// @param geoApiKey The API key for the geographic verification service.
   /// can be empty, if location param is empty.
   function updateCarInfo(
     Schemas.UpdateCarInfoRequest memory request,
     string memory locationAddress,
-    string memory locationCoordinates,
     string memory geoApiKey
   ) public {
     require(_exists(request.carId), 'Token does not exist');
@@ -152,8 +150,8 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     require(request.milesIncludedPerDay > 0, "Make sure the included distance isn't negative");
 
     if (bytes(locationAddress).length > 0) {
-      require(bytes(geoApiKey).length > 0 && bytes(locationCoordinates).length > 0, 'Provide a valid geo API key');
-      geoService.executeRequest(locationAddress, locationCoordinates, geoApiKey, request.carId);
+      require(bytes(geoApiKey).length > 0, 'Provide a valid geo API key');
+      geoService.executeRequest(locationAddress, geoApiKey, request.carId);
       idToCarInfo[request.carId].geoVerified = false;
     }
 

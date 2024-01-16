@@ -40,26 +40,17 @@ contract RentalityGeoService is ChainlinkClient, Ownable, IRentalityGeoService {
 
   /// @notice Function to execute a Chainlink request for geolocation data.
   /// @param addr The address for geolocation lookup.
-  /// @param location represents car coordinates
   /// @param key The API key for accessing the geolocation service.
   /// @param carId The ID of the car for which geolocation is requested.
   /// @return requestId The ID of the Chainlink request.
-  function executeRequest(
-    string memory addr,
-    string memory location,
-    string memory key,
-    uint256 carId
-  ) public returns (bytes32 requestId) {
+  function executeRequest(string memory addr, string memory key, uint256 carId) public returns (bytes32 requestId) {
     // Build the URL for the geolocation API request.
     string memory urlApi = string.concat(
       'https://rentality-location-service-dq3ggp3yqq-lm.a.run.app/geolocation?address=',
       RentalityUtils.urlEncode(addr),
-      '&location=',
-      RentalityUtils.urlEncode(location),
       '0&key=',
       RentalityUtils.urlEncode(key)
     );
-    //https://rentality-location-service-dq3ggp3yqq-lm.a.run.app/geolocation?address=miami&location=39.6034810,-119.6822510&key=AIzaSyDhuhAxL2C-JehZvQMRWiJtlU2PUZcZiqE
 
     // Build the Chainlink request.
     Chainlink.Request memory req = buildChainlinkRequest(jobId, address(this), this.fulfill.selector);

@@ -227,7 +227,7 @@ describe('RentalityCarToken', function () {
       currentlyListed: false,
     }
 
-    await expect(rentalityCarToken.updateCarInfo(update_params, '', '', '')).not.be.reverted
+    await expect(rentalityCarToken.updateCarInfo(update_params, '', '')).not.be.reverted
 
     let car_info = await rentalityCarToken.getCarInfoById(2)
 
@@ -252,7 +252,7 @@ describe('RentalityCarToken', function () {
       currentlyListed: false,
     }
 
-    await expect(rentalityCarToken.updateCarInfo(update_params, 'location', '', '')).to.be.reverted
+    await expect(rentalityCarToken.updateCarInfo(update_params, 'location', '')).to.be.reverted
   })
   it('Update with location should pass locationVarification param to false', async function () {
     const { rentalityCarToken, rentalityGeoService } = await loadFixture(deployFixtureWith1Car)
@@ -274,7 +274,7 @@ describe('RentalityCarToken', function () {
 
     await expect(rentalityCarToken.verifyGeo(2)).to.not.reverted
 
-    await expect(rentalityCarToken.updateCarInfo(update_params, 'location', '1', 'geoApi')).to.not.reverted
+    await expect(rentalityCarToken.updateCarInfo(update_params, 'location', 'geoApi')).to.not.reverted
 
     let car_info = await rentalityCarToken.getCarInfoById(2)
 

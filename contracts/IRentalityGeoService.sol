@@ -10,12 +10,7 @@ interface IRentalityGeoService {
   /// @param key The key for the geo-related request.
   /// @param carId The ID of the car for which geo-related information is requested.
   /// @return A bytes32 value representing the requestId of the geo-related request.
-  function executeRequest(
-    string memory addr,
-    string memory location,
-    string memory key,
-    uint256 carId
-  ) external returns (bytes32);
+  function executeRequest(string memory addr, string memory key, uint256 carId) external returns (bytes32);
 
   /// @notice Get the validity of the coordinates for a specific car.
   /// @param carId The ID of the car.
