@@ -9,8 +9,8 @@ import '@openzeppelin/contracts/utils/Counters.sol';
 import './RentalityCurrencyConverter.sol';
 import './RentalityPaymentService.sol';
 import './RentalityCarToken.sol';
-import './RentalityUtils.sol';
 import './RentalityUserService.sol';
+import './RentalityUtils.sol';
 import './engine/RentalityEnginesService.sol';
 import './Schemas.sol';
 
@@ -390,7 +390,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     address paymentServiceAddress,
     address userServiceAddress,
     address engineServiceAddress
-  ) public virtual initializer {
+  ) public initializer {
     currencyConverterService = RentalityCurrencyConverter(currencyConverterServiceAddress);
     carService = RentalityCarToken(carServiceAddress);
     paymentService = RentalityPaymentService(paymentServiceAddress);
