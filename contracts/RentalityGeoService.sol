@@ -48,7 +48,7 @@ contract RentalityGeoService is ChainlinkClient, Ownable, IRentalityGeoService {
     string memory urlApi = string.concat(
       'https://rentality-location-service-dq3ggp3yqq-lm.a.run.app/geolocation?address=',
       RentalityUtils.urlEncode(addr),
-      '0&key=',
+      '&key=',
       RentalityUtils.urlEncode(key)
     );
 
