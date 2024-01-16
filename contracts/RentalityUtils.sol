@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
-
 import '@openzeppelin/contracts/utils/math/Math.sol';
 import './Schemas.sol';
 import './RentalityClaimService.sol';
 import './RentalityTripService.sol';
+import './IRentalityGeoService.sol';
 
 /// @title RentalityUtils Library
 /// @notice
@@ -688,5 +688,45 @@ library RentalityUtils {
         tripInfo.pricePerDayInUsdCents,
         tripDays
       );
+  }
+
+  /// @notice Checks if a car is available for a specific user based on search parameters.
+  /// @dev Determines availability based on several conditions, including ownership and search parameters.
+  /// @param carId The ID of the car being checked.
+  /// @param searchCarParams The parameters used to filter available cars.
+  /// @return A boolean indicating whether the car is available for the user.
+  function isCarAvailableForUser(
+    uint256 carId,
+    Schemas.SearchCarParams memory searchCarParams,
+    RentalityCarToken carService,
+    IRentalityGeoService geoService
+  ) public view returns (bool) {
+    Schemas.CarInfo memory car = carService.getCarInfoById(carId);
+    return
+      (bytes(searchCarParams.brand).length == 0 ||
+        RentalityUtils.containWord(RentalityUtils.toLower(car.brand), RentalityUtils.toLower(searchCarParams.brand))) &&
+      (bytes(searchCarParams.model).length == 0 ||
+        RentalityUtils.containWord(RentalityUtils.toLower(car.model), RentalityUtils.toLower(searchCarParams.model))) &&
+      (bytes(searchCarParams.country).length == 0 ||
+        RentalityUtils.containWord(
+          RentalityUtils.toLower(geoService.getCarCountry(carId)),
+          RentalityUtils.toLower(searchCarParams.country)
+        )) &&
+      (bytes(searchCarParams.state).length == 0 ||
+        RentalityUtils.containWord(
+          RentalityUtils.toLower(geoService.getCarState(carId)),
+          RentalityUtils.toLower(searchCarParams.state)
+        )) &&
+      (bytes(searchCarParams.city).length == 0 ||
+        RentalityUtils.containWord(
+          RentalityUtils.toLower(geoService.getCarCity(carId)),
+          RentalityUtils.toLower(searchCarParams.city)
+        )) &&
+      (searchCarParams.yearOfProductionFrom == 0 || car.yearOfProduction >= searchCarParams.yearOfProductionFrom) &&
+      (searchCarParams.yearOfProductionTo == 0 || car.yearOfProduction <= searchCarParams.yearOfProductionTo) &&
+      (searchCarParams.pricePerDayInUsdCentsFrom == 0 ||
+        car.pricePerDayInUsdCents >= searchCarParams.pricePerDayInUsdCentsFrom) &&
+      (searchCarParams.pricePerDayInUsdCentsTo == 0 ||
+        car.pricePerDayInUsdCents <= searchCarParams.pricePerDayInUsdCentsTo);
   }
 }

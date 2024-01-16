@@ -3,7 +3,7 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 
 const { getMockCarRequest, deployDefaultFixture } = require('../utils')
 
-describe.only('RentalityGateway: car', function () {
+describe('RentalityGateway: car', function () {
   let rentalityGateway,
     rentalityMockPriceFeed,
     rentalityUserService,
