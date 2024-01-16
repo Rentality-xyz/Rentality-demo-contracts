@@ -10,17 +10,17 @@ async function main() {
   if (chainId < 0) throw new Error('chainId is not set')
 
   const rentalityUserServiceAddress = checkNotNull(
-    getContractAddress('RentalityUserService', 'scripts/deploy_1b_RentalityUserService.js'),
+    getContractAddress('RentalityUserService', 'scripts/deploy_1b_RentalityUserService.js', chainId),
     'RentalityUserService'
   )
 
   const rentalityPaymentServiceAddress = checkNotNull(
-    getContractAddress('RentalityPaymentService', 'scripts/deploy_2d_RentalityPaymentService.js'),
+    getContractAddress('RentalityPaymentService', 'scripts/deploy_2d_RentalityPaymentService.js', chainId),
     'RentalityPaymentService'
   )
 
   const rentalityPlatformAddress = checkNotNull(
-    getContractAddress('RentalityPlatform', 'scripts/deploy_5_RentalityPlatform.js'),
+    getContractAddress('RentalityPlatform', 'scripts/deploy_5_RentalityPlatform.js', chainId),
     'RentalityPlatform'
   )
 
@@ -34,7 +34,7 @@ async function main() {
   const contractAddress = await contract.getAddress()
 
   console.log(`${contractName} was deployed to: ${contractAddress}`)
-  addressSaver(contractAddress, contractName, true)
+  addressSaver(contractAddress, contractName, true, chainId)
   await saveJsonAbi(contractName, chainId, contract)
   console.log()
 }

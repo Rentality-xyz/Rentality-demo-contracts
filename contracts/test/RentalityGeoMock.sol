@@ -15,6 +15,9 @@ contract RentalityGeoMock {
   // Mapping to store the country information for each car ID.
   mapping(uint256 => string) private carCountry;
 
+  // Mapping to store the time zone information for each car ID.
+  mapping(uint256 => string) private carTimeZone;
+
   /// @dev Function: setCarCoordinateValidity
   /// @notice Sets the validity of car coordinates for a specific car ID.
   /// @param carId The ID of the car.
@@ -88,5 +91,8 @@ contract RentalityGeoMock {
   /// @return The country information.
   function getCarCountry(uint256 carId) external view returns (string memory) {
     return carCountry[carId];
+  }
+  function getCarTimeZoneId(uint256 carId) external view returns (string memory) {
+    return carTimeZone[carId];
   }
 }

@@ -16,7 +16,7 @@ async function main() {
 
     console.log(`Deploying RentalityGeoService for sepolia ...`)
     const contractFactory = await ethers.getContractFactory(contractName)
-    contract = await upgrades.deployProxy(contractFactory, [linkToken, oracle])
+    contract = await contractFactory.deploy(linkToken, oracle)
   } else {
     const mockContractName = 'RentalityGeoMock'
 
@@ -29,7 +29,7 @@ async function main() {
   const contractAddress = await contract.getAddress()
 
   console.log(`${contractName} was deployed to: ${contractAddress}`)
-  addressSaver(contractAddress, contractName, true)
+  addressSaver(contractAddress, contractName, true, chainId)
   await saveJsonAbi(contractName, chainId, contract)
   console.log()
 }
