@@ -1,8 +1,6 @@
 const env = require('hardhat')
 const { ethers, upgrades } = require('hardhat')
 
-const { Contract } = require('hardhat/internal/hardhat-network/stack-traces/model')
-
 function getMockCarRequest(seed) {
   const seedStr = seed?.toString() ?? ''
   const seedInt = Number(seed) ?? 0
@@ -68,7 +66,7 @@ function getMockCarRequestWithEngineType(seed, engineParams, eType) {
     engineParams: ENGINE_PARAMS,
     engineType: ETYPE,
     milesIncludedPerDay: DISTANCE_INCLUDED,
-    locationAddress: location,
+    location: location,
     geoApiKey: apiKey,
   }
 }
@@ -113,8 +111,11 @@ async function deployDefaultFixture() {
   const RentalityMockPriceFeed = await ethers.getContractFactory('RentalityMockPriceFeed')
   const RentalityUserService = await ethers.getContractFactory('RentalityUserService')
   const RentalityTripService = await ethers.getContractFactory('RentalityTripService', {
-    libraries: { RentalityUtils: await utils.getAddress() },
+    libraries: {
+      RentalityUtils: await utils.getAddress(),
+    },
   })
+
   const RentalityCurrencyConverter = await ethers.getContractFactory('RentalityCurrencyConverter')
   const RentalityPaymentService = await ethers.getContractFactory('RentalityPaymentService')
   const RentalityCarToken = await ethers.getContractFactory('RentalityCarToken', {

@@ -1,5 +1,5 @@
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
-const { deployDefaultFixture, getMockCarRequest, createMockClaimRequest } = require('./utils')
+const { deployDefaultFixture, getMockCarRequest, createMockClaimRequest } = require('../utils')
 const { expect } = require('chai')
 const { ethers } = require('hardhat')
 describe('RentalityClaim', function () {

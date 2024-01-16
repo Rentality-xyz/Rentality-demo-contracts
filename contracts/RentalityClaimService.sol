@@ -2,7 +2,6 @@
 pragma solidity ^0.8.9;
 
 import '@openzeppelin/contracts/proxy/utils/Initializable.sol';
-import './RentalityUserService.sol';
 import './proxy/UUPSAccess.sol';
 import './RentalityCarToken.sol';
 import './Schemas.sol';
