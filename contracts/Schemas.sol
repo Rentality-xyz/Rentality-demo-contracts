@@ -37,7 +37,7 @@ interface Schemas {
     uint8 engineType;
     uint64 milesIncludedPerDay;
     uint32 timeBufferBetweenTripsInSec;
-    string locationAddress;
+    string location;
     string geoApiKey;
   }
 
