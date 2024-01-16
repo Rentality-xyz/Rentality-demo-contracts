@@ -1,14 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import './RentalityTripService.sol';
-import './RentalityUserService.sol';
-import './RentalityCarToken.sol';
-import './IRentalityGateway.sol';
 import '@openzeppelin/contracts/utils/math/Math.sol';
-import './RentalityGeoService.sol';
-import './RentalityClaimService.sol';
 import './Schemas.sol';
+import './RentalityClaimService.sol';
+import './RentalityTripService.sol';
 
 /// @title RentalityUtils Library
 /// @notice
