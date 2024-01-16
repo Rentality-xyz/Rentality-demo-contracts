@@ -1448,7 +1448,7 @@ describe('RentalityGateway', function () {
         engineType: 1,
         milesIncludedPerDay: 10,
         timeBufferBetweenTripsInSec: oneDayInSec * 2,
-        locationAddress: 'location',
+        location: 'location',
         locationCoordinates: '1.4',
         geoApiKey: 'key',
       }
@@ -1507,7 +1507,7 @@ describe('RentalityGateway', function () {
         engineType: 1,
         milesIncludedPerDay: 10,
         timeBufferBetweenTripsInSec: oneDayInSec,
-        locationAddress: 'location',
+        location: 'location',
         locationCoordinates: '1.4',
         geoApiKey: 'key',
       }
@@ -1567,7 +1567,7 @@ describe('RentalityGateway', function () {
         engineType: 1,
         milesIncludedPerDay: 10,
         timeBufferBetweenTripsInSec: oneDayInSec,
-        locationAddress: 'location',
+        location: 'location',
         locationCoordinates: '1.4',
         geoApiKey: 'key',
       }
@@ -1637,7 +1637,7 @@ describe('RentalityGateway', function () {
         engineType: 1,
         milesIncludedPerDay: 10,
         timeBufferBetweenTripsInSec: oneDayInSec,
-        locationAddress: 'location',
+        location: 'location',
         locationCoordinates: '1.4',
         geoApiKey: 'key',
       }

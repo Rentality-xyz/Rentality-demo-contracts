@@ -34,7 +34,7 @@ function getMockCarRequest(seed) {
     engineType: ETYPE,
     milesIncludedPerDay: DISTANCE_INCLUDED,
     timeBufferBetweenTripsInSec: timeBufferBetweenTripsInSec,
-    locationAddress: location,
+    location: location,
     locationCoordinates: locationCoordinates,
     geoApiKey: apiKey,
   }

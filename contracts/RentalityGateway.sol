@@ -164,14 +164,14 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
 
   /// @notice Updates the information of a car, including location details. Only callable by hosts.
   /// @param request The request containing updated car information.
-  /// @param locationAddress The new location of the car.
+  /// @param location The new location of the car.
   /// @param geoApiKey The API key for geocoding purposes.
   function updateCarInfoWithLocation(
     Schemas.UpdateCarInfoRequest memory request,
-    string memory locationAddress,
+    string memory location,
     string memory geoApiKey
   ) public onlyHost {
-    return carService.updateCarInfo(request, locationAddress, geoApiKey);
+    return carService.updateCarInfo(request, location, geoApiKey);
   }
 
   // function updateCarInfo(
