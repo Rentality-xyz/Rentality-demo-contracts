@@ -69,12 +69,10 @@ interface IRentalityGateway {
   /// @notice This sets geo verification status to false.
   /// @param request the Update car parameters
   /// @param locationAddress Single string that contains the car location
-  /// @param locationCoordinates Single string that contains the car coordinates
   /// @param geoApiKey the key to verify location by google geo api
   function updateCarInfoWithLocation(
     Schemas.UpdateCarInfoRequest memory request,
     string memory locationAddress,
-    string memory locationCoordinates,
     string memory geoApiKey
   ) external;
 

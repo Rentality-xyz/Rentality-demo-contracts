@@ -3,11 +3,11 @@ const { readFileSync } = require('fs')
 const fs = require('fs')
 const { network } = require('hardhat')
 
-module.exports = function addressSaver(contractAddress, contractName, rewriteIfExist) {
+module.exports = function addressSaver(contractAddress, contractName, rewriteIfExist, chain) {
+  let chainId = Number.parseInt(chain.toString())
   const data = readFileSync(path, 'utf-8')
   const jsonData = JSON.parse(data)
 
-  const chainId = network.config.chainId
   const networkName = network.name
   const exist = jsonData.find((element) => element.name === networkName && element.chainId === chainId) != null
   if (exist) {

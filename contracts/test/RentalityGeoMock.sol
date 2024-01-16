@@ -56,12 +56,7 @@ contract RentalityGeoMock {
   /// @param key The key parameter for the mock request.
   /// @param carId The ID of the car.
   /// @return The car ID as bytes32 (mock response).
-  function executeRequest(
-    string memory addr,
-    string memory location,
-    string memory key,
-    uint256 carId
-  ) external returns (bytes32) {
+  function executeRequest(string memory addr, string memory key, uint256 carId) external returns (bytes32) {
     // Mock implementation, you can add your own logic if needed
     return bytes32(carId);
   }

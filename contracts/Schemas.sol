@@ -38,7 +38,6 @@ interface Schemas {
     uint64 milesIncludedPerDay;
     uint32 timeBufferBetweenTripsInSec;
     string locationAddress;
-    string locationCoordinates;
     string geoApiKey;
   }
 
