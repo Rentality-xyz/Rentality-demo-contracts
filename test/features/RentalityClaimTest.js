@@ -312,14 +312,13 @@ describe('RentalityClaim', function () {
     await expect(rentalityGateway.connect(host).createClaim(mockClaimRequest)).to.not.reverted
 
     const [claimPriceInEth] = await rentalityCurrencyConverter.getEthFromUsdLatest(amountToClaimInUsdCents)
-    const platformFee = await rentalityPaymentService.getPlatformFeeFrom(claimPriceInEth)
 
     const claimInEth = ethers.parseEther(claimPriceInEth.toString())
-    const total = (claimInEth + ethers.parseEther(platformFee.toString())) / BigInt(1e18)
+    const total = claimInEth / BigInt(1e18)
 
     await expect(rentalityGateway.connect(guest).payClaim(1, { value: total })).to.changeEtherBalances(
-      [guest, host, rentalityPlatform],
-      [BigInt(-total), claimPriceInEth, platformFee]
+      [guest, host],
+      [BigInt(-total), claimPriceInEth]
     )
   })
   it('Should return all my claims ', async function () {
