@@ -31,4 +31,9 @@ interface IRentalityGeoService {
   /// @param carId The ID of the car.
   /// @return A string representing the country associated with the car.
   function getCarCountry(uint256 carId) external view returns (string memory);
+
+  /// @notice Get the time zone of of a specific car.
+  /// @param carId The ID of the car.
+  /// @return A string representing time zone id.
+  function getCarTimeZoneId(uint256 carId) external view returns (string memory);
 }

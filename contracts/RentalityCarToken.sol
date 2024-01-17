@@ -14,6 +14,10 @@ import './Schemas.sol';
 /// @notice ERC-721 token for representing cars in the Rentality platform.
 /// @notice This contract allows users to add, update, and manage information about cars for rental.
 /// @notice Cars can be listed, updated, and verified for geographic coordinates.
+/// @dev SAFETY: The linked library is not supported yet because it can modify the state or call
+///  selfdestruct, as far as RentalityUtils doesn't has this logic,
+/// it's completely safe for upgrade
+/// @custom:oz-upgrades-unsafe-allow external-library-linking
 contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
   using Counters for Counters.Counter;
   Counters.Counter private _carIdCounter;
@@ -36,6 +40,17 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
 
   /// @notice Event emitted when a car is successfully removed.
   event CarRemovedSuccess(uint256 carId, string CarVinNumber, address removedBy);
+
+  /// @notice returns RentalityGeoService address
+  function getGeoServiceAddress() public view returns (address) {
+    return address(geoService);
+  }
+  /// @notice update RentalityGeoService address
+  /// @param _geoService address of service
+  function updateGeoServiceAddress(address _geoService) public {
+    require(owner() == msg.sender, 'Only owner.');
+    geoService = IRentalityGeoService(_geoService);
+  }
 
   /// @notice Returns the total supply of cars.
   /// @return The total number of cars in the system.
@@ -80,7 +95,7 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     _safeMint(tx.origin, newCarId);
     _setTokenURI(newCarId, request.tokenUri);
 
-    geoService.executeRequest(request.locationAddress, request.geoApiKey, newCarId);
+    geoService.executeRequest(request.location, request.geoApiKey, newCarId);
 
     idToCarInfo[newCarId] = Schemas.CarInfo(
       newCarId,
@@ -97,7 +112,8 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
       request.milesIncludedPerDay,
       request.timeBufferBetweenTripsInSec,
       true,
-      false
+      false,
+      ''
     );
 
     _approve(address(this), newCarId);
@@ -114,6 +130,7 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     bool geoStatus = geoService.getCarCoordinateValidity(carId);
     Schemas.CarInfo storage carInfo = idToCarInfo[carId];
     carInfo.geoVerified = geoStatus;
+    carInfo.timeZoneId = geoService.getCarTimeZoneId(carId);
   }
 
   /// @notice Updates the information for a specific car.
@@ -242,44 +259,12 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     uint256 carId,
     address sender,
     Schemas.SearchCarParams memory searchCarParams
-  ) private view returns (bool) {
+  ) public view returns (bool) {
     return
       _exists(carId) &&
       idToCarInfo[carId].currentlyListed &&
       ownerOf(carId) != sender &&
-      (bytes(searchCarParams.brand).length == 0 ||
-        RentalityUtils.containWord(
-          RentalityUtils.toLower(idToCarInfo[carId].brand),
-          RentalityUtils.toLower(searchCarParams.brand)
-        )) &&
-      (bytes(searchCarParams.model).length == 0 ||
-        RentalityUtils.containWord(
-          RentalityUtils.toLower(idToCarInfo[carId].model),
-          RentalityUtils.toLower(searchCarParams.model)
-        )) &&
-      (bytes(searchCarParams.country).length == 0 ||
-        RentalityUtils.containWord(
-          RentalityUtils.toLower(geoService.getCarCountry(carId)),
-          RentalityUtils.toLower(searchCarParams.country)
-        )) &&
-      (bytes(searchCarParams.state).length == 0 ||
-        RentalityUtils.containWord(
-          RentalityUtils.toLower(geoService.getCarState(carId)),
-          RentalityUtils.toLower(searchCarParams.state)
-        )) &&
-      (bytes(searchCarParams.city).length == 0 ||
-        RentalityUtils.containWord(
-          RentalityUtils.toLower(geoService.getCarCity(carId)),
-          RentalityUtils.toLower(searchCarParams.city)
-        )) &&
-      (searchCarParams.yearOfProductionFrom == 0 ||
-        idToCarInfo[carId].yearOfProduction >= searchCarParams.yearOfProductionFrom) &&
-      (searchCarParams.yearOfProductionTo == 0 ||
-        idToCarInfo[carId].yearOfProduction <= searchCarParams.yearOfProductionTo) &&
-      (searchCarParams.pricePerDayInUsdCentsFrom == 0 ||
-        idToCarInfo[carId].pricePerDayInUsdCents >= searchCarParams.pricePerDayInUsdCentsFrom) &&
-      (searchCarParams.pricePerDayInUsdCentsTo == 0 ||
-        idToCarInfo[carId].pricePerDayInUsdCents <= searchCarParams.pricePerDayInUsdCentsTo);
+      RentalityUtils.isCarAvailableForUser(carId, searchCarParams, this, geoService);
   }
 
   /// @notice Fetches available cars for a specific user based on search parameters.
@@ -309,7 +294,7 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     for (uint i = 0; i < totalSupply(); i++) {
       uint currentId = i + 1;
       if (isCarAvailableForUser(currentId, user, searchCarParams)) {
-        Schemas.CarInfo storage currentItem = idToCarInfo[currentId];
+        Schemas.CarInfo memory currentItem = idToCarInfo[currentId];
         result[currentIndex] = currentItem;
         currentIndex += 1;
       }
@@ -350,7 +335,7 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     for (uint i = 0; i < totalSupply(); i++) {
       uint currentId = i + 1;
       if (isCarOfUser(currentId, user)) {
-        Schemas.CarInfo storage currentItem = idToCarInfo[currentId];
+        Schemas.CarInfo memory currentItem = idToCarInfo[currentId];
         result[currentIndex] = currentItem;
         currentIndex += 1;
       }
