@@ -664,31 +664,6 @@ library RentalityUtils {
     return claimInfos;
   }
 
-  ///  @dev Calculates the resolved amount in USD cents for a trip.
-  ///  @param eType the engine type
-  ///  @param engineParams, engine data params
-  ///  @param tripInfo The information about the trip.
-  ///  @return Returns the resolved amounts for miles and fuel in USD cents as a tuple.
-  function getResolveAmountInUsdCents(
-    uint8 eType,
-    Schemas.Trip memory tripInfo,
-    uint64[] memory engineParams,
-    RentalityEnginesService engineService
-  ) public view returns (uint64, uint64) {
-    uint64 tripDays = getCeilDays(tripInfo.startDateTime, tripInfo.endDateTime);
-
-    return
-      engineService.getResolveAmountInUsdCents(
-        eType,
-        tripInfo.fuelPrices,
-        tripInfo.startParamLevels,
-        tripInfo.endParamLevels,
-        engineParams,
-        tripInfo.milesIncludedPerDay,
-        tripInfo.pricePerDayInUsdCents,
-        tripDays
-      );
-  }
 
   /// @notice Checks if a car is available for a specific user based on search parameters.
   /// @dev Determines availability based on several conditions, including ownership and search parameters.

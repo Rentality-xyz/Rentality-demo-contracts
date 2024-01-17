@@ -352,8 +352,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
 
     Schemas.CarInfo memory car = carService.getCarInfoById(idToTripInfo[tripId].carId);
 
-    (uint64 resolveMilesAmountInUsdCents, uint64 resolveFuelAmountInUsdCents) = RentalityUtils
-      .getResolveAmountInUsdCents(car.engineType, idToTripInfo[tripId], car.engineParams, engineService);
+    (uint64 resolveMilesAmountInUsdCents, uint64 resolveFuelAmountInUsdCents) = getResolveAmountInUsdCents(car.engineType, idToTripInfo[tripId], car.engineParams);
     idToTripInfo[tripId].paymentInfo.resolveMilesAmountInUsdCents = resolveMilesAmountInUsdCents;
     idToTripInfo[tripId].paymentInfo.resolveFuelAmountInUsdCents = resolveFuelAmountInUsdCents;
 
@@ -366,6 +365,33 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
 
     emit TripStatusChanged(tripId, Schemas.TripStatus.Finished);
   }
+
+  ///  @dev Calculates the resolved amount in USD cents for a trip.
+  ///  @param eType the engine type
+  ///  @param engineParams, engine data params
+  ///  @param tripInfo The information about the trip.
+  ///  @return Returns the resolved amounts for miles and fuel in USD cents as a tuple.
+  function getResolveAmountInUsdCents(
+    uint8 eType,
+    Schemas.Trip memory tripInfo,
+    uint64[] memory engineParams
+  ) public view returns (uint64, uint64) {
+    uint64 tripDays = RentalityUtils.getCeilDays(tripInfo.startDateTime, tripInfo.endDateTime);
+
+    return
+      engineService.getResolveAmountInUsdCents(
+      eType,
+      tripInfo.fuelPrices,
+      tripInfo.startParamLevels,
+      tripInfo.endParamLevels,
+      engineParams,
+      tripInfo.milesIncludedPerDay,
+      tripInfo.pricePerDayInUsdCents,
+      tripDays
+    );
+  }
+
+
   /// @dev Function to save transaction information for a finished trip.
   /// @param tripId Trip ID for which the transaction information is saved.
   /// @param rentalityFee Rentality fee for the transaction.
