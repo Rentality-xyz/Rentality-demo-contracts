@@ -1,8 +1,6 @@
 const env = require('hardhat')
 const { ethers, upgrades } = require('hardhat')
 
-const { Contract } = require('hardhat/internal/hardhat-network/stack-traces/model')
-
 function getMockCarRequest(seed) {
   const seedStr = seed?.toString() ?? ''
   const seedInt = Number(seed) ?? 0
@@ -18,6 +16,7 @@ function getMockCarRequest(seed) {
   const ETYPE = 1
   const DISTANCE_INCLUDED = seedInt * 100 + 6
   const location = 'kyiv ukraine'
+  const locationCoordinates = ' ' + seedInt
   const apiKey = process.env.GOOGLE_API_KEY || ' '
   const timeBufferBetweenTripsInSec = 0
 
@@ -33,7 +32,8 @@ function getMockCarRequest(seed) {
     engineType: ETYPE,
     milesIncludedPerDay: DISTANCE_INCLUDED,
     timeBufferBetweenTripsInSec: timeBufferBetweenTripsInSec,
-    locationAddress: location,
+    location: location,
+    locationCoordinates: locationCoordinates,
     geoApiKey: apiKey,
   }
 }
@@ -66,7 +66,7 @@ function getMockCarRequestWithEngineType(seed, engineParams, eType) {
     engineParams: ENGINE_PARAMS,
     engineType: ETYPE,
     milesIncludedPerDay: DISTANCE_INCLUDED,
-    locationAddress: location,
+    location: location,
     geoApiKey: apiKey,
   }
 }
@@ -111,11 +111,18 @@ async function deployDefaultFixture() {
   const RentalityMockPriceFeed = await ethers.getContractFactory('RentalityMockPriceFeed')
   const RentalityUserService = await ethers.getContractFactory('RentalityUserService')
   const RentalityTripService = await ethers.getContractFactory('RentalityTripService', {
-    libraries: { RentalityUtils: await utils.getAddress() },
+    libraries: {
+      RentalityUtils: await utils.getAddress(),
+    },
   })
+
   const RentalityCurrencyConverter = await ethers.getContractFactory('RentalityCurrencyConverter')
   const RentalityPaymentService = await ethers.getContractFactory('RentalityPaymentService')
-  const RentalityCarToken = await ethers.getContractFactory('RentalityCarToken')
+  const RentalityCarToken = await ethers.getContractFactory('RentalityCarToken', {
+    libraries: {
+      RentalityUtils: await utils.getAddress(),
+    },
+  })
 
   const RentalityPlatform = await ethers.getContractFactory('RentalityPlatform', {
     libraries: {
