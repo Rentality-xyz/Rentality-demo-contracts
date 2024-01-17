@@ -208,9 +208,13 @@ async function deployDefaultFixture() {
 
   const RentalityAdminGateway = await ethers.getContractFactory('RentalityAdminGateway')
   const rentalityAdminGateway = await upgrades.deployProxy(RentalityAdminGateway, [
+    await rentalityCarToken.getAddress(),
+    await rentalityCurrencyConverter.getAddress(),
+    await rentalityTripService.getAddress(),
     await rentalityUserService.getAddress(),
     await rentalityPlatform.getAddress(),
     await rentalityPaymentService.getAddress(),
+    await claimService.getAddress(),
   ])
   await rentalityAdminGateway.waitForDeployment()
 

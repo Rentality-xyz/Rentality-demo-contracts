@@ -13,6 +13,7 @@ import './RentalityUserService.sol';
 import './RentalityPlatform.sol';
 import './RentalityPaymentService.sol';
 import './Schemas.sol';
+import "./RentalityAdminGateway.sol";
 
 /// @title RentalityGateway
 /// @notice The main gateway contract that connects various services in the Rentality platform.
@@ -31,6 +32,7 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
   RentalityPlatform private rentalityPlatform;
   RentalityPaymentService private paymentService;
   RentalityClaimService private claimService;
+  RentalityAdminGateway private adminService;
 
   /// @notice Ensures that the caller is either an admin, the contract owner, or an admin from the origin transaction.
   modifier onlyAdmin() {
@@ -59,64 +61,28 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
     _;
   }
 
-  /// @notice Retrieves the address of the RentalityCarToken contract.
-  /// @return The address of the RentalityCarToken contract.
-  function getCarServiceAddress() public view returns (address) {
-    return address(carService);
-  }
+  /// @dev Updates the addresses of various services used in the Rentality platform.
+///
+/// This function retrieves the actual service addresses from the `adminService` and updates
+/// the contract's state variables with these addresses. The services include:
+/// - Car Token Service
+/// - Currency Converter Service
+/// - Trip Service
+/// - User Service
+/// - Platform Service
+/// - Payment Service
+/// - Claim Service
+///
+/// This function should be called whenever the addresses of the services change.
+  function updateServiceAddresses() public {
 
-  /// @notice Updates the address of the RentalityCarToken contract. Only callable by admins.
-  /// @param contractAddress The new address of the RentalityCarToken contract.
-  function updateCarService(address contractAddress) public onlyAdmin {
-    carService = RentalityCarToken(contractAddress);
-  }
-
-  /// @notice Retrieves the address of the RentalityPlatform contract.
-  /// @return The address of the RentalityPlatform contract.
-  function getRentalityPlatformAddress() public view returns (address) {
-    return address(rentalityPlatform);
-  }
-
-  /// @notice Updates the address of the RentalityPlatform contract. Only callable by admins.
-  /// @param contractAddress The new address of the RentalityPlatform contract.
-  function updateRentalityPlatform(address contractAddress) public onlyAdmin {
-    rentalityPlatform = RentalityPlatform(contractAddress);
-  }
-
-  /// @notice Retrieves the address of the RentalityCurrencyConverter contract.
-  /// @return The address of the RentalityCurrencyConverter contract.
-  function getCurrencyConverterServiceAddress() public view returns (address) {
-    return address(currencyConverterService);
-  }
-
-  /// @notice Updates the address of the RentalityCurrencyConverter contract. Only callable by admins.
-  /// @param contractAddress The new address of the RentalityCurrencyConverter contract.
-  function updateCurrencyConverterService(address contractAddress) public onlyAdmin {
-    currencyConverterService = RentalityCurrencyConverter(contractAddress);
-  }
-
-  /// @notice Retrieves the address of the RentalityTripService contract.
-  /// @return The address of the RentalityTripService contract.
-  function getTripServiceAddress() public view returns (address) {
-    return address(tripService);
-  }
-
-  /// @notice Updates the address of the RentalityTripService contract. Only callable by admins.
-  /// @param contractAddress The new address of the RentalityTripService contract.
-  function updateTripService(address contractAddress) public onlyAdmin {
-    tripService = RentalityTripService(contractAddress);
-  }
-
-  /// @notice Retrieves the address of the RentalityUserService contract.
-  /// @return The address of the RentalityUserService contract.
-  function getUserServiceAddress() public view returns (address) {
-    return address(userService);
-  }
-
-  /// @notice Updates the address of the RentalityUserService contract. Only callable by admins.
-  /// @param contractAddress The new address of the RentalityUserService contract.
-  function updateUserService(address contractAddress) public onlyAdmin {
-    userService = RentalityUserService(contractAddress);
+    carService = RentalityCarToken(adminService.getCarServiceAddress());
+    currencyConverterService = RentalityCurrencyConverter(adminService.getCurrencyConverterServiceAddress());
+    tripService = RentalityTripService(adminService.getTripServiceAddress());
+    userService = RentalityUserService(adminService.getTripServiceAddress());
+    rentalityPlatform = RentalityPlatform(adminService.getUserServiceAddress());
+    paymentService = RentalityPaymentService(adminService.getPaymentService());
+    claimService = RentalityClaimService(adminService.getClaimServiceAddress());
   }
 
   /// @notice Retrieves the platform fee in parts per million (PPM).

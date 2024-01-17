@@ -9,7 +9,7 @@ const {
   getEmptySearchCarParams,
   createMockClaimRequest,
   deployDefaultFixture,
-} = require('./utils')
+} = require('../utils')
 
 describe('Rentality History Service', function () {
   let rentalityPlatform,
