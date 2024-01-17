@@ -1,0 +1,94 @@
+const { expect } = require('chai')
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
+
+const { getMockCarRequest } = require('../utils')
+const { deployFixtureWith1Car, deployDefaultFixture } = require('./deployments')
+
+describe('RentalityCarToken: deployment and update', function () {
+  it('Should set the right owner', async function () {
+    const { rentalityCarToken, owner } = await loadFixture(deployDefaultFixture)
+
+    expect(await rentalityCarToken.owner()).to.equal(owner.address)
+  })
+
+  it("Shouldn't contain tokens when deployed", async function () {
+    const { rentalityCarToken } = await loadFixture(deployDefaultFixture)
+
+    expect(await rentalityCarToken.totalSupply()).to.equal(0)
+  })
+
+  it('deployFixtureWith1Car should contain 1 tokens when deployed', async function () {
+    const { rentalityCarToken } = await loadFixture(deployFixtureWith1Car)
+
+    expect(await rentalityCarToken.totalSupply()).to.equal(1)
+  })
+})
+it('Update car without location should work fine', async function () {
+  const { rentalityCarToken } = await loadFixture(deployFixtureWith1Car)
+
+  let request = getMockCarRequest(1)
+  await expect(rentalityCarToken.addCar(request)).not.be.reverted
+
+  let update_params = {
+    carId: 2,
+    pricePerDayInUsdCents: 2,
+    securityDepositPerTripInUsdCents: 2,
+    engineParams: [2],
+    milesIncludedPerDay: 2,
+    timeBufferBetweenTripsInSec: 0,
+    currentlyListed: false,
+  }
+
+  await expect(rentalityCarToken.updateCarInfo(update_params, '', '')).not.be.reverted
+
+  let car_info = await rentalityCarToken.getCarInfoById(2)
+
+  expect(car_info.pricePerDayInUsdCents).to.be.equal(update_params.pricePerDayInUsdCents)
+  expect(car_info.securityDepositPerTripInUsdCents).to.be.equal(update_params.securityDepositPerTripInUsdCents)
+  expect(car_info.engineParams[1]).to.be.equal(update_params.engineParams[0])
+  expect(car_info.milesIncludedPerDay).to.be.equal(update_params.milesIncludedPerDay)
+})
+it('Update car with location, but without api should revert', async function () {
+  const { rentalityCarToken } = await loadFixture(deployFixtureWith1Car)
+
+  let request = getMockCarRequest(1)
+  await expect(rentalityCarToken.addCar(request)).not.be.reverted
+
+  let update_params = {
+    carId: 2,
+    pricePerDayInUsdCents: 2,
+    securityDepositPerTripInUsdCents: 2,
+    engineParams: [2],
+    milesIncludedPerDay: 2,
+    timeBufferBetweenTripsInSec: 0,
+    currentlyListed: false,
+  }
+
+  await expect(rentalityCarToken.updateCarInfo(update_params, 'location', '')).to.be.reverted
+})
+it('Update with location should pass locationVarification param to false', async function () {
+  const { rentalityCarToken, rentalityGeoService } = await loadFixture(deployFixtureWith1Car)
+
+  let request = getMockCarRequest(1)
+  await expect(rentalityCarToken.addCar(request)).not.be.reverted
+
+  let update_params = {
+    carId: 2,
+    pricePerDayInUsdCents: 2,
+    securityDepositPerTripInUsdCents: 2,
+    engineParams: [2],
+    timeBufferBetweenTripsInSec: 0,
+    milesIncludedPerDay: 2,
+    currentlyListed: false,
+  }
+
+  await rentalityGeoService.setCarCoordinateValidity(2, true) // mock
+
+  await expect(rentalityCarToken.verifyGeo(2)).to.not.reverted
+
+  await expect(rentalityCarToken.updateCarInfo(update_params, 'location', 'geoApi')).to.not.reverted
+
+  let car_info = await rentalityCarToken.getCarInfoById(2)
+
+  expect(car_info.geoVerified).to.be.equal(false)
+})

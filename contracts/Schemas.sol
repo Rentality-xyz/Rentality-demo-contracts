@@ -21,6 +21,7 @@ interface Schemas {
     uint32 timeBufferBetweenTripsInSec;
     bool currentlyListed;
     bool geoVerified;
+    string timeZoneId;
   }
 
   /// @notice Struct to store input parameters for creating a new car.
@@ -36,7 +37,7 @@ interface Schemas {
     uint8 engineType;
     uint64 milesIncludedPerDay;
     uint32 timeBufferBetweenTripsInSec;
-    string locationAddress;
+    string location;
     string geoApiKey;
   }
 
@@ -230,6 +231,7 @@ interface Schemas {
     string city;
     string state;
     string country;
+    string timeZoneId;
   }
 
   /// Payments
