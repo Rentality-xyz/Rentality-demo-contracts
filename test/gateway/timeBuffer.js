@@ -59,7 +59,7 @@ describe('RentalityGateway: time buffer', function () {
       engineType: 1,
       milesIncludedPerDay: 10,
       timeBufferBetweenTripsInSec: oneDayInSec * 2,
-      locationAddress: 'location',
+      location: 'location',
       geoApiKey: 'key',
     }
 
@@ -117,7 +117,7 @@ describe('RentalityGateway: time buffer', function () {
       engineType: 1,
       milesIncludedPerDay: 10,
       timeBufferBetweenTripsInSec: oneDayInSec,
-      locationAddress: 'location',
+      location: 'location',
       geoApiKey: 'key',
     }
 
@@ -176,7 +176,7 @@ describe('RentalityGateway: time buffer', function () {
       engineType: 1,
       milesIncludedPerDay: 10,
       timeBufferBetweenTripsInSec: oneDayInSec,
-      locationAddress: 'location',
+      location: 'location',
       geoApiKey: 'key',
     }
 
@@ -245,7 +245,7 @@ describe('RentalityGateway: time buffer', function () {
       engineType: 1,
       milesIncludedPerDay: 10,
       timeBufferBetweenTripsInSec: oneDayInSec,
-      locationAddress: 'location',
+      location: 'location',
       geoApiKey: 'key',
     }
 

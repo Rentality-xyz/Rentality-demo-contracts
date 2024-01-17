@@ -10,42 +10,42 @@ async function main() {
   if (chainId < 0) throw new Error('chainId is not set')
 
   const rentalityUtilsAddress = checkNotNull(
-    getContractAddress('RentalityUtils', 'scripts/deploy_1a_RentalityUtils.js'),
+    getContractAddress('RentalityUtils', 'scripts/deploy_1a_RentalityUtils.js', chainId),
     'RentalityUtils'
   )
 
   const rentalityUserServiceAddress = checkNotNull(
-    getContractAddress('RentalityUserService', 'scripts/deploy_1b_RentalityUserService.js'),
+    getContractAddress('RentalityUserService', 'scripts/deploy_1b_RentalityUserService.js', chainId),
     'RentalityUserService'
   )
 
   const rentalityClaimService = checkNotNull(
-    getContractAddress('RentalityClaimService', 'scripts/deploy_2a_RentalityClaimService.js'),
+    getContractAddress('RentalityClaimService', 'scripts/deploy_2a_RentalityClaimService.js', chainId),
     'RentalityClaimService'
   )
 
   const rentalityCurrencyConverterAddress = checkNotNull(
-    getContractAddress('RentalityCurrencyConverter', 'scripts/deploy_2c_RentalityCurrencyConverter.js'),
+    getContractAddress('RentalityCurrencyConverter', 'scripts/deploy_2c_RentalityCurrencyConverter.js', chainId),
     'RentalityCurrencyConverter'
   )
 
   const rentalityPaymentServiceAddress = checkNotNull(
-    getContractAddress('RentalityPaymentService', 'scripts/deploy_2d_RentalityPaymentService.js'),
+    getContractAddress('RentalityPaymentService', 'scripts/deploy_2d_RentalityPaymentService.js', chainId),
     'RentalityPaymentService'
   )
 
   const rentalityCarTokenAddress = checkNotNull(
-    getContractAddress('RentalityCarToken', 'scripts/deploy_3_RentalityCarToken.js'),
+    getContractAddress('RentalityCarToken', 'scripts/deploy_3_RentalityCarToken.js', chainId),
     'RentalityCarToken'
   )
 
   const rentalityTripServiceAddress = checkNotNull(
-    getContractAddress('RentalityTripService', 'scripts/deploy_4_RentalityTripService.js'),
+    getContractAddress('RentalityTripService', 'scripts/deploy_4_RentalityTripService.js', chainId),
     'RentalityTripService'
   )
 
   const rentalityPlatformAddress = checkNotNull(
-    getContractAddress('RentalityPlatform', 'scripts/deploy_5_RentalityPlatform.js'),
+    getContractAddress('RentalityPlatform', 'scripts/deploy_5_RentalityPlatform.js', chainId),
     'RentalityPlatform'
   )
 
@@ -66,7 +66,7 @@ async function main() {
   const contractAddress = await contract.getAddress()
 
   console.log(`${contractName} was deployed to: ${contractAddress}`)
-  addressSaver(contractAddress, contractName, true)
+  addressSaver(contractAddress, contractName, true, chainId)
   await saveJsonAbi(contractName, chainId, contract)
   console.log()
 }
