@@ -352,7 +352,11 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
 
     Schemas.CarInfo memory car = carService.getCarInfoById(idToTripInfo[tripId].carId);
 
-    (uint64 resolveMilesAmountInUsdCents, uint64 resolveFuelAmountInUsdCents) = getResolveAmountInUsdCents(car.engineType, idToTripInfo[tripId], car.engineParams);
+    (uint64 resolveMilesAmountInUsdCents, uint64 resolveFuelAmountInUsdCents) = getResolveAmountInUsdCents(
+      car.engineType,
+      idToTripInfo[tripId],
+      car.engineParams
+    );
     idToTripInfo[tripId].paymentInfo.resolveMilesAmountInUsdCents = resolveMilesAmountInUsdCents;
     idToTripInfo[tripId].paymentInfo.resolveFuelAmountInUsdCents = resolveFuelAmountInUsdCents;
 
@@ -380,17 +384,16 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
 
     return
       engineService.getResolveAmountInUsdCents(
-      eType,
-      tripInfo.fuelPrices,
-      tripInfo.startParamLevels,
-      tripInfo.endParamLevels,
-      engineParams,
-      tripInfo.milesIncludedPerDay,
-      tripInfo.pricePerDayInUsdCents,
-      tripDays
-    );
+        eType,
+        tripInfo.fuelPrices,
+        tripInfo.startParamLevels,
+        tripInfo.endParamLevels,
+        engineParams,
+        tripInfo.milesIncludedPerDay,
+        tripInfo.pricePerDayInUsdCents,
+        tripDays
+      );
   }
-
 
   /// @dev Function to save transaction information for a finished trip.
   /// @param tripId Trip ID for which the transaction information is saved.

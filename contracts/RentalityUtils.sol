@@ -664,7 +664,6 @@ library RentalityUtils {
     return claimInfos;
   }
 
-
   /// @notice Checks if a car is available for a specific user based on search parameters.
   /// @dev Determines availability based on several conditions, including ownership and search parameters.
   /// @param carId The ID of the car being checked.

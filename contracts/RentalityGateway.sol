@@ -13,7 +13,7 @@ import './RentalityUserService.sol';
 import './RentalityPlatform.sol';
 import './RentalityPaymentService.sol';
 import './Schemas.sol';
-import "./RentalityAdminGateway.sol";
+import './RentalityAdminGateway.sol';
 
 /// @title RentalityGateway
 /// @notice The main gateway contract that connects various services in the Rentality platform.
@@ -62,20 +62,19 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
   }
 
   /// @dev Updates the addresses of various services used in the Rentality platform.
-///
-/// This function retrieves the actual service addresses from the `adminService` and updates
-/// the contract's state variables with these addresses. The services include:
-/// - Car Token Service
-/// - Currency Converter Service
-/// - Trip Service
-/// - User Service
-/// - Platform Service
-/// - Payment Service
-/// - Claim Service
-///
-/// This function should be called whenever the addresses of the services change.
+  ///
+  /// This function retrieves the actual service addresses from the `adminService` and updates
+  /// the contract's state variables with these addresses. The services include:
+  /// - Car Token Service
+  /// - Currency Converter Service
+  /// - Trip Service
+  /// - User Service
+  /// - Platform Service
+  /// - Payment Service
+  /// - Claim Service
+  ///
+  /// This function should be called whenever the addresses of the services change.
   function updateServiceAddresses() public {
-
     carService = RentalityCarToken(adminService.getCarServiceAddress());
     currencyConverterService = RentalityCurrencyConverter(adminService.getCurrencyConverterServiceAddress());
     tripService = RentalityTripService(adminService.getTripServiceAddress());
@@ -452,7 +451,8 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
     address userServiceAddress,
     address rentalityPlatformAddress,
     address paymentServiceAddress,
-    address claimServiceAddress
+    address claimServiceAddress,
+    address rentalityAdminGatewayAddress
   ) public initializer {
     carService = RentalityCarToken(carServiceAddress);
     currencyConverterService = RentalityCurrencyConverter(currencyConverterServiceAddress);
@@ -461,6 +461,7 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
     rentalityPlatform = RentalityPlatform(rentalityPlatformAddress);
     paymentService = RentalityPaymentService(paymentServiceAddress);
     claimService = RentalityClaimService(claimServiceAddress);
+    adminService = RentalityAdminGateway(rentalityAdminGatewayAddress);
 
     __Ownable_init();
   }

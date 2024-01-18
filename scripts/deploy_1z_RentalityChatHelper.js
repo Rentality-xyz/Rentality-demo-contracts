@@ -9,7 +9,7 @@ async function main() {
 
   if (chainId < 0) throw new Error('chainId is not set')
 
-  const userService = getContractAddress('RentalityUserService', 'scripts/deploy_1b_RentalityUserService.js')
+  const userService = getContractAddress('RentalityUserService', 'scripts/deploy_1b_RentalityUserService.js', chainId)
 
   const contractFactory = await ethers.getContractFactory(contractName)
   const contract = await upgrades.deployProxy(contractFactory, [userService])

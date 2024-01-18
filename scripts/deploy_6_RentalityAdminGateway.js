@@ -5,14 +5,9 @@ const addressSaver = require('./utils/addressSaver')
 const { checkNotNull, startDeploy } = require('./utils/deployHelper')
 
 async function main() {
-  const { contractName, chainId } = await startDeploy('RentalityGateway')
+  const { contractName, chainId } = await startDeploy('RentalityAdminGateway')
 
   if (chainId < 0) throw new Error('chainId is not set')
-
-  const rentalityUtilsAddress = checkNotNull(
-    getContractAddress('RentalityUtils', 'scripts/deploy_1a_RentalityUtils.js', chainId),
-    'RentalityUtils'
-  )
 
   const rentalityUserServiceAddress = checkNotNull(
     getContractAddress('RentalityUserService', 'scripts/deploy_1b_RentalityUserService.js', chainId),
@@ -49,9 +44,7 @@ async function main() {
     'RentalityPlatform'
   )
 
-  const contractFactory = await ethers.getContractFactory(contractName, {
-    libraries: { RentalityUtils: rentalityUtilsAddress },
-  })
+  const contractFactory = await ethers.getContractFactory(contractName)
 
   const contract = await upgrades.deployProxy(contractFactory, [
     rentalityCarTokenAddress,
@@ -62,6 +55,7 @@ async function main() {
     rentalityPaymentServiceAddress,
     rentalityClaimService,
   ])
+
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()
 

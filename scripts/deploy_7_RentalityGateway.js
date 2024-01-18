@@ -5,13 +5,28 @@ const addressSaver = require('./utils/addressSaver')
 const { checkNotNull, startDeploy } = require('./utils/deployHelper')
 
 async function main() {
-  const { contractName, chainId } = await startDeploy('RentalityAdminGateway')
+  const { contractName, chainId } = await startDeploy('RentalityGateway')
 
   if (chainId < 0) throw new Error('chainId is not set')
+
+  const rentalityUtilsAddress = checkNotNull(
+    getContractAddress('RentalityUtils', 'scripts/deploy_1a_RentalityUtils.js', chainId),
+    'RentalityUtils'
+  )
 
   const rentalityUserServiceAddress = checkNotNull(
     getContractAddress('RentalityUserService', 'scripts/deploy_1b_RentalityUserService.js', chainId),
     'RentalityUserService'
+  )
+
+  const rentalityClaimService = checkNotNull(
+    getContractAddress('RentalityClaimService', 'scripts/deploy_2a_RentalityClaimService.js', chainId),
+    'RentalityClaimService'
+  )
+
+  const rentalityCurrencyConverterAddress = checkNotNull(
+    getContractAddress('RentalityCurrencyConverter', 'scripts/deploy_2c_RentalityCurrencyConverter.js', chainId),
+    'RentalityCurrencyConverter'
   )
 
   const rentalityPaymentServiceAddress = checkNotNull(
@@ -19,16 +34,39 @@ async function main() {
     'RentalityPaymentService'
   )
 
+  const rentalityCarTokenAddress = checkNotNull(
+    getContractAddress('RentalityCarToken', 'scripts/deploy_3_RentalityCarToken.js', chainId),
+    'RentalityCarToken'
+  )
+
+  const rentalityTripServiceAddress = checkNotNull(
+    getContractAddress('RentalityTripService', 'scripts/deploy_4_RentalityTripService.js', chainId),
+    'RentalityTripService'
+  )
+
   const rentalityPlatformAddress = checkNotNull(
     getContractAddress('RentalityPlatform', 'scripts/deploy_5_RentalityPlatform.js', chainId),
     'RentalityPlatform'
   )
 
-  const contractFactory = await ethers.getContractFactory(contractName)
+  const rentalityAdminGatewayAddress = checkNotNull(
+    getContractAddress('RentalityAdminGateway', 'scripts/deploy_6_RentalityAdminGateway.js', chainId),
+    'RentalityAdminGateway'
+  )
+
+  const contractFactory = await ethers.getContractFactory(contractName, {
+    libraries: { RentalityUtils: rentalityUtilsAddress },
+  })
+
   const contract = await upgrades.deployProxy(contractFactory, [
+    rentalityCarTokenAddress,
+    rentalityCurrencyConverterAddress,
+    rentalityTripServiceAddress,
     rentalityUserServiceAddress,
     rentalityPlatformAddress,
     rentalityPaymentServiceAddress,
+    rentalityClaimService,
+    rentalityAdminGatewayAddress,
   ])
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()
