@@ -51,72 +51,77 @@ describe('RentalityGateway: update fields', function () {
   })
 
   it('should allow only admin to update car service address', async function () {
-    await expect(rentalityGateway.connect(guest).updateCarService(await rentalityCarToken.getAddress())).to.be.reverted
-
-    await expect(rentalityGateway.connect(host).updateCarService(await rentalityCarToken.getAddress())).to.be.reverted
-
-    await expect(rentalityGateway.connect(anonymous).updateCarService(await rentalityCarToken.getAddress())).to.be
+    await expect(rentalityAdminGateway.connect(guest).updateCarService(await rentalityCarToken.getAddress())).to.be
       .reverted
 
-    await expect(rentalityGateway.connect(admin).updateCarService(await rentalityCarToken.getAddress())).not.be.reverted
+    await expect(rentalityAdminGateway.connect(host).updateCarService(await rentalityCarToken.getAddress())).to.be
+      .reverted
+
+    await expect(rentalityAdminGateway.connect(anonymous).updateCarService(await rentalityCarToken.getAddress())).to.be
+      .reverted
+
+    await expect(rentalityAdminGateway.connect(admin).updateCarService(await rentalityCarToken.getAddress())).not.be
+      .reverted
   })
   it('should allow only admin to update rentality platform address', async function () {
-    await expect(rentalityGateway.connect(guest).updateRentalityPlatform(await rentalityPlatform.getAddress())).to.be
-      .reverted
-
-    await expect(rentalityGateway.connect(host).updateRentalityPlatform(await rentalityPlatform.getAddress())).to.be
-      .reverted
-
-    await expect(rentalityGateway.connect(anonymous).updateRentalityPlatform(await rentalityPlatform.getAddress())).to
+    await expect(rentalityAdminGateway.connect(guest).updateRentalityPlatform(await rentalityPlatform.getAddress())).to
       .be.reverted
 
-    await expect(rentalityGateway.connect(admin).updateRentalityPlatform(await rentalityPlatform.getAddress())).not.be
-      .reverted
+    await expect(rentalityAdminGateway.connect(host).updateRentalityPlatform(await rentalityPlatform.getAddress())).to
+      .be.reverted
+
+    await expect(rentalityAdminGateway.connect(anonymous).updateRentalityPlatform(await rentalityPlatform.getAddress()))
+      .to.be.reverted
+
+    await expect(rentalityAdminGateway.connect(admin).updateRentalityPlatform(await rentalityPlatform.getAddress())).not
+      .be.reverted
   })
 
   it('should allow only admin to update currency converter service address', async function () {
     await expect(
-      rentalityGateway.connect(guest).updateCurrencyConverterService(await rentalityCurrencyConverter.getAddress())
+      rentalityAdminGateway.connect(guest).updateCurrencyConverterService(await rentalityCurrencyConverter.getAddress())
     ).to.be.reverted
 
     await expect(
-      rentalityGateway.connect(host).updateCurrencyConverterService(await rentalityCurrencyConverter.getAddress())
+      rentalityAdminGateway.connect(host).updateCurrencyConverterService(await rentalityCurrencyConverter.getAddress())
     ).to.be.reverted
 
     await expect(
-      rentalityGateway.connect(anonymous).updateCurrencyConverterService(await rentalityCurrencyConverter.getAddress())
+      rentalityAdminGateway
+        .connect(anonymous)
+        .updateCurrencyConverterService(await rentalityCurrencyConverter.getAddress())
     ).to.be.reverted
 
     await expect(
-      rentalityGateway.connect(admin).updateCurrencyConverterService(await rentalityCurrencyConverter.getAddress())
+      rentalityAdminGateway.connect(admin).updateCurrencyConverterService(await rentalityCurrencyConverter.getAddress())
     ).not.be.reverted
   })
 
   it('should allow only admin to update trip service address', async function () {
-    await expect(rentalityGateway.connect(admin).updateTripService(await rentalityTripService.getAddress())).not.be
+    await expect(rentalityAdminGateway.connect(admin).updateTripService(await rentalityTripService.getAddress())).not.be
       .reverted
 
-    await expect(rentalityGateway.connect(host).updateTripService(await rentalityTripService.getAddress())).to.be
+    await expect(rentalityAdminGateway.connect(host).updateTripService(await rentalityTripService.getAddress())).to.be
       .reverted
 
-    await expect(rentalityGateway.connect(guest).updateTripService(await rentalityTripService.getAddress())).to.be
+    await expect(rentalityAdminGateway.connect(guest).updateTripService(await rentalityTripService.getAddress())).to.be
       .reverted
 
-    await expect(rentalityGateway.connect(anonymous).updateTripService(await rentalityTripService.getAddress())).to.be
-      .reverted
+    await expect(rentalityAdminGateway.connect(anonymous).updateTripService(await rentalityTripService.getAddress())).to
+      .be.reverted
   })
 
   it('should allow only admin to update user service address', async function () {
-    await expect(rentalityGateway.connect(anonymous).updateUserService(await rentalityUserService.getAddress())).to.be
+    await expect(rentalityAdminGateway.connect(anonymous).updateUserService(await rentalityUserService.getAddress())).to
+      .be.reverted
+
+    await expect(rentalityAdminGateway.connect(host).updateUserService(await rentalityUserService.getAddress())).to.be
       .reverted
 
-    await expect(rentalityGateway.connect(host).updateUserService(await rentalityUserService.getAddress())).to.be
+    await expect(rentalityAdminGateway.connect(guest).updateUserService(await rentalityUserService.getAddress())).to.be
       .reverted
 
-    await expect(rentalityGateway.connect(guest).updateUserService(await rentalityUserService.getAddress())).to.be
-      .reverted
-
-    await expect(rentalityGateway.connect(admin).updateUserService(await rentalityUserService.getAddress())).not.be
+    await expect(rentalityAdminGateway.connect(admin).updateUserService(await rentalityUserService.getAddress())).not.be
       .reverted
   })
 
