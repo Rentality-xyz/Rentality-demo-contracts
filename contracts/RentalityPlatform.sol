@@ -235,20 +235,6 @@ contract RentalityPlatform is UUPSOwnable {
       trip.paymentInfo.taxPriceInUsdCents +
       trip.paymentInfo.depositInUsdCents;
 
-    uint64 subtractAmount;
-    if (trip.status == Schemas.TripStatus.Approved) {
-      subtractAmount = trip.pricePerDayInUsdCents / 2;
-    } else if (trip.status == Schemas.TripStatus.CheckedInByHost) {
-      subtractAmount = trip.pricePerDayInUsdCents;
-    } else {
-      subtractAmount = 0;
-    }
-
-    uint32 platformFeeInPPM = paymentService.getPlatformFeeInPPM();
-    uint64 platformFee = (subtractAmount * platformFeeInPPM) / 1000000;
-    uint64 returnToHost = subtractAmount - platformFee;
-
-    valueToReturnInUsdCents -= subtractAmount;
 
     uint256 valueToReturnInEth = currencyConverterService.getEthFromUsd(
       valueToReturnInUsdCents,
@@ -259,15 +245,6 @@ contract RentalityPlatform is UUPSOwnable {
     (bool successGuest, ) = payable(trip.guest).call{value: valueToReturnInEth}('');
     require(successGuest, 'Transfer to guest failed.');
 
-    if (returnToHost > 0) {
-      uint256 returnToHostInEth = currencyConverterService.getEthFromUsd(
-        returnToHost,
-        trip.paymentInfo.ethToCurrencyRate,
-        trip.paymentInfo.ethToCurrencyDecimals
-      );
-      (bool successHost, ) = payable(trip.host).call{value: returnToHostInEth}('');
-      require(successHost, 'Transfer to host failed.');
-    }
   }
 
   /// @notice Finish a trip on the Rentality platform.
