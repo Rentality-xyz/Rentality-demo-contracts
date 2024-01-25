@@ -13,16 +13,15 @@ async function deployDefaultFixture() {
 
   const RentalityMockPriceFeed = await ethers.getContractFactory('RentalityMockPriceFeed')
   const RentalityUserService = await ethers.getContractFactory('RentalityUserService')
-  const RentalityTripService = await ethers.getContractFactory('RentalityTripService'
-  , {
-  libraries: {RentalityUtils: await utils.getAddress()},
+  const RentalityTripService = await ethers.getContractFactory('RentalityTripService', {
+    libraries: { RentalityUtils: await utils.getAddress() },
   })
   const RentalityCurrencyConverter = await ethers.getContractFactory('RentalityCurrencyConverter')
   const RentalityPaymentService = await ethers.getContractFactory('RentalityPaymentService')
   const RentalityGeoService = await ethers.getContractFactory('RentalityGeoMock')
 
-  const RentalityCarToken = await ethers.getContractFactory('RentalityCarToken'  , {
-    libraries: {RentalityUtils: await utils.getAddress()},
+  const RentalityCarToken = await ethers.getContractFactory('RentalityCarToken', {
+    libraries: { RentalityUtils: await utils.getAddress() },
   })
   const RentalityPlatform = await ethers.getContractFactory('RentalityPlatform', {
     libraries: {
@@ -68,11 +67,11 @@ async function deployDefaultFixture() {
   const rentalityGeoService = await RentalityGeoService.deploy()
   await rentalityGeoService.waitForDeployment()
 
-  const rentalityCarToken = await upgrades.deployProxy(
-    RentalityCarToken,
-    [await rentalityGeoService.getAddress(), await engineService.getAddress()],
-    { kind: 'uups' }
-  )
+  const rentalityCarToken = await upgrades.deployProxy(RentalityCarToken, [
+    await rentalityGeoService.getAddress(),
+    await engineService.getAddress(),
+    await rentalityUserService.getAddress(),
+  ])
 
   await rentalityCarToken.waitForDeployment()
 
@@ -109,6 +108,9 @@ async function deployDefaultFixture() {
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityTripService.getAddress())
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityCarToken.getAddress())
   await rentalityUserService.connect(owner).grantManagerRole(await engineService.getAddress())
+
+  await rentalityUserService.connect(host).setKYCInfo(' ', ' ', ' ', ' ', ' ', 1, true, true)
+  await rentalityUserService.connect(guest).setKYCInfo(' ', ' ', ' ', ' ', ' ', 1, true, true)
 
   return {
     rentalityMockPriceFeed,
