@@ -243,7 +243,9 @@ interface Schemas {
     uint checkedInByHostDateTime;
     uint64[] startParamLevels;
     uint checkedInByGuestDateTime;
+    address tripStartedBy;
     uint checkedOutByGuestDateTime;
+    address tripFinishedBy;
     uint64[] endParamLevels;
     uint checkedOutByHostDateTime;
   }
@@ -265,5 +267,18 @@ interface Schemas {
     string licenseNumber;
     uint64 expirationDate;
     uint createDate;
+  }
+
+  /// Automation
+
+  struct AutomationData {
+    uint256 tripId;
+    uint256 whenToCallInSec;
+    AutomationType aType;
+  }
+  enum AutomationType {
+    Rejection,
+    StartTrip,
+    FinishTrip
   }
 }

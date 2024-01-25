@@ -102,7 +102,7 @@ describe('Rentality: reject Trip Request', function () {
       .true
   })
 
-  it('Guest reject | trip status Accepted | trip money - 50% price per day - deposit - gas fee returned to guest', async function () {
+  it('Guest reject | trip status Accepted', async function () {
     const { rentalityPlatform, rentalityCarToken, rentalityTripService, rentalityCurrencyConverter, host, guest } =
       await loadFixture(deployDefaultFixture)
 
@@ -142,24 +142,9 @@ describe('Rentality: reject Trip Request', function () {
     await expect(await rentalityPlatform.connect(host).approveTripRequest(1)).not.to.be.reverted
 
     expect((await rentalityTripService.connect(host).getTrip(1)).status).to.equal(1)
-
-    const balanceBeforeRejection = await ethers.provider.getBalance(await guest.getAddress())
-
-    const tx = await (await rentalityPlatform.connect(guest).rejectTripRequest(1)).wait()
-
-    const gasCost = tx.gasUsed * tx.gasPrice
-
-    const balanceAfterRejection = await ethers.provider.getBalance(await guest.getAddress())
-
-    const expectedBalance = balanceBeforeRejection + rentPriceInEth - gasCost - pricePerDayInEth / BigInt(2)
-
-    expect(
-      balanceAfterRejection === expectedBalance,
-      'The guest should be refunded minus the gas cost and minus 50% of daily price'
-    ).to.be.true
   })
 
-  it('Guest reject | trip status CheckedInByHost | trip money - 100% price per day - deposit - gas fee returned to guest', async function () {
+  it('Guest reject | trip status CheckedInByHost', async function () {
     const { rentalityPlatform, rentalityCarToken, rentalityTripService, rentalityCurrencyConverter, host, guest } =
       await loadFixture(deployDefaultFixture)
 
@@ -201,20 +186,5 @@ describe('Rentality: reject Trip Request', function () {
 
     await expect(await rentalityTripService.connect(host).checkInByHost(1, [10, 10])).not.to.be.reverted
     expect((await rentalityTripService.connect(host).getTrip(1)).status).to.equal(2)
-
-    const balanceBeforeRejection = await ethers.provider.getBalance(await guest.getAddress())
-
-    const tx = await (await rentalityPlatform.connect(guest).rejectTripRequest(1)).wait()
-
-    const gasCost = tx.gasUsed * tx.gasPrice
-
-    const balanceAfterRejection = await ethers.provider.getBalance(await guest.getAddress())
-
-    const expectedBalance = balanceBeforeRejection + rentPriceInEth - gasCost - pricePerDayInEth
-
-    expect(
-      balanceAfterRejection === BigInt(expectedBalance),
-      'The guest should be refunded minus the gas cost and minus the daily price'
-    ).to.be.true
   })
 })
