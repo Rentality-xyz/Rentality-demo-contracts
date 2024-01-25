@@ -13,16 +13,15 @@ async function deployDefaultFixture() {
 
   const RentalityMockPriceFeed = await ethers.getContractFactory('RentalityMockPriceFeed')
   const RentalityUserService = await ethers.getContractFactory('RentalityUserService')
-  const RentalityTripService = await ethers.getContractFactory('RentalityTripService'
-  , {
-  libraries: {RentalityUtils: await utils.getAddress()},
+  const RentalityTripService = await ethers.getContractFactory('RentalityTripService', {
+    libraries: { RentalityUtils: await utils.getAddress() },
   })
   const RentalityCurrencyConverter = await ethers.getContractFactory('RentalityCurrencyConverter')
   const RentalityPaymentService = await ethers.getContractFactory('RentalityPaymentService')
   const RentalityGeoService = await ethers.getContractFactory('RentalityGeoMock')
 
-  const RentalityCarToken = await ethers.getContractFactory('RentalityCarToken'  , {
-    libraries: {RentalityUtils: await utils.getAddress()},
+  const RentalityCarToken = await ethers.getContractFactory('RentalityCarToken', {
+    libraries: { RentalityUtils: await utils.getAddress() },
   })
   const RentalityPlatform = await ethers.getContractFactory('RentalityPlatform', {
     libraries: {
@@ -80,12 +79,19 @@ async function deployDefaultFixture() {
     await rentalityUserService.getAddress(),
   ])
 
+  const AutomationService = await ethers.getContractFactory('RentalityAutomation')
+  const rentalityAutomationService = await upgrades.deployProxy(AutomationService, [
+    await rentalityUserService.getAddress(),
+  ])
+  await rentalityAutomationService.waitForDeployment()
+
   const rentalityTripService = await upgrades.deployProxy(RentalityTripService, [
     await rentalityCurrencyConverter.getAddress(),
     await rentalityCarToken.getAddress(),
     await rentalityPaymentService.getAddress(),
     await rentalityUserService.getAddress(),
     await engineService.getAddress(),
+    await rentalityAutomationService.getAddress(),
   ])
 
   await rentalityTripService.waitForDeployment()
@@ -100,6 +106,7 @@ async function deployDefaultFixture() {
     await rentalityUserService.getAddress(),
     await rentalityPaymentService.getAddress(),
     await claimService.getAddress(),
+    await rentalityAutomationService.getAddress(),
   ])
 
   await rentalityPlatform.waitForDeployment()
@@ -148,6 +155,7 @@ async function deployFixtureWithUsers() {
     anonymous,
   }
 }
+
 module.exports = {
   deployDefaultFixture,
   deployFixtureWithUsers,
