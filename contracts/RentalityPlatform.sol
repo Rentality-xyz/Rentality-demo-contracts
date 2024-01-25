@@ -118,6 +118,7 @@ contract RentalityPlatform is UUPSOwnable {
   /// @notice Create a new trip request on the Rentality platform.
   /// @param request The details of the trip request as specified in IRentalityGateway.CreateTripRequest.
   function createTripRequest(Schemas.CreateTripRequest memory request) public payable {
+    require(userService.hasPassedKYCAndTC(tx.origin), 'KYC or TC not passed.');
     require(msg.value > 0, 'Rental fee must be greater than 0');
     require(carService.ownerOf(request.carId) != tx.origin, 'Car is not available for creator');
     require(
