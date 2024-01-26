@@ -38,7 +38,7 @@ contract RentalityAutomation is Initializable, UUPSAccess {
   /// @param time The new auto status change time in hours. Must be between 1 and 3.
   /// @notice Only the administrator can call this function.
   function setAutoStatusChangeTime(uint8 time) public onlyAdmin {
-    require(time >= 1 && time <= 3, 'From 1 to 24 h.');
+    require(time >= 1 && time <= 3, 'From 1 to 3 h.');
     autoStatusChangeTimeInHours = time;
   }
 
