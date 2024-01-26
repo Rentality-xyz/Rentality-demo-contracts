@@ -137,14 +137,14 @@ describe('RentalityClaim', function () {
     const rentPriceInUsdCents = 1000
     const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
       await rentalityCurrencyConverter.getEthFromUsdLatest(rentPriceInUsdCents)
-    const oneDayInMilliseconds = 24 * 60 * 60 * 1000
+    const oneDayInSeconds = 24 * 60 * 60
     await expect(
       rentalityGateway.connect(guest).createTripRequest(
         {
           carId: 1,
           host: host.address,
           startDateTime: Date.now(),
-          endDateTime: Date.now() + oneDayInMilliseconds,
+          endDateTime: Date.now() + oneDayInSeconds,
           startLocation: '',
           endLocation: '',
           totalDayPriceInUsdCents: rentPriceInUsdCents,
@@ -183,14 +183,14 @@ describe('RentalityClaim', function () {
     const rentPriceInUsdCents = 1000
     const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
       await rentalityCurrencyConverter.getEthFromUsdLatest(rentPriceInUsdCents)
-    const oneDayInMilliseconds = 24 * 60 * 60 * 1000
+    const oneDayInSeconds = 24 * 60 * 60
     await expect(
       rentalityGateway.connect(guest).createTripRequest(
         {
           carId: 1,
           host: host.address,
           startDateTime: Date.now(),
-          endDateTime: Date.now() + oneDayInMilliseconds,
+          endDateTime: Date.now() + oneDayInSeconds,
           startLocation: '',
           endLocation: '',
           totalDayPriceInUsdCents: rentPriceInUsdCents,

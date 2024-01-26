@@ -107,6 +107,15 @@ abstract contract ARentalityEngine {
   function getParamsAmount() public virtual returns (uint256) {
     return 2;
   }
+
+  function isEmptyParams(uint64[] memory params) public view returns (bool) {
+    for (uint256 i = 0; i < params.length; i++) {
+      if (params[i] != 0) {
+        return false;
+      }
+    }
+    return true;
+  }
   // Internal helper functions
   /// @notice Reverts if the provided condition is not met, indicating incorrect arguments.
   function isCorrectArgs(bool eq) internal pure {

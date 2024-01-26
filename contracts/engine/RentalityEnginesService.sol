@@ -110,6 +110,10 @@ contract RentalityEnginesService is Initializable, UUPSAccess {
     return engineTypeToEngineContract[eType].getParamsAmount();
   }
 
+  function isEmptyParams(uint8 eType, uint64[] memory params) public view returns (bool) {
+    return engineTypeToEngineContract[eType].isEmptyParams(params);
+  }
+
   /// @notice Computes extra costs for a specific engine type.
   /// @param eType The engine type for which to compute extra costs.
   /// @param params An array of uint64 values representing parameters.

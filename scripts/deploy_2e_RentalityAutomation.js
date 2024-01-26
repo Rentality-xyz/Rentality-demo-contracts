@@ -2,14 +2,17 @@ const saveJsonAbi = require('./utils/abiSaver')
 const { ethers, upgrades } = require('hardhat')
 const { getContractAddress } = require('./utils/contractAddress')
 const addressSaver = require('./utils/addressSaver')
-const { startDeploy } = require('./utils/deployHelper')
+const { checkNotNull, startDeploy } = require('./utils/deployHelper')
 
 async function main() {
-  const { contractName, chainId } = await startDeploy('RentalityChatHelper')
+  const { contractName, chainId } = await startDeploy('RentalityAutomation')
 
   if (chainId < 0) throw new Error('chainId is not set')
 
-  const userService = getContractAddress('RentalityUserService', 'scripts/deploy_1b_RentalityUserService.js', chainId)
+  const userService = checkNotNull(
+    getContractAddress('RentalityUserService', 'scripts/deploy_1b_RentalityUserService.js', chainId),
+    'RentalityUserService'
+  )
 
   const contractFactory = await ethers.getContractFactory(contractName)
   const contract = await upgrades.deployProxy(contractFactory, [userService])
