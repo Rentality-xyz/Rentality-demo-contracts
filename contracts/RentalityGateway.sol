@@ -431,18 +431,32 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
   /// @param profilePhoto The URL of the user's profile photo.
   /// @param licenseNumber The user's license number.
   /// @param expirationDate The expiration date of the user's license.
+  /// @param isKYCPassed A boolean indicating whether the user has passed KYC.
+  /// @param isTCPassed A boolean indicating whether the user has passed TC.
   function setKYCInfo(
     string memory name,
     string memory surname,
     string memory mobilePhoneNumber,
     string memory profilePhoto,
     string memory licenseNumber,
-    uint64 expirationDate
+    uint64 expirationDate,
+    bool isKYCPassed,
+    bool isTCPassed
   ) public {
     if (!userService.isGuest(msg.sender)) {
       userService.grantGuestRole(msg.sender);
     }
-    return userService.setKYCInfo(name, surname, mobilePhoneNumber, profilePhoto, licenseNumber, expirationDate);
+    return
+      userService.setKYCInfo(
+        name,
+        surname,
+        mobilePhoneNumber,
+        profilePhoto,
+        licenseNumber,
+        expirationDate,
+        isKYCPassed,
+        isTCPassed
+      );
   }
 
   /// @notice Retrieves KYC information for the specified user.

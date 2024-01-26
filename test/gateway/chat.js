@@ -96,7 +96,9 @@ describe('RentalityGateway: chat', function () {
           number + 'host',
           photo + 'host',
           licenseNumber + 'host',
-          expirationDate
+          expirationDate,
+          true,
+          true
         )
     ).not.be.reverted
 
@@ -109,7 +111,9 @@ describe('RentalityGateway: chat', function () {
           number + 'guest',
           photo + 'guest',
           licenseNumber + 'guest',
-          expirationDate
+          expirationDate,
+          true,
+          true
         )
     ).not.be.reverted
 
@@ -153,7 +157,9 @@ describe('RentalityGateway: chat', function () {
           number + 'host',
           photo + 'host',
           licenseNumber + 'host',
-          expirationDate
+          expirationDate,
+          true,
+          true
         )
     ).not.be.reverted
 
@@ -166,7 +172,9 @@ describe('RentalityGateway: chat', function () {
           number + 'guest',
           photo + 'guest',
           licenseNumber + 'guest',
-          expirationDate
+          expirationDate,
+          true,
+          true
         )
     ).not.be.reverted
 
