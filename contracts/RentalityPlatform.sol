@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+/// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
 import './RentalityCarToken.sol';
@@ -24,6 +24,7 @@ contract RentalityPlatform is UUPSOwnable {
   RentalityUserService private userService;
   RentalityPaymentService private paymentService;
   RentalityClaimService private claimService;
+  RentalityAutomation private automationService;
 
   /// @dev Modifier to restrict access to admin users only.
   modifier onlyAdmin() {
@@ -236,21 +237,6 @@ contract RentalityPlatform is UUPSOwnable {
       trip.paymentInfo.taxPriceInUsdCents +
       trip.paymentInfo.depositInUsdCents;
 
-    uint64 subtractAmount;
-    if (trip.status == Schemas.TripStatus.Approved) {
-      subtractAmount = trip.pricePerDayInUsdCents / 2;
-    } else if (trip.status == Schemas.TripStatus.CheckedInByHost) {
-      subtractAmount = trip.pricePerDayInUsdCents;
-    } else {
-      subtractAmount = 0;
-    }
-
-    uint32 platformFeeInPPM = paymentService.getPlatformFeeInPPM();
-    uint64 platformFee = (subtractAmount * platformFeeInPPM) / 1000000;
-    uint64 returnToHost = subtractAmount - platformFee;
-
-    valueToReturnInUsdCents -= subtractAmount;
-
     uint256 valueToReturnInEth = currencyConverterService.getEthFromUsd(
       valueToReturnInUsdCents,
       trip.paymentInfo.ethToCurrencyRate,
@@ -259,16 +245,6 @@ contract RentalityPlatform is UUPSOwnable {
 
     (bool successGuest, ) = payable(trip.guest).call{value: valueToReturnInEth}('');
     require(successGuest, 'Transfer to guest failed.');
-
-    if (returnToHost > 0) {
-      uint256 returnToHostInEth = currencyConverterService.getEthFromUsd(
-        returnToHost,
-        trip.paymentInfo.ethToCurrencyRate,
-        trip.paymentInfo.ethToCurrencyDecimals
-      );
-      (bool successHost, ) = payable(trip.host).call{value: returnToHostInEth}('');
-      require(successHost, 'Transfer to host failed.');
-    }
   }
 
   /// @notice Finish a trip on the Rentality platform.
@@ -416,6 +392,26 @@ contract RentalityPlatform is UUPSOwnable {
     return RentalityUtils.populateChatInfo(trips, userService, carService);
   }
 
+  /// @notice Calls outdated automations and takes corresponding actions based on their types.
+  /// - If the automation type is Rejection, it rejects the trip request.
+  /// - If the automation type is StartTrip, it checks in the guest for the trip.
+  /// - If the automation type is any other, it checks out the guest for the trip.
+  /// Note: This function retrieves all automations and processes each one if its time has expired.
+  function callOutdated() public {
+    Schemas.AutomationData[] memory data = automationService.getAllAutomations();
+    for (uint256 i = 0; i < data.length; i++) {
+      if (data[i].whenToCallInSec <= block.timestamp) {
+        if (data[i].aType == Schemas.AutomationType.Rejection) {
+          rejectTripRequest(data[i].tripId);
+        } else if (data[i].aType == Schemas.AutomationType.StartTrip) {
+          tripService.checkInByGuest(data[i].tripId, new uint64[](2));
+        } else {
+          tripService.checkOutByGuest(data[i].tripId, new uint64[](2));
+        }
+      }
+    }
+  }
+
   /// @notice Constructor to initialize the RentalityPlatform with service contract addresses.
   /// @param carServiceAddress The address of the RentalityCarToken contract.
   /// @param currencyConverterServiceAddress The address of the RentalityCurrencyConverter contract.
@@ -428,7 +424,8 @@ contract RentalityPlatform is UUPSOwnable {
     address tripServiceAddress,
     address userServiceAddress,
     address paymentServiceAddress,
-    address claimServiceAddress
+    address claimServiceAddress,
+    address rentalityAutomationAddress
   ) public initializer {
     carService = RentalityCarToken(carServiceAddress);
     currencyConverterService = RentalityCurrencyConverter(currencyConverterServiceAddress);
@@ -436,6 +433,7 @@ contract RentalityPlatform is UUPSOwnable {
     userService = RentalityUserService(userServiceAddress);
     paymentService = RentalityPaymentService(paymentServiceAddress);
     claimService = RentalityClaimService(claimServiceAddress);
+    automationService = RentalityAutomation(rentalityAutomationAddress);
 
     __Ownable_init();
   }
