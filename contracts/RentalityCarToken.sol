@@ -23,6 +23,7 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
   Counters.Counter private _carIdCounter;
   IRentalityGeoService private geoService;
   RentalityEnginesService private engineService;
+  RentalityUserService private userService;
 
   mapping(uint256 => Schemas.CarInfo) private idToCarInfo;
 
@@ -82,8 +83,8 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
   /// @param request The input parameters for creating the new car.
   /// @return The ID of the newly added car.
   function addCar(Schemas.CreateCarRequest memory request) public returns (uint) {
+    require(userService.hasPassedKYCAndTC(tx.origin), 'KYC or TC has not passed.');
     require(request.pricePerDayInUsdCents > 0, "Make sure the price isn't negative");
-
     require(request.milesIncludedPerDay > 0, "Make sure the included distance isn't negative");
     require(isUniqueVinNumber(request.carVinNumber), 'Car with this VIN number already exists');
 
@@ -345,10 +346,17 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
   }
 
   /// @notice Constructor to initialize the RentalityCarToken contract.
-  /// @param _geoServiceAddress The address of the RentalityGeoService contract.
-  function initialize(address _geoServiceAddress, address _engineService) public initializer {
-    engineService = RentalityEnginesService(_engineService);
-    geoService = IRentalityGeoService(_geoServiceAddress);
+  /// @param geoServiceAddress The address of the RentalityGeoService contract.
+  /// @param engineServiceAddress The address of the RentalityGeoService contract.
+  /// @param userServiceAddress The address of the RentalityGeoService contract.
+  function initialize(
+    address geoServiceAddress,
+    address engineServiceAddress,
+    address userServiceAddress
+  ) public initializer {
+    engineService = RentalityEnginesService(engineServiceAddress);
+    geoService = IRentalityGeoService(geoServiceAddress);
+    userService = RentalityUserService(userServiceAddress);
     __ERC721_init('RentalityCarToken Test', 'RTCT');
     __Ownable_init();
   }
