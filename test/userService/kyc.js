@@ -132,6 +132,7 @@ describe('RentalityUserService: KYC management', function () {
         { value: rentPriceInEth }
       )
     ).not.to.be.reverted
+
     expect((await rentalityTripService.connect(host).getTrip(1)).status).to.equal(0)
 
     let [guestPhoneNumber, hostPhoneNumber] = await rentalityPlatform.connect(guest).getTripContactInfo(1)
