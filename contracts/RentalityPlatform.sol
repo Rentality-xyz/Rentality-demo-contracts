@@ -119,6 +119,7 @@ contract RentalityPlatform is UUPSOwnable {
   /// @notice Create a new trip request on the Rentality platform.
   /// @param request The details of the trip request as specified in IRentalityGateway.CreateTripRequest.
   function createTripRequest(Schemas.CreateTripRequest memory request) public payable {
+    require(userService.hasPassedKYCAndTC(tx.origin), 'KYC or TC not passed.');
     require(msg.value > 0, 'Rental fee must be greater than 0');
     require(carService.ownerOf(request.carId) != tx.origin, 'Car is not available for creator');
     require(
@@ -320,19 +321,16 @@ contract RentalityPlatform is UUPSOwnable {
       trip.paymentInfo.ethToCurrencyRate,
       trip.paymentInfo.ethToCurrencyDecimals
     );
-    uint256 platformFee = paymentService.getPlatformFeeFrom(valueToPay);
 
-    uint256 totalAmount = valueToPay + platformFee;
-
-    require(msg.value >= totalAmount, 'Insufficient funds sent.');
+    require(msg.value >= valueToPay, 'Insufficient funds sent.');
 
     claimService.payClaim(claimId);
 
     (bool successHost, ) = payable(trip.host).call{value: valueToPay}('');
     require(successHost, 'Transfer to host failed.');
 
-    if (msg.value > totalAmount) {
-      uint256 excessValue = msg.value - totalAmount;
+    if (msg.value > valueToPay) {
+      uint256 excessValue = msg.value - valueToPay;
       (bool successRefund, ) = payable(tx.origin).call{value: excessValue}('');
       require(successRefund, 'Refund to guest failed.');
     }

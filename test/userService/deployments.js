@@ -67,11 +67,11 @@ async function deployDefaultFixture() {
   const rentalityGeoService = await RentalityGeoService.deploy()
   await rentalityGeoService.waitForDeployment()
 
-  const rentalityCarToken = await upgrades.deployProxy(
-    RentalityCarToken,
-    [await rentalityGeoService.getAddress(), await engineService.getAddress()],
-    { kind: 'uups' }
-  )
+  const rentalityCarToken = await upgrades.deployProxy(RentalityCarToken, [
+    await rentalityGeoService.getAddress(),
+    await engineService.getAddress(),
+    await rentalityUserService.getAddress(),
+  ])
 
   await rentalityCarToken.waitForDeployment()
 
@@ -116,6 +116,9 @@ async function deployDefaultFixture() {
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityTripService.getAddress())
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityCarToken.getAddress())
   await rentalityUserService.connect(owner).grantManagerRole(await engineService.getAddress())
+
+  await rentalityUserService.connect(host).setKYCInfo(' ', ' ', ' ', ' ', ' ', 1, true, true)
+  await rentalityUserService.connect(guest).setKYCInfo(' ', ' ', ' ', ' ', ' ', 1, true, true)
 
   return {
     rentalityMockPriceFeed,

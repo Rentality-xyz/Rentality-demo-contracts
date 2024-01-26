@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
+
 import '@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol';
 import {AccessControlUpgradeable} from '@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol';
 import './Schemas.sol';
@@ -28,6 +29,8 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
   /// @param profilePhoto The URL or identifier of the user's profile photo.
   /// @param licenseNumber The user's license number.
   /// @param expirationDate The expiration date of the user's license.
+  /// @param isKYCPassed A boolean indicating whether the user has passed KYC.
+  /// @param isTCPassed A boolean indicating whether the user has passed TC.
   /// Requirements:
   /// - Caller must be a host or guest.
   function setKYCInfo(
@@ -36,7 +39,9 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
     string memory mobilePhoneNumber,
     string memory profilePhoto,
     string memory licenseNumber,
-    uint64 expirationDate
+    uint64 expirationDate,
+    bool isKYCPassed,
+    bool isTCPassed
   ) public {
     require(isHostOrGuest(tx.origin), 'Only for hosts or guests');
 
@@ -47,7 +52,9 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
       profilePhoto,
       licenseNumber,
       expirationDate,
-      block.timestamp
+      block.timestamp,
+      isKYCPassed,
+      isTCPassed
     );
   }
   /// @notice Retrieves KYC information for a specified user.
@@ -129,6 +136,14 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
   function revokeGuestRole(address user) public onlyRole(MANAGER_ROLE) {
     revokeRole(GUEST_ROLE, user);
   }
+
+  /// @notice Checks if a user has passed both KYC (Know Your Customer) and TC (Terms and Conditions).
+  /// @param user The address of the user whose KYC and TC status is being checked.
+  /// @return A boolean indicating whether the user has passed both KYC and TC.
+  function hasPassedKYCAndTC(address user) public view returns (bool) {
+    return kycInfos[user].isTCPassed && kycInfos[user].isKYCPassed;
+  }
+
   /// @notice Checks if a user has admin role.
   /// @param user The address of the user to check for admin role.
   /// @return isAdmin A boolean indicating whether the user has admin role.

@@ -178,6 +178,7 @@ async function deployDefaultFixture() {
   const rentalityCarToken = await upgrades.deployProxy(RentalityCarToken, [
     await rentalityGeoService.getAddress(),
     await engineService.getAddress(),
+    await rentalityUserService.getAddress(),
   ])
   await rentalityCarToken.waitForDeployment()
 
@@ -252,6 +253,9 @@ async function deployDefaultFixture() {
   await rentalityUserService.connect(owner).grantAdminRole(await rentalityAdminGateway.getAddress())
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityCarToken.getAddress())
   await rentalityUserService.connect(owner).grantManagerRole(await engineService.getAddress())
+
+  await rentalityGateway.connect(host).setKYCInfo(' ', ' ', ' ', ' ', ' ', 1, true, true)
+  await rentalityGateway.connect(guest).setKYCInfo(' ', ' ', ' ', ' ', ' ', 1, true, true)
 
   return {
     rentalityGateway,
