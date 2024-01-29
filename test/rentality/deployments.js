@@ -62,16 +62,22 @@ async function deployDefaultFixture() {
   ])
   await engineService.waitForDeployment()
 
-  const rentalityCarToken = await upgrades.deployProxy(
-    RentalityCarToken,
-    [await rentalityGeoService.getAddress(), await engineService.getAddress()],
-    { kind: 'uups' }
-  )
+  const rentalityCarToken = await upgrades.deployProxy(RentalityCarToken, [
+    await rentalityGeoService.getAddress(),
+    await engineService.getAddress(),
+    await rentalityUserService.getAddress(),
+  ])
   await rentalityCarToken.waitForDeployment()
   const rentalityPaymentService = await upgrades.deployProxy(RentalityPaymentService, [
     await rentalityUserService.getAddress(),
   ])
   await rentalityPaymentService.waitForDeployment()
+
+  const AutomationService = await ethers.getContractFactory('RentalityAutomation')
+  const rentalityAutomationService = await upgrades.deployProxy(AutomationService, [
+    await rentalityUserService.getAddress(),
+  ])
+  await rentalityAutomationService.waitForDeployment()
 
   const rentalityTripService = await upgrades.deployProxy(RentalityTripService, [
     await rentalityCurrencyConverter.getAddress(),
@@ -79,6 +85,7 @@ async function deployDefaultFixture() {
     await rentalityPaymentService.getAddress(),
     await rentalityUserService.getAddress(),
     await engineService.getAddress(),
+    await rentalityAutomationService.getAddress(),
   ])
   await rentalityTripService.waitForDeployment()
 
@@ -93,6 +100,7 @@ async function deployDefaultFixture() {
     await rentalityUserService.getAddress(),
     await rentalityPaymentService.getAddress(),
     await claimService.getAddress(),
+    await rentalityAutomationService.getAddress(),
   ])
 
   await rentalityPlatform.waitForDeployment()
@@ -103,6 +111,9 @@ async function deployDefaultFixture() {
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityTripService.getAddress())
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityCarToken.getAddress())
   await rentalityUserService.connect(owner).grantManagerRole(await engineService.getAddress())
+
+  await rentalityUserService.connect(host).setKYCInfo(' ', ' ', ' ', ' ', ' ', 1, true, true)
+  await rentalityUserService.connect(guest).setKYCInfo(' ', ' ', ' ', ' ', ' ', 1, true, true)
 
   return {
     rentalityMockPriceFeed,

@@ -89,6 +89,29 @@ interface Schemas {
     uint8 ethToCurrencyDecimals;
   }
 
+  /// @dev Enumeration representing verious states of a trip.
+  enum TripStatus {
+    Created,
+    Approved,
+    CheckedInByHost,
+    CheckedInByGuest,
+    CheckedOutByGuest,
+    CheckedOutByHost,
+    Finished,
+    Canceled
+  }
+
+  // Struct to store transaction history details for a trip
+  struct TransactionInfo {
+    uint256 rentalityFee;
+    uint256 depositRefund;
+    // Earnings from the trip (cancellation or completion)
+    uint256 tripEarnings;
+    // Timestamp of the transaction
+    uint256 dateTime;
+    // Status before trip cancellation, will be 'Finished' in case of completed trip.
+    Schemas.TripStatus statusBeforeCancellation;
+  }
   /// @dev Struct containing information about a trip.
   struct Trip {
     uint256 tripId;
@@ -112,22 +135,12 @@ interface Schemas {
     uint checkedInByHostDateTime;
     uint64[] startParamLevels;
     uint checkedInByGuestDateTime;
+    address tripStartedBy;
     uint checkedOutByGuestDateTime;
+    address tripFinishedBy;
     uint64[] endParamLevels;
     uint checkedOutByHostDateTime;
     TransactionInfo transactionInfo;
-  }
-
-  /// @dev Enumeration representing verious states of a trip.
-  enum TripStatus {
-    Created,
-    Approved,
-    CheckedInByHost,
-    CheckedInByGuest,
-    CheckedOutByGuest,
-    CheckedOutByHost,
-    Finished,
-    Canceled
   }
 
   /// CHAT LOGIC
@@ -257,18 +270,6 @@ interface Schemas {
     uint64 resolveMilesAmountInUsdCents;
   }
 
-  // Struct to store transaction history details for a trip
-  struct TransactionInfo {
-    uint256 rentalityFee;
-    uint256 depositRefund;
-    // Earnings from the trip (cancellation or completion)
-    uint256 tripEarnings;
-    // Timestamp of the transaction
-    uint256 dateTime;
-    // Status before trip cancellation, will be 'Finished' in case of completed trip.
-    Schemas.TripStatus statusBeforeCancellation;
-  }
-
   /// User service
 
   // Struct to store KYC (Know Your Customer) information for each user
@@ -280,5 +281,20 @@ interface Schemas {
     string licenseNumber;
     uint64 expirationDate;
     uint createDate;
+    bool isKYCPassed;
+    bool isTCPassed;
+  }
+
+  /// Automation
+
+  struct AutomationData {
+    uint256 tripId;
+    uint256 whenToCallInSec;
+    AutomationType aType;
+  }
+  enum AutomationType {
+    Rejection,
+    StartTrip,
+    FinishTrip
   }
 }
