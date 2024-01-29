@@ -396,18 +396,32 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
   /// @param profilePhoto The URL of the user's profile photo.
   /// @param licenseNumber The user's license number.
   /// @param expirationDate The expiration date of the user's license.
+  /// @param isKYCPassed A boolean indicating whether the user has passed KYC.
+  /// @param isTCPassed A boolean indicating whether the user has passed TC.
   function setKYCInfo(
     string memory name,
     string memory surname,
     string memory mobilePhoneNumber,
     string memory profilePhoto,
     string memory licenseNumber,
-    uint64 expirationDate
+    uint64 expirationDate,
+    bool isKYCPassed,
+    bool isTCPassed
   ) public {
     if (!userService.isGuest(msg.sender)) {
       userService.grantGuestRole(msg.sender);
     }
-    return userService.setKYCInfo(name, surname, mobilePhoneNumber, profilePhoto, licenseNumber, expirationDate);
+    return
+      userService.setKYCInfo(
+        name,
+        surname,
+        mobilePhoneNumber,
+        profilePhoto,
+        licenseNumber,
+        expirationDate,
+        isKYCPassed,
+        isTCPassed
+      );
   }
 
   /// @notice Retrieves KYC information for the specified user.
@@ -433,6 +447,15 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
   /// @return An array of chat information.
   function getChatInfoForGuest() public view returns (Schemas.ChatInfo[] memory) {
     return rentalityPlatform.getChatInfoForGuest();
+  }
+
+  /// @notice Calls outdated automations and takes corresponding actions based on their types.
+  /// - If the automation type is Rejection, it rejects the trip request.
+  /// - If the automation type is StartTrip, it checks in the guest for the trip.
+  /// - If the automation type is any other, it checks out the guest for the trip.
+  /// Note: This function retrieves all automations and processes each one if its time has expired.
+  function callOutdated() public {
+    rentalityPlatform.callOutdated();
   }
 
   //  @dev Initializes the contract with the provided addresses for various services.

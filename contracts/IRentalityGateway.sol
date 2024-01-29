@@ -232,7 +232,9 @@ interface IRentalityGateway {
     string memory mobilePhoneNumber,
     string memory profilePhoto,
     string memory licenseNumber,
-    uint64 expirationDate
+    uint64 expirationDate,
+    bool isKYCPassed,
+    bool isTCPassed
   ) external;
 
   /// @notice Get KYC (Know Your Customer) information for a specific user.

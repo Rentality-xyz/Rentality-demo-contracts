@@ -5,35 +5,18 @@ const addressSaver = require('./utils/addressSaver')
 const { checkNotNull, startDeploy } = require('./utils/deployHelper')
 
 async function main() {
-  const { contractName, chainId } = await startDeploy('RentalityCarToken')
+  const { contractName, chainId } = await startDeploy('RentalityAutomation')
 
   if (chainId < 0) throw new Error('chainId is not set')
 
-  const rentalityUtilsAddress = checkNotNull(
-    getContractAddress('RentalityUtils', 'scripts/deploy_1a_RentalityUtils.js', chainId),
-    'RentalityUtils'
-  )
-
-  const geoAddress = checkNotNull(
-    getContractAddress('RentalityGeoService', 'scripts/deploy_1c_GeoService.js', chainId),
-    'RentalityGeoService'
-  )
-
-  const engineAddress = checkNotNull(
-    getContractAddress('RentalityEnginesService', 'scripts/deploy_2b_RentalityEngineService.js', chainId),
-    'RentalityEnginesService'
-  )
-  const rentalityUserServiceAddress = checkNotNull(
+  const userService = checkNotNull(
     getContractAddress('RentalityUserService', 'scripts/deploy_1b_RentalityUserService.js', chainId),
     'RentalityUserService'
   )
 
-  const contractFactory = await ethers.getContractFactory(contractName, {
-    libraries: { RentalityUtils: rentalityUtilsAddress },
-  })
-  const contract = await upgrades.deployProxy(contractFactory, [geoAddress, engineAddress, rentalityUserServiceAddress])
+  const contractFactory = await ethers.getContractFactory(contractName)
+  const contract = await upgrades.deployProxy(contractFactory, [userService])
   await contract.waitForDeployment()
-
   const contractAddress = await contract.getAddress()
 
   console.log(`${contractName} was deployed to: ${contractAddress}`)

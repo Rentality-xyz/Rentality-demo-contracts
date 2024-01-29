@@ -79,6 +79,7 @@ function createMockClaimRequest(tripId, amountToClaim) {
     amountInUsdCents: amountToClaim,
   }
 }
+
 const TripStatus = {
   Created: 0,
   Approved: 1,
@@ -89,6 +90,7 @@ const TripStatus = {
   Finished: 6,
   Canceled: 7,
 }
+
 function getEmptySearchCarParams(seed) {
   return {
     country: '',
@@ -176,8 +178,15 @@ async function deployDefaultFixture() {
   const rentalityCarToken = await upgrades.deployProxy(RentalityCarToken, [
     await rentalityGeoService.getAddress(),
     await engineService.getAddress(),
+    await rentalityUserService.getAddress(),
   ])
   await rentalityCarToken.waitForDeployment()
+
+  const AutomationService = await ethers.getContractFactory('RentalityAutomation')
+  const rentalityAutomationService = await upgrades.deployProxy(AutomationService, [
+    await rentalityUserService.getAddress(),
+  ])
+  await rentalityAutomationService.waitForDeployment()
 
   const rentalityPaymentService = await upgrades.deployProxy(RentalityPaymentService, [
     await rentalityUserService.getAddress(),
@@ -190,6 +199,7 @@ async function deployDefaultFixture() {
     await rentalityPaymentService.getAddress(),
     await rentalityUserService.getAddress(),
     await engineService.getAddress(),
+    await rentalityAutomationService.getAddress(),
   ])
   await rentalityTripService.waitForDeployment()
 
@@ -204,6 +214,7 @@ async function deployDefaultFixture() {
     await rentalityUserService.getAddress(),
     await rentalityPaymentService.getAddress(),
     await claimService.getAddress(),
+    await rentalityAutomationService.getAddress(),
   ])
 
   const RentalityAdminGateway = await ethers.getContractFactory('RentalityAdminGateway')
@@ -215,6 +226,7 @@ async function deployDefaultFixture() {
     await rentalityPlatform.getAddress(),
     await rentalityPaymentService.getAddress(),
     await claimService.getAddress(),
+    await rentalityAutomationService.getAddress(),
   ])
   await rentalityAdminGateway.waitForDeployment()
 
@@ -247,6 +259,9 @@ async function deployDefaultFixture() {
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityCarToken.getAddress())
   await rentalityUserService.connect(owner).grantManagerRole(await engineService.getAddress())
 
+  await rentalityGateway.connect(host).setKYCInfo(' ', ' ', ' ', ' ', ' ', 1, true, true)
+  await rentalityGateway.connect(guest).setKYCInfo(' ', ' ', ' ', ' ', ' ', 1, true, true)
+
   return {
     rentalityGateway,
     rentalityMockPriceFeed,
@@ -268,6 +283,7 @@ async function deployDefaultFixture() {
     host,
     guest,
     anonymous,
+    rentalityAutomationService,
   }
 }
 
