@@ -4,7 +4,7 @@ pragma solidity ^0.8.9;
 import {ERC721URIStorageUpgradeable} from '@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol';
 import {UUPSUpgradeable} from '@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol';
 import '@openzeppelin/contracts/utils/Counters.sol';
-import "./libs/RentalityQuery.sol";
+import './libs/RentalityQuery.sol';
 import './IRentalityGeoService.sol';
 import './proxy/UUPSOwnable.sol';
 import './engine/RentalityEnginesService.sol';
@@ -265,7 +265,7 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
       _exists(carId) &&
       idToCarInfo[carId].currentlyListed &&
       ownerOf(carId) != sender &&
-      RentalityQuery.isCarAvailableForUser(carId, searchCarParams,  address(this),  address(geoService));
+      RentalityQuery.isCarAvailableForUser(carId, searchCarParams, address(this), address(geoService));
   }
 
   /// @notice Fetches available cars for a specific user based on search parameters.
