@@ -42,11 +42,10 @@ library RentalityQuery {
     ) public view returns (Schemas.Trip[] memory) {
         uint itemCount = 0;
         RentalityTripService tripService = RentalityTripService(tripServiceAddress);
-        RentalityCarToken carService = RentalityCarToken(carServiceAddress);
 
         for (uint i = 0; i < tripService.totalTripCount(); i++) {
             uint currentId = i + 1;
-            if (isTripThatIntersect(tripService, carService, currentId, startDateTime, endDateTime)) {
+            if (isTripThatIntersect(tripServiceAddress, carServiceAddress, currentId, startDateTime, endDateTime)) {
                 itemCount += 1;
             }
         }
@@ -56,7 +55,7 @@ library RentalityQuery {
 
         for (uint i = 0; i < tripService.totalTripCount(); i++) {
             uint currentId = i + 1;
-            if (isTripThatIntersect(tripService, carService, currentId, startDateTime, endDateTime)) {
+            if (isTripThatIntersect(tripServiceAddress, carServiceAddress, currentId, startDateTime, endDateTime)) {
                 result[currentIndex] = tripService.getTrip(currentId);
                 currentIndex += 1;
             }
@@ -103,7 +102,7 @@ library RentalityQuery {
 
         for (uint i = 0; i < tripService.totalTripCount(); i++) {
             uint currentId = i + 1;
-            if (isCarThatIntersect(tripService, currentId, carId, startDateTime, endDateTime + timeBuffer)) {
+            if (isCarThatIntersect(tripServiceAddress, currentId, carId, startDateTime, endDateTime + timeBuffer)) {
                 itemCount += 1;
             }
         }
@@ -113,7 +112,7 @@ library RentalityQuery {
 
         for (uint i = 0; i < tripService.totalTripCount(); i++) {
             uint currentId = i + 1;
-            if (isCarThatIntersect(tripService, currentId, carId, startDateTime, endDateTime + timeBuffer)) {
+            if (isCarThatIntersect(tripServiceAddress, currentId, carId, startDateTime, endDateTime + timeBuffer)) {
                 result[currentIndex] = tripService.getTrip(currentId);
                 currentIndex += 1;
             }
@@ -288,17 +287,14 @@ library RentalityQuery {
             Schemas.Trip memory trip = tripService.getTrip(claim.tripId);
 
             if (trip.host == host) {
-                Schemas.CarInfo memory carInfo = carService.getCarInfoById(trip.carId);
-                string memory guestPhoneNumber = userService.getKYCInfo(trip.guest).mobilePhoneNumber;
-                string memory hostPhoneNumber = userService.getKYCInfo(host).mobilePhoneNumber;
 
                 claimInfos[counter++] = Schemas.FullClaimInfo(
                     claim,
                     host,
                     trip.guest,
-                    guestPhoneNumber,
-                    hostPhoneNumber,
-                    carInfo
+                    userService.getKYCInfo(trip.guest).mobilePhoneNumber,
+                    userService.getKYCInfo(host).mobilePhoneNumber,
+                    carService.getCarInfoById(trip.carId)
                 );
             }
         }
@@ -338,17 +334,14 @@ library RentalityQuery {
             Schemas.Trip memory trip = tripService.getTrip(claim.tripId);
 
             if (trip.guest == guest) {
-                Schemas.CarInfo memory carInfo = carService.getCarInfoById(trip.carId);
-                string memory guestPhoneNumber = userService.getKYCInfo(guest).mobilePhoneNumber;
-                string memory hostPhoneNumber = userService.getKYCInfo(trip.host).mobilePhoneNumber;
 
                 claimInfos[counter++] = Schemas.FullClaimInfo(
                     claim,
                     trip.host,
                     guest,
-                    guestPhoneNumber,
-                    hostPhoneNumber,
-                    carInfo
+                    userService.getKYCInfo(guest).mobilePhoneNumber,
+                    userService.getKYCInfo(trip.host).mobilePhoneNumber,
+                    carService.getCarInfoById(trip.carId)
                 );
             }
         }
@@ -417,13 +410,12 @@ library RentalityQuery {
 // if (startDateTime < block.timestamp){
 //     return new RentalityCarToken.CarInfo[](0);
 // }
-        RentalityTripService tripService = RentalityTripService(tripServiceAddress);
         RentalityCarToken carService = RentalityCarToken(carServiceAddress);
         RentalityUserService userService = RentalityUserService(userServiceAddress);
         Schemas.CarInfo[] memory availableCars = carService.fetchAvailableCarsForUser(user, searchParams);
         if (availableCars.length == 0) return new Schemas.AvailableCarResponse[](0);
 
-        Schemas.Trip[] memory trips = getTripsThatIntersect(tripService, carService, startDateTime, endDateTime);
+        Schemas.Trip[] memory trips = getTripsThatIntersect(tripServiceAddress, carServiceAddress, startDateTime, endDateTime);
         Schemas.CarInfo[] memory temp;
         uint256 resultCount;
 
