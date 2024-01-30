@@ -327,8 +327,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
       engineService.verifyEndParams(trip.startParamLevels, panelParams, carInfo.engineType);
       idToTripInfo[tripId].endParamLevels = panelParams;
       idToTripInfo[tripId].tripFinishedBy = tx.origin;
-    }
-    else {
+    } else {
       uint64 duration = RentalityUtils.getCeilDays(trip.startDateTime, trip.endDateTime);
       idToTripInfo[tripId].endParamLevels = engineService.getEndParamsFromTripInfo(trip, duration, carInfo.engineType);
     }
