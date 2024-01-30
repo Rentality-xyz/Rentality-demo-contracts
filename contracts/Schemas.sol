@@ -129,6 +129,7 @@ interface Schemas {
     uint64 milesIncludedPerDay;
     uint64[] fuelPrices;
     PaymentInfo paymentInfo;
+    uint createdDateTime;
     uint approvedDateTime;
     uint rejectedDateTime;
     address rejectedBy;
