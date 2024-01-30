@@ -10,7 +10,8 @@ import './RentalityCurrencyConverter.sol';
 import './RentalityPaymentService.sol';
 import './RentalityCarToken.sol';
 import './RentalityUserService.sol';
-import './RentalityUtils.sol';
+import './libs/RentalityQuery.sol';
+import './libs/RentalityUtils.sol';
 import './engine/RentalityEnginesService.sol';
 import './Schemas.sol';
 import './RentalityAutomation.sol';
@@ -24,7 +25,6 @@ import './RentalityAutomation.sol';
 contract RentalityTripService is Initializable, UUPSUpgradeable {
   using Counters for Counters.Counter;
   Counters.Counter private _tripIdCounter;
-  RentalityAutomation private automationService;
 
   mapping(uint256 => Schemas.Trip) private idToTripInfo;
 
@@ -42,6 +42,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
   RentalityPaymentService private paymentService;
   RentalityUserService private userService;
   RentalityEnginesService private engineService;
+  RentalityAutomation private automationService;
 
   /// @dev Get the total number of trips created.
   /// @return The total number of trips.
@@ -119,7 +120,8 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
       0,
       address(0),
       new uint64[](panelParamsAmount),
-      0
+      0,
+      Schemas.TransactionInfo(0, 0, 0, 0, Schemas.TripStatus.Created)
     );
 
     emit TripCreated(newTripId);
@@ -193,55 +195,16 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     uint64 endDateTime,
     Schemas.SearchCarParams memory searchParams
   ) public view returns (Schemas.AvailableCarResponse[] memory) {
-    // if (startDateTime < block.timestamp){
-    //     return new RentalityCarToken.CarInfo[](0);
-    // }
-    Schemas.CarInfo[] memory availableCars = carService.fetchAvailableCarsForUser(user, searchParams);
-    if (availableCars.length == 0) return new Schemas.AvailableCarResponse[](0);
-
-    Schemas.Trip[] memory trips = RentalityUtils.getTripsThatIntersect(this, carService, startDateTime, endDateTime);
-    Schemas.CarInfo[] memory temp;
-    uint256 resultCount;
-
-    if (trips.length == 0) {
-      temp = availableCars;
-      resultCount = availableCars.length;
-    } else {
-      temp = new Schemas.CarInfo[](availableCars.length);
-      resultCount = 0;
-
-      for (uint i = 0; i < availableCars.length; i++) {
-        bool hasIntersectTrip = false;
-
-        for (uint j = 0; j < trips.length; j++) {
-          if (
-            trips[j].status == Schemas.TripStatus.Created ||
-            trips[j].status == Schemas.TripStatus.Finished ||
-            trips[j].status == Schemas.TripStatus.Canceled
-          ) {
-            continue;
-          }
-
-          if (trips[j].carId == availableCars[i].carId) {
-            hasIntersectTrip = true;
-            break;
-          }
-        }
-
-        if (!hasIntersectTrip) {
-          temp[resultCount] = availableCars[i];
-          resultCount++;
-        }
-      }
-    }
-    Schemas.AvailableCarResponse[] memory result = new Schemas.AvailableCarResponse[](resultCount);
-
-    for (uint i = 0; i < resultCount; i++) {
-      string memory hostPhotoUrl = userService.getKYCInfo(temp[i].createdBy).profilePhoto;
-      string memory hostName = userService.getKYCInfo(temp[i].createdBy).name;
-      result[i] = Schemas.AvailableCarResponse(temp[i], hostPhotoUrl, hostName);
-    }
-    return result;
+    return
+      RentalityQuery.searchAvailableCarsForUser(
+        user,
+        startDateTime,
+        endDateTime,
+        searchParams,
+        address(carService),
+        address(userService),
+        address(this)
+      );
   }
 
   /// @notice Performs the check-in process by the host, updating the trip status and details.
@@ -414,6 +377,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
   function finishTrip(uint256 tripId) public {
     //require(idToTripInfo[tripId].status != TripStatus.CheckedOutByHost,"The trip is not in status CheckedOutByHost");
     require(userService.isManager(msg.sender), 'Only from manager contract.');
+
     require(
       idToTripInfo[tripId].status == Schemas.TripStatus.CheckedOutByHost,
       'The trip is not in status CheckedOutByHost'
@@ -422,8 +386,11 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
 
     Schemas.CarInfo memory car = carService.getCarInfoById(idToTripInfo[tripId].carId);
 
-    (uint64 resolveMilesAmountInUsdCents, uint64 resolveFuelAmountInUsdCents) = RentalityUtils
-      .getResolveAmountInUsdCents(car.engineType, idToTripInfo[tripId], car.engineParams, engineService);
+    (uint64 resolveMilesAmountInUsdCents, uint64 resolveFuelAmountInUsdCents) = getResolveAmountInUsdCents(
+      car.engineType,
+      idToTripInfo[tripId],
+      car.engineParams
+    );
     idToTripInfo[tripId].paymentInfo.resolveMilesAmountInUsdCents = resolveMilesAmountInUsdCents;
     idToTripInfo[tripId].paymentInfo.resolveFuelAmountInUsdCents = resolveFuelAmountInUsdCents;
 
@@ -435,6 +402,52 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     idToTripInfo[tripId].paymentInfo.resolveAmountInUsdCents = resolveAmountInUsdCents;
 
     emit TripStatusChanged(tripId, Schemas.TripStatus.Finished);
+  }
+
+  ///  @dev Calculates the resolved amount in USD cents for a trip.
+  ///  @param eType the engine type
+  ///  @param engineParams, engine data params
+  ///  @param tripInfo The information about the trip.
+  ///  @return Returns the resolved amounts for miles and fuel in USD cents as a tuple.
+  function getResolveAmountInUsdCents(
+    uint8 eType,
+    Schemas.Trip memory tripInfo,
+    uint64[] memory engineParams
+  ) public view returns (uint64, uint64) {
+    uint64 tripDays = RentalityUtils.getCeilDays(tripInfo.startDateTime, tripInfo.endDateTime);
+
+    return
+      engineService.getResolveAmountInUsdCents(
+        eType,
+        tripInfo.fuelPrices,
+        tripInfo.startParamLevels,
+        tripInfo.endParamLevels,
+        engineParams,
+        tripInfo.milesIncludedPerDay,
+        tripInfo.pricePerDayInUsdCents,
+        tripDays
+      );
+  }
+
+  /// @dev Function to save transaction information for a finished trip.
+  /// @param tripId Trip ID for which the transaction information is saved.
+  /// @param rentalityFee Rentality fee for the transaction.
+  /// @param depositRefund Amount refunded as deposit.
+  /// @param tripEarnings Earnings from the completed trip.
+  function saveTransactionInfo(
+    uint256 tripId,
+    uint256 rentalityFee,
+    Schemas.TripStatus status,
+    uint256 depositRefund,
+    uint256 tripEarnings
+  ) public {
+    require(userService.isManager(msg.sender), 'Manager only.');
+
+    idToTripInfo[tripId].transactionInfo.rentalityFee = rentalityFee;
+    idToTripInfo[tripId].transactionInfo.depositRefund = depositRefund;
+    idToTripInfo[tripId].transactionInfo.tripEarnings = tripEarnings;
+    idToTripInfo[tripId].transactionInfo.dateTime = block.timestamp;
+    idToTripInfo[tripId].transactionInfo.statusBeforeCancellation = status;
   }
 
   /// @dev Retrieves the details of a specific trip by its ID.
@@ -472,7 +485,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     automationService = RentalityAutomation(automationServiceAddress);
   }
 
-  function _authorizeUpgrade(address newImplementation) internal view override {
+  function _authorizeUpgrade(address /*newImplementation*/) internal view override {
     require(userService.isAdmin(msg.sender), 'Only for Admin.');
   }
 }

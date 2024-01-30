@@ -12,7 +12,7 @@ abstract contract UUPSAccess is UUPSUpgradeable {
   // @notice Only admins are allowed to authorize upgrades.
   // @dev Ensures that the caller is an admin in the RentalityAccessControl system.
   // @param newImplementation The address of the new implementation contract.
-  function _authorizeUpgrade(address newImplementation) internal view override {
+  function _authorizeUpgrade(address /*newImplementation*/) internal view override {
     require(userService.isAdmin(msg.sender), 'Only for Admin.');
   }
 }

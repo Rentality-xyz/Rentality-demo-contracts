@@ -20,7 +20,7 @@ contract RentalityElectricEngine is ARentalityEngine {
 
   /// @dev Verify patrol engine params
   /// @param params An array of four uint64 values representing charge price scales.
-  function verifyCreateParams(uint64[] memory params) public view override {
+  function verifyCreateParams(uint64[] memory params) public pure override {
     isCorrectArgs(params.length == 4);
   }
 
@@ -29,7 +29,7 @@ contract RentalityElectricEngine is ARentalityEngine {
   function verifyUpdateParams(
     uint64[] memory newParams,
     uint64[] memory /*oldParams*/
-  ) public view override returns (uint64[] memory) {
+  ) public pure override returns (uint64[] memory) {
     isCorrectArgs(newParams.length == 4);
 
     return newParams;

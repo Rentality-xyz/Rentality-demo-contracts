@@ -13,6 +13,7 @@ import './RentalityUserService.sol';
 import './RentalityPlatform.sol';
 import './RentalityPaymentService.sol';
 import './Schemas.sol';
+import './RentalityAdminGateway.sol';
 
 /// @title RentalityGateway
 /// @notice The main gateway contract that connects various services in the Rentality platform.
@@ -31,6 +32,7 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
   RentalityPlatform private rentalityPlatform;
   RentalityPaymentService private paymentService;
   RentalityClaimService private claimService;
+  RentalityAdminGateway private adminService;
 
   /// @notice Ensures that the caller is either an admin, the contract owner, or an admin from the origin transaction.
   modifier onlyAdmin() {
@@ -59,64 +61,27 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
     _;
   }
 
-  /// @notice Retrieves the address of the RentalityCarToken contract.
-  /// @return The address of the RentalityCarToken contract.
-  function getCarServiceAddress() public view returns (address) {
-    return address(carService);
-  }
-
-  /// @notice Updates the address of the RentalityCarToken contract. Only callable by admins.
-  /// @param contractAddress The new address of the RentalityCarToken contract.
-  function updateCarService(address contractAddress) public onlyAdmin {
-    carService = RentalityCarToken(contractAddress);
-  }
-
-  /// @notice Retrieves the address of the RentalityPlatform contract.
-  /// @return The address of the RentalityPlatform contract.
-  function getRentalityPlatformAddress() public view returns (address) {
-    return address(rentalityPlatform);
-  }
-
-  /// @notice Updates the address of the RentalityPlatform contract. Only callable by admins.
-  /// @param contractAddress The new address of the RentalityPlatform contract.
-  function updateRentalityPlatform(address contractAddress) public onlyAdmin {
-    rentalityPlatform = RentalityPlatform(contractAddress);
-  }
-
-  /// @notice Retrieves the address of the RentalityCurrencyConverter contract.
-  /// @return The address of the RentalityCurrencyConverter contract.
-  function getCurrencyConverterServiceAddress() public view returns (address) {
-    return address(currencyConverterService);
-  }
-
-  /// @notice Updates the address of the RentalityCurrencyConverter contract. Only callable by admins.
-  /// @param contractAddress The new address of the RentalityCurrencyConverter contract.
-  function updateCurrencyConverterService(address contractAddress) public onlyAdmin {
-    currencyConverterService = RentalityCurrencyConverter(contractAddress);
-  }
-
-  /// @notice Retrieves the address of the RentalityTripService contract.
-  /// @return The address of the RentalityTripService contract.
-  function getTripServiceAddress() public view returns (address) {
-    return address(tripService);
-  }
-
-  /// @notice Updates the address of the RentalityTripService contract. Only callable by admins.
-  /// @param contractAddress The new address of the RentalityTripService contract.
-  function updateTripService(address contractAddress) public onlyAdmin {
-    tripService = RentalityTripService(contractAddress);
-  }
-
-  /// @notice Retrieves the address of the RentalityUserService contract.
-  /// @return The address of the RentalityUserService contract.
-  function getUserServiceAddress() public view returns (address) {
-    return address(userService);
-  }
-
-  /// @notice Updates the address of the RentalityUserService contract. Only callable by admins.
-  /// @param contractAddress The new address of the RentalityUserService contract.
-  function updateUserService(address contractAddress) public onlyAdmin {
-    userService = RentalityUserService(contractAddress);
+  /// @dev Updates the addresses of various services used in the Rentality platform.
+  ///
+  /// This function retrieves the actual service addresses from the `adminService` and updates
+  /// the contract's state variables with these addresses. The services include:
+  /// - Car Token Service
+  /// - Currency Converter Service
+  /// - Trip Service
+  /// - User Service
+  /// - Platform Service
+  /// - Payment Service
+  /// - Claim Service
+  ///
+  /// This function should be called whenever the addresses of the services change.
+  function updateServiceAddresses() public {
+    carService = RentalityCarToken(adminService.getCarServiceAddress());
+    currencyConverterService = RentalityCurrencyConverter(adminService.getCurrencyConverterServiceAddress());
+    tripService = RentalityTripService(adminService.getTripServiceAddress());
+    userService = RentalityUserService(adminService.getTripServiceAddress());
+    rentalityPlatform = RentalityPlatform(adminService.getUserServiceAddress());
+    paymentService = RentalityPaymentService(adminService.getPaymentService());
+    claimService = RentalityClaimService(adminService.getClaimServiceAddress());
   }
 
   /// @notice Retrieves the platform fee in parts per million (PPM).
@@ -336,34 +301,34 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
   /// @notice Retrieves information about trips where the caller is the guest.
   /// @return An array of trip information.
   function getTripsAsGuest() public view returns (Schemas.Trip[] memory) {
-    return RentalityUtils.getTripsByGuest(tripService, tx.origin);
+    return RentalityQuery.getTripsByGuest(address(tripService), tx.origin);
   }
 
   /// @notice Retrieves information about trips where the specified user is the guest.
   /// @param guest The address of the guest.
   /// @return An array of trip information for the specified guest.
   function getTripsByGuest(address guest) public view returns (Schemas.Trip[] memory) {
-    return RentalityUtils.getTripsByGuest(tripService, guest);
+    return RentalityQuery.getTripsByGuest(address(tripService), guest);
   }
 
   /// @notice Retrieves information about trips where the caller is the host.
   /// @return An array of trip information.
   function getTripsAsHost() public view returns (Schemas.Trip[] memory) {
-    return RentalityUtils.getTripsByHost(tripService, tx.origin);
+    return RentalityQuery.getTripsByHost(address(tripService), tx.origin);
   }
 
   /// @notice Retrieves information about trips where the specified user is the host.
   /// @param host The address of the host.
   /// @return An array of trip information for the specified host.
   function getTripsByHost(address host) public view returns (Schemas.Trip[] memory) {
-    return RentalityUtils.getTripsByHost(tripService, host);
+    return RentalityQuery.getTripsByHost(address(tripService), host);
   }
 
   /// @notice Retrieves information about trips for a specific car.
   /// @param carId The ID of the car.
   /// @return An array of trip information for the specified car.
   function getTripsByCar(uint256 carId) public view returns (Schemas.Trip[] memory) {
-    return RentalityUtils.getTripsByCar(tripService, carId);
+    return RentalityQuery.getTripsByCar(address(tripService), carId);
   }
 
   /// @notice Creates a new claim through the Rentality platform.
@@ -407,21 +372,42 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
   /// @param tripId ID of the trip.
   /// @return Array of detailed claim information.
   function getClaimsByTrip(uint256 tripId) public view returns (Schemas.FullClaimInfo[] memory) {
-    return RentalityUtils.getClaimsByTrip(claimService, tripService, carService, userService, tripId);
+    return
+      RentalityQuery.getClaimsByTrip(
+        address(claimService),
+        address(tripService),
+        address(carService),
+        address(userService),
+        tripId
+      );
   }
 
   /// @notice Retrieves all claims where the caller is the host.
   /// @dev The caller is assumed to be the host of the claims.
   /// @return An array of FullClaimInfo containing information about each claim.
   function getMyClaimsAsHost() public view returns (Schemas.FullClaimInfo[] memory) {
-    return RentalityUtils.getClaimsByHost(claimService, tripService, carService, userService, msg.sender);
+    return
+      RentalityQuery.getClaimsByHost(
+        address(claimService),
+        address(tripService),
+        address(carService),
+        address(userService),
+        msg.sender
+      );
   }
 
   ///  @notice Retrieves all claims where the caller is the guest.
   ///  @dev The caller is assumed to be the guest of the claims.
   ///  @return An array of FullClaimInfo containing information about each claim.
   function getMyClaimsAsGuest() public view returns (Schemas.FullClaimInfo[] memory) {
-    return RentalityUtils.getClaimsByGuest(claimService, tripService, carService, userService, msg.sender);
+    return
+      RentalityQuery.getClaimsByGuest(
+        address(claimService),
+        address(tripService),
+        address(carService),
+        address(userService),
+        msg.sender
+      );
   }
 
   /// @notice Sets Know Your Customer (KYC) information for the caller.
@@ -509,7 +495,8 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
     address userServiceAddress,
     address rentalityPlatformAddress,
     address paymentServiceAddress,
-    address claimServiceAddress
+    address claimServiceAddress,
+    address rentalityAdminGatewayAddress
   ) public initializer {
     carService = RentalityCarToken(carServiceAddress);
     currencyConverterService = RentalityCurrencyConverter(currencyConverterServiceAddress);
@@ -518,6 +505,7 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
     rentalityPlatform = RentalityPlatform(rentalityPlatformAddress);
     paymentService = RentalityPaymentService(paymentServiceAddress);
     claimService = RentalityClaimService(claimServiceAddress);
+    adminService = RentalityAdminGateway(rentalityAdminGatewayAddress);
 
     __Ownable_init();
   }

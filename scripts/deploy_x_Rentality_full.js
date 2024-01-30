@@ -25,12 +25,12 @@ main()
 
 function deployGateway() {
   console.log('Deploying contracts..')
-  return command + 'deploy_6_RentalityGateway.js'
+  return command + 'deploy_7_RentalityGateway.js'
 }
 
 function deployAdminGateway() {
   console.log('Deploying admin gateway contract..')
-  return command + 'deploy_3b_RentalityAdminGateway.js'
+  return command + 'deploy_6_RentalityAdminGateway.js'
 }
 
 function deployChatHelper() {
@@ -40,5 +40,5 @@ function deployChatHelper() {
 
 function grandManagerRole() {
   console.log('Grand manager role...')
-  return command + 'deploy_7_GrandManagerRole.js'
+  return command + 'deploy_8_GrandManagerRole.js'
 }

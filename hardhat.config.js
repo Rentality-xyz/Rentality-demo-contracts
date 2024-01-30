@@ -1,4 +1,4 @@
-/** @type import('hardhat/config').HardhatUserConfig */
+// /** @type import('hardhat/config').HardhatUserConfig */
 // require('@nomiclabs/hardhat-waffle')
 
 require('dotenv').config()
