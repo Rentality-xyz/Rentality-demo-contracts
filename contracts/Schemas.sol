@@ -65,6 +65,14 @@ interface Schemas {
     uint64 pricePerDayInUsdCentsTo;
   }
 
+  struct AvailableCarResponse {
+    CarInfo car;
+    string hostPhotoUrl;
+    string hostName;
+  }
+
+  /// Trip Service
+
   /// @dev Struct representing the parameters for creating a trip request.
   struct CreateTripRequest {
     uint256 carId;
@@ -79,6 +87,60 @@ interface Schemas {
     uint64[] fuelPrices;
     int256 ethToCurrencyRate;
     uint8 ethToCurrencyDecimals;
+  }
+
+  /// @dev Enumeration representing verious states of a trip.
+  enum TripStatus {
+    Created,
+    Approved,
+    CheckedInByHost,
+    CheckedInByGuest,
+    CheckedOutByGuest,
+    CheckedOutByHost,
+    Finished,
+    Canceled
+  }
+
+  // Struct to store transaction history details for a trip
+  struct TransactionInfo {
+    uint256 rentalityFee;
+    uint256 depositRefund;
+    // Earnings from the trip (cancellation or completion)
+    uint256 tripEarnings;
+    // Timestamp of the transaction
+    uint256 dateTime;
+    // Status before trip cancellation, will be 'Finished' in case of completed trip.
+    Schemas.TripStatus statusBeforeCancellation;
+  }
+  /// @dev Struct containing information about a trip.
+  struct Trip {
+    uint256 tripId;
+    uint256 carId;
+    TripStatus status;
+    address guest;
+    address host;
+    string guestName;
+    string hostName;
+    uint64 pricePerDayInUsdCents;
+    uint64 startDateTime;
+    uint64 endDateTime;
+    string startLocation;
+    string endLocation;
+    uint64 milesIncludedPerDay;
+    uint64[] fuelPrices;
+    PaymentInfo paymentInfo;
+    uint approvedDateTime;
+    uint rejectedDateTime;
+    address rejectedBy;
+    uint checkedInByHostDateTime;
+    uint64[] startParamLevels;
+    uint checkedInByGuestDateTime;
+    address tripStartedBy;
+    uint checkedOutByGuestDateTime;
+    address tripFinishedBy;
+    uint64[] endParamLevels;
+    uint checkedOutByHostDateTime;
+    TransactionInfo transactionInfo;
   }
 
   /// CHAT LOGIC
@@ -185,19 +247,7 @@ interface Schemas {
     string timeZoneId;
   }
 
-  /// TripService
-
-  /// @dev Enumeration representing verious states of a trip.
-  enum TripStatus {
-    Created,
-    Approved,
-    CheckedInByHost,
-    CheckedInByGuest,
-    CheckedOutByGuest,
-    CheckedOutByHost,
-    Finished,
-    Canceled
-  }
+  /// Payments
 
   /// @dev Enumeration representing the currency type used for payments.
   enum CurrencyType {
@@ -218,42 +268,6 @@ interface Schemas {
     uint8 ethToCurrencyDecimals;
     uint64 resolveFuelAmountInUsdCents;
     uint64 resolveMilesAmountInUsdCents;
-  }
-
-  /// @dev Struct containing information about a trip.
-  struct Trip {
-    uint256 tripId;
-    uint256 carId;
-    TripStatus status;
-    address guest;
-    address host;
-    string guestName;
-    string hostName;
-    uint64 pricePerDayInUsdCents;
-    uint64 startDateTime;
-    uint64 endDateTime;
-    string startLocation;
-    string endLocation;
-    uint64 milesIncludedPerDay;
-    uint64[] fuelPrices;
-    PaymentInfo paymentInfo;
-    uint approvedDateTime;
-    uint rejectedDateTime;
-    address rejectedBy;
-    uint checkedInByHostDateTime;
-    uint64[] startParamLevels;
-    uint checkedInByGuestDateTime;
-    address tripStartedBy;
-    uint checkedOutByGuestDateTime;
-    address tripFinishedBy;
-    uint64[] endParamLevels;
-    uint checkedOutByHostDateTime;
-  }
-
-  struct AvailableCarResponse {
-    CarInfo car;
-    string hostPhotoUrl;
-    string hostName;
   }
 
   /// User service

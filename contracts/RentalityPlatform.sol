@@ -212,9 +212,9 @@ contract RentalityPlatform is UUPSOwnable {
     tripService.approveTrip(tripId);
 
     Schemas.Trip memory trip = tripService.getTrip(tripId);
-    Schemas.Trip[] memory intersectedTrips = RentalityUtils.getTripsForCarThatIntersect(
-      tripService,
-      carService,
+    Schemas.Trip[] memory intersectedTrips = RentalityQuery.getTripsForCarThatIntersect(
+      address(tripService),
+      address(carService),
       trip.carId,
       trip.startDateTime,
       trip.endDateTime
@@ -231,6 +231,8 @@ contract RentalityPlatform is UUPSOwnable {
   /// @param tripId The ID of the trip to reject.
   function rejectTripRequest(uint256 tripId) public {
     Schemas.Trip memory trip = tripService.getTrip(tripId);
+    Schemas.TripStatus statusBeforeCancellation = trip.status;
+
     tripService.rejectTrip(tripId);
 
     uint64 valueToReturnInUsdCents = trip.paymentInfo.totalDayPriceInUsdCents +
@@ -243,6 +245,8 @@ contract RentalityPlatform is UUPSOwnable {
       trip.paymentInfo.ethToCurrencyDecimals
     );
 
+    tripService.saveTransactionInfo(tripId, 0, statusBeforeCancellation, valueToReturnInUsdCents, 0);
+
     (bool successGuest, ) = payable(trip.guest).call{value: valueToReturnInEth}('');
     require(successGuest, 'Transfer to guest failed.');
   }
@@ -253,10 +257,15 @@ contract RentalityPlatform is UUPSOwnable {
     tripService.finishTrip(tripId);
     Schemas.Trip memory trip = tripService.getTrip(tripId);
 
+    uint256 rentalityFee = paymentService.getPlatformFeeFrom(
+      trip.paymentInfo.totalDayPriceInUsdCents + trip.paymentInfo.taxPriceInUsdCents
+    );
+
     uint256 valueToHostInUsdCents = trip.paymentInfo.totalDayPriceInUsdCents +
       trip.paymentInfo.taxPriceInUsdCents +
       trip.paymentInfo.resolveAmountInUsdCents -
-      paymentService.getPlatformFeeFrom(trip.paymentInfo.totalDayPriceInUsdCents + trip.paymentInfo.taxPriceInUsdCents);
+      rentalityFee;
+
     uint256 valueToHostInEth = currencyConverterService.getEthFromUsd(
       valueToHostInUsdCents,
       trip.paymentInfo.ethToCurrencyRate,
@@ -267,6 +276,13 @@ contract RentalityPlatform is UUPSOwnable {
       valueToGuestInUsdCents,
       trip.paymentInfo.ethToCurrencyRate,
       trip.paymentInfo.ethToCurrencyDecimals
+    );
+    tripService.saveTransactionInfo(
+      tripId,
+      rentalityFee,
+      Schemas.TripStatus.Finished,
+      valueToGuestInUsdCents,
+      valueToHostInUsdCents
     );
     //require(payable(trip.host).send(valueToHostInEth));
     //require(payable(trip.guest).send(valueToGuestInEth));
@@ -381,15 +397,15 @@ contract RentalityPlatform is UUPSOwnable {
   /// @notice Get chat information for trips hosted by the caller on the Rentality platform.
   /// @return chatInfo An array of chat information for trips hosted by the caller.
   function getChatInfoForHost() public view returns (Schemas.ChatInfo[] memory) {
-    Schemas.Trip[] memory trips = RentalityUtils.getTripsByHost(tripService, tx.origin);
-    return RentalityUtils.populateChatInfo(trips, userService, carService);
+    Schemas.Trip[] memory trips = RentalityQuery.getTripsByHost(address(tripService), tx.origin);
+    return RentalityUtils.populateChatInfo(trips, address(userService), address(carService));
   }
 
   /// @notice Get chat information for trips attended by the caller on the Rentality platform.
   /// @return chatInfo An array of chat information for trips attended by the caller.
   function getChatInfoForGuest() public view returns (Schemas.ChatInfo[] memory) {
-    Schemas.Trip[] memory trips = RentalityUtils.getTripsByGuest(tripService, tx.origin);
-    return RentalityUtils.populateChatInfo(trips, userService, carService);
+    Schemas.Trip[] memory trips = RentalityQuery.getTripsByGuest(address(tripService), tx.origin);
+    return RentalityUtils.populateChatInfo(trips, address(userService), address(carService));
   }
 
   /// @notice Calls outdated automations and takes corresponding actions based on their types.

@@ -11,21 +11,28 @@ async function deployDefaultFixture() {
 
   await utils.waitForDeployment()
 
+  const RentalityQuery = await ethers.getContractFactory('RentalityQuery')
+  const query = await RentalityQuery.deploy()
+
   const RentalityMockPriceFeed = await ethers.getContractFactory('RentalityMockPriceFeed')
   const RentalityUserService = await ethers.getContractFactory('RentalityUserService')
   const RentalityTripService = await ethers.getContractFactory('RentalityTripService', {
-    libraries: { RentalityUtils: await utils.getAddress() },
+    libraries: {
+      RentalityQuery: await query.getAddress(),
+      RentalityUtils: await utils.getAddress(),
+    },
   })
   const RentalityCurrencyConverter = await ethers.getContractFactory('RentalityCurrencyConverter')
   const RentalityPaymentService = await ethers.getContractFactory('RentalityPaymentService')
   const RentalityGeoService = await ethers.getContractFactory('RentalityGeoMock')
 
   const RentalityCarToken = await ethers.getContractFactory('RentalityCarToken', {
-    libraries: { RentalityUtils: await utils.getAddress() },
+    libraries: { RentalityQuery: await query.getAddress() },
   })
   const RentalityPlatform = await ethers.getContractFactory('RentalityPlatform', {
     libraries: {
       RentalityUtils: await utils.getAddress(),
+      RentalityQuery: await query.getAddress(),
     },
   })
 
