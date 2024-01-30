@@ -10,45 +10,8 @@ import './RentalityTripService.sol';
 interface IRentalityGateway {
   /// @admin functions
 
-  /// @notice Get the address of the Car Service contract.
-  /// @return The address of the Car Service contract.
-  function getCarServiceAddress() external view returns (address);
-
-  /// @notice Update the Car Service contract address.
-  /// @param contractAddress The new address of the Car Service contract.
-  function updateCarService(address contractAddress) external;
-
-  /// @notice Get the address of the Currency Converter Service contract.
-  /// @return The address of the Currency Converter Service contract.
-  function getCurrencyConverterServiceAddress() external view returns (address);
-
-  /// @notice Update the Currency Converter Service contract address.
-  /// @param contractAddress The new address of the Currency Converter Service contract.
-  function updateCurrencyConverterService(address contractAddress) external;
-
-  /// @notice Get the address of the Trip Service contract.
-  /// @return The address of the Trip Service contract.
-  function getTripServiceAddress() external view returns (address);
-
-  /// @notice Update the Trip Service contract address.
-  /// @param contractAddress The new address of the Trip Service contract.
-  function updateTripService(address contractAddress) external;
-
-  /// @notice Get the address of the User Service contract.
-  /// @return The address of the User Service contract.
-  function getUserServiceAddress() external view returns (address);
-
-  /// @notice Update the User Service contract address.
-  /// @param contractAddress The new address of the User Service contract.
-  function updateUserService(address contractAddress) external;
-
-  ///  @notice Get the address of the Rentality Platform contract.
-  ///  @return The address of the Rentality Platform contract.
-  function getRentalityPlatformAddress() external view returns (address);
-
-  /// @notice Update the Rentality Platform contract address.
-  /// @param contractAddress The new address of the Rentality Platform contract.
-  function updateRentalityPlatform(address contractAddress) external;
+  /// @notice This function retrieves the actual service addresses
+  function updateServiceAddresses() external;
 
   /// @notice Get the platform fee in parts per million (PPM).
   /// @return The platform fee in PPM.

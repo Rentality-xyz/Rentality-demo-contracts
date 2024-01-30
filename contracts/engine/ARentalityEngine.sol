@@ -108,7 +108,7 @@ abstract contract ARentalityEngine {
     return 2;
   }
 
-  function isEmptyParams(uint64[] memory params) public view returns (bool) {
+  function isEmptyParams(uint64[] memory params) public pure returns (bool) {
     for (uint256 i = 0; i < params.length; i++) {
       if (params[i] != 0) {
         return false;
