@@ -327,6 +327,9 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
       engineService.verifyEndParams(trip.startParamLevels, panelParams, carInfo.engineType);
       idToTripInfo[tripId].endParamLevels = panelParams;
       idToTripInfo[tripId].tripFinishedBy = tx.origin;
+    } else {
+      uint64 duration = RentalityUtils.getCeilDays(trip.startDateTime, trip.endDateTime);
+      idToTripInfo[tripId].endParamLevels = engineService.getEndParamsFromTripInfo(trip, duration, carInfo.engineType);
     }
 
     automationService.removeAutomation(tripId, Schemas.AutomationType.FinishTrip);
@@ -356,14 +359,8 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
 
     Schemas.CarInfo memory carInfo = carService.getCarInfoById(trip.carId);
 
-    bool autoFinished = engineService.isEmptyParams(carInfo.engineType, trip.endParamLevels);
+    engineService.compareParams(trip.endParamLevels, panelParams, carInfo.engineType);
 
-    if (autoFinished) {
-      engineService.verifyEndParams(trip.startParamLevels, panelParams, carInfo.engineType);
-      trip.endParamLevels = panelParams;
-    } else {
-      engineService.compareParams(trip.endParamLevels, panelParams, carInfo.engineType);
-    }
     idToTripInfo[tripId].status = Schemas.TripStatus.CheckedOutByHost;
     idToTripInfo[tripId].checkedOutByHostDateTime = block.timestamp;
 
