@@ -2,7 +2,7 @@
 pragma solidity ^0.8.9;
 
 import '@chainlink/contracts/src/v0.8/ChainlinkClient.sol';
-import './RentalityUtils.sol';
+import "./libs/RentalityUtils.sol";
 import './Schemas.sol';
 import './IRentalityGeoService.sol';
 import {Ownable} from '@openzeppelin/contracts/access/Ownable.sol';
