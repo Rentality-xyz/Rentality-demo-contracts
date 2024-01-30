@@ -2,6 +2,7 @@
 pragma solidity ^0.8.9;
 
 import '../IRentalityAccessControl.sol';
+import '../Schemas.sol';
 
 /// @title ARentalityEngine - Abstract contract for a rental engine in the Rentality system.
 /// @notice This contract defines the basic structure and functions required for a rental engine.
@@ -108,6 +109,24 @@ abstract contract ARentalityEngine {
     return 2;
   }
 
+  /// @notice Retrieves end parameters from the trip information.
+  /// @param trip A struct containing trip information.
+  /// @return An array of uint64 containing end parameters.
+  function getEndParamsFromTripInfo(
+    Schemas.Trip memory trip,
+    uint64 duration
+  ) public virtual returns (uint64[] memory) {
+    uint64[] memory params = new uint64[](getParamsAmount());
+
+    params[0] = trip.startParamLevels[0];
+    params[1] = trip.startParamLevels[1] + trip.milesIncludedPerDay * duration;
+
+    return params;
+  }
+
+  /// @notice Checks if the given array of parameters is empty.
+  /// @param params An array of uint64 parameters.
+  /// @return A boolean indicating whether the parameters array is empty.
   function isEmptyParams(uint64[] memory params) public pure returns (bool) {
     for (uint256 i = 0; i < params.length; i++) {
       if (params[i] != 0) {
