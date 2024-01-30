@@ -212,7 +212,7 @@ contract RentalityPlatform is UUPSOwnable {
     tripService.approveTrip(tripId);
 
     Schemas.Trip memory trip = tripService.getTrip(tripId);
-    Schemas.Trip[] memory intersectedTrips = RentalityUtils.getTripsForCarThatIntersect(
+    Schemas.Trip[] memory intersectedTrips = RentalityQuery.getTripsForCarThatIntersect(
       tripService,
       carService,
       trip.carId,
@@ -397,14 +397,14 @@ contract RentalityPlatform is UUPSOwnable {
   /// @notice Get chat information for trips hosted by the caller on the Rentality platform.
   /// @return chatInfo An array of chat information for trips hosted by the caller.
   function getChatInfoForHost() public view returns (Schemas.ChatInfo[] memory) {
-    Schemas.Trip[] memory trips = RentalityUtils.getTripsByHost(tripService, tx.origin);
+    Schemas.Trip[] memory trips = RentalityQuery.getTripsByHost(tripService, tx.origin);
     return RentalityUtils.populateChatInfo(trips, userService, carService);
   }
 
   /// @notice Get chat information for trips attended by the caller on the Rentality platform.
   /// @return chatInfo An array of chat information for trips attended by the caller.
   function getChatInfoForGuest() public view returns (Schemas.ChatInfo[] memory) {
-    Schemas.Trip[] memory trips = RentalityUtils.getTripsByGuest(tripService, tx.origin);
+    Schemas.Trip[] memory trips = RentalityQuery.getTripsByGuest(tripService, tx.origin);
     return RentalityUtils.populateChatInfo(trips, userService, carService);
   }
 
