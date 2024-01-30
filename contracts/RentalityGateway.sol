@@ -301,34 +301,34 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
   /// @notice Retrieves information about trips where the caller is the guest.
   /// @return An array of trip information.
   function getTripsAsGuest() public view returns (Schemas.Trip[] memory) {
-    return RentalityQuery.getTripsByGuest(tripService, tx.origin);
+    return RentalityQuery.getTripsByGuest( address(tripService), tx.origin);
   }
 
   /// @notice Retrieves information about trips where the specified user is the guest.
   /// @param guest The address of the guest.
   /// @return An array of trip information for the specified guest.
   function getTripsByGuest(address guest) public view returns (Schemas.Trip[] memory) {
-    return RentalityQuery.getTripsByGuest(tripService, guest);
+    return RentalityQuery.getTripsByGuest( address(tripService), guest);
   }
 
   /// @notice Retrieves information about trips where the caller is the host.
   /// @return An array of trip information.
   function getTripsAsHost() public view returns (Schemas.Trip[] memory) {
-    return RentalityQuery.getTripsByHost(tripService, tx.origin);
+    return RentalityQuery.getTripsByHost( address(tripService), tx.origin);
   }
 
   /// @notice Retrieves information about trips where the specified user is the host.
   /// @param host The address of the host.
   /// @return An array of trip information for the specified host.
   function getTripsByHost(address host) public view returns (Schemas.Trip[] memory) {
-    return RentalityQuery.getTripsByHost(tripService, host);
+    return RentalityQuery.getTripsByHost( address(tripService), host);
   }
 
   /// @notice Retrieves information about trips for a specific car.
   /// @param carId The ID of the car.
   /// @return An array of trip information for the specified car.
   function getTripsByCar(uint256 carId) public view returns (Schemas.Trip[] memory) {
-    return RentalityQuery.getTripsByCar(tripService, carId);
+    return RentalityQuery.getTripsByCar( address(tripService), carId);
   }
 
   /// @notice Creates a new claim through the Rentality platform.
@@ -372,7 +372,7 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
   /// @param tripId ID of the trip.
   /// @return Array of detailed claim information.
   function getClaimsByTrip(uint256 tripId) public view returns (Schemas.FullClaimInfo[] memory) {
-    return RentalityQuery.getClaimsByTrip(claimService, tripService, carService, userService, tripId);
+    return RentalityQuery.getClaimsByTrip( address(claimService),  address(tripService),  address(carService),  address(userService), tripId);
   }
 
   /// @notice Retrieves all claims where the caller is the host.

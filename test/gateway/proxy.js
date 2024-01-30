@@ -2,9 +2,9 @@ const { expect } = require('chai')
 const { ethers, upgrades } = require('hardhat')
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 const { deployDefaultFixture } = require('../utils')
-const wasi = require("wasi");
 
-describe.only('RentalityGateway: proxy', function () {
+
+describe('RentalityGateway: proxy', function () {
   let rentalityGateway,
     rentalityMockPriceFeed,
     rentalityUserService,

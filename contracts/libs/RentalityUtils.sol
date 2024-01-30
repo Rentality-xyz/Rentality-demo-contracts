@@ -155,14 +155,17 @@ library RentalityUtils {
 
   /// @notice Populates an array of chat information using data from trips, user service, and car service.
   /// @param trips Array of RentalityTripService.Trip structures.
-  /// @param userService RentalityUserService contract instance.
-  /// @param carService RentalityCarToken contract instance.
+  /// @param userServiceAddress RentalityUserService contract instance.
+  /// @param carServiceAddress RentalityCarToken contract instance.
   /// @return chatInfoList Array of IRentalityGateway.ChatInfo structures.
   function populateChatInfo(
     Schemas.Trip[] memory trips,
-    RentalityUserService userService,
-    RentalityCarToken carService
+    address userServiceAddress,
+    address carServiceAddress
   ) public view returns (Schemas.ChatInfo[] memory) {
+    RentalityUserService userService = RentalityUserService(userServiceAddress);
+    RentalityCarToken carService = RentalityCarToken(carServiceAddress);
+
     Schemas.ChatInfo[] memory chatInfoList = new Schemas.ChatInfo[](trips.length);
 
     for (uint i = 0; i < trips.length; i++) {
