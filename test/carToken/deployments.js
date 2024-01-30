@@ -81,7 +81,8 @@ async function deployDefaultFixture() {
   const RentalityTripService = await ethers.getContractFactory('RentalityTripService', {
     libraries: {
       RentalityUtils: await utils.getAddress(),
-      RentalityQuery: await query.getAddress(),},
+      RentalityQuery: await query.getAddress(),
+    },
   })
 
   const rentalityTripService = await upgrades.deployProxy(RentalityTripService, [

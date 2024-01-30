@@ -119,7 +119,7 @@ async function deployDefaultFixture() {
   const RentalityTripService = await ethers.getContractFactory('RentalityTripService', {
     libraries: {
       RentalityQuery: await query.getAddress(),
-      RentalityUtils: await utils.getAddress()
+      RentalityUtils: await utils.getAddress(),
     },
   })
 
@@ -134,7 +134,7 @@ async function deployDefaultFixture() {
   const RentalityPlatform = await ethers.getContractFactory('RentalityPlatform', {
     libraries: {
       RentalityUtils: await utils.getAddress(),
-      RentalityQuery: await query.getAddress()
+      RentalityQuery: await query.getAddress(),
     },
   })
   const RentalityGeoService = await ethers.getContractFactory('RentalityGeoMock')

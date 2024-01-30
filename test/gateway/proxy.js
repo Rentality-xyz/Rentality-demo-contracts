@@ -3,7 +3,6 @@ const { ethers, upgrades } = require('hardhat')
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 const { deployDefaultFixture } = require('../utils')
 
-
 describe('RentalityGateway: proxy', function () {
   let rentalityGateway,
     rentalityMockPriceFeed,
@@ -16,7 +15,7 @@ describe('RentalityGateway: proxy', function () {
     rentalityGeoService,
     rentalityAdminGateway,
     utils,
-      query,
+    query,
     claimService,
     owner,
     admin,
@@ -111,7 +110,6 @@ describe('RentalityGateway: proxy', function () {
     expect(await upgrades.upgradeProxy(chatHelperAdd, ChatHelperAdmin, { kind: 'uups' })).to.not.reverted
   })
   it('should not be able to update gateway without access', async function () {
-
     const GatewayAnonn = await ethers.getContractFactory('RentalityGateway', {
       libraries: { RentalityQuery: await query.getAddress() },
       signer: anonymous,
@@ -146,28 +144,28 @@ describe('RentalityGateway: proxy', function () {
     const RentalityPlatformAnnon = await ethers.getContractFactory('RentalityPlatform', {
       libraries: {
         RentalityQuery: await query.getAddress(),
-        RentalityUtils: await utils.getAddress()
+        RentalityUtils: await utils.getAddress(),
       },
       signer: anonymous,
     })
     const RentalityPlatformHost = await ethers.getContractFactory('RentalityPlatform', {
       libraries: {
         RentalityQuery: await query.getAddress(),
-        RentalityUtils: await utils.getAddress()
+        RentalityUtils: await utils.getAddress(),
       },
       signer: host,
     })
     const RentalityPlatformGuest = await ethers.getContractFactory('RentalityPlatform', {
       libraries: {
         RentalityQuery: await query.getAddress(),
-        RentalityUtils: await utils.getAddress()
+        RentalityUtils: await utils.getAddress(),
       },
       signer: guest,
     })
     const RentalityPlatformOwner = await ethers.getContractFactory('RentalityPlatform', {
       libraries: {
         RentalityQuery: await query.getAddress(),
-        RentalityUtils: await utils.getAddress()
+        RentalityUtils: await utils.getAddress(),
       },
       signer: owner,
     })

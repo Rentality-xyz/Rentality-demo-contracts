@@ -2,8 +2,8 @@
 pragma solidity ^0.8.9;
 import '@openzeppelin/contracts/utils/math/Math.sol';
 import '../Schemas.sol';
-import "../RentalityUserService.sol";
-import "../RentalityCarToken.sol";
+import '../RentalityUserService.sol';
+import '../RentalityCarToken.sol';
 
 /// @title RentalityUtils Library
 /// @notice
@@ -341,6 +341,4 @@ library RentalityUtils {
   function toBytes(bytes32 _data) public pure returns (bytes memory) {
     return abi.encodePacked(_data);
   }
-
-
 }
