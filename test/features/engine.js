@@ -1,8 +1,8 @@
 const { expect } = require('chai')
-const { ethers, upgrades } = require('hardhat')
+const { ethers, upgrades, network } = require('hardhat')
 const { time, loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 const { Contract } = require('hardhat/internal/hardhat-network/stack-traces/model')
-const { deployDefaultFixture } = require('../utils')
+const { deployDefaultFixture, getMockCarRequest } = require('../utils')
 
 describe('RentalityEngines', function () {
   let rentalityGateway,
@@ -14,6 +14,7 @@ describe('RentalityEngines', function () {
     rentalityPaymentService,
     rentalityPlatform,
     engineService,
+    rentalityAutomationService,
     elEngine,
     pEngine,
     hEngine,
@@ -35,6 +36,7 @@ describe('RentalityEngines', function () {
       rentalityPaymentService,
       rentalityPlatform,
       engineService,
+      rentalityAutomationService,
       elEngine,
       pEngine,
       hEngine,
@@ -231,6 +233,53 @@ describe('RentalityEngines', function () {
         tripDays
       )
       expect(result[1]).to.be.eq(expectedFuelRefund)
+    })
+
+    it('should correctly compute end params', async function () {
+      const createCarRequest = getMockCarRequest(0)
+      await expect(rentalityGateway.connect(host).addCar(createCarRequest)).not.to.be.reverted
+
+      const oneDayInSeconds = 24 * 60 * 60
+      const rentPriceInUsdCents = 1000
+      const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
+        await rentalityCurrencyConverter.getEthFromUsdLatest(rentPriceInUsdCents)
+
+      const blockNumBefore = await ethers.provider.getBlockNumber()
+      const blockBefore = await ethers.provider.getBlock(blockNumBefore)
+      const timestampBefore = blockBefore.timestamp
+
+      await expect(
+        rentalityGateway.connect(guest).createTripRequest(
+          {
+            carId: 1,
+            host: host.address,
+            startDateTime: timestampBefore,
+            endDateTime: timestampBefore + oneDayInSeconds * 2,
+            startLocation: '',
+            endLocation: '',
+            totalDayPriceInUsdCents: rentPriceInUsdCents,
+            taxPriceInUsdCents: 0,
+            depositInUsdCents: 0,
+            fuelPrices: [400],
+            ethToCurrencyRate: ethToCurrencyRate,
+            ethToCurrencyDecimals: ethToCurrencyDecimals,
+          },
+          { value: rentPriceInEth }
+        )
+      ).to.not.reverted
+      expect(await rentalityGateway.connect(host).approveTripRequest(1)).not.be.reverted
+
+      await expect(rentalityGateway.connect(host).checkInByHost(1, [10, 0])).not.be.reverted
+
+      await expect(rentalityGateway.connect(guest).checkInByGuest(1, [10, 0])).not.be.reverted
+
+      await network.provider.send('evm_setNextBlockTimestamp', [timestampBefore + oneDayInSeconds * 3])
+
+      await expect(rentalityGateway.connect(admin).callOutdated()).not.be.reverted
+
+      const trip = await rentalityTripService.getTrip(1)
+      expect(trip.startParamLevels[0]).to.be.eq(trip.endParamLevels[0])
+      expect(trip.milesIncludedPerDay * BigInt(2)).to.be.eq(trip.endParamLevels[1])
     })
   })
 })
