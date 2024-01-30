@@ -110,6 +110,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
       milesIncludedPerDay,
       fuelPricesPerUnits,
       paymentInfo,
+      block.timestamp,
       0,
       0,
       address(0),
