@@ -3,6 +3,11 @@ const package = require('../../package.json')
 const { readFileSync, existsSync } = require('fs')
 const { network } = require('hardhat')
 var saveJsonAbi = async function (fileName, chainId, contract) {
+  let skip = process.env.SKIP_ABI
+
+  if (skip && skip === '1') {
+    return
+  }
   const version = extractVersion()
 
   const onlyAbiJsonData = {

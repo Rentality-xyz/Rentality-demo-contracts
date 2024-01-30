@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: MIT
-// NatSpec Documentation for RentalityPaymentService Contract
-
 pragma solidity ^0.8.9;
 
 import './IRentalityAccessControl.sol';
 import './proxy/UUPSOwnable.sol';
+import './RentalityTripService.sol';
 
 /// @title Rentality Payment Service Contract
 /// @notice This contract manages platform fees and allows the adjustment of the platform fee by the manager.

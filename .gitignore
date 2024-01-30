@@ -49,3 +49,4 @@ artifacts
 package-lock.json
 .openzeppelin/
 .vscode/
+.idea/

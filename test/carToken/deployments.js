@@ -5,6 +5,8 @@ async function deployDefaultFixture() {
 
   const RentalityUtils = await ethers.getContractFactory('RentalityUtils')
   const utils = await RentalityUtils.deploy()
+  const RentalityQuery = await ethers.getContractFactory('RentalityQuery')
+  const query = await RentalityQuery.deploy()
 
   const RentalityGeoService = await ethers.getContractFactory('RentalityGeoMock')
 
@@ -14,7 +16,7 @@ async function deployDefaultFixture() {
   const RentalityUserService = await ethers.getContractFactory('RentalityUserService')
   const RentalityCarToken = await ethers.getContractFactory('RentalityCarToken', {
     libraries: {
-      RentalityUtils: await utils.getAddress(),
+      RentalityQuery: await query.getAddress(),
     },
   })
 
@@ -77,7 +79,10 @@ async function deployDefaultFixture() {
   await rentalityAutomationService.waitForDeployment()
 
   const RentalityTripService = await ethers.getContractFactory('RentalityTripService', {
-    libraries: { RentalityUtils: await utils.getAddress() },
+    libraries: {
+      RentalityUtils: await utils.getAddress(),
+      RentalityQuery: await query.getAddress(),
+    },
   })
 
   const rentalityTripService = await upgrades.deployProxy(RentalityTripService, [
