@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
+
 import '@openzeppelin/contracts/utils/math/Math.sol';
 import '../Schemas.sol';
 import '../RentalityUserService.sol';
@@ -199,7 +200,7 @@ library RentalityUtils {
   function parseResponse(string memory response) public pure returns (Schemas.ParsedGeolocationData memory) {
     Schemas.ParsedGeolocationData memory result;
 
-    string[] memory pairs = splitString(response);
+    string[] memory pairs = splitString(response, bytes('|'));
     for (uint256 i = 0; i < pairs.length; i++) {
       string[] memory keyValue = splitKeyValue(pairs[i]);
       string memory key = keyValue[0];
@@ -233,9 +234,8 @@ library RentalityUtils {
   /// @notice Splits a string into an array of substrings based on a delimiter.
   /// @param input The input string to split.
   /// @return parts Array of substrings.
-  function splitString(string memory input) internal pure returns (string[] memory) {
+  function splitString(string memory input, bytes memory delimiterBytes) internal pure returns (string[] memory) {
     bytes memory inputBytes = bytes(input);
-    bytes memory delimiterBytes = bytes('|');
 
     uint256 delimiterCount = 0;
     for (uint256 i = 0; i < inputBytes.length; i++) {
@@ -244,7 +244,7 @@ library RentalityUtils {
       }
     }
 
-    string[] memory parts = new string[](delimiterCount);
+    string[] memory parts = new string[](delimiterCount + 1);
 
     uint256 partIndex = 0;
     uint256 startNewString = 0;
@@ -262,6 +262,14 @@ library RentalityUtils {
         parts[partIndex] = string(newString);
         partIndex++;
       }
+    }
+    // get last part
+    if (startNewString < inputBytes.length) {
+      bytes memory lastString = new bytes(inputBytes.length - startNewString);
+      for (uint256 j = startNewString; j < inputBytes.length; j++) {
+        lastString[j - startNewString] = inputBytes[j];
+      }
+      parts[partIndex] = string(lastString);
     }
 
     return parts;

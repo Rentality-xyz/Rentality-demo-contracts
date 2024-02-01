@@ -2,6 +2,7 @@ const { ethers, network, upgrades } = require('hardhat')
 const saveJsonAbi = require('./utils/abiSaver')
 const addressSaver = require('./utils/addressSaver')
 const { startDeploy } = require('./utils/deployHelper')
+const readlineSync = require('readline-sync')
 
 async function main() {
   const { contractName, chainId } = await startDeploy('RentalityGeoService')
@@ -10,7 +11,7 @@ async function main() {
 
   let contract
 
-  if (network.name === 'sepolia') {
+  if (!readlineSync.keyInYNStrict('Do you want to deploy Mock contract?')) {
     const linkToken = '0x779877A7B0D9E8603169DdbD7836e478b4624789'
     const oracle = '0x6090149792dAAeE9D1D568c9f9a6F6B46AA29eFD'
 
