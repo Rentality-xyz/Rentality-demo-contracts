@@ -52,10 +52,5 @@
   {
     "name": "sepolia",
     "RentalityUtils": "0xCb562F9754c9F12Fb5d60c796ee135dd4d4F7B62"
-  },
-  {
-    "name": "localhost",
-    "chainId": 1337,
-    "RentalityGeoService": "0x5e6CB7E728E1C320855587E1D9C6F7972ebdD6D5"
   }
 ]
