@@ -82,7 +82,7 @@ contract RentalityGeoService is ChainlinkClient, Ownable, IRentalityGeoService {
   /// @param carId The ID of the car for which geolocation is parsed.
   function parseGeoResponse(uint256 carId) public {
     string memory response = carIdToGeolocationResponse[carId];
-    string[] memory pairs = RentalityUtils.splitString(response);
+    string[] memory pairs = RentalityUtils.splitString(response, bytes('|'));
 
     Schemas.ParsedGeolocationData memory result;
 
