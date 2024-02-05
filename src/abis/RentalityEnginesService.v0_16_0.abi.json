@@ -1,0 +1,297 @@
+{
+  "abi": [
+    { "type": "error", "name": "Overflow", "inputs": [] },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "AdminChanged",
+      "inputs": [
+        { "type": "address", "name": "previousAdmin", "indexed": false },
+        { "type": "address", "name": "newAdmin", "indexed": false }
+      ]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "BeaconUpgraded",
+      "inputs": [{ "type": "address", "name": "beacon", "indexed": true }]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "Initialized",
+      "inputs": [{ "type": "uint8", "name": "version", "indexed": false }]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "Upgraded",
+      "inputs": [{ "type": "address", "name": "implementation", "indexed": true }]
+    },
+    {
+      "type": "function",
+      "name": "addEngineService",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "engineService" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "compareParams",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        { "type": "uint64[]", "name": "startParams" },
+        { "type": "uint64[]", "name": "endParams" },
+        { "type": "uint8", "name": "eType" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "extraCosts",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint8", "name": "eType" },
+        { "type": "uint64[]", "name": "params" }
+      ],
+      "outputs": [{ "type": "uint64", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getEndParamsFromTripInfo",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "tuple",
+          "name": "trip",
+          "components": [
+            { "type": "uint256", "name": "tripId" },
+            { "type": "uint256", "name": "carId" },
+            { "type": "uint8", "name": "status" },
+            { "type": "address", "name": "guest" },
+            { "type": "address", "name": "host" },
+            { "type": "string", "name": "guestName" },
+            { "type": "string", "name": "hostName" },
+            { "type": "uint64", "name": "pricePerDayInUsdCents" },
+            { "type": "uint64", "name": "startDateTime" },
+            { "type": "uint64", "name": "endDateTime" },
+            { "type": "string", "name": "startLocation" },
+            { "type": "string", "name": "endLocation" },
+            { "type": "uint64", "name": "milesIncludedPerDay" },
+            { "type": "uint64[]", "name": "fuelPrices" },
+            {
+              "type": "tuple",
+              "name": "paymentInfo",
+              "components": [
+                { "type": "uint256", "name": "tripId" },
+                { "type": "address", "name": "from" },
+                { "type": "address", "name": "to" },
+                { "type": "uint64", "name": "totalDayPriceInUsdCents" },
+                { "type": "uint64", "name": "taxPriceInUsdCents" },
+                { "type": "uint64", "name": "depositInUsdCents" },
+                { "type": "uint64", "name": "resolveAmountInUsdCents" },
+                { "type": "uint8", "name": "currencyType" },
+                { "type": "int256", "name": "ethToCurrencyRate" },
+                { "type": "uint8", "name": "ethToCurrencyDecimals" },
+                { "type": "uint64", "name": "resolveFuelAmountInUsdCents" },
+                { "type": "uint64", "name": "resolveMilesAmountInUsdCents" }
+              ]
+            },
+            { "type": "uint256", "name": "createdDateTime" },
+            { "type": "uint256", "name": "approvedDateTime" },
+            { "type": "uint256", "name": "rejectedDateTime" },
+            { "type": "address", "name": "rejectedBy" },
+            { "type": "uint256", "name": "checkedInByHostDateTime" },
+            { "type": "uint64[]", "name": "startParamLevels" },
+            { "type": "uint256", "name": "checkedInByGuestDateTime" },
+            { "type": "address", "name": "tripStartedBy" },
+            { "type": "uint256", "name": "checkedOutByGuestDateTime" },
+            { "type": "address", "name": "tripFinishedBy" },
+            { "type": "uint64[]", "name": "endParamLevels" },
+            { "type": "uint256", "name": "checkedOutByHostDateTime" },
+            {
+              "type": "tuple",
+              "name": "transactionInfo",
+              "components": [
+                { "type": "uint256", "name": "rentalityFee" },
+                { "type": "uint256", "name": "depositRefund" },
+                { "type": "uint256", "name": "tripEarnings" },
+                { "type": "uint256", "name": "dateTime" },
+                { "type": "uint8", "name": "statusBeforeCancellation" }
+              ]
+            }
+          ]
+        },
+        { "type": "uint64", "name": "duration" },
+        { "type": "uint8", "name": "eType" }
+      ],
+      "outputs": [{ "type": "uint64[]", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getEngineAddressById",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "uint8", "name": "eType" }],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getPanelParamsAmount",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "uint8", "name": "eType" }],
+      "outputs": [{ "type": "uint256", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getResolveAmountInUsdCents",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        { "type": "uint8", "name": "engineType" },
+        { "type": "uint64[]", "name": "fuelPrices" },
+        { "type": "uint64[]", "name": "startParams" },
+        { "type": "uint64[]", "name": "endParams" },
+        { "type": "uint64[]", "name": "engineParams" },
+        { "type": "uint64", "name": "milesIncludedPerDay" },
+        { "type": "uint64", "name": "pricePerDayInUsdCents" },
+        { "type": "uint64", "name": "tripDays" }
+      ],
+      "outputs": [
+        { "type": "uint64", "name": "" },
+        { "type": "uint64", "name": "" }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "initialize",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "_userService" },
+        { "type": "address[]", "name": "engineServices" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "isEmptyParams",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        { "type": "uint8", "name": "eType" },
+        { "type": "uint64[]", "name": "params" }
+      ],
+      "outputs": [{ "type": "bool", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "proxiableUUID",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "bytes32", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "updateEngineService",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "engineService" },
+        { "type": "uint8", "name": "eType" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "upgradeTo",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "newImplementation" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "upgradeToAndCall",
+      "constant": false,
+      "stateMutability": "payable",
+      "payable": true,
+      "inputs": [
+        { "type": "address", "name": "newImplementation" },
+        { "type": "bytes", "name": "data" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "verifyCreateParams",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        { "type": "uint8", "name": "eType" },
+        { "type": "uint64[]", "name": "params" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "verifyEndParams",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint64[]", "name": "startParams" },
+        { "type": "uint64[]", "name": "endParams" },
+        { "type": "uint8", "name": "eType" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "verifyResourcePrice",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        { "type": "uint64[]", "name": "prices" },
+        { "type": "uint8", "name": "eType" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "verifyStartParams",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint64[]", "name": "params" },
+        { "type": "uint8", "name": "eType" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "verifyUpdateParams",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        { "type": "uint8", "name": "eType" },
+        { "type": "uint64[]", "name": "newParams" },
+        { "type": "uint64[]", "name": "oldParams" }
+      ],
+      "outputs": [{ "type": "uint64[]", "name": "" }]
+    }
+  ]
+}
