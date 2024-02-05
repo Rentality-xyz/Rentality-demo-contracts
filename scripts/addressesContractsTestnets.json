@@ -51,6 +51,24 @@
   },
   {
     "name": "sepolia",
-    "RentalityUtils": "0xCb562F9754c9F12Fb5d60c796ee135dd4d4F7B62"
+    "chainId": 11155111,
+    "RentalityQuery": "0xC7faCB3bC7733B556dC902138A1A37534bC5df40",
+    "RentalityUserService": "0x54c47ecdd497701A04F07f1aD6001dAe8Ab7443B",
+    "RentalityClaimService": "0xA80bcaf343934649F42Ff18622a5E9FC78b2aaFE",
+    "EthToUsdPriceFeedAddress": "0x694AA1769357215DE4FAC081bf1f309aDC325306",
+    "RentalityCurrencyConverter": "0x9e3b0C3ACb1A099d48Ca6971392C09F5612292aF",
+    "RentalityPaymentService": "0x3cD4bCE216d843c66A337b5e214796d93cECDAdc",
+    "RentalityGeoService": "0x35F739d27A2eAe36128BF570fe54dF3aE54A80A7",
+    "RentalityPatrolEngine": "0x271439B579d009fd74dF8366BB8200167E450789",
+    "RentalityElectricEngine": "0xCE5d96adbE4B9fe28baec5F24E715a4C45181c97",
+    "RentalityEnginesService": "0xE8B81a162fee3aBcF3581d750F863707e79E98F7",
+    "RentalityCarToken": "0x9DCE90907Ab2a9B81ef387330aa3692F7b0d6c18",
+    "RentalityUtils": "0x8b5F49B36533Df2e593dFd107773Ff64d53043e4",
+    "RentalityAutomation": "0xBDed7332C686073d4177fF4b9F1eC1d7fdA6836f",
+    "RentalityTripService": "0xEe1fBA6B97fEEf36D6BDbA961E5e3Fc395A35e0c",
+    "RentalityPlatform": "0x56B4B453f346508CFeABBAe9682236e85F367Cd6",
+    "RentalityChatHelper": "0xafBCB2DF35721ae7bF15Adc5727586662C27D65B",
+    "RentalityAdminGateway": "0x32EC10e9A9B0D5A5df34b2b246232E6cE4b3095c",
+    "RentalityGateway": "0x5a06CbDfd87DD77EeDd237Cdccc453667A61c669"
   }
 ]
