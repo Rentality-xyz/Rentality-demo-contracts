@@ -4,6 +4,7 @@ const fs = require('fs')
 const { network } = require('hardhat')
 
 module.exports = function addressSaver(contractAddress, contractName, rewriteIfExist, chain) {
+
   let chainId = Number.parseInt(chain.toString())
   const data = readFileSync(path, 'utf-8')
   const jsonData = JSON.parse(data)
