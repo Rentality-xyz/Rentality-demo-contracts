@@ -22,6 +22,7 @@ async function main() {
     const mockContractName = 'RentalityGeoMock'
 
     console.log(`Deploying geo mock contact...`)
+    console.log('WARNING!! Height gas price!! Approximately 0.1 eth')
     const contractFactory = await ethers.getContractFactory(mockContractName)
     contract = await contractFactory.deploy()
   }

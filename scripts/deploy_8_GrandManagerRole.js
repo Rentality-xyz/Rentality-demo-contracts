@@ -32,7 +32,6 @@ async function main() {
     await rentalityUserServiceContract.grantManagerRole(rentalityTripServiceAddress)
     await rentalityUserServiceContract.grantManagerRole(rentalityPlatformAddress)
     await rentalityUserServiceContract.grantManagerRole(rentalityCarTokenAddress)
-    await rentalityUserServiceContract.grantManagerRole(rentalityGatewayAddress)
     await rentalityUserServiceContract.grantManagerRole(rentalityAdminGatewayAddress)
     await rentalityUserServiceContract.grantManagerRole(rentalityEngineAddress)
     console.log('manager role granded')
