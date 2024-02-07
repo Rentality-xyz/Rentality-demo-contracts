@@ -2,10 +2,10 @@
 pragma solidity ^0.8.9;
 
 import './RentalityCarToken.sol';
-import './RentalityCurrencyConverter.sol';
+import "./payments/RentalityCurrencyConverter.sol";
 import './RentalityTripService.sol';
 import './RentalityUserService.sol';
-import './RentalityPaymentService.sol';
+import "./payments/RentalityPaymentService.sol";
 import './IRentalityGateway.sol';
 import './proxy/UUPSOwnable.sol';
 import './RentalityClaimService.sol';
@@ -128,13 +128,21 @@ contract RentalityPlatform is UUPSOwnable {
     );
 
     uint64 valueSum = request.totalDayPriceInUsdCents + request.taxPriceInUsdCents + request.depositInUsdCents;
-    uint256 valueSumInEth = currencyConverterService.getEthFromUsd(
+    uint256 valueSumInCurrency = currencyConverterService.getTokenFromUsdCents(
+      request.currencyType,
       valueSum,
-      request.ethToCurrencyRate,
-      request.ethToCurrencyDecimals
+      request.currencyRate,
+      request.currencyDecimals
     );
+    if (request.currencyType == address (0)) {
 
-    require(msg.value == valueSumInEth, 'Rental fee must be equal to sum totalDayPrice + taxPrice + deposit');
+    require(msg.value == valueSum, 'Rental fee must be equal to sum totalDayPrice + taxPrice + deposit');
+    }
+    else {
+      require(IERC20(request.currencyType).balanceOf(tx.origin) >= valueSumInCurrency, 'Rental fee must be equal to sum totalDayPrice + taxPrice + deposit');
+
+      IERC20(request.currencyType).transfer(address(this), valueSumInCurrency);
+    }
 
     if (!userService.isGuest(tx.origin)) {
       userService.grantGuestRole(tx.origin);
@@ -148,9 +156,9 @@ contract RentalityPlatform is UUPSOwnable {
       request.taxPriceInUsdCents,
       request.depositInUsdCents,
       0,
-      Schemas.CurrencyType.ETH,
-      request.ethToCurrencyRate,
-      request.ethToCurrencyDecimals,
+      request.currencyType,
+      request.currencyRate,
+      request.currencyDecimals,
       0,
       0
     );
@@ -239,19 +247,25 @@ contract RentalityPlatform is UUPSOwnable {
       trip.paymentInfo.taxPriceInUsdCents +
       trip.paymentInfo.depositInUsdCents;
 
-    uint256 valueToReturnInEth = currencyConverterService.getEthFromUsd(
+    uint256 valueToReturnInToken = currencyConverterService.getTokenFromUsdCents(
+      trip.paymentInfo.currencyType,
       valueToReturnInUsdCents,
-      trip.paymentInfo.ethToCurrencyRate,
-      trip.paymentInfo.ethToCurrencyDecimals
+      trip.paymentInfo.currencyRate,
+      trip.paymentInfo.currencyDecimals
     );
+    if (trip.paymentInfo.currencyType == address (0)) {
+
+      (bool successGuest, ) = payable(trip.guest).call{value: valueToReturnInEth}('');
+      require(successGuest, 'Transfer to guest failed.');
+  }
+    else {
+      IERC20
+    }
 
     tripService.saveTransactionInfo(tripId, 0, statusBeforeCancellation, valueToReturnInUsdCents, 0);
 
-    (bool successGuest, ) = payable(trip.guest).call{value: valueToReturnInEth}('');
-    require(successGuest, 'Transfer to guest failed.');
-  }
 
-  /// @notice Finish a trip on the Rentality platform.
+    /// @notice Finish a trip on the Rentality platform.
   /// @param tripId The ID of the trip to finish.
   function finishTrip(uint256 tripId) public {
     tripService.finishTrip(tripId);
@@ -266,23 +280,18 @@ contract RentalityPlatform is UUPSOwnable {
       trip.paymentInfo.resolveAmountInUsdCents -
       rentalityFee;
 
+      uint256 valueToGuestInUsdCents = trip.paymentInfo.depositInUsdCents - trip.paymentInfo.resolveAmountInUsdCents;
+
+    if (trip.paymentInfo.currencyType == address (0)) {
     uint256 valueToHostInEth = currencyConverterService.getEthFromUsd(
       valueToHostInUsdCents,
-      trip.paymentInfo.ethToCurrencyRate,
-      trip.paymentInfo.ethToCurrencyDecimals
+      trip.paymentInfo.currencyRate,
+      trip.paymentInfo.currencyDecimals
     );
-    uint256 valueToGuestInUsdCents = trip.paymentInfo.depositInUsdCents - trip.paymentInfo.resolveAmountInUsdCents;
-    uint256 valueToGuestInEth = currencyConverterService.getEthFromUsd(
+    uint256 valueToGuestInEth = currencyConverterService.getTokenFromUsdCents(
       valueToGuestInUsdCents,
-      trip.paymentInfo.ethToCurrencyRate,
-      trip.paymentInfo.ethToCurrencyDecimals
-    );
-    tripService.saveTransactionInfo(
-      tripId,
-      rentalityFee,
-      Schemas.TripStatus.Finished,
-      valueToGuestInUsdCents,
-      valueToHostInUsdCents
+      trip.paymentInfo.currencyRate,
+      trip.paymentInfo.currencyDecimals
     );
     //require(payable(trip.host).send(valueToHostInEth));
     //require(payable(trip.guest).send(valueToGuestInEth));
@@ -291,6 +300,19 @@ contract RentalityPlatform is UUPSOwnable {
     require(successHost, 'Transfer failed.');
     require(successGuest, 'Transfer failed.');
   }
+//    else {
+//      currencyConverterService.calculateTokenRate()
+//    }
+
+    tripService.saveTransactionInfo(
+      tripId,
+      rentalityFee,
+      Schemas.TripStatus.Finished,
+      valueToGuestInUsdCents,
+      valueToHostInUsdCents
+    );
+  }
+
 
   /// @notice Creates a new claim for a specific trip.
   /// @dev Only the host of the trip can create a claim, and certain trip status checks are performed.
