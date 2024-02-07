@@ -17,7 +17,7 @@ contract RentalityETHPayment is Initializable, UUPSAccess, ARentalityCurrencyTyp
         return address (0);
     }
 
-    function decimals() public override view returns(uint8) {
+    function tokenDecimals() public override view returns(uint8) {
         return ethToUsdPriceFeed.decimals();
     }
 

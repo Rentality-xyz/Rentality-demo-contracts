@@ -19,7 +19,7 @@ abstract contract ARentalityCurrencyType {
     function getThisFromUsdCents(uint256 amount, int256 toUsdPrice, uint8 decimals) public virtual view returns (uint) {
         return amount / uint256(toUsdPrice) * (10 ** uint256(decimals));
     }
-    function decimals() public virtual view returns(uint8) {
+    function tokenDecimals() public virtual view returns(uint8) {
         return tokenAddress.decimals();
     }
     function getLatest() public virtual view returns (int);
