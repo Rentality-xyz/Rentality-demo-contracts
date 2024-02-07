@@ -18,6 +18,12 @@ contract RentalityCurrencyConverter is Initializable, UUPSAccess {
     mapping(address => ARentalityCurrencyType) private tokenAddressToPaymentMethod;
 
 
+    function addCurrencyType(address tokenAddress, address rentalityTokenService) public {
+        require(userService.isManager(msg.sender), "From manager contract only.");
+
+        tokenAddressToPaymentMethod[tokenAddress] = ARentalityCurrencyType(rentalityTokenService);
+    }
+
     function getTokenFromUsdCents(address currencyType, uint256 amount, int256 toUsdPrice, uint8 decimals) public view returns (uint) {
         return tokenAddressToPaymentMethod[currencyType].getThisFromUsdCents(amount, toUsdPrice, decimals);
     }
@@ -58,8 +64,12 @@ contract RentalityCurrencyConverter is Initializable, UUPSAccess {
 
     }
 
-    function currencyTypeExists(address currencyType, address token) public view returns (bool) {
-        return address(tokenAddressToPaymentMethod[token]) != address(0);
+    function currencyTypeIsAvailable(address currencyType) public view returns (bool) {
+        return address(tokenAddressToPaymentMethod[currencyType]) != address(0);
+    }
+
+    function isNative(address currencyType) public pure returns(bool) {
+        return currencyType == address (0);
     }
 
     /// @notice contract initialization function
