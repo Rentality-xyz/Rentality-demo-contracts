@@ -7,11 +7,11 @@ pragma solidity ^0.8.9;
 import './RentalityClaimService.sol';
 import './IRentalityGateway.sol';
 import './RentalityCarToken.sol';
-import './RentalityCurrencyConverter.sol';
+import "./payments/RentalityCurrencyConverter.sol";
 import './RentalityTripService.sol';
 import './RentalityUserService.sol';
 import './RentalityPlatform.sol';
-import './RentalityPaymentService.sol';
+import "./payments/RentalityPaymentService.sol";
 import './Schemas.sol';
 import './RentalityAdminGateway.sol';
 

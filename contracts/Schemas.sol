@@ -85,8 +85,9 @@ interface Schemas {
     uint64 taxPriceInUsdCents;
     uint64 depositInUsdCents;
     uint64[] fuelPrices;
-    int256 ethToCurrencyRate;
-    uint8 ethToCurrencyDecimals;
+    int256 currencyRate;
+    uint8 currencyDecimals;
+    address currencyType;
   }
 
   /// @dev Enumeration representing verious states of a trip.
@@ -250,6 +251,7 @@ interface Schemas {
 
   /// Payments
 
+
   /// @dev Enumeration representing the currency type used for payments.
   enum CurrencyType {
     ETH
@@ -264,9 +266,9 @@ interface Schemas {
     uint64 taxPriceInUsdCents;
     uint64 depositInUsdCents;
     uint64 resolveAmountInUsdCents;
-    CurrencyType currencyType;
-    int256 ethToCurrencyRate;
-    uint8 ethToCurrencyDecimals;
+    address currencyType; // tokenAddress, address(0) if native
+    int256 currencyRate;
+    uint8  currencyDecimals;
     uint64 resolveFuelAmountInUsdCents;
     uint64 resolveMilesAmountInUsdCents;
   }
