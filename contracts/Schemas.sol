@@ -38,8 +38,8 @@ interface Schemas {
     uint64 milesIncludedPerDay;
     uint32 timeBufferBetweenTripsInSec;
     string locationAddress;
-    uint32 locationLatitudeInPPM;
-    uint32 locationLongitudeInPPM;
+    string locationLatitude;
+    string locationLongitude;
     string geoApiKey;
   }
 
@@ -65,12 +65,6 @@ interface Schemas {
     uint32 yearOfProductionTo;
     uint64 pricePerDayInUsdCentsFrom;
     uint64 pricePerDayInUsdCentsTo;
-  }
-
-  struct AvailableCarResponse {
-    CarInfo car;
-    string hostPhotoUrl;
-    string hostName;
   }
 
   /// Trip Service
@@ -310,16 +304,21 @@ interface Schemas {
     uint32 yearOfProduction;
     uint64 pricePerDayInUsdCents;
     uint64 securityDepositPerTripInUsdCents;
-    address host; // need for create trip, but it in carInfo also
+    address host;
+    string hostName;
+    string hostPhotoUrl;
     string city;
-    string county;
+    string country;
     string state;
-    uint32 locationLatitudeInPPM;
-    uint32 locationLongitudeInPPM;
+    string locationLatitude;
+    string locationLongitude;
+    string timeZoneId;
   }
   struct CarDetails {
     uint carId;
-    address host; // need for create trip, but it in carInfo also
+    string hostName;
+    string hostPhotoUrl;
+    address host;
     string brand;
     string model;
     uint32 yearOfProduction;
@@ -332,9 +331,9 @@ interface Schemas {
     bool currentlyListed;
     string timeZoneId;
     string city;
-    string county;
+    string country;
     string state;
-    uint32 locationLatitudeInPPM;
-    uint32 locationLongitudeInPPM;
+    string locationLatitude;
+    string locationLongitude;
   }
 }

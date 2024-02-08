@@ -124,7 +124,7 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
   /// @notice Updates the information of a car. Only callable by hosts.
   /// @param request The request containing updated car information.
   function updateCarInfo(Schemas.UpdateCarInfoRequest memory request) public onlyHost {
-    return carService.updateCarInfo(request, '', 0, 0, '');
+    return carService.updateCarInfo(request, '', '', '', '');
   }
 
   /// @notice Updates the information of a car, including location details. Only callable by hosts.
@@ -134,11 +134,11 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
   function updateCarInfoWithLocation(
     Schemas.UpdateCarInfoRequest memory request,
     string memory location,
-    uint32 locationLatitudeInPPM,
-    uint32 locationLongitudeInPPM,
+    string memory locationLatitude,
+    string memory locationLongitude,
     string memory geoApiKey
   ) public onlyHost {
-    return carService.updateCarInfo(request, location, locationLatitudeInPPM, locationLongitudeInPPM, geoApiKey);
+    return carService.updateCarInfo(request, location, locationLatitude, locationLongitude, geoApiKey);
   }
 
   // function updateCarInfo(
@@ -201,7 +201,7 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
     uint64 startDateTime,
     uint64 endDateTime,
     Schemas.SearchCarParams memory searchParams
-  ) public view returns (Schemas.AvailableCarResponse[] memory) {
+  ) public view returns (Schemas.SearchCar[] memory) {
     return searchAvailableCarsForUser(tx.origin, startDateTime, endDateTime, searchParams);
   }
 
@@ -216,7 +216,7 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
     uint64 startDateTime,
     uint64 endDateTime,
     Schemas.SearchCarParams memory searchParams
-  ) public view returns (Schemas.AvailableCarResponse[] memory) {
+  ) public view returns (Schemas.SearchCar[] memory) {
     return tripService.searchAvailableCarsForUser(user, startDateTime, endDateTime, searchParams);
   }
 
@@ -224,6 +224,13 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
   /// @return An array of car information owned by the caller.
   function getMyCars() public view returns (Schemas.CarInfo[] memory) {
     return carService.getCarsOwnedByUser(tx.origin);
+  }
+
+  /// @notice Retrieves detailed information about a car.
+  /// @param carId The ID of the car for which details are requested.
+  /// @return details An instance of `Schemas.CarDetails` containing the details of the specified car.
+  function getCarDetails(uint carId) public view returns (Schemas.CarDetails memory) {
+    return RentalityQuery.getCarDetails(address(adminService), carId);
   }
 
   /// @notice Creates a trip request. Callable by users with payment.
