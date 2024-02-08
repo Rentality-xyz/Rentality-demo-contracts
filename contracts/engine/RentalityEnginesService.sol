@@ -95,19 +95,6 @@ contract RentalityEnginesService is Initializable, UUPSAccess {
     engineTypeToEngineContract[eType].verifyEndParams(startParams, endParams);
   }
 
-  /// @notice Retrieves end parameters from the trip information.
-  /// @param trip A struct containing trip information.
-  /// @param trip duration in days
-  /// @param eType - engine type
-  /// @return An array of uint64 containing end parameters.
-  function getEndParamsFromTripInfo(
-    Schemas.Trip memory trip,
-    uint64 duration,
-    uint8 eType
-  ) public virtual returns (uint64[] memory) {
-    return engineTypeToEngineContract[eType].getEndParamsFromTripInfo(trip, duration);
-  }
-
   /// @notice Compares parameters for a specific engine type.
   /// @param startParams An array of uint64 values representing start parameters.
   /// @param endParams An array of uint64 values representing end parameters.
