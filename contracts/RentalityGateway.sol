@@ -4,8 +4,8 @@ pragma solidity ^0.8.9;
 //deployed 26.05.2023 11:15 to sepolia at 0x12fB29Ed1f0E17605f488F640D49De29050cf855
 //deployed 27.06.2023 11:10 to sepolia at 0x18744A3f7D15930446B1dbc5A837562e468B2D8d
 
-import './RentalityClaimService.sol';
-import './IRentalityGateway.sol';
+import "./features/RentalityClaimService.sol";
+import "./abstract/IRentalityGateway.sol";
 import './RentalityCarToken.sol';
 import "./payments/RentalityCurrencyConverter.sol";
 import './RentalityTripService.sol';

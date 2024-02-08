@@ -4,7 +4,7 @@ pragma solidity ^0.8.9;
 
 import '@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol';
 import '@openzeppelin/contracts/proxy/utils/Initializable.sol';
-import '../IRentalityAccessControl.sol';
+import "../abstract/IRentalityAccessControl.sol";
 import '../proxy/UUPSAccess.sol';
 import "../Schemas.sol";
 import "./RentalityCurrencyType.sol";
@@ -44,7 +44,7 @@ contract RentalityCurrencyConverter is Initializable, UUPSAccess {
         return tokenAddressToPaymentMethod[currencyType].getUsdFromThisLatest(tokenValue);
     }
 
-    function getUsdFromToken(address currencyType, uint256 tokenValue, int256 tokenToUsd, uint8 decimals) public pure returns (uint256) {
+    function getUsdFromToken(address currencyType, uint256 tokenValue, int256 tokenToUsd, uint8 decimals) public view returns (uint256) {
         return tokenAddressToPaymentMethod[currencyType].getUsdFromThis(tokenValue, tokenToUsd, decimals);
     }
 
@@ -57,7 +57,6 @@ contract RentalityCurrencyConverter is Initializable, UUPSAccess {
     }
 
     /// @notice Get the amount of USD cents equivalent to a specified amount of ETH with caching
-    /// @param valueInEth The amount of ETH to convert to USD cents
     /// @return The equivalent amount in USD cents
     function getUsdFromTokenWithCache(address currencyType, uint256 valueInThis) public returns (uint256) {
         return tokenAddressToPaymentMethod[currencyType].getUsdFromThisWithCache(valueInThis);
@@ -74,8 +73,8 @@ contract RentalityCurrencyConverter is Initializable, UUPSAccess {
 
     /// @notice contract initialization function
     /// @param _userService address to RentalityUserService
-    /// @param ethToUsdPriceFeedAddress The address of the Chainlink ETH to USD price feed
     function initialize(address _userService, address ethPaymentAddress) public virtual initializer {
         tokenAddressToPaymentMethod[address(0)] = ARentalityCurrencyType(ethPaymentAddress);
+        userService = IRentalityAccessControl(_userService);
     }
 }

@@ -3,7 +3,7 @@ pragma solidity ^0.8.9;
 
 import "./payments/RentalityPaymentService.sol";
 import './RentalityPlatform.sol';
-import './IRentalityAdminGateway.sol';
+import "./abstract/IRentalityAdminGateway.sol";
 
 contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
   RentalityCarToken private carService;
@@ -157,6 +157,10 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
   /// @return The current auto status change time in hours.
   function getAutoStatusChangeTimeInSec() public view returns (uint64) {
     return automationService.getAutoStatusChangeTimeInSec();
+  }
+
+  function addCurrency(address tokenAddress, address rentalityTokenService) public onlyAdmin {
+    currencyConverterService.addCurrencyType(tokenAddress, rentalityTokenService);
   }
 
   //  @dev Initializes the contract with the provided addresses for various services.

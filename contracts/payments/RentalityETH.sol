@@ -3,7 +3,7 @@ pragma solidity ^0.8.9;
 
 import '@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol';
 import '@openzeppelin/contracts/proxy/utils/Initializable.sol';
-import '../IRentalityAccessControl.sol';
+import "../abstract/IRentalityAccessControl.sol";
 import '../proxy/UUPSAccess.sol';
 import "../Schemas.sol";
 
@@ -60,7 +60,7 @@ contract RentalityETHPayment is Initializable, UUPSAccess, ARentalityCurrencyTyp
         );
     }
 
-    function getThisFromUsdCents(uint256 valueInUsdCents, int256 ethToUsdPrice, uint8 decimals) public override view returns (uint) {
+    function getThisFromUsdCents(uint256 valueInUsdCents, int256 ethToUsdPrice, uint8 decimals) public override pure returns (uint) {
         return getEthFromUsd(valueInUsdCents, ethToUsdPrice, decimals);
 
     }

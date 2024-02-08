@@ -6,9 +6,10 @@ import "./payments/RentalityCurrencyConverter.sol";
 import './RentalityTripService.sol';
 import './RentalityUserService.sol';
 import "./payments/RentalityPaymentService.sol";
-import './IRentalityGateway.sol';
+import "./abstract/IRentalityGateway.sol";
 import './proxy/UUPSOwnable.sol';
-import './RentalityClaimService.sol';
+import "./features/RentalityClaimService.sol";
+import "./RentalityAdminGateway.sol";
 
 /// @title Rentality Platform Contract
 /// @notice This contract manages various services related to the Rentality platform, including cars, trips, users, and payments.
@@ -25,7 +26,7 @@ contract RentalityPlatform is UUPSOwnable {
     RentalityPaymentService private paymentService;
     RentalityClaimService private claimService;
     RentalityAutomation private automationService;
-
+    RentalityAdminGateway private adminService;
     /// @dev Modifier to restrict access to admin users only.
     modifier onlyAdmin() {
         require(
@@ -53,52 +54,15 @@ contract RentalityPlatform is UUPSOwnable {
     //     _;
     // }
 
-    /// @notice Get the address of the Car service on the Rentality platform.
-    /// @return The address of the Car service.
-    function getCarServiceAddress() public view returns (address) {
-        return address(carService);
-    }
 
-    /// @notice Update the address of the Car service on the Rentality platform.
-    /// @dev This function can only be called by the platform admin.
-    /// @param contractAddress The new address of the Car service.
-    function updateCarService(address contractAddress) public onlyAdmin {
-        carService = RentalityCarToken(contractAddress);
-    }
-
-    /// @notice Get the address of the currency converter service on the Rentality platform.
-    /// @return The address of the currency converter service.
-    function getCurrencyConverterServiceAddress() public view returns (address) {
-        return address(currencyConverterService);
-    }
-
-    /// @notice Update the address of the currency converter service on the Rentality platform.
-    /// @dev This function can only be called by the platform admin.
-    /// @param contractAddress The new address of the currency converter service.
-    function updateCurrencyConverterService(address contractAddress) public onlyAdmin {
-        currencyConverterService = RentalityCurrencyConverter(contractAddress);
-    }
-
-    // @notice Get the address of the RentalityTripService service contract.
-    function getTripServiceAddress() public view returns (address) {
-        return address(tripService);
-    }
-
-    /// @notice Update the RentalityTripService service contract address.
-    /// @param contractAddress The new address of the RentalityTripService contract.
-    function updateTripService(address contractAddress) public onlyAdmin {
-        tripService = RentalityTripService(contractAddress);
-    }
-
-    /// @notice Get the address of the RentalityUserService service contract.
-    function getUserServiceAddress() public view returns (address) {
-        return address(userService);
-    }
-
-    /// @notice Update the RentalityUserService service contract address.
-    /// @param contractAddress The new address of the RentalityUserService contract.
-    function updateUserService(address contractAddress) public onlyAdmin {
-        userService = RentalityUserService(contractAddress);
+    function updateServiceAddresses() public {
+        carService = RentalityCarToken(adminService.getCarServiceAddress());
+        currencyConverterService = RentalityCurrencyConverter(adminService.getCurrencyConverterServiceAddress());
+        tripService = RentalityTripService(adminService.getTripServiceAddress());
+        userService = RentalityUserService(adminService.getTripServiceAddress());
+        paymentService = RentalityPaymentService(adminService.getPaymentService());
+        claimService = RentalityClaimService(adminService.getClaimServiceAddress());
+        automationService = RentalityAutomation(adminService.getAutomationServiceAddress());
     }
 
     /// @notice Withdraw a specific amount of funds from the contract.
@@ -384,8 +348,8 @@ contract RentalityPlatform is UUPSOwnable {
             }
         }
         else {
-            IERC20(trip.paymentInfo.currencyType).approve(address (this), valueToPay);
-           successHost = IERC20(trip.paymentInfo.currencyType).transferFrom(tx.origin, trip.host, valueToPay);
+            IERC20(trip.paymentInfo.currencyType).approve(address(this), valueToPay);
+            successHost = IERC20(trip.paymentInfo.currencyType).transferFrom(tx.origin, trip.host, valueToPay);
         }
         require(successHost, 'Transfer to host failed.');
 
@@ -480,7 +444,8 @@ contract RentalityPlatform is UUPSOwnable {
         address userServiceAddress,
         address paymentServiceAddress,
         address claimServiceAddress,
-        address rentalityAutomationAddress
+        address rentalityAutomationAddress,
+        address rentalityAdminGatewayAddress
     ) public initializer {
         carService = RentalityCarToken(carServiceAddress);
         currencyConverterService = RentalityCurrencyConverter(currencyConverterServiceAddress);
@@ -489,6 +454,8 @@ contract RentalityPlatform is UUPSOwnable {
         paymentService = RentalityPaymentService(paymentServiceAddress);
         claimService = RentalityClaimService(claimServiceAddress);
         automationService = RentalityAutomation(rentalityAutomationAddress);
+        adminService = RentalityAdminGateway(rentalityAdminGatewayAddress);
+
 
         __Ownable_init();
     }

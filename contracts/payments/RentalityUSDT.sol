@@ -6,11 +6,11 @@ import "./RentalityCurrencyType.sol";
 
 contract RentalityUSDTPayment is ARentalityCurrencyType {
 
-    function getThisFromUsdCents(uint256 amount, int256 toUsdPrice, uint8 decimals) public override view returns (uint) {
+    function getThisFromUsdCents(uint256 amount, int256, uint8) public override pure returns (uint) {
         return amount;
     }
 
-    function getLatest() public override view returns (int)
+    function getLatest() public override pure returns (int)
     {
         return 1;
     }
