@@ -43,7 +43,7 @@ contract RentalityGeoService is ChainlinkClient, Ownable, IRentalityGeoService {
   /// @param key The API key for accessing the geolocation service.
   /// @param carId The ID of the car for which geolocation is requested.
   /// @return requestId The ID of the Chainlink request.
-  function executeRequest(string memory addr, string memory key, uint256 carId) public returns (bytes32 requestId) {
+  function executeRequest(string memory addr, uint32, uint32, string memory key, uint256 carId) public returns (bytes32 requestId) {
     // Build the URL for the geolocation API request.
     string memory urlApi = string.concat(
       'https://rentality-location-service-dq3ggp3yqq-lm.a.run.app/geolocation?address=',

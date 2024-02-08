@@ -124,7 +124,7 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
   /// @notice Updates the information of a car. Only callable by hosts.
   /// @param request The request containing updated car information.
   function updateCarInfo(Schemas.UpdateCarInfoRequest memory request) public onlyHost {
-    return carService.updateCarInfo(request, '', '');
+    return carService.updateCarInfo(request, '', 0, 0, '');
   }
 
   /// @notice Updates the information of a car, including location details. Only callable by hosts.
@@ -134,9 +134,11 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
   function updateCarInfoWithLocation(
     Schemas.UpdateCarInfoRequest memory request,
     string memory location,
+    uint32 locationLatitudeInPPM,
+    uint32 locationLongitudeInPPM,
     string memory geoApiKey
   ) public onlyHost {
-    return carService.updateCarInfo(request, location, geoApiKey);
+    return carService.updateCarInfo(request, location, locationLatitudeInPPM, locationLongitudeInPPM, geoApiKey);
   }
 
   // function updateCarInfo(

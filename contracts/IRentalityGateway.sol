@@ -36,6 +36,8 @@ interface IRentalityGateway {
   function updateCarInfoWithLocation(
     Schemas.UpdateCarInfoRequest memory request,
     string memory location,
+    uint32 locationLatitudeInPPM,
+    uint32 locationLongitudeInPPM,
     string memory geoApiKey
   ) external;
 

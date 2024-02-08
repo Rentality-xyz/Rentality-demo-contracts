@@ -96,7 +96,13 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     _safeMint(tx.origin, newCarId);
     _setTokenURI(newCarId, request.tokenUri);
 
-    geoService.executeRequest(request.location, request.geoApiKey, newCarId);
+    geoService.executeRequest(
+      request.locationAddress,
+      request.locationLatitudeInPPM,
+      request.locationLongitudeInPPM,
+      request.geoApiKey,
+      newCarId
+    );
 
     idToCarInfo[newCarId] = Schemas.CarInfo(
       newCarId,
@@ -143,6 +149,8 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
   function updateCarInfo(
     Schemas.UpdateCarInfoRequest memory request,
     string memory location,
+    uint32 locationLatitudeInPPM,
+    uint32 locationLongitudeInPPM,
     string memory geoApiKey
   ) public {
     require(_exists(request.carId), 'Token does not exist');
@@ -152,7 +160,7 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
 
     if (bytes(location).length > 0) {
       require(bytes(geoApiKey).length > 0, 'Provide a valid geo API key');
-      geoService.executeRequest(location, geoApiKey, request.carId);
+      geoService.executeRequest(location, locationLatitudeInPPM, locationLongitudeInPPM, geoApiKey, request.carId);
       idToCarInfo[request.carId].geoVerified = false;
     }
 
