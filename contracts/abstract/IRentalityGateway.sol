@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import './RentalityCarToken.sol';
-import './RentalityTripService.sol';
+import '../RentalityCarToken.sol';
+import '../RentalityTripService.sol';
 
 /// @title RentalityGateway
 /// @notice This contract defines the interface for the Rentality Gateway, which facilitates interactions between various services in the Rentality platform.

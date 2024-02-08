@@ -3,8 +3,8 @@ pragma solidity ^0.8.9;
 
 import "../abstract/IRentalityAccessControl.sol";
 import '@openzeppelin/contracts/proxy/utils/Initializable.sol';
-import './Schemas.sol';
-import './proxy/UUPSAccess.sol';
+import '../Schemas.sol';
+import '../proxy/UUPSAccess.sol';
 
 /// @title RentalityAutomation
 /// @notice Manages automation for trip-related operations.

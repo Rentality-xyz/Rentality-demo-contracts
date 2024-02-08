@@ -26,7 +26,7 @@ contract RentalityPlatform is UUPSOwnable {
     RentalityPaymentService private paymentService;
     RentalityClaimService private claimService;
     RentalityAutomation private automationService;
-    RentalityAdminGateway private adminService;
+
     /// @dev Modifier to restrict access to admin users only.
     modifier onlyAdmin() {
         require(
@@ -55,7 +55,7 @@ contract RentalityPlatform is UUPSOwnable {
     // }
 
 
-    function updateServiceAddresses() public {
+    function updateServiceAddresses(RentalityAdminGateway adminService) public {
         carService = RentalityCarToken(adminService.getCarServiceAddress());
         currencyConverterService = RentalityCurrencyConverter(adminService.getCurrencyConverterServiceAddress());
         tripService = RentalityTripService(adminService.getTripServiceAddress());
@@ -444,8 +444,7 @@ contract RentalityPlatform is UUPSOwnable {
         address userServiceAddress,
         address paymentServiceAddress,
         address claimServiceAddress,
-        address rentalityAutomationAddress,
-        address rentalityAdminGatewayAddress
+        address rentalityAutomationAddress
     ) public initializer {
         carService = RentalityCarToken(carServiceAddress);
         currencyConverterService = RentalityCurrencyConverter(currencyConverterServiceAddress);
@@ -454,7 +453,7 @@ contract RentalityPlatform is UUPSOwnable {
         paymentService = RentalityPaymentService(paymentServiceAddress);
         claimService = RentalityClaimService(claimServiceAddress);
         automationService = RentalityAutomation(rentalityAutomationAddress);
-        adminService = RentalityAdminGateway(rentalityAdminGatewayAddress);
+
 
 
         __Ownable_init();

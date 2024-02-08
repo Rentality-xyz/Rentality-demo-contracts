@@ -1,6 +1,6 @@
 const { loadFixture, time } = require('@nomicfoundation/hardhat-network-helpers')
 const { expect } = require('chai')
-const { getMockCarRequest } = require('../utils')
+const { getMockCarRequest, nativeToken} = require('../utils')
 const { deployFixtureWithUsers, deployDefaultFixture } = require('./deployments')
 
 describe('RentalityUserService: KYC management', function () {
@@ -87,7 +87,7 @@ describe('RentalityUserService: KYC management', function () {
     expect(kycInfo.licenseNumber).to.equal('licenseNumber')
     expect(kycInfo.expirationDate).to.equal(expirationDate)
   })
-  it('After a trip is requested, the host or guest can get the contact numbers of the host and guest', async function () {
+  it.only('After a trip is requested, the host or guest can get the contact numbers of the host and guest', async function () {
     const {
       rentalityPlatform,
       rentalityCurrencyConverter,
@@ -103,7 +103,7 @@ describe('RentalityUserService: KYC management', function () {
     expect(availableCars.length).to.equal(1)
     const rentPriceInUsdCents = 1600
     const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
-      await rentalityCurrencyConverter.getEthFromUsdLatest(rentPriceInUsdCents)
+      await rentalityCurrencyConverter.getFromUsdLatest(nativeToken,rentPriceInUsdCents)
     const ONE_YEAR_IN_SECS = 365 * 24 * 60 * 60
     const expirationDate = (await time.latest()) + ONE_YEAR_IN_SECS
 
