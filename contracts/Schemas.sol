@@ -37,7 +37,9 @@ interface Schemas {
     uint8 engineType;
     uint64 milesIncludedPerDay;
     uint32 timeBufferBetweenTripsInSec;
-    string location;
+    string locationAddress;
+    uint32 locationLatitudeInPPM;
+    uint32 locationLongitudeInPPM;
     string geoApiKey;
   }
 
@@ -297,5 +299,42 @@ interface Schemas {
     Rejection,
     StartTrip,
     FinishTrip
+  }
+
+  /// Query
+
+  struct SearchCar {
+    uint carId;
+    string brand;
+    string model;
+    uint32 yearOfProduction;
+    uint64 pricePerDayInUsdCents;
+    uint64 securityDepositPerTripInUsdCents;
+    address host; // need for create trip, but it in carInfo also
+    string city;
+    string county;
+    string state;
+    uint32 locationLatitudeInPPM;
+    uint32 locationLongitudeInPPM;
+  }
+  struct CarDetails {
+    uint carId;
+    address host; // need for create trip, but it in carInfo also
+    string brand;
+    string model;
+    uint32 yearOfProduction;
+    uint64 pricePerDayInUsdCents;
+    uint64 securityDepositPerTripInUsdCents;
+    uint64 milesIncludedPerDay;
+    uint8 engineType;
+    uint64[] engineParams;
+    bool geoVerified;
+    bool currentlyListed;
+    string timeZoneId;
+    string city;
+    string county;
+    string state;
+    uint32 locationLatitudeInPPM;
+    uint32 locationLongitudeInPPM;
   }
 }
