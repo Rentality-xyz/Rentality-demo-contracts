@@ -3,7 +3,7 @@ pragma solidity ^0.8.9;
 
 import '@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol';
 import '@openzeppelin/contracts/proxy/utils/Initializable.sol';
-import './IRentalityAccessControl.sol';
+import "./abstract/IRentalityAccessControl.sol";
 import './proxy/UUPSAccess.sol';
 /// @title EthToUsdConverter
 /// @dev A contract for converting Ethereum to USD using Chainlink price feeds.

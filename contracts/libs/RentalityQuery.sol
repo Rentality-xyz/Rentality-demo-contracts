@@ -3,9 +3,9 @@ pragma solidity ^0.8.9;
 
 import '@openzeppelin/contracts/utils/math/Math.sol';
 import '../Schemas.sol';
-import '../RentalityClaimService.sol';
+import "../features/RentalityClaimService.sol";
 import '../RentalityTripService.sol';
-import '../IRentalityGeoService.sol';
+import "../abstract/IRentalityGeoService.sol";
 
 library RentalityQuery {
   /// @dev Checks if a specific trip has intersecting trips within a given time range.

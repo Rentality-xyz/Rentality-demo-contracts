@@ -14,7 +14,7 @@ import './libs/RentalityQuery.sol';
 import './libs/RentalityUtils.sol';
 import './engine/RentalityEnginesService.sol';
 import './Schemas.sol';
-import './RentalityAutomation.sol';
+import "./features/RentalityAutomation.sol";
 
 /// @title RentalityTripService
 /// @dev Manages the lifecycle of rental trips, including creation, approval, and completion.

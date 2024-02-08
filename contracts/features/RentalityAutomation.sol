@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import './IRentalityAccessControl.sol';
+import "../abstract/IRentalityAccessControl.sol";
 import '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 import './Schemas.sol';
 import './proxy/UUPSAccess.sol';

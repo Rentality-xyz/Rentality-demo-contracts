@@ -30,13 +30,13 @@ abstract contract ARentalityCurrencyType {
 
     function getUsdFromThisLatest(uint256 thisValue) public virtual view returns (uint256, int256, uint8);
 
-    function getUsdFromThis(uint256 thisValue, int256 thisToUsd, uint8 decimals) public virtual pure returns (uint256);
+    function getUsdFromThis(uint256 thisValue, int256 thisToUsd, uint8 decimals) public virtual view returns (uint256);
 
     function getPriceWithCache() public virtual returns (int256, uint8) {
         if ((block.timestamp - lastUpdatePriceTimeStamp) > updatePriceInterval) {
             lastUpdatePriceTimeStamp = block.timestamp;
             currentToUsdPrice = getLatest();
-            currentToUsdDecimals = decimals();
+            currentToUsdDecimals = tokenDecimals();
         }
         return (currentToUsdPrice, currentToUsdDecimals);
     }
@@ -48,7 +48,6 @@ abstract contract ARentalityCurrencyType {
     }
 
     /// @notice Get the amount of USD cents equivalent to a specified amount of ETH with caching
-    /// @param valueInEth The amount of ETH to convert to USD cents
     /// @return The equivalent amount in USD cents
     function getUsdFromThisWithCache(uint256 valueInThis) public virtual returns (uint256) {
         (int price, uint8 decimals) = getPriceWithCache();

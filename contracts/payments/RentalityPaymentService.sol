@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import '../IRentalityAccessControl.sol';
+import "../abstract/IRentalityAccessControl.sol";
 import '../proxy/UUPSOwnable.sol';
 import '../RentalityTripService.sol';
 
