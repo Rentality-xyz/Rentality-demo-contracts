@@ -43,7 +43,13 @@ contract RentalityGeoService is ChainlinkClient, Ownable, IRentalityGeoService {
   /// @param key The API key for accessing the geolocation service.
   /// @param carId The ID of the car for which geolocation is requested.
   /// @return requestId The ID of the Chainlink request.
-  function executeRequest(string memory addr, string memory key, uint256 carId) public returns (bytes32 requestId) {
+  function executeRequest(
+    string memory addr,
+    string memory,
+    string memory,
+    string memory key,
+    uint256 carId
+  ) public returns (bytes32 requestId) {
     // Build the URL for the geolocation API request.
     string memory urlApi = string.concat(
       'https://rentality-location-service-dq3ggp3yqq-lm.a.run.app/geolocation?address=',
@@ -154,6 +160,13 @@ contract RentalityGeoService is ChainlinkClient, Ownable, IRentalityGeoService {
   /// @return country The country name.
   function getCarCountry(uint256 carId) public view returns (string memory) {
     return carIdToParsedGeolocationData[carId].country;
+  }
+  function getCarLocationLatitude(uint256 carId) external view returns (string memory) {
+    return carIdToParsedGeolocationData[carId].locationLat;
+  }
+
+  function getCarLocationLongitude(uint256 carId) external view returns (string memory) {
+    return carIdToParsedGeolocationData[carId].locationLng;
   }
 
   /// @dev Retrieves the time zone information associated with a specific car.

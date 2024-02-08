@@ -215,6 +215,8 @@ contract RentalityGeoMock {
     string carState;
     string carCountry;
     string timeZoneId;
+    string locationLatitude;
+    string locationLongitude;
     bool validity;
   }
 
@@ -260,19 +262,31 @@ contract RentalityGeoMock {
   /// @notice Executes a mock request. Mock implementation, you can add your own logic if needed.
   /// @param addr The address parameter for the mock request.
   /// @param carId The ID of the car.
+  /// @param locationLatitude The latitude of the location associated with the request.
+  /// @param locationLongitude The longitude of the location associated with the request.
   /// @return The car ID as bytes32 (mock response).
-  function executeRequest(string memory addr, string memory, uint256 carId) external returns (bytes32) {
+  function executeRequest(
+    string memory addr,
+    string memory locationLatitude,
+    string memory locationLongitude,
+    string memory,
+    uint256 carId
+  ) external returns (bytes32) {
     string[] memory parts = RentalityUtils.splitString(addr, bytes(','));
+    CarMockLocationData storage carData = carCoordinate[carId];
+
+    carData.locationLatitude = locationLatitude;
+    carData.locationLongitude = locationLongitude;
 
     if (parts.length > 3) {
-      string memory country = removeFirstSpaceIfExist(parts[parts.length - 1]);
-      string memory state = removeFirstSpaceIfExist(parts[parts.length - 2]);
-      string memory city = removeFirstSpaceIfExist(parts[parts.length - 3]);
+      string memory country = parts[parts.length - 1];
+      string memory state = parts[parts.length - 2];
+      string memory city = parts[parts.length - 3];
 
-      carCoordinate[carId].validity = true;
-      carCoordinate[carId].carCity = removeFirstSpaceIfExist(city);
-      carCoordinate[carId].carState = removeFirstSpaceIfExist(state);
-      carCoordinate[carId].carCountry = removeFirstSpaceIfExist(country);
+      carData.validity = true;
+      carData.carCity = removeFirstSpaceIfExist(city);
+      carData.carState = removeFirstSpaceIfExist(state);
+      carData.carCountry = removeFirstSpaceIfExist(country);
 
       if (bytes(cityToTimeZoneId[city]).length > 0) {
         carCoordinate[carId].timeZoneId = cityToTimeZoneId[city];
@@ -335,7 +349,19 @@ contract RentalityGeoMock {
   function getCarCountry(uint256 carId) external view returns (string memory) {
     return carCoordinate[carId].carCountry;
   }
+  /// @notice Retrieves the latitude of the location associated with a car.
+  /// @param carId The ID of the car for which latitude information is requested.
+  /// @return locationLat A string representing the latitude of the car's location.
+  function getCarLocationLatitude(uint256 carId) external view returns (string memory) {
+    return carCoordinate[carId].locationLatitude;
+  }
 
+  // @notice Retrieves the longitude of the location associated with a car.
+  /// @param carId The ID of the car for which longitude information is requested.
+  /// @return locationLng A string representing the longitude of the car's location.
+  function getCarLocationLongitude(uint256 carId) external view returns (string memory) {
+    return carCoordinate[carId].locationLongitude;
+  }
   /// @notice Retrieves the timezone information for a specific car ID.
   /// @param carId The ID of the car.
   /// @return The time zone id.
