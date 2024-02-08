@@ -195,7 +195,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     uint64 startDateTime,
     uint64 endDateTime,
     Schemas.SearchCarParams memory searchParams
-  ) public view returns (Schemas.AvailableCarResponse[] memory) {
+  ) public view returns (Schemas.SearchCar[] memory) {
     return
       RentalityQuery.searchAvailableCarsForUser(
         user,
@@ -328,8 +328,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
       idToTripInfo[tripId].endParamLevels = panelParams;
       idToTripInfo[tripId].tripFinishedBy = tx.origin;
     } else {
-      uint64 duration = RentalityUtils.getCeilDays(trip.startDateTime, trip.endDateTime);
-      idToTripInfo[tripId].endParamLevels = engineService.getEndParamsFromTripInfo(trip, duration, carInfo.engineType);
+      idToTripInfo[tripId].endParamLevels = idToTripInfo[tripId].startParamLevels;
     }
 
     automationService.removeAutomation(tripId, Schemas.AutomationType.FinishTrip);
