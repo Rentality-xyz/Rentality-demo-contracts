@@ -2,9 +2,9 @@
 pragma solidity ^0.8.9;
 
 import '@openzeppelin/contracts/proxy/utils/Initializable.sol';
-import './proxy/UUPSAccess.sol';
-import './RentalityCarToken.sol';
-import './Schemas.sol';
+import '../proxy/UUPSAccess.sol';
+import '../RentalityCarToken.sol';
+import '../Schemas.sol';
 
 /// @title RentalityClaimService - Manages claims and related operations.
 /// @dev This contract allows users with manager roles to create, reject, and pay claims.

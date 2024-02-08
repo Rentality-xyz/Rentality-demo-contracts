@@ -126,7 +126,7 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
 
   /// @notice Withdraws the entire balance from the RentalityPlatform contract.
   function withdrawAllFromPlatform() public {
-    rentalityPlatform.withdrawFromPlatform(address(this).balance);
+    rentalityPlatform.withdrawFromPlatform(address(rentalityPlatform).balance);
   }
   /// @notice Sets the platform fee in parts per million (PPM). Only callable by admins.
   /// @param valueInPPM The new platform fee value in PPM.

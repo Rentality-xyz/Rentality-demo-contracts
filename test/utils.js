@@ -1,6 +1,6 @@
 const env = require('hardhat')
 const { ethers, upgrades } = require('hardhat')
-
+const nativeToken = ethers.getAddress('0x0000000000000000000000000000000000000000');
 function getMockCarRequest(seed) {
   const seedStr = seed?.toString() ?? ''
   const seedInt = Number(seed) ?? 0
@@ -108,6 +108,10 @@ function getEmptySearchCarParams(seed) {
 async function deployDefaultFixture() {
   const [owner, admin, manager, host, guest, anonymous] = await ethers.getSigners()
 
+  const TestUsdt = await ethers.getContractFactory('RentalityTestUSDT');
+  const usdtContract = await TestUsdt.deploy();
+  await usdtContract.waitForDeployment();
+
   const RentalityUtils = await ethers.getContractFactory('RentalityUtils')
   const utils = await RentalityUtils.deploy()
 
@@ -213,6 +217,7 @@ async function deployDefaultFixture() {
   const claimService = await upgrades.deployProxy(RentalityClaimService, [await rentalityUserService.getAddress()])
   await claimService.waitForDeployment()
 
+
   const rentalityPlatform = await upgrades.deployProxy(RentalityPlatform, [
     await rentalityCarToken.getAddress(),
     await rentalityCurrencyConverter.getAddress(),
@@ -222,6 +227,8 @@ async function deployDefaultFixture() {
     await claimService.getAddress(),
     await rentalityAutomationService.getAddress(),
   ])
+  await rentalityPlatform.waitForDeployment()
+
 
   const RentalityAdminGateway = await ethers.getContractFactory('RentalityAdminGateway')
   const rentalityAdminGateway = await upgrades.deployProxy(RentalityAdminGateway, [
@@ -236,7 +243,7 @@ async function deployDefaultFixture() {
   ])
   await rentalityAdminGateway.waitForDeployment()
 
-  await rentalityPlatform.waitForDeployment()
+
 
   await rentalityUserService.connect(owner).grantHostRole(await rentalityPlatform.getAddress())
 
@@ -268,6 +275,9 @@ async function deployDefaultFixture() {
   await rentalityGateway.connect(host).setKYCInfo(' ', ' ', ' ', ' ', ' ', 1, true, true)
   await rentalityGateway.connect(guest).setKYCInfo(' ', ' ', ' ', ' ', ' ', 1, true, true)
 
+
+
+
   return {
     rentalityGateway,
     rentalityMockPriceFeed,
@@ -291,6 +301,7 @@ async function deployDefaultFixture() {
     guest,
     anonymous,
     rentalityAutomationService,
+    usdtContract
   }
 }
 
@@ -300,4 +311,5 @@ module.exports = {
   createMockClaimRequest,
   deployDefaultFixture,
   TripStatus,
+  nativeToken
 }

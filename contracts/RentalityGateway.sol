@@ -78,10 +78,11 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
     carService = RentalityCarToken(adminService.getCarServiceAddress());
     currencyConverterService = RentalityCurrencyConverter(adminService.getCurrencyConverterServiceAddress());
     tripService = RentalityTripService(adminService.getTripServiceAddress());
-    userService = RentalityUserService(adminService.getTripServiceAddress());
-    rentalityPlatform = RentalityPlatform(adminService.getUserServiceAddress());
+    userService = RentalityUserService(adminService.getUserServiceAddress());
+    rentalityPlatform = RentalityPlatform(adminService.getRentalityPlatformAddress());
     paymentService = RentalityPaymentService(adminService.getPaymentService());
     claimService = RentalityClaimService(adminService.getClaimServiceAddress());
+    rentalityPlatform.updateServiceAddresses(adminService);
   }
 
   /// @notice Retrieves the platform fee in parts per million (PPM).
