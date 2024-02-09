@@ -26,6 +26,8 @@
       "payable": false,
       "inputs": [
         { "type": "string", "name": "addr" },
+        { "type": "string", "name": "locationLatitude" },
+        { "type": "string", "name": "locationLongitude" },
         { "type": "string", "name": "" },
         { "type": "uint256", "name": "carId" }
       ],
@@ -60,6 +62,24 @@
     },
     {
       "type": "function",
+      "name": "getCarLocationLatitude",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "carId" }],
+      "outputs": [{ "type": "string", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getCarLocationLongitude",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "carId" }],
+      "outputs": [{ "type": "string", "name": "" }]
+    },
+    {
+      "type": "function",
       "name": "getCarMockData",
       "constant": true,
       "stateMutability": "view",
@@ -74,6 +94,8 @@
             { "type": "string", "name": "carState" },
             { "type": "string", "name": "carCountry" },
             { "type": "string", "name": "timeZoneId" },
+            { "type": "string", "name": "locationLatitude" },
+            { "type": "string", "name": "locationLongitude" },
             { "type": "bool", "name": "validity" }
           ]
         }
