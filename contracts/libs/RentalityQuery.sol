@@ -459,6 +459,8 @@ library RentalityQuery {
         temp[i].yearOfProduction,
         temp[i].pricePerDayInUsdCents,
         temp[i].securityDepositPerTripInUsdCents,
+        temp[i].engineType,
+        temp[i].milesIncludedPerDay,
         temp[i].createdBy,
         RentalityUserService(userServiceAddress).getKYCInfo(temp[i].createdBy).name,
         RentalityUserService(userServiceAddress).getKYCInfo(temp[i].createdBy).profilePhoto,
