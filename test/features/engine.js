@@ -279,7 +279,7 @@ describe('RentalityEngines', function () {
 
       const trip = await rentalityTripService.getTrip(1)
       expect(trip.startParamLevels[0]).to.be.eq(trip.endParamLevels[0])
-      expect(trip.milesIncludedPerDay * BigInt(2)).to.be.eq(trip.endParamLevels[1])
+      expect(trip.startParamLevels[1]).to.be.eq(trip.endParamLevels[1])
     })
   })
 })
