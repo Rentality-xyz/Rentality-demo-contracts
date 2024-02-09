@@ -32,6 +32,11 @@ abstract contract ARentalityEngine {
   /// @notice Sets the engine type.
   function setEType(uint8 _eType) public virtual;
 
+  /// @notice Retrieves the fuel prices of car.
+  /// @param engineParams The array of engine parameters used to retrieve fuel prices.
+  /// @return An array of fuel prices corresponding to the provided engine parameters.
+  function getFuelPricesFromEngineParams(uint64[] memory engineParams) public view virtual returns (uint64[] memory);
+
   /// @notice Verify engine params
   function verifyCreateParams(uint64[] memory params) public view virtual;
 
@@ -72,11 +77,6 @@ abstract contract ARentalityEngine {
     if (endOdometr - startOdometr <= milesIncludedPerDay * tripDays) return 0;
 
     return ((endOdometr - startOdometr - milesIncludedPerDay * tripDays) * pricePerDayInUsdCents) / milesIncludedPerDay;
-  }
-
-  /// @notice Verifies the correctness of resource prices.
-  function verifyResourcePrice(uint64[] memory prices) public pure virtual {
-    isCorrectArgs(prices[0] != 0);
   }
 
   /// @notice Verifies the correctness of start parameters.

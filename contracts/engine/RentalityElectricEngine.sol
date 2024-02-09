@@ -17,6 +17,12 @@ contract RentalityElectricEngine is ARentalityEngine {
     require(userService.isAdmin(tx.origin), 'Only Admin.');
     eType = _eType;
   }
+  /// @notice Retrieves the fuel prices of electric car.
+  /// @param engineParams The array of engine parameters used to retrieve fuel prices.
+  /// @return An array of fuel prices corresponding to the provided engine parameters.
+  function getFuelPricesFromEngineParams(uint64[] memory engineParams) public pure override returns (uint64[] memory) {
+    return engineParams;
+  }
 
   /// @dev Verify patrol engine params
   /// @param params An array of four uint64 values representing charge price scales.
