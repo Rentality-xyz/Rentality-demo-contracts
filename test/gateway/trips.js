@@ -80,7 +80,8 @@ describe('RentalityGateway: trips', function () {
   })
 
   it('Return valid trip data', async function () {
-    await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
+    const mockCreateCarRequest = getMockCarRequest(0)
+    await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
@@ -103,7 +104,6 @@ describe('RentalityGateway: trips', function () {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPrices: [400],
           ethToCurrencyRate: ethToCurrencyRate,
           ethToCurrencyDecimals: ethToCurrencyDecimals,
         },
@@ -124,7 +124,11 @@ describe('RentalityGateway: trips', function () {
     expect(trip.startLocation).to.be.equal('startLocation', 'trip.startLocation')
     expect(trip.endLocation).to.be.equal('endLocation', 'trip.endLocation')
     expect(trip.milesIncludedPerDay).to.be.equal(6, 'trip.milesIncludedPerDay')
-    expect(trip.fuelPrices).to.deep.equal([400n], 'trip.fuelPrices')
+    expect(BigInt(trip.fuelPrices)).to.deep.equal(
+      mockCreateCarRequest.engineParams[1] /*[0] - is tank volume,
+     [1] - fuel price per gal*/,
+      'trip.fuelPrices'
+    )
     expect(trip.paymentInfo).to.deep.equal(
       [
         1n,
@@ -157,6 +161,96 @@ describe('RentalityGateway: trips', function () {
     expect(trip.transactionInfo).to.deep.equal([0n, 0n, 0n, 0n, 0n], 'trip.transactionInfo')
     expect(trip.guestName).to.be.equal(' ', 'trip.guestName')
     expect(trip.hostName).to.be.equal(' ', 'trip.hostName')
+  })
+
+  it('Return valid fuel prices', async function () {
+    const mockCreateCarRequest = {
+      tokenUri: 'uri',
+      carVinNumber: 'VIN_NUMBER',
+      brand: 'BRAND',
+      model: 'MODEL',
+      yearOfProduction: 2020,
+      pricePerDayInUsdCents: 1,
+      securityDepositPerTripInUsdCents: 1,
+      engineParams: [1, 2, 5, 6],
+      engineType: 2,
+      milesIncludedPerDay: 10,
+      timeBufferBetweenTripsInSec: 0,
+      locationAddress: 'location',
+      locationLatitude: '123421',
+      locationLongitude: '123421',
+      geoApiKey: 'key',
+    }
+
+    await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest)).not.to.be.reverted
+
+    const rentPriceInUsdCents = 1000
+    const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
+      await rentalityCurrencyConverter.getEthFromUsdLatest(rentPriceInUsdCents)
+
+    await expect(
+      rentalityGateway.connect(guest).createTripRequest(
+        {
+          carId: 1,
+          host: host.address,
+          startDateTime: 1,
+          endDateTime: 1,
+          startLocation: 'startLocation',
+          endLocation: 'endLocation',
+          totalDayPriceInUsdCents: rentPriceInUsdCents,
+          taxPriceInUsdCents: 0,
+          depositInUsdCents: 0,
+          ethToCurrencyRate: ethToCurrencyRate,
+          ethToCurrencyDecimals: ethToCurrencyDecimals,
+        },
+        { value: rentPriceInEth }
+      )
+    ).to.changeEtherBalances([guest, rentalityPlatform], [-rentPriceInEth, rentPriceInEth])
+
+    let trip = await rentalityGateway.getTrip(1)
+
+    expect(trip.fuelPrices).to.deep.equal(mockCreateCarRequest.engineParams)
+
+    const mockPatrolCreateCarRequest = {
+      tokenUri: 'uri',
+      carVinNumber: 'VIN_NUMBER1',
+      brand: 'BRAND',
+      model: 'MODEL',
+      yearOfProduction: 2020,
+      pricePerDayInUsdCents: 1,
+      securityDepositPerTripInUsdCents: 1,
+      engineParams: [1, 400],
+      engineType: 1,
+      milesIncludedPerDay: 10,
+      timeBufferBetweenTripsInSec: 0,
+      locationAddress: 'location',
+      locationLatitude: '123421',
+      locationLongitude: '123421',
+      geoApiKey: 'key',
+    }
+    await expect(rentalityGateway.connect(host).addCar(mockPatrolCreateCarRequest)).not.to.be.reverted
+    await expect(
+      rentalityGateway.connect(guest).createTripRequest(
+        {
+          carId: 2,
+          host: host.address,
+          startDateTime: 1,
+          endDateTime: 1,
+          startLocation: 'startLocation',
+          endLocation: 'endLocation',
+          totalDayPriceInUsdCents: rentPriceInUsdCents,
+          taxPriceInUsdCents: 0,
+          depositInUsdCents: 0,
+          ethToCurrencyRate: ethToCurrencyRate,
+          ethToCurrencyDecimals: ethToCurrencyDecimals,
+        },
+        { value: rentPriceInEth }
+      )
+    ).to.changeEtherBalances([guest, rentalityPlatform], [-rentPriceInEth, rentPriceInEth])
+
+    let tripWithPatrol = await rentalityGateway.getTrip(2)
+
+    expect(tripWithPatrol.fuelPrices[0]).to.equal(mockPatrolCreateCarRequest.engineParams[1])
   })
 
   it('Host can not create trip request for own car ', async function () {
