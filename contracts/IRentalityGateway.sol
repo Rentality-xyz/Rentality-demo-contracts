@@ -36,6 +36,8 @@ interface IRentalityGateway {
   function updateCarInfoWithLocation(
     Schemas.UpdateCarInfoRequest memory request,
     string memory location,
+    string memory locationLatitude,
+    string memory locationLongitude,
     string memory geoApiKey
   ) external;
 
@@ -114,7 +116,7 @@ interface IRentalityGateway {
     uint64 startDateTime,
     uint64 endDateTime,
     Schemas.SearchCarParams memory searchParams
-  ) external view returns (Schemas.AvailableCarResponse[] memory);
+  ) external view returns (Schemas.SearchCar[] memory);
 
   /// @notice Searches for available cars for a specific user based on specified criteria.
   /// @param user The address of the user.
@@ -127,7 +129,12 @@ interface IRentalityGateway {
     uint64 startDateTime,
     uint64 endDateTime,
     Schemas.SearchCarParams memory searchParams
-  ) external view returns (Schemas.AvailableCarResponse[] memory);
+  ) external view returns (Schemas.SearchCar[] memory);
+
+  /// @notice Retrieves detailed information about a car.
+  /// @param carId The ID of the car for which details are requested.
+  /// @return details An instance of `Schemas.CarDetails` containing the details of the specified car.
+  function getCarDetails(uint carId) external view returns (Schemas.CarDetails memory);
 
   /// @notice Create a trip request.
   /// @param request The request parameters for creating a new trip.

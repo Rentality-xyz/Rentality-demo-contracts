@@ -37,7 +37,9 @@ interface Schemas {
     uint8 engineType;
     uint64 milesIncludedPerDay;
     uint32 timeBufferBetweenTripsInSec;
-    string location;
+    string locationAddress;
+    string locationLatitude;
+    string locationLongitude;
     string geoApiKey;
   }
 
@@ -63,12 +65,6 @@ interface Schemas {
     uint32 yearOfProductionTo;
     uint64 pricePerDayInUsdCentsFrom;
     uint64 pricePerDayInUsdCentsTo;
-  }
-
-  struct AvailableCarResponse {
-    CarInfo car;
-    string hostPhotoUrl;
-    string hostName;
   }
 
   /// Trip Service
@@ -297,5 +293,47 @@ interface Schemas {
     Rejection,
     StartTrip,
     FinishTrip
+  }
+
+  /// Query
+
+  struct SearchCar {
+    uint carId;
+    string brand;
+    string model;
+    uint32 yearOfProduction;
+    uint64 pricePerDayInUsdCents;
+    uint64 securityDepositPerTripInUsdCents;
+    address host;
+    string hostName;
+    string hostPhotoUrl;
+    string city;
+    string country;
+    string state;
+    string locationLatitude;
+    string locationLongitude;
+    string timeZoneId;
+  }
+  struct CarDetails {
+    uint carId;
+    string hostName;
+    string hostPhotoUrl;
+    address host;
+    string brand;
+    string model;
+    uint32 yearOfProduction;
+    uint64 pricePerDayInUsdCents;
+    uint64 securityDepositPerTripInUsdCents;
+    uint64 milesIncludedPerDay;
+    uint8 engineType;
+    uint64[] engineParams;
+    bool geoVerified;
+    bool currentlyListed;
+    string timeZoneId;
+    string city;
+    string country;
+    string state;
+    string locationLatitude;
+    string locationLongitude;
   }
 }
