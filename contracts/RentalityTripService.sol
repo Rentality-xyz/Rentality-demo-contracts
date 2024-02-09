@@ -60,7 +60,6 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
   /// @param startLocation The starting location of the trip.
   /// @param endLocation The ending location of the trip.
   /// @param milesIncludedPerDay The number of miles included per day.
-  /// @param fuelPricesPerUnits The fuel prices per units depends on engine.
   /// @param paymentInfo The payment information for the trip.
   function createNewTrip(
     uint256 carId,
@@ -72,7 +71,6 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     string memory startLocation,
     string memory endLocation,
     uint64 milesIncludedPerDay,
-    uint64[] memory fuelPricesPerUnits,
     Schemas.PaymentInfo memory paymentInfo
   ) public {
     require(userService.isManager(msg.sender), 'Only from manager contract.');
@@ -90,7 +88,6 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     );
 
     Schemas.CarInfo memory carInfo = carService.getCarInfoById(carId);
-    engineService.verifyResourcePrice(fuelPricesPerUnits, carInfo.engineType);
 
     uint256 panelParamsAmount = engineService.getPanelParamsAmount(carInfo.engineType);
 
@@ -108,7 +105,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
       startLocation,
       endLocation,
       milesIncludedPerDay,
-      fuelPricesPerUnits,
+      engineService.getFuelPricesFromEngineParams(carInfo.engineType, carInfo.engineParams),
       paymentInfo,
       block.timestamp,
       0,
