@@ -17,6 +17,15 @@ contract RentalityPatrolEngine is ARentalityEngine {
     eType = _eType;
   }
 
+  /// @notice Retrieves the fuel prices of patrol car.
+  /// @param engineParams The array of engine parameters used to retrieve fuel prices.
+  /// @return An array of fuel prices corresponding to the provided engine parameters.
+  function getFuelPricesFromEngineParams(uint64[] memory engineParams) public pure override returns (uint64[] memory) {
+    uint64[] memory fuelPrices = new uint64[](1);
+    fuelPrices[0] = engineParams[1];
+    return fuelPrices;
+  }
+
   /// @notice Verify a new patrol car tank volume, and fuel price.
   /// @param params An array of two uint64 values representing tank volume and fuel price.
   /// @param params[0] The tank volume of the patrol car in liters.
