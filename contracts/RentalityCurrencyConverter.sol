@@ -43,14 +43,12 @@ contract RentalityCurrencyConverter is Initializable, UUPSAccess {
   /// @return valueInEth The equivalent amount of ETH
   /// @return ethToUsdRate The ETH to USD rate
   /// @return ethToUsdDecimals The ETH to USD decimals
-  function getEthFromUsdLatest(uint256 valueInUsdCents) public view returns (uint256 valueInEth, int256 ethToUsdRate, uint8 ethToUsdDecimals) {
+  function getEthFromUsdLatest(
+    uint256 valueInUsdCents
+  ) public view returns (uint256 valueInEth, int256 ethToUsdRate, uint8 ethToUsdDecimals) {
     (int256 rate, uint8 decimals) = getEthToUsdRate();
 
-    return (
-      (valueInUsdCents * (1 ether) * (10 ** (decimals - 2))) / uint(rate),
-      rate,
-      decimals
-    );
+    return ((valueInUsdCents * (1 ether) * (10 ** (decimals - 2))) / uint(rate), rate, decimals);
   }
 
   /// @notice Get the amount of USD cents equivalent to a specified amount of ETH
@@ -58,14 +56,12 @@ contract RentalityCurrencyConverter is Initializable, UUPSAccess {
   /// @return valueInUsdCents The equivalent amount in USD cents
   /// @return ethToUsdRate The ETH to USD rate
   /// @return ethToUsdDecimals The ETH to USD decimals
-  function getUsdFromEthLatest(uint256 valueInEth) public view returns (uint256 valueInUsdCents, int256 ethToUsdRate, uint8 ethToUsdDecimals) {
+  function getUsdFromEthLatest(
+    uint256 valueInEth
+  ) public view returns (uint256 valueInUsdCents, int256 ethToUsdRate, uint8 ethToUsdDecimals) {
     (int256 rate, uint8 decimals) = getEthToUsdRate();
 
-    return (
-      ((valueInEth * uint(rate)) / ((10 ** (decimals - 2)) * (1 ether))),
-      rate,
-      decimals
-    );
+    return (((valueInEth * uint(rate)) / ((10 ** (decimals - 2)) * (1 ether))), rate, decimals);
   }
 
   /// @notice Get the amount of ETH equivalent to a specified value in USD cents
