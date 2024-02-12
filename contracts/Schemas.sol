@@ -303,6 +303,8 @@ interface Schemas {
     uint32 yearOfProduction;
     uint64 pricePerDayInUsdCents;
     uint64 securityDepositPerTripInUsdCents;
+    uint8 engineType;
+    uint64 milesIncludedPerDay;
     address host;
     string hostName;
     string hostPhotoUrl;
