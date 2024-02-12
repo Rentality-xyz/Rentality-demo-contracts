@@ -1,7 +1,7 @@
 const { expect } = require('chai')
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 
-const { getMockCarRequest, deployDefaultFixture } = require('../utils')
+const { getMockCarRequest, deployDefaultFixture, getEmptySearchCarParams } = require('../utils')
 
 describe('RentalityGateway: car', function () {
   let rentalityGateway,
@@ -138,5 +138,114 @@ describe('RentalityGateway: car', function () {
     let cars_not_created = await rentalityGateway.connect(guest).getMyCars()
 
     expect(cars_not_created.length).to.be.equal(0)
+  })
+  it('should have all variables after search', async function () {
+    let name = 'name'
+    let surname = 'surname'
+    let number = '+380'
+    let photo = 'photo'
+    let licenseNumber = 'licenseNumber'
+    let expirationDate = 10
+
+    await expect(
+      rentalityGateway.connect(host).setKYCInfo(name, surname, number, photo, licenseNumber, expirationDate, true, true)
+    ).to.not.reverted
+
+    let addCarRequest = {
+      tokenUri: 'uri',
+      carVinNumber: 'VIN_NUMBER',
+      brand: 'BRAND',
+      model: 'MODEL',
+      yearOfProduction: 2020,
+      pricePerDayInUsdCents: 1,
+      securityDepositPerTripInUsdCents: 1,
+      engineParams: [1, 2],
+      engineType: 1,
+      milesIncludedPerDay: 10,
+      timeBufferBetweenTripsInSec: 0,
+      locationAddress: 'Michigan Ave, Chicago, IL, USA',
+      locationLatitude: '123421',
+      locationLongitude: '123421',
+      geoApiKey: 'key',
+    }
+    const searchParams = getEmptySearchCarParams()
+    await expect(rentalityCarToken.connect(host).addCar(addCarRequest)).not.be.reverted
+    const resultAr = await rentalityGateway.searchAvailableCars(
+      new Date().getDate(),
+      new Date().getDate() + 100,
+      searchParams
+    )
+    const result = resultAr[0]
+
+    expect(result.carId).to.be.equal(1)
+    expect(result.brand).to.be.eq(addCarRequest.brand)
+    expect(result.model).to.be.eq(addCarRequest.model)
+    expect(result.yearOfProduction).to.be.eq(addCarRequest.yearOfProduction)
+    expect(result.pricePerDayInUsdCents).to.be.eq(addCarRequest.pricePerDayInUsdCents)
+    expect(result.securityDepositPerTripInUsdCents).to.be.eq(addCarRequest.securityDepositPerTripInUsdCents)
+    expect(result.host).be.be.eq(host.address)
+    expect(result.hostName).to.be.eq(name)
+    expect(result.hostPhotoUrl).to.be.eq(photo)
+    expect(result.city).to.be.eq('Chicago')
+    expect(result.country).to.be.eq('USA')
+    expect(result.state).to.be.eq('IL')
+    expect(result.locationLatitude).to.be.eq('123421')
+    expect(result.locationLongitude).to.be.eq('123421')
+    expect(result.timeZoneId).to.be.eq('America/Chicago')
+  })
+  it('should return complete details', async function () {
+    let name = 'name'
+    let surname = 'surname'
+    let number = '+380'
+    let photo = 'photo'
+    let licenseNumber = 'licenseNumber'
+    let expirationDate = 10
+
+    await expect(
+      await rentalityGateway
+        .connect(host)
+        .setKYCInfo(name, surname, number, photo, licenseNumber, expirationDate, true, true)
+    ).to.not.reverted
+
+    let addCarRequest = {
+      tokenUri: 'uri',
+      carVinNumber: 'VIN_NUMBER',
+      brand: 'BRAND',
+      model: 'MODEL',
+      yearOfProduction: 2020,
+      pricePerDayInUsdCents: 1,
+      securityDepositPerTripInUsdCents: 1,
+      engineParams: [1, 2],
+      engineType: 1,
+      milesIncludedPerDay: 10,
+      timeBufferBetweenTripsInSec: 0,
+      locationAddress: 'Michigan Ave, Chicago, IL, USA',
+      locationLatitude: '123421',
+      locationLongitude: '123421',
+      geoApiKey: 'key',
+    }
+    await expect(await rentalityCarToken.connect(host).addCar(addCarRequest)).not.be.reverted
+    const result = await rentalityGateway.connect(guest).getCarDetails(1)
+
+    expect(result.carId).to.be.equal(1)
+    expect(result.brand).to.be.eq(addCarRequest.brand)
+    expect(result.model).to.be.eq(addCarRequest.model)
+    expect(result.yearOfProduction).to.be.eq(addCarRequest.yearOfProduction)
+    expect(result.pricePerDayInUsdCents).to.be.eq(addCarRequest.pricePerDayInUsdCents)
+    expect(result.securityDepositPerTripInUsdCents).to.be.eq(addCarRequest.securityDepositPerTripInUsdCents)
+    expect(result.host).be.be.eq(host.address)
+    expect(result.hostName).to.be.eq(name)
+    expect(result.hostPhotoUrl).to.be.eq(photo)
+    expect(result.city).to.be.eq('Chicago')
+    expect(result.country).to.be.eq('USA')
+    expect(result.state).to.be.eq('IL')
+    expect(result.locationLatitude).to.be.eq('123421')
+    expect(result.locationLongitude).to.be.eq('123421')
+    expect(result.timeZoneId).to.be.eq('America/Chicago')
+    expect(result.milesIncludedPerDay).to.be.equal(addCarRequest.milesIncludedPerDay)
+    expect(result.engineType).to.be.equal(addCarRequest.engineType)
+    expect(result.engineParams).to.deep.equal(addCarRequest.engineParams)
+    expect(result.geoVerified).to.be.true
+    expect(result.currentlyListed).to.be.true
   })
 })

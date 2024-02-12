@@ -32,7 +32,7 @@ contract RentalityCurrencyConverter is Initializable, UUPSAccess {
         return tokenAddressToPaymentMethod[currencyType].getLatest();
     }
 
-    function getPrice(address currencyType) public view returns (int256, uint8) {
+    function getRate(address currencyType) public view returns (int256, uint8) {
         return tokenAddressToPaymentMethod[currencyType].getPrice();
     }
 
