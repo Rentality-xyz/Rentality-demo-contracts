@@ -57,7 +57,9 @@
             { "type": "uint8", "name": "engineType" },
             { "type": "uint64", "name": "milesIncludedPerDay" },
             { "type": "uint32", "name": "timeBufferBetweenTripsInSec" },
-            { "type": "string", "name": "location" },
+            { "type": "string", "name": "locationAddress" },
+            { "type": "string", "name": "locationLatitude" },
+            { "type": "string", "name": "locationLongitude" },
             { "type": "string", "name": "geoApiKey" }
           ]
         }
@@ -164,7 +166,6 @@
             { "type": "uint64", "name": "totalDayPriceInUsdCents" },
             { "type": "uint64", "name": "taxPriceInUsdCents" },
             { "type": "uint64", "name": "depositInUsdCents" },
-            { "type": "uint64[]", "name": "fuelPrices" },
             { "type": "int256", "name": "ethToCurrencyRate" },
             { "type": "uint8", "name": "ethToCurrencyDecimals" }
           ]
@@ -272,6 +273,42 @@
             { "type": "bool", "name": "currentlyListed" },
             { "type": "bool", "name": "geoVerified" },
             { "type": "string", "name": "timeZoneId" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getCarDetails",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "carId" }],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "",
+          "components": [
+            { "type": "uint256", "name": "carId" },
+            { "type": "string", "name": "hostName" },
+            { "type": "string", "name": "hostPhotoUrl" },
+            { "type": "address", "name": "host" },
+            { "type": "string", "name": "brand" },
+            { "type": "string", "name": "model" },
+            { "type": "uint32", "name": "yearOfProduction" },
+            { "type": "uint64", "name": "pricePerDayInUsdCents" },
+            { "type": "uint64", "name": "securityDepositPerTripInUsdCents" },
+            { "type": "uint64", "name": "milesIncludedPerDay" },
+            { "type": "uint8", "name": "engineType" },
+            { "type": "uint64[]", "name": "engineParams" },
+            { "type": "bool", "name": "geoVerified" },
+            { "type": "bool", "name": "currentlyListed" },
+            { "type": "string", "name": "timeZoneId" },
+            { "type": "string", "name": "city" },
+            { "type": "string", "name": "country" },
+            { "type": "string", "name": "state" },
+            { "type": "string", "name": "locationLatitude" },
+            { "type": "string", "name": "locationLongitude" }
           ]
         }
       ]
@@ -1236,30 +1273,23 @@
           "type": "tuple[]",
           "name": "",
           "components": [
-            {
-              "type": "tuple",
-              "name": "car",
-              "components": [
-                { "type": "uint256", "name": "carId" },
-                { "type": "string", "name": "carVinNumber" },
-                { "type": "bytes32", "name": "carVinNumberHash" },
-                { "type": "address", "name": "createdBy" },
-                { "type": "string", "name": "brand" },
-                { "type": "string", "name": "model" },
-                { "type": "uint32", "name": "yearOfProduction" },
-                { "type": "uint64", "name": "pricePerDayInUsdCents" },
-                { "type": "uint64", "name": "securityDepositPerTripInUsdCents" },
-                { "type": "uint8", "name": "engineType" },
-                { "type": "uint64[]", "name": "engineParams" },
-                { "type": "uint64", "name": "milesIncludedPerDay" },
-                { "type": "uint32", "name": "timeBufferBetweenTripsInSec" },
-                { "type": "bool", "name": "currentlyListed" },
-                { "type": "bool", "name": "geoVerified" },
-                { "type": "string", "name": "timeZoneId" }
-              ]
-            },
+            { "type": "uint256", "name": "carId" },
+            { "type": "string", "name": "brand" },
+            { "type": "string", "name": "model" },
+            { "type": "uint32", "name": "yearOfProduction" },
+            { "type": "uint64", "name": "pricePerDayInUsdCents" },
+            { "type": "uint64", "name": "securityDepositPerTripInUsdCents" },
+            { "type": "uint8", "name": "engineType" },
+            { "type": "uint64", "name": "milesIncludedPerDay" },
+            { "type": "address", "name": "host" },
+            { "type": "string", "name": "hostName" },
             { "type": "string", "name": "hostPhotoUrl" },
-            { "type": "string", "name": "hostName" }
+            { "type": "string", "name": "city" },
+            { "type": "string", "name": "country" },
+            { "type": "string", "name": "state" },
+            { "type": "string", "name": "locationLatitude" },
+            { "type": "string", "name": "locationLongitude" },
+            { "type": "string", "name": "timeZoneId" }
           ]
         }
       ]
@@ -1295,30 +1325,23 @@
           "type": "tuple[]",
           "name": "",
           "components": [
-            {
-              "type": "tuple",
-              "name": "car",
-              "components": [
-                { "type": "uint256", "name": "carId" },
-                { "type": "string", "name": "carVinNumber" },
-                { "type": "bytes32", "name": "carVinNumberHash" },
-                { "type": "address", "name": "createdBy" },
-                { "type": "string", "name": "brand" },
-                { "type": "string", "name": "model" },
-                { "type": "uint32", "name": "yearOfProduction" },
-                { "type": "uint64", "name": "pricePerDayInUsdCents" },
-                { "type": "uint64", "name": "securityDepositPerTripInUsdCents" },
-                { "type": "uint8", "name": "engineType" },
-                { "type": "uint64[]", "name": "engineParams" },
-                { "type": "uint64", "name": "milesIncludedPerDay" },
-                { "type": "uint32", "name": "timeBufferBetweenTripsInSec" },
-                { "type": "bool", "name": "currentlyListed" },
-                { "type": "bool", "name": "geoVerified" },
-                { "type": "string", "name": "timeZoneId" }
-              ]
-            },
+            { "type": "uint256", "name": "carId" },
+            { "type": "string", "name": "brand" },
+            { "type": "string", "name": "model" },
+            { "type": "uint32", "name": "yearOfProduction" },
+            { "type": "uint64", "name": "pricePerDayInUsdCents" },
+            { "type": "uint64", "name": "securityDepositPerTripInUsdCents" },
+            { "type": "uint8", "name": "engineType" },
+            { "type": "uint64", "name": "milesIncludedPerDay" },
+            { "type": "address", "name": "host" },
+            { "type": "string", "name": "hostName" },
             { "type": "string", "name": "hostPhotoUrl" },
-            { "type": "string", "name": "hostName" }
+            { "type": "string", "name": "city" },
+            { "type": "string", "name": "country" },
+            { "type": "string", "name": "state" },
+            { "type": "string", "name": "locationLatitude" },
+            { "type": "string", "name": "locationLongitude" },
+            { "type": "string", "name": "timeZoneId" }
           ]
         }
       ]
@@ -1390,6 +1413,8 @@
           ]
         },
         { "type": "string", "name": "location" },
+        { "type": "string", "name": "locationLatitude" },
+        { "type": "string", "name": "locationLongitude" },
         { "type": "string", "name": "geoApiKey" }
       ],
       "outputs": []
