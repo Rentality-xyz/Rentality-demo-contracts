@@ -32,6 +32,11 @@ abstract contract ARentalityEngine {
   /// @notice Sets the engine type.
   function setEType(uint8 _eType) public virtual;
 
+  /// @notice Retrieves the fuel prices of car.
+  /// @param engineParams The array of engine parameters used to retrieve fuel prices.
+  /// @return An array of fuel prices corresponding to the provided engine parameters.
+  function getFuelPricesFromEngineParams(uint64[] memory engineParams) public view virtual returns (uint64[] memory);
+
   /// @notice Verify engine params
   function verifyCreateParams(uint64[] memory params) public view virtual;
 
@@ -74,11 +79,6 @@ abstract contract ARentalityEngine {
     return ((endOdometr - startOdometr - milesIncludedPerDay * tripDays) * pricePerDayInUsdCents) / milesIncludedPerDay;
   }
 
-  /// @notice Verifies the correctness of resource prices.
-  function verifyResourcePrice(uint64[] memory prices) public pure virtual {
-    isCorrectArgs(prices[0] != 0);
-  }
-
   /// @notice Verifies the correctness of start parameters.
   function verifyStartParams(uint64[] memory params) public virtual {
     isCorrectArgs(params.length == getParamsAmount() && (params[0] >= 0 && params[0] <= 100));
@@ -107,21 +107,6 @@ abstract contract ARentalityEngine {
   /// @notice Gets the number of parameters expected for this engine.
   function getParamsAmount() public virtual returns (uint256) {
     return 2;
-  }
-
-  /// @notice Retrieves end parameters from the trip information.
-  /// @param trip A struct containing trip information.
-  /// @return An array of uint64 containing end parameters.
-  function getEndParamsFromTripInfo(
-    Schemas.Trip memory trip,
-    uint64 duration
-  ) public virtual returns (uint64[] memory) {
-    uint64[] memory params = new uint64[](getParamsAmount());
-
-    params[0] = trip.startParamLevels[0];
-    params[1] = trip.startParamLevels[1] + trip.milesIncludedPerDay * duration;
-
-    return params;
   }
 
   /// @notice Checks if the given array of parameters is empty.

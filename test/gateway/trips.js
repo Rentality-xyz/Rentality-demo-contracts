@@ -79,6 +79,180 @@ describe('RentalityGateway: trips', function () {
     ).not.to.be.reverted
   })
 
+  it('Return valid trip data', async function () {
+    const mockCreateCarRequest = getMockCarRequest(0)
+    await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest)).not.to.be.reverted
+    const myCars = await rentalityGateway.connect(host).getMyCars()
+    expect(myCars.length).to.equal(1)
+
+    const availableCars = await rentalityGateway.connect(guest).getAvailableCarsForUser(guest.address)
+    expect(availableCars.length).to.equal(1)
+
+    const rentPriceInUsdCents = 1000
+    const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
+      await rentalityCurrencyConverter.getEthFromUsdLatest(rentPriceInUsdCents)
+
+    await expect(
+      rentalityGateway.connect(guest).createTripRequest(
+        {
+          carId: 1,
+          host: host.address,
+          startDateTime: 1,
+          endDateTime: 1,
+          startLocation: 'startLocation',
+          endLocation: 'endLocation',
+          totalDayPriceInUsdCents: rentPriceInUsdCents,
+          taxPriceInUsdCents: 0,
+          depositInUsdCents: 0,
+          ethToCurrencyRate: ethToCurrencyRate,
+          ethToCurrencyDecimals: ethToCurrencyDecimals,
+        },
+        { value: rentPriceInEth }
+      )
+    ).to.changeEtherBalances([guest, rentalityPlatform], [-rentPriceInEth, rentPriceInEth])
+
+    let trip = await rentalityGateway.getTrip(1)
+
+    expect(trip.tripId).to.be.equal(1, 'trip.tripId)')
+    expect(trip.carId).to.be.equal(1, 'trip.carId')
+    expect(trip.status).to.be.equal(TripStatus.Created, 'trip.status')
+    expect(trip.guest).to.be.equal(guest.address, 'trip.guest')
+    expect(trip.host).to.be.equal(host.address, 'trip.host')
+    expect(trip.pricePerDayInUsdCents).to.be.equal(2, 'trip.pricePerDayInUsdCents')
+    expect(trip.startDateTime).to.be.equal(1, 'trip.startDateTime')
+    expect(trip.endDateTime).to.be.equal(1, 'trip.endDateTime')
+    expect(trip.startLocation).to.be.equal('startLocation', 'trip.startLocation')
+    expect(trip.endLocation).to.be.equal('endLocation', 'trip.endLocation')
+    expect(trip.milesIncludedPerDay).to.be.equal(6, 'trip.milesIncludedPerDay')
+    expect(BigInt(trip.fuelPrices)).to.deep.equal(
+      mockCreateCarRequest.engineParams[1] /*[0] - is tank volume,
+     [1] - fuel price per gal*/,
+      'trip.fuelPrices'
+    )
+    expect(trip.paymentInfo).to.deep.equal(
+      [
+        1n,
+        guest.address,
+        await rentalityPlatform.getAddress(),
+        BigInt(rentPriceInUsdCents),
+        0n,
+        0n,
+        0n,
+        0n,
+        ethToCurrencyRate,
+        ethToCurrencyDecimals,
+        0n,
+        0n,
+      ],
+      'trip.paymentInfo'
+    )
+    expect(trip.createdDateTime).to.be.greaterThan(0, 'trip.createdDateTime')
+    expect(trip.approvedDateTime).to.be.equal(0, 'trip.approvedDateTime')
+    expect(trip.rejectedDateTime).to.be.equal(0, 'trip.rejectedDateTime')
+    expect(trip.rejectedBy).to.be.equal('0x0000000000000000000000000000000000000000', 'trip.rejectedBy')
+    expect(trip.checkedInByHostDateTime).to.be.equal(0, 'trip.checkedInByHostDateTime')
+    expect(trip.startParamLevels).to.deep.equal([0, 0], 'trip.startParamLevels')
+    expect(trip.checkedInByGuestDateTime).to.be.equal(0, 'trip.checkedInByGuestDateTime')
+    expect(trip.tripStartedBy).to.be.equal('0x0000000000000000000000000000000000000000', 'trip.tripStartedBy')
+    expect(trip.checkedOutByGuestDateTime).to.be.equal(0, 'trip.checkedOutByGuestDateTime')
+    expect(trip.tripFinishedBy).to.be.equal('0x0000000000000000000000000000000000000000', 'trip.tripFinishedBy')
+    expect(trip.endParamLevels).to.deep.equal([0, 0], 'trip.endParamLevels')
+    expect(trip.checkedOutByHostDateTime).to.be.equal(0, 'trip.checkedOutByHostDateTime')
+    expect(trip.transactionInfo).to.deep.equal([0n, 0n, 0n, 0n, 0n], 'trip.transactionInfo')
+    expect(trip.guestName).to.be.equal(' ', 'trip.guestName')
+    expect(trip.hostName).to.be.equal(' ', 'trip.hostName')
+  })
+
+  it('Return valid fuel prices', async function () {
+    const mockCreateCarRequest = {
+      tokenUri: 'uri',
+      carVinNumber: 'VIN_NUMBER',
+      brand: 'BRAND',
+      model: 'MODEL',
+      yearOfProduction: 2020,
+      pricePerDayInUsdCents: 1,
+      securityDepositPerTripInUsdCents: 1,
+      engineParams: [1, 2, 5, 6],
+      engineType: 2,
+      milesIncludedPerDay: 10,
+      timeBufferBetweenTripsInSec: 0,
+      locationAddress: 'location',
+      locationLatitude: '123421',
+      locationLongitude: '123421',
+      geoApiKey: 'key',
+    }
+
+    await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest)).not.to.be.reverted
+
+    const rentPriceInUsdCents = 1000
+    const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
+      await rentalityCurrencyConverter.getEthFromUsdLatest(rentPriceInUsdCents)
+
+    await expect(
+      rentalityGateway.connect(guest).createTripRequest(
+        {
+          carId: 1,
+          host: host.address,
+          startDateTime: 1,
+          endDateTime: 1,
+          startLocation: 'startLocation',
+          endLocation: 'endLocation',
+          totalDayPriceInUsdCents: rentPriceInUsdCents,
+          taxPriceInUsdCents: 0,
+          depositInUsdCents: 0,
+          ethToCurrencyRate: ethToCurrencyRate,
+          ethToCurrencyDecimals: ethToCurrencyDecimals,
+        },
+        { value: rentPriceInEth }
+      )
+    ).to.changeEtherBalances([guest, rentalityPlatform], [-rentPriceInEth, rentPriceInEth])
+
+    let trip = await rentalityGateway.getTrip(1)
+
+    expect(trip.fuelPrices).to.deep.equal(mockCreateCarRequest.engineParams)
+
+    const mockPatrolCreateCarRequest = {
+      tokenUri: 'uri',
+      carVinNumber: 'VIN_NUMBER1',
+      brand: 'BRAND',
+      model: 'MODEL',
+      yearOfProduction: 2020,
+      pricePerDayInUsdCents: 1,
+      securityDepositPerTripInUsdCents: 1,
+      engineParams: [1, 400],
+      engineType: 1,
+      milesIncludedPerDay: 10,
+      timeBufferBetweenTripsInSec: 0,
+      locationAddress: 'location',
+      locationLatitude: '123421',
+      locationLongitude: '123421',
+      geoApiKey: 'key',
+    }
+    await expect(rentalityGateway.connect(host).addCar(mockPatrolCreateCarRequest)).not.to.be.reverted
+    await expect(
+      rentalityGateway.connect(guest).createTripRequest(
+        {
+          carId: 2,
+          host: host.address,
+          startDateTime: 1,
+          endDateTime: 1,
+          startLocation: 'startLocation',
+          endLocation: 'endLocation',
+          totalDayPriceInUsdCents: rentPriceInUsdCents,
+          taxPriceInUsdCents: 0,
+          depositInUsdCents: 0,
+          ethToCurrencyRate: ethToCurrencyRate,
+          ethToCurrencyDecimals: ethToCurrencyDecimals,
+        },
+        { value: rentPriceInEth }
+      )
+    ).to.changeEtherBalances([guest, rentalityPlatform], [-rentPriceInEth, rentPriceInEth])
+
+    let tripWithPatrol = await rentalityGateway.getTrip(2)
+
+    expect(tripWithPatrol.fuelPrices[0]).to.equal(mockPatrolCreateCarRequest.engineParams[1])
+  })
+
   it('Host can not create trip request for own car ', async function () {
     await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
@@ -187,6 +361,7 @@ describe('RentalityGateway: trips', function () {
       [rentPriceInEth, -rentPriceInEth]
     )
   })
+
   it('Only host or guest can reject trip', async function () {
     await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
@@ -229,6 +404,7 @@ describe('RentalityGateway: trips', function () {
 
     expect(trip.status).to.be.equal(TripStatus.Created)
   })
+
   it('Only host can approve the trip', async function () {
     await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
@@ -279,6 +455,7 @@ describe('RentalityGateway: trips', function () {
 
     expect(trip_approved.status).to.be.equal(1)
   })
+
   it('Host can not cheng status before approve', async function () {
     await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
@@ -426,6 +603,7 @@ describe('RentalityGateway: trips', function () {
 
     expect(trip_checkin.status).to.be.equal(TripStatus.CheckedInByGuest)
   })
+
   it('Only guest can checkout after checkin', async function () {
     await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
@@ -483,6 +661,7 @@ describe('RentalityGateway: trips', function () {
 
     expect(trip_checkout.status).to.be.equal(TripStatus.CheckedOutByGuest)
   })
+
   it('Only host can checkout after guest checkout', async function () {
     await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
@@ -587,6 +766,7 @@ describe('RentalityGateway: trips', function () {
       [returnToHost, -returnToHost]
     )
   })
+
   it('Should not be able to create trip request after approve on the same time', async function () {
     let addCarRequest = getMockCarRequest(0)
     await expect(rentalityGateway.connect(host).addCar(addCarRequest)).not.to.be.reverted
@@ -661,7 +841,8 @@ describe('RentalityGateway: trips', function () {
       )
     ).not.to.be.reverted
   })
-  it('Con not checkInBy host while car on the trip', async function () {
+
+  it('Can not checkInBy host while car on the trip', async function () {
     await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)

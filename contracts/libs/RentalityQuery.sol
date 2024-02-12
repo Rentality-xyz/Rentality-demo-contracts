@@ -8,6 +8,8 @@ import '../RentalityTripService.sol';
 import '../RentalityUserService.sol';
 import './RentalityUtils.sol';
 import '../abstract/IRentalityGeoService.sol';
+import '../RentalityAdminGateway.sol';
+
 
 library RentalityQuery {
   /// @dev Checks if a specific trip has intersecting trips within a given time range.
@@ -401,14 +403,14 @@ library RentalityQuery {
     address carServiceAddress,
     address userServiceAddress,
     address tripServiceAddress
-  ) public view returns (Schemas.AvailableCarResponse[] memory) {
+  ) public view returns (Schemas.SearchCar[] memory) {
     // if (startDateTime < block.timestamp){
     //     return new RentalityCarToken.CarInfo[](0);
     // }
     RentalityCarToken carService = RentalityCarToken(carServiceAddress);
-    RentalityUserService userService = RentalityUserService(userServiceAddress);
+
     Schemas.CarInfo[] memory availableCars = carService.fetchAvailableCarsForUser(user, searchParams);
-    if (availableCars.length == 0) return new Schemas.AvailableCarResponse[](0);
+    if (availableCars.length == 0) return new Schemas.SearchCar[](0);
 
     Schemas.Trip[] memory trips = getTripsThatIntersect(
       tripServiceAddress,
@@ -450,13 +452,67 @@ library RentalityQuery {
         }
       }
     }
-    Schemas.AvailableCarResponse[] memory result = new Schemas.AvailableCarResponse[](resultCount);
+    Schemas.SearchCar[] memory result = new Schemas.SearchCar[](resultCount);
 
     for (uint i = 0; i < resultCount; i++) {
-      string memory hostPhotoUrl = userService.getKYCInfo(temp[i].createdBy).profilePhoto;
-      string memory hostName = userService.getKYCInfo(temp[i].createdBy).name;
-      result[i] = Schemas.AvailableCarResponse(temp[i], hostPhotoUrl, hostName);
+      result[i] = Schemas.SearchCar(
+        temp[i].carId,
+        temp[i].brand,
+        temp[i].model,
+        temp[i].yearOfProduction,
+        temp[i].pricePerDayInUsdCents,
+        temp[i].securityDepositPerTripInUsdCents,
+        temp[i].engineType,
+        temp[i].milesIncludedPerDay,
+        temp[i].createdBy,
+        RentalityUserService(userServiceAddress).getKYCInfo(temp[i].createdBy).name,
+        RentalityUserService(userServiceAddress).getKYCInfo(temp[i].createdBy).profilePhoto,
+        IRentalityGeoService(carService.getGeoServiceAddress()).getCarCity(temp[i].carId),
+        IRentalityGeoService(carService.getGeoServiceAddress()).getCarCountry(temp[i].carId),
+        IRentalityGeoService(carService.getGeoServiceAddress()).getCarState(temp[i].carId),
+        IRentalityGeoService(carService.getGeoServiceAddress()).getCarLocationLatitude(temp[i].carId),
+        IRentalityGeoService(carService.getGeoServiceAddress()).getCarLocationLongitude(temp[i].carId),
+        IRentalityGeoService(carService.getGeoServiceAddress()).getCarTimeZoneId(temp[i].carId)
+      );
     }
     return result;
+  }
+
+  /// @notice Retrieves detailed information about a car.
+  /// @param adminService The address of the AdminService contract.
+  /// @param carId The ID of the car for which details are requested.
+  /// @return details An instance of `Schemas.CarDetails` containing the details of the specified car.
+  function getCarDetails(address adminService, uint carId) public view returns (Schemas.CarDetails memory details) {
+    RentalityCarToken carService = RentalityCarToken(RentalityAdminGateway(adminService).getCarServiceAddress());
+    IRentalityGeoService geo = IRentalityGeoService(carService.getGeoServiceAddress());
+
+    RentalityUserService userService = RentalityUserService(
+      RentalityAdminGateway(adminService).getUserServiceAddress()
+    );
+
+    Schemas.CarInfo memory car = carService.getCarInfoById(carId);
+
+    details = Schemas.CarDetails(
+      carId,
+      userService.getKYCInfo(car.createdBy).name,
+      userService.getKYCInfo(car.createdBy).profilePhoto,
+      car.createdBy,
+      car.brand,
+      car.model,
+      car.yearOfProduction,
+      car.pricePerDayInUsdCents,
+      car.securityDepositPerTripInUsdCents,
+      car.milesIncludedPerDay,
+      car.engineType,
+      car.engineParams,
+      geo.getCarCoordinateValidity(carId),
+      car.currentlyListed,
+      geo.getCarTimeZoneId(carId),
+      geo.getCarCity(carId),
+      geo.getCarCountry(carId),
+      geo.getCarState(carId),
+      geo.getCarLocationLatitude(carId),
+      geo.getCarLocationLongitude(carId)
+    );
   }
 }

@@ -46,13 +46,6 @@ contract RentalityPlatform is UUPSOwnable {
     //     _;
     // }
 
-    // modifier onlyHostOrGuest() {
-    //     require(
-    //         userService.isHost(msg.sender) || userService.isGuest(msg.sender),
-    //         "User is not a host or guest"
-    //     );
-    //     _;
-    // }
 
 
     function updateServiceAddresses(RentalityAdminGateway adminService) public {

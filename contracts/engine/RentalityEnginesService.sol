@@ -54,6 +54,17 @@ contract RentalityEnginesService is Initializable, UUPSAccess {
     return address(engineTypeToEngineContract[eType]);
   }
 
+  /// @notice Retrieves the fuel prices based on the engine type and engine parameters.
+  /// @param eType The engine type for which fuel prices are requested.
+  /// @param engineParams The array of engine parameters used to retrieve fuel prices.
+  /// @return An array of fuel prices corresponding to the provided engine parameters.
+  function getFuelPricesFromEngineParams(
+    uint8 eType,
+    uint64[] memory engineParams
+  ) public view returns (uint64[] memory) {
+    return engineTypeToEngineContract[eType].getFuelPricesFromEngineParams(engineParams);
+  }
+
   /// @notice Verify engine params
   /// @param eType The engine type associated with the car.
   /// @param params An array of parameters required for adding the car.
@@ -73,13 +84,6 @@ contract RentalityEnginesService is Initializable, UUPSAccess {
     return engineTypeToEngineContract[eType].verifyUpdateParams(newParams, oldParams);
   }
 
-  /// @notice Verifies resource prices for a specific engine type.
-  /// @param prices An array of uint64 values representing resource prices.
-  /// @param eType The engine type for which to verify the resource prices.
-  function verifyResourcePrice(uint64[] memory prices, uint8 eType) public view {
-    engineTypeToEngineContract[eType].verifyResourcePrice(prices);
-  }
-
   /// @notice Verifies the start parameters for a specific engine type.
   /// @param params An array of uint64 values representing start parameters.
   /// @param eType The engine type for which to verify the start parameters.
@@ -93,19 +97,6 @@ contract RentalityEnginesService is Initializable, UUPSAccess {
   /// @param eType The engine type for which to verify the end parameters.
   function verifyEndParams(uint64[] memory startParams, uint64[] memory endParams, uint8 eType) public {
     engineTypeToEngineContract[eType].verifyEndParams(startParams, endParams);
-  }
-
-  /// @notice Retrieves end parameters from the trip information.
-  /// @param trip A struct containing trip information.
-  /// @param trip duration in days
-  /// @param eType - engine type
-  /// @return An array of uint64 containing end parameters.
-  function getEndParamsFromTripInfo(
-    Schemas.Trip memory trip,
-    uint64 duration,
-    uint8 eType
-  ) public virtual returns (uint64[] memory) {
-    return engineTypeToEngineContract[eType].getEndParamsFromTripInfo(trip, duration);
   }
 
   /// @notice Compares parameters for a specific engine type.
