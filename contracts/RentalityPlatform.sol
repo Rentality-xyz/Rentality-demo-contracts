@@ -60,17 +60,30 @@ contract RentalityPlatform is UUPSOwnable {
 
     /// @notice Withdraw a specific amount of funds from the contract.
     /// @param amount The amount to withdraw from the contract.
-    function withdrawFromPlatform(uint256 amount) public {
-        require(address(this).balance > 0, 'There is no commission to withdraw');
-        require(address(this).balance >= amount, 'There is not enough balance on the contract');
+    function withdrawFromPlatform(uint256 amount, address currencyType) public {
+        require(address(this).balance > 0 ||
+        IERC20(currencyType).balanceOf(address(this)) > 0,
+            'There is no commission to withdraw');
 
-        //require(payable(owner()).send(amount));
-        (bool success,) = payable(owner()).call{value: amount}('');
+        require(address(this).balance >= amount ||
+        IERC20(currencyType).balanceOf(address(this)) >= amount,
+            'There is not enough balance on the contract');
+
+        bool success;
+        if (currencyConverterService.isNative(currencyType)) {
+
+            //require(payable(owner()).send(amount));
+            (success,) = payable(owner()).call{value: amount}('');
+            require(success, 'Transfer failed.');
+        }
+        else {
+            success = IERC20(currencyType).transfer(owner(), amount);
+        }
         require(success, 'Transfer failed.');
     }
 
-    function withdrawAllFromPlatform() public {
-        return withdrawFromPlatform(address(this).balance);
+    function withdrawAllFromPlatform(address currencyType) public {
+        return withdrawFromPlatform(address(this).balance, currencyType);
     }
 
     /// @notice Create a new trip request on the Rentality platform.
@@ -86,7 +99,7 @@ contract RentalityPlatform is UUPSOwnable {
         );
 
         uint64 valueSum = request.totalDayPriceInUsdCents + request.taxPriceInUsdCents + request.depositInUsdCents;
-        uint256 valueSumInCurrency = currencyConverterService.getTokenFromUsdCents(
+        uint256 valueSumInCurrency = currencyConverterService.getFromUsd(
             request.currencyType,
             valueSum,
             request.currencyRate,
@@ -94,12 +107,11 @@ contract RentalityPlatform is UUPSOwnable {
         );
         if (currencyConverterService.isNative(request.currencyType)) {
 
-            require(msg.value == valueSum, 'Rental fee must be equal to sum totalDayPrice + taxPrice + deposit');
+            require(msg.value == valueSumInCurrency, 'Rental fee must be equal to sum totalDayPrice + taxPrice + deposit');
         }
         else {
-            require(IERC20(request.currencyType).balanceOf(tx.origin) >= valueSumInCurrency, 'Rental fee must be equal to sum totalDayPrice + taxPrice + deposit');
+            require(IERC20(request.currencyType).allowance(tx.origin, address(this)) >= valueSumInCurrency, 'Rental fee must be equal to sum totalDayPrice + taxPrice + deposit');
 
-            IERC20(request.currencyType).approve(address(this), valueSumInCurrency);
             bool success = IERC20(request.currencyType).transferFrom(tx.origin, address(this), valueSumInCurrency);
             require(success, "Transfer failed.");
         }
@@ -135,7 +147,6 @@ contract RentalityPlatform is UUPSOwnable {
             request.startLocation,
             request.endLocation,
             carInfo.milesIncludedPerDay,
-            request.fuelPrices,
             paymentInfo
         );
     }
@@ -207,7 +218,7 @@ contract RentalityPlatform is UUPSOwnable {
                             trip.paymentInfo.taxPriceInUsdCents +
                             trip.paymentInfo.depositInUsdCents;
 
-        uint256 valueToReturnInToken = currencyConverterService.getTokenFromUsdCents(
+        uint256 valueToReturnInToken = currencyConverterService.getFromUsd(
             trip.paymentInfo.currencyType,
             valueToReturnInUsdCents,
             trip.paymentInfo.currencyRate,
@@ -244,31 +255,30 @@ contract RentalityPlatform is UUPSOwnable {
 
         uint256 valueToGuestInUsdCents = trip.paymentInfo.depositInUsdCents - trip.paymentInfo.resolveAmountInUsdCents;
 
+
+        uint256 valueToHost = currencyConverterService.getFromUsd(
+            trip.paymentInfo.currencyType,
+            valueToHostInUsdCents,
+            trip.paymentInfo.currencyRate,
+            trip.paymentInfo.currencyDecimals
+        );
+        uint256 valueToGuest = currencyConverterService.getFromUsd(
+            trip.paymentInfo.currencyType,
+            valueToGuestInUsdCents,
+            trip.paymentInfo.currencyRate,
+            trip.paymentInfo.currencyDecimals
+        );
+        bool successHost;
+        bool successGuest;
         if (currencyConverterService.isNative(trip.paymentInfo.currencyType)) {
-            uint256 valueToHost = currencyConverterService.getTokenFromUsdCents(
-                trip.paymentInfo.currencyType,
-                valueToHostInUsdCents,
-                trip.paymentInfo.currencyRate,
-                trip.paymentInfo.currencyDecimals
-            );
-            uint256 valueToGuest = currencyConverterService.getTokenFromUsdCents(
-                trip.paymentInfo.currencyType,
-                valueToGuestInUsdCents,
-                trip.paymentInfo.currencyRate,
-                trip.paymentInfo.currencyDecimals
-            );
-            bool successHost;
-            bool successGuest;
-            if (currencyConverterService.isNative(trip.paymentInfo.currencyType)) {
-                (successHost,) = payable(trip.host).call{value: valueToHost}('');
-                (successGuest,) = payable(trip.guest).call{value: valueToGuest}('');
-            }
-            else {
-                successHost = IERC20(trip.paymentInfo.currencyType).transfer(trip.host, valueToHost);
-                successGuest = IERC20(trip.paymentInfo.currencyType).transfer(trip.guest, valueToGuest);
-            }
-            require(successHost && successGuest, 'Transfer failed.');
+            (successHost,) = payable(trip.host).call{value: valueToHost}('');
+            (successGuest,) = payable(trip.guest).call{value: valueToGuest}('');
         }
+        else {
+            successHost = IERC20(trip.paymentInfo.currencyType).transfer(trip.host, valueToHost);
+            successGuest = IERC20(trip.paymentInfo.currencyType).transfer(trip.guest, valueToGuest);
+        }
+        require(successHost && successGuest, 'Transfer failed.');
 
 
         tripService.saveTransactionInfo(
@@ -320,7 +330,7 @@ contract RentalityPlatform is UUPSOwnable {
             'Wrong claim Status.'
         );
 
-        uint256 valueToPay = currencyConverterService.getTokenFromUsdCents(
+        uint256 valueToPay = currencyConverterService.getFromUsd(
             trip.paymentInfo.currencyType,
             claim.amountInUsdCents,
             trip.paymentInfo.currencyRate,
@@ -341,7 +351,7 @@ contract RentalityPlatform is UUPSOwnable {
             }
         }
         else {
-            IERC20(trip.paymentInfo.currencyType).approve(address(this), valueToPay);
+            require(IERC20(trip.paymentInfo.currencyType).allowance(tx.origin, address(this)) >= valueToPay);
             successHost = IERC20(trip.paymentInfo.currencyType).transferFrom(tx.origin, trip.host, valueToPay);
         }
         require(successHost, 'Transfer to host failed.');
@@ -446,7 +456,6 @@ contract RentalityPlatform is UUPSOwnable {
         paymentService = RentalityPaymentService(paymentServiceAddress);
         claimService = RentalityClaimService(claimServiceAddress);
         automationService = RentalityAutomation(rentalityAutomationAddress);
-
 
 
         __Ownable_init();

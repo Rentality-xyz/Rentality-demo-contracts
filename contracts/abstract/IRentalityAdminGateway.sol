@@ -7,10 +7,10 @@ pragma solidity ^0.8.9;
 interface IRentalityAdminGateway {
   /// @notice Withdraws the specified amount from the RentalityPlatform contract.
   /// @param amount The amount to withdraw.
-  function withdrawFromPlatform(uint256 amount) external;
+  function withdrawFromPlatform(uint256 amount, address currencyType) external;
 
   /// @notice Withdraws the entire balance from the RentalityPlatform contract.
-  function withdrawAllFromPlatform() external;
+  function withdrawAllFromPlatform(address currencyType) external;
 
   /// @notice Sets the platform fee in parts per million (PPM). Only callable by admins.
   /// @param valueInPPM The new platform fee value in PPM.

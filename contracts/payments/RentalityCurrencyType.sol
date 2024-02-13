@@ -2,8 +2,11 @@
 pragma solidity ^0.8.9;
 
 import './IERC20.sol';
+import '@openzeppelin/contracts/proxy/utils/Initializable.sol';
+import "../abstract/IRentalityAccessControl.sol";
+import '../proxy/UUPSAccess.sol';
 
-abstract contract ARentalityCurrencyType {
+abstract contract ARentalityUpgradableCurrencyType is Initializable, UUPSAccess {
 
     // Current ETH to USD rate and decimals
     int256 internal currentToUsdRate;
@@ -21,31 +24,33 @@ abstract contract ARentalityCurrencyType {
         return address(tokenAddress);
     }
 
-    function getThisFromUsdCents(uint256 amount, int256 toUsdRate, uint8 decimals) public virtual view returns (uint) {
-        return amount / uint256(toUsdRate) * (10 ** uint256(decimals));
-    }
-
     function tokenDecimals() public virtual view returns (uint8) {
         return tokenAddress.decimals();
     }
 
     function getLatest() public virtual view returns (int);
 
-    function getRate() public virtual view returns (int256, uint8);
+    function getFromUsd(uint256, int256, uint8) public pure virtual returns (uint256);
 
-    function getThisValueFromUsdLatest(uint256 valueInUsdCents) public virtual view returns (uint256, int256, uint8);
+    function getUsd(uint256, int256, uint8) public pure virtual returns (uint256);
 
-    function getUsdValueFromThisLatest(uint256 thisValue) public virtual view returns (uint256, int256, uint8);
+    function getRate() public virtual view returns (int256, uint8) {
+        return (getLatest(), tokenDecimals());
+    }
 
-    function getUsdFromThis(uint256 thisValue, int256 thisToUsd, uint8 decimals) public virtual view returns (uint256);
+    function getFromUsdLatest(uint256 amount) public view returns (uint256, int256, uint8) {
+        (int256 rate, uint8 decimals) = getRate();
 
-    function getThisFromUsd(
-        uint256 valueInUsdCents,
-        int256 ethToUsdRate,
-        uint8 ethToUsdDecimals
-    ) public pure returns (uint256);
+        return (getFromUsd(amount, rate, decimals), rate, decimals);
+    }
 
-    function getThisToUsdRateWithCache() public virtual returns (int256, uint8) {
+    function getUsdFromLatest(uint256 amount) public view returns (uint256, int256, uint8) {
+        (int256 rate, uint8 decimals) = getRate();
+
+        return (getUsd(amount, rate, decimals), rate, decimals);
+    }
+
+    function getRateWithCache() public returns (int256, uint8) {
         if ((block.timestamp - lastUpdateRateTimeStamp) > updateRateInterval) {
             lastUpdateRateTimeStamp = block.timestamp;
             currentToUsdRate = getLatest();
@@ -54,19 +59,25 @@ abstract contract ARentalityCurrencyType {
         return (currentToUsdRate, currentToUsdDecimals);
     }
 
-    function getThisFromUsdWithCache(uint256 valueInUsdCents) public virtual returns (uint256) {
-        ( currentToUsdRate, currentToUsdDecimals) = getRate();
+    function getFromUsdWithCache(uint256 valueInUsdCents) public returns (uint256) {
+        (int256 rate, uint8 decimals) = getRateWithCache();
 
-        return getThisFromUsdCents(valueInUsdCents, currentToUsdRate, currentToUsdDecimals);
+        return getFromUsd(valueInUsdCents, rate, decimals);
     }
 
     /// @notice Get the amount of USD cents equivalent to a specified amount of ETH with caching
     /// @return The equivalent amount in USD cents
-    function getUsdFromThisWithCache(uint256 valueInThis) public virtual returns (uint256) {
+    function getUsdWithCache(uint256 valueInThis) public returns (uint256) {
+        (int256 rate, uint8 decimals) = getRateWithCache();
+
+        return getUsd(valueInThis, rate, decimals);
+
+    }
+    function initialize( address _userService, address _tokenAddress) public virtual initializer {
+        userService = IRentalityAccessControl(_userService);
+        tokenAddress = IERC20(_tokenAddress);
+
         (currentToUsdRate, currentToUsdDecimals) = getRate();
-
-        return getUsdFromThis(valueInThis, rate, decimals);
-
     }
 
 }

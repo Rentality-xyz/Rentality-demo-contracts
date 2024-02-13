@@ -120,13 +120,18 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
 
   /// @notice Withdraws the specified amount from the RentalityPlatform contract.
   /// @param amount The amount to withdraw.
-  function withdrawFromPlatform(uint256 amount) public {
-    rentalityPlatform.withdrawFromPlatform(amount);
+  function withdrawFromPlatform(uint256 amount, address currencyType) public {
+    rentalityPlatform.withdrawFromPlatform(amount, currencyType);
   }
 
   /// @notice Withdraws the entire balance from the RentalityPlatform contract.
-  function withdrawAllFromPlatform() public {
-    rentalityPlatform.withdrawFromPlatform(address(rentalityPlatform).balance);
+  function withdrawAllFromPlatform(address currencyType) public {
+    uint balance =
+      currencyConverterService.isNative(currencyType) ?
+        address(rentalityPlatform).balance :
+        IERC20(currencyType).balanceOf(address (rentalityPlatform));
+
+    rentalityPlatform.withdrawFromPlatform(balance, currencyType);
   }
   /// @notice Sets the platform fee in parts per million (PPM). Only callable by admins.
   /// @param valueInPPM The new platform fee value in PPM.
