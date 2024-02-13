@@ -5,7 +5,7 @@ import {ERC721URIStorageUpgradeable} from '@openzeppelin/contracts-upgradeable/t
 import {UUPSUpgradeable} from '@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol';
 import '@openzeppelin/contracts/utils/Counters.sol';
 import './libs/RentalityQuery.sol';
-import "./abstract/IRentalityGeoService.sol";
+import './abstract/IRentalityGeoService.sol';
 import './proxy/UUPSOwnable.sol';
 import './engine/RentalityEnginesService.sol';
 import './Schemas.sol';

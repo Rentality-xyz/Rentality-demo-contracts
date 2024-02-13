@@ -246,7 +246,6 @@ interface Schemas {
 
   /// Payments
 
-
   /// @dev Enumeration representing the currency type used for payments.
   enum CurrencyType {
     ETH
@@ -263,7 +262,7 @@ interface Schemas {
     uint64 resolveAmountInUsdCents;
     address currencyType; // tokenAddress, address(0) if native
     int256 currencyRate;
-    uint8  currencyDecimals;
+    uint8 currencyDecimals;
     uint64 resolveFuelAmountInUsdCents;
     uint64 resolveMilesAmountInUsdCents;
   }

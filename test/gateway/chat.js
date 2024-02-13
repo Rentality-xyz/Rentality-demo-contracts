@@ -1,7 +1,7 @@
 const { expect } = require('chai')
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 
-const { getMockCarRequest, deployDefaultFixture, nativeToken} = require('../utils')
+const { getMockCarRequest, deployDefaultFixture, nativeToken } = require('../utils')
 
 describe('RentalityGateway: chat', function () {
   let rentalityGateway,
@@ -58,8 +58,7 @@ describe('RentalityGateway: chat', function () {
 
     const rentPriceInUsdCents = 1000
     const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
-        await rentalityCurrencyConverter.getFromUsdLatest(nativeToken,rentPriceInUsdCents)
-
+      await rentalityCurrencyConverter.getFromUsdLatest(nativeToken, rentPriceInUsdCents)
 
     await expect(
       rentalityGateway.connect(guest).createTripRequest(
@@ -73,10 +72,9 @@ describe('RentalityGateway: chat', function () {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-             currencyRate: ethToCurrencyRate,
+          currencyRate: ethToCurrencyRate,
           currencyDecimals: ethToCurrencyDecimals,
-          currencyType: nativeToken
-
+          currencyType: nativeToken,
         },
         { value: rentPriceInEth }
       )
@@ -192,10 +190,9 @@ describe('RentalityGateway: chat', function () {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-             currencyRate: ethToCurrencyRate,
+          currencyRate: ethToCurrencyRate,
           currencyDecimals: ethToCurrencyDecimals,
-          currencyType: nativeToken
-
+          currencyType: nativeToken,
         },
         { value: rentPriceInEth }
       )
