@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import "../abstract/IRentalityAccessControl.sol";
+import '../abstract/IRentalityAccessControl.sol';
 import '../Schemas.sol';
 
 /// @title ARentalityEngine - Abstract contract for a rental engine in the Rentality system.

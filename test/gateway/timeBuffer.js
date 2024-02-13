@@ -1,7 +1,7 @@
 const { expect } = require('chai')
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 
-const { TripStatus, getEmptySearchCarParams, deployDefaultFixture, nativeToken} = require('../utils')
+const { TripStatus, getEmptySearchCarParams, deployDefaultFixture, nativeToken } = require('../utils')
 
 describe('RentalityGateway: time buffer', function () {
   let rentalityGateway,
@@ -85,9 +85,9 @@ describe('RentalityGateway: time buffer', function () {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-           currencyRate: ethToCurrencyRate,
+          currencyRate: ethToCurrencyRate,
           currencyDecimals: ethToCurrencyDecimals,
-          currencyType: nativeToken
+          currencyType: nativeToken,
         },
         { value: rentPriceInEth }
       )
@@ -145,9 +145,9 @@ describe('RentalityGateway: time buffer', function () {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-           currencyRate: ethToCurrencyRate,
+          currencyRate: ethToCurrencyRate,
           currencyDecimals: ethToCurrencyDecimals,
-          currencyType: nativeToken
+          currencyType: nativeToken,
         },
         { value: rentPriceInEth }
       )
@@ -206,9 +206,9 @@ describe('RentalityGateway: time buffer', function () {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-           currencyRate: ethToCurrencyRate,
+          currencyRate: ethToCurrencyRate,
           currencyDecimals: ethToCurrencyDecimals,
-          currencyType: nativeToken
+          currencyType: nativeToken,
         },
         { value: rentPriceInEth }
       )
@@ -228,9 +228,9 @@ describe('RentalityGateway: time buffer', function () {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-           currencyRate: ethToCurrencyRate,
+          currencyRate: ethToCurrencyRate,
           currencyDecimals: ethToCurrencyDecimals,
-          currencyType: nativeToken
+          currencyType: nativeToken,
         },
         { value: rentPriceInEth }
       )
@@ -278,9 +278,9 @@ describe('RentalityGateway: time buffer', function () {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-           currencyRate: ethToCurrencyRate,
+          currencyRate: ethToCurrencyRate,
           currencyDecimals: ethToCurrencyDecimals,
-          currencyType: nativeToken
+          currencyType: nativeToken,
         },
         { value: rentPriceInEth }
       )
@@ -297,9 +297,9 @@ describe('RentalityGateway: time buffer', function () {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-           currencyRate: ethToCurrencyRate,
+          currencyRate: ethToCurrencyRate,
           currencyDecimals: ethToCurrencyDecimals,
-          currencyType: nativeToken
+          currencyType: nativeToken,
         },
         { value: rentPriceInEth }
       )

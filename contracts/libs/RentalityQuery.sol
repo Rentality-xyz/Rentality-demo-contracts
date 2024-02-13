@@ -10,7 +10,6 @@ import './RentalityUtils.sol';
 import '../abstract/IRentalityGeoService.sol';
 import '../RentalityAdminGateway.sol';
 
-
 library RentalityQuery {
   /// @dev Checks if a specific trip has intersecting trips within a given time range.
   //  @param TripService to getTrip by id

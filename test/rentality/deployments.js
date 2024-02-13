@@ -1,4 +1,5 @@
 const { ethers, upgrades } = require('hardhat')
+const { nativeToken } = require('../utils')
 
 async function deployDefaultFixture() {
   const [owner, admin, manager, host, guest, anonymous] = await ethers.getSigners()
@@ -49,28 +50,19 @@ async function deployDefaultFixture() {
   const RentalityEth = await ethers.getContractFactory('RentalityETHPayment')
 
   const ethContract = await upgrades.deployProxy(RentalityEth, [
-        await rentalityMockPriceFeed.getAddress(),
-        await rentalityUserService.getAddress()
-      ]
-  )
+    await rentalityUserService.getAddress(),
+    nativeToken,
+    await rentalityMockPriceFeed.getAddress(),
+  ])
   await ethContract.waitForDeployment()
 
-  const TestUsdt = await ethers.getContractFactory('RentalityTestUSDT');
-  const usdtContract = await TestUsdt.deploy();
-  await usdtContract.waitForDeployment();
-
-  const RentalityUSDT = await ethers.getContractFactory('RentalityUSDTPayment')
-
-  const usdtPaymentContract = await upgrades.deployProxy(RentalityUSDT, [
-        await rentalityUserService.getAddress(),
-        await usdtContract.getAddress()
-      ]
-  )
+  const TestUsdt = await ethers.getContractFactory('RentalityTestUSDT')
+  const usdtContract = await TestUsdt.deploy()
   await usdtContract.waitForDeployment()
 
   const rentalityCurrencyConverter = await upgrades.deployProxy(RentalityCurrencyConverter, [
     await rentalityUserService.getAddress(),
-    await ethContract.getAddress()
+    await ethContract.getAddress(),
   ])
   await rentalityCurrencyConverter.waitForDeployment()
 
