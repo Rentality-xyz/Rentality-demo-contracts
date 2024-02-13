@@ -87,7 +87,7 @@ describe('RentalityUserService: KYC management', function () {
     expect(kycInfo.licenseNumber).to.equal('licenseNumber')
     expect(kycInfo.expirationDate).to.equal(expirationDate)
   })
-  it.only('After a trip is requested, the host or guest can get the contact numbers of the host and guest', async function () {
+  it('After a trip is requested, the host or guest can get the contact numbers of the host and guest', async function () {
     const {
       rentalityPlatform,
       rentalityCurrencyConverter,
@@ -104,6 +104,7 @@ describe('RentalityUserService: KYC management', function () {
     const rentPriceInUsdCents = 1600
     const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
       await rentalityCurrencyConverter.getFromUsdLatest(nativeToken,rentPriceInUsdCents)
+
     const ONE_YEAR_IN_SECS = 365 * 24 * 60 * 60
     const expirationDate = (await time.latest()) + ONE_YEAR_IN_SECS
 
@@ -125,9 +126,9 @@ describe('RentalityUserService: KYC management', function () {
           totalDayPriceInUsdCents: 1000,
           taxPriceInUsdCents: 200,
           depositInUsdCents: 400,
-          fuelPrices: [400],
-          ethToCurrencyRate: ethToCurrencyRate,
-          ethToCurrencyDecimals: ethToCurrencyDecimals,
+          currencyRate: ethToCurrencyRate,
+          currencyDecimals: ethToCurrencyDecimals,
+          currencyType: nativeToken
         },
         { value: rentPriceInEth }
       )

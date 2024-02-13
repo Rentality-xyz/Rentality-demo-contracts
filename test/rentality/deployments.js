@@ -46,9 +46,31 @@ async function deployDefaultFixture() {
   await rentalityUserService.connect(owner).grantHostRole(host.address)
   await rentalityUserService.connect(owner).grantGuestRole(guest.address)
 
+  const RentalityEth = await ethers.getContractFactory('RentalityETHPayment')
+
+  const ethContract = await upgrades.deployProxy(RentalityEth, [
+        await rentalityMockPriceFeed.getAddress(),
+        await rentalityUserService.getAddress()
+      ]
+  )
+  await ethContract.waitForDeployment()
+
+  const TestUsdt = await ethers.getContractFactory('RentalityTestUSDT');
+  const usdtContract = await TestUsdt.deploy();
+  await usdtContract.waitForDeployment();
+
+  const RentalityUSDT = await ethers.getContractFactory('RentalityUSDTPayment')
+
+  const usdtPaymentContract = await upgrades.deployProxy(RentalityUSDT, [
+        await rentalityUserService.getAddress(),
+        await usdtContract.getAddress()
+      ]
+  )
+  await usdtContract.waitForDeployment()
+
   const rentalityCurrencyConverter = await upgrades.deployProxy(RentalityCurrencyConverter, [
-    await rentalityMockPriceFeed.getAddress(),
     await rentalityUserService.getAddress(),
+    await ethContract.getAddress()
   ])
   await rentalityCurrencyConverter.waitForDeployment()
 

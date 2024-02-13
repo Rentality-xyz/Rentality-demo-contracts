@@ -80,13 +80,9 @@ interface Schemas {
     uint64 totalDayPriceInUsdCents;
     uint64 taxPriceInUsdCents;
     uint64 depositInUsdCents;
-    uint64[] fuelPrices;
     int256 currencyRate;
     uint8 currencyDecimals;
     address currencyType;
-    int256 ethToCurrencyRate;
-    uint8 ethToCurrencyDecimals;
-
   }
 
   /// @dev Enumeration representing verious states of a trip.

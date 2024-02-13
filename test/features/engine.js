@@ -2,7 +2,7 @@ const { expect } = require('chai')
 const { ethers, upgrades, network } = require('hardhat')
 const { time, loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 const { Contract } = require('hardhat/internal/hardhat-network/stack-traces/model')
-const { deployDefaultFixture, getMockCarRequest } = require('../utils')
+const { deployDefaultFixture, getMockCarRequest, nativeToken} = require('../utils')
 
 describe('RentalityEngines', function () {
   let rentalityGateway,
@@ -242,7 +242,7 @@ describe('RentalityEngines', function () {
       const oneDayInSeconds = 24 * 60 * 60
       const rentPriceInUsdCents = 1000
       const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
-        await rentalityCurrencyConverter.getEthFromUsdLatest(rentPriceInUsdCents)
+        await rentalityCurrencyConverter.getFromUsdLatest(nativeToken,rentPriceInUsdCents)
 
       const blockNumBefore = await ethers.provider.getBlockNumber()
       const blockBefore = await ethers.provider.getBlock(blockNumBefore)
@@ -260,9 +260,9 @@ describe('RentalityEngines', function () {
             totalDayPriceInUsdCents: rentPriceInUsdCents,
             taxPriceInUsdCents: 0,
             depositInUsdCents: 0,
-            fuelPrices: [400],
-            ethToCurrencyRate: ethToCurrencyRate,
-            ethToCurrencyDecimals: ethToCurrencyDecimals,
+            currencyRate: ethToCurrencyRate,
+            currencyDecimals: ethToCurrencyDecimals,
+            currencyType: nativeToken
           },
           { value: rentPriceInEth }
         )
