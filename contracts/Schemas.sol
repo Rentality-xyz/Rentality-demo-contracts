@@ -309,6 +309,9 @@ interface Schemas {
     address host;
     string hostName;
     string hostPhotoUrl;
+    GeoData geoData;
+  }
+  struct GeoData {
     string city;
     string country;
     string state;

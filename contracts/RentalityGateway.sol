@@ -34,14 +34,6 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
   RentalityClaimService private claimService;
   RentalityAdminGateway private adminService;
 
-  /// @notice Ensures that the caller is either an admin, the contract owner, or an admin from the origin transaction.
-  modifier onlyAdmin() {
-    require(
-      userService.isAdmin(msg.sender) || userService.isAdmin(tx.origin) || (tx.origin == owner()),
-      'User is not an admin'
-    );
-    _;
-  }
 
   /// @notice Ensures that the caller is a host.
   modifier onlyHost() {
@@ -49,11 +41,6 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
     _;
   }
 
-  /// @notice Ensures that the caller is a guest.
-  modifier onlyGuest() {
-    require(userService.isGuest(msg.sender), 'User is not a guest');
-    _;
-  }
 
   /// @notice Ensures that the caller is either a host or a guest.
   modifier onlyHostOrGuest() {
