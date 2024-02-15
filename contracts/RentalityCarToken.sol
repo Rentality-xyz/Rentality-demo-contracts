@@ -215,8 +215,11 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
 
     Schemas.CarInfo[] memory result = new Schemas.CarInfo[](itemCount);
 
+    uint elementsCounter = 0;
     for (uint i = 0; i < totalSupply(); i++) {
-      result[i] = idToCarInfo[i + 1];
+      if (_exists(i + 1)) {
+        result[elementsCounter++] = idToCarInfo[i + 1];
+      }
     }
 
     return result;
