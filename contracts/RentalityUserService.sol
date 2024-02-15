@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
+import {IGatewayTokenVerifier} from '@identity.com/gateway-protocol-eth/contracts/interfaces/IGatewayTokenVerifier.sol';
 import '@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol';
 import {AccessControlUpgradeable} from '@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol';
 import './Schemas.sol';
@@ -21,6 +22,8 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
 
   // Mapping to store KYC information for each user address
   mapping(address => Schemas.KYCInfo) private kycInfos;
+  address private civicVerifier;
+  uint private civicGatekeeperNetwork;
 
   /// @notice Sets KYC information for the caller (host or guest).
   /// @param name The user's name.
@@ -29,7 +32,6 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
   /// @param profilePhoto The URL or identifier of the user's profile photo.
   /// @param licenseNumber The user's license number.
   /// @param expirationDate The expiration date of the user's license.
-  /// @param isKYCPassed A boolean indicating whether the user has passed KYC.
   /// @param isTCPassed A boolean indicating whether the user has passed TC.
   /// Requirements:
   /// - Caller must be a host or guest.
@@ -40,10 +42,12 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
     string memory profilePhoto,
     string memory licenseNumber,
     uint64 expirationDate,
-    bool isKYCPassed,
     bool isTCPassed
   ) public {
     require(isHostOrGuest(tx.origin), 'Only for hosts or guests');
+
+    IGatewayTokenVerifier verifier = IGatewayTokenVerifier(civicVerifier);
+    bool isKYCPassed = verifier.verifyToken(tx.origin, civicGatekeeperNetwork);
 
     kycInfos[tx.origin] = Schemas.KYCInfo(
       name,
@@ -141,7 +145,7 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
   /// @param user The address of the user whose KYC and TC status is being checked.
   /// @return A boolean indicating whether the user has passed both KYC and TC.
   function hasPassedKYCAndTC(address user) public view returns (bool) {
-    return kycInfos[user].isTCPassed && kycInfos[user].isKYCPassed;
+    return kycInfos[user].isKYCPassed && kycInfos[user].isTCPassed;
   }
 
   /// @notice Checks if a user has admin role.
@@ -175,7 +179,7 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
     return isHost(user) || isGuest(user);
   }
 
-  function initialize() public virtual initializer {
+  function initialize(address _civicVerifier, uint _civicGatekeeperNetwork) public virtual initializer {
     __AccessControl_init();
 
     _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
@@ -184,6 +188,9 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
     grantRole(GUEST_ROLE, msg.sender);
     _setRoleAdmin(HOST_ROLE, MANAGER_ROLE);
     _setRoleAdmin(GUEST_ROLE, MANAGER_ROLE);
+
+    civicVerifier = _civicVerifier;
+    civicGatekeeperNetwork = _civicGatekeeperNetwork;
   }
 
   function _authorizeUpgrade(address /*newImplementation*/) internal view override {
