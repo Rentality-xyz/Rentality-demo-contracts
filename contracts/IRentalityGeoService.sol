@@ -20,6 +20,10 @@ interface IRentalityGeoService {
     uint256 carId
   ) external returns (bytes32);
 
+  /// @notice Parse the geo-related response for a given car ID.
+  /// @param carId The ID of the car for which the geo-related response is parsed.
+  function parseGeoResponse(uint256 carId) external;
+
   /// @notice Get the validity of the coordinates for a specific car.
   /// @param carId The ID of the car.
   /// @return A boolean indicating the validity of the car's coordinates.
