@@ -1,7 +1,6 @@
 const fs = require('fs');
 const {Type} = require("hardhat/internal/hardhat-network/provider/filter");
 
-// Function to map Solidity types to TypeScript types
 function mapSolidityTypeToTs(solidityType) {
     switch (solidityType) {
         case 'uint256':
@@ -52,13 +51,11 @@ function mapSolidityTypeToTs(solidityType) {
 }
 
 function main() {
-    // Path to the Solidity file
-    const solidityFile = 'C:\\Users\\Eigenmethod\\Desktop\\dev\\rentality\\refactoring\\demo-rentality-web3-contracts2\\contracts\\Schemas.sol';
 
-    // Output TypeScript file
-    const typescriptFile = 'generated.ts';
+    const solidityFile = './contracts/Schemas.sol';
 
-    // Regular expression patterns
+    const typescriptFile = 'Schemas.ts';
+
     const structPattern = /struct\s+(\w+)\s*{([^}]*)}/g;
     const enumPattern = /enum\s+(\w+)\s*{([^}]*)}/g;
 
@@ -70,7 +67,7 @@ function main() {
             return;
         }
 
-        // Find and process structs
+
         let match;
         while ((match = structPattern.exec(data)) !== null) {
             const structName = match[1];
@@ -79,7 +76,7 @@ function main() {
             tsCode += `export type ${structName} = {\n`;
             structContent.split(';').forEach(field => {
                 field = field.trim();
-                if (field && !field.includes('//')) {
+                if (field) {
                     const [fieldType, fieldName] = field.split(/\s+/);
 
                     const tsFieldType = mapSolidityTypeToTs(fieldType).toString();
@@ -89,7 +86,6 @@ function main() {
             tsCode += '}\n\n';
         }
 
-        // Find and process enums
         while ((match = enumPattern.exec(data)) !== null) {
             const enumName = match[1];
             const enumContent = match[2];
@@ -104,7 +100,6 @@ function main() {
             tsCode += '}\n\n';
         }
 
-        // Write TypeScript code to file
         fs.writeFile(typescriptFile, tsCode, err => {
             if (err) {
                 console.error('Error writing TypeScript file:', err);
