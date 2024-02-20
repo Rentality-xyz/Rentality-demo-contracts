@@ -277,7 +277,6 @@ interface Schemas {
     string licenseNumber;
     uint64 expirationDate;
     uint createDate;
-    bool isKYCPassed;
     bool isTCPassed;
   }
 

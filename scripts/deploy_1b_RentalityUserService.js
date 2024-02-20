@@ -1,7 +1,8 @@
 const saveJsonAbi = require('./utils/abiSaver')
 const { ethers, upgrades } = require('hardhat')
 const addressSaver = require('./utils/addressSaver')
-const { startDeploy } = require('./utils/deployHelper')
+const { startDeploy, checkNotNull } = require('./utils/deployHelper')
+const addresses = require('./addressesContractsTestnets.json')
 
 async function main() {
   const { contractName, chainId } = await startDeploy('RentalityUserService')
@@ -9,7 +10,15 @@ async function main() {
   if (chainId < 0) throw new Error('chainId is not set')
 
   const contractFactory = await ethers.getContractFactory(contractName)
-  const contract = await upgrades.deployProxy(contractFactory)
+
+  // same for all networks
+  const civicGatewayToken = checkNotNull(
+    addresses.find((value) => value['CivicGatewayTokenContract'] != null)['CivicGatewayTokenContract'],
+    'CivicGatewayTokenContract'
+  )
+  const civicGatekeeperNetworkId = process.env.CIVIC_GATEKEEPER_NETWORK || 10
+
+  const contract = await upgrades.deployProxy(contractFactory, [civicGatewayToken, civicGatekeeperNetworkId])
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()
 
