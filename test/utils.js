@@ -1,5 +1,6 @@
 const env = require('hardhat')
 const { ethers, upgrades } = require('hardhat')
+const ethToken = ethers.getAddress('0x0000000000000000000000000000000000000000')
 
 function getMockCarRequest(seed) {
   const seedStr = seed?.toString() ?? ''
@@ -151,6 +152,9 @@ async function deployDefaultFixture() {
   let rentalityMockPriceFeed = await RentalityMockPriceFeed.deploy(8, 200000000000)
   await rentalityMockPriceFeed.waitForDeployment()
 
+  let rentalityMockUsdtPriceFeed = await RentalityMockPriceFeed.deploy(6, 100)
+  await rentalityMockPriceFeed.waitForDeployment()
+
   const rentalityUserService = await upgrades.deployProxy(RentalityUserService)
   await rentalityUserService.waitForDeployment()
 
@@ -175,9 +179,32 @@ async function deployDefaultFixture() {
   await rentalityUserService.connect(owner).grantHostRole(host.address)
   await rentalityUserService.connect(owner).grantGuestRole(guest.address)
 
-  const rentalityCurrencyConverter = await upgrades.deployProxy(RentalityCurrencyConverter, [
-    await rentalityMockPriceFeed.getAddress(),
+  const RentalityEth = await ethers.getContractFactory('RentalityETHConvertor')
+
+  const ethContract = await upgrades.deployProxy(RentalityEth, [
     await rentalityUserService.getAddress(),
+    ethToken,
+    await rentalityMockPriceFeed.getAddress(),
+  ])
+
+  await ethContract.waitForDeployment()
+
+  const TestUsdt = await ethers.getContractFactory('RentalityTestUSDT')
+  const usdtContract = await TestUsdt.deploy()
+  await usdtContract.waitForDeployment()
+
+  const RentalityUSDT = await ethers.getContractFactory('RentalityUSDTConverter')
+
+  const usdtPaymentContract = await upgrades.deployProxy(RentalityUSDT, [
+    await rentalityUserService.getAddress(),
+    await usdtContract.getAddress(),
+    await rentalityMockUsdtPriceFeed.getAddress(),
+  ])
+  await usdtContract.waitForDeployment()
+
+  const rentalityCurrencyConverter = await upgrades.deployProxy(RentalityCurrencyConverter, [
+    await rentalityUserService.getAddress(),
+    await ethContract.getAddress(),
   ])
   await rentalityCurrencyConverter.waitForDeployment()
 
@@ -225,6 +252,7 @@ async function deployDefaultFixture() {
     await claimService.getAddress(),
     await rentalityAutomationService.getAddress(),
   ])
+  await rentalityPlatform.waitForDeployment()
 
   const RentalityAdminGateway = await ethers.getContractFactory('RentalityAdminGateway')
   const rentalityAdminGateway = await upgrades.deployProxy(RentalityAdminGateway, [
@@ -238,8 +266,6 @@ async function deployDefaultFixture() {
     await rentalityAutomationService.getAddress(),
   ])
   await rentalityAdminGateway.waitForDeployment()
-
-  await rentalityPlatform.waitForDeployment()
 
   await rentalityUserService.connect(owner).grantHostRole(await rentalityPlatform.getAddress())
 
@@ -271,6 +297,11 @@ async function deployDefaultFixture() {
   await rentalityGateway.connect(host).setKYCInfo(' ', ' ', ' ', ' ', ' ', 1, true, true)
   await rentalityGateway.connect(guest).setKYCInfo(' ', ' ', ' ', ' ', ' ', 1, true, true)
 
+  await rentalityCurrencyConverter.addCurrencyType(
+    await usdtContract.getAddress(),
+    await usdtPaymentContract.getAddress()
+  )
+
   return {
     rentalityGateway,
     rentalityMockPriceFeed,
@@ -294,6 +325,7 @@ async function deployDefaultFixture() {
     guest,
     anonymous,
     rentalityAutomationService,
+    usdtContract,
   }
 }
 
@@ -303,4 +335,5 @@ module.exports = {
   createMockClaimRequest,
   deployDefaultFixture,
   TripStatus,
+  ethToken,
 }

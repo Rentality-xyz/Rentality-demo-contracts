@@ -1,5 +1,5 @@
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
-const { deployDefaultFixture, getMockCarRequest, createMockClaimRequest } = require('../utils')
+const { deployDefaultFixture, getMockCarRequest, createMockClaimRequest, ethToken } = require('../utils')
 const { expect } = require('chai')
 const { ethers, network } = require('hardhat')
 
@@ -52,8 +52,9 @@ describe('RentalityAutomatuin', function () {
     expect(availableCars.length).to.equal(1)
 
     const rentPriceInUsdCents = 1000
+
     const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
-      await rentalityCurrencyConverter.getEthFromUsdLatest(rentPriceInUsdCents)
+      await rentalityCurrencyConverter.getFromUsdLatest(ethToken, rentPriceInUsdCents)
 
     await expect(
       rentalityGateway.connect(guest).createTripRequest(
@@ -68,8 +69,9 @@ describe('RentalityAutomatuin', function () {
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
           fuelPrices: [400],
-          ethToCurrencyRate: ethToCurrencyRate,
-          ethToCurrencyDecimals: ethToCurrencyDecimals,
+          currencyType: ethToken,
+          currencyRate: ethToCurrencyRate,
+          currencyDecimals: ethToCurrencyDecimals,
         },
         { value: rentPriceInEth }
       )
@@ -82,7 +84,6 @@ describe('RentalityAutomatuin', function () {
     const blockNumBefore = await ethers.provider.getBlockNumber()
     const blockBefore = await ethers.provider.getBlock(blockNumBefore)
     const timestampBefore = blockBefore.timestamp
-
     expect(automation.whenToCallInSec).to.be.approximately(timestampBefore + 1 * 60 * 60, 200)
   })
 
@@ -96,7 +97,7 @@ describe('RentalityAutomatuin', function () {
 
     const rentPriceInUsdCents = 1000
     const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
-      await rentalityCurrencyConverter.getEthFromUsdLatest(rentPriceInUsdCents)
+      await rentalityCurrencyConverter.getFromUsdLatest(ethToken, rentPriceInUsdCents)
 
     await expect(
       rentalityGateway.connect(guest).createTripRequest(
@@ -110,9 +111,9 @@ describe('RentalityAutomatuin', function () {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPrices: [400],
-          ethToCurrencyRate: ethToCurrencyRate,
-          ethToCurrencyDecimals: ethToCurrencyDecimals,
+          currencyRate: ethToCurrencyRate,
+          currencyDecimals: ethToCurrencyDecimals,
+          currencyType: ethToken,
         },
         { value: rentPriceInEth }
       )
@@ -137,7 +138,7 @@ describe('RentalityAutomatuin', function () {
 
     const rentPriceInUsdCents = 1000
     const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
-      await rentalityCurrencyConverter.getEthFromUsdLatest(rentPriceInUsdCents)
+      await rentalityCurrencyConverter.getFromUsdLatest(ethToken, rentPriceInUsdCents)
 
     await expect(
       rentalityGateway.connect(guest).createTripRequest(
@@ -151,9 +152,9 @@ describe('RentalityAutomatuin', function () {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPrices: [400],
-          ethToCurrencyRate: ethToCurrencyRate,
-          ethToCurrencyDecimals: ethToCurrencyDecimals,
+          currencyRate: ethToCurrencyRate,
+          currencyDecimals: ethToCurrencyDecimals,
+          currencyType: ethToken,
         },
         { value: rentPriceInEth }
       )
@@ -177,7 +178,7 @@ describe('RentalityAutomatuin', function () {
 
     const rentPriceInUsdCents = 1000
     const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
-      await rentalityCurrencyConverter.getEthFromUsdLatest(rentPriceInUsdCents)
+      await rentalityCurrencyConverter.getFromUsdLatest(ethToken, rentPriceInUsdCents)
 
     await expect(
       rentalityGateway.connect(guest).createTripRequest(
@@ -191,9 +192,9 @@ describe('RentalityAutomatuin', function () {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPrices: [400],
-          ethToCurrencyRate: ethToCurrencyRate,
-          ethToCurrencyDecimals: ethToCurrencyDecimals,
+          currencyRate: ethToCurrencyRate,
+          currencyDecimals: ethToCurrencyDecimals,
+          currencyType: ethToken,
         },
         { value: rentPriceInEth }
       )
@@ -222,7 +223,7 @@ describe('RentalityAutomatuin', function () {
 
     const rentPriceInUsdCents = 1000
     const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
-      await rentalityCurrencyConverter.getEthFromUsdLatest(rentPriceInUsdCents)
+      await rentalityCurrencyConverter.getFromUsdLatest(ethToken, rentPriceInUsdCents)
 
     await expect(
       rentalityGateway.connect(guest).createTripRequest(
@@ -236,9 +237,9 @@ describe('RentalityAutomatuin', function () {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPrices: [400],
-          ethToCurrencyRate: ethToCurrencyRate,
-          ethToCurrencyDecimals: ethToCurrencyDecimals,
+          currencyRate: ethToCurrencyRate,
+          currencyDecimals: ethToCurrencyDecimals,
+          currencyType: ethToken,
         },
         { value: rentPriceInEth }
       )
@@ -265,7 +266,7 @@ describe('RentalityAutomatuin', function () {
 
     const rentPriceInUsdCents = 1000
     const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
-      await rentalityCurrencyConverter.getEthFromUsdLatest(rentPriceInUsdCents)
+      await rentalityCurrencyConverter.getFromUsdLatest(ethToken, rentPriceInUsdCents)
 
     const blockNumBefore = await ethers.provider.getBlockNumber()
     const blockBefore = await ethers.provider.getBlock(blockNumBefore)
@@ -285,9 +286,9 @@ describe('RentalityAutomatuin', function () {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPrices: [400],
-          ethToCurrencyRate: ethToCurrencyRate,
-          ethToCurrencyDecimals: ethToCurrencyDecimals,
+          currencyRate: ethToCurrencyRate,
+          currencyDecimals: ethToCurrencyDecimals,
+          currencyType: ethToken,
         },
         { value: rentPriceInEth }
       )
@@ -314,7 +315,7 @@ describe('RentalityAutomatuin', function () {
 
     const rentPriceInUsdCents = 1000
     const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
-      await rentalityCurrencyConverter.getEthFromUsdLatest(rentPriceInUsdCents)
+      await rentalityCurrencyConverter.getFromUsdLatest(ethToken, rentPriceInUsdCents)
 
     await expect(
       rentalityGateway.connect(guest).createTripRequest(
@@ -328,9 +329,9 @@ describe('RentalityAutomatuin', function () {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPrices: [400],
-          ethToCurrencyRate: ethToCurrencyRate,
-          ethToCurrencyDecimals: ethToCurrencyDecimals,
+          currencyRate: ethToCurrencyRate,
+          currencyDecimals: ethToCurrencyDecimals,
+          currencyType: ethToken,
         },
         { value: rentPriceInEth }
       )
@@ -357,7 +358,7 @@ describe('RentalityAutomatuin', function () {
 
     const rentPriceInUsdCents = 1000
     const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
-      await rentalityCurrencyConverter.getEthFromUsdLatest(rentPriceInUsdCents)
+      await rentalityCurrencyConverter.getFromUsdLatest(ethToken, rentPriceInUsdCents)
 
     await expect(
       rentalityGateway.connect(guest).createTripRequest(
@@ -371,9 +372,9 @@ describe('RentalityAutomatuin', function () {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPrices: [400],
-          ethToCurrencyRate: ethToCurrencyRate,
-          ethToCurrencyDecimals: ethToCurrencyDecimals,
+          currencyRate: ethToCurrencyRate,
+          currencyDecimals: ethToCurrencyDecimals,
+          currencyType: ethToken,
         },
         { value: rentPriceInEth }
       )
@@ -393,9 +394,9 @@ describe('RentalityAutomatuin', function () {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPrices: [400],
-          ethToCurrencyRate: ethToCurrencyRate,
-          ethToCurrencyDecimals: ethToCurrencyDecimals,
+          currencyRate: ethToCurrencyRate,
+          currencyDecimals: ethToCurrencyDecimals,
+          currencyType: ethToken,
         },
         { value: rentPriceInEth }
       )
@@ -415,9 +416,9 @@ describe('RentalityAutomatuin', function () {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPrices: [400],
-          ethToCurrencyRate: ethToCurrencyRate,
-          ethToCurrencyDecimals: ethToCurrencyDecimals,
+          currencyRate: ethToCurrencyRate,
+          currencyDecimals: ethToCurrencyDecimals,
+          currencyType: ethToken,
         },
         { value: rentPriceInEth }
       )
@@ -448,7 +449,7 @@ describe('RentalityAutomatuin', function () {
 
     const rentPriceInUsdCents = 1000
     const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
-      await rentalityCurrencyConverter.getEthFromUsdLatest(rentPriceInUsdCents)
+      await rentalityCurrencyConverter.getFromUsdLatest(ethToken, rentPriceInUsdCents)
 
     await expect(
       rentalityGateway.connect(guest).createTripRequest(
@@ -462,9 +463,9 @@ describe('RentalityAutomatuin', function () {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPrices: [400],
-          ethToCurrencyRate: ethToCurrencyRate,
-          ethToCurrencyDecimals: ethToCurrencyDecimals,
+          currencyRate: ethToCurrencyRate,
+          currencyDecimals: ethToCurrencyDecimals,
+          currencyType: ethToken,
         },
         { value: rentPriceInEth }
       )
@@ -486,9 +487,9 @@ describe('RentalityAutomatuin', function () {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPrices: [400],
-          ethToCurrencyRate: ethToCurrencyRate,
-          ethToCurrencyDecimals: ethToCurrencyDecimals,
+          currencyRate: ethToCurrencyRate,
+          currencyDecimals: ethToCurrencyDecimals,
+          currencyType: ethToken,
         },
         { value: rentPriceInEth }
       )
@@ -510,9 +511,9 @@ describe('RentalityAutomatuin', function () {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPrices: [400],
-          ethToCurrencyRate: ethToCurrencyRate,
-          ethToCurrencyDecimals: ethToCurrencyDecimals,
+          currencyRate: ethToCurrencyRate,
+          currencyDecimals: ethToCurrencyDecimals,
+          currencyType: ethToken,
         },
         { value: rentPriceInEth }
       )
@@ -542,7 +543,7 @@ describe('RentalityAutomatuin', function () {
 
     const rentPriceInUsdCents = 1000
     const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
-      await rentalityCurrencyConverter.getEthFromUsdLatest(rentPriceInUsdCents)
+      await rentalityCurrencyConverter.getFromUsdLatest(ethToken, rentPriceInUsdCents)
 
     const blockNumBefore = await ethers.provider.getBlockNumber()
     const blockBefore = await ethers.provider.getBlock(blockNumBefore)
@@ -561,9 +562,9 @@ describe('RentalityAutomatuin', function () {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPrices: [400],
-          ethToCurrencyRate: ethToCurrencyRate,
-          ethToCurrencyDecimals: ethToCurrencyDecimals,
+          currencyRate: ethToCurrencyRate,
+          currencyDecimals: ethToCurrencyDecimals,
+          currencyType: ethToken,
         },
         { value: rentPriceInEth }
       )
@@ -586,9 +587,9 @@ describe('RentalityAutomatuin', function () {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPrices: [400],
-          ethToCurrencyRate: ethToCurrencyRate,
-          ethToCurrencyDecimals: ethToCurrencyDecimals,
+          currencyRate: ethToCurrencyRate,
+          currencyDecimals: ethToCurrencyDecimals,
+          currencyType: ethToken,
         },
         { value: rentPriceInEth }
       )
@@ -611,9 +612,9 @@ describe('RentalityAutomatuin', function () {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPrices: [400],
-          ethToCurrencyRate: ethToCurrencyRate,
-          ethToCurrencyDecimals: ethToCurrencyDecimals,
+          currencyRate: ethToCurrencyRate,
+          currencyDecimals: ethToCurrencyDecimals,
+          currencyType: ethToken,
         },
         { value: rentPriceInEth }
       )
@@ -641,7 +642,7 @@ describe('RentalityAutomatuin', function () {
 
     const rentPriceInUsdCents = 1000
     const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
-      await rentalityCurrencyConverter.getEthFromUsdLatest(rentPriceInUsdCents)
+      await rentalityCurrencyConverter.getFromUsdLatest(ethToken, rentPriceInUsdCents)
 
     await expect(
       rentalityGateway.connect(guest).createTripRequest(
@@ -655,9 +656,9 @@ describe('RentalityAutomatuin', function () {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPrices: [400],
-          ethToCurrencyRate: ethToCurrencyRate,
-          ethToCurrencyDecimals: ethToCurrencyDecimals,
+          currencyRate: ethToCurrencyRate,
+          currencyDecimals: ethToCurrencyDecimals,
+          currencyType: ethToken,
         },
         { value: rentPriceInEth }
       )
@@ -680,9 +681,9 @@ describe('RentalityAutomatuin', function () {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPrices: [400],
-          ethToCurrencyRate: ethToCurrencyRate,
-          ethToCurrencyDecimals: ethToCurrencyDecimals,
+          currencyRate: ethToCurrencyRate,
+          currencyDecimals: ethToCurrencyDecimals,
+          currencyType: ethToken,
         },
         { value: rentPriceInEth }
       )

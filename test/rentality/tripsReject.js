@@ -1,6 +1,6 @@
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 const { expect } = require('chai')
-const { getMockCarRequest, getEmptySearchCarParams } = require('../utils')
+const { getMockCarRequest, getEmptySearchCarParams, ethToken } = require('../utils')
 const { deployDefaultFixture } = require('./deployments')
 const { ethers } = require('hardhat')
 
@@ -17,7 +17,7 @@ describe('Rentality: reject Trip Request', function () {
 
     const rentPriceInUsdCents = 1600
     const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
-      await rentalityCurrencyConverter.getEthFromUsdLatest(rentPriceInUsdCents)
+      await rentalityCurrencyConverter.getFromUsdLatest(ethToken, rentPriceInUsdCents)
 
     await expect(
       await rentalityPlatform.connect(guest).createTripRequest(
@@ -31,9 +31,9 @@ describe('Rentality: reject Trip Request', function () {
           totalDayPriceInUsdCents: 1000,
           taxPriceInUsdCents: 200,
           depositInUsdCents: 400,
-          fuelPrices: [400],
-          ethToCurrencyRate: ethToCurrencyRate,
-          ethToCurrencyDecimals: ethToCurrencyDecimals,
+          currencyRate: ethToCurrencyRate,
+          currencyDecimals: ethToCurrencyDecimals,
+          currencyType: ethToken,
         },
         { value: rentPriceInEth }
       )
@@ -65,7 +65,7 @@ describe('Rentality: reject Trip Request', function () {
 
     const rentPriceInUsdCents = 1600
     const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
-      await rentalityCurrencyConverter.getEthFromUsdLatest(rentPriceInUsdCents)
+      await rentalityCurrencyConverter.getFromUsdLatest(ethToken, rentPriceInUsdCents)
 
     await expect(
       await rentalityPlatform.connect(guest).createTripRequest(
@@ -79,9 +79,9 @@ describe('Rentality: reject Trip Request', function () {
           totalDayPriceInUsdCents: 1000,
           taxPriceInUsdCents: 200,
           depositInUsdCents: 400,
-          fuelPrices: [400],
-          ethToCurrencyRate: ethToCurrencyRate,
-          ethToCurrencyDecimals: ethToCurrencyDecimals,
+          currencyRate: ethToCurrencyRate,
+          currencyDecimals: ethToCurrencyDecimals,
+          currencyType: ethToken,
         },
         { value: rentPriceInEth }
       )
@@ -116,8 +116,8 @@ describe('Rentality: reject Trip Request', function () {
     const dailyPriceInUsdCents = 1000
     const rentPriceInUsdCents = dailyPriceInUsdCents + 600
     const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
-      await rentalityCurrencyConverter.getEthFromUsdLatest(rentPriceInUsdCents)
-    const [pricePerDayInEth] = await rentalityCurrencyConverter.getEthFromUsdLatest(pricePerDayInUsdCents)
+      await rentalityCurrencyConverter.getFromUsdLatest(ethToken, rentPriceInUsdCents)
+    const [pricePerDayInEth] = await rentalityCurrencyConverter.getFromUsdLatest(ethToken, pricePerDayInUsdCents)
 
     await expect(
       await rentalityPlatform.connect(guest).createTripRequest(
@@ -131,9 +131,9 @@ describe('Rentality: reject Trip Request', function () {
           totalDayPriceInUsdCents: dailyPriceInUsdCents,
           taxPriceInUsdCents: 200,
           depositInUsdCents: 400,
-          fuelPrices: [400],
-          ethToCurrencyRate: ethToCurrencyRate,
-          ethToCurrencyDecimals: ethToCurrencyDecimals,
+          currencyRate: ethToCurrencyRate,
+          currencyDecimals: ethToCurrencyDecimals,
+          currencyType: ethToken,
         },
         { value: rentPriceInEth }
       )
@@ -154,12 +154,10 @@ describe('Rentality: reject Trip Request', function () {
     const availableCars = await rentalityCarToken.connect(guest).getAvailableCarsForUser(guest.address)
     expect(availableCars.length).to.equal(1)
 
-    const pricePerDayInUsdCents = 102
     const dailyPriceInUsdCents = 1000
     const rentPriceInUsdCents = dailyPriceInUsdCents + 600
     const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
-      await rentalityCurrencyConverter.getEthFromUsdLatest(rentPriceInUsdCents)
-    const [pricePerDayInEth] = await rentalityCurrencyConverter.getEthFromUsdLatest(pricePerDayInUsdCents)
+      await rentalityCurrencyConverter.getFromUsdLatest(ethToken, rentPriceInUsdCents)
 
     await expect(
       await rentalityPlatform.connect(guest).createTripRequest(
@@ -173,9 +171,9 @@ describe('Rentality: reject Trip Request', function () {
           totalDayPriceInUsdCents: dailyPriceInUsdCents,
           taxPriceInUsdCents: 200,
           depositInUsdCents: 400,
-          fuelPrices: [400],
-          ethToCurrencyRate: ethToCurrencyRate,
-          ethToCurrencyDecimals: ethToCurrencyDecimals,
+          currencyRate: ethToCurrencyRate,
+          currencyDecimals: ethToCurrencyDecimals,
+          currencyType: ethToken,
         },
         { value: rentPriceInEth }
       )

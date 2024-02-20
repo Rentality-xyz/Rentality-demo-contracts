@@ -3,9 +3,11 @@ pragma solidity ^0.8.9;
 
 import '@openzeppelin/contracts/utils/math/Math.sol';
 import '../Schemas.sol';
-import '../RentalityClaimService.sol';
+import '../features/RentalityClaimService.sol';
 import '../RentalityTripService.sol';
-import '../IRentalityGeoService.sol';
+import '../RentalityUserService.sol';
+import './RentalityUtils.sol';
+import '../abstract/IRentalityGeoService.sol';
 import '../RentalityAdminGateway.sol';
 
 library RentalityQuery {
@@ -391,7 +393,7 @@ library RentalityQuery {
   /// @param startDateTime The start date and time of the search period.
   /// @param endDateTime The end date and time of the search period.
   /// @param searchParams The search parameters for filtering available cars.
-  /// @return An array of available car information matching the search criteria.
+  ///  @return An array of available car information matching the search criteria.
   function searchAvailableCarsForUser(
     address user,
     uint64 startDateTime,
@@ -400,7 +402,7 @@ library RentalityQuery {
     address carServiceAddress,
     address userServiceAddress,
     address tripServiceAddress
-  ) public view returns (Schemas.SearchCar[] memory) {
+  ) public view returns (Schemas.SearchCar[] memory result) {
     // if (startDateTime < block.timestamp){
     //     return new RentalityCarToken.CarInfo[](0);
     // }
@@ -449,27 +451,29 @@ library RentalityQuery {
         }
       }
     }
-    Schemas.SearchCar[] memory result = new Schemas.SearchCar[](resultCount);
+    result = new Schemas.SearchCar[](resultCount);
 
     for (uint i = 0; i < resultCount; i++) {
-      result[i] = Schemas.SearchCar(
-        temp[i].carId,
-        temp[i].brand,
-        temp[i].model,
-        temp[i].yearOfProduction,
-        temp[i].pricePerDayInUsdCents,
-        temp[i].securityDepositPerTripInUsdCents,
-        temp[i].engineType,
-        temp[i].milesIncludedPerDay,
-        temp[i].createdBy,
-        RentalityUserService(userServiceAddress).getKYCInfo(temp[i].createdBy).name,
-        RentalityUserService(userServiceAddress).getKYCInfo(temp[i].createdBy).profilePhoto,
-        IRentalityGeoService(carService.getGeoServiceAddress()).getCarCity(temp[i].carId),
-        IRentalityGeoService(carService.getGeoServiceAddress()).getCarCountry(temp[i].carId),
-        IRentalityGeoService(carService.getGeoServiceAddress()).getCarState(temp[i].carId),
-        IRentalityGeoService(carService.getGeoServiceAddress()).getCarLocationLatitude(temp[i].carId),
-        IRentalityGeoService(carService.getGeoServiceAddress()).getCarLocationLongitude(temp[i].carId),
-        IRentalityGeoService(carService.getGeoServiceAddress()).getCarTimeZoneId(temp[i].carId)
+      result[i].carId = temp[i].carId;
+      result[i].brand = temp[i].brand;
+      result[i].model = temp[i].model;
+      result[i].yearOfProduction = temp[i].yearOfProduction;
+      result[i].pricePerDayInUsdCents = temp[i].pricePerDayInUsdCents;
+      result[i].securityDepositPerTripInUsdCents = temp[i].securityDepositPerTripInUsdCents;
+      result[i].engineType = temp[i].engineType;
+      result[i].milesIncludedPerDay = temp[i].milesIncludedPerDay;
+      result[i].host = temp[i].createdBy;
+      result[i].hostName = RentalityUserService(userServiceAddress).getKYCInfo(temp[i].createdBy).name;
+      result[i].hostPhotoUrl = RentalityUserService(userServiceAddress).getKYCInfo(temp[i].createdBy).profilePhoto;
+      result[i].geoData.city = IRentalityGeoService(carService.getGeoServiceAddress()).getCarCity(temp[i].carId);
+      result[i].geoData.country = IRentalityGeoService(carService.getGeoServiceAddress()).getCarCountry(temp[i].carId);
+      result[i].geoData.state = IRentalityGeoService(carService.getGeoServiceAddress()).getCarState(temp[i].carId);
+      result[i].geoData.locationLatitude = IRentalityGeoService(carService.getGeoServiceAddress())
+        .getCarLocationLatitude(temp[i].carId);
+      result[i].geoData.locationLongitude = IRentalityGeoService(carService.getGeoServiceAddress())
+        .getCarLocationLongitude(temp[i].carId);
+      result[i].geoData.timeZoneId = IRentalityGeoService(carService.getGeoServiceAddress()).getCarTimeZoneId(
+        temp[i].carId
       );
     }
     return result;

@@ -1,14 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import './IRentalityAccessControl.sol';
-import './proxy/UUPSOwnable.sol';
-import './RentalityTripService.sol';
+import '../abstract/IRentalityAccessControl.sol';
+import '../proxy/UUPSOwnable.sol';
+import '../RentalityTripService.sol';
 
 /// @title Rentality Payment Service Contract
 /// @notice This contract manages platform fees and allows the adjustment of the platform fee by the manager.
 /// @dev It is connected to RentalityUserService to check if the caller is an admin.
 contract RentalityPaymentService is UUPSOwnable {
+  mapping(address => bool) private tokenAddressToAvailablePaymentMethod;
+
   uint32 platformFeeInPPM;
   IRentalityAccessControl private userService;
 

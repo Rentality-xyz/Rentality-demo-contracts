@@ -4,17 +4,17 @@ const addressSaver = require('./utils/addressSaver')
 const { startDeploy } = require('./utils/deployHelper')
 
 async function main() {
-  const { contractName, chainId } = await startDeploy('RentalityTestUSDT')
+  const { contractName, chainId } = await startDeploy('RentalityMockPriceFeed')
 
-  if (chainId < 0) throw new Error('chainId is not set')
+  // if (chainId !== 1337n) throw new Error('Can be deployed only on chainId: 1337')
 
   const contractFactory = await ethers.getContractFactory(contractName)
-  const contract = await contractFactory.deploy()
+  const contract = await contractFactory.deploy(6, 100)
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()
 
   console.log(`${contractName} was deployed to: ${contractAddress}`)
-  addressSaver(contractAddress, contractName, true, chainId)
+  addressSaver(contractAddress, 'UsdtToUsdPriceFeedAddress', true, chainId)
   await saveJsonAbi(contractName, chainId, contract)
   console.log()
 }

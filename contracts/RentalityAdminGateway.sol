@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import './RentalityPaymentService.sol';
+import './payments/RentalityPaymentService.sol';
 import './RentalityPlatform.sol';
-import './IRentalityAdminGateway.sol';
+import './abstract/IRentalityAdminGateway.sol';
+import './features/RentalityAutomation.sol';
 
 contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
   RentalityCarToken private carService;
@@ -120,46 +121,58 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
 
   /// @notice Withdraws the specified amount from the RentalityPlatform contract.
   /// @param amount The amount to withdraw.
-  function withdrawFromPlatform(uint256 amount) public {
-    rentalityPlatform.withdrawFromPlatform(amount);
+  /// @param tokenAddress one of available on Rentality currency
+  function withdrawFromPlatform(uint256 amount, address tokenAddress) public {
+    rentalityPlatform.withdrawFromPlatform(amount, tokenAddress);
   }
 
   /// @notice Withdraws the entire balance from the RentalityPlatform contract.
-  function withdrawAllFromPlatform() public {
-    rentalityPlatform.withdrawFromPlatform(address(this).balance);
+  /// @param tokenAddress one of available on Rentality currency
+  function withdrawAllFromPlatform(address tokenAddress) public {
+    uint balance = currencyConverterService.isETH(tokenAddress)
+      ? address(rentalityPlatform).balance
+      : IERC20(tokenAddress).balanceOf(address(rentalityPlatform));
+
+    rentalityPlatform.withdrawFromPlatform(balance, tokenAddress);
   }
   /// @notice Sets the platform fee in parts per million (PPM). Only callable by admins.
   /// @param valueInPPM The new platform fee value in PPM.
   function setPlatformFeeInPPM(uint32 valueInPPM) public onlyAdmin {
     paymentService.setPlatformFeeInPPM(valueInPPM);
   }
-  /// @dev Sets the auto-cancellation time for all trips.
+  /// @notice Sets the auto-cancellation time for all trips.
   /// @param time The new auto-cancellation time in hours. Must be between 1 and 24.
   /// @notice Only the administrator can call this function.
   function setAutoCancellationTime(uint8 time) public {
     automationService.setAutoCancellationTime(time);
   }
 
-  /// @dev Retrieves the current auto-cancellation time for all trips.
+  /// @notice Retrieves the current auto-cancellation time for all trips.
   /// @return The current auto-cancellation time in hours.
   function getAutoCancellationTimeInSec() public view returns (uint64) {
     return automationService.getAutoCancellationTimeInSec();
   }
 
-  /// @dev Sets the auto status change time for all trips.
+  /// @notice Sets the auto status change time for all trips.
   /// @param time The new auto status change time in hours. Must be between 1 and 3.
   /// @notice Only the administrator can call this function.
   function setAutoStatusChangeTime(uint8 time) public {
     automationService.setAutoStatusChangeTime(time);
   }
 
-  /// @dev Retrieves the current auto status change time for all trips.
+  /// @notice Retrieves the current auto status change time for all trips.
   /// @return The current auto status change time in hours.
   function getAutoStatusChangeTimeInSec() public view returns (uint64) {
     return automationService.getAutoStatusChangeTimeInSec();
   }
 
-  //  @dev Initializes the contract with the provided addresses for various services.
+  /// @notice Adds currency to list of available on Rentality,
+  /// by providing ERC20 token address, and corresponding Rentality service for calculation.
+  function addCurrency(address tokenAddress, address rentalityTokenService) public onlyAdmin {
+    currencyConverterService.addCurrencyType(tokenAddress, rentalityTokenService);
+  }
+
+  //  @notice Initializes the contract with the provided addresses for various services.
   //  @param carServiceAddress The address of the RentalityCarToken contract.
   //  @param currencyConverterServiceAddress The address of the RentalityCurrencyConverter contract.
   //  @param tripServiceAddress The address of the RentalityTripService contract.
