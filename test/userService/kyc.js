@@ -1,6 +1,6 @@
 const { loadFixture, time } = require('@nomicfoundation/hardhat-network-helpers')
 const { expect } = require('chai')
-const { getMockCarRequest, nativeToken } = require('../utils')
+const { getMockCarRequest, ethToken } = require('../utils')
 const { deployFixtureWithUsers, deployDefaultFixture } = require('./deployments')
 
 describe('RentalityUserService: KYC management', function () {
@@ -103,7 +103,7 @@ describe('RentalityUserService: KYC management', function () {
     expect(availableCars.length).to.equal(1)
     const rentPriceInUsdCents = 1600
     const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
-      await rentalityCurrencyConverter.getFromUsdLatest(nativeToken, rentPriceInUsdCents)
+      await rentalityCurrencyConverter.getFromUsdLatest(ethToken, rentPriceInUsdCents)
 
     const ONE_YEAR_IN_SECS = 365 * 24 * 60 * 60
     const expirationDate = (await time.latest()) + ONE_YEAR_IN_SECS
@@ -128,7 +128,7 @@ describe('RentalityUserService: KYC management', function () {
           depositInUsdCents: 400,
           currencyRate: ethToCurrencyRate,
           currencyDecimals: ethToCurrencyDecimals,
-          currencyType: nativeToken,
+          currencyType: ethToken,
         },
         { value: rentPriceInEth }
       )

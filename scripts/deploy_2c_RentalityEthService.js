@@ -17,11 +17,11 @@ async function main() {
     getContractAddress('EthToUsdPriceFeedAddress', 'scripts/deploy_0b_RentalityMockPriceFeed.js', chainId),
     'EthToUsdPriceFeedAddress'
   )
-  const nativeToken = ethers.getAddress('0x0000000000000000000000000000000000000000')
+  const ethToken = ethers.getAddress('0x0000000000000000000000000000000000000000')
 
   const contractFactory = await ethers.getContractFactory(contractName)
 
-  const contract = await upgrades.deployProxy(contractFactory, [userService, nativeToken, ethToUsdPriceFeedAddress])
+  const contract = await upgrades.deployProxy(contractFactory, [userService, ethToken, ethToUsdPriceFeedAddress])
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()
 

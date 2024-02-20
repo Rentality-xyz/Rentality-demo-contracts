@@ -4,6 +4,7 @@ pragma solidity ^0.8.9;
 import './payments/RentalityPaymentService.sol';
 import './RentalityPlatform.sol';
 import './abstract/IRentalityAdminGateway.sol';
+import "./features/RentalityAutomation.sol";
 
 contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
   RentalityCarToken private carService;
@@ -120,19 +121,19 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
 
   /// @notice Withdraws the specified amount from the RentalityPlatform contract.
   /// @param amount The amount to withdraw.
-  /// @param currencyType one of available on Rentality currency
-  function withdrawFromPlatform(uint256 amount, address currencyType) public {
-    rentalityPlatform.withdrawFromPlatform(amount, currencyType);
+  /// @param tokenAddress one of available on Rentality currency
+  function withdrawFromPlatform(uint256 amount, address tokenAddress) public {
+    rentalityPlatform.withdrawFromPlatform(amount, tokenAddress);
   }
 
   /// @notice Withdraws the entire balance from the RentalityPlatform contract.
-  /// @param currencyType one of available on Rentality currency
-  function withdrawAllFromPlatform(address currencyType) public {
-    uint balance = currencyConverterService.isNative(currencyType)
+  /// @param tokenAddress one of available on Rentality currency
+  function withdrawAllFromPlatform(address tokenAddress) public {
+    uint balance = currencyConverterService.isETH(tokenAddress)
       ? address(rentalityPlatform).balance
-      : IERC20(currencyType).balanceOf(address(rentalityPlatform));
+      : IERC20(tokenAddress).balanceOf(address(rentalityPlatform));
 
-    rentalityPlatform.withdrawFromPlatform(balance, currencyType);
+    rentalityPlatform.withdrawFromPlatform(balance, tokenAddress);
   }
   /// @notice Sets the platform fee in parts per million (PPM). Only callable by admins.
   /// @param valueInPPM The new platform fee value in PPM.

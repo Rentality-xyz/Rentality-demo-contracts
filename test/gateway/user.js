@@ -6,7 +6,7 @@ const {
 
   deployDefaultFixture,
   getEmptySearchCarParams,
-  nativeToken,
+  ethToken,
 } = require('../utils')
 
 describe('RentalityGateway: user info', function () {
@@ -122,7 +122,7 @@ describe('RentalityGateway: user info', function () {
 
     const rentPriceInUsdCents = 1000
     const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
-      await rentalityCurrencyConverter.getFromUsdLatest(nativeToken, rentPriceInUsdCents)
+      await rentalityCurrencyConverter.getFromUsdLatest(ethToken, rentPriceInUsdCents)
 
     await expect(
       rentalityGateway.connect(guest).createTripRequest(
@@ -138,7 +138,7 @@ describe('RentalityGateway: user info', function () {
           depositInUsdCents: 0,
           currencyRate: ethToCurrencyRate,
           currencyDecimals: ethToCurrencyDecimals,
-          currencyType: nativeToken,
+          currencyType: ethToken,
         },
         { value: rentPriceInEth }
       )
@@ -170,7 +170,7 @@ describe('RentalityGateway: user info', function () {
 
     const rentPriceInUsdCents = 1000
     const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
-      await rentalityCurrencyConverter.getFromUsdLatest(nativeToken, rentPriceInUsdCents)
+      await rentalityCurrencyConverter.getFromUsdLatest(ethToken, rentPriceInUsdCents)
 
     await expect(
       rentalityGateway.connect(guest).createTripRequest(
@@ -186,7 +186,7 @@ describe('RentalityGateway: user info', function () {
           depositInUsdCents: 0,
           currencyRate: ethToCurrencyRate,
           currencyDecimals: ethToCurrencyDecimals,
-          currencyType: nativeToken,
+          currencyType: ethToken,
         },
         { value: rentPriceInEth }
       )
@@ -218,7 +218,7 @@ describe('RentalityGateway: user info', function () {
 
     const rentPriceInUsdCents = 1000
     const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
-      await rentalityCurrencyConverter.getFromUsdLatest(nativeToken, rentPriceInUsdCents)
+      await rentalityCurrencyConverter.getFromUsdLatest(ethToken, rentPriceInUsdCents)
 
     await expect(
       rentalityGateway.connect(guest).createTripRequest(
@@ -234,7 +234,7 @@ describe('RentalityGateway: user info', function () {
           depositInUsdCents: 0,
           currencyRate: ethToCurrencyRate,
           currencyDecimals: ethToCurrencyDecimals,
-          currencyType: nativeToken,
+          currencyType: ethToken,
         },
         { value: rentPriceInEth }
       )

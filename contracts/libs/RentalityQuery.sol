@@ -407,45 +407,47 @@ library RentalityQuery {
         //     return new RentalityCarToken.CarInfo[](0);
         // }
         RentalityCarToken carService = RentalityCarToken(carServiceAddress);
+
+        Schemas.CarInfo[] memory availableCars = carService.fetchAvailableCarsForUser(user, searchParams);
+        if (availableCars.length == 0) return new Schemas.SearchCar[](0);
+
+        Schemas.Trip[] memory trips = getTripsThatIntersect(
+            tripServiceAddress,
+            carServiceAddress,
+            startDateTime,
+            endDateTime
+        );
         Schemas.CarInfo[] memory temp;
         uint256 resultCount;
 
+        if (trips.length == 0) {
+            temp = availableCars;
+            resultCount = availableCars.length;
+        } else {
+            temp = new Schemas.CarInfo[](availableCars.length);
+            resultCount = 0;
 
-        {Schemas.CarInfo[] memory availableCars = carService.fetchAvailableCarsForUser(user, searchParams);
-            if (availableCars.length == 0) return new Schemas.SearchCar[](0);
+            for (uint i = 0; i < availableCars.length; i++) {
+                bool hasIntersectTrip = false;
 
-            Schemas.Trip[] memory trips = getTripsThatIntersect(
-                tripServiceAddress,
-                carServiceAddress,
-                startDateTime,
-                endDateTime
-            );
-
-            if (trips.length == 0) {
-                temp = availableCars;
-                resultCount = availableCars.length;
-            } else {
-                temp = new Schemas.CarInfo[](availableCars.length);
-                resultCount = 0;
-
-                for (uint i = 0; i < availableCars.length; i++) {
-
-                    for (uint j = 0; j < trips.length; j++) {
-                        if (
-                            trips[j].status == Schemas.TripStatus.Created ||
-                            trips[j].status == Schemas.TripStatus.Finished ||
-                            trips[j].status == Schemas.TripStatus.Canceled ||
-                            trips[j].carId != availableCars[i].carId
-                        ) {
-                            continue;
-                        }
-                        else {
-                            temp[resultCount] = availableCars[i];
-                            resultCount++;
-                        }
-
-
+                for (uint j = 0; j < trips.length; j++) {
+                    if (
+                        trips[j].status == Schemas.TripStatus.Created ||
+                        trips[j].status == Schemas.TripStatus.Finished ||
+                        trips[j].status == Schemas.TripStatus.Canceled
+                    ) {
+                        continue;
                     }
+
+                    if (trips[j].carId == availableCars[i].carId) {
+                        hasIntersectTrip = true;
+                        break;
+                    }
+                }
+
+                if (!hasIntersectTrip) {
+                    temp[resultCount] = availableCars[i];
+                    resultCount++;
                 }
             }
         }

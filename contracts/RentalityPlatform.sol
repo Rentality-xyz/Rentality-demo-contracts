@@ -70,7 +70,7 @@ contract RentalityPlatform is UUPSOwnable {
     );
 
     bool success;
-    if (currencyConverterService.isNative(currencyType)) {
+    if (currencyConverterService.isETH(currencyType)) {
       //require(payable(owner()).send(amount));
       (success, ) = payable(owner()).call{value: amount}('');
       require(success, 'Transfer failed.');
@@ -102,7 +102,7 @@ contract RentalityPlatform is UUPSOwnable {
       request.currencyRate,
       request.currencyDecimals
     );
-    if (currencyConverterService.isNative(request.currencyType)) {
+    if (currencyConverterService.isETH(request.currencyType)) {
       require(msg.value == valueSumInCurrency, 'Rental fee must be equal to sum totalDayPrice + taxPrice + deposit');
     } else {
       require(
@@ -223,7 +223,7 @@ contract RentalityPlatform is UUPSOwnable {
       trip.paymentInfo.currencyDecimals
     );
     bool successGuest;
-    if (currencyConverterService.isNative(trip.paymentInfo.currencyType)) {
+    if (currencyConverterService.isETH(trip.paymentInfo.currencyType)) {
       (successGuest, ) = payable(trip.guest).call{value: valueToReturnInToken}('');
     } else {
       successGuest = IERC20(trip.paymentInfo.currencyType).transfer(trip.guest, valueToReturnInToken);
@@ -264,7 +264,7 @@ contract RentalityPlatform is UUPSOwnable {
     );
     bool successHost;
     bool successGuest;
-    if (currencyConverterService.isNative(trip.paymentInfo.currencyType)) {
+    if (currencyConverterService.isETH(trip.paymentInfo.currencyType)) {
       (successHost, ) = payable(trip.host).call{value: valueToHost}('');
       (successGuest, ) = payable(trip.guest).call{value: valueToGuest}('');
     } else {
@@ -331,7 +331,7 @@ contract RentalityPlatform is UUPSOwnable {
     claimService.payClaim(claimId);
     bool successHost;
 
-    if (currencyConverterService.isNative(trip.paymentInfo.currencyType)) {
+    if (currencyConverterService.isETH(trip.paymentInfo.currencyType)) {
       require(msg.value >= valueToPay, 'Insufficient funds sent.');
       (successHost, ) = payable(trip.host).call{value: valueToPay}('');
 

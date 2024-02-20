@@ -1,7 +1,7 @@
 const { expect } = require('chai')
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 
-const { TripStatus, getEmptySearchCarParams, deployDefaultFixture, nativeToken } = require('../utils')
+const { TripStatus, getEmptySearchCarParams, deployDefaultFixture, ethToken } = require('../utils')
 
 describe('RentalityGateway: time buffer', function () {
   let rentalityGateway,
@@ -71,7 +71,7 @@ describe('RentalityGateway: time buffer', function () {
 
     const rentPriceInUsdCents = 1000
     const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
-      await rentalityCurrencyConverter.getFromUsdLatest(nativeToken, rentPriceInUsdCents)
+      await rentalityCurrencyConverter.getFromUsdLatest(ethToken, rentPriceInUsdCents)
 
     await expect(
       rentalityGateway.connect(guest).createTripRequest(
@@ -87,7 +87,7 @@ describe('RentalityGateway: time buffer', function () {
           depositInUsdCents: 0,
           currencyRate: ethToCurrencyRate,
           currencyDecimals: ethToCurrencyDecimals,
-          currencyType: nativeToken,
+          currencyType: ethToken,
         },
         { value: rentPriceInEth }
       )
@@ -131,7 +131,7 @@ describe('RentalityGateway: time buffer', function () {
 
     const rentPriceInUsdCents = 1000
     const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
-      await rentalityCurrencyConverter.getFromUsdLatest(nativeToken, rentPriceInUsdCents)
+      await rentalityCurrencyConverter.getFromUsdLatest(ethToken, rentPriceInUsdCents)
 
     await expect(
       rentalityGateway.connect(guest).createTripRequest(
@@ -147,7 +147,7 @@ describe('RentalityGateway: time buffer', function () {
           depositInUsdCents: 0,
           currencyRate: ethToCurrencyRate,
           currencyDecimals: ethToCurrencyDecimals,
-          currencyType: nativeToken,
+          currencyType: ethToken,
         },
         { value: rentPriceInEth }
       )
@@ -192,7 +192,7 @@ describe('RentalityGateway: time buffer', function () {
 
     const rentPriceInUsdCents = 1000
     const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
-      await rentalityCurrencyConverter.getFromUsdLatest(nativeToken, rentPriceInUsdCents)
+      await rentalityCurrencyConverter.getFromUsdLatest(ethToken, rentPriceInUsdCents)
 
     await expect(
       rentalityGateway.connect(guest).createTripRequest(
@@ -208,7 +208,7 @@ describe('RentalityGateway: time buffer', function () {
           depositInUsdCents: 0,
           currencyRate: ethToCurrencyRate,
           currencyDecimals: ethToCurrencyDecimals,
-          currencyType: nativeToken,
+          currencyType: ethToken,
         },
         { value: rentPriceInEth }
       )
@@ -230,7 +230,7 @@ describe('RentalityGateway: time buffer', function () {
           depositInUsdCents: 0,
           currencyRate: ethToCurrencyRate,
           currencyDecimals: ethToCurrencyDecimals,
-          currencyType: nativeToken,
+          currencyType: ethToken,
         },
         { value: rentPriceInEth }
       )
@@ -264,7 +264,7 @@ describe('RentalityGateway: time buffer', function () {
 
     const rentPriceInUsdCents = 1000
     const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
-      await rentalityCurrencyConverter.getFromUsdLatest(nativeToken, rentPriceInUsdCents)
+      await rentalityCurrencyConverter.getFromUsdLatest(ethToken, rentPriceInUsdCents)
 
     await expect(
       rentalityGateway.connect(guest).createTripRequest(
@@ -280,7 +280,7 @@ describe('RentalityGateway: time buffer', function () {
           depositInUsdCents: 0,
           currencyRate: ethToCurrencyRate,
           currencyDecimals: ethToCurrencyDecimals,
-          currencyType: nativeToken,
+          currencyType: ethToken,
         },
         { value: rentPriceInEth }
       )
@@ -299,7 +299,7 @@ describe('RentalityGateway: time buffer', function () {
           depositInUsdCents: 0,
           currencyRate: ethToCurrencyRate,
           currencyDecimals: ethToCurrencyDecimals,
-          currencyType: nativeToken,
+          currencyType: ethToken,
         },
         { value: rentPriceInEth }
       )

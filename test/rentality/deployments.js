@@ -1,5 +1,5 @@
 const { ethers, upgrades } = require('hardhat')
-const { nativeToken } = require('../utils')
+const { ethToken } = require('../utils')
 
 async function deployDefaultFixture() {
   const [owner, admin, manager, host, guest, anonymous] = await ethers.getSigners()
@@ -51,7 +51,7 @@ async function deployDefaultFixture() {
 
   const ethContract = await upgrades.deployProxy(RentalityEth, [
     await rentalityUserService.getAddress(),
-    nativeToken,
+    ethToken,
     await rentalityMockPriceFeed.getAddress(),
   ])
   await ethContract.waitForDeployment()
