@@ -1,7 +1,7 @@
 const { expect } = require('chai')
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 
-const { TripStatus, getEmptySearchCarParams, deployDefaultFixture } = require('../utils')
+const { TripStatus, getEmptySearchCarParams, deployDefaultFixture, ethToken } = require('../utils')
 
 describe('RentalityGateway: time buffer', function () {
   let rentalityGateway,
@@ -71,7 +71,7 @@ describe('RentalityGateway: time buffer', function () {
 
     const rentPriceInUsdCents = 1000
     const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
-      await rentalityCurrencyConverter.getEthFromUsdLatest(rentPriceInUsdCents)
+      await rentalityCurrencyConverter.getFromUsdLatest(ethToken, rentPriceInUsdCents)
 
     await expect(
       rentalityGateway.connect(guest).createTripRequest(
@@ -85,9 +85,9 @@ describe('RentalityGateway: time buffer', function () {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPrices: [400],
-          ethToCurrencyRate: ethToCurrencyRate,
-          ethToCurrencyDecimals: ethToCurrencyDecimals,
+          currencyRate: ethToCurrencyRate,
+          currencyDecimals: ethToCurrencyDecimals,
+          currencyType: ethToken,
         },
         { value: rentPriceInEth }
       )
@@ -131,7 +131,7 @@ describe('RentalityGateway: time buffer', function () {
 
     const rentPriceInUsdCents = 1000
     const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
-      await rentalityCurrencyConverter.getEthFromUsdLatest(rentPriceInUsdCents)
+      await rentalityCurrencyConverter.getFromUsdLatest(ethToken, rentPriceInUsdCents)
 
     await expect(
       rentalityGateway.connect(guest).createTripRequest(
@@ -145,9 +145,9 @@ describe('RentalityGateway: time buffer', function () {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPrices: [400],
-          ethToCurrencyRate: ethToCurrencyRate,
-          ethToCurrencyDecimals: ethToCurrencyDecimals,
+          currencyRate: ethToCurrencyRate,
+          currencyDecimals: ethToCurrencyDecimals,
+          currencyType: ethToken,
         },
         { value: rentPriceInEth }
       )
@@ -192,7 +192,7 @@ describe('RentalityGateway: time buffer', function () {
 
     const rentPriceInUsdCents = 1000
     const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
-      await rentalityCurrencyConverter.getEthFromUsdLatest(rentPriceInUsdCents)
+      await rentalityCurrencyConverter.getFromUsdLatest(ethToken, rentPriceInUsdCents)
 
     await expect(
       rentalityGateway.connect(guest).createTripRequest(
@@ -206,9 +206,9 @@ describe('RentalityGateway: time buffer', function () {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPrices: [400],
-          ethToCurrencyRate: ethToCurrencyRate,
-          ethToCurrencyDecimals: ethToCurrencyDecimals,
+          currencyRate: ethToCurrencyRate,
+          currencyDecimals: ethToCurrencyDecimals,
+          currencyType: ethToken,
         },
         { value: rentPriceInEth }
       )
@@ -228,9 +228,9 @@ describe('RentalityGateway: time buffer', function () {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPrices: [400],
-          ethToCurrencyRate: ethToCurrencyRate,
-          ethToCurrencyDecimals: ethToCurrencyDecimals,
+          currencyRate: ethToCurrencyRate,
+          currencyDecimals: ethToCurrencyDecimals,
+          currencyType: ethToken,
         },
         { value: rentPriceInEth }
       )
@@ -264,7 +264,7 @@ describe('RentalityGateway: time buffer', function () {
 
     const rentPriceInUsdCents = 1000
     const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
-      await rentalityCurrencyConverter.getEthFromUsdLatest(rentPriceInUsdCents)
+      await rentalityCurrencyConverter.getFromUsdLatest(ethToken, rentPriceInUsdCents)
 
     await expect(
       rentalityGateway.connect(guest).createTripRequest(
@@ -278,9 +278,9 @@ describe('RentalityGateway: time buffer', function () {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPrices: [400],
-          ethToCurrencyRate: ethToCurrencyRate,
-          ethToCurrencyDecimals: ethToCurrencyDecimals,
+          currencyRate: ethToCurrencyRate,
+          currencyDecimals: ethToCurrencyDecimals,
+          currencyType: ethToken,
         },
         { value: rentPriceInEth }
       )
@@ -297,9 +297,9 @@ describe('RentalityGateway: time buffer', function () {
           totalDayPriceInUsdCents: rentPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPrices: [400],
-          ethToCurrencyRate: ethToCurrencyRate,
-          ethToCurrencyDecimals: ethToCurrencyDecimals,
+          currencyRate: ethToCurrencyRate,
+          currencyDecimals: ethToCurrencyDecimals,
+          currencyType: ethToken,
         },
         { value: rentPriceInEth }
       )

@@ -4,14 +4,14 @@ pragma solidity ^0.8.9;
 //deployed 26.05.2023 11:15 to sepolia at 0x12fB29Ed1f0E17605f488F640D49De29050cf855
 //deployed 27.06.2023 11:10 to sepolia at 0x18744A3f7D15930446B1dbc5A837562e468B2D8d
 
-import './RentalityClaimService.sol';
-import './IRentalityGateway.sol';
+import './features/RentalityClaimService.sol';
+import './abstract/IRentalityGateway.sol';
 import './RentalityCarToken.sol';
-import './RentalityCurrencyConverter.sol';
+import './payments/RentalityCurrencyConverter.sol';
 import './RentalityTripService.sol';
 import './RentalityUserService.sol';
 import './RentalityPlatform.sol';
-import './RentalityPaymentService.sol';
+import './payments/RentalityPaymentService.sol';
 import './Schemas.sol';
 import './RentalityAdminGateway.sol';
 
@@ -34,24 +34,9 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
   RentalityClaimService private claimService;
   RentalityAdminGateway private adminService;
 
-  /// @notice Ensures that the caller is either an admin, the contract owner, or an admin from the origin transaction.
-  modifier onlyAdmin() {
-    require(
-      userService.isAdmin(msg.sender) || userService.isAdmin(tx.origin) || (tx.origin == owner()),
-      'User is not an admin'
-    );
-    _;
-  }
-
   /// @notice Ensures that the caller is a host.
   modifier onlyHost() {
     require(userService.isHost(msg.sender), 'User is not a host');
-    _;
-  }
-
-  /// @notice Ensures that the caller is a guest.
-  modifier onlyGuest() {
-    require(userService.isGuest(msg.sender), 'User is not a guest');
     _;
   }
 
@@ -82,6 +67,7 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
     rentalityPlatform = RentalityPlatform(adminService.getRentalityPlatformAddress());
     paymentService = RentalityPaymentService(adminService.getPaymentService());
     claimService = RentalityClaimService(adminService.getClaimServiceAddress());
+    rentalityPlatform.updateServiceAddresses(adminService);
   }
 
   /// @notice Retrieves the platform fee in parts per million (PPM).

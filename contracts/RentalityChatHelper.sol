@@ -3,7 +3,7 @@ pragma solidity ^0.8.9;
 
 import '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 import '@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol';
-import './IRentalityAccessControl.sol';
+import './abstract/IRentalityAccessControl.sol';
 import './proxy/UUPSAccess.sol';
 import './Schemas.sol';
 

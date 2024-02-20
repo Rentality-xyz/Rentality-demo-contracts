@@ -1,4 +1,5 @@
 const { ethers, upgrades } = require('hardhat')
+const { ethToken } = require('../utils')
 
 // We define a fixture to reuse the same setup in every test.
 // We use loadFixture to run this setup once, snapshot that state,
@@ -66,10 +67,24 @@ async function deployDefaultFixture() {
   await rentalityUserService.connect(owner).grantHostRole(host.address)
   await rentalityUserService.connect(owner).grantGuestRole(guest.address)
 
-  const rentalityCurrencyConverter = await upgrades.deployProxy(RentalityCurrencyConverter, [
-    await rentalityMockPriceFeed.getAddress(),
+  const RentalityEth = await ethers.getContractFactory('RentalityETHConvertor')
+
+  const ethContract = await upgrades.deployProxy(RentalityEth, [
     await rentalityUserService.getAddress(),
+    ethToken,
+    await rentalityMockPriceFeed.getAddress(),
   ])
+  await ethContract.waitForDeployment()
+
+  const TestUsdt = await ethers.getContractFactory('RentalityTestUSDT')
+  const usdtContract = await TestUsdt.deploy()
+  await usdtContract.waitForDeployment()
+
+  const rentalityCurrencyConverter = await upgrades.deployProxy(RentalityCurrencyConverter, [
+    await rentalityUserService.getAddress(),
+    await ethContract.getAddress(),
+  ])
+  await rentalityCurrencyConverter.waitForDeployment()
 
   const rentalityGeoService = await RentalityGeoService.deploy()
   await rentalityGeoService.waitForDeployment()

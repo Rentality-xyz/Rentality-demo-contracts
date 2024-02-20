@@ -2,13 +2,14 @@
 pragma solidity ^0.8.9;
 
 import './RentalityCarToken.sol';
-import './RentalityCurrencyConverter.sol';
+import './payments/RentalityCurrencyConverter.sol';
 import './RentalityTripService.sol';
 import './RentalityUserService.sol';
-import './RentalityPaymentService.sol';
-import './IRentalityGateway.sol';
+import './payments/RentalityPaymentService.sol';
+import './abstract/IRentalityGateway.sol';
 import './proxy/UUPSOwnable.sol';
-import './RentalityClaimService.sol';
+import './features/RentalityClaimService.sol';
+import './RentalityAdminGateway.sol';
 
 /// @title Rentality Platform Contract
 /// @notice This contract manages various services related to the Rentality platform, including cars, trips, users, and payments.
@@ -45,82 +46,49 @@ contract RentalityPlatform is UUPSOwnable {
   //     _;
   // }
 
-  // modifier onlyHostOrGuest() {
-  //     require(
-  //         userService.isHost(msg.sender) || userService.isGuest(msg.sender),
-  //         "User is not a host or guest"
-  //     );
-  //     _;
-  // }
-
-  /// @notice Get the address of the Car service on the Rentality platform.
-  /// @return The address of the Car service.
-  function getCarServiceAddress() public view returns (address) {
-    return address(carService);
-  }
-
-  /// @notice Update the address of the Car service on the Rentality platform.
-  /// @dev This function can only be called by the platform admin.
-  /// @param contractAddress The new address of the Car service.
-  function updateCarService(address contractAddress) public onlyAdmin {
-    carService = RentalityCarToken(contractAddress);
-  }
-
-  /// @notice Get the address of the currency converter service on the Rentality platform.
-  /// @return The address of the currency converter service.
-  function getCurrencyConverterServiceAddress() public view returns (address) {
-    return address(currencyConverterService);
-  }
-
-  /// @notice Update the address of the currency converter service on the Rentality platform.
-  /// @dev This function can only be called by the platform admin.
-  /// @param contractAddress The new address of the currency converter service.
-  function updateCurrencyConverterService(address contractAddress) public onlyAdmin {
-    currencyConverterService = RentalityCurrencyConverter(contractAddress);
-  }
-
-  // @notice Get the address of the RentalityTripService service contract.
-  function getTripServiceAddress() public view returns (address) {
-    return address(tripService);
-  }
-
-  /// @notice Update the RentalityTripService service contract address.
-  /// @param contractAddress The new address of the RentalityTripService contract.
-  function updateTripService(address contractAddress) public onlyAdmin {
-    tripService = RentalityTripService(contractAddress);
-  }
-
-  /// @notice Get the address of the RentalityUserService service contract.
-  function getUserServiceAddress() public view returns (address) {
-    return address(userService);
-  }
-
-  /// @notice Update the RentalityUserService service contract address.
-  /// @param contractAddress The new address of the RentalityUserService contract.
-  function updateUserService(address contractAddress) public onlyAdmin {
-    userService = RentalityUserService(contractAddress);
+  function updateServiceAddresses(RentalityAdminGateway adminService) public {
+    carService = RentalityCarToken(adminService.getCarServiceAddress());
+    currencyConverterService = RentalityCurrencyConverter(adminService.getCurrencyConverterServiceAddress());
+    tripService = RentalityTripService(adminService.getTripServiceAddress());
+    userService = RentalityUserService(adminService.getTripServiceAddress());
+    paymentService = RentalityPaymentService(adminService.getPaymentService());
+    claimService = RentalityClaimService(adminService.getClaimServiceAddress());
+    automationService = RentalityAutomation(adminService.getAutomationServiceAddress());
   }
 
   /// @notice Withdraw a specific amount of funds from the contract.
   /// @param amount The amount to withdraw from the contract.
-  function withdrawFromPlatform(uint256 amount) public {
-    require(address(this).balance > 0, 'There is no commission to withdraw');
-    require(address(this).balance >= amount, 'There is not enough balance on the contract');
+  function withdrawFromPlatform(uint256 amount, address currencyType) public {
+    require(
+      address(this).balance > 0 || IERC20(currencyType).balanceOf(address(this)) > 0,
+      'There is no commission to withdraw'
+    );
 
-    //require(payable(owner()).send(amount));
-    (bool success, ) = payable(owner()).call{value: amount}('');
+    require(
+      address(this).balance >= amount || IERC20(currencyType).balanceOf(address(this)) >= amount,
+      'There is not enough balance on the contract'
+    );
+
+    bool success;
+    if (currencyConverterService.isETH(currencyType)) {
+      //require(payable(owner()).send(amount));
+      (success, ) = payable(owner()).call{value: amount}('');
+      require(success, 'Transfer failed.');
+    } else {
+      success = IERC20(currencyType).transfer(owner(), amount);
+    }
     require(success, 'Transfer failed.');
   }
 
-  function withdrawAllFromPlatform() public {
-    return withdrawFromPlatform(address(this).balance);
+  function withdrawAllFromPlatform(address currencyType) public {
+    return withdrawFromPlatform(address(this).balance, currencyType);
   }
 
   /// @notice Create a new trip request on the Rentality platform.
   /// @param request The details of the trip request as specified in IRentalityGateway.CreateTripRequest.
   function createTripRequest(Schemas.CreateTripRequest memory request) public payable {
     require(userService.hasPassedKYCAndTC(tx.origin), 'KYC or TC not passed.');
-    require(msg.value > 0, 'Rental fee must be greater than 0');
+    require(currencyConverterService.currencyTypeIsAvailable(request.currencyType), 'Token is not available.');
     require(carService.ownerOf(request.carId) != tx.origin, 'Car is not available for creator');
     require(
       !isCarUnavailable(request.carId, request.startDateTime, request.endDateTime),
@@ -128,13 +96,23 @@ contract RentalityPlatform is UUPSOwnable {
     );
 
     uint64 valueSum = request.totalDayPriceInUsdCents + request.taxPriceInUsdCents + request.depositInUsdCents;
-    uint256 valueSumInEth = currencyConverterService.getEthFromUsd(
+    uint256 valueSumInCurrency = currencyConverterService.getFromUsd(
+      request.currencyType,
       valueSum,
-      request.ethToCurrencyRate,
-      request.ethToCurrencyDecimals
+      request.currencyRate,
+      request.currencyDecimals
     );
+    if (currencyConverterService.isETH(request.currencyType)) {
+      require(msg.value == valueSumInCurrency, 'Rental fee must be equal to sum totalDayPrice + taxPrice + deposit');
+    } else {
+      require(
+        IERC20(request.currencyType).allowance(tx.origin, address(this)) >= valueSumInCurrency,
+        'Rental fee must be equal to sum totalDayPrice + taxPrice + deposit'
+      );
 
-    require(msg.value == valueSumInEth, 'Rental fee must be equal to sum totalDayPrice + taxPrice + deposit');
+      bool success = IERC20(request.currencyType).transferFrom(tx.origin, address(this), valueSumInCurrency);
+      require(success, 'Transfer failed.');
+    }
 
     if (!userService.isGuest(tx.origin)) {
       userService.grantGuestRole(tx.origin);
@@ -148,9 +126,9 @@ contract RentalityPlatform is UUPSOwnable {
       request.taxPriceInUsdCents,
       request.depositInUsdCents,
       0,
-      Schemas.CurrencyType.ETH,
-      request.ethToCurrencyRate,
-      request.ethToCurrencyDecimals,
+      request.currencyType,
+      request.currencyRate,
+      request.currencyDecimals,
       0,
       0
     );
@@ -238,16 +216,21 @@ contract RentalityPlatform is UUPSOwnable {
       trip.paymentInfo.taxPriceInUsdCents +
       trip.paymentInfo.depositInUsdCents;
 
-    uint256 valueToReturnInEth = currencyConverterService.getEthFromUsd(
+    uint256 valueToReturnInToken = currencyConverterService.getFromUsd(
+      trip.paymentInfo.currencyType,
       valueToReturnInUsdCents,
-      trip.paymentInfo.ethToCurrencyRate,
-      trip.paymentInfo.ethToCurrencyDecimals
+      trip.paymentInfo.currencyRate,
+      trip.paymentInfo.currencyDecimals
     );
+    bool successGuest;
+    if (currencyConverterService.isETH(trip.paymentInfo.currencyType)) {
+      (successGuest, ) = payable(trip.guest).call{value: valueToReturnInToken}('');
+    } else {
+      successGuest = IERC20(trip.paymentInfo.currencyType).transfer(trip.guest, valueToReturnInToken);
+    }
+    require(successGuest, 'Transfer to guest failed.');
 
     tripService.saveTransactionInfo(tripId, 0, statusBeforeCancellation, valueToReturnInUsdCents, 0);
-
-    (bool successGuest, ) = payable(trip.guest).call{value: valueToReturnInEth}('');
-    require(successGuest, 'Transfer to guest failed.');
   }
 
   /// @notice Finish a trip on the Rentality platform.
@@ -265,17 +248,31 @@ contract RentalityPlatform is UUPSOwnable {
       trip.paymentInfo.resolveAmountInUsdCents -
       rentalityFee;
 
-    uint256 valueToHostInEth = currencyConverterService.getEthFromUsd(
-      valueToHostInUsdCents,
-      trip.paymentInfo.ethToCurrencyRate,
-      trip.paymentInfo.ethToCurrencyDecimals
-    );
     uint256 valueToGuestInUsdCents = trip.paymentInfo.depositInUsdCents - trip.paymentInfo.resolveAmountInUsdCents;
-    uint256 valueToGuestInEth = currencyConverterService.getEthFromUsd(
-      valueToGuestInUsdCents,
-      trip.paymentInfo.ethToCurrencyRate,
-      trip.paymentInfo.ethToCurrencyDecimals
+
+    uint256 valueToHost = currencyConverterService.getFromUsd(
+      trip.paymentInfo.currencyType,
+      valueToHostInUsdCents,
+      trip.paymentInfo.currencyRate,
+      trip.paymentInfo.currencyDecimals
     );
+    uint256 valueToGuest = currencyConverterService.getFromUsd(
+      trip.paymentInfo.currencyType,
+      valueToGuestInUsdCents,
+      trip.paymentInfo.currencyRate,
+      trip.paymentInfo.currencyDecimals
+    );
+    bool successHost;
+    bool successGuest;
+    if (currencyConverterService.isETH(trip.paymentInfo.currencyType)) {
+      (successHost, ) = payable(trip.host).call{value: valueToHost}('');
+      (successGuest, ) = payable(trip.guest).call{value: valueToGuest}('');
+    } else {
+      successHost = IERC20(trip.paymentInfo.currencyType).transfer(trip.host, valueToHost);
+      successGuest = IERC20(trip.paymentInfo.currencyType).transfer(trip.guest, valueToGuest);
+    }
+    require(successHost && successGuest, 'Transfer failed.');
+
     tripService.saveTransactionInfo(
       tripId,
       rentalityFee,
@@ -283,12 +280,6 @@ contract RentalityPlatform is UUPSOwnable {
       valueToGuestInUsdCents,
       valueToHostInUsdCents
     );
-    //require(payable(trip.host).send(valueToHostInEth));
-    //require(payable(trip.guest).send(valueToGuestInEth));
-    (bool successHost, ) = payable(trip.host).call{value: valueToHostInEth}('');
-    (bool successGuest, ) = payable(trip.guest).call{value: valueToGuestInEth}('');
-    require(successHost, 'Transfer failed.');
-    require(successGuest, 'Transfer failed.');
   }
 
   /// @notice Creates a new claim for a specific trip.
@@ -331,24 +322,29 @@ contract RentalityPlatform is UUPSOwnable {
       'Wrong claim Status.'
     );
 
-    uint256 valueToPay = currencyConverterService.getEthFromUsd(
+    uint256 valueToPay = currencyConverterService.getFromUsd(
+      trip.paymentInfo.currencyType,
       claim.amountInUsdCents,
-      trip.paymentInfo.ethToCurrencyRate,
-      trip.paymentInfo.ethToCurrencyDecimals
+      trip.paymentInfo.currencyRate,
+      trip.paymentInfo.currencyDecimals
     );
-
-    require(msg.value >= valueToPay, 'Insufficient funds sent.');
-
     claimService.payClaim(claimId);
+    bool successHost;
 
-    (bool successHost, ) = payable(trip.host).call{value: valueToPay}('');
-    require(successHost, 'Transfer to host failed.');
+    if (currencyConverterService.isETH(trip.paymentInfo.currencyType)) {
+      require(msg.value >= valueToPay, 'Insufficient funds sent.');
+      (successHost, ) = payable(trip.host).call{value: valueToPay}('');
 
-    if (msg.value > valueToPay) {
-      uint256 excessValue = msg.value - valueToPay;
-      (bool successRefund, ) = payable(tx.origin).call{value: excessValue}('');
-      require(successRefund, 'Refund to guest failed.');
+      if (msg.value > valueToPay) {
+        uint256 excessValue = msg.value - valueToPay;
+        (bool successRefund, ) = payable(tx.origin).call{value: excessValue}('');
+        require(successRefund, 'Refund to guest failed.');
+      }
+    } else {
+      require(IERC20(trip.paymentInfo.currencyType).allowance(tx.origin, address(this)) >= valueToPay);
+      successHost = IERC20(trip.paymentInfo.currencyType).transferFrom(tx.origin, trip.host, valueToPay);
     }
+    require(successHost, 'Transfer to host failed.');
   }
 
   /// @notice Updates the status of a specific claim based on the current timestamp.

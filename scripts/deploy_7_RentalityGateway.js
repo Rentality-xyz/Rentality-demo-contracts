@@ -25,7 +25,7 @@ async function main() {
   )
 
   const rentalityCurrencyConverterAddress = checkNotNull(
-    getContractAddress('RentalityCurrencyConverter', 'scripts/deploy_2c_RentalityCurrencyConverter.js', chainId),
+    getContractAddress('RentalityCurrencyConverter', 'scripts/deploy_3b_RentalityCurrencyConverter.js', chainId),
     'RentalityCurrencyConverter'
   )
 
