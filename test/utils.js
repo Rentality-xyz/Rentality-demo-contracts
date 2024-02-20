@@ -41,7 +41,11 @@ function getMockCarRequest(seed) {
   }
 }
 
-function getMockCarRequestWithEngineType(seed, engineParams, eType) {
+function getMockCarRequestWithAddress(seed, address) {
+  return { ...getMockCarRequest(seed), locationAddress: address }
+}
+
+function getMockCarRequest(seed) {
   const seedStr = seed?.toString() ?? ''
   const seedInt = Number(seed) ?? 0
 
@@ -52,11 +56,15 @@ function getMockCarRequestWithEngineType(seed, engineParams, eType) {
   const YEAR = '200' + seedStr
   const PRICE_PER_DAY = seedInt * 100 + 2
   const DEPOSIT = seedInt * 100 + 3
-  const ENGINE_PARAMS = engineParams
-  const ETYPE = eType
+  const ENGINE_PARAMS = [seedInt * 100 + 4, seedInt * 100 + 5]
+  const ETYPE = 1
   const DISTANCE_INCLUDED = seedInt * 100 + 6
   const location = 'kyiv ukraine'
+  const locationCoordinates = ' ' + seedInt
   const apiKey = process.env.GOOGLE_API_KEY || ' '
+  const timeBufferBetweenTripsInSec = 0
+  const locationLatitude = seedStr
+  const locationLongitude = seedStr
 
   return {
     tokenUri: TOKEN_URI,
@@ -69,7 +77,10 @@ function getMockCarRequestWithEngineType(seed, engineParams, eType) {
     engineParams: ENGINE_PARAMS,
     engineType: ETYPE,
     milesIncludedPerDay: DISTANCE_INCLUDED,
-    location: location,
+    timeBufferBetweenTripsInSec: timeBufferBetweenTripsInSec,
+    locationAddress: location,
+    locationLatitude,
+    locationLongitude,
     geoApiKey: apiKey,
   }
 }
@@ -140,7 +151,7 @@ async function deployDefaultFixture() {
       RentalityQuery: await query.getAddress(),
     },
   })
-  const RentalityGeoService = await ethers.getContractFactory('RentalityGeoMock')
+  const RentalityGeoService = await ethers.getContractFactory('RentalityGeoService')
 
   let RentalityGateway = await ethers.getContractFactory('RentalityGateway', {
     libraries: {
@@ -151,7 +162,11 @@ async function deployDefaultFixture() {
   let rentalityMockPriceFeed = await RentalityMockPriceFeed.deploy(8, 200000000000)
   await rentalityMockPriceFeed.waitForDeployment()
 
-  const rentalityUserService = await upgrades.deployProxy(RentalityUserService)
+  const MockCivic = await ethers.getContractFactory('CivicMockVerifier')
+  const mockCivic = await MockCivic.deploy()
+  await mockCivic.waitForDeployment()
+
+  const rentalityUserService = await upgrades.deployProxy(RentalityUserService, [await mockCivic.getAddress(), 0])
   await rentalityUserService.waitForDeployment()
 
   const electricEngine = await ethers.getContractFactory('RentalityElectricEngine')
@@ -181,8 +196,16 @@ async function deployDefaultFixture() {
   ])
   await rentalityCurrencyConverter.waitForDeployment()
 
-  const rentalityGeoService = await RentalityGeoService.deploy()
+  const GeoParserMock = await ethers.getContractFactory('RentalityGeoMock')
+  const geoParserMock = await GeoParserMock.deploy()
+  await geoParserMock.waitForDeployment()
+
+  const rentalityGeoService = await upgrades.deployProxy(RentalityGeoService, [
+    await rentalityUserService.getAddress(),
+    await geoParserMock.getAddress(),
+  ])
   await rentalityGeoService.waitForDeployment()
+  await geoParserMock.setGeoService(await rentalityGeoService.getAddress())
 
   const rentalityCarToken = await upgrades.deployProxy(RentalityCarToken, [
     await rentalityGeoService.getAddress(),
@@ -268,8 +291,8 @@ async function deployDefaultFixture() {
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityCarToken.getAddress())
   await rentalityUserService.connect(owner).grantManagerRole(await engineService.getAddress())
 
-  await rentalityGateway.connect(host).setKYCInfo(' ', ' ', ' ', ' ', ' ', 1, true, true)
-  await rentalityGateway.connect(guest).setKYCInfo(' ', ' ', ' ', ' ', ' ', 1, true, true)
+  await rentalityGateway.connect(host).setKYCInfo(' ', ' ', ' ', ' ', ' ', 1, true)
+  await rentalityGateway.connect(guest).setKYCInfo(' ', ' ', ' ', ' ', ' ', 1, true)
 
   return {
     rentalityGateway,
@@ -294,6 +317,7 @@ async function deployDefaultFixture() {
     guest,
     anonymous,
     rentalityAutomationService,
+    geoParserMock,
   }
 }
 
@@ -303,4 +327,5 @@ module.exports = {
   createMockClaimRequest,
   deployDefaultFixture,
   TripStatus,
+  getMockCarRequestWithAddress,
 }
