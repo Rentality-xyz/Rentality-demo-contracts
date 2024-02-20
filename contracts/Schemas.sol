@@ -260,7 +260,7 @@ interface Schemas {
     uint64 taxPriceInUsdCents;
     uint64 depositInUsdCents;
     uint64 resolveAmountInUsdCents;
-    address currencyType; // tokenAddress, address(0) if native
+    address currencyType; // tokenAddress, address(0) if eth
     int256 currencyRate;
     uint8 currencyDecimals;
     uint64 resolveFuelAmountInUsdCents;
