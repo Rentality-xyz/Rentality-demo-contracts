@@ -98,15 +98,15 @@ interface Schemas {
   }
 
   // Struct to store transaction history details for a trip
+  // Earnings from the trip (cancellation or completion)
+  // datetime: Timestamp of the transaction
+  // Status before trip cancellation, will be 'Finished' in case of completed trip.
   struct TransactionInfo {
     uint256 rentalityFee;
     uint256 depositRefund;
-    // Earnings from the trip (cancellation or completion)
     uint256 tripEarnings;
-    // Timestamp of the transaction
     uint256 dateTime;
-    // Status before trip cancellation, will be 'Finished' in case of completed trip.
-    Schemas.TripStatus statusBeforeCancellation;
+    TripStatus statusBeforeCancellation;
   }
   /// @dev Struct containing information about a trip.
   struct Trip {
@@ -194,8 +194,8 @@ interface Schemas {
     string description;
     uint64 amountInUsdCents;
     uint256 payDateInSec;
-    address rejectedBy; // if so
-    uint256 rejectedDateInSec; // if so
+    address rejectedBy;
+    uint256 rejectedDateInSec;
   }
 
   // Struct to represent a request to create a new claim

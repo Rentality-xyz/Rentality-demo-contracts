@@ -74,6 +74,9 @@ export type CreateTripRequest = {
 export type TransactionInfo = {
      rentalityFee: bigint;
      depositRefund: bigint;
+     tripEarnings: bigint;
+     dateTime: bigint;
+     statusBeforeCancellation: TripStatus;
 }
 
 export type Trip = {
@@ -153,6 +156,7 @@ export type Claim = {
      amountInUsdCents: bigint;
      payDateInSec: bigint;
      rejectedBy: string;
+     rejectedDateInSec: bigint;
 }
 
 export type CreateClaimRequest = {
