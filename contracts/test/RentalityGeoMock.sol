@@ -3,7 +3,7 @@ pragma solidity ^0.8.9;
 
 import '../libs/RentalityUtils.sol';
 import 'hardhat/console.sol';
-import '../IRentalityGeoServiceParser.sol';
+import '../IRentalityGeoParser.sol';
 import '../IRentalityGeoService.sol';
 // For testing purposes
 contract RentalityGeoMock is IRentalityGeoParser {
