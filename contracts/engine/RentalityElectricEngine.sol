@@ -71,7 +71,7 @@ contract RentalityElectricEngine is ARentalityEngine {
         pricePerDayInUsdCents,
         tripDays
       ),
-      getFuelResolveAmountInUsdCents(endParams[0], engineParams)
+      getFuelResolveAmountInUsdCents(endParams[0], startParams[0], engineParams)
     );
   }
 
@@ -81,8 +81,12 @@ contract RentalityElectricEngine is ARentalityEngine {
   /// @return The fuel-specific resolve amount in USD cents.
   function getFuelResolveAmountInUsdCents(
     uint64 endFuelLevelInPercents,
+    uint startFuelLevelInPercents,
     uint64[] memory engineParams
   ) public pure returns (uint64) {
+    if (endFuelLevelInPercents >= startFuelLevelInPercents) {
+      return 0;
+    }
     if (endFuelLevelInPercents >= 0 && endFuelLevelInPercents <= 20) {
       return engineParams[0];
     } else if (endFuelLevelInPercents >= 21 && endFuelLevelInPercents <= 50) {
