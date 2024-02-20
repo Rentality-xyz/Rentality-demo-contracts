@@ -393,7 +393,7 @@ library RentalityQuery {
   /// @param startDateTime The start date and time of the search period.
   /// @param endDateTime The end date and time of the search period.
   /// @param searchParams The search parameters for filtering available cars.
-  // An array of available car information matching the search criteria.
+  ///  @return An array of available car information matching the search criteria.
   function searchAvailableCarsForUser(
     address user,
     uint64 startDateTime,
