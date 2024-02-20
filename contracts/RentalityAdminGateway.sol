@@ -4,7 +4,7 @@ pragma solidity ^0.8.9;
 import './payments/RentalityPaymentService.sol';
 import './RentalityPlatform.sol';
 import './abstract/IRentalityAdminGateway.sol';
-import "./features/RentalityAutomation.sol";
+import './features/RentalityAutomation.sol';
 
 contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
   RentalityCarToken private carService;

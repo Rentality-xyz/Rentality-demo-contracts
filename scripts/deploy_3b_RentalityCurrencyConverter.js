@@ -10,8 +10,8 @@ async function main() {
   if (chainId < 0) throw new Error('chainId is not set')
 
   const rentalityEthService = checkNotNull(
-    getContractAddress('RentalityETHPayment', 'scripts/deploy_2c_RentalityEthService.js', chainId),
-    'RentalityETHPayment'
+    getContractAddress('RentalityETHConvertor', 'scripts/deploy_2c_RentalityEthService.js', chainId),
+    'RentalityETHConvertor'
   )
 
   const userService = checkNotNull(
@@ -19,8 +19,8 @@ async function main() {
     'RentalityUserService'
   )
   const rentalityUsdtService = checkNotNull(
-    getContractAddress('RentalityUSDTPayment', 'scripts/deploy_2f_RentalityUsdtService.js', chainId),
-    'RentalityUSDTPayment'
+    getContractAddress('RentalityUSDTConverter', 'scripts/deploy_2f_RentalityUsdtService.js', chainId),
+    'RentalityUSDTConverter'
   )
   const usdtToken = checkNotNull(
     getContractAddress('RentalityTestUSDT', 'scripts/deploy_0a_RentalityTestUSDT.js', chainId),

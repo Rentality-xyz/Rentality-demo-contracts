@@ -5,7 +5,7 @@ const addressSaver = require('./utils/addressSaver')
 const { checkNotNull, startDeploy } = require('./utils/deployHelper')
 
 async function main() {
-  const { contractName, chainId } = await startDeploy('RentalityETHPayment')
+  const { contractName, chainId } = await startDeploy('RentalityETHConvertor')
 
   if (chainId < 0) throw new Error('chainId is not set')
 

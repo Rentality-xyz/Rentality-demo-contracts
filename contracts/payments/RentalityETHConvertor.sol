@@ -4,7 +4,7 @@ pragma solidity ^0.8.9;
 import '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 import './RentalityCurrencyType.sol';
 
-contract RentalityETHPayment is ARentalityUpgradableCurrencyType {
+contract RentalityETHConvertor is ARentalityUpgradableCurrencyType {
   /// @notice Get the amount of ETH equivalent to a specified value in USD cents
   /// @param valueInUsdCents The value in USD cents to convert to ETH
   /// @param ethToUsdRate The specific ETH to USD rate to use for conversion

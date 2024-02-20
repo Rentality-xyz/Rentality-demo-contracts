@@ -33,7 +33,7 @@ async function deployDefaultFixture() {
     await rentalityUserService.getAddress(),
   ])
 
-  const RentalityEth = await ethers.getContractFactory('RentalityETHPayment')
+  const RentalityEth = await ethers.getContractFactory('RentalityETHConvertor')
 
   const ethContract = await upgrades.deployProxy(RentalityEth, [
     await rentalityUserService.getAddress(),

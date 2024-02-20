@@ -34,13 +34,11 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
   RentalityClaimService private claimService;
   RentalityAdminGateway private adminService;
 
-
   /// @notice Ensures that the caller is a host.
   modifier onlyHost() {
     require(userService.isHost(msg.sender), 'User is not a host');
     _;
   }
-
 
   /// @notice Ensures that the caller is either a host or a guest.
   modifier onlyHostOrGuest() {

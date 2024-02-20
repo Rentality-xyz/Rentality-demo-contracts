@@ -1,7 +1,7 @@
 const { expect } = require('chai')
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 
-const { getMockCarRequest, TripStatus, deployDefaultFixture, ethToken} = require('../utils')
+const { getMockCarRequest, TripStatus, deployDefaultFixture, ethToken } = require('../utils')
 
 describe('RentalityGateway: trips', function () {
   let rentalityGateway,
