@@ -1,5 +1,5 @@
 const { ethers, upgrades } = require('hardhat')
-const { nativeToken } = require('../utils')
+const { ethToken } = require('../utils')
 
 // We define a fixture to reuse the same setup in every test.
 // We use loadFixture to run this setup once, snapshot that state,
@@ -71,7 +71,7 @@ async function deployDefaultFixture() {
 
   const ethContract = await upgrades.deployProxy(RentalityEth, [
     await rentalityUserService.getAddress(),
-    nativeToken,
+    ethToken,
     await rentalityMockPriceFeed.getAddress(),
   ])
   await ethContract.waitForDeployment()

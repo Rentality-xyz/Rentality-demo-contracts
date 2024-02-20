@@ -1,6 +1,6 @@
 const env = require('hardhat')
 const { ethers, upgrades } = require('hardhat')
-const nativeToken = ethers.getAddress('0x0000000000000000000000000000000000000000')
+const ethToken = ethers.getAddress('0x0000000000000000000000000000000000000000')
 
 function getMockCarRequest(seed) {
   const seedStr = seed?.toString() ?? ''
@@ -183,7 +183,7 @@ async function deployDefaultFixture() {
 
   const ethContract = await upgrades.deployProxy(RentalityEth, [
     await rentalityUserService.getAddress(),
-    nativeToken,
+    ethToken,
     await rentalityMockPriceFeed.getAddress(),
   ])
 
@@ -335,5 +335,5 @@ module.exports = {
   createMockClaimRequest,
   deployDefaultFixture,
   TripStatus,
-  nativeToken,
+    ethToken,
 }

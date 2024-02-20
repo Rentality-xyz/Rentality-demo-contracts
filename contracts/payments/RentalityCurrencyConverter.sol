@@ -25,103 +25,103 @@ contract RentalityCurrencyConverter is Initializable, UUPSAccess {
   }
 
   /// @notice Converts the specified amount from USD to the specified currency type
-  /// @param currencyType The address of the currency type to convert to
+  /// @param tokenAddress The address of the currency type to convert to
   /// @param amount The amount in USD cents to convert
   /// @param currencyRate The currency rate to use for conversion
   /// @param decimals The decimals of the currency type
   /// @return The equivalent amount in the specified currency type
   function getFromUsd(
-    address currencyType,
+    address tokenAddress,
     uint256 amount,
     int256 currencyRate,
     uint8 decimals
   ) public view returns (uint) {
-    return tokenAddressToPaymentMethod[currencyType].getFromUsd(amount, currencyRate, decimals);
+    return tokenAddressToPaymentMethod[tokenAddress].getFromUsd(amount, currencyRate, decimals);
   }
 
   /// @notice Retrieves the latest rate of the specified currency type
-  /// @param currencyType The address of the currency type
+  /// @param tokenAddress The address of the currency type
   /// @return The latest rate of the currency type
-  function getLatest(address currencyType) public view returns (int) {
-    return tokenAddressToPaymentMethod[currencyType].getLatest();
+  function getLatest(address tokenAddress) public view returns (int) {
+    return tokenAddressToPaymentMethod[tokenAddress].getLatest();
   }
 
   /// @notice Retrieves the rate and decimals of the specified currency type
-  /// @param currencyType The address of the currency type
+  /// @param tokenAddress The address of the currency type
   /// @return The rate and decimals of the currency type
-  function getRate(address currencyType) public view returns (int256, uint8) {
-    return tokenAddressToPaymentMethod[currencyType].getRate();
+  function getRate(address tokenAddress) public view returns (int256, uint8) {
+    return tokenAddressToPaymentMethod[tokenAddress].getRate();
   }
 
   /// @notice Retrieves the equivalent amount in the specified currency type from the provided USD value
-  /// @param currencyType The address of the currency type
+  /// @param tokenAddress The address of the currency type
   /// @param valueInUsdCents The value in USD cents to convert
   /// @return The equivalent amount in the specified currency type, the corresponding currency rate, and decimals
   function getFromUsdLatest(
-    address currencyType,
+    address tokenAddress,
     uint256 valueInUsdCents
   ) public view returns (uint256, int256, uint8) {
-    return tokenAddressToPaymentMethod[currencyType].getFromUsdLatest(valueInUsdCents);
+    return tokenAddressToPaymentMethod[tokenAddress].getFromUsdLatest(valueInUsdCents);
   }
 
   /// @notice Retrieves the equivalent amount in USD cents from the provided currency type amount
-  /// @param currencyType The address of the currency type
+  /// @param tokenAddress The address of the currency type
   /// @param amount The amount in the specified currency type
   /// @return The equivalent amount in USD cents, the corresponding currency rate, and decimals
-  function getToUsdLatest(address currencyType, uint256 amount) public view returns (uint256, int256, uint8) {
-    return tokenAddressToPaymentMethod[currencyType].getUsdFromLatest(amount);
+  function getToUsdLatest(address tokenAddress, uint256 amount) public view returns (uint256, int256, uint8) {
+    return tokenAddressToPaymentMethod[tokenAddress].getUsdFromLatest(amount);
   }
 
   /// @notice Converts the specified amount from the specified currency type to USD
-  /// @param currencyType The address of the currency type
+  /// @param tokenAddress The address of the currency type
   /// @param tokenValue The amount in the specified currency type
   /// @param tokenToUsd The currency rate from the specified currency type to USD
   /// @param decimals The decimals of the currency type
   /// @return The equivalent amount in USD
   function getToUsd(
-    address currencyType,
+    address tokenAddress,
     uint256 tokenValue,
     int256 tokenToUsd,
     uint8 decimals
   ) public view returns (uint256) {
-    return tokenAddressToPaymentMethod[currencyType].getUsd(tokenValue, tokenToUsd, decimals);
+    return tokenAddressToPaymentMethod[tokenAddress].getUsd(tokenValue, tokenToUsd, decimals);
   }
 
   /// @notice Retrieves the currency rate and decimals of the specified currency type with cache
-  /// @param currencyType The address of the currency type
+  /// @param tokenAddress The address of the currency type
   /// @return The currency rate and decimals of the currency type
-  function getCurrencyRateWithCache(address currencyType) public returns (int256, uint8) {
-    return tokenAddressToPaymentMethod[currencyType].getRateWithCache();
+  function getCurrencyRateWithCache(address tokenAddress) public returns (int256, uint8) {
+    return tokenAddressToPaymentMethod[tokenAddress].getRateWithCache();
   }
 
   /// @notice Retrieves the equivalent amount in the specified currency type from the provided USD value with cache
-  /// @param currencyType The address of the currency type
+  /// @param tokenAddress The address of the currency type
   /// @param valueInUsdCents The value in USD cents to convert
   /// @return The equivalent amount in the specified currency type
-  function getFromUsdWithCache(address currencyType, uint256 valueInUsdCents) public returns (uint256) {
-    return tokenAddressToPaymentMethod[currencyType].getFromUsdWithCache(valueInUsdCents);
+  function getFromUsdWithCache(address tokenAddress, uint256 valueInUsdCents) public returns (uint256) {
+    return tokenAddressToPaymentMethod[tokenAddress].getFromUsdWithCache(valueInUsdCents);
   }
 
   /// @notice Retrieves the equivalent amount in USD cents from the provided currency type amount with cache
-  /// @param currencyType The address of the currency type
+  /// @param tokenAddress The address of the currency type
   /// @param amount The amount in the specified currency type
   /// @return The equivalent amount in USD cents
-  function getToUsdWithCache(address currencyType, uint256 amount) public returns (uint256) {
-    return tokenAddressToPaymentMethod[currencyType].getUsdWithCache(amount);
+  function getToUsdWithCache(address tokenAddress, uint256 amount) public returns (uint256) {
+    return tokenAddressToPaymentMethod[tokenAddress].getUsdWithCache(amount);
   }
 
   /// @notice Checks if the specified currency type is available
-  /// @param currencyType The address of the currency type
+  /// @param tokenAddress The address of the currency type
   /// @return A boolean indicating if the currency type is available
-  function currencyTypeIsAvailable(address currencyType) public view returns (bool) {
-    return address(tokenAddressToPaymentMethod[currencyType]) != address(0);
+  function currencyTypeIsAvailable(address tokenAddress) public view returns (bool) {
+    return address(tokenAddressToPaymentMethod[tokenAddress]) != address(0);
   }
 
   /// @notice Checks if the specified currency type is native
-  /// @param currencyType The address of the currency type
+  /// @param tokenAddress The address of the currency type
   /// @return A boolean indicating if the currency type is native
-  function isNative(address currencyType) public pure returns (bool) {
-    return currencyType == address(0);
+  function isETH(address tokenAddress) public pure returns (bool) {
+    return tokenAddress == address(0);
   }
 
   /// @notice Initializes the contract with the specified parameters
