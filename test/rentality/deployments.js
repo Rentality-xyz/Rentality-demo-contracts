@@ -18,9 +18,7 @@ async function deployDefaultFixture() {
   })
   const RentalityCurrencyConverter = await ethers.getContractFactory('RentalityCurrencyConverter')
   const RentalityPaymentService = await ethers.getContractFactory('RentalityPaymentService')
-  const RentalityGeoService = await ethers.getContractFactory('RentalityGeoMock')
-
-  const rentalityGeoService = await RentalityGeoService.deploy()
+  const RentalityGeoService = await ethers.getContractFactory('RentalityGeoService')
 
   const RentalityCarToken = await ethers.getContractFactory('RentalityCarToken', {
     libraries: {
@@ -38,11 +36,26 @@ async function deployDefaultFixture() {
   let rentalityMockPriceFeed = await RentalityMockPriceFeed.deploy(8, 200000000000)
   await rentalityMockPriceFeed.waitForDeployment()
 
+
   const MockCivic = await ethers.getContractFactory('CivicMockVerifier')
   const mockCivic = await MockCivic.deploy()
   await mockCivic.waitForDeployment()
 
   const rentalityUserService = await upgrades.deployProxy(RentalityUserService, [await mockCivic.getAddress(), 0])
+
+  const GeoParserMock = await ethers.getContractFactory('RentalityGeoMock')
+  const geoParserMock = await GeoParserMock.deploy()
+  await geoParserMock.waitForDeployment()
+
+  const rentalityGeoService = await upgrades.deployProxy(RentalityGeoService, [
+    await rentalityUserService.getAddress(),
+    await geoParserMock.getAddress(),
+  ])
+  await rentalityGeoService.waitForDeployment()
+  await geoParserMock.setGeoService(await rentalityGeoService.getAddress())
+
+
+
   await rentalityUserService.connect(owner).grantAdminRole(admin.address)
   await rentalityUserService.connect(owner).grantManagerRole(manager.address)
   await rentalityUserService.connect(owner).grantHostRole(host.address)
