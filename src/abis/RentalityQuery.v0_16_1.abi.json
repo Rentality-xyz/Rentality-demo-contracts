@@ -2,45 +2,6 @@
   "abi": [
     {
       "type": "function",
-      "name": "getCarDetails",
-      "constant": true,
-      "stateMutability": "view",
-      "payable": false,
-      "inputs": [
-        { "type": "address", "name": "adminService" },
-        { "type": "uint256", "name": "carId" }
-      ],
-      "outputs": [
-        {
-          "type": "tuple",
-          "name": "details",
-          "components": [
-            { "type": "uint256", "name": "carId" },
-            { "type": "string", "name": "hostName" },
-            { "type": "string", "name": "hostPhotoUrl" },
-            { "type": "address", "name": "host" },
-            { "type": "string", "name": "brand" },
-            { "type": "string", "name": "model" },
-            { "type": "uint32", "name": "yearOfProduction" },
-            { "type": "uint64", "name": "pricePerDayInUsdCents" },
-            { "type": "uint64", "name": "securityDepositPerTripInUsdCents" },
-            { "type": "uint64", "name": "milesIncludedPerDay" },
-            { "type": "uint8", "name": "engineType" },
-            { "type": "uint64[]", "name": "engineParams" },
-            { "type": "bool", "name": "geoVerified" },
-            { "type": "bool", "name": "currentlyListed" },
-            { "type": "string", "name": "timeZoneId" },
-            { "type": "string", "name": "city" },
-            { "type": "string", "name": "country" },
-            { "type": "string", "name": "state" },
-            { "type": "string", "name": "locationLatitude" },
-            { "type": "string", "name": "locationLongitude" }
-          ]
-        }
-      ]
-    },
-    {
-      "type": "function",
       "name": "isCarAvailableForUser",
       "constant": true,
       "stateMutability": "view",
@@ -99,31 +60,32 @@
       "outputs": [
         {
           "type": "tuple[]",
-          "name": "result",
+          "name": "",
           "components": [
-            { "type": "uint256", "name": "carId" },
-            { "type": "string", "name": "brand" },
-            { "type": "string", "name": "model" },
-            { "type": "uint32", "name": "yearOfProduction" },
-            { "type": "uint64", "name": "pricePerDayInUsdCents" },
-            { "type": "uint64", "name": "securityDepositPerTripInUsdCents" },
-            { "type": "uint8", "name": "engineType" },
-            { "type": "uint64", "name": "milesIncludedPerDay" },
-            { "type": "address", "name": "host" },
-            { "type": "string", "name": "hostName" },
-            { "type": "string", "name": "hostPhotoUrl" },
             {
               "type": "tuple",
-              "name": "geoData",
+              "name": "car",
               "components": [
-                { "type": "string", "name": "city" },
-                { "type": "string", "name": "country" },
-                { "type": "string", "name": "state" },
-                { "type": "string", "name": "locationLatitude" },
-                { "type": "string", "name": "locationLongitude" },
+                { "type": "uint256", "name": "carId" },
+                { "type": "string", "name": "carVinNumber" },
+                { "type": "bytes32", "name": "carVinNumberHash" },
+                { "type": "address", "name": "createdBy" },
+                { "type": "string", "name": "brand" },
+                { "type": "string", "name": "model" },
+                { "type": "uint32", "name": "yearOfProduction" },
+                { "type": "uint64", "name": "pricePerDayInUsdCents" },
+                { "type": "uint64", "name": "securityDepositPerTripInUsdCents" },
+                { "type": "uint8", "name": "engineType" },
+                { "type": "uint64[]", "name": "engineParams" },
+                { "type": "uint64", "name": "milesIncludedPerDay" },
+                { "type": "uint32", "name": "timeBufferBetweenTripsInSec" },
+                { "type": "bool", "name": "currentlyListed" },
+                { "type": "bool", "name": "geoVerified" },
                 { "type": "string", "name": "timeZoneId" }
               ]
-            }
+            },
+            { "type": "string", "name": "hostPhotoUrl" },
+            { "type": "string", "name": "hostName" }
           ]
         }
       ]
