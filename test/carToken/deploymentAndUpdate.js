@@ -67,7 +67,7 @@ it('Update car with location, but without api should revert', async function () 
   await expect(rentalityCarToken.updateCarInfo(update_params, 'location', '', '', '')).to.be.reverted
 })
 it('Update with location should pass locationVarification param to false', async function () {
-  const { rentalityCarToken, rentalityGeoService } = await loadFixture(deployFixtureWith1Car)
+  const { rentalityCarToken, rentalityGeoService, geoParserMock } = await loadFixture(deployFixtureWith1Car)
 
   let request = getMockCarRequest(1)
   await expect(rentalityCarToken.addCar(request)).not.be.reverted
@@ -82,7 +82,7 @@ it('Update with location should pass locationVarification param to false', async
     currentlyListed: false,
   }
 
-  await rentalityGeoService.setCarCoordinateValidity(2, true) // mock
+  await geoParserMock.setCarCoordinateValidity(2, true) // mock
 
   await expect(rentalityCarToken.verifyGeo(2)).to.not.reverted
 

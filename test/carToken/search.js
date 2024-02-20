@@ -1,7 +1,7 @@
 const { expect } = require('chai')
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 
-const { getMockCarRequest } = require('../utils')
+const { getMockCarRequest, getMockCarRequestWithAddress } = require('../utils')
 const { deployFixtureWith1Car } = require('./deployments')
 
 describe('RentalityCarToken: search functions', function () {
@@ -134,10 +134,10 @@ describe('RentalityCarToken: search functions', function () {
   })
 
   it('Search with country should work', async function () {
-    const { rentalityGeoService, rentalityTripService, guest } = await loadFixture(deployFixtureWith1Car)
+    const { rentalityCarToken, rentalityTripService, guest } = await loadFixture(deployFixtureWith1Car)
 
-    let carId = 0
-    await rentalityGeoService.setCarCountry(++carId, 'usa') //mock
+    const carRequest = getMockCarRequestWithAddress(2, 'Michigan Ave, Chicago, IL, USA')
+    await rentalityCarToken.addCar(carRequest)
 
     const searchCarParams1 = {
       country: 'usa',
@@ -172,15 +172,15 @@ describe('RentalityCarToken: search functions', function () {
   })
 
   it('Search with state should work', async function () {
-    const { rentalityGeoService, rentalityTripService, guest } = await loadFixture(deployFixtureWith1Car)
+    const { rentalityCarToken, rentalityTripService, guest, geoParserMock } = await loadFixture(deployFixtureWith1Car)
 
-    let carId = 0
-    await rentalityGeoService.setCarState(++carId, 'kyiv') //mock
+    const carRequest = getMockCarRequestWithAddress(2, 'Michigan Ave, Chicago, IL, USA')
+    await rentalityCarToken.addCar(carRequest)
 
     const searchCarParams1 = {
       country: '',
-      state: 'kyiv',
-      city: '',
+      state: '',
+      city: 'chicago',
       brand: '',
       model: '',
       yearOfProductionFrom: 0,
@@ -210,15 +210,15 @@ describe('RentalityCarToken: search functions', function () {
   })
 
   it('Search with city should work', async function () {
-    const { rentalityGeoService, rentalityTripService, guest } = await loadFixture(deployFixtureWith1Car)
+    const { rentalityCarToken, rentalityTripService, guest, geoParserMock } = await loadFixture(deployFixtureWith1Car)
 
-    let carId = 0
-    await rentalityGeoService.setCarCity(++carId, 'kyiv') //mock
+    const carRequest = getMockCarRequestWithAddress(2, 'Michigan Ave, Chicago, IL, USA')
+    await rentalityCarToken.addCar(carRequest)
 
     const searchCarParams1 = {
       country: '',
       state: '',
-      city: 'kyiv',
+      city: 'Chicago',
       brand: '',
       model: '',
       yearOfProductionFrom: 0,
