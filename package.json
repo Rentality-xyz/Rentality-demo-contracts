@@ -9,6 +9,8 @@
   "license": "ISC",
   "scripts": {
     "format": "prettier --write . && npx prettier --write --plugin=prettier-plugin-solidity contracts/**/*.sol",
+    "generate_schemas": "node scripts/utils/generateSchemas.js",
+    "generate_interface": "node scripts/utils/generateInterface.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
