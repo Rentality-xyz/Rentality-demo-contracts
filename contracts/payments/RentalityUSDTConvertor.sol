@@ -3,7 +3,7 @@ pragma solidity ^0.8.9;
 
 import './RentalityCurrencyType.sol';
 
-contract RentalityUSDTPayment is ARentalityUpgradableCurrencyType {
+contract RentalityUSDTConverter is ARentalityUpgradableCurrencyType {
   /// @notice Converts the specified amount from USD to USDT
   /// @param amount The amount in USD cents
   /// @param rate The specific USDT to USD rate to use for conversion
