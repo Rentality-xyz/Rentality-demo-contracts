@@ -148,7 +148,7 @@ describe('RentalityGateway: car', function () {
     let expirationDate = 10
 
     await expect(
-      rentalityGateway.connect(host).setKYCInfo(name, surname, number, photo, licenseNumber, expirationDate, true, true)
+      rentalityGateway.connect(host).setKYCInfo(name, surname, number, photo, licenseNumber, expirationDate, true)
     ).to.not.reverted
 
     let addCarRequest = {
@@ -202,9 +202,7 @@ describe('RentalityGateway: car', function () {
     let expirationDate = 10
 
     await expect(
-      await rentalityGateway
-        .connect(host)
-        .setKYCInfo(name, surname, number, photo, licenseNumber, expirationDate, true, true)
+      await rentalityGateway.connect(host).setKYCInfo(name, surname, number, photo, licenseNumber, expirationDate, true)
     ).to.not.reverted
 
     let addCarRequest = {
