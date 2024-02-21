@@ -36,7 +36,6 @@ async function deployDefaultFixture() {
   let rentalityMockPriceFeed = await RentalityMockPriceFeed.deploy(8, 200000000000)
   await rentalityMockPriceFeed.waitForDeployment()
 
-
   const MockCivic = await ethers.getContractFactory('CivicMockVerifier')
   const mockCivic = await MockCivic.deploy()
   await mockCivic.waitForDeployment()
@@ -53,8 +52,6 @@ async function deployDefaultFixture() {
   ])
   await rentalityGeoService.waitForDeployment()
   await geoParserMock.setGeoService(await rentalityGeoService.getAddress())
-
-
 
   await rentalityUserService.connect(owner).grantAdminRole(admin.address)
   await rentalityUserService.connect(owner).grantManagerRole(manager.address)
