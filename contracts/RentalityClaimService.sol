@@ -28,11 +28,17 @@ contract RentalityClaimService is Initializable, UUPSAccess {
 
   /// @dev Sets the waiting time, only callable by administrators.
   /// @param newWaitingTimeInSec, set old value to this
-  function setWaitingTime(uint256 newWaitingTimeInSec) public {
-    require(userService.isAdmin(msg.sender), 'Only admin.');
+  function setWaitingTime(uint256 newWaitingTimeInSec) public onlyManager {
+    require(userService.isAdmin(tx.origin), 'Only admin.');
     waitingTimeForApproveInSec = newWaitingTimeInSec;
 
     emit WaitingTimeChanged(newWaitingTimeInSec);
+  }
+
+  /// @dev get waiting time to approval
+  /// @return waiting time to approval in sec
+  function getWaitingTime() public view returns (uint) {
+    return waitingTimeForApproveInSec;
   }
 
   /// @dev Creates a new claim, only callable by managers contracts.
