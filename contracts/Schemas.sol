@@ -27,22 +27,8 @@ interface Schemas {
 
   /// @notice Holds the car information with current ability to update.
   struct CarInfoWithEditability {
-    uint256 carId;
-    string carVinNumber;
-    bytes32 carVinNumberHash;
-    address createdBy;
-    string brand;
-    string model;
-    uint32 yearOfProduction;
-    uint64 pricePerDayInUsdCents;
-    uint64 securityDepositPerTripInUsdCents;
-    uint8 engineType;
-    uint64[] engineParams;
-    uint64 milesIncludedPerDay;
-    uint32 timeBufferBetweenTripsInSec;
-    bool currentlyListed;
-    bool geoVerified;
-    string timeZoneId;
+    CarInfo carInfo;
+    string metadataURI;
     bool isEditable;
   }
 
