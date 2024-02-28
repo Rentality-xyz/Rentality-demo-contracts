@@ -124,6 +124,8 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
   /// @notice Updates the information of a car. Only callable by hosts.
   /// @param request The request containing updated car information.
   function updateCarInfo(Schemas.UpdateCarInfoRequest memory request) public onlyHost {
+    require(RentalityQuery.isCarEditable(request.carId, address(tripService)), 'Car is not available for update.');
+
     return carService.updateCarInfo(request, '', '', '', '');
   }
 
@@ -138,6 +140,8 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
     string memory locationLongitude,
     string memory geoApiKey
   ) public onlyHost {
+    require(RentalityQuery.isCarEditable(request.carId, address(tripService)), 'Car is not available for update.');
+
     return carService.updateCarInfo(request, location, locationLatitude, locationLongitude, geoApiKey);
   }
 
@@ -222,8 +226,8 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
 
   /// @notice Retrieves information about cars owned by the caller.
   /// @return An array of car information owned by the caller.
-  function getMyCars() public view returns (Schemas.CarInfo[] memory) {
-    return carService.getCarsOwnedByUser(tx.origin);
+  function getMyCars() public view returns (Schemas.CarInfoWithEditability[] memory) {
+    return RentalityQuery.getCarsOwnedByUserWithEditability(address(tripService), address(carService));
   }
 
   /// @notice Retrieves detailed information about a car.

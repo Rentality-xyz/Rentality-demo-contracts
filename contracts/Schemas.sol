@@ -25,6 +25,27 @@ interface Schemas {
     string timeZoneId;
   }
 
+  /// @notice Holds the car information with current ability to update.
+  struct CarInfoWithEditability {
+    uint256 carId;
+    string carVinNumber;
+    bytes32 carVinNumberHash;
+    address createdBy;
+    string brand;
+    string model;
+    uint32 yearOfProduction;
+    uint64 pricePerDayInUsdCents;
+    uint64 securityDepositPerTripInUsdCents;
+    uint8 engineType;
+    uint64[] engineParams;
+    uint64 milesIncludedPerDay;
+    uint32 timeBufferBetweenTripsInSec;
+    bool currentlyListed;
+    bool geoVerified;
+    string timeZoneId;
+    bool isEditable;
+  }
+
   /// @notice Struct to store input parameters for creating a new car.
   struct CreateCarRequest {
     string tokenUri;
