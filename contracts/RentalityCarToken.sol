@@ -153,6 +153,7 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     string memory locationLongitude,
     string memory geoApiKey
   ) public {
+    require(userService.isManager(msg.sender), 'Only from manager contract.');
     require(_exists(request.carId), 'Token does not exist');
     require(ownerOf(request.carId) == tx.origin, 'Only the owner of the car can update car info');
     require(request.pricePerDayInUsdCents > 0, "Make sure the price isn't negative");

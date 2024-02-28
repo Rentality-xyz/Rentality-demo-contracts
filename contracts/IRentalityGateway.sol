@@ -58,7 +58,7 @@ interface IRentalityGateway {
 
   /// @notice Get information about all cars owned by the caller.
   /// @return An array of CarInfo structures containing details about the caller's cars.
-  function getMyCars() external view returns (Schemas.CarInfo[] memory);
+  function getMyCars() external view returns (Schemas.CarInfoWithEditability[] memory);
 
   /// @notice Burns (disables) a car. Only callable by hosts.
   /// @param carId The ID of the car to burn.
