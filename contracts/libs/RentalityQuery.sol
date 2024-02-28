@@ -527,22 +527,8 @@ library RentalityQuery {
 
     Schemas.CarInfoWithEditability[] memory result = new Schemas.CarInfoWithEditability[](carInfoes.length);
     for (uint i = 0; i < carInfoes.length; i++) {
-      result[i].carId = carInfoes[i].carId;
-      result[i].carVinNumber = carInfoes[i].carVinNumber;
-      result[i].carVinNumberHash = carInfoes[i].carVinNumberHash;
-      result[i].createdBy = carInfoes[i].createdBy;
-      result[i].brand = carInfoes[i].brand;
-      result[i].model = carInfoes[i].model;
-      result[i].yearOfProduction = carInfoes[i].yearOfProduction;
-      result[i].pricePerDayInUsdCents = carInfoes[i].pricePerDayInUsdCents;
-      result[i].securityDepositPerTripInUsdCents = carInfoes[i].securityDepositPerTripInUsdCents;
-      result[i].engineType = carInfoes[i].engineType;
-      result[i].engineParams = carInfoes[i].engineParams;
-      result[i].milesIncludedPerDay = carInfoes[i].milesIncludedPerDay;
-      result[i].timeBufferBetweenTripsInSec = carInfoes[i].timeBufferBetweenTripsInSec;
-      result[i].currentlyListed = carInfoes[i].currentlyListed;
-      result[i].geoVerified = carInfoes[i].geoVerified;
-      result[i].timeZoneId = carInfoes[i].timeZoneId;
+      result[i].carInfo = carInfoes[i];
+      result[i].metadataURI = RentalityCarToken(carService).tokenURI(carInfoes[i].carId);
       result[i].isEditable = isCarEditable(carInfoes[i].carId, tripService);
     }
     return result;
