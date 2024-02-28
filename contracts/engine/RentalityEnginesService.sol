@@ -58,8 +58,8 @@ contract RentalityEnginesService is Initializable, UUPSAccess {
   /// @param eType The engine type for which fuel prices are requested.
   /// @param engineParams The array of engine parameters used to retrieve fuel prices.
   /// @return A fuel price corresponding to the provided engine parameters.
-  function getFuelPricesFromEngineParams(uint8 eType, uint64[] memory engineParams) public view returns (uint64) {
-    return engineTypeToEngineContract[eType].getFuelPricesFromEngineParams(engineParams);
+  function getFuelPriceFromEngineParams(uint8 eType, uint64[] memory engineParams) public view returns (uint64) {
+    return engineTypeToEngineContract[eType].getFuelPriceFromEngineParams(engineParams);
   }
 
   /// @notice Verify engine params
