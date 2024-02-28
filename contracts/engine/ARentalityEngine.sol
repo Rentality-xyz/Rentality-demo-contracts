@@ -35,7 +35,7 @@ abstract contract ARentalityEngine {
   /// @notice Retrieves the fuel prices of car.
   /// @param engineParams The array of engine parameters used to retrieve fuel prices.
   /// @return A fuel price corresponding to the provided engine parameters.
-  function getFuelPricesFromEngineParams(uint64[] memory engineParams) public view virtual returns (uint64);
+  function getFuelPriceFromEngineParams(uint64[] memory engineParams) public view virtual returns (uint64);
 
   /// @notice Verify engine params
   function verifyCreateParams(uint64[] memory params) public view virtual;
@@ -51,7 +51,7 @@ abstract contract ARentalityEngine {
 
   /// @notice Calculates the resolve amount in USD cents for a rental transaction.
   function getResolveAmountInUsdCents(
-    uint64 priceForFullBatteryCharge,
+    uint64 fuelPrice,
     uint64[] memory startParams,
     uint64[] memory endParams,
     uint64[] memory engineParams,

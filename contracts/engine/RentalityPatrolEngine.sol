@@ -20,7 +20,7 @@ contract RentalityPatrolEngine is ARentalityEngine {
   /// @notice Retrieves the fuel prices of patrol car.
   /// @param engineParams The array of engine parameters used to retrieve fuel prices.
   /// @return A fuel price corresponding to the provided engine parameters.
-  function getFuelPricesFromEngineParams(uint64[] memory engineParams) public pure override returns (uint64) {
+  function getFuelPriceFromEngineParams(uint64[] memory engineParams) public pure override returns (uint64) {
     return engineParams[1];
   }
 

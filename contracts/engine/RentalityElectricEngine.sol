@@ -20,7 +20,7 @@ contract RentalityElectricEngine is ARentalityEngine {
   /// @notice Retrieves the fuel prices of electric car.
   /// @param engineParams The array of engine parameters used to retrieve fuel prices.
   /// @return A fuel price corresponding to the provided engine parameters.
-  function getFuelPricesFromEngineParams(uint64[] memory engineParams) public pure override returns (uint64) {
+  function getFuelPriceFromEngineParams(uint64[] memory engineParams) public pure override returns (uint64) {
     return engineParams[0];
   }
 
@@ -49,7 +49,6 @@ contract RentalityElectricEngine is ARentalityEngine {
   /// @dev Calculates the resolve amount in USD cents for an electric car rental.
   /// @param startParams An array of uint64 values representing the initial parameters of the rental.
   /// @param endParams An array of uint64 values representing the final parameters of the rental.
-  /// @param engineParams represent electric engineParams
   /// @param milesIncludedPerDay The number of miles included per day in the rental.
   /// @param pricePerDayInUsdCents The rental price per day in USD cents.
   /// @param tripDays The total number of days in the rental trip.
@@ -58,7 +57,7 @@ contract RentalityElectricEngine is ARentalityEngine {
     uint64 priceForFullBatteryCharge,
     uint64[] memory startParams,
     uint64[] memory endParams,
-    uint64[] memory engineParams,
+    uint64[] memory,
     uint64 milesIncludedPerDay,
     uint64 pricePerDayInUsdCents,
     uint64 tripDays
@@ -89,13 +88,7 @@ contract RentalityElectricEngine is ARentalityEngine {
     }
     uint256 difference = startFuelLevelInPercents - endFuelLevelInPercents;
 
-    return (((uint64(difference) * priceForFullBatteryCharge) * 1000) / 100) / 1000;
+    return (uint64(difference) * priceForFullBatteryCharge) / 100;
 
-    //        uint64 totalPrice = 0;
-    //        for (uint i = 10; i <= difference; i += 10)
-    //        {
-    //            totalPrice += priceForFullBatteryCharge;
-    //        }
-    //        return totalPrice;
   }
 }
