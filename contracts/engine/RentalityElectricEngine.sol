@@ -89,6 +89,5 @@ contract RentalityElectricEngine is ARentalityEngine {
     uint256 difference = startFuelLevelInPercents - endFuelLevelInPercents;
 
     return (uint64(difference) * priceForFullBatteryCharge) / 100;
-
   }
 }
