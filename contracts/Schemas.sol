@@ -120,10 +120,11 @@ interface Schemas {
     uint64 pricePerDayInUsdCents;
     uint64 startDateTime;
     uint64 endDateTime;
+    uint8 engineType;
     string startLocation;
     string endLocation;
     uint64 milesIncludedPerDay;
-    uint64[] fuelPrices;
+    uint64 fuelPrice;
     PaymentInfo paymentInfo;
     uint createdDateTime;
     uint approvedDateTime;
