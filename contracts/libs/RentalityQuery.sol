@@ -7,6 +7,7 @@ import '../RentalityClaimService.sol';
 import '../RentalityTripService.sol';
 import '../IRentalityGeoService.sol';
 import '../RentalityAdminGateway.sol';
+import '../Schemas.sol';
 
 library RentalityQuery {
   /// @dev Checks if a specific trip has intersecting trips within a given time range.
@@ -511,5 +512,60 @@ library RentalityQuery {
       geo.getCarLocationLatitude(carId),
       geo.getCarLocationLongitude(carId)
     );
+  }
+
+  /// @notice Retrieves information about cars owned by the user along with their editability status.
+  /// @dev This function fetches car information from the car service contract and checks if each car is editable.
+  /// @param tripService The address of the trip service contract.
+  /// @param carService The address of the car service contract.
+  /// @return An array of CarInfoWithEditability structs containing information about owned cars and their editability status.
+  function getCarsOwnedByUserWithEditability(
+    address tripService,
+    address carService
+  ) public view returns (Schemas.CarInfoWithEditability[] memory) {
+    Schemas.CarInfo[] memory carInfoes = RentalityCarToken(carService).getCarsOwnedByUser(tx.origin);
+
+    Schemas.CarInfoWithEditability[] memory result = new Schemas.CarInfoWithEditability[](carInfoes.length);
+    for (uint i = 0; i < carInfoes.length; i++) {
+      result[i].carId = carInfoes[i].carId;
+      result[i].carVinNumber = carInfoes[i].carVinNumber;
+      result[i].carVinNumberHash = carInfoes[i].carVinNumberHash;
+      result[i].createdBy = carInfoes[i].createdBy;
+      result[i].brand = carInfoes[i].brand;
+      result[i].model = carInfoes[i].model;
+      result[i].yearOfProduction = carInfoes[i].yearOfProduction;
+      result[i].pricePerDayInUsdCents = carInfoes[i].pricePerDayInUsdCents;
+      result[i].securityDepositPerTripInUsdCents = carInfoes[i].securityDepositPerTripInUsdCents;
+      result[i].engineType = carInfoes[i].engineType;
+      result[i].engineParams = carInfoes[i].engineParams;
+      result[i].milesIncludedPerDay = carInfoes[i].milesIncludedPerDay;
+      result[i].timeBufferBetweenTripsInSec = carInfoes[i].timeBufferBetweenTripsInSec;
+      result[i].currentlyListed = carInfoes[i].currentlyListed;
+      result[i].geoVerified = carInfoes[i].geoVerified;
+      result[i].timeZoneId = carInfoes[i].timeZoneId;
+      result[i].isEditable = isCarEditable(carInfoes[i].carId, tripService);
+    }
+    return result;
+  }
+
+  /// @dev Checks whether a car with the given ID is currently editable based on its usage in trips.
+  /// @param carId The unique identifier of the car.
+  /// @param tripServiceAddress The address of the RentalityTripService contract.
+  /// @return A boolean indicating whether the car is currently editable or not.
+  /// @notice This function is used to determine if a car can be edited without interfering with ongoing trips.
+  function isCarEditable(uint carId, address tripServiceAddress) public view returns (bool) {
+    RentalityTripService tripService = RentalityTripService(tripServiceAddress);
+
+    for (uint i = 0; i <= tripService.totalTripCount(); i++) {
+      Schemas.Trip memory tripInfo = tripService.getTrip(i);
+
+      if (
+        tripInfo.carId == carId &&
+        (tripInfo.status != Schemas.TripStatus.Finished || tripInfo.status != Schemas.TripStatus.Canceled)
+      ) {
+        return false;
+      }
+    }
+    return true;
   }
 }
