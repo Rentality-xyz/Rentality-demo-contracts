@@ -159,6 +159,18 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
     return automationService.getAutoStatusChangeTimeInSec();
   }
 
+  /// @dev Sets the waiting time, only callable by administrators.
+  /// @param timeInSec, set old value to this
+  function setClaimsWaitingTime(uint timeInSec) public {
+    claimService.setWaitingTime(timeInSec);
+  }
+
+  /// @dev get waiting time to approval
+  /// @return waiting time to approval in sec
+  function getClaimWaitingTime() public view returns (uint) {
+    return claimService.getWaitingTime();
+  }
+
   //  @dev Initializes the contract with the provided addresses for various services.
   //  @param carServiceAddress The address of the RentalityCarToken contract.
   //  @param currencyConverterServiceAddress The address of the RentalityCurrencyConverter contract.
