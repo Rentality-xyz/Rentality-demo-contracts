@@ -44,5 +44,13 @@
     "RentalityAdminGateway": "0x32EC10e9A9B0D5A5df34b2b246232E6cE4b3095c",
     "RentalityGateway": "0x5a06CbDfd87DD77EeDd237Cdccc453667A61c669",
     "CivicGatewayTokenContract": "0xF65b6396dF6B7e2D8a6270E3AB6c7BB08BAEF22E"
+  },
+  {
+    "name": "localhost",
+    "chainId": 1337,
+    "RentalityQuery": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
+    "CivicMockVerifier": "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
+    "RentalityUserService": "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
+    "RentalityClaimService": "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853"
   }
 ]
