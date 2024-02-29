@@ -124,7 +124,7 @@ describe('RentalityGateway: trips', function () {
     expect(trip.startLocation).to.be.equal('startLocation', 'trip.startLocation')
     expect(trip.endLocation).to.be.equal('endLocation', 'trip.endLocation')
     expect(trip.milesIncludedPerDay).to.be.equal(6, 'trip.milesIncludedPerDay')
-    expect(BigInt(trip.fuelPrices)).to.deep.equal(
+    expect(BigInt(trip.fuelPrice)).to.deep.equal(
       mockCreateCarRequest.engineParams[1] /*[0] - is tank volume,
      [1] - fuel price per gal*/,
       'trip.fuelPrices'
@@ -172,7 +172,7 @@ describe('RentalityGateway: trips', function () {
       yearOfProduction: 2020,
       pricePerDayInUsdCents: 1,
       securityDepositPerTripInUsdCents: 1,
-      engineParams: [1, 2, 5, 6],
+      engineParams: [10],
       engineType: 2,
       milesIncludedPerDay: 10,
       timeBufferBetweenTripsInSec: 0,
@@ -209,7 +209,7 @@ describe('RentalityGateway: trips', function () {
 
     let trip = await rentalityGateway.getTrip(1)
 
-    expect(trip.fuelPrices).to.deep.equal(mockCreateCarRequest.engineParams)
+    expect(trip.fuelPrice).to.deep.equal(mockCreateCarRequest.engineParams[0])
 
     const mockPatrolCreateCarRequest = {
       tokenUri: 'uri',
@@ -250,7 +250,7 @@ describe('RentalityGateway: trips', function () {
 
     let tripWithPatrol = await rentalityGateway.getTrip(2)
 
-    expect(tripWithPatrol.fuelPrices[0]).to.equal(mockPatrolCreateCarRequest.engineParams[1])
+    expect(tripWithPatrol.fuelPrice).to.equal(mockPatrolCreateCarRequest.engineParams[1])
   })
 
   it('Host can not create trip request for own car ', async function () {

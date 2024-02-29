@@ -19,11 +19,9 @@ contract RentalityPatrolEngine is ARentalityEngine {
 
   /// @notice Retrieves the fuel prices of patrol car.
   /// @param engineParams The array of engine parameters used to retrieve fuel prices.
-  /// @return An array of fuel prices corresponding to the provided engine parameters.
-  function getFuelPricesFromEngineParams(uint64[] memory engineParams) public pure override returns (uint64[] memory) {
-    uint64[] memory fuelPrices = new uint64[](1);
-    fuelPrices[0] = engineParams[1];
-    return fuelPrices;
+  /// @return A fuel price corresponding to the provided engine parameters.
+  function getFuelPriceFromEngineParams(uint64[] memory engineParams) public pure override returns (uint64) {
+    return engineParams[1];
   }
 
   /// @notice Verify a new patrol car tank volume, and fuel price.
@@ -60,7 +58,7 @@ contract RentalityPatrolEngine is ARentalityEngine {
   }
 
   /// @notice Calculates the resolve amount in USD cents for a patrol car rental.
-  /// @param fuelPrices An array of uint64 values representing fuel prices (not used for patrol engines).
+  /// @param fuelPrice Representing fuel prices.
   /// @param startParams An array of uint64 values representing the initial parameters of the rental.
   /// @param endParams An array of uint64 values representing the final parameters of the rental.
   /// @param engineParams, represent the patrol engine params
@@ -69,7 +67,7 @@ contract RentalityPatrolEngine is ARentalityEngine {
   /// @param tripDays The total number of days in the rental trip.
   /// @return The total resolve amount and the fuel-specific resolve amount in USD cents.
   function getResolveAmountInUsdCents(
-    uint64[] memory fuelPrices,
+    uint64 fuelPrice,
     uint64[] memory startParams,
     uint64[] memory endParams,
     uint64[] memory engineParams,
@@ -85,7 +83,7 @@ contract RentalityPatrolEngine is ARentalityEngine {
         pricePerDayInUsdCents,
         tripDays
       ),
-      getFuelResolveAmountInUsdCents(endParams[0], startParams[0], engineParams, fuelPrices[0])
+      getFuelResolveAmountInUsdCents(endParams[0], startParams[0], engineParams, fuelPrice)
     );
   }
 
