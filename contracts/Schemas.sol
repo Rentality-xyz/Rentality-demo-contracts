@@ -147,6 +147,12 @@ interface Schemas {
     TransactionInfo transactionInfo;
   }
 
+  struct TripWithPhotoURL {
+    Trip trip;
+    string guestPhotoUrl;
+    string hostPhotoUrl;
+  }
+
   /// CHAT LOGIC
 
   /// @dev Struct representing information about a chat related to a trip.

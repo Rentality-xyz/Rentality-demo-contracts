@@ -313,28 +313,28 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
 
   /// @notice Retrieves information about trips where the caller is the guest.
   /// @return An array of trip information.
-  function getTripsAsGuest() public view returns (Schemas.Trip[] memory) {
-    return RentalityQuery.getTripsByGuest(address(tripService), tx.origin);
+  function getTripsAsGuest() public view returns (Schemas.TripWithPhotoURL[] memory) {
+    return RentalityQuery.getTripsByGuest(address(tripService), address (userService), tx.origin);
   }
 
   /// @notice Retrieves information about trips where the specified user is the guest.
   /// @param guest The address of the guest.
   /// @return An array of trip information for the specified guest.
-  function getTripsByGuest(address guest) public view returns (Schemas.Trip[] memory) {
-    return RentalityQuery.getTripsByGuest(address(tripService), guest);
+  function getTripsByGuest(address guest) public view returns (Schemas.TripWithPhotoURL[] memory) {
+    return RentalityQuery.getTripsByGuest(address(tripService), address(userService), guest);
   }
 
   /// @notice Retrieves information about trips where the caller is the host.
   /// @return An array of trip information.
-  function getTripsAsHost() public view returns (Schemas.Trip[] memory) {
-    return RentalityQuery.getTripsByHost(address(tripService), tx.origin);
+  function getTripsAsHost() public view returns (Schemas.TripWithPhotoURL[] memory) {
+    return RentalityQuery.getTripsByHost(address(tripService), address(userService), tx.origin);
   }
 
   /// @notice Retrieves information about trips where the specified user is the host.
   /// @param host The address of the host.
   /// @return An array of trip information for the specified host.
-  function getTripsByHost(address host) public view returns (Schemas.Trip[] memory) {
-    return RentalityQuery.getTripsByHost(address(tripService), host);
+  function getTripsByHost(address host) public view returns (Schemas.TripWithPhotoURL[] memory) {
+    return RentalityQuery.getTripsByHost(address(tripService), address(userService), host);
   }
 
   /// @notice Retrieves information about trips for a specific car.
