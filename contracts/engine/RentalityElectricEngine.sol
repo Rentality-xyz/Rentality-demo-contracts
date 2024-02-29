@@ -19,15 +19,15 @@ contract RentalityElectricEngine is ARentalityEngine {
   }
   /// @notice Retrieves the fuel prices of electric car.
   /// @param engineParams The array of engine parameters used to retrieve fuel prices.
-  /// @return An array of fuel prices corresponding to the provided engine parameters.
-  function getFuelPricesFromEngineParams(uint64[] memory engineParams) public pure override returns (uint64[] memory) {
-    return engineParams;
+  /// @return A fuel price corresponding to the provided engine parameters.
+  function getFuelPriceFromEngineParams(uint64[] memory engineParams) public pure override returns (uint64) {
+    return engineParams[0];
   }
 
   /// @dev Verify patrol engine params
   /// @param params An array of four uint64 values representing charge price scales.
   function verifyCreateParams(uint64[] memory params) public pure override {
-    isCorrectArgs(params.length == 4);
+    isCorrectArgs(params.length == 1);
   }
 
   /// @dev verify and return new electric engine data
@@ -36,7 +36,7 @@ contract RentalityElectricEngine is ARentalityEngine {
     uint64[] memory newParams,
     uint64[] memory /*oldParams*/
   ) public pure override returns (uint64[] memory) {
-    isCorrectArgs(newParams.length == 4);
+    isCorrectArgs(newParams.length == 1);
 
     return newParams;
   }
@@ -49,16 +49,15 @@ contract RentalityElectricEngine is ARentalityEngine {
   /// @dev Calculates the resolve amount in USD cents for an electric car rental.
   /// @param startParams An array of uint64 values representing the initial parameters of the rental.
   /// @param endParams An array of uint64 values representing the final parameters of the rental.
-  /// @param engineParams represent electric engineParams
   /// @param milesIncludedPerDay The number of miles included per day in the rental.
   /// @param pricePerDayInUsdCents The rental price per day in USD cents.
   /// @param tripDays The total number of days in the rental trip.
   /// @return The total resolve amount and the fuel-specific resolve amount in USD cents.
   function getResolveAmountInUsdCents(
-    uint64[] memory /*_fuelPrices*/,
+    uint64 priceForFullBatteryCharge,
     uint64[] memory startParams,
     uint64[] memory endParams,
-    uint64[] memory engineParams,
+    uint64[] memory,
     uint64 milesIncludedPerDay,
     uint64 pricePerDayInUsdCents,
     uint64 tripDays
@@ -71,30 +70,24 @@ contract RentalityElectricEngine is ARentalityEngine {
         pricePerDayInUsdCents,
         tripDays
       ),
-      getFuelResolveAmountInUsdCents(endParams[0], startParams[0], engineParams)
+      getFuelResolveAmountInUsdCents(endParams[0], startParams[0], priceForFullBatteryCharge)
     );
   }
 
   /// @dev Calculates the resolve amount in USD cents based on the remaining charge of an electric car.
   /// @param endFuelLevelInPercents The final fuel level of the electric car in percentages.
-  /// @param engineParams represent electric engine type
+  /// @param priceForFullBatteryCharge Representing fuel prices.
   /// @return The fuel-specific resolve amount in USD cents.
   function getFuelResolveAmountInUsdCents(
     uint64 endFuelLevelInPercents,
     uint startFuelLevelInPercents,
-    uint64[] memory engineParams
+    uint64 priceForFullBatteryCharge
   ) public pure returns (uint64) {
     if (endFuelLevelInPercents >= startFuelLevelInPercents) {
       return 0;
     }
-    if (endFuelLevelInPercents >= 0 && endFuelLevelInPercents <= 20) {
-      return engineParams[0];
-    } else if (endFuelLevelInPercents >= 21 && endFuelLevelInPercents <= 50) {
-      return engineParams[1];
-    } else if (endFuelLevelInPercents >= 51 && endFuelLevelInPercents <= 80) {
-      return engineParams[2];
-    }
+    uint256 difference = startFuelLevelInPercents - endFuelLevelInPercents;
 
-    return engineParams[3];
+    return (uint64(difference) * priceForFullBatteryCharge) / 100;
   }
 }
