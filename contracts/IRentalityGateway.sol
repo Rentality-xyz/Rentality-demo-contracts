@@ -66,7 +66,7 @@ interface IRentalityGateway {
 
   /// @notice Get information about all trips where the caller is the host.
   /// @return An array of Trip structures containing details about trips where the caller is the host.
-  function getTripsAsHost() external view returns (Schemas.Trip[] memory);
+  function getTripsAsHost() external view returns (Schemas.TripWithPhotoURL[] memory);
 
   /// @notice Approve a trip request by its ID.
   /// @param tripId The ID of the trip to approve.
@@ -142,7 +142,7 @@ interface IRentalityGateway {
 
   /// @notice Get information about all trips where the caller is the guest.
   /// @return An array of Trip structures containing details about trips where the caller is the guest.
-  function getTripsAsGuest() external view returns (Schemas.Trip[] memory);
+  function getTripsAsGuest() external view returns (Schemas.TripWithPhotoURL[] memory);
 
   /// @notice Performs check-in by the guest for a trip.
   /// @param tripId The ID of the trip.
@@ -164,12 +164,12 @@ interface IRentalityGateway {
   /// @notice Retrieves information about trips where the specified user is the guest.
   /// @param guest The address of the guest.
   /// @return An array of trip information for the specified guest.
-  function getTripsByGuest(address guest) external view returns (Schemas.Trip[] memory);
+  function getTripsByGuest(address guest) external view returns (Schemas.TripWithPhotoURL[] memory);
 
   /// @notice Retrieves information about trips where the specified user is the host.
   /// @param host The address of the host.
   /// @return An array of trip information for the specified host.
-  function getTripsByHost(address host) external view returns (Schemas.Trip[] memory);
+  function getTripsByHost(address host) external view returns (Schemas.TripWithPhotoURL[] memory);
 
   /// @notice Retrieves information about trips for a specific car.
   /// @param carId The ID of the car.
