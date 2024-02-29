@@ -11,13 +11,16 @@ async function main() {
   if (chainId < 0) throw new Error('chainId is not set')
 
   const contractFactory = await ethers.getContractFactory(contractName)
-  
-  let civicGatewayToken;
+
+  let civicGatewayToken
 
   if (!readlineSync.keyInYNStrict('Do you want to deploy Mock Civic contract?')) {
     // same for all networks
-     civicGatewayToken = checkNotNull(
-      addresses.find((value) => value['CivicGatewayTokenContract'] != null)['CivicGatewayTokenContract'],
+    civicGatewayToken = checkNotNull(
+      addresses.find((value) => {
+        const address = value['CivicGatewayTokenContract']
+        return address !== undefined && address !== ''
+      })['CivicGatewayTokenContract'],
       'CivicGatewayTokenContract'
     )
   } else {
@@ -30,8 +33,8 @@ async function main() {
 
     civicGatewayToken = await mockCivic.getAddress()
     console.log(`${mockContractName} was deployed to: ${civicGatewayToken}`)
-    addressSaver(civicGatewayToken, 'CivicGatewayTokenContract', true, chainId)
-    console.log()    
+    addressSaver(civicGatewayToken, mockContractName, true, chainId)
+    console.log()
   }
 
   const civicGatekeeperNetworkId = process.env.CIVIC_GATEKEEPER_NETWORK || 10

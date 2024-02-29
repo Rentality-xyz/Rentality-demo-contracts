@@ -129,8 +129,9 @@ library RentalityQuery {
   function getTripsByGuest(
     address tripServiceAddress,
     address userService,
+    address carService,
     address guest
-  ) public view returns (Schemas.TripWithPhotoURL[] memory) {
+  ) public view returns (Schemas.TripDTO[] memory) {
     RentalityTripService tripService = RentalityTripService(tripServiceAddress);
     uint itemCount = 0;
 
@@ -140,7 +141,7 @@ library RentalityQuery {
       }
     }
 
-    Schemas.TripWithPhotoURL[] memory result = new Schemas.TripWithPhotoURL[](itemCount);
+    Schemas.TripDTO[] memory result = new Schemas.TripDTO[](itemCount);
     uint currentIndex = 0;
 
     for (uint i = 1; i <= tripService.totalTripCount(); i++) {
@@ -148,8 +149,8 @@ library RentalityQuery {
         Schemas.Trip memory currentItem = tripService.getTrip(i);
         result[currentIndex].trip = currentItem;
         result[currentIndex].guestPhotoUrl = RentalityUserService(userService).getKYCInfo(guest).profilePhoto;
-
         result[currentIndex].hostPhotoUrl = RentalityUserService(userService).getKYCInfo(currentItem.host).profilePhoto;
+        result[currentIndex].metadataURI = RentalityCarToken(carService).tokenURI(currentItem.carId);
 
         currentIndex += 1;
       }
@@ -166,8 +167,9 @@ library RentalityQuery {
   function getTripsByHost(
     address tripServiceAddress,
     address userService,
+    address carService,
     address host
-  ) public view returns (Schemas.TripWithPhotoURL[] memory) {
+  ) public view returns (Schemas.TripDTO[] memory) {
     RentalityTripService tripService = RentalityTripService(tripServiceAddress);
     uint itemCount = 0;
 
@@ -177,7 +179,7 @@ library RentalityQuery {
       }
     }
 
-    Schemas.TripWithPhotoURL[] memory result = new Schemas.TripWithPhotoURL[](itemCount);
+    Schemas.TripDTO[] memory result = new Schemas.TripDTO[](itemCount);
     uint currentIndex = 0;
 
     for (uint i = 1; i <= tripService.totalTripCount(); i++) {
@@ -187,8 +189,9 @@ library RentalityQuery {
         result[currentIndex].guestPhotoUrl = RentalityUserService(userService)
           .getKYCInfo(currentItem.guest)
           .profilePhoto;
-
         result[currentIndex].hostPhotoUrl = RentalityUserService(userService).getKYCInfo(host).profilePhoto;
+        result[currentIndex].metadataURI = RentalityCarToken(carService).tokenURI(currentItem.carId);
+
         currentIndex += 1;
       }
     }
@@ -491,7 +494,8 @@ library RentalityQuery {
         IRentalityGeoService(carService.getGeoServiceAddress()).getCarState(temp[i].carId),
         IRentalityGeoService(carService.getGeoServiceAddress()).getCarLocationLatitude(temp[i].carId),
         IRentalityGeoService(carService.getGeoServiceAddress()).getCarLocationLongitude(temp[i].carId),
-        IRentalityGeoService(carService.getGeoServiceAddress()).getCarTimeZoneId(temp[i].carId)
+        IRentalityGeoService(carService.getGeoServiceAddress()).getCarTimeZoneId(temp[i].carId),
+        carService.tokenURI(temp[i].carId)
       );
     }
     return result;
@@ -539,14 +543,14 @@ library RentalityQuery {
   /// @dev This function fetches car information from the car service contract and checks if each car is editable.
   /// @param tripService The address of the trip service contract.
   /// @param carService The address of the car service contract.
-  /// @return An array of CarInfoWithEditability structs containing information about owned cars and their editability status.
+  /// @return An array of CarInfoDTO structs containing information about owned cars and their editability status.
   function getCarsOwnedByUserWithEditability(
     address tripService,
     address carService
-  ) public view returns (Schemas.CarInfoWithEditability[] memory) {
+  ) public view returns (Schemas.CarInfoDTO[] memory) {
     Schemas.CarInfo[] memory carInfoes = RentalityCarToken(carService).getCarsOwnedByUser(tx.origin);
 
-    Schemas.CarInfoWithEditability[] memory result = new Schemas.CarInfoWithEditability[](carInfoes.length);
+    Schemas.CarInfoDTO[] memory result = new Schemas.CarInfoDTO[](carInfoes.length);
     for (uint i = 0; i < carInfoes.length; i++) {
       result[i].carInfo = carInfoes[i];
       result[i].metadataURI = RentalityCarToken(carService).tokenURI(carInfoes[i].carId);

@@ -140,6 +140,6 @@ describe('RentalityGateway: update fields', function () {
 
     await expect(rentalityAdminGateway.connect(owner).setPlatformFeeInPPM(platformFeeInPMM)).not.to.be.reverted
 
-    expect(await rentalityGateway.getPlatformFeeInPPM()).to.equal(platformFeeInPMM)
+    expect(await rentalityAdminGateway.getPlatformFeeInPPM()).to.equal(platformFeeInPMM)
   })
 })
