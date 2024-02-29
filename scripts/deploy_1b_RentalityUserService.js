@@ -3,6 +3,7 @@ const { ethers, upgrades } = require('hardhat')
 const addressSaver = require('./utils/addressSaver')
 const { startDeploy, checkNotNull } = require('./utils/deployHelper')
 const addresses = require('./addressesContractsTestnets.json')
+const readlineSync = require('readline-sync')
 
 async function main() {
   const { contractName, chainId } = await startDeploy('RentalityUserService')
@@ -10,12 +11,29 @@ async function main() {
   if (chainId < 0) throw new Error('chainId is not set')
 
   const contractFactory = await ethers.getContractFactory(contractName)
+  
+  let civicGatewayToken;
 
-  // same for all networks
-  const civicGatewayToken = checkNotNull(
-    addresses.find((value) => value['CivicGatewayTokenContract'] != null)['CivicGatewayTokenContract'],
-    'CivicGatewayTokenContract'
-  )
+  if (!readlineSync.keyInYNStrict('Do you want to deploy Mock Civic contract?')) {
+    // same for all networks
+     civicGatewayToken = checkNotNull(
+      addresses.find((value) => value['CivicGatewayTokenContract'] != null)['CivicGatewayTokenContract'],
+      'CivicGatewayTokenContract'
+    )
+  } else {
+    const mockContractName = 'CivicMockVerifier'
+
+    console.log(`Deploying civic mock contact...`)
+    const mockCivicFactory = await ethers.getContractFactory(mockContractName)
+    const mockCivic = await mockCivicFactory.deploy()
+    await mockCivic.waitForDeployment()
+
+    civicGatewayToken = await mockCivic.getAddress()
+    console.log(`${mockContractName} was deployed to: ${civicGatewayToken}`)
+    addressSaver(civicGatewayToken, 'CivicGatewayTokenContract', true, chainId)
+    console.log()    
+  }
+
   const civicGatekeeperNetworkId = process.env.CIVIC_GATEKEEPER_NETWORK || 10
 
   const contract = await upgrades.deployProxy(contractFactory, [civicGatewayToken, civicGatekeeperNetworkId])
