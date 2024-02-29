@@ -102,10 +102,11 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
       pricePerDayInUsdCents,
       startDateTime,
       endDateTime,
+      carInfo.engineType,
       startLocation,
       endLocation,
       milesIncludedPerDay,
-      engineService.getFuelPricesFromEngineParams(carInfo.engineType, carInfo.engineParams),
+      engineService.getFuelPriceFromEngineParams(carInfo.engineType, carInfo.engineParams),
       paymentInfo,
       block.timestamp,
       0,
@@ -413,7 +414,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     return
       engineService.getResolveAmountInUsdCents(
         eType,
-        tripInfo.fuelPrices,
+        tripInfo.fuelPrice,
         tripInfo.startParamLevels,
         tripInfo.endParamLevels,
         engineParams,
