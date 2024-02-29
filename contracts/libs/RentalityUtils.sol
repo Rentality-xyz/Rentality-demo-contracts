@@ -160,7 +160,7 @@ library RentalityUtils {
   /// @param carServiceAddress RentalityCarToken contract instance.
   /// @return chatInfoList Array of IRentalityGateway.ChatInfo structures.
   function populateChatInfo(
-    Schemas.TripWithPhotoURL[] memory trips,
+    Schemas.TripDTO[] memory trips,
     address userServiceAddress,
     address carServiceAddress
   ) public view returns (Schemas.ChatInfo[] memory) {

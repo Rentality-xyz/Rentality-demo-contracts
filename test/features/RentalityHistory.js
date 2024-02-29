@@ -16,6 +16,7 @@ describe('Rentality History Service', function () {
     rentalityGateway,
     transactionHistory,
     rentalityCurrencyConverter,
+    rentalityAdminGateway,
     owner,
     admin,
     manager,
@@ -28,6 +29,7 @@ describe('Rentality History Service', function () {
       rentalityPlatform,
       rentalityGateway,
       rentalityCurrencyConverter,
+      rentalityAdminGateway,
       owner,
       admin,
       manager,
@@ -119,7 +121,7 @@ describe('Rentality History Service', function () {
     await expect(rentalityGateway.connect(host).checkOutByHost(1, [0, 0])).not.to.be.reverted
 
     const returnToHost =
-      rentPriceInEth - (rentPriceInEth * (await rentalityGateway.getPlatformFeeInPPM())) / BigInt(1_000_000)
+      rentPriceInEth - (rentPriceInEth * (await rentalityAdminGateway.getPlatformFeeInPPM())) / BigInt(1_000_000)
 
     await expect(rentalityGateway.connect(host).finishTrip(1)).to.changeEtherBalances(
       [host, rentalityPlatform],
