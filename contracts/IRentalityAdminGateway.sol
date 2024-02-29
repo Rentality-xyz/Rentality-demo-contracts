@@ -105,4 +105,8 @@ interface IRentalityAdminGateway {
   /// @dev get waiting time to approval
   /// @return waiting time to approval in sec
   function getClaimWaitingTime() external view returns (uint);
+
+  /// @notice Get the platform fee in parts per million (PPM).
+  /// @return The platform fee in PPM.
+  function getPlatformFeeInPPM() external view returns (uint32);
 }
