@@ -1,6 +1,9 @@
 const fs = require('fs')
 const { Type } = require('hardhat/internal/hardhat-network/provider/filter')
 
+const INPUT_SOLIDITY_FILE = './contracts/Schemas.sol'
+const OUTPUT_TYPESCRIPT_FILE = 'src/Schemas.ts'
+
 function mapSolidityTypeToTs(solidityType) {
   switch (solidityType) {
     case 'uint256':
@@ -51,31 +54,39 @@ function mapSolidityTypeToTs(solidityType) {
 }
 
 function main() {
-  const solidityFile = './contracts/Schemas.sol'
-
-  const typescriptFile = 'Schemas.ts'
-
   const structPattern = /struct\s+(\w+)\s*{([^}]*)}/g
   const enumPattern = /enum\s+(\w+)\s*{([^}]*)}/g
 
   let tsCode = ''
 
-  fs.readFile(solidityFile, 'utf8', (err, data) => {
+  fs.readFile(INPUT_SOLIDITY_FILE, 'utf8', (err, data) => {
     if (err) {
       console.error('Error reading Solidity file:', err)
       return
     }
 
     let match
+    let allStructNames = [];
+
+    while ((match = structPattern.exec(data)) !== null) {
+      allStructNames.push(match[1])
+    }
+
+    console.log(`allStructNames: ${JSON.stringify(allStructNames)}`);
+
     while ((match = structPattern.exec(data)) !== null) {
       const structName = match[1]
       const structContent = match[2]
+      const typescriptStructName = `Contract${structName}`
 
-      tsCode += `export type ${structName} = {\n`
+      tsCode += `export type ${typescriptStructName} = {\n`
       structContent.split(';').forEach((field) => {
         field = field.trim()
         if (field) {
-          const [fieldType, fieldName] = field.split(/\s+/)
+          let [fieldType, fieldName] = field.split(/\s+/)
+          if (allStructNames.includes(fieldType)){
+            fieldType = `Contract${fieldType}`
+          }
 
           const tsFieldType = mapSolidityTypeToTs(fieldType).toString()
           tsCode += `     ${fieldName}: ${tsFieldType};\n`
@@ -98,12 +109,12 @@ function main() {
       tsCode += '}\n\n'
     }
 
-    fs.writeFile(typescriptFile, tsCode, (err) => {
+    fs.writeFile(OUTPUT_TYPESCRIPT_FILE, tsCode, (err) => {
       if (err) {
         console.error('Error writing TypeScript file:', err)
         return
       }
-      console.log(`TypeScript file ${typescriptFile} has been generated.`)
+      console.log(`TypeScript file ${OUTPUT_TYPESCRIPT_FILE} has been generated.`)
     })
   })
 }
