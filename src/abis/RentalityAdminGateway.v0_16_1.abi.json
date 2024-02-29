@@ -83,6 +83,15 @@
     },
     {
       "type": "function",
+      "name": "getClaimWaitingTime",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "uint256", "name": "" }]
+    },
+    {
+      "type": "function",
       "name": "getCurrencyConverterServiceAddress",
       "constant": true,
       "stateMutability": "view",
@@ -98,6 +107,15 @@
       "payable": false,
       "inputs": [],
       "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getPlatformFeeInPPM",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "uint32", "name": "" }]
     },
     {
       "type": "function",
@@ -183,6 +201,14 @@
       "constant": false,
       "payable": false,
       "inputs": [{ "type": "uint8", "name": "time" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "setClaimsWaitingTime",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "timeInSec" }],
       "outputs": []
     },
     {
