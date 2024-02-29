@@ -134,7 +134,9 @@
             { "type": "uint8", "name": "engineType" },
             { "type": "uint64", "name": "milesIncludedPerDay" },
             { "type": "uint32", "name": "timeBufferBetweenTripsInSec" },
-            { "type": "string", "name": "location" },
+            { "type": "string", "name": "locationAddress" },
+            { "type": "string", "name": "locationLatitude" },
+            { "type": "string", "name": "locationLongitude" },
             { "type": "string", "name": "geoApiKey" }
           ]
         }
@@ -580,6 +582,8 @@
           ]
         },
         { "type": "string", "name": "location" },
+        { "type": "string", "name": "locationLatitude" },
+        { "type": "string", "name": "locationLongitude" },
         { "type": "string", "name": "geoApiKey" }
       ],
       "outputs": []
