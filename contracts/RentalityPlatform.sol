@@ -396,14 +396,22 @@ contract RentalityPlatform is UUPSOwnable {
   /// @notice Get chat information for trips hosted by the caller on the Rentality platform.
   /// @return chatInfo An array of chat information for trips hosted by the caller.
   function getChatInfoForHost() public view returns (Schemas.ChatInfo[] memory) {
-    Schemas.TripWithPhotoURL[] memory trips = RentalityQuery.getTripsByHost(address(tripService), address (userService), tx.origin);
+    Schemas.TripWithPhotoURL[] memory trips = RentalityQuery.getTripsByHost(
+      address(tripService),
+      address(userService),
+      tx.origin
+    );
     return RentalityUtils.populateChatInfo(trips, address(userService), address(carService));
   }
 
   /// @notice Get chat information for trips attended by the caller on the Rentality platform.
   /// @return chatInfo An array of chat information for trips attended by the caller.
   function getChatInfoForGuest() public view returns (Schemas.ChatInfo[] memory) {
-    Schemas.TripWithPhotoURL[] memory trips = RentalityQuery.getTripsByGuest(address(tripService), address (userService), tx.origin);
+    Schemas.TripWithPhotoURL[] memory trips = RentalityQuery.getTripsByGuest(
+      address(tripService),
+      address(userService),
+      tx.origin
+    );
     return RentalityUtils.populateChatInfo(trips, address(userService), address(carService));
   }
 

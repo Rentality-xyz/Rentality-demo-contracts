@@ -314,7 +314,7 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
   /// @notice Retrieves information about trips where the caller is the guest.
   /// @return An array of trip information.
   function getTripsAsGuest() public view returns (Schemas.TripWithPhotoURL[] memory) {
-    return RentalityQuery.getTripsByGuest(address(tripService), address (userService), tx.origin);
+    return RentalityQuery.getTripsByGuest(address(tripService), address(userService), tx.origin);
   }
 
   /// @notice Retrieves information about trips where the specified user is the guest.
