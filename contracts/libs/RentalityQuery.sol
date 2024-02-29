@@ -122,9 +122,15 @@ library RentalityQuery {
   }
 
   /// @dev Retrieves an array of trips associated with a specific guest address.
+  /// @param tripServiceAddress represent Rentality trip service.
+  /// @param userService is Rentality user service address.
   /// @param guest The address of the guest.
   /// @return trips An array of trips associated with the specified guest.
-  function getTripsByGuest(address tripServiceAddress, address guest) public view returns (Schemas.Trip[] memory) {
+  function getTripsByGuest(
+    address tripServiceAddress,
+    address userService,
+    address guest
+  ) public view returns (Schemas.TripWithPhotoURL[] memory) {
     RentalityTripService tripService = RentalityTripService(tripServiceAddress);
     uint itemCount = 0;
 
@@ -134,13 +140,17 @@ library RentalityQuery {
       }
     }
 
-    Schemas.Trip[] memory result = new Schemas.Trip[](itemCount);
+    Schemas.TripWithPhotoURL[] memory result = new Schemas.TripWithPhotoURL[](itemCount);
     uint currentIndex = 0;
 
     for (uint i = 1; i <= tripService.totalTripCount(); i++) {
       if (tripService.getTrip(i).guest == guest) {
         Schemas.Trip memory currentItem = tripService.getTrip(i);
-        result[currentIndex] = currentItem;
+        result[currentIndex].trip = currentItem;
+        result[currentIndex].guestPhotoUrl = RentalityUserService(userService).getKYCInfo(guest).profilePhoto;
+
+        result[currentIndex].hostPhotoUrl = RentalityUserService(userService).getKYCInfo(currentItem.host).profilePhoto;
+
         currentIndex += 1;
       }
     }
@@ -149,9 +159,15 @@ library RentalityQuery {
   }
 
   /// @dev Retrieves an array of trips associated with a specific host address.
+  /// @param tripServiceAddress represent Rentality trip service.
+  /// @param userService is Rentality user service address.
   /// @param host The address of the host.
   /// @return trips An array of trips associated with the specified host.
-  function getTripsByHost(address tripServiceAddress, address host) public view returns (Schemas.Trip[] memory) {
+  function getTripsByHost(
+    address tripServiceAddress,
+    address userService,
+    address host
+  ) public view returns (Schemas.TripWithPhotoURL[] memory) {
     RentalityTripService tripService = RentalityTripService(tripServiceAddress);
     uint itemCount = 0;
 
@@ -161,13 +177,18 @@ library RentalityQuery {
       }
     }
 
-    Schemas.Trip[] memory result = new Schemas.Trip[](itemCount);
+    Schemas.TripWithPhotoURL[] memory result = new Schemas.TripWithPhotoURL[](itemCount);
     uint currentIndex = 0;
 
     for (uint i = 1; i <= tripService.totalTripCount(); i++) {
       if (tripService.getTrip(i).host == host) {
         Schemas.Trip memory currentItem = tripService.getTrip(i);
-        result[currentIndex] = currentItem;
+        result[currentIndex].trip = currentItem;
+        result[currentIndex].guestPhotoUrl = RentalityUserService(userService)
+          .getKYCInfo(currentItem.guest)
+          .profilePhoto;
+
+        result[currentIndex].hostPhotoUrl = RentalityUserService(userService).getKYCInfo(host).profilePhoto;
         currentIndex += 1;
       }
     }
