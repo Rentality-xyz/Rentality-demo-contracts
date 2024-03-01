@@ -66,13 +66,13 @@ function main() {
     }
 
     let match
-    let allStructNames = [];
+    let allStructNames = []
 
     while ((match = structPattern.exec(data)) !== null) {
       allStructNames.push(match[1])
     }
 
-    console.log(`allStructNames: ${JSON.stringify(allStructNames)}`);
+    console.log(`allStructNames: ${JSON.stringify(allStructNames)}`)
 
     while ((match = structPattern.exec(data)) !== null) {
       const structName = match[1]
@@ -84,7 +84,7 @@ function main() {
         field = field.trim()
         if (field) {
           let [fieldType, fieldName] = field.split(/\s+/)
-          if (allStructNames.includes(fieldType)){
+          if (allStructNames.includes(fieldType)) {
             fieldType = `Contract${fieldType}`
           }
 
