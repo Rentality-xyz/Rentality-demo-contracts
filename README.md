@@ -6,7 +6,7 @@
 
 [Learn More](#learn-more) • [Prerequisites](#prerequisites) • [Testing](#testing) • [Deployment](#deployment) • [Update Proxy](#update-proxy) • [Available Scripts](#available-scripts) • [Local Deployment](#local-deployment)
 
-## Learn More
+## Learn More <a name="learn-more"></a>
 
 The `RentalityGateway` contract serves as the main gateway for various services within the Rentality platform. Below are the key features and functionalities provided by this contract:
 
@@ -35,7 +35,7 @@ The `RentalityGateway` contract serves as the main gateway for various services 
 
 The `RentalityGateway` contract acts as the central point for coordinating interactions within the Rentality platform, providing robust functionality for managing cars, trips, claims, KYC information, and more.
 
-## Prerequisites
+## Prerequisites <a name="prerequisites"></a>
 
 Before you begin, ensure you have met the following requirements:
 
