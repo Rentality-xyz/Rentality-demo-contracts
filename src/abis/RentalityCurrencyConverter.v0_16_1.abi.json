@@ -35,7 +35,7 @@
       "payable": false,
       "inputs": [
         { "type": "uint256", "name": "valueInUsdCents" },
-        { "type": "int256", "name": "ethToUsdPrice" },
+        { "type": "int256", "name": "ethToUsdRate" },
         { "type": "uint8", "name": "ethToUsdDecimals" }
       ],
       "outputs": [{ "type": "uint256", "name": "" }]
@@ -48,9 +48,9 @@
       "payable": false,
       "inputs": [{ "type": "uint256", "name": "valueInUsdCents" }],
       "outputs": [
-        { "type": "uint256", "name": "" },
-        { "type": "int256", "name": "" },
-        { "type": "uint8", "name": "" }
+        { "type": "uint256", "name": "valueInEth" },
+        { "type": "int256", "name": "ethToUsdRate" },
+        { "type": "uint8", "name": "ethToUsdDecimals" }
       ]
     },
     {
@@ -63,25 +63,25 @@
     },
     {
       "type": "function",
-      "name": "getEthToUsdPrice",
+      "name": "getEthToUsdRate",
       "constant": true,
       "stateMutability": "view",
       "payable": false,
       "inputs": [],
       "outputs": [
-        { "type": "int256", "name": "" },
-        { "type": "uint8", "name": "" }
+        { "type": "int256", "name": "ethToUsdRate" },
+        { "type": "uint8", "name": "ethToUsdDecimals" }
       ]
     },
     {
       "type": "function",
-      "name": "getEthToUsdPriceWithCache",
+      "name": "getEthToUsdRateWithCache",
       "constant": false,
       "payable": false,
       "inputs": [],
       "outputs": [
-        { "type": "int256", "name": "" },
-        { "type": "uint8", "name": "" }
+        { "type": "int256", "name": "ethToUsdRate" },
+        { "type": "uint8", "name": "ethToUsdDecimals" }
       ]
     },
     {
@@ -92,7 +92,7 @@
       "payable": false,
       "inputs": [
         { "type": "uint256", "name": "valueInEth" },
-        { "type": "int256", "name": "ethToUsdPrice" },
+        { "type": "int256", "name": "ethToUsdRate" },
         { "type": "uint8", "name": "ethToUsdDecimals" }
       ],
       "outputs": [{ "type": "uint256", "name": "" }]
@@ -105,9 +105,9 @@
       "payable": false,
       "inputs": [{ "type": "uint256", "name": "valueInEth" }],
       "outputs": [
-        { "type": "uint256", "name": "" },
-        { "type": "int256", "name": "" },
-        { "type": "uint8", "name": "" }
+        { "type": "uint256", "name": "valueInUsdCents" },
+        { "type": "int256", "name": "ethToUsdRate" },
+        { "type": "uint8", "name": "ethToUsdDecimals" }
       ]
     },
     {
@@ -124,14 +124,14 @@
       "constant": false,
       "payable": false,
       "inputs": [
-        { "type": "address", "name": "ethToUsdPriceFeedAddress" },
+        { "type": "address", "name": "ethToUsdRateFeedAddress" },
         { "type": "address", "name": "_userService" }
       ],
       "outputs": []
     },
     {
       "type": "function",
-      "name": "lastUpdatePriceTimeStamp",
+      "name": "lastUpdateRateTimeStamp",
       "constant": true,
       "stateMutability": "view",
       "payable": false,
@@ -149,7 +149,7 @@
     },
     {
       "type": "function",
-      "name": "updatePriceInterval",
+      "name": "updateRateInterval",
       "constant": true,
       "stateMutability": "view",
       "payable": false,

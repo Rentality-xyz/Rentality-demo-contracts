@@ -84,7 +84,6 @@
             { "type": "uint64", "name": "totalDayPriceInUsdCents" },
             { "type": "uint64", "name": "taxPriceInUsdCents" },
             { "type": "uint64", "name": "depositInUsdCents" },
-            { "type": "uint64[]", "name": "fuelPrices" },
             { "type": "int256", "name": "ethToCurrencyRate" },
             { "type": "uint8", "name": "ethToCurrencyDecimals" }
           ]
@@ -255,7 +254,6 @@
             { "type": "string", "name": "licenseNumber" },
             { "type": "uint64", "name": "expirationDate" },
             { "type": "uint256", "name": "createDate" },
-            { "type": "bool", "name": "isKYCPassed" },
             { "type": "bool", "name": "isTCPassed" }
           ]
         }

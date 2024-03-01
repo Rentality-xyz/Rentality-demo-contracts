@@ -171,6 +171,19 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
     return claimService.getWaitingTime();
   }
 
+  /// @notice Retrieves the platform fee in parts per million (PPM).
+  /// @return The platform fee in PPM.
+  function getPlatformFeeInPPM() public view returns (uint32) {
+    return paymentService.getPlatformFeeInPPM();
+  }
+
+  /// @notice Retrieves the platform fee calculated from the given value.
+  /// @param value The value from which to calculate the platform fee.
+  /// @return The calculated platform fee.
+  function getPlatformFeeFrom(uint256 value) private view returns (uint256) {
+    return paymentService.getPlatformFeeFrom(value);
+  }
+
   //  @dev Initializes the contract with the provided addresses for various services.
   //  @param carServiceAddress The address of the RentalityCarToken contract.
   //  @param currencyConverterServiceAddress The address of the RentalityCurrencyConverter contract.

@@ -50,3 +50,5 @@ package-lock.json
 .openzeppelin/
 .vscode/
 .idea/
+types/
+src/Schemas.ts
