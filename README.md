@@ -1,5 +1,7 @@
-[![Rentality][rentality-image]][rentality-url] 
 ## Rentality | contract
+
+[![Rentality][rentality-image]][rentality-url] 
+
 > The first blockchain car rental powered by WEB 3.0
 
 [Learn More](#learn-more) • [Prerequisites](#prerequisites) • [Testing](#testing) • [Deployment](#deployment) • [Update Proxy](#update-proxy) • [Available Scripts](#available-scripts) • [Local Deployment](#local-deployment)
