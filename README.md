@@ -1,42 +1,35 @@
 # [![Rentality][rentality-image]][rentality-url]
 
-> The first blockchain car rental
-> powered by WEB 3.0
+> The first blockchain car rental powered by WEB 3.0
 
-[Learn More](#Learn-More) • [Prerequisites](#prerequisites) • [Testing](#testing) • [Deployment](#deployment) • [Update Proxy](#Update-Proxy) • [Available Scripts](#available-scripts) • [Local Deployment](#Local-Deployment)
+[Learn More](#learn-more) • [Prerequisites](#prerequisites) • [Testing](#testing) • [Deployment](#deployment) • [Update Proxy](#update-proxy) • [Available Scripts](#available-scripts) • [Local Deployment](#local-deployment)
 
 ## Learn More
 
 The `RentalityGateway` contract serves as the main gateway for various services within the Rentality platform. Below are the key features and functionalities provided by this contract:
 
-- Car Operations:
+- **Car Operations:**
+  - Adds, updates, and retrieves information about cars.
+  - Manages car tokens and metadata.
+  - Burns (disables) cars.
 
-  Adds, updates, and retrieves information about cars.
-  Manages car tokens and metadata.
-  Burns (disables) cars.
+- **Trip Management:**
+  - Creates, approves, and rejects trip requests.
+  - Handles check-in and check-out processes for both hosts and guests.
+  - Finishes trips.
 
-- Trip Management:
+- **Claim Management:**
+  - Creates, pays, rejects, and updates claims.
+  - Retrieves detailed information about claims associated with trips.
 
-  Creates, approves, and rejects trip requests.
-  Handles check-in and check-out processes for both hosts and guests.
-  Finishes trips.
+- **KYC (Know Your Customer) Information:**
+  - Sets and retrieves KYC information for users.
 
-- Claim Management:
+- **Chat Information:**
+  - Retrieves chat information for hosts and guests.
 
-  Creates, pays, rejects, and updates claims.
-  Retrieves detailed information about claims associated with trips.
-
-- KYC (Know Your Customer) Information:
-
-  Sets and retrieves KYC information for users.
-
-- Chat Information:
-
-  Retrieves chat information for hosts and guests.
-
-- Automation:
-
-  Calls outdated automations and takes corresponding actions based on their types.
+- **Automation:**
+  - Calls outdated automations and takes corresponding actions based on their types.
 
 The `RentalityGateway` contract acts as the central point for coordinating interactions within the Rentality platform, providing robust functionality for managing cars, trips, claims, KYC information, and more.
 
