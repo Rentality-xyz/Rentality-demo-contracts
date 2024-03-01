@@ -26,7 +26,7 @@ interface Schemas {
   }
 
   /// @notice Holds the car information with current ability to update.
-  struct CarInfoWithEditability {
+  struct CarInfoDTO {
     CarInfo carInfo;
     string metadataURI;
     bool isEditable;
@@ -148,10 +148,11 @@ interface Schemas {
     TransactionInfo transactionInfo;
   }
 
-  struct TripWithPhotoURL {
+  struct TripDTO {
     Trip trip;
     string guestPhotoUrl;
     string hostPhotoUrl;
+    string metadataURI;
   }
 
   /// CHAT LOGIC
@@ -328,6 +329,7 @@ interface Schemas {
     string locationLatitude;
     string locationLongitude;
     string timeZoneId;
+    string metadataURI;
   }
   struct CarDetails {
     uint carId;

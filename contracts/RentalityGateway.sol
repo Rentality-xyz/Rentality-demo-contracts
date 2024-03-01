@@ -34,24 +34,9 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
   RentalityClaimService private claimService;
   RentalityAdminGateway private adminService;
 
-  /// @notice Ensures that the caller is either an admin, the contract owner, or an admin from the origin transaction.
-  modifier onlyAdmin() {
-    require(
-      userService.isAdmin(msg.sender) || userService.isAdmin(tx.origin) || (tx.origin == owner()),
-      'User is not an admin'
-    );
-    _;
-  }
-
   /// @notice Ensures that the caller is a host.
   modifier onlyHost() {
     require(userService.isHost(msg.sender), 'User is not a host');
-    _;
-  }
-
-  /// @notice Ensures that the caller is a guest.
-  modifier onlyGuest() {
-    require(userService.isGuest(msg.sender), 'User is not a guest');
     _;
   }
 
@@ -82,19 +67,6 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
     rentalityPlatform = RentalityPlatform(adminService.getRentalityPlatformAddress());
     paymentService = RentalityPaymentService(adminService.getPaymentService());
     claimService = RentalityClaimService(adminService.getClaimServiceAddress());
-  }
-
-  /// @notice Retrieves the platform fee in parts per million (PPM).
-  /// @return The platform fee in PPM.
-  function getPlatformFeeInPPM() public view returns (uint32) {
-    return paymentService.getPlatformFeeInPPM();
-  }
-
-  /// @notice Retrieves the platform fee calculated from the given value.
-  /// @param value The value from which to calculate the platform fee.
-  /// @return The calculated platform fee.
-  function getPlatformFeeFrom(uint256 value) private view returns (uint256) {
-    return paymentService.getPlatformFeeFrom(value);
   }
 
   /// @notice Retrieves information about a car by its ID.
@@ -226,7 +198,7 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
 
   /// @notice Retrieves information about cars owned by the caller.
   /// @return An array of car information owned by the caller.
-  function getMyCars() public view returns (Schemas.CarInfoWithEditability[] memory) {
+  function getMyCars() public view returns (Schemas.CarInfoDTO[] memory) {
     return RentalityQuery.getCarsOwnedByUserWithEditability(address(tripService), address(carService));
   }
 
@@ -313,28 +285,28 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
 
   /// @notice Retrieves information about trips where the caller is the guest.
   /// @return An array of trip information.
-  function getTripsAsGuest() public view returns (Schemas.TripWithPhotoURL[] memory) {
-    return RentalityQuery.getTripsByGuest(address(tripService), address(userService), tx.origin);
+  function getTripsAsGuest() public view returns (Schemas.TripDTO[] memory) {
+    return RentalityQuery.getTripsByGuest(address(tripService), address(userService), address(carService), tx.origin);
   }
 
   /// @notice Retrieves information about trips where the specified user is the guest.
   /// @param guest The address of the guest.
   /// @return An array of trip information for the specified guest.
-  function getTripsByGuest(address guest) public view returns (Schemas.TripWithPhotoURL[] memory) {
-    return RentalityQuery.getTripsByGuest(address(tripService), address(userService), guest);
+  function getTripsByGuest(address guest) public view returns (Schemas.TripDTO[] memory) {
+    return RentalityQuery.getTripsByGuest(address(tripService), address(userService), address(carService), guest);
   }
 
   /// @notice Retrieves information about trips where the caller is the host.
   /// @return An array of trip information.
-  function getTripsAsHost() public view returns (Schemas.TripWithPhotoURL[] memory) {
-    return RentalityQuery.getTripsByHost(address(tripService), address(userService), tx.origin);
+  function getTripsAsHost() public view returns (Schemas.TripDTO[] memory) {
+    return RentalityQuery.getTripsByHost(address(tripService), address(userService), address(carService), tx.origin);
   }
 
   /// @notice Retrieves information about trips where the specified user is the host.
   /// @param host The address of the host.
   /// @return An array of trip information for the specified host.
-  function getTripsByHost(address host) public view returns (Schemas.TripWithPhotoURL[] memory) {
-    return RentalityQuery.getTripsByHost(address(tripService), address(userService), host);
+  function getTripsByHost(address host) public view returns (Schemas.TripDTO[] memory) {
+    return RentalityQuery.getTripsByHost(address(tripService), address(userService), address(carService), host);
   }
 
   /// @notice Retrieves information about trips for a specific car.

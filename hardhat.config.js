@@ -17,7 +17,7 @@ module.exports = {
                    'files': one page per input Solidity file  */,
   },
 
-  defaultNetwork: 'localhost',
+  defaultNetwork: 'optimism_sepolia',
   networks: {
     hardhat: {
       chainId: 1337,
@@ -41,6 +41,11 @@ module.exports = {
     sepolia: {
       url: process.env.ALCHEMY_API_URL_SEPOLIA,
       accounts: [process.env.PRIVATE_KEY],
+    },
+    optimism_sepolia: {
+      url: process.env.OPTIMISM_SEPOLIA_URL,
+      accounts: [process.env.PRIVATE_KEY],
+      chainId: 11155420,
     },
   },
   solidity: {
