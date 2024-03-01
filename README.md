@@ -1,4 +1,7 @@
-# [![][rentality-image]][rentality-url]Rentality | contracts
+<a href="https://demotest.rentality.xyz/">
+  <img src="https://demotest.rentality.xyz/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Flogo.f94184b7.png&w=640&q=75" alt="Rentality" style="background-color: black;">
+</a>
+
 
 > The first blockchain car rental powered by WEB 3.0
 
