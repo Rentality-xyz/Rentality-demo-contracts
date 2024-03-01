@@ -42,7 +42,7 @@ Before you begin, ensure you have met the following requirements:
 - [Node.js](https://nodejs.org/) installed on your system.
 - [npm](https://www.npmjs.com/) (Node Package Manager) installed with Node.js.
 
-## Testing
+## Testing <a name="testing"></a>
 
 To test smart contracts, make sure you are using the localhost network in `hardhat.config.js` and run the following
 tasks:
@@ -53,7 +53,7 @@ npx hardhat node
 npx hardhat test
 ```
 
-## Deployment
+## Deployment <a name="deployment"></a>
 
 Choose the network in `hardhat.config.js` and run following command:
 
@@ -65,7 +65,7 @@ npx hardhat run scripts/deploy_x_Rentality_full.js
 If necessary, the console will prompt you to install any needed contracts. Respond to the prompt by entering `y` for yes
 or `n` for no accordingly.
 
-## Update Proxy
+## Update Proxy <a name="update-proxy"></a>
 
 Choose the network in `hardhat.config.js` and run following command:
 
@@ -76,7 +76,7 @@ npx hardhat run scripts/update_RentalityProxy.js
 
 After the question `Enter the contract name to update`, enter the corresponding contract name and press Enter.
 
-## Available Scripts
+## Available Scripts <a name="available-scripts"></a>
 
 In the project directory, you can run:
 
@@ -92,7 +92,7 @@ npx hardhat run scripts/deploy_x_Rentality_full.js
 npx hardhat run scripts/update_RentalityProxy.js
 ```
 
-## Local Deployment
+## Local Deployment <a name="local-deployment"></a>
 
 1.**Make sure you went through [Prerequisites](#prerequisites)**
 
