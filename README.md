@@ -92,23 +92,23 @@ npx hardhat run scripts/update_RentalityProxy.js
 
 ## Local Deployment
 
-1.Make sure you went through [Prerequisites](#prerequisites)
+1.**Make sure you went through [Prerequisites](#prerequisites)**
 
-2.Install Ganache (Optional but Recommended):
+2.**Install Ganache (Optional but Recommended):**
 
 - Install Ganache as a local blockchain node from [here][ganache-url].
 
 - Create a blockchain workspace.
 
-  3.Download repository from `feature/v0_16` branch
+  3.**Download repository from `feature/v0_16` branch**
 
-  4.Configure Environment Variables:
+  4.**Configure Environment Variables:**
 
 - In the "demo-rentality-web3-contracts" project, add a file named .env with the following values:
   `URL_LOCALHOST_GANACHE="http://127.0.0.1:7545"`
   `GANACHE_PRIVATE_KEY="Your-Ganache-Private-Key"`
 
-  5.Run commands:
+  5.**Run commands:**
 
 ```shell
 npm install
