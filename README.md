@@ -1,4 +1,4 @@
-# [![rentality-image]][rentality-url]Rentality | contracts
+# [![][rentality-image]][rentality-url]Rentality | contracts
 
 > The first blockchain car rental powered by WEB 3.0
 
