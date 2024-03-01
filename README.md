@@ -1,8 +1,5 @@
-<a href="https://demotest.rentality.xyz/">
-  <img src="https://demotest.rentality.xyz/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Flogo.f94184b7.png&w=640&q=75" alt="Rentality" style="background-color: black;">
-</a>
-
-
+[![Rentality][rentality-image]][rentality-url] 
+## Rentality | contract
 > The first blockchain car rental powered by WEB 3.0
 
 [Learn More](#learn-more) • [Prerequisites](#prerequisites) • [Testing](#testing) • [Deployment](#deployment) • [Update Proxy](#update-proxy) • [Available Scripts](#available-scripts) • [Local Deployment](#local-deployment)
@@ -130,6 +127,6 @@ or `n` for no accordingly.
 
 <!-- Markdown link & img dfn's -->
 
-[rentality-image]: https://demotest.rentality.xyz/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Flogo.f94184b7.png&w=640&q=75
+[rentality-image]: https://demotest.rentality.xyz/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fred-generic-sport-ca.ac590a69.png&w=1920&q=75
 [rentality-url]: https://demotest.rentality.xyz/
 [ganache-url]: https://archive.trufflesuite.com/ganache/
