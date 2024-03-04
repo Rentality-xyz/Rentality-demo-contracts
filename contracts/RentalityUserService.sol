@@ -183,6 +183,16 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
     return isHost(user) || isGuest(user);
   }
 
+  /// @dev Sets the Civic verifier and gatekeeper network for identity verification.
+  /// @param _civicVerifier The address of the Civic verifier contract.
+  /// @param _civicGatekeeperNetwork The identifier of the Civic gatekeeper network.
+  function setCivicData(address _civicVerifier, uint _civicGatekeeperNetwork) public {
+    require(isAdmin(msg.sender), 'Only admin.');
+
+    civicVerifier = _civicVerifier;
+    civicGatekeeperNetwork = _civicGatekeeperNetwork;
+  }
+
   function initialize(address _civicVerifier, uint _civicGatekeeperNetwork) public virtual initializer {
     __AccessControl_init();
 

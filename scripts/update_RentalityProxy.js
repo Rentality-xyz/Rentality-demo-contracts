@@ -19,14 +19,12 @@ async function main() {
     console.log(`Contract address ${contractName}: not found. Finishing... `)
     process.exit(1)
   }
-  const contractFactory = await ethers.getContractFactory(contractName)
-  // , {
-  // libraries: {
-  // RentalityQuery: '0x26298746793621Dda253e8F222DE88dFF410D0a1',
-  // RentalityUtils: '0x8b5F49B36533Df2e593dFd107773Ff64d53043e4',
-  // },
-// }
-//   )
+  const contractFactory = await ethers.getContractFactory(contractName, {
+    libraries: {
+      RentalityQuery: '0x7660ad943BBf943D2e9706b97E918f158b742035',
+      RentalityUtils: '0x8b5F49B36533Df2e593dFd107773Ff64d53043e4',
+    },
+  })
 
   const initializationFunc = readlineSync.question("Enter initialization function if needed or 'Enter' to skip:\n")
 
