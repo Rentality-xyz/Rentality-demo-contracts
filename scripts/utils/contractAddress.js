@@ -54,6 +54,7 @@ function readFromFile(contractName, chain) {
     (el) =>
       el.name === network.name && el.chainId === chainId && el[contractName] !== undefined && el[contractName] !== ''
   )
+  console.log("COntract", contract[contractName])
   return contract === undefined ? null : contract[contractName]
 }
 
