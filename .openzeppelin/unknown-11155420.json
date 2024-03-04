@@ -1,0 +1,2442 @@
+{
+  "manifestVersion": "3.2",
+  "proxies": [
+    {
+      "address": "0xf5E3cA01baDE21C8878d001278366bbfFb03361B",
+      "txHash": "0x3e2b9d4e3b5265e7613beb48b4dc2e9c7f6ce2734bd3f52980563444468cee99",
+      "kind": "uups"
+    },
+    {
+      "address": "0xe9cC666023A0f06040879B002AEECd901587e757",
+      "txHash": "0x226ab1fd095c87089f9f79cbbf41d9e1b636a657460687f6682842faf3939d3d",
+      "kind": "uups"
+    },
+    {
+      "address": "0xc0578d9a8ad1d0ed0D0B54B0237fdAa7F59c0e8E",
+      "txHash": "0xc2a0cad9ff0de1a025c01894c4d7163c685b0d235a483775d7990566f0a907c0",
+      "kind": "uups"
+    },
+    {
+      "address": "0x9C5136588d5ADCe854C7B764ae8599ecd0Ed74c5",
+      "txHash": "0xc4614a325d8e98d24124f0257d150ee994e93cc35a3198824b0de6e2f41f9041",
+      "kind": "uups"
+    },
+    {
+      "address": "0x83C24AeBe688ddB2ea0Eecc3ebd84368af08bB81",
+      "txHash": "0xb69af763d373ceecb219e2667a15a6e354904ceed0ccf7dcc2d052f367f8f432",
+      "kind": "uups"
+    },
+    {
+      "address": "0x03c7025B0Ce00292c835FE70EBA278153A3f40BB",
+      "txHash": "0xde614bb210ccd09d6aa5b1143382e59ec9237ea21d69cb869b9ed61b09d6553a",
+      "kind": "uups"
+    },
+    {
+      "address": "0xf5Ac3F3d30B27F039677132F1F0bB9A38Dc103e1",
+      "txHash": "0xcd978a4cff5b0718e1d7af90b377a5fb762d05b38112bb8dc9d21010b9d6ee53",
+      "kind": "uups"
+    },
+    {
+      "address": "0xDfd4B99700302697247A56B135de8bFb5506aF24",
+      "txHash": "0x31fceb04557653f8d3d49aad9c9fff2a652a7752aa0d6c271765ce10ba6e96b3",
+      "kind": "uups"
+    },
+    {
+      "address": "0xfB2777f3d9beDC0d17735571f0Be33AfFf81a4B9",
+      "txHash": "0x9a2ece81be56060b43fa4844e7108a4d9a3deb2f40c22bd1f5d6df04a70bced5",
+      "kind": "uups"
+    },
+    {
+      "address": "0x878D0d405C711339f15dfCc0258b909040ba74ee",
+      "txHash": "0xe06416611ff703b62f57f0e156ddec596b8bdb45e6c5ceebf035b2b20f4a4ca6",
+      "kind": "uups"
+    },
+    {
+      "address": "0x9d3e6EC5bd93415e9B60a05A0b1AceFD63BC95cb",
+      "txHash": "0xdcb464b1bc8a04201fc10c688288e14e1e77db5182d6d5dfe8f2708ebc12cfcf",
+      "kind": "uups"
+    },
+    {
+      "address": "0x00e2344484A7eD63E2A0b47161DdF4a5B3F769Cd",
+      "txHash": "0x4051aa13b23a77b8332f89ef5f29c827623c8862303b251ead1fe55b9999e40c",
+      "kind": "uups"
+    },
+    {
+      "address": "0x8FEd5C4d5C987a476240D9C97f43Cb2e6639ed90",
+      "txHash": "0x9a989bea5a615d57b7fa0dbe292791545c0080be59e484de7fd615fb9eeb3f3f",
+      "kind": "uups"
+    }
+  ],
+  "impls": {
+    "bef9521e45843375cbc9d7f400e675598b0df2785e9527b2d9de0ca7e49aa670": {
+      "address": "0x8530752A2F2eE98eD48d0A08f969988Ebc6Cf5d9",
+      "txHash": "0x1a03f74be63a6ad635653b67cc9294ef0fa06f378aece520a141e9eb62b42d8f",
+      "layout": {
+        "solcVersion": "0.8.17",
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:63",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:68"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\utils\\ContextUpgradeable.sol:40"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ERC165Upgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\utils\\introspection\\ERC165Upgradeable.sol:41"
+          },
+          {
+            "label": "_roles",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_mapping(t_bytes32,t_struct(RoleData)2464_storage)",
+            "contract": "AccessControlUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\access\\AccessControlUpgradeable.sol:57"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "102",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "AccessControlUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\access\\AccessControlUpgradeable.sol:260"
+          },
+          {
+            "label": "kycInfos",
+            "offset": 0,
+            "slot": "151",
+            "type": "t_mapping(t_address,t_struct(KYCInfo)17813_storage)",
+            "contract": "RentalityUserService",
+            "src": "contracts\\RentalityUserService.sol:24"
+          },
+          {
+            "label": "civicVerifier",
+            "offset": 0,
+            "slot": "152",
+            "type": "t_address",
+            "contract": "RentalityUserService",
+            "src": "contracts\\RentalityUserService.sol:25"
+          },
+          {
+            "label": "civicGatekeeperNetwork",
+            "offset": 0,
+            "slot": "153",
+            "type": "t_uint256",
+            "contract": "RentalityUserService",
+            "src": "contracts\\RentalityUserService.sol:26"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_bytes32": {
+            "label": "bytes32",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_struct(KYCInfo)17813_storage)": {
+            "label": "mapping(address => struct Schemas.KYCInfo)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_struct(RoleData)2464_storage)": {
+            "label": "mapping(bytes32 => struct AccessControlUpgradeable.RoleData)",
+            "numberOfBytes": "32"
+          },
+          "t_string_storage": {
+            "label": "string",
+            "numberOfBytes": "32"
+          },
+          "t_struct(KYCInfo)17813_storage": {
+            "label": "struct Schemas.KYCInfo",
+            "members": [
+              {
+                "label": "name",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "surname",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "mobilePhoneNumber",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "profilePhoto",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "licenseNumber",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "4"
+              },
+              {
+                "label": "expirationDate",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "5"
+              },
+              {
+                "label": "createDate",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "6"
+              },
+              {
+                "label": "isTCPassed",
+                "type": "t_bool",
+                "offset": 0,
+                "slot": "7"
+              }
+            ],
+            "numberOfBytes": "256"
+          },
+          "t_struct(RoleData)2464_storage": {
+            "label": "struct AccessControlUpgradeable.RoleData",
+            "members": [
+              {
+                "label": "members",
+                "type": "t_mapping(t_address,t_bool)",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "adminRole",
+                "type": "t_bytes32",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        },
+        "namespaces": {}
+      }
+    },
+    "0b38e496c25f0c4ad7163226b6bb429a4bb1e494c9464c60667c8e54d94feee1": {
+      "address": "0x6825C96936EADC792F675cd22A502a34Ff98561C",
+      "txHash": "0x5fcfe54e8487e38b1d2f3c13edae08dba80f4de0ec98637a32d70e28a064557f",
+      "layout": {
+        "solcVersion": "0.8.17",
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin\\contracts\\proxy\\utils\\Initializable.sol:63",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin\\contracts\\proxy\\utils\\Initializable.sol:68"
+          },
+          {
+            "label": "userService",
+            "offset": 2,
+            "slot": "0",
+            "type": "t_contract(IRentalityAccessControl)8639",
+            "contract": "UUPSAccess",
+            "src": "contracts\\proxy\\UUPSAccess.sol:10"
+          },
+          {
+            "label": "waitingTimeForApproveInSec",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_uint256",
+            "contract": "RentalityClaimService",
+            "src": "contracts\\RentalityClaimService.sol:13"
+          },
+          {
+            "label": "claimId",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_uint256",
+            "contract": "RentalityClaimService",
+            "src": "contracts\\RentalityClaimService.sol:14"
+          },
+          {
+            "label": "claimIdToClaim",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_mapping(t_uint256,t_struct(Claim)17719_storage)",
+            "contract": "RentalityClaimService",
+            "src": "contracts\\RentalityClaimService.sol:17"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_contract(IRentalityAccessControl)8639": {
+            "label": "contract IRentalityAccessControl",
+            "numberOfBytes": "20"
+          },
+          "t_enum(ClaimStatus)17743": {
+            "label": "enum Schemas.ClaimStatus",
+            "members": ["NotPaid", "Paid", "Cancel", "Overdue"],
+            "numberOfBytes": "1"
+          },
+          "t_enum(ClaimType)17738": {
+            "label": "enum Schemas.ClaimType",
+            "members": [
+              "Tolls",
+              "Tickets",
+              "LateReturn",
+              "Cleanliness",
+              "Smoking",
+              "ExteriorDamage",
+              "InteriorDamage",
+              "Other"
+            ],
+            "numberOfBytes": "1"
+          },
+          "t_mapping(t_uint256,t_struct(Claim)17719_storage)": {
+            "label": "mapping(uint256 => struct Schemas.Claim)",
+            "numberOfBytes": "32"
+          },
+          "t_string_storage": {
+            "label": "string",
+            "numberOfBytes": "32"
+          },
+          "t_struct(Claim)17719_storage": {
+            "label": "struct Schemas.Claim",
+            "members": [
+              {
+                "label": "tripId",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "claimId",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "deadlineDateInSec",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "claimType",
+                "type": "t_enum(ClaimType)17738",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "status",
+                "type": "t_enum(ClaimStatus)17743",
+                "offset": 1,
+                "slot": "3"
+              },
+              {
+                "label": "description",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "4"
+              },
+              {
+                "label": "amountInUsdCents",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "5"
+              },
+              {
+                "label": "payDateInSec",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "6"
+              },
+              {
+                "label": "rejectedBy",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "7"
+              },
+              {
+                "label": "rejectedDateInSec",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "8"
+              }
+            ],
+            "numberOfBytes": "288"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        },
+        "namespaces": {}
+      }
+    },
+    "97b10261086e9f4eccc42683760c8733f0ae218e0fd27bd597eab404eed7c6be": {
+      "address": "0x77442b800Da64E1297437D2B74a1494AAe231142",
+      "txHash": "0x8c60c5aecb8dea352a10995fc4ed10d0399ec79626e37b13089caf8768111338",
+      "layout": {
+        "solcVersion": "0.8.17",
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin\\contracts\\proxy\\utils\\Initializable.sol:63",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin\\contracts\\proxy\\utils\\Initializable.sol:68"
+          },
+          {
+            "label": "userService",
+            "offset": 2,
+            "slot": "0",
+            "type": "t_contract(IRentalityAccessControl)8639",
+            "contract": "UUPSAccess",
+            "src": "contracts\\proxy\\UUPSAccess.sol:10"
+          },
+          {
+            "label": "ethToUsdRateFeed",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_contract(AggregatorV3Interface)907",
+            "contract": "RentalityCurrencyConverter",
+            "src": "contracts\\RentalityCurrencyConverter.sol:15"
+          },
+          {
+            "label": "currentEthToUsdRate",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_int256",
+            "contract": "RentalityCurrencyConverter",
+            "src": "contracts\\RentalityCurrencyConverter.sol:18"
+          },
+          {
+            "label": "currentEthToUsdDecimals",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_uint8",
+            "contract": "RentalityCurrencyConverter",
+            "src": "contracts\\RentalityCurrencyConverter.sol:19"
+          },
+          {
+            "label": "updateRateInterval",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_uint256",
+            "contract": "RentalityCurrencyConverter",
+            "src": "contracts\\RentalityCurrencyConverter.sol:22"
+          },
+          {
+            "label": "lastUpdateRateTimeStamp",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_uint256",
+            "contract": "RentalityCurrencyConverter",
+            "src": "contracts\\RentalityCurrencyConverter.sol:25"
+          }
+        ],
+        "types": {
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_contract(AggregatorV3Interface)907": {
+            "label": "contract AggregatorV3Interface",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IRentalityAccessControl)8639": {
+            "label": "contract IRentalityAccessControl",
+            "numberOfBytes": "20"
+          },
+          "t_int256": {
+            "label": "int256",
+            "numberOfBytes": "32"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        },
+        "namespaces": {}
+      }
+    },
+    "98329f62f68f11a3d589349f0ab8ebaf15c93ccdf9adff2c433ed8741e65f919": {
+      "address": "0xdA45508CE22156dd21A81f588e9Dce2396d0fecd",
+      "txHash": "0x749a6721053f22f109a3fffe86f0925cefee4c0dd07ead2bba934598bbf5256f",
+      "layout": {
+        "solcVersion": "0.8.17",
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:63",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:68"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\utils\\ContextUpgradeable.sol:40"
+          },
+          {
+            "label": "_owner",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_address",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\access\\OwnableUpgradeable.sol:22"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "52",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\access\\OwnableUpgradeable.sol:94"
+          },
+          {
+            "label": "platformFeeInPPM",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_uint32",
+            "contract": "RentalityPaymentService",
+            "src": "contracts\\RentalityPaymentService.sol:12"
+          },
+          {
+            "label": "userService",
+            "offset": 4,
+            "slot": "101",
+            "type": "t_contract(IRentalityAccessControl)8639",
+            "contract": "RentalityPaymentService",
+            "src": "contracts\\RentalityPaymentService.sol:13"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_contract(IRentalityAccessControl)8639": {
+            "label": "contract IRentalityAccessControl",
+            "numberOfBytes": "20"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint32": {
+            "label": "uint32",
+            "numberOfBytes": "4"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        },
+        "namespaces": {}
+      }
+    },
+    "4775f995061272653aea8765f217022a2a8e931211afbe51514db2dd535149ce": {
+      "address": "0x2De54f0E1cBb154AC0b83A5Ce65358Ec97E1c905",
+      "txHash": "0xf3bf19fef7bca457918193efa9a32ff58a146b55f493abb4007e86aa76241750",
+      "layout": {
+        "solcVersion": "0.8.17",
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin\\contracts\\proxy\\utils\\Initializable.sol:63",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin\\contracts\\proxy\\utils\\Initializable.sol:68"
+          },
+          {
+            "label": "userService",
+            "offset": 2,
+            "slot": "0",
+            "type": "t_contract(IRentalityAccessControl)8639",
+            "contract": "UUPSAccess",
+            "src": "contracts\\proxy\\UUPSAccess.sol:10"
+          },
+          {
+            "label": "carIdToParsedGeolocationData",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_mapping(t_uint256,t_struct(ParsedGeolocationData)17768_storage)",
+            "contract": "RentalityGeoService",
+            "src": "contracts\\RentalityGeoService.sol:14"
+          },
+          {
+            "label": "geoParser",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_contract(IRentalityGeoParser)9214",
+            "contract": "RentalityGeoService",
+            "src": "contracts\\RentalityGeoService.sol:15"
+          }
+        ],
+        "types": {
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_contract(IRentalityAccessControl)8639": {
+            "label": "contract IRentalityAccessControl",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IRentalityGeoParser)9214": {
+            "label": "contract IRentalityGeoParser",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_uint256,t_struct(ParsedGeolocationData)17768_storage)": {
+            "label": "mapping(uint256 => struct Schemas.ParsedGeolocationData)",
+            "numberOfBytes": "32"
+          },
+          "t_string_storage": {
+            "label": "string",
+            "numberOfBytes": "32"
+          },
+          "t_struct(ParsedGeolocationData)17768_storage": {
+            "label": "struct Schemas.ParsedGeolocationData",
+            "members": [
+              {
+                "label": "status",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "validCoordinates",
+                "type": "t_bool",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "locationLat",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "locationLng",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "northeastLat",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "4"
+              },
+              {
+                "label": "northeastLng",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "5"
+              },
+              {
+                "label": "southwestLat",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "6"
+              },
+              {
+                "label": "southwestLng",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "7"
+              },
+              {
+                "label": "city",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "8"
+              },
+              {
+                "label": "state",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "9"
+              },
+              {
+                "label": "country",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "10"
+              },
+              {
+                "label": "timeZoneId",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "11"
+              }
+            ],
+            "numberOfBytes": "384"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        },
+        "namespaces": {}
+      }
+    },
+    "3b28c4f703940957d456375d3670c6672a174e42cfaca7012ddda4066a0cddcd": {
+      "address": "0x394d3F24C4D5A4c3404B702cD47958F438fa9CBc",
+      "txHash": "0xe251a5f65e9b3ebba023ab7fcefb2cc4a5e53d701eb2ddf8361da917bd060a5e",
+      "layout": {
+        "solcVersion": "0.8.17",
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin\\contracts\\proxy\\utils\\Initializable.sol:63",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin\\contracts\\proxy\\utils\\Initializable.sol:68"
+          },
+          {
+            "label": "userService",
+            "offset": 2,
+            "slot": "0",
+            "type": "t_contract(IRentalityAccessControl)8639",
+            "contract": "UUPSAccess",
+            "src": "contracts\\proxy\\UUPSAccess.sol:10"
+          },
+          {
+            "label": "eTypeCounter",
+            "offset": 22,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "RentalityEnginesService",
+            "src": "contracts\\engine\\RentalityEnginesService.sol:11"
+          },
+          {
+            "label": "engineTypeToEngineContract",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_mapping(t_uint8,t_contract(ARentalityEngine)18257)",
+            "contract": "RentalityEnginesService",
+            "src": "contracts\\engine\\RentalityEnginesService.sol:12"
+          }
+        ],
+        "types": {
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_contract(ARentalityEngine)18257": {
+            "label": "contract ARentalityEngine",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IRentalityAccessControl)8639": {
+            "label": "contract IRentalityAccessControl",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_uint8,t_contract(ARentalityEngine)18257)": {
+            "label": "mapping(uint8 => contract ARentalityEngine)",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        },
+        "namespaces": {}
+      }
+    },
+    "e30769c83775d1071f2409f05b1e0f76a14c02705e34d89fb807e5a63f4c09bd": {
+      "address": "0x2a3Ca70e887453c64c1D2C036dA96FC762b13A30",
+      "txHash": "0x72c73e84f965e364011a9ea0ac4e6025b7b5ba2487ba89654a5211a7da7ff7c3",
+      "layout": {
+        "solcVersion": "0.8.17",
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:63",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:68"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\utils\\ContextUpgradeable.sol:40"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ERC165Upgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\utils\\introspection\\ERC165Upgradeable.sol:41"
+          },
+          {
+            "label": "_name",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_string_storage",
+            "contract": "ERC721Upgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\token\\ERC721\\ERC721Upgradeable.sol:25"
+          },
+          {
+            "label": "_symbol",
+            "offset": 0,
+            "slot": "102",
+            "type": "t_string_storage",
+            "contract": "ERC721Upgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\token\\ERC721\\ERC721Upgradeable.sol:28"
+          },
+          {
+            "label": "_owners",
+            "offset": 0,
+            "slot": "103",
+            "type": "t_mapping(t_uint256,t_address)",
+            "contract": "ERC721Upgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\token\\ERC721\\ERC721Upgradeable.sol:31"
+          },
+          {
+            "label": "_balances",
+            "offset": 0,
+            "slot": "104",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "ERC721Upgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\token\\ERC721\\ERC721Upgradeable.sol:34"
+          },
+          {
+            "label": "_tokenApprovals",
+            "offset": 0,
+            "slot": "105",
+            "type": "t_mapping(t_uint256,t_address)",
+            "contract": "ERC721Upgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\token\\ERC721\\ERC721Upgradeable.sol:37"
+          },
+          {
+            "label": "_operatorApprovals",
+            "offset": 0,
+            "slot": "106",
+            "type": "t_mapping(t_address,t_mapping(t_address,t_bool))",
+            "contract": "ERC721Upgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\token\\ERC721\\ERC721Upgradeable.sol:40"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "107",
+            "type": "t_array(t_uint256)44_storage",
+            "contract": "ERC721Upgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\token\\ERC721\\ERC721Upgradeable.sol:477"
+          },
+          {
+            "label": "_tokenURIs",
+            "offset": 0,
+            "slot": "151",
+            "type": "t_mapping(t_uint256,t_string_storage)",
+            "contract": "ERC721URIStorageUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\token\\ERC721\\extensions\\ERC721URIStorageUpgradeable.sol:17"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "152",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "ERC721URIStorageUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\token\\ERC721\\extensions\\ERC721URIStorageUpgradeable.sol:86"
+          },
+          {
+            "label": "_owner",
+            "offset": 0,
+            "slot": "201",
+            "type": "t_address",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\access\\OwnableUpgradeable.sol:22"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "202",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\access\\OwnableUpgradeable.sol:94"
+          },
+          {
+            "label": "_carIdCounter",
+            "offset": 0,
+            "slot": "251",
+            "type": "t_struct(Counter)7218_storage",
+            "contract": "RentalityCarToken",
+            "src": "contracts\\RentalityCarToken.sol:23"
+          },
+          {
+            "label": "geoService",
+            "offset": 0,
+            "slot": "252",
+            "type": "t_contract(IRentalityGeoService)9296",
+            "contract": "RentalityCarToken",
+            "src": "contracts\\RentalityCarToken.sol:24"
+          },
+          {
+            "label": "engineService",
+            "offset": 0,
+            "slot": "253",
+            "type": "t_contract(RentalityEnginesService)18862",
+            "contract": "RentalityCarToken",
+            "src": "contracts\\RentalityCarToken.sol:25"
+          },
+          {
+            "label": "userService",
+            "offset": 0,
+            "slot": "254",
+            "type": "t_contract(RentalityUserService)17412",
+            "contract": "RentalityCarToken",
+            "src": "contracts\\RentalityCarToken.sol:26"
+          },
+          {
+            "label": "idToCarInfo",
+            "offset": 0,
+            "slot": "255",
+            "type": "t_mapping(t_uint256,t_struct(CarInfo)17449_storage)",
+            "contract": "RentalityCarToken",
+            "src": "contracts\\RentalityCarToken.sol:28"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_uint256)44_storage": {
+            "label": "uint256[44]",
+            "numberOfBytes": "1408"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_array(t_uint64)dyn_storage": {
+            "label": "uint64[]",
+            "numberOfBytes": "32"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_bytes32": {
+            "label": "bytes32",
+            "numberOfBytes": "32"
+          },
+          "t_contract(IRentalityGeoService)9296": {
+            "label": "contract IRentalityGeoService",
+            "numberOfBytes": "20"
+          },
+          "t_contract(RentalityEnginesService)18862": {
+            "label": "contract RentalityEnginesService",
+            "numberOfBytes": "20"
+          },
+          "t_contract(RentalityUserService)17412": {
+            "label": "contract RentalityUserService",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_mapping(t_address,t_bool))": {
+            "label": "mapping(address => mapping(address => bool))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_address)": {
+            "label": "mapping(uint256 => address)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_string_storage)": {
+            "label": "mapping(uint256 => string)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_struct(CarInfo)17449_storage)": {
+            "label": "mapping(uint256 => struct Schemas.CarInfo)",
+            "numberOfBytes": "32"
+          },
+          "t_string_storage": {
+            "label": "string",
+            "numberOfBytes": "32"
+          },
+          "t_struct(CarInfo)17449_storage": {
+            "label": "struct Schemas.CarInfo",
+            "members": [
+              {
+                "label": "carId",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "carVinNumber",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "carVinNumberHash",
+                "type": "t_bytes32",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "createdBy",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "brand",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "4"
+              },
+              {
+                "label": "model",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "5"
+              },
+              {
+                "label": "yearOfProduction",
+                "type": "t_uint32",
+                "offset": 0,
+                "slot": "6"
+              },
+              {
+                "label": "pricePerDayInUsdCents",
+                "type": "t_uint64",
+                "offset": 4,
+                "slot": "6"
+              },
+              {
+                "label": "securityDepositPerTripInUsdCents",
+                "type": "t_uint64",
+                "offset": 12,
+                "slot": "6"
+              },
+              {
+                "label": "engineType",
+                "type": "t_uint8",
+                "offset": 20,
+                "slot": "6"
+              },
+              {
+                "label": "engineParams",
+                "type": "t_array(t_uint64)dyn_storage",
+                "offset": 0,
+                "slot": "7"
+              },
+              {
+                "label": "milesIncludedPerDay",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "8"
+              },
+              {
+                "label": "timeBufferBetweenTripsInSec",
+                "type": "t_uint32",
+                "offset": 8,
+                "slot": "8"
+              },
+              {
+                "label": "currentlyListed",
+                "type": "t_bool",
+                "offset": 12,
+                "slot": "8"
+              },
+              {
+                "label": "geoVerified",
+                "type": "t_bool",
+                "offset": 13,
+                "slot": "8"
+              },
+              {
+                "label": "timeZoneId",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "9"
+              }
+            ],
+            "numberOfBytes": "320"
+          },
+          "t_struct(Counter)7218_storage": {
+            "label": "struct Counters.Counter",
+            "members": [
+              {
+                "label": "_value",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint32": {
+            "label": "uint32",
+            "numberOfBytes": "4"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        },
+        "namespaces": {}
+      }
+    },
+    "35d5eca65b4a29143bdeec18094007dcb8331be7cd20c9c7917553464749d373": {
+      "address": "0x44E0c40F34C14046D09C58fc6FDE006Ef6754410",
+      "txHash": "0xde0bab8337fd3f7f427e9f816859f98e525c32c24f1fe92e3579faaca902eab6",
+      "layout": {
+        "solcVersion": "0.8.17",
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin\\contracts\\proxy\\utils\\Initializable.sol:63",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin\\contracts\\proxy\\utils\\Initializable.sol:68"
+          },
+          {
+            "label": "userService",
+            "offset": 2,
+            "slot": "0",
+            "type": "t_contract(IRentalityAccessControl)8639",
+            "contract": "UUPSAccess",
+            "src": "contracts\\proxy\\UUPSAccess.sol:10"
+          },
+          {
+            "label": "waitingToCall",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_struct(AutomationData)17821_storage)dyn_storage",
+            "contract": "RentalityAutomation",
+            "src": "contracts\\RentalityAutomation.sol:12"
+          },
+          {
+            "label": "autoCancellationTimeInHours",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_uint8",
+            "contract": "RentalityAutomation",
+            "src": "contracts\\RentalityAutomation.sol:14"
+          },
+          {
+            "label": "autoStatusChangeTimeInHours",
+            "offset": 1,
+            "slot": "2",
+            "type": "t_uint8",
+            "contract": "RentalityAutomation",
+            "src": "contracts\\RentalityAutomation.sol:15"
+          }
+        ],
+        "types": {
+          "t_array(t_struct(AutomationData)17821_storage)dyn_storage": {
+            "label": "struct Schemas.AutomationData[]",
+            "numberOfBytes": "32"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_contract(IRentalityAccessControl)8639": {
+            "label": "contract IRentalityAccessControl",
+            "numberOfBytes": "20"
+          },
+          "t_enum(AutomationType)17825": {
+            "label": "enum Schemas.AutomationType",
+            "members": ["Rejection", "StartTrip", "FinishTrip"],
+            "numberOfBytes": "1"
+          },
+          "t_struct(AutomationData)17821_storage": {
+            "label": "struct Schemas.AutomationData",
+            "members": [
+              {
+                "label": "tripId",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "whenToCallInSec",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "aType",
+                "type": "t_enum(AutomationType)17825",
+                "offset": 0,
+                "slot": "2"
+              }
+            ],
+            "numberOfBytes": "96"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        },
+        "namespaces": {}
+      }
+    },
+    "1e6181163a8cf5aff1ee21997271178b32db0392b42df723f7fdebd89304c11b": {
+      "address": "0x719F0A52b940c40Cf4d5Ab46a35BfD17E05af60A",
+      "txHash": "0x9fc36598bf16ddf80a975d813adac38a76fb5f1cec6d2cb3db098befb179d7c7",
+      "layout": {
+        "solcVersion": "0.8.17",
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin\\contracts\\proxy\\utils\\Initializable.sol:63",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin\\contracts\\proxy\\utils\\Initializable.sol:68"
+          },
+          {
+            "label": "_tripIdCounter",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_struct(Counter)7218_storage",
+            "contract": "RentalityTripService",
+            "src": "contracts\\RentalityTripService.sol:27"
+          },
+          {
+            "label": "idToTripInfo",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_mapping(t_uint256,t_struct(Trip)17632_storage)",
+            "contract": "RentalityTripService",
+            "src": "contracts\\RentalityTripService.sol:29"
+          },
+          {
+            "label": "currencyConverterService",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_contract(RentalityCurrencyConverter)12228",
+            "contract": "RentalityTripService",
+            "src": "contracts\\RentalityTripService.sol:40"
+          },
+          {
+            "label": "carService",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_contract(RentalityCarToken)11387",
+            "contract": "RentalityTripService",
+            "src": "contracts\\RentalityTripService.sol:41"
+          },
+          {
+            "label": "paymentService",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_contract(RentalityPaymentService)14104",
+            "contract": "RentalityTripService",
+            "src": "contracts\\RentalityTripService.sol:42"
+          },
+          {
+            "label": "userService",
+            "offset": 0,
+            "slot": "6",
+            "type": "t_contract(RentalityUserService)17412",
+            "contract": "RentalityTripService",
+            "src": "contracts\\RentalityTripService.sol:43"
+          },
+          {
+            "label": "engineService",
+            "offset": 0,
+            "slot": "7",
+            "type": "t_contract(RentalityEnginesService)18862",
+            "contract": "RentalityTripService",
+            "src": "contracts\\RentalityTripService.sol:44"
+          },
+          {
+            "label": "automationService",
+            "offset": 0,
+            "slot": "8",
+            "type": "t_contract(RentalityAutomation)10222",
+            "contract": "RentalityTripService",
+            "src": "contracts\\RentalityTripService.sol:45"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_uint64)dyn_storage": {
+            "label": "uint64[]",
+            "numberOfBytes": "32"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_contract(RentalityAutomation)10222": {
+            "label": "contract RentalityAutomation",
+            "numberOfBytes": "20"
+          },
+          "t_contract(RentalityCarToken)11387": {
+            "label": "contract RentalityCarToken",
+            "numberOfBytes": "20"
+          },
+          "t_contract(RentalityCurrencyConverter)12228": {
+            "label": "contract RentalityCurrencyConverter",
+            "numberOfBytes": "20"
+          },
+          "t_contract(RentalityEnginesService)18862": {
+            "label": "contract RentalityEnginesService",
+            "numberOfBytes": "20"
+          },
+          "t_contract(RentalityPaymentService)14104": {
+            "label": "contract RentalityPaymentService",
+            "numberOfBytes": "20"
+          },
+          "t_contract(RentalityUserService)17412": {
+            "label": "contract RentalityUserService",
+            "numberOfBytes": "20"
+          },
+          "t_enum(CurrencyType)17770": {
+            "label": "enum Schemas.CurrencyType",
+            "members": ["ETH"],
+            "numberOfBytes": "1"
+          },
+          "t_enum(TripStatus)17556": {
+            "label": "enum Schemas.TripStatus",
+            "members": [
+              "Created",
+              "Approved",
+              "CheckedInByHost",
+              "CheckedInByGuest",
+              "CheckedOutByGuest",
+              "CheckedOutByHost",
+              "Finished",
+              "Canceled"
+            ],
+            "numberOfBytes": "1"
+          },
+          "t_int256": {
+            "label": "int256",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_struct(Trip)17632_storage)": {
+            "label": "mapping(uint256 => struct Schemas.Trip)",
+            "numberOfBytes": "32"
+          },
+          "t_string_storage": {
+            "label": "string",
+            "numberOfBytes": "32"
+          },
+          "t_struct(Counter)7218_storage": {
+            "label": "struct Counters.Counter",
+            "members": [
+              {
+                "label": "_value",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(PaymentInfo)17796_storage": {
+            "label": "struct Schemas.PaymentInfo",
+            "members": [
+              {
+                "label": "tripId",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "from",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "to",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "totalDayPriceInUsdCents",
+                "type": "t_uint64",
+                "offset": 20,
+                "slot": "2"
+              },
+              {
+                "label": "taxPriceInUsdCents",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "depositInUsdCents",
+                "type": "t_uint64",
+                "offset": 8,
+                "slot": "3"
+              },
+              {
+                "label": "resolveAmountInUsdCents",
+                "type": "t_uint64",
+                "offset": 16,
+                "slot": "3"
+              },
+              {
+                "label": "currencyType",
+                "type": "t_enum(CurrencyType)17770",
+                "offset": 24,
+                "slot": "3"
+              },
+              {
+                "label": "ethToCurrencyRate",
+                "type": "t_int256",
+                "offset": 0,
+                "slot": "4"
+              },
+              {
+                "label": "ethToCurrencyDecimals",
+                "type": "t_uint8",
+                "offset": 0,
+                "slot": "5"
+              },
+              {
+                "label": "resolveFuelAmountInUsdCents",
+                "type": "t_uint64",
+                "offset": 1,
+                "slot": "5"
+              },
+              {
+                "label": "resolveMilesAmountInUsdCents",
+                "type": "t_uint64",
+                "offset": 9,
+                "slot": "5"
+              }
+            ],
+            "numberOfBytes": "192"
+          },
+          "t_struct(TransactionInfo)17568_storage": {
+            "label": "struct Schemas.TransactionInfo",
+            "members": [
+              {
+                "label": "rentalityFee",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "depositRefund",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "tripEarnings",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "dateTime",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "statusBeforeCancellation",
+                "type": "t_enum(TripStatus)17556",
+                "offset": 0,
+                "slot": "4"
+              }
+            ],
+            "numberOfBytes": "160"
+          },
+          "t_struct(Trip)17632_storage": {
+            "label": "struct Schemas.Trip",
+            "members": [
+              {
+                "label": "tripId",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "carId",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "status",
+                "type": "t_enum(TripStatus)17556",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "guest",
+                "type": "t_address",
+                "offset": 1,
+                "slot": "2"
+              },
+              {
+                "label": "host",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "guestName",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "4"
+              },
+              {
+                "label": "hostName",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "5"
+              },
+              {
+                "label": "pricePerDayInUsdCents",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "6"
+              },
+              {
+                "label": "startDateTime",
+                "type": "t_uint64",
+                "offset": 8,
+                "slot": "6"
+              },
+              {
+                "label": "endDateTime",
+                "type": "t_uint64",
+                "offset": 16,
+                "slot": "6"
+              },
+              {
+                "label": "engineType",
+                "type": "t_uint8",
+                "offset": 24,
+                "slot": "6"
+              },
+              {
+                "label": "startLocation",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "7"
+              },
+              {
+                "label": "endLocation",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "8"
+              },
+              {
+                "label": "milesIncludedPerDay",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "9"
+              },
+              {
+                "label": "fuelPrice",
+                "type": "t_uint64",
+                "offset": 8,
+                "slot": "9"
+              },
+              {
+                "label": "paymentInfo",
+                "type": "t_struct(PaymentInfo)17796_storage",
+                "offset": 0,
+                "slot": "10"
+              },
+              {
+                "label": "createdDateTime",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "16"
+              },
+              {
+                "label": "approvedDateTime",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "17"
+              },
+              {
+                "label": "rejectedDateTime",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "18"
+              },
+              {
+                "label": "rejectedBy",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "19"
+              },
+              {
+                "label": "checkedInByHostDateTime",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "20"
+              },
+              {
+                "label": "startParamLevels",
+                "type": "t_array(t_uint64)dyn_storage",
+                "offset": 0,
+                "slot": "21"
+              },
+              {
+                "label": "checkedInByGuestDateTime",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "22"
+              },
+              {
+                "label": "tripStartedBy",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "23"
+              },
+              {
+                "label": "checkedOutByGuestDateTime",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "24"
+              },
+              {
+                "label": "tripFinishedBy",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "25"
+              },
+              {
+                "label": "endParamLevels",
+                "type": "t_array(t_uint64)dyn_storage",
+                "offset": 0,
+                "slot": "26"
+              },
+              {
+                "label": "checkedOutByHostDateTime",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "27"
+              },
+              {
+                "label": "transactionInfo",
+                "type": "t_struct(TransactionInfo)17568_storage",
+                "offset": 0,
+                "slot": "28"
+              }
+            ],
+            "numberOfBytes": "1056"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        },
+        "namespaces": {}
+      }
+    },
+    "5a22c569d037a181eb51834584430646f37bb629e0dbae775fbd8551595e336b": {
+      "address": "0xA1405839B23a14039D193137854D039eCf7beb9D",
+      "txHash": "0x470f76be08dd721cbc10472d48e9fe313b836c1a7d1087c1e1ab6e520da077af",
+      "layout": {
+        "solcVersion": "0.8.17",
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:63",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:68"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\utils\\ContextUpgradeable.sol:40"
+          },
+          {
+            "label": "_owner",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_address",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\access\\OwnableUpgradeable.sol:22"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "52",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\access\\OwnableUpgradeable.sol:94"
+          },
+          {
+            "label": "carService",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_contract(RentalityCarToken)11387",
+            "contract": "RentalityPlatform",
+            "src": "contracts\\RentalityPlatform.sol:21"
+          },
+          {
+            "label": "currencyConverterService",
+            "offset": 0,
+            "slot": "102",
+            "type": "t_contract(RentalityCurrencyConverter)12228",
+            "contract": "RentalityPlatform",
+            "src": "contracts\\RentalityPlatform.sol:22"
+          },
+          {
+            "label": "tripService",
+            "offset": 0,
+            "slot": "103",
+            "type": "t_contract(RentalityTripService)16952",
+            "contract": "RentalityPlatform",
+            "src": "contracts\\RentalityPlatform.sol:23"
+          },
+          {
+            "label": "userService",
+            "offset": 0,
+            "slot": "104",
+            "type": "t_contract(RentalityUserService)17412",
+            "contract": "RentalityPlatform",
+            "src": "contracts\\RentalityPlatform.sol:24"
+          },
+          {
+            "label": "paymentService",
+            "offset": 0,
+            "slot": "105",
+            "type": "t_contract(RentalityPaymentService)14104",
+            "contract": "RentalityPlatform",
+            "src": "contracts\\RentalityPlatform.sol:25"
+          },
+          {
+            "label": "claimService",
+            "offset": 0,
+            "slot": "106",
+            "type": "t_contract(RentalityClaimService)11882",
+            "contract": "RentalityPlatform",
+            "src": "contracts\\RentalityPlatform.sol:26"
+          },
+          {
+            "label": "automationService",
+            "offset": 0,
+            "slot": "107",
+            "type": "t_contract(RentalityAutomation)10222",
+            "contract": "RentalityPlatform",
+            "src": "contracts\\RentalityPlatform.sol:27"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_contract(RentalityAutomation)10222": {
+            "label": "contract RentalityAutomation",
+            "numberOfBytes": "20"
+          },
+          "t_contract(RentalityCarToken)11387": {
+            "label": "contract RentalityCarToken",
+            "numberOfBytes": "20"
+          },
+          "t_contract(RentalityClaimService)11882": {
+            "label": "contract RentalityClaimService",
+            "numberOfBytes": "20"
+          },
+          "t_contract(RentalityCurrencyConverter)12228": {
+            "label": "contract RentalityCurrencyConverter",
+            "numberOfBytes": "20"
+          },
+          "t_contract(RentalityPaymentService)14104": {
+            "label": "contract RentalityPaymentService",
+            "numberOfBytes": "20"
+          },
+          "t_contract(RentalityTripService)16952": {
+            "label": "contract RentalityTripService",
+            "numberOfBytes": "20"
+          },
+          "t_contract(RentalityUserService)17412": {
+            "label": "contract RentalityUserService",
+            "numberOfBytes": "20"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        },
+        "namespaces": {}
+      }
+    },
+    "b71e00cc28642c5451b389e9e8f23f6b40694b37ea5194056fa07d3de8e3c96a": {
+      "address": "0xD8E1CB7Cb4f3d40714F8cC20fb17F01Df0A2B2Cc",
+      "txHash": "0x5d8bf96f8d766c52de7e4ec03cc9c15cfb77a4fc2aaa481792b4e00288fbe056",
+      "layout": {
+        "solcVersion": "0.8.17",
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:63",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:68"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\utils\\ContextUpgradeable.sol:40"
+          },
+          {
+            "label": "_owner",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_address",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\access\\OwnableUpgradeable.sol:22"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "52",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\access\\OwnableUpgradeable.sol:94"
+          },
+          {
+            "label": "carService",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_contract(RentalityCarToken)11387",
+            "contract": "RentalityAdminGateway",
+            "src": "contracts\\RentalityAdminGateway.sol:9"
+          },
+          {
+            "label": "currencyConverterService",
+            "offset": 0,
+            "slot": "102",
+            "type": "t_contract(RentalityCurrencyConverter)12228",
+            "contract": "RentalityAdminGateway",
+            "src": "contracts\\RentalityAdminGateway.sol:10"
+          },
+          {
+            "label": "tripService",
+            "offset": 0,
+            "slot": "103",
+            "type": "t_contract(RentalityTripService)16952",
+            "contract": "RentalityAdminGateway",
+            "src": "contracts\\RentalityAdminGateway.sol:11"
+          },
+          {
+            "label": "userService",
+            "offset": 0,
+            "slot": "104",
+            "type": "t_contract(RentalityUserService)17412",
+            "contract": "RentalityAdminGateway",
+            "src": "contracts\\RentalityAdminGateway.sol:12"
+          },
+          {
+            "label": "rentalityPlatform",
+            "offset": 0,
+            "slot": "105",
+            "type": "t_contract(RentalityPlatform)15531",
+            "contract": "RentalityAdminGateway",
+            "src": "contracts\\RentalityAdminGateway.sol:13"
+          },
+          {
+            "label": "paymentService",
+            "offset": 0,
+            "slot": "106",
+            "type": "t_contract(RentalityPaymentService)14104",
+            "contract": "RentalityAdminGateway",
+            "src": "contracts\\RentalityAdminGateway.sol:14"
+          },
+          {
+            "label": "claimService",
+            "offset": 0,
+            "slot": "107",
+            "type": "t_contract(RentalityClaimService)11882",
+            "contract": "RentalityAdminGateway",
+            "src": "contracts\\RentalityAdminGateway.sol:15"
+          },
+          {
+            "label": "automationService",
+            "offset": 0,
+            "slot": "108",
+            "type": "t_contract(RentalityAutomation)10222",
+            "contract": "RentalityAdminGateway",
+            "src": "contracts\\RentalityAdminGateway.sol:16"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_contract(RentalityAutomation)10222": {
+            "label": "contract RentalityAutomation",
+            "numberOfBytes": "20"
+          },
+          "t_contract(RentalityCarToken)11387": {
+            "label": "contract RentalityCarToken",
+            "numberOfBytes": "20"
+          },
+          "t_contract(RentalityClaimService)11882": {
+            "label": "contract RentalityClaimService",
+            "numberOfBytes": "20"
+          },
+          "t_contract(RentalityCurrencyConverter)12228": {
+            "label": "contract RentalityCurrencyConverter",
+            "numberOfBytes": "20"
+          },
+          "t_contract(RentalityPaymentService)14104": {
+            "label": "contract RentalityPaymentService",
+            "numberOfBytes": "20"
+          },
+          "t_contract(RentalityPlatform)15531": {
+            "label": "contract RentalityPlatform",
+            "numberOfBytes": "20"
+          },
+          "t_contract(RentalityTripService)16952": {
+            "label": "contract RentalityTripService",
+            "numberOfBytes": "20"
+          },
+          "t_contract(RentalityUserService)17412": {
+            "label": "contract RentalityUserService",
+            "numberOfBytes": "20"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        },
+        "namespaces": {}
+      }
+    },
+    "7b1bdde5b58fb14ef3da7e4ef7d265250452341465f9adb4b879049d86bab6bb": {
+      "address": "0x1F800c294C8d60d65A5e28A3568ff1c649c3e8f9",
+      "txHash": "0x0afeaa3a6289d4a6a6756f653c427654a48ba42a013ba919de8533f4c05cfe46",
+      "layout": {
+        "solcVersion": "0.8.17",
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:63",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:68"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\utils\\ContextUpgradeable.sol:40"
+          },
+          {
+            "label": "_owner",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_address",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\access\\OwnableUpgradeable.sol:22"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "52",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\access\\OwnableUpgradeable.sol:94"
+          },
+          {
+            "label": "carService",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_contract(RentalityCarToken)11387",
+            "contract": "RentalityGateway",
+            "src": "contracts\\RentalityGateway.sol:28"
+          },
+          {
+            "label": "currencyConverterService",
+            "offset": 0,
+            "slot": "102",
+            "type": "t_contract(RentalityCurrencyConverter)12228",
+            "contract": "RentalityGateway",
+            "src": "contracts\\RentalityGateway.sol:29"
+          },
+          {
+            "label": "tripService",
+            "offset": 0,
+            "slot": "103",
+            "type": "t_contract(RentalityTripService)16952",
+            "contract": "RentalityGateway",
+            "src": "contracts\\RentalityGateway.sol:30"
+          },
+          {
+            "label": "userService",
+            "offset": 0,
+            "slot": "104",
+            "type": "t_contract(RentalityUserService)17412",
+            "contract": "RentalityGateway",
+            "src": "contracts\\RentalityGateway.sol:31"
+          },
+          {
+            "label": "rentalityPlatform",
+            "offset": 0,
+            "slot": "105",
+            "type": "t_contract(RentalityPlatform)15531",
+            "contract": "RentalityGateway",
+            "src": "contracts\\RentalityGateway.sol:32"
+          },
+          {
+            "label": "paymentService",
+            "offset": 0,
+            "slot": "106",
+            "type": "t_contract(RentalityPaymentService)14104",
+            "contract": "RentalityGateway",
+            "src": "contracts\\RentalityGateway.sol:33"
+          },
+          {
+            "label": "claimService",
+            "offset": 0,
+            "slot": "107",
+            "type": "t_contract(RentalityClaimService)11882",
+            "contract": "RentalityGateway",
+            "src": "contracts\\RentalityGateway.sol:34"
+          },
+          {
+            "label": "adminService",
+            "offset": 0,
+            "slot": "108",
+            "type": "t_contract(RentalityAdminGateway)9786",
+            "contract": "RentalityGateway",
+            "src": "contracts\\RentalityGateway.sol:35"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_contract(RentalityAdminGateway)9786": {
+            "label": "contract RentalityAdminGateway",
+            "numberOfBytes": "20"
+          },
+          "t_contract(RentalityCarToken)11387": {
+            "label": "contract RentalityCarToken",
+            "numberOfBytes": "20"
+          },
+          "t_contract(RentalityClaimService)11882": {
+            "label": "contract RentalityClaimService",
+            "numberOfBytes": "20"
+          },
+          "t_contract(RentalityCurrencyConverter)12228": {
+            "label": "contract RentalityCurrencyConverter",
+            "numberOfBytes": "20"
+          },
+          "t_contract(RentalityPaymentService)14104": {
+            "label": "contract RentalityPaymentService",
+            "numberOfBytes": "20"
+          },
+          "t_contract(RentalityPlatform)15531": {
+            "label": "contract RentalityPlatform",
+            "numberOfBytes": "20"
+          },
+          "t_contract(RentalityTripService)16952": {
+            "label": "contract RentalityTripService",
+            "numberOfBytes": "20"
+          },
+          "t_contract(RentalityUserService)17412": {
+            "label": "contract RentalityUserService",
+            "numberOfBytes": "20"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        },
+        "namespaces": {}
+      }
+    },
+    "9d44706cd37840bc47c0bd6bbd795fbcda6ea5f3ef2d8477c67bdded8a67b838": {
+      "address": "0x27Bb15b06B3DA15A384Bb47990dD054cA8A38b2D",
+      "txHash": "0x5d540671233db05587dabbbbc04c6006a6b813e6e1b7241956c9093a32b78c1f",
+      "layout": {
+        "solcVersion": "0.8.17",
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin\\contracts\\proxy\\utils\\Initializable.sol:63",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin\\contracts\\proxy\\utils\\Initializable.sol:68"
+          },
+          {
+            "label": "userService",
+            "offset": 2,
+            "slot": "0",
+            "type": "t_contract(IRentalityAccessControl)8639",
+            "contract": "UUPSAccess",
+            "src": "contracts\\proxy\\UUPSAccess.sol:10"
+          },
+          {
+            "label": "addressToChatKeyPair",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_mapping(t_address,t_struct(ChatKeyPair)17676_storage)",
+            "contract": "RentalityChatHelper",
+            "src": "contracts\\RentalityChatHelper.sol:15"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_contract(IRentalityAccessControl)8639": {
+            "label": "contract IRentalityAccessControl",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_address,t_struct(ChatKeyPair)17676_storage)": {
+            "label": "mapping(address => struct Schemas.ChatKeyPair)",
+            "numberOfBytes": "32"
+          },
+          "t_string_storage": {
+            "label": "string",
+            "numberOfBytes": "32"
+          },
+          "t_struct(ChatKeyPair)17676_storage": {
+            "label": "struct Schemas.ChatKeyPair",
+            "members": [
+              {
+                "label": "privateKey",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "publicKey",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        },
+        "namespaces": {}
+      }
+    }
+  }
+}
