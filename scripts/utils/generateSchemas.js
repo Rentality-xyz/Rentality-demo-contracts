@@ -10,25 +10,25 @@ function mapSolidityTypeToTs(solidityType) {
     case 'int256':
     case 'uint64':
     case 'int64':
-      return 'bigint'
     case 'uint32':
     case 'int32':
     case 'uint16':
     case 'int16':
     case 'uint8':
     case 'int8':
+      return 'bigint'
       return 'number'
     case 'uint256[]':
     case 'int256[]':
     case 'uint64[]':
     case 'int64[]':
-      return 'bigint[]'
     case 'uint32[]':
     case 'int32[]':
     case 'uint16[]':
     case 'int16[]':
     case 'uint8[]':
     case 'int8[]':
+      return 'bigint[]'
       return 'number[]'
     case 'uint':
     case 'int':
