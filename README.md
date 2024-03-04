@@ -1,6 +1,6 @@
 ## Rentality | contract
 
-[![Rentality][rentality-image]][rentality-url] 
+[![Rentality][rentality-image]][rentality-url]
 
 > The first blockchain car rental powered by WEB 3.0
 
@@ -11,23 +11,28 @@
 The `RentalityGateway` contract serves as the main gateway for various services within the Rentality platform. Below are the key features and functionalities provided by this contract:
 
 - **Car Operations:**
+
   - Adds, updates, and retrieves information about cars.
   - Manages car tokens and metadata.
   - Burns (disables) cars.
 
 - **Trip Management:**
+
   - Creates, approves, and rejects trip requests.
   - Handles check-in and check-out processes for both hosts and guests.
   - Finishes trips.
 
 - **Claim Management:**
+
   - Creates, pays, rejects, and updates claims.
   - Retrieves detailed information about claims associated with trips.
 
 - **KYC (Know Your Customer) Information:**
+
   - Sets and retrieves KYC information for users.
 
 - **Chat Information:**
+
   - Retrieves chat information for hosts and guests.
 
 - **Automation:**

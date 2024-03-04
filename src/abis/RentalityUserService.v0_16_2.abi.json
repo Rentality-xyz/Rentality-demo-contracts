@@ -353,6 +353,17 @@
     },
     {
       "type": "function",
+      "name": "setCivicData",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "_civicVerifier" },
+        { "type": "uint256", "name": "_civicGatekeeperNetwork" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
       "name": "setKYCInfo",
       "constant": false,
       "payable": false,
