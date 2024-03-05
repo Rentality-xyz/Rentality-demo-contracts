@@ -107,7 +107,7 @@ contract RentalityEnginesService is Initializable, UUPSAccess {
   /// @notice Retrieves the number of parameters expected by the panel for a specific engine type.
   /// @param eType The engine type for which to get the panel parameters amount.
   /// @return The number of parameters expected by the panel.
-  function getPanelParamsAmount(uint8 eType) public returns (uint256) {
+  function getPanelParamsAmount(uint8 eType) public view returns (uint256) {
     return engineTypeToEngineContract[eType].getParamsAmount();
   }
 
