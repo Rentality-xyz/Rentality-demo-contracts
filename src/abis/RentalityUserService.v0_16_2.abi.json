@@ -1,5 +1,4 @@
 {
-  "address": "0x69F94e46cbC82Ab02781ac4FaFc3580d21f1a888",
   "abi": [
     {
       "type": "event",
@@ -112,7 +111,8 @@
             { "type": "string", "name": "profilePhoto" },
             { "type": "string", "name": "licenseNumber" },
             { "type": "uint64", "name": "expirationDate" },
-            { "type": "uint256", "name": "createDate" }
+            { "type": "uint256", "name": "createDate" },
+            { "type": "bool", "name": "isTCPassed" }
           ]
         }
       ]
@@ -135,7 +135,8 @@
             { "type": "string", "name": "profilePhoto" },
             { "type": "string", "name": "licenseNumber" },
             { "type": "uint64", "name": "expirationDate" },
-            { "type": "uint256", "name": "createDate" }
+            { "type": "uint256", "name": "createDate" },
+            { "type": "bool", "name": "isTCPassed" }
           ]
         }
       ]
@@ -194,6 +195,24 @@
     },
     {
       "type": "function",
+      "name": "hasPassedKYC",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "user" }],
+      "outputs": [{ "type": "bool", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "hasPassedKYCAndTC",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "user" }],
+      "outputs": [{ "type": "bool", "name": "" }]
+    },
+    {
+      "type": "function",
       "name": "hasRole",
       "constant": true,
       "stateMutability": "view",
@@ -213,7 +232,17 @@
       "inputs": [{ "type": "address", "name": "user" }],
       "outputs": [{ "type": "bool", "name": "isValid" }]
     },
-    { "type": "function", "name": "initialize", "constant": false, "payable": false, "inputs": [], "outputs": [] },
+    {
+      "type": "function",
+      "name": "initialize",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "_civicVerifier" },
+        { "type": "uint256", "name": "_civicGatekeeperNetwork" }
+      ],
+      "outputs": []
+    },
     {
       "type": "function",
       "name": "isAdmin",
@@ -324,6 +353,17 @@
     },
     {
       "type": "function",
+      "name": "setCivicData",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "_civicVerifier" },
+        { "type": "uint256", "name": "_civicGatekeeperNetwork" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
       "name": "setKYCInfo",
       "constant": false,
       "payable": false,
@@ -333,7 +373,8 @@
         { "type": "string", "name": "mobilePhoneNumber" },
         { "type": "string", "name": "profilePhoto" },
         { "type": "string", "name": "licenseNumber" },
-        { "type": "uint64", "name": "expirationDate" }
+        { "type": "uint64", "name": "expirationDate" },
+        { "type": "bool", "name": "isTCPassed" }
       ],
       "outputs": []
     },

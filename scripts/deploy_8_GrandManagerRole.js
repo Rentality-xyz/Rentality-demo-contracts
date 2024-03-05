@@ -1,4 +1,4 @@
-const RentalityUserServiceJSON_ABI = require('../src/abis/RentalityUserService.v0_16_1.abi.json')
+const RentalityUserServiceJSON_ABI = require('../src/abis/RentalityUserService.v0_16_2.abi.json')
 const { ethers, network } = require('hardhat')
 const addressesContractsTestnets = require('./addressesContractsTestnets.json')
 const { checkNotNull, startDeploy } = require('./utils/deployHelper')
