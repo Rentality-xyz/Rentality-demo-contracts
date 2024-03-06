@@ -84,7 +84,8 @@
     {
       "type": "function",
       "name": "getPanelParamsAmount",
-      "constant": false,
+      "constant": true,
+      "stateMutability": "view",
       "payable": false,
       "inputs": [{ "type": "uint8", "name": "eType" }],
       "outputs": [{ "type": "uint256", "name": "" }]

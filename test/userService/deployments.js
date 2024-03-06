@@ -6,6 +6,10 @@ const { ethers, upgrades } = require('hardhat')
 async function deployDefaultFixture() {
   const [owner, admin, manager, host, guest, anonymous] = await ethers.getSigners()
 
+  const chainId = (await owner.provider?.getNetwork())?.chainId ?? -1
+
+  if (chainId !== 1337n) throw new Error('Can be running only on localhost')
+
   const RentalityUtils = await ethers.getContractFactory('RentalityUtils')
   const utils = await RentalityUtils.deploy()
 
