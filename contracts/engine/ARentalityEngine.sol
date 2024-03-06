@@ -105,7 +105,7 @@ abstract contract ARentalityEngine {
   }
 
   /// @notice Gets the number of parameters expected for this engine.
-  function getParamsAmount() public virtual returns (uint256) {
+  function getParamsAmount() public pure virtual returns (uint256) {
     return 2;
   }
 

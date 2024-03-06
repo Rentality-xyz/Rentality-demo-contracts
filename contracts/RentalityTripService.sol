@@ -44,6 +44,13 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
   RentalityEnginesService private engineService;
   RentalityAutomation private automationService;
 
+  /// @dev Updates the address of the RentalityEnginesService contract.
+  /// @param _engineService The address of the new RentalityEnginesService contract.
+  function updateEngineServiceAddress(address _engineService) public {
+    require(userService.isAdmin(msg.sender), 'Only admin.');
+
+    engineService = RentalityEnginesService(_engineService);
+  }
   /// @dev Get the total number of trips created.
   /// @return The total number of trips.
   function totalTripCount() public view returns (uint) {

@@ -601,6 +601,14 @@
     },
     {
       "type": "function",
+      "name": "updateEngineServiceAddress",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "_engineService" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
       "name": "updateGeoServiceAddress",
       "constant": false,
       "payable": false,

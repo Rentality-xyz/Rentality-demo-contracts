@@ -122,6 +122,13 @@ function getEmptySearchCarParams(seed) {
 async function deployDefaultFixture() {
   const [owner, admin, manager, host, guest, anonymous] = await ethers.getSigners()
 
+  const chainId = (await owner.provider?.getNetwork())?.chainId ?? -1
+
+  if (chainId !== 1337n) {
+    console.log('Can be running only on localhost')
+    process.exit(1)
+  }
+
   const RentalityUtils = await ethers.getContractFactory('RentalityUtils')
   const utils = await RentalityUtils.deploy()
 
