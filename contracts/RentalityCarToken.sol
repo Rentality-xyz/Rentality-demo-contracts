@@ -42,6 +42,14 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
   /// @notice Event emitted when a car is successfully removed.
   event CarRemovedSuccess(uint256 carId, string CarVinNumber, address removedBy);
 
+  /// @dev Updates the address of the RentalityEnginesService contract.
+  /// @param _engineService The address of the new RentalityEnginesService contract.
+  function updateEngineServiceAddress(address _engineService) public {
+    require(userService.isAdmin(msg.sender), 'Only admin.');
+
+    engineService = RentalityEnginesService(_engineService);
+  }
+
   /// @notice returns RentalityGeoService address
   function getGeoServiceAddress() public view returns (address) {
     return address(geoService);
