@@ -72,13 +72,15 @@ or `n` for no accordingly.
 
 ## Update Proxy <a name="update-proxy"></a>
 
-Before proceeding with the update in the working directory,
+**Before proceeding**:
+
+with the update in the working directory,
 ensure that a `<network_name>.json` file exists in the `.openzeppelin` folder.
 If it doesn't exist, you'll need to use one of the scripts from the `recoveryProxy` folder,
 depending on the presence of libraries in the smart contract.
 Additionally, ensure that the addressesContractsTestnets.json file contains the deployed proxy address.
 
-# Example
+**Example:**
 
 To recover manifest file for `RentalityTripService`, that use both libs, run:
 
@@ -88,7 +90,7 @@ npx hardhat run scripts/recoverProxy/recover_withLibs.js
 
 Then, enter `RentalityTripService`. This will create the file <network_name>.json or add to the existing RentalityTripService proxy data.
 
-# Notice
+**Notice:**
 
 For best practices, recovering manifest files is better done from the last updated version of the contract.
 In the case of updating from v1 to v2, it's recommended to run:
@@ -98,10 +100,12 @@ npx hardhat run scripts/recoverProxy/recover_withLibs.js
 ```
 
 on smart contract v1.
+
 This steps allows the upgrade mechanism to check the storage compatibility of both versions.
 Additional example of [forceImport] [forceImport-example-url] feature usage.
 
-Other steps of updating proxy contracts:
+**Main steps:**
+of updating proxy contracts:
 
 Choose the network in `hardhat.config.js` and run following command:
 
