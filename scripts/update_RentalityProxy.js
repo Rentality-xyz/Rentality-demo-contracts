@@ -21,8 +21,8 @@ async function main() {
   }
   const contractFactory = await ethers.getContractFactory(contractName, {
     libraries: {
-      RentalityQuery: '0x7660ad943BBf943D2e9706b97E918f158b742035',
-      RentalityUtils: '0x8b5F49B36533Df2e593dFd107773Ff64d53043e4',
+      RentalityQuery: '0x299Ad73d386D0Ef3EC2373B6cD712825277D0cFB',
+      // RentalityUtils: '0x8b5F49B36533Df2e593dFd107773Ff64d53043e4',
     },
   })
 

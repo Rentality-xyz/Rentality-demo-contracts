@@ -25,7 +25,7 @@
   {
     "name": "sepolia",
     "chainId": 11155111,
-    "RentalityQuery": "0x7660ad943BBf943D2e9706b97E918f158b742035",
+    "RentalityQuery": "0x299Ad73d386D0Ef3EC2373B6cD712825277D0cFB",
     "RentalityUserService": "0x54c47ecdd497701A04F07f1aD6001dAe8Ab7443B",
     "RentalityClaimService": "0xA80bcaf343934649F42Ff18622a5E9FC78b2aaFE",
     "EthToUsdPriceFeedAddress": "0x694AA1769357215DE4FAC081bf1f309aDC325306",
