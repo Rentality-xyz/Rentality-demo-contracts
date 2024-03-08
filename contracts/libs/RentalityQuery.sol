@@ -567,12 +567,12 @@ library RentalityQuery {
   function isCarEditable(uint carId, address tripServiceAddress) public view returns (bool) {
     RentalityTripService tripService = RentalityTripService(tripServiceAddress);
 
-    for (uint i = 0; i <= tripService.totalTripCount(); i++) {
+    for (uint i = 1; i <= tripService.totalTripCount(); i++) {
       Schemas.Trip memory tripInfo = tripService.getTrip(i);
 
       if (
         tripInfo.carId == carId &&
-        (tripInfo.status != Schemas.TripStatus.Finished || tripInfo.status != Schemas.TripStatus.Canceled)
+        (tripInfo.status != Schemas.TripStatus.Finished && tripInfo.status != Schemas.TripStatus.Canceled)
       ) {
         return false;
       }
