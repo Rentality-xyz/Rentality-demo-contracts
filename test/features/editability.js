@@ -133,4 +133,48 @@ describe('Ability to update car during trip', function () {
       'Car is not available for update.'
     )
   })
+
+  it('should be again editable after cancellation', async function () {
+    await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
+    const myCars = await rentalityGateway.connect(host).getMyCars()
+    expect(myCars.length).to.equal(1)
+
+    const availableCars = await rentalityGateway.connect(guest).getAvailableCarsForUser(guest.address)
+    expect(availableCars.length).to.equal(1)
+
+    const rentPriceInUsdCents = 1000
+    const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
+      await rentalityCurrencyConverter.getEthFromUsdLatest(rentPriceInUsdCents)
+
+    const oneDayInMilliseconds = 24 * 60 * 60 * 1000
+    await expect(
+      rentalityGateway.connect(guest).createTripRequest(
+        {
+          carId: 1,
+          host: host.address,
+          startDateTime: Date.now(),
+          endDateTime: Date.now() + oneDayInMilliseconds,
+          startLocation: '',
+          endLocation: '',
+          totalDayPriceInUsdCents: rentPriceInUsdCents,
+          taxPriceInUsdCents: 0,
+          depositInUsdCents: 0,
+          fuelPrices: [400],
+          ethToCurrencyRate: ethToCurrencyRate,
+          ethToCurrencyDecimals: ethToCurrencyDecimals,
+        },
+        { value: rentPriceInEth }
+      )
+    ).to.changeEtherBalances([guest, rentalityPlatform], [-rentPriceInEth, rentPriceInEth])
+
+    const myNotEditableCars = await rentalityGateway.connect(host).getMyCars()
+
+    expect(myNotEditableCars[0].isEditable).to.be.equal(false)
+
+    await rentalityGateway.connect(guest).rejectTripRequest(1)
+
+    const myNotEditableCars2 = await rentalityGateway.connect(host).getMyCars()
+
+    expect(myNotEditableCars2[0].isEditable).to.be.equal(true)
+  })
 })
