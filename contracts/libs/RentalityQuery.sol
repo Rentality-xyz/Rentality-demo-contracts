@@ -151,6 +151,8 @@ library RentalityQuery {
         result[currentIndex].guestPhotoUrl = RentalityUserService(userService).getKYCInfo(guest).profilePhoto;
         result[currentIndex].hostPhotoUrl = RentalityUserService(userService).getKYCInfo(currentItem.host).profilePhoto;
         result[currentIndex].metadataURI = RentalityCarToken(carService).tokenURI(currentItem.carId);
+        result[currentIndex].timeZoneId = IRentalityGeoService(RentalityCarToken(carService).getGeoServiceAddress())
+          .getCarTimeZoneId(currentItem.carId);
 
         currentIndex += 1;
       }
@@ -191,6 +193,8 @@ library RentalityQuery {
           .profilePhoto;
         result[currentIndex].hostPhotoUrl = RentalityUserService(userService).getKYCInfo(host).profilePhoto;
         result[currentIndex].metadataURI = RentalityCarToken(carService).tokenURI(currentItem.carId);
+        result[currentIndex].timeZoneId = IRentalityGeoService(RentalityCarToken(carService).getGeoServiceAddress())
+          .getCarTimeZoneId(currentItem.carId);
 
         currentIndex += 1;
       }
