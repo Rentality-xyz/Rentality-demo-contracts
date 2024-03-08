@@ -153,6 +153,7 @@ interface Schemas {
     string guestPhotoUrl;
     string hostPhotoUrl;
     string metadataURI;
+    string timeZoneId;
   }
 
   /// CHAT LOGIC
@@ -331,6 +332,7 @@ interface Schemas {
     string timeZoneId;
     string metadataURI;
   }
+
   struct CarDetails {
     uint carId;
     string hostName;
