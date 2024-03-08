@@ -894,7 +894,8 @@
             },
             { "type": "string", "name": "guestPhotoUrl" },
             { "type": "string", "name": "hostPhotoUrl" },
-            { "type": "string", "name": "metadataURI" }
+            { "type": "string", "name": "metadataURI" },
+            { "type": "string", "name": "timeZoneId" }
           ]
         }
       ]
@@ -975,7 +976,8 @@
             },
             { "type": "string", "name": "guestPhotoUrl" },
             { "type": "string", "name": "hostPhotoUrl" },
-            { "type": "string", "name": "metadataURI" }
+            { "type": "string", "name": "metadataURI" },
+            { "type": "string", "name": "timeZoneId" }
           ]
         }
       ]
@@ -1128,7 +1130,8 @@
             },
             { "type": "string", "name": "guestPhotoUrl" },
             { "type": "string", "name": "hostPhotoUrl" },
-            { "type": "string", "name": "metadataURI" }
+            { "type": "string", "name": "metadataURI" },
+            { "type": "string", "name": "timeZoneId" }
           ]
         }
       ]
@@ -1209,7 +1212,8 @@
             },
             { "type": "string", "name": "guestPhotoUrl" },
             { "type": "string", "name": "hostPhotoUrl" },
-            { "type": "string", "name": "metadataURI" }
+            { "type": "string", "name": "metadataURI" },
+            { "type": "string", "name": "timeZoneId" }
           ]
         }
       ]
