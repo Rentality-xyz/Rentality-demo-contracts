@@ -368,8 +368,13 @@ contract RentalityPlatform is UUPSOwnable {
     Schemas.CarInfo memory car = carService.getCarInfoById(trip.carId);
     string memory guestPhoneNumber = userService.getKYCInfo(trip.guest).mobilePhoneNumber;
     string memory hostPhoneNumber = userService.getKYCInfo(trip.host).mobilePhoneNumber;
+    uint valueInEth = currencyConverterService.getEthFromUsd(
+      claim.amountInUsdCents,
+      trip.paymentInfo.ethToCurrencyRate,
+      trip.paymentInfo.ethToCurrencyDecimals
+    );
 
-    return Schemas.FullClaimInfo(claim, trip.host, trip.guest, guestPhoneNumber, hostPhoneNumber, car);
+    return Schemas.FullClaimInfo(claim, trip.host, trip.guest, guestPhoneNumber, hostPhoneNumber, valueInEth, car);
   }
 
   /// @notice Get contact information for a specific trip on the Rentality platform.
