@@ -93,8 +93,6 @@ async function deployDefaultFixture() {
 
   await rentalityCarToken.waitForDeployment()
 
-
-
   const RentalityTripService = await ethers.getContractFactory('RentalityTripService', {
     libraries: {
       RentalityUtils: await utils.getAddress(),
@@ -107,7 +105,7 @@ async function deployDefaultFixture() {
     await rentalityCarToken.getAddress(),
     await rentalityPaymentService.getAddress(),
     await rentalityUserService.getAddress(),
-    await engineService.getAddress()
+    await engineService.getAddress(),
   ])
 
   await rentalityTripService.waitForDeployment()

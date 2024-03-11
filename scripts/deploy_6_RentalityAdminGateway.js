@@ -44,7 +44,6 @@ async function main() {
     'RentalityPlatform'
   )
 
-
   const contractFactory = await ethers.getContractFactory(contractName)
 
   const contract = await upgrades.deployProxy(contractFactory, [
@@ -54,7 +53,7 @@ async function main() {
     rentalityUserServiceAddress,
     rentalityPlatformAddress,
     rentalityPaymentServiceAddress,
-    rentalityClaimService
+    rentalityClaimService,
   ])
 
   await contract.waitForDeployment()

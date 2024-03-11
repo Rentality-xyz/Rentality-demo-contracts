@@ -256,5 +256,4 @@ interface IRentalityGateway {
   /// @notice Retrieves chat information for the caller acting as a guest.
   /// @return An array of chat information.
   function getChatInfoForGuest() external view returns (Schemas.ChatInfo[] memory);
-
 }
