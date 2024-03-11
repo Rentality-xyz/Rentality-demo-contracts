@@ -27,6 +27,11 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
 
   mapping(uint256 => Schemas.CarInfo) private idToCarInfo;
 
+  modifier onlyAdmin() {
+    require(userService.isAdmin(tx.origin), 'Only admin.');
+    _;
+  }
+
   /// @notice Event emitted when a new car is successfully added.
   event CarAddedSuccess(
     uint256 CarId,
@@ -44,9 +49,7 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
 
   /// @dev Updates the address of the RentalityEnginesService contract.
   /// @param _engineService The address of the new RentalityEnginesService contract.
-  function updateEngineServiceAddress(address _engineService) public {
-    require(userService.isAdmin(msg.sender), 'Only admin.');
-
+  function updateEngineServiceAddress(address _engineService) public onlyAdmin {
     engineService = RentalityEnginesService(_engineService);
   }
 
@@ -56,9 +59,14 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
   }
   /// @notice update RentalityGeoService address
   /// @param _geoService address of service
-  function updateGeoServiceAddress(address _geoService) public {
-    require(owner() == msg.sender, 'Only owner.');
+  function updateGeoServiceAddress(address _geoService) public onlyAdmin {
     geoService = IRentalityGeoService(_geoService);
+  }
+
+  /// @notice Updates the address of the GeoParser contract.
+  /// @param newGeoParserAddress The new address of the GeoParser contract.
+  function updateGeoParsesAddress(address newGeoParserAddress) public onlyAdmin {
+    geoService.updateParserAddress(newGeoParserAddress);
   }
 
   /// @notice Returns the total supply of cars.
