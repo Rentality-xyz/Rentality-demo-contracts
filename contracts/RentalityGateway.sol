@@ -363,6 +363,7 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
         address(tripService),
         address(carService),
         address(userService),
+        address(currencyConverterService),
         tripId
       );
   }
@@ -377,6 +378,7 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
         address(tripService),
         address(carService),
         address(userService),
+        address(currencyConverterService),
         msg.sender
       );
   }
@@ -391,6 +393,7 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
         address(tripService),
         address(carService),
         address(userService),
+        address(currencyConverterService),
         msg.sender
       );
   }

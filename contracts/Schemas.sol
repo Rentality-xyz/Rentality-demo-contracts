@@ -197,6 +197,7 @@ interface Schemas {
     address guest;
     string guestPhoneNumber;
     string hostPhoneNumber;
+    uint amountInEth;
     CarInfo carInfo;
   }
 
