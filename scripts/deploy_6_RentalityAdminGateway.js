@@ -44,10 +44,6 @@ async function main() {
     'RentalityPlatform'
   )
 
-  const rentalityAutomationAddress = checkNotNull(
-    getContractAddress('RentalityAutomation', 'scripts/deploy_2e_RentalityAutomation.js', chainId),
-    'RentalityAutomation'
-  )
 
   const contractFactory = await ethers.getContractFactory(contractName)
 
@@ -58,8 +54,7 @@ async function main() {
     rentalityUserServiceAddress,
     rentalityPlatformAddress,
     rentalityPaymentServiceAddress,
-    rentalityClaimService,
-    rentalityAutomationAddress,
+    rentalityClaimService
   ])
 
   await contract.waitForDeployment()

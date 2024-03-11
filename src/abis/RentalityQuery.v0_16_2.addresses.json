@@ -1,1 +1,1 @@
-{ "addresses": [{ "chainId": 11155111, "address": "0x62c3C269432E7E59d82ACA4E12E2C0A39A467840" }] }
+{"addresses":[{"chainId":11155111,"address":"0x62c3C269432E7E59d82ACA4E12E2C0A39A467840"},{"chainId":1337,"address":"0xCA8c8688914e0F7096c920146cd0Ad85cD7Ae8b9"}]}

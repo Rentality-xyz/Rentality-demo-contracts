@@ -93,11 +93,7 @@ async function deployDefaultFixture() {
 
   await rentalityCarToken.waitForDeployment()
 
-  const AutomationService = await ethers.getContractFactory('RentalityAutomation')
-  const rentalityAutomationService = await upgrades.deployProxy(AutomationService, [
-    await rentalityUserService.getAddress(),
-  ])
-  await rentalityAutomationService.waitForDeployment()
+
 
   const RentalityTripService = await ethers.getContractFactory('RentalityTripService', {
     libraries: {
@@ -111,8 +107,7 @@ async function deployDefaultFixture() {
     await rentalityCarToken.getAddress(),
     await rentalityPaymentService.getAddress(),
     await rentalityUserService.getAddress(),
-    await engineService.getAddress(),
-    await rentalityAutomationService.getAddress(),
+    await engineService.getAddress()
   ])
 
   await rentalityTripService.waitForDeployment()
