@@ -101,14 +101,12 @@ async function deployDefaultFixture() {
     await rentalityUserService.getAddress(),
   ])
 
-
-
   const rentalityTripService = await upgrades.deployProxy(RentalityTripService, [
     await rentalityCurrencyConverter.getAddress(),
     await rentalityCarToken.getAddress(),
     await rentalityPaymentService.getAddress(),
     await rentalityUserService.getAddress(),
-    await engineService.getAddress()
+    await engineService.getAddress(),
   ])
 
   await rentalityTripService.waitForDeployment()
@@ -122,7 +120,7 @@ async function deployDefaultFixture() {
     await rentalityTripService.getAddress(),
     await rentalityUserService.getAddress(),
     await rentalityPaymentService.getAddress(),
-    await claimService.getAddress()
+    await claimService.getAddress(),
   ])
 
   await rentalityPlatform.waitForDeployment()

@@ -61,7 +61,7 @@ async function main() {
     rentalityTripServiceAddress,
     rentalityUserServiceAddress,
     rentalityPaymentServiceAddress,
-    rentalityClaimService
+    rentalityClaimService,
   ])
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()

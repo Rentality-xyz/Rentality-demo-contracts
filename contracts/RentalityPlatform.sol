@@ -421,7 +421,6 @@ contract RentalityPlatform is UUPSOwnable {
     return RentalityUtils.populateChatInfo(trips, address(userService), address(carService));
   }
 
-
   /// @notice Constructor to initialize the RentalityPlatform with service contract addresses.
   /// @param carServiceAddress The address of the RentalityCarToken contract.
   /// @param currencyConverterServiceAddress The address of the RentalityCurrencyConverter contract.

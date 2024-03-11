@@ -43,8 +43,6 @@ async function main() {
     'RentalityCarToken'
   )
 
-
-
   const contractFactory = await ethers.getContractFactory(contractName, {
     libraries: {
       RentalityUtils: rentalityUtilsAddress,
@@ -57,7 +55,7 @@ async function main() {
     rentalityCarTokenAddress,
     rentalityPaymentServiceAddress,
     rentalityUserServiceAddress,
-    engineAddress
+    engineAddress,
   ])
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()

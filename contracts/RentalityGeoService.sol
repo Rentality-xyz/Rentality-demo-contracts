@@ -5,7 +5,7 @@ import './Schemas.sol';
 import './IRentalityGeoParser.sol';
 import './proxy/UUPSAccess.sol';
 import '@openzeppelin/contracts/proxy/utils/Initializable.sol';
-import "./IRentalityGeoService.sol";
+import './IRentalityGeoService.sol';
 
 /// @title Rentality Geo Service Contract
 /// @notice This contract provides geolocation services.

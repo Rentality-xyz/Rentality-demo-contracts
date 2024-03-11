@@ -447,8 +447,6 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
     return rentalityPlatform.getChatInfoForGuest();
   }
 
-
-
   //  @dev Initializes the contract with the provided addresses for various services.
   //  @param carServiceAddress The address of the RentalityCarToken contract.
   //  @param currencyConverterServiceAddress The address of the RentalityCurrencyConverter contract.

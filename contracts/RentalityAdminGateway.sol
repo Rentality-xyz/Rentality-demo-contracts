@@ -105,7 +105,6 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
     userService = RentalityUserService(contractAddress);
   }
 
-
   /// @notice Updates the address of the GeoService contract.
   /// @param newGeoServiceAddress The new address of the GeoService contract.
   function updateGeoServiceAddress(address newGeoServiceAddress) public onlyAdmin {
@@ -184,7 +183,6 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
     rentalityPlatform = RentalityPlatform(rentalityPlatformAddress);
     paymentService = RentalityPaymentService(paymentServiceAddress);
     claimService = RentalityClaimService(claimServiceAddress);
-
 
     __Ownable_init();
   }
