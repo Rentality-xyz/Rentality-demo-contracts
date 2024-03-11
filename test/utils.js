@@ -221,11 +221,6 @@ async function deployDefaultFixture() {
   ])
   await rentalityCarToken.waitForDeployment()
 
-  const AutomationService = await ethers.getContractFactory('RentalityAutomation')
-  const rentalityAutomationService = await upgrades.deployProxy(AutomationService, [
-    await rentalityUserService.getAddress(),
-  ])
-  await rentalityAutomationService.waitForDeployment()
 
   const rentalityPaymentService = await upgrades.deployProxy(RentalityPaymentService, [
     await rentalityUserService.getAddress(),
@@ -237,8 +232,7 @@ async function deployDefaultFixture() {
     await rentalityCarToken.getAddress(),
     await rentalityPaymentService.getAddress(),
     await rentalityUserService.getAddress(),
-    await engineService.getAddress(),
-    await rentalityAutomationService.getAddress(),
+    await engineService.getAddress()
   ])
   await rentalityTripService.waitForDeployment()
 
@@ -252,8 +246,7 @@ async function deployDefaultFixture() {
     await rentalityTripService.getAddress(),
     await rentalityUserService.getAddress(),
     await rentalityPaymentService.getAddress(),
-    await claimService.getAddress(),
-    await rentalityAutomationService.getAddress(),
+    await claimService.getAddress()
   ])
 
   const RentalityAdminGateway = await ethers.getContractFactory('RentalityAdminGateway')
@@ -264,8 +257,7 @@ async function deployDefaultFixture() {
     await rentalityUserService.getAddress(),
     await rentalityPlatform.getAddress(),
     await rentalityPaymentService.getAddress(),
-    await claimService.getAddress(),
-    await rentalityAutomationService.getAddress(),
+    await claimService.getAddress()
   ])
   await rentalityAdminGateway.waitForDeployment()
 
@@ -323,7 +315,6 @@ async function deployDefaultFixture() {
     host,
     guest,
     anonymous,
-    rentalityAutomationService,
     geoParserMock,
   }
 }

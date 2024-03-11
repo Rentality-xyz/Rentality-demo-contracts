@@ -13,7 +13,6 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
   RentalityPlatform private rentalityPlatform;
   RentalityPaymentService private paymentService;
   RentalityClaimService private claimService;
-  RentalityAutomation private automationService;
 
   /// @notice Ensures that the caller is either an admin, the contract owner, or an admin from the origin transaction.
   modifier onlyAdmin() {
@@ -106,16 +105,17 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
     userService = RentalityUserService(contractAddress);
   }
 
-  /// @notice Retrieves the address of the RentalityAutomation contract.
-  /// @return The address of the RentalityAutomation contract.
-  function getAutomationServiceAddress() public view returns (address) {
-    return address(automationService);
+
+  /// @notice Updates the address of the GeoService contract.
+  /// @param newGeoServiceAddress The new address of the GeoService contract.
+  function updateGeoServiceAddress(address newGeoServiceAddress) public onlyAdmin {
+    carService.updateGeoServiceAddress(newGeoServiceAddress);
   }
 
-  /// @notice Updates the address of the RentalityAutomation contract. Only callable by admins.
-  /// @param contractAddress The new address of the RentalityAutomationService contract.
-  function updateAutomationService(address contractAddress) public onlyAdmin {
-    automationService = RentalityAutomation(contractAddress);
+  /// @notice Updates the address of the GeoParser contract.
+  /// @param newGeoParserAddress The new address of the GeoParser contract.
+  function updateGeoParserAddress(address newGeoParserAddress) public onlyAdmin {
+    carService.updateGeoParsesAddress(newGeoParserAddress);
   }
 
   /// @notice Withdraws the specified amount from the RentalityPlatform contract.
@@ -132,31 +132,6 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
   /// @param valueInPPM The new platform fee value in PPM.
   function setPlatformFeeInPPM(uint32 valueInPPM) public onlyAdmin {
     paymentService.setPlatformFeeInPPM(valueInPPM);
-  }
-  /// @dev Sets the auto-cancellation time for all trips.
-  /// @param time The new auto-cancellation time in hours. Must be between 1 and 24.
-  /// @notice Only the administrator can call this function.
-  function setAutoCancellationTime(uint8 time) public {
-    automationService.setAutoCancellationTime(time);
-  }
-
-  /// @dev Retrieves the current auto-cancellation time for all trips.
-  /// @return The current auto-cancellation time in hours.
-  function getAutoCancellationTimeInSec() public view returns (uint64) {
-    return automationService.getAutoCancellationTimeInSec();
-  }
-
-  /// @dev Sets the auto status change time for all trips.
-  /// @param time The new auto status change time in hours. Must be between 1 and 3.
-  /// @notice Only the administrator can call this function.
-  function setAutoStatusChangeTime(uint8 time) public {
-    automationService.setAutoStatusChangeTime(time);
-  }
-
-  /// @dev Retrieves the current auto status change time for all trips.
-  /// @return The current auto status change time in hours.
-  function getAutoStatusChangeTimeInSec() public view returns (uint64) {
-    return automationService.getAutoStatusChangeTimeInSec();
   }
 
   /// @dev Sets the waiting time, only callable by administrators.
@@ -200,8 +175,7 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
     address userServiceAddress,
     address rentalityPlatformAddress,
     address paymentServiceAddress,
-    address claimServiceAddress,
-    address automationServiceAddress
+    address claimServiceAddress
   ) public initializer {
     carService = RentalityCarToken(carServiceAddress);
     currencyConverterService = RentalityCurrencyConverter(currencyConverterServiceAddress);
@@ -211,7 +185,6 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
     paymentService = RentalityPaymentService(paymentServiceAddress);
     claimService = RentalityClaimService(claimServiceAddress);
 
-    automationService = RentalityAutomation(automationServiceAddress);
 
     __Ownable_init();
   }
