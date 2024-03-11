@@ -61,14 +61,6 @@ interface IRentalityAdminGateway {
   /// @param contractAddress The new address of the RentalityUserService contract.
   function updateUserService(address contractAddress) external;
 
-  /// @notice Retrieves the address of the RentalityAutomation contract.
-  /// @return The address of the RentalityAutomation contract.
-  function getAutomationServiceAddress() external view returns (address);
-
-  /// @notice Updates the address of the RentalityAutomation contract. Only callable by admins.
-  /// @param contractAddress The new address of the RentalityAutomationService contract.
-  function updateAutomationService(address contractAddress) external;
-
   /// @notice Withdraws the specified amount from the RentalityPlatform contract.
   /// @param amount The amount to withdraw.
   function withdrawFromPlatform(uint256 amount) external;
@@ -80,23 +72,13 @@ interface IRentalityAdminGateway {
   /// @param valueInPPM The new platform fee value in PPM.
   function setPlatformFeeInPPM(uint32 valueInPPM) external;
 
-  /// @dev Sets the auto-cancellation time for all trips.
-  /// @param time The new auto-cancellation time in hours. Must be between 1 and 24.
-  /// @notice Only the administrator can call this function.
-  function setAutoCancellationTime(uint8 time) external;
+  /// @notice Updates the address of the GeoService contract.
+  /// @param newGeoServiceAddress The new address of the GeoService contract.
+  function updateGeoServiceAddress(address newGeoServiceAddress) external;
 
-  /// @dev Retrieves the current auto-cancellation time for all trips.
-  /// @return The current auto-cancellation time in hours.
-  function getAutoCancellationTimeInSec() external view returns (uint64);
-
-  /// @dev Sets the auto status change time for all trips.
-  /// @param time The new auto status change time in hours. Must be between 1 and 3.
-  /// @notice Only the administrator can call this function.
-  function setAutoStatusChangeTime(uint8 time) external;
-
-  /// @dev Retrieves the current auto status change time for all trips.
-  /// @return The current auto status change time in hours.
-  function getAutoStatusChangeTimeInSec() external view returns (uint64);
+  /// @notice Updates the address of the GeoParser contract.
+  /// @param newGeoParserAddress The new address of the GeoParser contract.
+  function updateGeoParserAddress(address newGeoParserAddress) external;
 
   /// @dev Sets the waiting time, only callable by administrators.
   /// @param timeInSec, set old value to this
