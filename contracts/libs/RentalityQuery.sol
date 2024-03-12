@@ -239,12 +239,14 @@ library RentalityQuery {
     address tripServiceAddress,
     address carServiceAddress,
     address userServiceAddress,
+    address currencyConverterAddress,
     uint256 tripId
   ) public view returns (Schemas.FullClaimInfo[] memory) {
     RentalityClaimService claimService = RentalityClaimService(claimServiceAddress);
     RentalityTripService tripService = RentalityTripService(tripServiceAddress);
     RentalityCarToken carService = RentalityCarToken(carServiceAddress);
     RentalityUserService userService = RentalityUserService(userServiceAddress);
+    RentalityCurrencyConverter currencyConverterService = RentalityCurrencyConverter(currencyConverterAddress);
 
     uint256 arraySize = 0;
     for (uint256 i = 1; i <= claimService.getClaimsAmount(); i++) {
@@ -265,6 +267,11 @@ library RentalityQuery {
         Schemas.CarInfo memory carInfo = carService.getCarInfoById(trip.carId);
         string memory guestPhoneNumber = userService.getKYCInfo(trip.guest).mobilePhoneNumber;
         string memory hostPhoneNumber = userService.getKYCInfo(trip.host).mobilePhoneNumber;
+        uint valueInEth = currencyConverterService.getEthFromUsd(
+          claim.amountInUsdCents,
+          trip.paymentInfo.ethToCurrencyRate,
+          trip.paymentInfo.ethToCurrencyDecimals
+        );
 
         claimInfos[counter++] = Schemas.FullClaimInfo(
           claim,
@@ -272,6 +279,7 @@ library RentalityQuery {
           trip.guest,
           guestPhoneNumber,
           hostPhoneNumber,
+          valueInEth,
           carInfo
         );
       }
@@ -287,12 +295,14 @@ library RentalityQuery {
     address tripServiceAddress,
     address carServiceAddress,
     address userServiceAddress,
+    address currencyConverterAddress,
     address host
   ) public view returns (Schemas.FullClaimInfo[] memory) {
     RentalityClaimService claimService = RentalityClaimService(claimServiceAddress);
     RentalityTripService tripService = RentalityTripService(tripServiceAddress);
     RentalityCarToken carService = RentalityCarToken(carServiceAddress);
     RentalityUserService userService = RentalityUserService(userServiceAddress);
+    RentalityCurrencyConverter currencyConverterService = RentalityCurrencyConverter(currencyConverterAddress);
 
     uint256 arraySize = 0;
 
@@ -312,12 +322,18 @@ library RentalityQuery {
       Schemas.Trip memory trip = tripService.getTrip(claim.tripId);
 
       if (trip.host == host) {
+        uint valueInEth = currencyConverterService.getEthFromUsd(
+          claim.amountInUsdCents,
+          trip.paymentInfo.ethToCurrencyRate,
+          trip.paymentInfo.ethToCurrencyDecimals
+        );
         claimInfos[counter++] = Schemas.FullClaimInfo(
           claim,
           host,
           trip.guest,
           userService.getKYCInfo(trip.guest).mobilePhoneNumber,
           userService.getKYCInfo(host).mobilePhoneNumber,
+          valueInEth,
           carService.getCarInfoById(trip.carId)
         );
       }
@@ -333,12 +349,14 @@ library RentalityQuery {
     address tripServiceAddress,
     address carServiceAddress,
     address userServiceAddress,
+    address currencyConverterAddress,
     address guest
   ) public view returns (Schemas.FullClaimInfo[] memory) {
     RentalityClaimService claimService = RentalityClaimService(claimServiceAddress);
     RentalityTripService tripService = RentalityTripService(tripServiceAddress);
     RentalityCarToken carService = RentalityCarToken(carServiceAddress);
     RentalityUserService userService = RentalityUserService(userServiceAddress);
+    RentalityCurrencyConverter currencyConverterService = RentalityCurrencyConverter(currencyConverterAddress);
 
     uint256 arraySize = 0;
 
@@ -358,12 +376,18 @@ library RentalityQuery {
       Schemas.Trip memory trip = tripService.getTrip(claim.tripId);
 
       if (trip.guest == guest) {
+        uint valueInEth = currencyConverterService.getEthFromUsd(
+          claim.amountInUsdCents,
+          trip.paymentInfo.ethToCurrencyRate,
+          trip.paymentInfo.ethToCurrencyDecimals
+        );
         claimInfos[counter++] = Schemas.FullClaimInfo(
           claim,
           trip.host,
           guest,
           userService.getKYCInfo(guest).mobilePhoneNumber,
           userService.getKYCInfo(trip.host).mobilePhoneNumber,
+          valueInEth,
           carService.getCarInfoById(trip.carId)
         );
       }

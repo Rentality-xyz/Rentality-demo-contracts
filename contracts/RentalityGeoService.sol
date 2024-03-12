@@ -5,11 +5,12 @@ import './Schemas.sol';
 import './IRentalityGeoParser.sol';
 import './proxy/UUPSAccess.sol';
 import '@openzeppelin/contracts/proxy/utils/Initializable.sol';
+import './IRentalityGeoService.sol';
 
 /// @title Rentality Geo Service Contract
 /// @notice This contract provides geolocation services.
 /// @dev It interacts with an external geolocation API and stores the results for cars.
-contract RentalityGeoService is Initializable, UUPSAccess {
+contract RentalityGeoService is IRentalityGeoService, Initializable, UUPSAccess {
   /// @notice Mapping to store parsed geolocation data for each car ID.
   mapping(uint256 => Schemas.ParsedGeolocationData) public carIdToParsedGeolocationData;
   IRentalityGeoParser private geoParser;
@@ -17,7 +18,7 @@ contract RentalityGeoService is Initializable, UUPSAccess {
   /// @notice Updates the address of the geolocation parser contract.
   /// @param _geoParser The address of the new geolocation parser contract.
   function updateParserAddress(address _geoParser) public {
-    require(userService.isAdmin(msg.sender), 'Only admin.');
+    require(userService.isAdmin(tx.origin), 'Only admin.');
     geoParser = IRentalityGeoParser(_geoParser);
   }
 
@@ -30,7 +31,7 @@ contract RentalityGeoService is Initializable, UUPSAccess {
   /// @notice Updates the address of the user service contract.
   /// @param _userService The address of the new user service contract.
   function updateUserServiceAddress(address _userService) public {
-    require(userService.isAdmin(msg.sender), 'Only admin.');
+    require(userService.isAdmin(tx.origin), 'Only admin.');
     userService = IRentalityAccessControl(_userService);
   }
 
