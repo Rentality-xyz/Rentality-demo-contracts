@@ -25,7 +25,11 @@
       "type": "event",
       "anonymous": false,
       "name": "TripCreated",
-      "inputs": [{ "type": "uint256", "name": "tripId", "indexed": false }]
+      "inputs": [
+        { "type": "uint256", "name": "tripId", "indexed": false },
+        { "type": "address", "name": "host", "indexed": true },
+        { "type": "address", "name": "guest", "indexed": true }
+      ]
     },
     {
       "type": "event",
@@ -33,7 +37,9 @@
       "name": "TripStatusChanged",
       "inputs": [
         { "type": "uint256", "name": "tripId", "indexed": false },
-        { "type": "uint8", "name": "newStatus", "indexed": false }
+        { "type": "uint8", "name": "newStatus", "indexed": false },
+        { "type": "address", "name": "host", "indexed": true },
+        { "type": "address", "name": "guest", "indexed": true }
       ]
     },
     {
@@ -309,8 +315,7 @@
         { "type": "address", "name": "carServiceAddress" },
         { "type": "address", "name": "paymentServiceAddress" },
         { "type": "address", "name": "userServiceAddress" },
-        { "type": "address", "name": "engineServiceAddress" },
-        { "type": "address", "name": "automationServiceAddress" }
+        { "type": "address", "name": "engineServiceAddress" }
       ],
       "outputs": []
     },

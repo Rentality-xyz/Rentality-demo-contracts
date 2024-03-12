@@ -16,7 +16,7 @@ contract RentalityClaimService is Initializable, UUPSAccess {
   // Mapping to store claims using claimId as the key
   mapping(uint256 => Schemas.Claim) private claimIdToClaim;
 
-  event ClaimStatusChanged(uint256 claimId, Schemas.ClaimStatus claimStatus);
+  event ClaimStatusChanged(uint256 claimId, Schemas.ClaimStatus claimStatus, address indexed host, address indexed guest);
 
   event WaitingTimeChanged(uint256 newWaitingTime);
 
@@ -43,7 +43,7 @@ contract RentalityClaimService is Initializable, UUPSAccess {
 
   /// @dev Creates a new claim, only callable by managers contracts.
   /// @param request Details of the claim to be created.
-  function createClaim(Schemas.CreateClaimRequest memory request) public onlyManager {
+  function createClaim(Schemas.CreateClaimRequest memory request, address host, address guest) public onlyManager {
     require(request.amountInUsdCents > 0, 'Amount can not be null.');
 
     claimId += 1;
@@ -65,13 +65,13 @@ contract RentalityClaimService is Initializable, UUPSAccess {
     );
     claimIdToClaim[newClaimId] = newClaim;
 
-    emit ClaimStatusChanged(newClaimId, Schemas.ClaimStatus.NotPaid);
+    emit ClaimStatusChanged(newClaimId, Schemas.ClaimStatus.NotPaid, host, guest);
   }
 
   /// @dev Rejects a claim, only callable by managers contracts.
   /// @param _claimId ID of the claim to be rejected.
   /// @param rejectedBy Address of the user rejecting the claim.
-  function rejectClaim(uint256 _claimId, address rejectedBy) public onlyManager {
+  function rejectClaim(uint256 _claimId, address rejectedBy, address host, address guest) public onlyManager {
     Schemas.Claim storage claim = claimIdToClaim[_claimId];
     require(
       claim.status != Schemas.ClaimStatus.Paid && claim.status != Schemas.ClaimStatus.Cancel,
@@ -82,12 +82,12 @@ contract RentalityClaimService is Initializable, UUPSAccess {
     claim.rejectedBy = rejectedBy;
     claim.rejectedDateInSec = block.timestamp;
 
-    emit ClaimStatusChanged(_claimId, Schemas.ClaimStatus.Cancel);
+    emit ClaimStatusChanged(_claimId, Schemas.ClaimStatus.Cancel, host, guest);
   }
 
   /// @dev Pays a claim, only callable by managers contracts.
   /// @param _claimId ID of the claim to be paid.
-  function payClaim(uint256 _claimId) public onlyManager {
+  function payClaim(uint256 _claimId, address host, address guest) public onlyManager {
     Schemas.Claim storage claim = claimIdToClaim[_claimId];
 
     uint256 time = block.timestamp;
@@ -95,19 +95,19 @@ contract RentalityClaimService is Initializable, UUPSAccess {
     claim.payDateInSec = time;
     claim.status = Schemas.ClaimStatus.Paid;
 
-    emit ClaimStatusChanged(_claimId, Schemas.ClaimStatus.Paid);
+    emit ClaimStatusChanged(_claimId, Schemas.ClaimStatus.Paid, host, guest);
   }
 
   /// @dev Updates the status of a claim based on the current timestamp.
   /// @param _claimId ID of the claim to be updated.
-  function updateClaim(uint256 _claimId) public {
+  function updateClaim(uint256 _claimId, address host, address guest) public {
     Schemas.Claim storage claim = claimIdToClaim[_claimId];
 
     uint256 time = block.timestamp;
 
     if (time >= claim.deadlineDateInSec) {
       claim.status = Schemas.ClaimStatus.Overdue;
-      emit ClaimStatusChanged(_claimId, Schemas.ClaimStatus.Overdue);
+      emit ClaimStatusChanged(_claimId, Schemas.ClaimStatus.Overdue, host, guest);
     }
   }
 

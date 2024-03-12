@@ -21,7 +21,9 @@
       "name": "ClaimStatusChanged",
       "inputs": [
         { "type": "uint256", "name": "claimId", "indexed": false },
-        { "type": "uint8", "name": "claimStatus", "indexed": false }
+        { "type": "uint8", "name": "claimStatus", "indexed": false },
+        { "type": "address", "name": "host", "indexed": true },
+        { "type": "address", "name": "guest", "indexed": true }
       ]
     },
     {
@@ -57,7 +59,9 @@
             { "type": "string", "name": "description" },
             { "type": "uint64", "name": "amountInUsdCents" }
           ]
-        }
+        },
+        { "type": "address", "name": "host" },
+        { "type": "address", "name": "guest" }
       ],
       "outputs": []
     },
@@ -127,7 +131,11 @@
       "name": "payClaim",
       "constant": false,
       "payable": false,
-      "inputs": [{ "type": "uint256", "name": "_claimId" }],
+      "inputs": [
+        { "type": "uint256", "name": "_claimId" },
+        { "type": "address", "name": "host" },
+        { "type": "address", "name": "guest" }
+      ],
       "outputs": []
     },
     {
@@ -146,7 +154,9 @@
       "payable": false,
       "inputs": [
         { "type": "uint256", "name": "_claimId" },
-        { "type": "address", "name": "rejectedBy" }
+        { "type": "address", "name": "rejectedBy" },
+        { "type": "address", "name": "host" },
+        { "type": "address", "name": "guest" }
       ],
       "outputs": []
     },
@@ -163,7 +173,11 @@
       "name": "updateClaim",
       "constant": false,
       "payable": false,
-      "inputs": [{ "type": "uint256", "name": "_claimId" }],
+      "inputs": [
+        { "type": "uint256", "name": "_claimId" },
+        { "type": "address", "name": "host" },
+        { "type": "address", "name": "guest" }
+      ],
       "outputs": []
     },
     {
