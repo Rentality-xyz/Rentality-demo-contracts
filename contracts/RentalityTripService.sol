@@ -225,7 +225,12 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     idToTripInfo[tripId].status = Schemas.TripStatus.CheckedInByHost;
     idToTripInfo[tripId].checkedInByHostDateTime = block.timestamp;
     idToTripInfo[tripId].startParamLevels = panelParams;
-    emit TripStatusChanged(tripId, Schemas.TripStatus.CheckedInByHost, idToTripInfo[tripId].host, idToTripInfo[tripId].guest);
+    emit TripStatusChanged(
+      tripId,
+      Schemas.TripStatus.CheckedInByHost,
+      idToTripInfo[tripId].host,
+      idToTripInfo[tripId].guest
+    );
   }
 
   /// @notice Performs the check-in process by the guest, updating the trip status and details.

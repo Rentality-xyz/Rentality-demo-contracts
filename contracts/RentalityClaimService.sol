@@ -16,7 +16,12 @@ contract RentalityClaimService is Initializable, UUPSAccess {
   // Mapping to store claims using claimId as the key
   mapping(uint256 => Schemas.Claim) private claimIdToClaim;
 
-  event ClaimStatusChanged(uint256 claimId, Schemas.ClaimStatus claimStatus, address indexed host, address indexed guest);
+  event ClaimStatusChanged(
+    uint256 claimId,
+    Schemas.ClaimStatus claimStatus,
+    address indexed host,
+    address indexed guest
+  );
 
   event WaitingTimeChanged(uint256 newWaitingTime);
 
