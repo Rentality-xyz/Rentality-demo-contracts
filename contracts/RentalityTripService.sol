@@ -14,7 +14,6 @@ import './libs/RentalityQuery.sol';
 import './libs/RentalityUtils.sol';
 import './engine/RentalityEnginesService.sol';
 import './Schemas.sol';
-import './RentalityAutomation.sol';
 
 /// @title RentalityTripService
 /// @dev Manages the lifecycle of rental trips, including creation, approval, and completion.
@@ -42,7 +41,6 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
   RentalityPaymentService private paymentService;
   RentalityUserService private userService;
   RentalityEnginesService private engineService;
-  RentalityAutomation private automationService;
 
   /// @dev Updates the address of the RentalityEnginesService contract.
   /// @param _engineService The address of the new RentalityEnginesService contract.
@@ -87,12 +85,6 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
       milesIncludedPerDay = 2 ** 32 - 1;
     }
     paymentInfo.tripId = newTripId;
-
-    automationService.addAutomation(
-      newTripId,
-      block.timestamp + automationService.getAutoCancellationTimeInSec(),
-      Schemas.AutomationType.Rejection
-    );
 
     Schemas.CarInfo memory carInfo = carService.getCarInfoById(carId);
 
@@ -143,8 +135,6 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     require(idToTripInfo[tripId].host == tx.origin, 'Only host of the trip can approve it');
     require(idToTripInfo[tripId].status == Schemas.TripStatus.Created, 'The trip is not in status Created');
 
-    automationService.removeAutomation(tripId, Schemas.AutomationType.Rejection);
-
     idToTripInfo[tripId].status = Schemas.TripStatus.Approved;
     idToTripInfo[tripId].approvedDateTime = block.timestamp;
 
@@ -159,14 +149,8 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
   function rejectTrip(uint256 tripId) public {
     require(userService.isManager(msg.sender), 'Only from manager contract.');
 
-    Schemas.AutomationData memory automation = automationService.getAutomation(
-      tripId,
-      Schemas.AutomationType.Rejection
-    );
     require(
-      idToTripInfo[tripId].host == tx.origin ||
-        idToTripInfo[tripId].guest == tx.origin ||
-        (automation.whenToCallInSec != 0 && automation.whenToCallInSec <= block.timestamp),
+      idToTripInfo[tripId].host == tx.origin || idToTripInfo[tripId].guest == tx.origin,
       'Only host or guest of the trip can reject it'
     );
 
@@ -176,15 +160,10 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
         idToTripInfo[tripId].status == Schemas.TripStatus.CheckedInByHost,
       'The trip is not in status Created, Approved'
     );
-    bool isAutomaticCall = idToTripInfo[tripId].host != tx.origin && idToTripInfo[tripId].guest != tx.origin;
 
     idToTripInfo[tripId].status = Schemas.TripStatus.Canceled;
     idToTripInfo[tripId].rejectedDateTime = block.timestamp;
-
-    if (!isAutomaticCall) {
-      idToTripInfo[tripId].rejectedBy = tx.origin;
-    }
-    automationService.removeAutomation(tripId, Schemas.AutomationType.Rejection);
+    idToTripInfo[tripId].rejectedBy = tx.origin;
 
     emit TripStatusChanged(tripId, Schemas.TripStatus.Canceled);
   }
@@ -243,12 +222,6 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
 
     require(idToTripInfo[tripId].status == Schemas.TripStatus.Approved, 'The trip is not in status Approved');
 
-    automationService.addAutomation(
-      tripId,
-      block.timestamp + automationService.getAutoStatusChangeTimeInSec(),
-      Schemas.AutomationType.StartTrip
-    );
-
     idToTripInfo[tripId].status = Schemas.TripStatus.CheckedInByHost;
     idToTripInfo[tripId].checkedInByHostDateTime = block.timestamp;
     idToTripInfo[tripId].startParamLevels = panelParams;
@@ -265,17 +238,8 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
   /// and other relevant details depends on engine.
   function checkInByGuest(uint256 tripId, uint64[] memory panelParams) public {
     Schemas.Trip memory trip = getTrip(tripId);
-    Schemas.AutomationData memory automation = automationService.getAutomation(
-      tripId,
-      Schemas.AutomationType.StartTrip
-    );
 
-    require(
-      trip.guest == tx.origin || (automation.whenToCallInSec != 0 && automation.whenToCallInSec <= block.timestamp),
-      'Only for guest'
-    );
-
-    bool isAutomatic = trip.guest != tx.origin;
+    require(trip.guest == tx.origin, 'Only for guest');
 
     Schemas.CarInfo memory carInfo = carService.getCarInfoById(trip.carId);
 
@@ -283,17 +247,8 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
       idToTripInfo[tripId].status == Schemas.TripStatus.CheckedInByHost,
       'The trip is not in status CheckedInByHost'
     );
-    if (!isAutomatic) {
-      engineService.compareParams(panelParams, trip.startParamLevels, carInfo.engineType);
-      idToTripInfo[tripId].tripStartedBy = tx.origin;
-    }
-    automationService.removeAutomation(tripId, Schemas.AutomationType.StartTrip);
-    automationService.addAutomation(
-      tripId,
-      trip.endDateTime + automationService.getAutoStatusChangeTimeInSec(),
-      Schemas.AutomationType.FinishTrip
-    );
-
+    engineService.compareParams(panelParams, trip.startParamLevels, carInfo.engineType);
+    idToTripInfo[tripId].tripStartedBy = tx.origin;
     idToTripInfo[tripId].status = Schemas.TripStatus.CheckedInByGuest;
     idToTripInfo[tripId].checkedInByGuestDateTime = block.timestamp;
 
@@ -310,33 +265,17 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
   /// and other relevant details depends on engine.
   function checkOutByGuest(uint256 tripId, uint64[] memory panelParams) public {
     Schemas.Trip memory trip = getTrip(tripId);
-    Schemas.AutomationData memory automation = automationService.getAutomation(
-      tripId,
-      Schemas.AutomationType.FinishTrip
-    );
 
-    require(
-      trip.guest == tx.origin || (automation.whenToCallInSec != 0 && automation.whenToCallInSec <= block.timestamp),
-      'For trip guest only'
-    );
+    require(trip.guest == tx.origin, 'For trip guest only');
     Schemas.CarInfo memory carInfo = carService.getCarInfoById(trip.carId);
-
-    bool isAutomation = trip.guest != tx.origin;
 
     require(
       idToTripInfo[tripId].status == Schemas.TripStatus.CheckedInByGuest,
       'The trip is not in status CheckedInByGuest'
     );
-    automationService.removeAutomation(tripId, Schemas.AutomationType.FinishTrip);
-    if (!isAutomation) {
-      engineService.verifyEndParams(trip.startParamLevels, panelParams, carInfo.engineType);
-      idToTripInfo[tripId].endParamLevels = panelParams;
-      idToTripInfo[tripId].tripFinishedBy = tx.origin;
-    } else {
-      idToTripInfo[tripId].endParamLevels = idToTripInfo[tripId].startParamLevels;
-    }
-
-    automationService.removeAutomation(tripId, Schemas.AutomationType.FinishTrip);
+    engineService.verifyEndParams(trip.startParamLevels, panelParams, carInfo.engineType);
+    idToTripInfo[tripId].endParamLevels = panelParams;
+    idToTripInfo[tripId].tripFinishedBy = tx.origin;
 
     idToTripInfo[tripId].status = Schemas.TripStatus.CheckedOutByGuest;
     idToTripInfo[tripId].checkedOutByGuestDateTime = block.timestamp;
@@ -476,15 +415,13 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     address carServiceAddress,
     address paymentServiceAddress,
     address userServiceAddress,
-    address engineServiceAddress,
-    address automationServiceAddress
+    address engineServiceAddress
   ) public initializer {
     currencyConverterService = RentalityCurrencyConverter(currencyConverterServiceAddress);
     carService = RentalityCarToken(carServiceAddress);
     paymentService = RentalityPaymentService(paymentServiceAddress);
     userService = RentalityUserService(userServiceAddress);
     engineService = RentalityEnginesService(engineServiceAddress);
-    automationService = RentalityAutomation(automationServiceAddress);
   }
 
   function _authorizeUpgrade(address /*newImplementation*/) internal view override {

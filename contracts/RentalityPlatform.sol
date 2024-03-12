@@ -24,7 +24,6 @@ contract RentalityPlatform is UUPSOwnable {
   RentalityUserService private userService;
   RentalityPaymentService private paymentService;
   RentalityClaimService private claimService;
-  RentalityAutomation private automationService;
 
   /// @dev Modifier to restrict access to admin users only.
   modifier onlyAdmin() {
@@ -368,8 +367,13 @@ contract RentalityPlatform is UUPSOwnable {
     Schemas.CarInfo memory car = carService.getCarInfoById(trip.carId);
     string memory guestPhoneNumber = userService.getKYCInfo(trip.guest).mobilePhoneNumber;
     string memory hostPhoneNumber = userService.getKYCInfo(trip.host).mobilePhoneNumber;
+    uint valueInEth = currencyConverterService.getEthFromUsd(
+      claim.amountInUsdCents,
+      trip.paymentInfo.ethToCurrencyRate,
+      trip.paymentInfo.ethToCurrencyDecimals
+    );
 
-    return Schemas.FullClaimInfo(claim, trip.host, trip.guest, guestPhoneNumber, hostPhoneNumber, car);
+    return Schemas.FullClaimInfo(claim, trip.host, trip.guest, guestPhoneNumber, hostPhoneNumber, valueInEth, car);
   }
 
   /// @notice Get contact information for a specific trip on the Rentality platform.
@@ -417,26 +421,6 @@ contract RentalityPlatform is UUPSOwnable {
     return RentalityUtils.populateChatInfo(trips, address(userService), address(carService));
   }
 
-  /// @notice Calls outdated automations and takes corresponding actions based on their types.
-  /// - If the automation type is Rejection, it rejects the trip request.
-  /// - If the automation type is StartTrip, it checks in the guest for the trip.
-  /// - If the automation type is any other, it checks out the guest for the trip.
-  /// Note: This function retrieves all automations and processes each one if its time has expired.
-  function callOutdated() public {
-    Schemas.AutomationData[] memory data = automationService.getAllAutomations();
-    for (uint256 i = 0; i < data.length; i++) {
-      if (data[i].whenToCallInSec <= block.timestamp) {
-        if (data[i].aType == Schemas.AutomationType.Rejection) {
-          rejectTripRequest(data[i].tripId);
-        } else if (data[i].aType == Schemas.AutomationType.StartTrip) {
-          tripService.checkInByGuest(data[i].tripId, new uint64[](2));
-        } else {
-          tripService.checkOutByGuest(data[i].tripId, new uint64[](2));
-        }
-      }
-    }
-  }
-
   /// @notice Constructor to initialize the RentalityPlatform with service contract addresses.
   /// @param carServiceAddress The address of the RentalityCarToken contract.
   /// @param currencyConverterServiceAddress The address of the RentalityCurrencyConverter contract.
@@ -449,8 +433,7 @@ contract RentalityPlatform is UUPSOwnable {
     address tripServiceAddress,
     address userServiceAddress,
     address paymentServiceAddress,
-    address claimServiceAddress,
-    address rentalityAutomationAddress
+    address claimServiceAddress
   ) public initializer {
     carService = RentalityCarToken(carServiceAddress);
     currencyConverterService = RentalityCurrencyConverter(currencyConverterServiceAddress);
@@ -458,7 +441,6 @@ contract RentalityPlatform is UUPSOwnable {
     userService = RentalityUserService(userServiceAddress);
     paymentService = RentalityPaymentService(paymentServiceAddress);
     claimService = RentalityClaimService(claimServiceAddress);
-    automationService = RentalityAutomation(rentalityAutomationAddress);
 
     __Ownable_init();
   }

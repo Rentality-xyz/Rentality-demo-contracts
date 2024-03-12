@@ -363,6 +363,7 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
         address(tripService),
         address(carService),
         address(userService),
+        address(currencyConverterService),
         tripId
       );
   }
@@ -377,6 +378,7 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
         address(tripService),
         address(carService),
         address(userService),
+        address(currencyConverterService),
         msg.sender
       );
   }
@@ -391,6 +393,7 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
         address(tripService),
         address(carService),
         address(userService),
+        address(currencyConverterService),
         msg.sender
       );
   }
@@ -442,15 +445,6 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
   /// @return An array of chat information.
   function getChatInfoForGuest() public view returns (Schemas.ChatInfo[] memory) {
     return rentalityPlatform.getChatInfoForGuest();
-  }
-
-  /// @notice Calls outdated automations and takes corresponding actions based on their types.
-  /// - If the automation type is Rejection, it rejects the trip request.
-  /// - If the automation type is StartTrip, it checks in the guest for the trip.
-  /// - If the automation type is any other, it checks out the guest for the trip.
-  /// Note: This function retrieves all automations and processes each one if its time has expired.
-  function callOutdated() public {
-    rentalityPlatform.callOutdated();
   }
 
   //  @dev Initializes the contract with the provided addresses for various services.
