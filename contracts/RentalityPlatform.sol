@@ -5,6 +5,7 @@ import './RentalityCarToken.sol';
 import './RentalityCurrencyConverter.sol';
 import './RentalityTripService.sol';
 import './RentalityUserService.sol';
+import './Schemas.sol';
 import './RentalityPaymentService.sol';
 import './IRentalityGateway.sol';
 import './proxy/UUPSOwnable.sol';
@@ -24,6 +25,9 @@ contract RentalityPlatform is UUPSOwnable {
   RentalityUserService private userService;
   RentalityPaymentService private paymentService;
   RentalityClaimService private claimService;
+
+  // unused, have to be here, because of proxy
+  address private automationService;
 
   /// @dev Modifier to restrict access to admin users only.
   modifier onlyAdmin() {
@@ -302,7 +306,7 @@ contract RentalityPlatform is UUPSOwnable {
       'Wrong trip status.'
     );
 
-    claimService.createClaim(request);
+    claimService.createClaim(request, trip.host, trip.guest);
   }
 
   /// @notice Rejects a specific claim.
@@ -314,7 +318,7 @@ contract RentalityPlatform is UUPSOwnable {
 
     require(trip.host == tx.origin || trip.guest == tx.origin, 'Only for trip guest or host.');
 
-    claimService.rejectClaim(claimId, tx.origin);
+    claimService.rejectClaim(claimId, tx.origin, trip.host, trip.guest);
   }
 
   /// @notice Pays a specific claim, transferring funds to the host and, if applicable, refunding excess to the guest.
@@ -338,7 +342,7 @@ contract RentalityPlatform is UUPSOwnable {
 
     require(msg.value >= valueToPay, 'Insufficient funds sent.');
 
-    claimService.payClaim(claimId);
+    claimService.payClaim(claimId, trip.host, trip.guest);
 
     (bool successHost, ) = payable(trip.host).call{value: valueToPay}('');
     require(successHost, 'Transfer to host failed.');
@@ -354,7 +358,10 @@ contract RentalityPlatform is UUPSOwnable {
   /// @dev This function is typically called periodically to check and update claim status.
   /// @param claimId ID of the claim to be updated.
   function updateClaim(uint256 claimId) public {
-    claimService.updateClaim(claimId);
+    Schemas.Claim memory claim = claimService.getClaim(claimId);
+    Schemas.Trip memory trip = tripService.getTrip(claim.tripId);
+
+    claimService.updateClaim(claimId, trip.host, trip.guest);
   }
 
   /// @notice Gets detailed information about a specific claim.
@@ -368,12 +375,12 @@ contract RentalityPlatform is UUPSOwnable {
     string memory guestPhoneNumber = userService.getKYCInfo(trip.guest).mobilePhoneNumber;
     string memory hostPhoneNumber = userService.getKYCInfo(trip.host).mobilePhoneNumber;
     uint valueInEth = currencyConverterService.getEthFromUsd(
-      claim.amountInUsdCents,
+      uint(claim.amountInUsdCents),
       trip.paymentInfo.ethToCurrencyRate,
       trip.paymentInfo.ethToCurrencyDecimals
     );
 
-    return Schemas.FullClaimInfo(claim, trip.host, trip.guest, guestPhoneNumber, hostPhoneNumber, valueInEth, car);
+    return Schemas.FullClaimInfo(claim, trip.host, trip.guest, guestPhoneNumber, hostPhoneNumber, car, valueInEth);
   }
 
   /// @notice Get contact information for a specific trip on the Rentality platform.

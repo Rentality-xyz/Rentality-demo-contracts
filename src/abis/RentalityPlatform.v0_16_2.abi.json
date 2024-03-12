@@ -44,7 +44,6 @@
       "inputs": [{ "type": "uint256", "name": "tripId" }],
       "outputs": []
     },
-    { "type": "function", "name": "callOutdated", "constant": false, "payable": false, "inputs": [], "outputs": [] },
     {
       "type": "function",
       "name": "createClaim",
@@ -133,7 +132,8 @@
             { "type": "uint32", "name": "carYearOfProduction" },
             { "type": "string", "name": "carMetadataUrl" },
             { "type": "uint64", "name": "startDateTime" },
-            { "type": "uint64", "name": "endDateTime" }
+            { "type": "uint64", "name": "endDateTime" },
+            { "type": "string", "name": "timeZoneId" }
           ]
         }
       ]
@@ -163,7 +163,8 @@
             { "type": "uint32", "name": "carYearOfProduction" },
             { "type": "string", "name": "carMetadataUrl" },
             { "type": "uint64", "name": "startDateTime" },
-            { "type": "uint64", "name": "endDateTime" }
+            { "type": "uint64", "name": "endDateTime" },
+            { "type": "string", "name": "timeZoneId" }
           ]
         }
       ]
@@ -221,7 +222,8 @@
                 { "type": "bool", "name": "geoVerified" },
                 { "type": "string", "name": "timeZoneId" }
               ]
-            }
+            },
+            { "type": "uint256", "name": "amountInEth" }
           ]
         }
       ]
@@ -300,8 +302,7 @@
         { "type": "address", "name": "tripServiceAddress" },
         { "type": "address", "name": "userServiceAddress" },
         { "type": "address", "name": "paymentServiceAddress" },
-        { "type": "address", "name": "claimServiceAddress" },
-        { "type": "address", "name": "rentalityAutomationAddress" }
+        { "type": "address", "name": "claimServiceAddress" }
       ],
       "outputs": []
     },

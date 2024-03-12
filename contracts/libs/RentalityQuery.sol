@@ -267,6 +267,7 @@ library RentalityQuery {
         Schemas.CarInfo memory carInfo = carService.getCarInfoById(trip.carId);
         string memory guestPhoneNumber = userService.getKYCInfo(trip.guest).mobilePhoneNumber;
         string memory hostPhoneNumber = userService.getKYCInfo(trip.host).mobilePhoneNumber;
+
         uint valueInEth = currencyConverterService.getEthFromUsd(
           claim.amountInUsdCents,
           trip.paymentInfo.ethToCurrencyRate,
@@ -279,8 +280,8 @@ library RentalityQuery {
           trip.guest,
           guestPhoneNumber,
           hostPhoneNumber,
-          valueInEth,
-          carInfo
+          carInfo,
+          valueInEth
         );
       }
     }
@@ -333,8 +334,8 @@ library RentalityQuery {
           trip.guest,
           userService.getKYCInfo(trip.guest).mobilePhoneNumber,
           userService.getKYCInfo(host).mobilePhoneNumber,
-          valueInEth,
-          carService.getCarInfoById(trip.carId)
+          carService.getCarInfoById(trip.carId),
+          valueInEth
         );
       }
     }
@@ -387,8 +388,8 @@ library RentalityQuery {
           guest,
           userService.getKYCInfo(guest).mobilePhoneNumber,
           userService.getKYCInfo(trip.host).mobilePhoneNumber,
-          valueInEth,
-          carService.getCarInfoById(trip.carId)
+          carService.getCarInfoById(trip.carId),
+          valueInEth
         );
       }
     }
