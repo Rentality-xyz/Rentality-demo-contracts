@@ -58,7 +58,7 @@ interface IRentalityGateway {
 
   /// @notice Burns (disables) a car. Only callable by hosts.
   /// @param carId The ID of the car to burn.
-//  function burnCar(uint256 carId) external;
+  //  function burnCar(uint256 carId) external;
 
   /// @notice Get information about all trips where the caller is the host.
   /// @return An array of Trip structures containing details about trips where the caller is the host.
