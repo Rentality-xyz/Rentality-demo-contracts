@@ -143,11 +143,11 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
     return carService.updateCarTokenUri(carId, tokenUri);
   }
 
-  /// @notice Burns (disables) a car. Only callable by hosts.
-  /// @param carId The ID of the car to burn.
-  function burnCar(uint256 carId) public onlyHost {
-    return carService.burnCar(carId);
-  }
+  //  /// @notice Burns (disables) a car. Only callable by hosts.
+  //  /// @param carId The ID of the car to burn.
+  //  function burnCar(uint256 carId) public onlyHost {
+  //    return carService.burnCar(carId);
+  //  }
 
   /// @notice Retrieves information about all cars.
   /// @return An array of car information.

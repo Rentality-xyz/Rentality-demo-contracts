@@ -29,12 +29,12 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
 
   /// @dev Event emitted when a new trip is created.
   /// @param tripId The ID of the newly created trip.
-  event TripCreated(uint256 tripId);
+  event TripCreated(uint256 tripId, address indexed host, address indexed guest);
 
   /// @dev Event emitted when the status of a trip is changed.
   /// @param tripId The ID of the trip whose status changed.
   /// @param newStatus The new status of the trip.
-  event TripStatusChanged(uint256 tripId, Schemas.TripStatus newStatus);
+  event TripStatusChanged(uint256 tripId, Schemas.TripStatus newStatus, address indexed host, address indexed guest);
 
   RentalityCurrencyConverter private currencyConverterService;
   RentalityCarToken private carService;
@@ -122,7 +122,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
       Schemas.TransactionInfo(0, 0, 0, 0, Schemas.TripStatus.Created)
     );
 
-    emit TripCreated(newTripId);
+    emit TripCreated(newTripId, host, guest);
   }
 
   /// @notice Approves a trip by changing its status to Approved.
@@ -138,7 +138,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     idToTripInfo[tripId].status = Schemas.TripStatus.Approved;
     idToTripInfo[tripId].approvedDateTime = block.timestamp;
 
-    emit TripStatusChanged(tripId, Schemas.TripStatus.Approved);
+    emit TripStatusChanged(tripId, Schemas.TripStatus.Approved, idToTripInfo[tripId].host, idToTripInfo[tripId].guest);
   }
 
   /// @notice Reject a trip by changing its status to Canceled.
@@ -165,7 +165,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     idToTripInfo[tripId].rejectedDateTime = block.timestamp;
     idToTripInfo[tripId].rejectedBy = tx.origin;
 
-    emit TripStatusChanged(tripId, Schemas.TripStatus.Canceled);
+    emit TripStatusChanged(tripId, Schemas.TripStatus.Canceled, idToTripInfo[tripId].host, idToTripInfo[tripId].guest);
   }
 
   /// @dev Searches for available cars for a user within a specified time range and search parameters.
@@ -225,7 +225,12 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     idToTripInfo[tripId].status = Schemas.TripStatus.CheckedInByHost;
     idToTripInfo[tripId].checkedInByHostDateTime = block.timestamp;
     idToTripInfo[tripId].startParamLevels = panelParams;
-    emit TripStatusChanged(tripId, Schemas.TripStatus.CheckedInByHost);
+    emit TripStatusChanged(
+      tripId,
+      Schemas.TripStatus.CheckedInByHost,
+      idToTripInfo[tripId].host,
+      idToTripInfo[tripId].guest
+    );
   }
 
   /// @notice Performs the check-in process by the guest, updating the trip status and details.
@@ -252,7 +257,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     idToTripInfo[tripId].status = Schemas.TripStatus.CheckedInByGuest;
     idToTripInfo[tripId].checkedInByGuestDateTime = block.timestamp;
 
-    emit TripStatusChanged(tripId, Schemas.TripStatus.CheckedInByGuest);
+    emit TripStatusChanged(tripId, Schemas.TripStatus.CheckedInByGuest, trip.host, trip.guest);
   }
 
   ///  @dev Initiates the check-out process by the guest, updating trip status, and recording end details.
@@ -280,7 +285,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     idToTripInfo[tripId].status = Schemas.TripStatus.CheckedOutByGuest;
     idToTripInfo[tripId].checkedOutByGuestDateTime = block.timestamp;
 
-    emit TripStatusChanged(tripId, Schemas.TripStatus.CheckedOutByGuest);
+    emit TripStatusChanged(tripId, Schemas.TripStatus.CheckedOutByGuest, trip.host, trip.guest);
   }
 
   ///  @dev Initiates the check-out process by the host, updating trip status, and validating end details.
@@ -307,7 +312,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     idToTripInfo[tripId].status = Schemas.TripStatus.CheckedOutByHost;
     idToTripInfo[tripId].checkedOutByHostDateTime = block.timestamp;
 
-    emit TripStatusChanged(tripId, Schemas.TripStatus.CheckedOutByHost);
+    emit TripStatusChanged(tripId, Schemas.TripStatus.CheckedOutByHost, trip.host, trip.guest);
   }
 
   /// @dev Finalizes a trip, updating its status to Finished and calculating resolution amounts.
@@ -342,7 +347,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     }
     idToTripInfo[tripId].paymentInfo.resolveAmountInUsdCents = resolveAmountInUsdCents;
 
-    emit TripStatusChanged(tripId, Schemas.TripStatus.Finished);
+    emit TripStatusChanged(tripId, Schemas.TripStatus.Finished, idToTripInfo[tripId].host, idToTripInfo[tripId].guest);
   }
 
   ///  @dev Calculates the resolved amount in USD cents for a trip.

@@ -38,33 +38,6 @@
     },
     {
       "type": "function",
-      "name": "getAutoCancellationTimeInSec",
-      "constant": true,
-      "stateMutability": "view",
-      "payable": false,
-      "inputs": [],
-      "outputs": [{ "type": "uint64", "name": "" }]
-    },
-    {
-      "type": "function",
-      "name": "getAutoStatusChangeTimeInSec",
-      "constant": true,
-      "stateMutability": "view",
-      "payable": false,
-      "inputs": [],
-      "outputs": [{ "type": "uint64", "name": "" }]
-    },
-    {
-      "type": "function",
-      "name": "getAutomationServiceAddress",
-      "constant": true,
-      "stateMutability": "view",
-      "payable": false,
-      "inputs": [],
-      "outputs": [{ "type": "address", "name": "" }]
-    },
-    {
-      "type": "function",
       "name": "getCarServiceAddress",
       "constant": true,
       "stateMutability": "view",
@@ -156,8 +129,7 @@
         { "type": "address", "name": "userServiceAddress" },
         { "type": "address", "name": "rentalityPlatformAddress" },
         { "type": "address", "name": "paymentServiceAddress" },
-        { "type": "address", "name": "claimServiceAddress" },
-        { "type": "address", "name": "automationServiceAddress" }
+        { "type": "address", "name": "claimServiceAddress" }
       ],
       "outputs": []
     },
@@ -189,22 +161,6 @@
     },
     {
       "type": "function",
-      "name": "setAutoCancellationTime",
-      "constant": false,
-      "payable": false,
-      "inputs": [{ "type": "uint8", "name": "time" }],
-      "outputs": []
-    },
-    {
-      "type": "function",
-      "name": "setAutoStatusChangeTime",
-      "constant": false,
-      "payable": false,
-      "inputs": [{ "type": "uint8", "name": "time" }],
-      "outputs": []
-    },
-    {
-      "type": "function",
       "name": "setClaimsWaitingTime",
       "constant": false,
       "payable": false,
@@ -229,14 +185,6 @@
     },
     {
       "type": "function",
-      "name": "updateAutomationService",
-      "constant": false,
-      "payable": false,
-      "inputs": [{ "type": "address", "name": "contractAddress" }],
-      "outputs": []
-    },
-    {
-      "type": "function",
       "name": "updateCarService",
       "constant": false,
       "payable": false,
@@ -257,6 +205,22 @@
       "constant": false,
       "payable": false,
       "inputs": [{ "type": "address", "name": "contractAddress" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "updateGeoParserAddress",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "newGeoParserAddress" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "updateGeoServiceAddress",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "newGeoServiceAddress" }],
       "outputs": []
     },
     {

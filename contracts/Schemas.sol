@@ -174,6 +174,7 @@ interface Schemas {
     string carMetadataUrl;
     uint64 startDateTime;
     uint64 endDateTime;
+    string timeZoneId;
   }
 
   /// @dev Struct to represent a pair of private and public chat keys
@@ -197,8 +198,8 @@ interface Schemas {
     address guest;
     string guestPhoneNumber;
     string hostPhoneNumber;
-    uint amountInEth;
     CarInfo carInfo;
+    uint amountInEth;
   }
 
   // Struct to represent a claim
@@ -296,19 +297,6 @@ interface Schemas {
     uint64 expirationDate;
     uint createDate;
     bool isTCPassed;
-  }
-
-  /// Automation
-
-  struct AutomationData {
-    uint256 tripId;
-    uint256 whenToCallInSec;
-    AutomationType aType;
-  }
-  enum AutomationType {
-    Rejection,
-    StartTrip,
-    FinishTrip
   }
 
   /// Query

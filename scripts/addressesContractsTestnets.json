@@ -24,7 +24,7 @@
   {
     "name": "sepolia",
     "chainId": 11155111,
-    "RentalityQuery": "0x62c3C269432E7E59d82ACA4E12E2C0A39A467840",
+    "RentalityQuery": "0x1362448b2AB00ABB7D435966E1218604962b56c9",
     "RentalityUserService": "0x54c47ecdd497701A04F07f1aD6001dAe8Ab7443B",
     "RentalityClaimService": "0xA80bcaf343934649F42Ff18622a5E9FC78b2aaFE",
     "EthToUsdPriceFeedAddress": "0x694AA1769357215DE4FAC081bf1f309aDC325306",
@@ -35,7 +35,7 @@
     "RentalityElectricEngine": "0x3fC6E2C64885B52940B003e1768472450D338C57",
     "RentalityEnginesService": "0x39BE7c6b12cf9d67E218D9Be5e71A8143103121B",
     "RentalityCarToken": "0x9DCE90907Ab2a9B81ef387330aa3692F7b0d6c18",
-    "RentalityUtils": "0x8b5F49B36533Df2e593dFd107773Ff64d53043e4",
+    "RentalityUtils": "0x6e1855FE2Bf2e6DDAE15e93EC90dab4284Fb4448",
     "RentalityTripService": "0x2803361617a0ebC5050d19d84001dE4CB67d2e20",
     "RentalityPlatform": "0x56B4B453f346508CFeABBAe9682236e85F367Cd6",
     "RentalityChatHelper": "0xafBCB2DF35721ae7bF15Adc5727586662C27D65B",

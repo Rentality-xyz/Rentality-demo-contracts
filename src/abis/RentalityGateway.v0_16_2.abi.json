@@ -76,15 +76,6 @@
     },
     {
       "type": "function",
-      "name": "burnCar",
-      "constant": false,
-      "payable": false,
-      "inputs": [{ "type": "uint256", "name": "carId" }],
-      "outputs": []
-    },
-    { "type": "function", "name": "callOutdated", "constant": false, "payable": false, "inputs": [], "outputs": [] },
-    {
-      "type": "function",
       "name": "checkInByGuest",
       "constant": false,
       "payable": false,
@@ -379,7 +370,8 @@
             { "type": "uint32", "name": "carYearOfProduction" },
             { "type": "string", "name": "carMetadataUrl" },
             { "type": "uint64", "name": "startDateTime" },
-            { "type": "uint64", "name": "endDateTime" }
+            { "type": "uint64", "name": "endDateTime" },
+            { "type": "string", "name": "timeZoneId" }
           ]
         }
       ]
@@ -409,7 +401,8 @@
             { "type": "uint32", "name": "carYearOfProduction" },
             { "type": "string", "name": "carMetadataUrl" },
             { "type": "uint64", "name": "startDateTime" },
-            { "type": "uint64", "name": "endDateTime" }
+            { "type": "uint64", "name": "endDateTime" },
+            { "type": "string", "name": "timeZoneId" }
           ]
         }
       ]
@@ -467,7 +460,8 @@
                 { "type": "bool", "name": "geoVerified" },
                 { "type": "string", "name": "timeZoneId" }
               ]
-            }
+            },
+            { "type": "uint256", "name": "amountInEth" }
           ]
         }
       ]
@@ -525,7 +519,8 @@
                 { "type": "bool", "name": "geoVerified" },
                 { "type": "string", "name": "timeZoneId" }
               ]
-            }
+            },
+            { "type": "uint256", "name": "amountInEth" }
           ]
         }
       ]
@@ -647,7 +642,8 @@
                 { "type": "bool", "name": "geoVerified" },
                 { "type": "string", "name": "timeZoneId" }
               ]
-            }
+            },
+            { "type": "uint256", "name": "amountInEth" }
           ]
         }
       ]
@@ -705,7 +701,8 @@
                 { "type": "bool", "name": "geoVerified" },
                 { "type": "string", "name": "timeZoneId" }
               ]
-            }
+            },
+            { "type": "uint256", "name": "amountInEth" }
           ]
         }
       ]

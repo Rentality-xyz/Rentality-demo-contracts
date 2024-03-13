@@ -14,6 +14,8 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
   RentalityPaymentService private paymentService;
   RentalityClaimService private claimService;
 
+  // unused, have to be here, because of proxy
+  address private automationService;
   /// @notice Ensures that the caller is either an admin, the contract owner, or an admin from the origin transaction.
   modifier onlyAdmin() {
     require(
