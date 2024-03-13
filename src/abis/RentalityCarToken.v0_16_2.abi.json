@@ -609,6 +609,14 @@
     },
     {
       "type": "function",
+      "name": "updateGeoParsesAddress",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "newGeoParserAddress" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
       "name": "updateGeoServiceAddress",
       "constant": false,
       "payable": false,

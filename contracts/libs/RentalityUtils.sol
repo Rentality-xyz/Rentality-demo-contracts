@@ -5,6 +5,7 @@ import '@openzeppelin/contracts/utils/math/Math.sol';
 import '../Schemas.sol';
 import '../RentalityUserService.sol';
 import '../RentalityCarToken.sol';
+import '../IRentalityGeoService.sol';
 
 /// @title RentalityUtils Library
 /// @notice
@@ -189,6 +190,9 @@ library RentalityUtils {
       chatInfoList[i].carMetadataUrl = carService.tokenURI(trips[i].trip.carId);
       chatInfoList[i].startDateTime = trips[i].trip.startDateTime;
       chatInfoList[i].endDateTime = trips[i].trip.endDateTime;
+      chatInfoList[i].timeZoneId = IRentalityGeoService(carService.getGeoServiceAddress()).getCarTimeZoneId(
+        carInfo.carId
+      );
     }
 
     return chatInfoList;
