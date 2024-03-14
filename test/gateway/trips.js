@@ -111,7 +111,7 @@ describe('RentalityGateway: trips', function () {
       )
     ).to.changeEtherBalances([guest, rentalityPlatform], [-rentPriceInEth, rentPriceInEth])
 
-    let trip = await rentalityGateway.getTrip(1)
+    let trip = (await rentalityGateway.getTrip(1)).trip
 
     expect(trip.tripId).to.be.equal(1, 'trip.tripId)')
     expect(trip.carId).to.be.equal(1, 'trip.carId')
@@ -207,7 +207,7 @@ describe('RentalityGateway: trips', function () {
       )
     ).to.changeEtherBalances([guest, rentalityPlatform], [-rentPriceInEth, rentPriceInEth])
 
-    let trip = await rentalityGateway.getTrip(1)
+    let trip = (await rentalityGateway.getTrip(1)).trip
 
     expect(trip.fuelPrice).to.deep.equal(mockCreateCarRequest.engineParams[0])
 
@@ -248,7 +248,7 @@ describe('RentalityGateway: trips', function () {
       )
     ).to.changeEtherBalances([guest, rentalityPlatform], [-rentPriceInEth, rentPriceInEth])
 
-    let tripWithPatrol = await rentalityGateway.getTrip(2)
+    let tripWithPatrol = (await rentalityGateway.getTrip(2)).trip
 
     expect(tripWithPatrol.fuelPrice).to.equal(mockPatrolCreateCarRequest.engineParams[1])
   })
@@ -400,7 +400,7 @@ describe('RentalityGateway: trips', function () {
 
     await expect(rentalityGateway.connect(owner).rejectTripRequest(1)).to.be.reverted
 
-    let trip = await rentalityGateway.getTrip(1)
+    let trip = (await rentalityGateway.getTrip(1)).trip
 
     expect(trip.status).to.be.equal(TripStatus.Created)
   })
@@ -445,13 +445,13 @@ describe('RentalityGateway: trips', function () {
 
     await expect(rentalityGateway.connect(owner).approveTripRequest(1)).to.be.reverted
 
-    let trip = await rentalityGateway.getTrip(1)
+    let trip = (await rentalityGateway.getTrip(1)).trip
 
     expect(trip.status).to.be.equal(TripStatus.Created)
 
     await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.be.reverted
 
-    let trip_approved = await rentalityGateway.getTrip(1)
+    let trip_approved = (await rentalityGateway.getTrip(1)).trip
 
     expect(trip_approved.status).to.be.equal(1)
   })
@@ -493,7 +493,7 @@ describe('RentalityGateway: trips', function () {
 
     await expect(rentalityPlatform.connect(host).finishTrip(1)).to.be.reverted
 
-    let trip = await rentalityGateway.getTrip(1)
+    let trip = (await rentalityGateway.getTrip(1)).trip
 
     expect(trip.status).to.be.equal(TripStatus.Created)
   })
@@ -539,13 +539,13 @@ describe('RentalityGateway: trips', function () {
 
     await expect(rentalityGateway.connect(owner).checkInByHost(1, [0, 0])).to.be.reverted
 
-    let trip = await rentalityGateway.getTrip(1)
+    let trip = (await rentalityGateway.getTrip(1)).trip
 
     expect(trip.status).to.be.equal(TripStatus.Approved)
 
     await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0])).not.be.reverted
 
-    let trip_checkin = await rentalityGateway.getTrip(1)
+    let trip_checkin = (await rentalityGateway.getTrip(1)).trip
 
     expect(trip_checkin.status).to.be.equal(2)
   })
@@ -593,13 +593,13 @@ describe('RentalityGateway: trips', function () {
 
     await expect(rentalityGateway.connect(owner).checkInByGuest(1, [0, 0])).to.be.reverted
 
-    let trip = await rentalityGateway.getTrip(1)
+    let trip = (await rentalityGateway.getTrip(1)).trip
 
     expect(trip.status).to.be.equal(TripStatus.CheckedInByHost)
 
     await expect(rentalityGateway.connect(guest).checkInByGuest(1, [0, 0])).not.be.reverted
 
-    let trip_checkin = await rentalityGateway.connect(guest).getTrip(1)
+    let trip_checkin = (await rentalityGateway.connect(guest).getTrip(1)).trip
 
     expect(trip_checkin.status).to.be.equal(TripStatus.CheckedInByGuest)
   })
@@ -651,13 +651,13 @@ describe('RentalityGateway: trips', function () {
 
     await expect(rentalityGateway.connect(owner).checkOutByGuest(1, [0, 0])).to.be.reverted
 
-    let trip = await rentalityGateway.getTrip(1)
+    let trip = (await rentalityGateway.getTrip(1)).trip
 
     expect(trip.status).to.be.equal(TripStatus.CheckedInByGuest)
 
     await expect(rentalityGateway.connect(guest).checkOutByGuest(1, [0, 0])).not.be.reverted
 
-    let trip_checkout = await rentalityGateway.connect(guest).getTrip(1)
+    let trip_checkout = (await rentalityGateway.connect(guest).getTrip(1)).trip
 
     expect(trip_checkout.status).to.be.equal(TripStatus.CheckedOutByGuest)
   })
@@ -709,13 +709,13 @@ describe('RentalityGateway: trips', function () {
 
     await expect(rentalityGateway.connect(owner).checkOutByHost(1, [0, 0])).to.be.reverted
 
-    let trip = await rentalityGateway.getTrip(1)
+    let trip = (await rentalityGateway.getTrip(1)).trip
 
     expect(trip.status).to.be.equal(TripStatus.CheckedOutByGuest)
 
     await expect(rentalityGateway.connect(host).checkOutByHost(1, [0, 0])).not.be.reverted
 
-    let trip_checkout = await rentalityGateway.connect(guest).getTrip(1)
+    let trip_checkout = (await rentalityGateway.connect(guest).getTrip(1)).trip
 
     expect(trip_checkout.status).to.be.equal(TripStatus.CheckedOutByHost)
   })

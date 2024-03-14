@@ -72,7 +72,7 @@ describe('Rentality History Service', function () {
     ).not.to.be.reverted
 
     await expect(rentalityGateway.connect(host).rejectTripRequest(1)).to.not.reverted
-    const details = await rentalityGateway.getTrip(1)
+    const details = (await rentalityGateway.getTrip(1)).trip
 
     const currentTimeMillis = Date.now()
     const currentTimeSeconds = Math.floor(currentTimeMillis / 1000)
@@ -127,7 +127,7 @@ describe('Rentality History Service', function () {
       [host, rentalityPlatform],
       [returnToHost, -returnToHost]
     )
-    const details = await rentalityGateway.getTrip(1)
+    const details = (await rentalityGateway.getTrip(1)).trip
 
     const currentTimeMillis = Date.now()
     const currentTimeSeconds = Math.floor(currentTimeMillis / 1000)
