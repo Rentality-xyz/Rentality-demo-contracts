@@ -398,6 +398,22 @@ contract RentalityPlatform is UUPSOwnable {
     return (guestInfo.mobilePhoneNumber, hostInfo.mobilePhoneNumber);
   }
 
+  /// @notice Retrieves information about a trip by ID.
+  /// @param tripId The ID of the trip.
+  /// @return Trip information.
+  function getTripDTO(uint tripId) public view returns (Schemas.TripDTO memory) {
+    Schemas.Trip memory trip = tripService.getTrip(tripId);
+
+    return
+      Schemas.TripDTO(
+        trip,
+        userService.getKYCInfo(trip.guest).profilePhoto,
+        userService.getKYCInfo(trip.host).profilePhoto,
+        carService.tokenURI(trip.carId),
+        IRentalityGeoService(carService.getGeoServiceAddress()).getCarTimeZoneId(trip.carId)
+      );
+  }
+
   /// @notice Get KYC (Know Your Customer) information for the caller on the Rentality platform.
   /// @return kycInfo The KYC information for the caller.
   function getMyKYCInfo() external view returns (Schemas.KYCInfo memory kycInfo) {

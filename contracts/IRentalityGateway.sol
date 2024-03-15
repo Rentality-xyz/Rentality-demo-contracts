@@ -155,7 +155,7 @@ interface IRentalityGateway {
   /// @notice Get information about a specific trip.
   /// @param tripId The ID of the trip.
   /// @return Trip structure containing details about the specified trip.
-  function getTrip(uint256 tripId) external view returns (Schemas.Trip memory);
+  function getTrip(uint256 tripId) external view returns (Schemas.TripDTO memory);
 
   /// @notice Retrieves information about trips where the specified user is the guest.
   /// @param guest The address of the guest.
