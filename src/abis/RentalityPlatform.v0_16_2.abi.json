@@ -275,6 +275,88 @@
     },
     {
       "type": "function",
+      "name": "getTripDTO",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "tripId" }],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "",
+          "components": [
+            {
+              "type": "tuple",
+              "name": "trip",
+              "components": [
+                { "type": "uint256", "name": "tripId" },
+                { "type": "uint256", "name": "carId" },
+                { "type": "uint8", "name": "status" },
+                { "type": "address", "name": "guest" },
+                { "type": "address", "name": "host" },
+                { "type": "string", "name": "guestName" },
+                { "type": "string", "name": "hostName" },
+                { "type": "uint64", "name": "pricePerDayInUsdCents" },
+                { "type": "uint64", "name": "startDateTime" },
+                { "type": "uint64", "name": "endDateTime" },
+                { "type": "uint8", "name": "engineType" },
+                { "type": "string", "name": "startLocation" },
+                { "type": "string", "name": "endLocation" },
+                { "type": "uint64", "name": "milesIncludedPerDay" },
+                { "type": "uint64", "name": "fuelPrice" },
+                {
+                  "type": "tuple",
+                  "name": "paymentInfo",
+                  "components": [
+                    { "type": "uint256", "name": "tripId" },
+                    { "type": "address", "name": "from" },
+                    { "type": "address", "name": "to" },
+                    { "type": "uint64", "name": "totalDayPriceInUsdCents" },
+                    { "type": "uint64", "name": "taxPriceInUsdCents" },
+                    { "type": "uint64", "name": "depositInUsdCents" },
+                    { "type": "uint64", "name": "resolveAmountInUsdCents" },
+                    { "type": "uint8", "name": "currencyType" },
+                    { "type": "int256", "name": "ethToCurrencyRate" },
+                    { "type": "uint8", "name": "ethToCurrencyDecimals" },
+                    { "type": "uint64", "name": "resolveFuelAmountInUsdCents" },
+                    { "type": "uint64", "name": "resolveMilesAmountInUsdCents" }
+                  ]
+                },
+                { "type": "uint256", "name": "createdDateTime" },
+                { "type": "uint256", "name": "approvedDateTime" },
+                { "type": "uint256", "name": "rejectedDateTime" },
+                { "type": "address", "name": "rejectedBy" },
+                { "type": "uint256", "name": "checkedInByHostDateTime" },
+                { "type": "uint64[]", "name": "startParamLevels" },
+                { "type": "uint256", "name": "checkedInByGuestDateTime" },
+                { "type": "address", "name": "tripStartedBy" },
+                { "type": "uint256", "name": "checkedOutByGuestDateTime" },
+                { "type": "address", "name": "tripFinishedBy" },
+                { "type": "uint64[]", "name": "endParamLevels" },
+                { "type": "uint256", "name": "checkedOutByHostDateTime" },
+                {
+                  "type": "tuple",
+                  "name": "transactionInfo",
+                  "components": [
+                    { "type": "uint256", "name": "rentalityFee" },
+                    { "type": "uint256", "name": "depositRefund" },
+                    { "type": "uint256", "name": "tripEarnings" },
+                    { "type": "uint256", "name": "dateTime" },
+                    { "type": "uint8", "name": "statusBeforeCancellation" }
+                  ]
+                }
+              ]
+            },
+            { "type": "string", "name": "guestPhotoUrl" },
+            { "type": "string", "name": "hostPhotoUrl" },
+            { "type": "string", "name": "metadataURI" },
+            { "type": "string", "name": "timeZoneId" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
       "name": "getTripServiceAddress",
       "constant": true,
       "stateMutability": "view",
