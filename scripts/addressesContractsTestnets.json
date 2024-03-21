@@ -65,5 +65,27 @@
     "RentalityAdminGateway": "0x9d3e6EC5bd93415e9B60a05A0b1AceFD63BC95cb",
     "RentalityGateway": "0x00e2344484A7eD63E2A0b47161DdF4a5B3F769Cd",
     "RentalityChatHelper": "0x8FEd5C4d5C987a476240D9C97f43Cb2e6639ed90"
+  },
+  {
+    "name": "localhost",
+    "chainId": 1337,
+    "RentalityUtils": "0x3904b8f5b0F49cD206b7d5AABeE5D1F37eE15D8d",
+    "RentalityQuery": "0x2Dd78Fd9B8F40659Af32eF98555B8b31bC97A351",
+    "RentalityGeoParser": "0x56fC17a65ccFEC6B7ad0aDe9BD9416CB365B9BE8",
+    "CivicMockVerifier": "0x2625760C4A8e8101801D3a48eE64B2bEA42f1E96",
+    "RentalityUserService": "0xFE5f411481565fbF70D8D33D992C78196E014b90",
+    "RentalityPatrolEngine": "0xD6b040736e948621c5b6E0a494473c47a6113eA8",
+    "RentalityElectricEngine": "0x139e1D41943ee15dDe4DF876f9d0E7F85e26660A",
+    "RentalityEnginesService": "0xAdE429ba898c34722e722415D722A70a297cE3a2",
+    "EthToUsdPriceFeedAddress": "0x7B4f352Cd40114f12e82fC675b5BA8C7582FC513",
+    "RentalityETHConvertor": "0xcE0066b1008237625dDDBE4a751827de037E53D2",
+    "RentalityTestUSDT": "0x82EdA215Fa92B45a3a76837C65Ab862b6C7564a8",
+    "UsdtToUsdPriceFeedAddress": "0x87006e75a5B6bE9D1bbF61AC8Cd84f05D9140589",
+    "RentalityUSDTConverter": "0x51C65cd0Cdb1A8A8b79dfc2eE965B1bA0bb8fc89",
+    "RentalityCurrencyConverter": "0x8fC8CFB7f7362E44E472c690A6e025B80E406458",
+    "RentalityPaymentService": "0xc9952Fc93Fa9bE383ccB39008c786b9f94eAc95d",
+    "RentalityGeoService": "0xDde063eBe8E85D666AD99f731B4Dbf8C98F29708",
+    "RentalityCarToken": "0x70eE76691Bdd9696552AF8d4fd634b3cF79DD529",
+    "RentalityTripService": "0x9385556B571ab92bf6dC9a0DbD75429Dd4d56F91"
   }
 ]

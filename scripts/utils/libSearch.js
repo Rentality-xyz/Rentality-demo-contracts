@@ -1,8 +1,34 @@
 const fs = require('fs');
 const path = require('path');
+const {checkNotNull} = require("./deployHelper");
+const {getContractAddress} = require("./contractAddress");
 
-const contractHasLib =  (libName, contract) => {
-return findContractFile(contract,'./contracts/')
+const pathToContractFolder = './contracts/'
+const existingLibs = [
+    {
+        name: 'RentalityUtils',
+        pathToDeploy: './scripts/deploy_1a_RentalityUtils.js'
+    },
+    {
+        name: 'RentalityQuery',
+        pathToDeploy: './scripts/deploy_1d_RentalityQuery.js'
+    }]
+
+const getContractLibs = (contract, chainId) => {
+    let libs = {}
+    const pathToContract = findContractFile(contract, pathToContractFolder)
+    for (let i = 0; i < existingLibs.length; i++) {
+
+        const libName = searchPatternInFile(pathToContract, existingLibs[i].name)
+        if (libName === null)
+            continue
+        libs[libName] = checkNotNull(
+            getContractAddress(libName, existingLibs[i].pathToDeploy, chainId),
+            libName
+        )
+
+    }
+    return libs
 }
 
 function findContractFile(contractName, folderPath) {
@@ -13,15 +39,20 @@ function findContractFile(contractName, folderPath) {
 
         const filePath = path.join(folderPath, file);
 
+
         const stats = fs.statSync(filePath);
 
         if (stats.isDirectory()) {
-            const result = findContractFile(contractName, filePath);
+
+            const result = findContractFile(contractName, '.' + path.sep + filePath);
             if (result) {
                 return result;
             }
         } else {
-            if (file.match(contractName)) {
+            if (file.match(contractName) &&
+                !file.match('I' + contractName) &&
+                !file.match('A' + contractName)
+            ) {
                 return '.' + path.sep + filePath;
             }
         }
@@ -29,4 +60,23 @@ function findContractFile(contractName, folderPath) {
 
     return null;
 }
-module.exports = contractHasLib
+
+function searchPatternInFile(filePath, pattern) {
+    try {
+        const fileContent = fs.readFileSync(filePath, 'utf-8');
+
+        const match = fileContent.match(new RegExp(pattern + '\\.', 'g'));
+
+        if (match) {
+            return pattern
+        } else {
+            return null;
+        }
+    } catch (error) {
+        console.error(`Error reading file: ${error}`);
+        return null;
+    }
+}
+
+
+module.exports = getContractLibs
