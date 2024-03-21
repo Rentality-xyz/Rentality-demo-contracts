@@ -88,7 +88,9 @@ describe('RentalityGateway: proxy', function () {
     expect(await upgrades.upgradeProxy(carTokenAddress, RentalityCarTokenOwner, { kind: 'uups' })).to.not.reverted
   })
   it('should not be able to update chatHelper without access', async function () {
-    const ChatHelper = await ethers.getContractFactory('RentalityChatHelper')
+    const ChatHelper = await ethers.getContractFactory('RentalityChatHelper', {
+      libraries: {},
+    })
     const chatHelper = await upgrades.deployProxy(ChatHelper, [await rentalityUserService.getAddress()])
     await chatHelper.waitForDeployment()
 
@@ -111,19 +113,31 @@ describe('RentalityGateway: proxy', function () {
   })
   it('should not be able to update gateway without access', async function () {
     const GatewayAnonn = await ethers.getContractFactory('RentalityGateway', {
-      libraries: { RentalityQuery: await query.getAddress() },
+      libraries: {
+        RentalityQuery: await query.getAddress(),
+        RentalityUtils: await utils.getAddress(),
+      },
       signer: anonymous,
     })
     const GatewayGuest = await ethers.getContractFactory('RentalityGateway', {
-      libraries: { RentalityQuery: await query.getAddress() },
+      libraries: {
+        RentalityQuery: await query.getAddress(),
+        RentalityUtils: await utils.getAddress(),
+      },
       signer: guest,
     })
     const GatewayHost = await ethers.getContractFactory('RentalityGateway', {
-      libraries: { RentalityQuery: await query.getAddress() },
+      libraries: {
+        RentalityQuery: await query.getAddress(),
+        RentalityUtils: await utils.getAddress(),
+      },
       signer: host,
     })
     const GatewayOwner = await ethers.getContractFactory('RentalityGateway', {
-      libraries: { RentalityQuery: await query.getAddress() },
+      libraries: {
+        RentalityQuery: await query.getAddress(),
+        RentalityUtils: await utils.getAddress(),
+      },
       signer: owner,
     })
     const gatewayAdd = await rentalityGateway.getAddress()
