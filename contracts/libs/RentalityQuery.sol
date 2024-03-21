@@ -614,4 +614,24 @@ library RentalityQuery {
     }
     return true;
   }
+  /// @notice Retrieves information about a trip by ID.
+  /// @param tripId The ID of the trip.
+  /// @return Trip information.
+  function getTripDTO(
+    uint tripId,
+    address userService,
+    address tripService,
+    address carService
+  ) public view returns (Schemas.TripDTO memory) {
+    Schemas.Trip memory trip = RentalityTripService(tripService).getTrip(tripId);
+
+    return
+      Schemas.TripDTO(
+        trip,
+        RentalityUserService(userService).getKYCInfo(trip.guest).profilePhoto,
+        RentalityUserService(userService).getKYCInfo(trip.host).profilePhoto,
+        RentalityCarToken(carService).tokenURI(trip.carId),
+        IRentalityGeoService(RentalityCarToken(carService).getGeoServiceAddress()).getCarTimeZoneId(trip.carId)
+      );
+  }
 }

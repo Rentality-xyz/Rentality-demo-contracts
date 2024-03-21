@@ -32,7 +32,7 @@ async function main() {
   const contractFactory = await ethers.getContractFactory(contractName, {
     libraries: {
       RentalityQuery: rentalityQueryAddress,
-      // RentalityUtils: rentalityUtilsAddress,
+      RentalityUtils: rentalityUtilsAddress,
     },
   })
 

@@ -1,11 +1,11 @@
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 const { expect } = require('chai')
-const { getMockCarRequest, getEmptySearchCarParams, ethToken } = require('../utils')
+const { getMockCarRequest, getEmptySearchCarParams, ethToken, calculatePayments } = require('../utils')
 const { deployDefaultFixture } = require('./deployments')
 
 describe('Rentality: trips', function () {
   it('createTripRequest', async function () {
-    const { rentalityCarToken, rentalityPlatform, rentalityCurrencyConverter, host, guest } =
+    const { rentalityCarToken, rentalityPaymentService, rentalityPlatform, rentalityCurrencyConverter, host, guest } =
       await loadFixture(deployDefaultFixture)
 
     await expect(rentalityCarToken.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
@@ -15,21 +15,26 @@ describe('Rentality: trips', function () {
     const availableCars = await rentalityCarToken.connect(guest).getAvailableCarsForUser(guest.address)
     expect(availableCars.length).to.equal(1)
 
-    const rentPriceInUsdCents = 1000
-    const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
-      await rentalityCurrencyConverter.getFromUsdLatest(ethToken, rentPriceInUsdCents)
+    const dailyPriceInUsdCents = 1000
+
+    const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals, rentalityFee } = await calculatePayments(
+      rentalityCurrencyConverter,
+      rentalityPaymentService,
+      dailyPriceInUsdCents,
+      1,
+      0
+    )
 
     await expect(
-      rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequest(
         {
           carId: 1,
           host: host.address,
-          startDateTime: 1,
-          endDateTime: 1,
+          startDateTime: 123,
+          endDateTime: 321,
           startLocation: '',
           endLocation: '',
-          totalDayPriceInUsdCents: rentPriceInUsdCents,
-          taxPriceInUsdCents: 0,
+          totalDayPriceInUsdCents: dailyPriceInUsdCents,
           depositInUsdCents: 0,
           currencyRate: ethToCurrencyRate,
           currencyDecimals: ethToCurrencyDecimals,
@@ -41,7 +46,7 @@ describe('Rentality: trips', function () {
   })
 
   it('host can reject created trip', async function () {
-    const { rentalityPlatform, rentalityCarToken, rentalityCurrencyConverter, host, guest } =
+    const { rentalityPlatform, rentalityPaymentService, rentalityCarToken, rentalityCurrencyConverter, host, guest } =
       await loadFixture(deployDefaultFixture)
 
     await expect(rentalityCarToken.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
@@ -51,21 +56,26 @@ describe('Rentality: trips', function () {
     const availableCars = await rentalityCarToken.connect(guest).getAvailableCarsForUser(guest.address)
     expect(availableCars.length).to.equal(1)
 
-    const rentPriceInUsdCents = 1000
-    const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
-      await rentalityCurrencyConverter.getFromUsdLatest(ethToken, rentPriceInUsdCents)
+    const dailyPriceInUsdCents = 1000
+
+    const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals, rentalityFee } = await calculatePayments(
+      rentalityCurrencyConverter,
+      rentalityPaymentService,
+      dailyPriceInUsdCents,
+      1,
+      0
+    )
 
     await expect(
-      rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequest(
         {
           carId: 1,
           host: host.address,
-          startDateTime: 1,
-          endDateTime: 1,
+          startDateTime: 123,
+          endDateTime: 321,
           startLocation: '',
           endLocation: '',
-          totalDayPriceInUsdCents: rentPriceInUsdCents,
-          taxPriceInUsdCents: 0,
+          totalDayPriceInUsdCents: dailyPriceInUsdCents,
           depositInUsdCents: 0,
           currencyRate: ethToCurrencyRate,
           currencyDecimals: ethToCurrencyDecimals,
@@ -82,7 +92,7 @@ describe('Rentality: trips', function () {
   })
 
   it('guest can reject created trip', async function () {
-    const { rentalityPlatform, rentalityCarToken, rentalityCurrencyConverter, host, guest } =
+    const { rentalityPlatform, rentalityPaymentService, rentalityCarToken, rentalityCurrencyConverter, host, guest } =
       await loadFixture(deployDefaultFixture)
 
     await expect(rentalityCarToken.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
@@ -92,21 +102,26 @@ describe('Rentality: trips', function () {
     const availableCars = await rentalityCarToken.connect(guest).getAvailableCarsForUser(guest.address)
     expect(availableCars.length).to.equal(1)
 
-    const rentPriceInUsdCents = 1000
-    const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
-      await rentalityCurrencyConverter.getFromUsdLatest(ethToken, rentPriceInUsdCents)
+    const dailyPriceInUsdCents = 1000
+
+    const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals } = await calculatePayments(
+      rentalityCurrencyConverter,
+      rentalityPaymentService,
+      dailyPriceInUsdCents,
+      1,
+      0
+    )
 
     await expect(
-      rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequest(
         {
           carId: 1,
           host: host.address,
-          startDateTime: 1,
-          endDateTime: 1,
+          startDateTime: 123,
+          endDateTime: 321,
           startLocation: '',
           endLocation: '',
-          totalDayPriceInUsdCents: rentPriceInUsdCents,
-          taxPriceInUsdCents: 0,
+          totalDayPriceInUsdCents: dailyPriceInUsdCents,
           depositInUsdCents: 0,
           currencyRate: ethToCurrencyRate,
           currencyDecimals: ethToCurrencyDecimals,
@@ -139,21 +154,26 @@ describe('Rentality: trips', function () {
     const availableCars = await rentalityCarToken.connect(guest).getAvailableCarsForUser(guest.address)
     expect(availableCars.length).to.equal(1)
 
-    const rentPriceInUsdCents = 1000
-    const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
-      await rentalityCurrencyConverter.getFromUsdLatest(ethToken, rentPriceInUsdCents)
+    const dailyPriceInUsdCents = 1000
+
+    const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals, rentalityFee } = await calculatePayments(
+      rentalityCurrencyConverter,
+      rentalityPaymentService,
+      dailyPriceInUsdCents,
+      1,
+      0
+    )
 
     await expect(
-      rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequest(
         {
           carId: 1,
           host: host.address,
-          startDateTime: 1,
-          endDateTime: 1,
+          startDateTime: 123,
+          endDateTime: 321,
           startLocation: '',
           endLocation: '',
-          totalDayPriceInUsdCents: rentPriceInUsdCents,
-          taxPriceInUsdCents: 0,
+          totalDayPriceInUsdCents: dailyPriceInUsdCents,
           depositInUsdCents: 0,
           currencyRate: ethToCurrencyRate,
           currencyDecimals: ethToCurrencyDecimals,
@@ -168,8 +188,7 @@ describe('Rentality: trips', function () {
     await expect(rentalityTripService.connect(guest).checkInByGuest(1, [0, 0])).not.to.be.reverted
     await expect(rentalityTripService.connect(guest).checkOutByGuest(1, [0, 0])).not.to.be.reverted
     await expect(rentalityTripService.connect(host).checkOutByHost(1, [0, 0])).not.to.be.reverted
-    const returnToHost =
-      rentPriceInEth - (rentPriceInEth * (await rentalityPaymentService.getPlatformFeeInPPM())) / BigInt(1_000_000)
+    const returnToHost = rentPriceInEth - rentalityFee
 
     await expect(rentalityPlatform.connect(host).finishTrip(1)).to.changeEtherBalances(
       [host, rentalityPlatform],
@@ -178,8 +197,15 @@ describe('Rentality: trips', function () {
   })
 
   it('if trip accepted intersect trips should be rejected', async function () {
-    const { rentalityPlatform, rentalityCarToken, rentalityTripService, rentalityCurrencyConverter, host, guest } =
-      await loadFixture(deployDefaultFixture)
+    const {
+      rentalityPlatform,
+      rentalityPaymentService,
+      rentalityCarToken,
+      rentalityTripService,
+      rentalityCurrencyConverter,
+      host,
+      guest,
+    } = await loadFixture(deployDefaultFixture)
 
     await expect(rentalityCarToken.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
     const myCars = await rentalityCarToken.connect(host).getCarsOwnedByUser(host.address)
@@ -187,12 +213,18 @@ describe('Rentality: trips', function () {
     const availableCars = await rentalityCarToken.connect(guest).getAvailableCarsForUser(guest.address)
     expect(availableCars.length).to.equal(1)
 
-    const rentPriceInUsdCents = 1000
-    const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
-      await rentalityCurrencyConverter.getFromUsdLatest(ethToken, rentPriceInUsdCents)
+    const dailyPriceInUsdCents = 1000
+
+    const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals } = await calculatePayments(
+      rentalityCurrencyConverter,
+      rentalityPaymentService,
+      dailyPriceInUsdCents,
+      1,
+      0
+    )
 
     await expect(
-      rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequest(
         {
           carId: 1,
           host: host.address,
@@ -200,8 +232,7 @@ describe('Rentality: trips', function () {
           endDateTime: 321,
           startLocation: '',
           endLocation: '',
-          totalDayPriceInUsdCents: rentPriceInUsdCents,
-          taxPriceInUsdCents: 0,
+          totalDayPriceInUsdCents: dailyPriceInUsdCents,
           depositInUsdCents: 0,
           currencyRate: ethToCurrencyRate,
           currencyDecimals: ethToCurrencyDecimals,
@@ -220,7 +251,7 @@ describe('Rentality: trips', function () {
           endDateTime: 456,
           startLocation: '',
           endLocation: '',
-          totalDayPriceInUsdCents: rentPriceInUsdCents,
+          totalDayPriceInUsdCents: dailyPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
           currencyRate: ethToCurrencyRate,
@@ -246,8 +277,15 @@ describe('Rentality: trips', function () {
   })
 
   it("if trip accepted not intersect trips shouldn't be rejected", async function () {
-    const { rentalityPlatform, rentalityCarToken, rentalityTripService, rentalityCurrencyConverter, host, guest } =
-      await loadFixture(deployDefaultFixture)
+    const {
+      rentalityPlatform,
+      rentalityPaymentService,
+      rentalityCarToken,
+      rentalityTripService,
+      rentalityCurrencyConverter,
+      host,
+      guest,
+    } = await loadFixture(deployDefaultFixture)
 
     await expect(rentalityCarToken.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
     const myCars = await rentalityCarToken.connect(host).getCarsOwnedByUser(host.address)
@@ -255,12 +293,18 @@ describe('Rentality: trips', function () {
     const availableCars = await rentalityCarToken.connect(guest).getAvailableCarsForUser(guest.address)
     expect(availableCars.length).to.equal(1)
 
-    const rentPriceInUsdCents = 1000
-    const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
-      await rentalityCurrencyConverter.getFromUsdLatest(ethToken, rentPriceInUsdCents)
+    const dailyPriceInUsdCents = 1000
+
+    const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals } = await calculatePayments(
+      rentalityCurrencyConverter,
+      rentalityPaymentService,
+      dailyPriceInUsdCents,
+      1,
+      0
+    )
 
     await expect(
-      rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequest(
         {
           carId: 1,
           host: host.address,
@@ -268,8 +312,7 @@ describe('Rentality: trips', function () {
           endDateTime: 321,
           startLocation: '',
           endLocation: '',
-          totalDayPriceInUsdCents: rentPriceInUsdCents,
-          taxPriceInUsdCents: 0,
+          totalDayPriceInUsdCents: dailyPriceInUsdCents,
           depositInUsdCents: 0,
           currencyRate: ethToCurrencyRate,
           currencyDecimals: ethToCurrencyDecimals,
@@ -288,7 +331,7 @@ describe('Rentality: trips', function () {
           endDateTime: 789,
           startLocation: '',
           endLocation: '',
-          totalDayPriceInUsdCents: rentPriceInUsdCents,
+          totalDayPriceInUsdCents: dailyPriceInUsdCents,
           taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
           currencyRate: ethToCurrencyRate,
@@ -311,8 +354,15 @@ describe('Rentality: trips', function () {
   })
 
   it('searchAvailableCars should return cars with Intersect trip in status Created', async function () {
-    const { rentalityPlatform, rentalityCarToken, rentalityTripService, rentalityCurrencyConverter, host, guest } =
-      await loadFixture(deployDefaultFixture)
+    const {
+      rentalityPlatform,
+      rentalityPaymentService,
+      rentalityCarToken,
+      rentalityTripService,
+      rentalityCurrencyConverter,
+      host,
+      guest,
+    } = await loadFixture(deployDefaultFixture)
 
     await expect(rentalityCarToken.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
     const myCars = await rentalityCarToken.connect(host).getCarsOwnedByUser(host.address)
@@ -326,12 +376,19 @@ describe('Rentality: trips', function () {
       .searchAvailableCarsForUser(guest.address, timestampNow, timestampIn1Day, searchCarParams)
     expect(availableCars.length).to.equal(1)
 
-    const rentPriceInUsdCents = 1000
-    const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
-      await rentalityCurrencyConverter.getFromUsdLatest(ethToken, rentPriceInUsdCents)
+    const dailyPriceInUsdCents = 1000
+    const deposit = 400
+
+    const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals } = await calculatePayments(
+      rentalityCurrencyConverter,
+      rentalityPaymentService,
+      dailyPriceInUsdCents,
+      1,
+      deposit
+    )
 
     await expect(
-      rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequest(
         {
           carId: 1,
           host: host.address,
@@ -339,9 +396,8 @@ describe('Rentality: trips', function () {
           endDateTime: timestampIn1Day,
           startLocation: '',
           endLocation: '',
-          totalDayPriceInUsdCents: rentPriceInUsdCents,
-          taxPriceInUsdCents: 0,
-          depositInUsdCents: 0,
+          totalDayPriceInUsdCents: dailyPriceInUsdCents,
+          depositInUsdCents: 400,
           currencyRate: ethToCurrencyRate,
           currencyDecimals: ethToCurrencyDecimals,
           currencyType: ethToken,
@@ -363,8 +419,15 @@ describe('Rentality: trips', function () {
   })
 
   it("searchAvailableCars shouldn't return cars with Intersect trip in status approved", async function () {
-    const { rentalityPlatform, rentalityTripService, rentalityCarToken, rentalityCurrencyConverter, host, guest } =
-      await loadFixture(deployDefaultFixture)
+    const {
+      rentalityPlatform,
+      rentalityPaymentService,
+      rentalityTripService,
+      rentalityCarToken,
+      rentalityCurrencyConverter,
+      host,
+      guest,
+    } = await loadFixture(deployDefaultFixture)
 
     await expect(rentalityCarToken.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
     const myCars = await rentalityCarToken.connect(host).getCarsOwnedByUser(host.address)
@@ -378,12 +441,19 @@ describe('Rentality: trips', function () {
       .searchAvailableCarsForUser(guest.address, timestampNow, timestampIn1Day, searchCarParams)
     expect(availableCars.length).to.equal(1)
 
-    const rentPriceInUsdCents = 1000
-    const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
-      await rentalityCurrencyConverter.getFromUsdLatest(ethToken, rentPriceInUsdCents)
+    const dailyPriceInUsdCents = 1000
+    const deposit = 400
+
+    const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals } = await calculatePayments(
+      rentalityCurrencyConverter,
+      rentalityPaymentService,
+      dailyPriceInUsdCents,
+      1,
+      deposit
+    )
 
     await expect(
-      rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequest(
         {
           carId: 1,
           host: host.address,
@@ -391,9 +461,8 @@ describe('Rentality: trips', function () {
           endDateTime: timestampIn1Day,
           startLocation: '',
           endLocation: '',
-          totalDayPriceInUsdCents: rentPriceInUsdCents,
-          taxPriceInUsdCents: 0,
-          depositInUsdCents: 0,
+          totalDayPriceInUsdCents: dailyPriceInUsdCents,
+          depositInUsdCents: 400,
           currencyRate: ethToCurrencyRate,
           currencyDecimals: ethToCurrencyDecimals,
           currencyType: ethToken,
