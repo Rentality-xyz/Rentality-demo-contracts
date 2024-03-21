@@ -13,10 +13,6 @@ interface IRentalityGateway {
   /// @notice This function retrieves the actual service addresses
   function updateServiceAddresses() external;
 
-  /// @notice Get the platform fee in parts per million (PPM).
-  /// @return The platform fee in PPM.
-  function getPlatformFeeInPPM() external view returns (uint32);
-
   /// @host functions
 
   /// @notice Add a new car to the platform.
@@ -58,15 +54,15 @@ interface IRentalityGateway {
 
   /// @notice Get information about all cars owned by the caller.
   /// @return An array of CarInfo structures containing details about the caller's cars.
-  function getMyCars() external view returns (Schemas.CarInfo[] memory);
+  function getMyCars() external view returns (Schemas.CarInfoDTO[] memory);
 
   /// @notice Burns (disables) a car. Only callable by hosts.
   /// @param carId The ID of the car to burn.
-  function burnCar(uint256 carId) external;
+  //  function burnCar(uint256 carId) external;
 
   /// @notice Get information about all trips where the caller is the host.
   /// @return An array of Trip structures containing details about trips where the caller is the host.
-  function getTripsAsHost() external view returns (Schemas.Trip[] memory);
+  function getTripsAsHost() external view returns (Schemas.TripDTO[] memory);
 
   /// @notice Approve a trip request by its ID.
   /// @param tripId The ID of the trip to approve.
@@ -142,7 +138,7 @@ interface IRentalityGateway {
 
   /// @notice Get information about all trips where the caller is the guest.
   /// @return An array of Trip structures containing details about trips where the caller is the guest.
-  function getTripsAsGuest() external view returns (Schemas.Trip[] memory);
+  function getTripsAsGuest() external view returns (Schemas.TripDTO[] memory);
 
   /// @notice Performs check-in by the guest for a trip.
   /// @param tripId The ID of the trip.
@@ -159,17 +155,17 @@ interface IRentalityGateway {
   /// @notice Get information about a specific trip.
   /// @param tripId The ID of the trip.
   /// @return Trip structure containing details about the specified trip.
-  function getTrip(uint256 tripId) external view returns (Schemas.Trip memory);
+  function getTrip(uint256 tripId) external view returns (Schemas.TripDTO memory);
 
   /// @notice Retrieves information about trips where the specified user is the guest.
   /// @param guest The address of the guest.
   /// @return An array of trip information for the specified guest.
-  function getTripsByGuest(address guest) external view returns (Schemas.Trip[] memory);
+  function getTripsByGuest(address guest) external view returns (Schemas.TripDTO[] memory);
 
   /// @notice Retrieves information about trips where the specified user is the host.
   /// @param host The address of the host.
   /// @return An array of trip information for the specified host.
-  function getTripsByHost(address host) external view returns (Schemas.Trip[] memory);
+  function getTripsByHost(address host) external view returns (Schemas.TripDTO[] memory);
 
   /// @notice Retrieves information about trips for a specific car.
   /// @param carId The ID of the car.
@@ -233,6 +229,7 @@ interface IRentalityGateway {
   /// @param profilePhoto The URL of the caller's profile photo.
   /// @param licenseNumber The driver's license number of the caller.
   /// @param expirationDate The expiration date of the caller's driver's license.
+  /// @param isTCPassed Indicates whether the user has agreed to the terms of service for the platform
   function setKYCInfo(
     string memory name,
     string memory surname,
@@ -240,7 +237,6 @@ interface IRentalityGateway {
     string memory profilePhoto,
     string memory licenseNumber,
     uint64 expirationDate,
-    bool isKYCPassed,
     bool isTCPassed
   ) external;
 

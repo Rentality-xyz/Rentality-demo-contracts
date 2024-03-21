@@ -5,6 +5,7 @@ import '@openzeppelin/contracts/utils/math/Math.sol';
 import '../Schemas.sol';
 import '../RentalityUserService.sol';
 import '../RentalityCarToken.sol';
+import '../abstract/IRentalityGeoService.sol';
 
 /// @title RentalityUtils Library
 /// @notice
@@ -160,7 +161,7 @@ library RentalityUtils {
   /// @param carServiceAddress RentalityCarToken contract instance.
   /// @return chatInfoList Array of IRentalityGateway.ChatInfo structures.
   function populateChatInfo(
-    Schemas.Trip[] memory trips,
+    Schemas.TripDTO[] memory trips,
     address userServiceAddress,
     address carServiceAddress
   ) public view returns (Schemas.ChatInfo[] memory) {
@@ -170,25 +171,28 @@ library RentalityUtils {
     Schemas.ChatInfo[] memory chatInfoList = new Schemas.ChatInfo[](trips.length);
 
     for (uint i = 0; i < trips.length; i++) {
-      Schemas.KYCInfo memory guestInfo = userService.getKYCInfo(trips[i].guest);
-      Schemas.KYCInfo memory hostInfo = userService.getKYCInfo(trips[i].host);
+      Schemas.KYCInfo memory guestInfo = userService.getKYCInfo(trips[i].trip.guest);
+      Schemas.KYCInfo memory hostInfo = userService.getKYCInfo(trips[i].trip.host);
 
-      chatInfoList[i].tripId = trips[i].tripId;
-      chatInfoList[i].guestAddress = trips[i].guest;
+      chatInfoList[i].tripId = trips[i].trip.tripId;
+      chatInfoList[i].guestAddress = trips[i].trip.guest;
       chatInfoList[i].guestName = string(abi.encodePacked(guestInfo.name, ' ', guestInfo.surname));
       chatInfoList[i].guestPhotoUrl = guestInfo.profilePhoto;
-      chatInfoList[i].hostAddress = trips[i].host;
+      chatInfoList[i].hostAddress = trips[i].trip.host;
       chatInfoList[i].hostName = string(abi.encodePacked(hostInfo.name, ' ', hostInfo.surname));
       chatInfoList[i].hostPhotoUrl = hostInfo.profilePhoto;
-      chatInfoList[i].tripStatus = uint256(trips[i].status);
+      chatInfoList[i].tripStatus = uint256(trips[i].trip.status);
 
-      Schemas.CarInfo memory carInfo = carService.getCarInfoById(trips[i].carId);
+      Schemas.CarInfo memory carInfo = carService.getCarInfoById(trips[i].trip.carId);
       chatInfoList[i].carBrand = carInfo.brand;
       chatInfoList[i].carModel = carInfo.model;
       chatInfoList[i].carYearOfProduction = carInfo.yearOfProduction;
-      chatInfoList[i].carMetadataUrl = carService.tokenURI(trips[i].carId);
-      chatInfoList[i].startDateTime = trips[i].startDateTime;
-      chatInfoList[i].endDateTime = trips[i].endDateTime;
+      chatInfoList[i].carMetadataUrl = carService.tokenURI(trips[i].trip.carId);
+      chatInfoList[i].startDateTime = trips[i].trip.startDateTime;
+      chatInfoList[i].endDateTime = trips[i].trip.endDateTime;
+      chatInfoList[i].timeZoneId = IRentalityGeoService(carService.getGeoServiceAddress()).getCarTimeZoneId(
+        carInfo.carId
+      );
     }
 
     return chatInfoList;

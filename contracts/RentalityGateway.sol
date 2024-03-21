@@ -70,19 +70,6 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
     rentalityPlatform.updateServiceAddresses(adminService);
   }
 
-  /// @notice Retrieves the platform fee in parts per million (PPM).
-  /// @return The platform fee in PPM.
-  function getPlatformFeeInPPM() public view returns (uint32) {
-    return paymentService.getPlatformFeeInPPM();
-  }
-
-  /// @notice Retrieves the platform fee calculated from the given value.
-  /// @param value The value from which to calculate the platform fee.
-  /// @return The calculated platform fee.
-  function getPlatformFeeFrom(uint256 value) private view returns (uint256) {
-    return paymentService.getPlatformFeeFrom(value);
-  }
-
   /// @notice Retrieves information about a car by its ID.
   /// @param carId The ID of the car.
   /// @return Car information as a struct.
@@ -110,6 +97,8 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
   /// @notice Updates the information of a car. Only callable by hosts.
   /// @param request The request containing updated car information.
   function updateCarInfo(Schemas.UpdateCarInfoRequest memory request) public onlyHost {
+    require(RentalityQuery.isCarEditable(request.carId, address(tripService)), 'Car is not available for update.');
+
     return carService.updateCarInfo(request, '', '', '', '');
   }
 
@@ -124,6 +113,8 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
     string memory locationLongitude,
     string memory geoApiKey
   ) public onlyHost {
+    require(RentalityQuery.isCarEditable(request.carId, address(tripService)), 'Car is not available for update.');
+
     return carService.updateCarInfo(request, location, locationLatitude, locationLongitude, geoApiKey);
   }
 
@@ -153,11 +144,11 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
     return carService.updateCarTokenUri(carId, tokenUri);
   }
 
-  /// @notice Burns (disables) a car. Only callable by hosts.
-  /// @param carId The ID of the car to burn.
-  function burnCar(uint256 carId) public onlyHost {
-    return carService.burnCar(carId);
-  }
+  //  /// @notice Burns (disables) a car. Only callable by hosts.
+  //  /// @param carId The ID of the car to burn.
+  //  function burnCar(uint256 carId) public onlyHost {
+  //    return carService.burnCar(carId);
+  //  }
 
   /// @notice Retrieves information about all cars.
   /// @return An array of car information.
@@ -208,8 +199,8 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
 
   /// @notice Retrieves information about cars owned by the caller.
   /// @return An array of car information owned by the caller.
-  function getMyCars() public view returns (Schemas.CarInfo[] memory) {
-    return carService.getCarsOwnedByUser(tx.origin);
+  function getMyCars() public view returns (Schemas.CarInfoDTO[] memory) {
+    return RentalityQuery.getCarsOwnedByUserWithEditability(address(tripService), address(carService));
   }
 
   /// @notice Retrieves detailed information about a car.
@@ -289,34 +280,34 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
   /// @notice Retrieves information about a trip by ID.
   /// @param tripId The ID of the trip.
   /// @return Trip information.
-  function getTrip(uint256 tripId) public view returns (Schemas.Trip memory) {
-    return tripService.getTrip(tripId);
+  function getTrip(uint256 tripId) public view returns (Schemas.TripDTO memory) {
+    return rentalityPlatform.getTripDTO(tripId);
   }
 
   /// @notice Retrieves information about trips where the caller is the guest.
   /// @return An array of trip information.
-  function getTripsAsGuest() public view returns (Schemas.Trip[] memory) {
-    return RentalityQuery.getTripsByGuest(address(tripService), tx.origin);
+  function getTripsAsGuest() public view returns (Schemas.TripDTO[] memory) {
+    return RentalityQuery.getTripsByGuest(address(tripService), address(userService), address(carService), tx.origin);
   }
 
   /// @notice Retrieves information about trips where the specified user is the guest.
   /// @param guest The address of the guest.
   /// @return An array of trip information for the specified guest.
-  function getTripsByGuest(address guest) public view returns (Schemas.Trip[] memory) {
-    return RentalityQuery.getTripsByGuest(address(tripService), guest);
+  function getTripsByGuest(address guest) public view returns (Schemas.TripDTO[] memory) {
+    return RentalityQuery.getTripsByGuest(address(tripService), address(userService), address(carService), guest);
   }
 
   /// @notice Retrieves information about trips where the caller is the host.
   /// @return An array of trip information.
-  function getTripsAsHost() public view returns (Schemas.Trip[] memory) {
-    return RentalityQuery.getTripsByHost(address(tripService), tx.origin);
+  function getTripsAsHost() public view returns (Schemas.TripDTO[] memory) {
+    return RentalityQuery.getTripsByHost(address(tripService), address(userService), address(carService), tx.origin);
   }
 
   /// @notice Retrieves information about trips where the specified user is the host.
   /// @param host The address of the host.
   /// @return An array of trip information for the specified host.
-  function getTripsByHost(address host) public view returns (Schemas.Trip[] memory) {
-    return RentalityQuery.getTripsByHost(address(tripService), host);
+  function getTripsByHost(address host) public view returns (Schemas.TripDTO[] memory) {
+    return RentalityQuery.getTripsByHost(address(tripService), address(userService), address(carService), host);
   }
 
   /// @notice Retrieves information about trips for a specific car.
@@ -373,6 +364,7 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
         address(tripService),
         address(carService),
         address(userService),
+        address(currencyConverterService),
         tripId
       );
   }
@@ -387,6 +379,7 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
         address(tripService),
         address(carService),
         address(userService),
+        address(currencyConverterService),
         msg.sender
       );
   }
@@ -401,6 +394,7 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
         address(tripService),
         address(carService),
         address(userService),
+        address(currencyConverterService),
         msg.sender
       );
   }
@@ -412,7 +406,6 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
   /// @param profilePhoto The URL of the user's profile photo.
   /// @param licenseNumber The user's license number.
   /// @param expirationDate The expiration date of the user's license.
-  /// @param isKYCPassed A boolean indicating whether the user has passed KYC.
   /// @param isTCPassed A boolean indicating whether the user has passed TC.
   function setKYCInfo(
     string memory name,
@@ -421,23 +414,13 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
     string memory profilePhoto,
     string memory licenseNumber,
     uint64 expirationDate,
-    bool isKYCPassed,
     bool isTCPassed
   ) public {
     if (!userService.isGuest(msg.sender)) {
       userService.grantGuestRole(msg.sender);
     }
     return
-      userService.setKYCInfo(
-        name,
-        surname,
-        mobilePhoneNumber,
-        profilePhoto,
-        licenseNumber,
-        expirationDate,
-        isKYCPassed,
-        isTCPassed
-      );
+      userService.setKYCInfo(name, surname, mobilePhoneNumber, profilePhoto, licenseNumber, expirationDate, isTCPassed);
   }
 
   /// @notice Retrieves KYC information for the specified user.
@@ -463,15 +446,6 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
   /// @return An array of chat information.
   function getChatInfoForGuest() public view returns (Schemas.ChatInfo[] memory) {
     return rentalityPlatform.getChatInfoForGuest();
-  }
-
-  /// @notice Calls outdated automations and takes corresponding actions based on their types.
-  /// - If the automation type is Rejection, it rejects the trip request.
-  /// - If the automation type is StartTrip, it checks in the guest for the trip.
-  /// - If the automation type is any other, it checks out the guest for the trip.
-  /// Note: This function retrieves all automations and processes each one if its time has expired.
-  function callOutdated() public {
-    rentalityPlatform.callOutdated();
   }
 
   //  @dev Initializes the contract with the provided addresses for various services.

@@ -15,7 +15,7 @@ async function main() {
   )
 
   const geoAddress = checkNotNull(
-    getContractAddress('RentalityGeoService', 'scripts/deploy_1c_GeoService.js', chainId),
+    getContractAddress('RentalityGeoService', 'scripts/deploy_2f_RentalityGeoService.js', chainId),
     'RentalityGeoService'
   )
 
