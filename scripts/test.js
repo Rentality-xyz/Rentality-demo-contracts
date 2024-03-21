@@ -3,10 +3,10 @@ const { readFromFile, getContractAddress } = require('./utils/contractAddress')
 const readlineSync = require('readline-sync')
 const saveJsonAbi = require('./utils/abiSaver')
 const { checkNotNull } = require('./utils/deployHelper')
-const contractHasLib = require("./utils/libSearch");
+const getContractLibs = require("./utils/libSearch");
 async function main() {
-  let path = contractHasLib('RentalityPaymentService','RentalityPaymentService')
-    console.log(path)
+    getContractLibs('RentalityPlatform' ,1337n)
+
 
 }
 main()

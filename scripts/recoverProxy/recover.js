@@ -2,15 +2,20 @@ const { ethers, upgrades } = require('hardhat')
 const { startRecovering } = require('./common')
 const { readFromFile, getContractAddress } = require('../utils/contractAddress')
 const { checkNotNull } = require('../utils/deployHelper')
+const getContractLibs = require("../utils/libSearch");
 
 async function main() {
   let [contractName, chainId] = await startRecovering()
 
-  contractName = checkNotNull(readFromFile(contractName, chainId), contractName)
+   const contractAddress = checkNotNull(readFromFile(contractName, chainId), contractName)
 
-  const contractFactory = await ethers.getContractFactory(contractName)
+    const libs = getContractLibs(contractName, chainId)
 
-  const _ = await upgrades.forceImport(contractName, contractFactory)
+    const contractFactory = await ethers.getContractFactory(contractName, {
+        libraries: libs
+    })
+
+  const _ = await upgrades.forceImport(contractAddress, contractFactory)
 
   console.log('Proxy files successfully recovered!')
 }
