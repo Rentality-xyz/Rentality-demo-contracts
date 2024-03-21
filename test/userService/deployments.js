@@ -7,6 +7,10 @@ const { ethToken } = require('../utils')
 async function deployDefaultFixture() {
   const [owner, admin, manager, host, guest, anonymous] = await ethers.getSigners()
 
+  const chainId = (await owner.provider?.getNetwork())?.chainId ?? -1
+
+  if (chainId !== 1337n) throw new Error('Can be running only on localhost')
+
   const RentalityUtils = await ethers.getContractFactory('RentalityUtils')
   const utils = await RentalityUtils.deploy()
 
@@ -25,7 +29,7 @@ async function deployDefaultFixture() {
   })
   const RentalityCurrencyConverter = await ethers.getContractFactory('RentalityCurrencyConverter')
   const RentalityPaymentService = await ethers.getContractFactory('RentalityPaymentService')
-  const RentalityGeoService = await ethers.getContractFactory('RentalityGeoMock')
+  const RentalityGeoService = await ethers.getContractFactory('RentalityGeoService')
 
   const RentalityCarToken = await ethers.getContractFactory('RentalityCarToken', {
     libraries: { RentalityQuery: await query.getAddress() },
@@ -40,8 +44,11 @@ async function deployDefaultFixture() {
   let rentalityMockPriceFeed = await RentalityMockPriceFeed.deploy(8, 200000000000)
   await rentalityMockPriceFeed.waitForDeployment()
 
-  const rentalityUserService = await upgrades.deployProxy(RentalityUserService)
-  await rentalityUserService.waitForDeployment()
+  const MockCivic = await ethers.getContractFactory('CivicMockVerifier')
+  const mockCivic = await MockCivic.deploy()
+  await mockCivic.waitForDeployment()
+
+  const rentalityUserService = await upgrades.deployProxy(RentalityUserService, [await mockCivic.getAddress(), 0])
 
   const electricEngine = await ethers.getContractFactory('RentalityElectricEngine')
   const elEngine = await electricEngine.deploy(await rentalityUserService.getAddress())
@@ -86,8 +93,16 @@ async function deployDefaultFixture() {
   ])
   await rentalityCurrencyConverter.waitForDeployment()
 
-  const rentalityGeoService = await RentalityGeoService.deploy()
+  const GeoParserMock = await ethers.getContractFactory('RentalityGeoMock')
+  const geoParserMock = await GeoParserMock.deploy()
+  await geoParserMock.waitForDeployment()
+
+  const rentalityGeoService = await upgrades.deployProxy(RentalityGeoService, [
+    await rentalityUserService.getAddress(),
+    await geoParserMock.getAddress(),
+  ])
   await rentalityGeoService.waitForDeployment()
+  await geoParserMock.setGeoService(await rentalityGeoService.getAddress())
 
   const rentalityCarToken = await upgrades.deployProxy(RentalityCarToken, [
     await rentalityGeoService.getAddress(),
@@ -101,19 +116,12 @@ async function deployDefaultFixture() {
     await rentalityUserService.getAddress(),
   ])
 
-  const AutomationService = await ethers.getContractFactory('RentalityAutomation')
-  const rentalityAutomationService = await upgrades.deployProxy(AutomationService, [
-    await rentalityUserService.getAddress(),
-  ])
-  await rentalityAutomationService.waitForDeployment()
-
   const rentalityTripService = await upgrades.deployProxy(RentalityTripService, [
     await rentalityCurrencyConverter.getAddress(),
     await rentalityCarToken.getAddress(),
     await rentalityPaymentService.getAddress(),
     await rentalityUserService.getAddress(),
     await engineService.getAddress(),
-    await rentalityAutomationService.getAddress(),
   ])
 
   await rentalityTripService.waitForDeployment()
@@ -128,7 +136,6 @@ async function deployDefaultFixture() {
     await rentalityUserService.getAddress(),
     await rentalityPaymentService.getAddress(),
     await claimService.getAddress(),
-    await rentalityAutomationService.getAddress(),
   ])
 
   await rentalityPlatform.waitForDeployment()
@@ -139,8 +146,8 @@ async function deployDefaultFixture() {
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityCarToken.getAddress())
   await rentalityUserService.connect(owner).grantManagerRole(await engineService.getAddress())
 
-  await rentalityUserService.connect(host).setKYCInfo(' ', ' ', ' ', ' ', ' ', 1, true, true)
-  await rentalityUserService.connect(guest).setKYCInfo(' ', ' ', ' ', ' ', ' ', 1, true, true)
+  await rentalityUserService.connect(host).setKYCInfo(' ', ' ', ' ', ' ', ' ', 1, true)
+  await rentalityUserService.connect(guest).setKYCInfo(' ', ' ', ' ', ' ', ' ', 1, true)
 
   return {
     rentalityMockPriceFeed,
@@ -162,8 +169,11 @@ async function deployFixtureWithUsers() {
   const [owner, admin, manager, host, guest, anonymous] = await ethers.getSigners()
   const RentalityUserService = await ethers.getContractFactory('RentalityUserService')
 
-  const rentalityUserService = await upgrades.deployProxy(RentalityUserService)
-  await rentalityUserService.waitForDeployment()
+  const MockCivic = await ethers.getContractFactory('CivicMockVerifier')
+  const mockCivic = await MockCivic.deploy()
+  await mockCivic.waitForDeployment()
+
+  const rentalityUserService = await upgrades.deployProxy(RentalityUserService, [await mockCivic.getAddress(), 0])
 
   await rentalityUserService.connect(owner).grantAdminRole(admin.address)
   await rentalityUserService.connect(owner).grantManagerRole(manager.address)

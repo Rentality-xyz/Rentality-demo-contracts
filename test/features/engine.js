@@ -59,27 +59,11 @@ describe('RentalityEngines', function () {
     await expect(engineService.verifyCreateParams(engineTy, [tankVolume, 0])).to.be.reverted
   })
   it('should correctly verify electric car engine data', async function () {
-    let fromEmptyToTwenty = 10
-    let fromTwentyOneToFifty = 20
-    let fromFiftyOneToEighty = 30
-    let fromEightyOneToOneHundred = 50
+    let price = 10
     let engineTy = await elEngine.getEType()
 
-    await expect(
-      engineService.verifyCreateParams(engineTy, [
-        fromEmptyToTwenty,
-        fromTwentyOneToFifty,
-        fromFiftyOneToEighty,
-        fromEightyOneToOneHundred,
-      ])
-    ).to.not.reverted
-    await expect(
-      engineService.verifyCreateParams(engineTy, [
-        fromTwentyOneToFifty,
-        fromFiftyOneToEighty,
-        fromEightyOneToOneHundred,
-      ])
-    ).to.be.reverted
+    await expect(engineService.verifyCreateParams(engineTy, [price])).to.not.reverted
+    await expect(engineService.verifyCreateParams(engineTy, [price, price])).to.be.reverted
   })
 
   it('should correctly verify hybrid car engine data', async function () {
@@ -103,19 +87,16 @@ describe('RentalityEngines', function () {
     expect(newCorrectParams[1]).to.be.eq(newParams[0])
   })
   it('should correctly update electric car engine data', async function () {
-    let oldParams = [1, 2, 3, 4]
+    let oldParams = [5]
     let engineTy = await elEngine.getEType()
 
-    let newParams = [5, 6, 7, 9]
+    let newParams = [5]
 
     await expect(engineService.verifyUpdateParams(engineTy, [0, 0, 0], [1, 1, 1, 1])).to.be.reverted
 
     let newVeryfParams = await engineService.verifyUpdateParams(engineTy, newParams, oldParams)
 
     expect(newVeryfParams[0]).to.be.eq(newParams[0])
-    expect(newVeryfParams[1]).to.be.eq(newParams[1])
-    expect(newVeryfParams[2]).to.be.eq(newParams[2])
-    expect(newVeryfParams[3]).to.be.eq(newParams[3])
   })
   it('should correctly update hybrid car engine data', async function () {
     let oldParams = [10, 15]
@@ -176,7 +157,7 @@ describe('RentalityEngines', function () {
     it('should correctly compute patrol refund', async function () {
       let startParams = [50, 100] // Assuming startFuelLevelInPercents and startOdometr
       let endParams = [20, 200] // Assuming endFuelLevelInPercents and endOdometr
-      let fuelPrices = [300] // Assuming fuel price in USD cents
+      let fuelPrices = 300 // Assuming fuel price in USD cents
       let carId = 1
       let milesIncludedPerDay = 50
       let pricePerDayInUsdCents = 100
@@ -206,21 +187,18 @@ describe('RentalityEngines', function () {
     it('should correctly compute electric refund', async function () {
       let startParams = [50, 100] // Assuming startFuelLevelInPercents and startOdometr
       let endParams = [20, 200] // Assuming endFuelLevelInPercents and endOdometr
-      let fuelPrices = [300] // Assuming fuel price in USD cents
+      let fuelPrices = 300 // Assuming fuel price in USD cents
       let carId = 1
       let milesIncludedPerDay = 50
       let pricePerDayInUsdCents = 100
       let tripDays = 3
 
-      let fromEmptyToTwenty = 10
-      let fromTwentyOneToFifteen = 20
-      let fromFifteenToOneEighteen = 30
-      let fromEighteenToOneHundred = 50
       let engineTy = await elEngine.getEType()
 
-      let engineParams = [fromEmptyToTwenty, fromTwentyOneToFifteen, fromFifteenToOneEighteen, fromEighteenToOneHundred]
+      let engineParams = [fuelPrices]
 
-      let expectedFuelRefund = fromEmptyToTwenty
+      let diff = startParams[0] - endParams[0]
+      let expectedFuelRefund = (diff * fuelPrices) / 100
 
       let result = await engineService.getResolveAmountInUsdCents(
         engineTy,
@@ -233,53 +211,6 @@ describe('RentalityEngines', function () {
         tripDays
       )
       expect(result[1]).to.be.eq(expectedFuelRefund)
-    })
-
-    it('should correctly compute end params', async function () {
-      const createCarRequest = getMockCarRequest(0)
-      await expect(rentalityGateway.connect(host).addCar(createCarRequest)).not.to.be.reverted
-
-      const oneDayInSeconds = 24 * 60 * 60
-      const rentPriceInUsdCents = 1000
-      const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
-        await rentalityCurrencyConverter.getFromUsdLatest(ethToken, rentPriceInUsdCents)
-
-      const blockNumBefore = await ethers.provider.getBlockNumber()
-      const blockBefore = await ethers.provider.getBlock(blockNumBefore)
-      const timestampBefore = blockBefore.timestamp
-
-      await expect(
-        rentalityGateway.connect(guest).createTripRequest(
-          {
-            carId: 1,
-            host: host.address,
-            startDateTime: timestampBefore,
-            endDateTime: timestampBefore + oneDayInSeconds * 2,
-            startLocation: '',
-            endLocation: '',
-            totalDayPriceInUsdCents: rentPriceInUsdCents,
-            taxPriceInUsdCents: 0,
-            depositInUsdCents: 0,
-            currencyRate: ethToCurrencyRate,
-            currencyDecimals: ethToCurrencyDecimals,
-            currencyType: ethToken,
-          },
-          { value: rentPriceInEth }
-        )
-      ).to.not.reverted
-      expect(await rentalityGateway.connect(host).approveTripRequest(1)).not.be.reverted
-
-      await expect(rentalityGateway.connect(host).checkInByHost(1, [10, 0])).not.be.reverted
-
-      await expect(rentalityGateway.connect(guest).checkInByGuest(1, [10, 0])).not.be.reverted
-
-      await network.provider.send('evm_setNextBlockTimestamp', [timestampBefore + oneDayInSeconds * 3])
-
-      await expect(rentalityGateway.connect(admin).callOutdated()).not.be.reverted
-
-      const trip = await rentalityTripService.getTrip(1)
-      expect(trip.startParamLevels[0]).to.be.eq(trip.endParamLevels[0])
-      expect(trip.startParamLevels[1]).to.be.eq(trip.endParamLevels[1])
     })
   })
 })

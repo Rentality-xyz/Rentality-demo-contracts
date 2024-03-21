@@ -105,7 +105,7 @@ describe('ERC20 payments', function () {
     await expect(rentalityGateway.connect(guest).checkOutByGuest(1, [0, 0])).not.to.be.reverted
     await expect(rentalityGateway.connect(host).checkOutByHost(1, [0, 0])).not.to.be.reverted
 
-    const platformFee = (rentPriceInUsdt * (await rentalityGateway.getPlatformFeeInPPM())) / BigInt(1_000_000)
+    const platformFee = (rentPriceInUsdt * (await rentalityAdminGateway.getPlatformFeeInPPM())) / BigInt(1_000_000)
     const returnToHost = rentPriceInUsdt - platformFee
 
     await expect(rentalityGateway.connect(host).finishTrip(1)).to.not.reverted
