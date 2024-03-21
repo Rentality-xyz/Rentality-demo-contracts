@@ -59,16 +59,16 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
   /// - Claim Service
   ///
   /// This function should be called whenever the addresses of the services change.
-  //  function updateServiceAddresses() public {
-  //    carService = RentalityCarToken(adminService.getCarServiceAddress());
-  //    currencyConverterService = RentalityCurrencyConverter(adminService.getCurrencyConverterServiceAddress());
-  //    tripService = RentalityTripService(adminService.getTripServiceAddress());
-  //    userService = RentalityUserService(adminService.getUserServiceAddress());
-  //    rentalityPlatform = RentalityPlatform(adminService.getRentalityPlatformAddress());
-  //    paymentService = RentalityPaymentService(adminService.getPaymentService());
-  //    claimService = RentalityClaimService(adminService.getClaimServiceAddress());
-  //    rentalityPlatform.updateServiceAddresses(adminService);
-  //  }
+    function updateServiceAddresses() public {
+      carService = RentalityCarToken(adminService.getCarServiceAddress());
+      currencyConverterService = RentalityCurrencyConverter(adminService.getCurrencyConverterServiceAddress());
+      tripService = RentalityTripService(adminService.getTripServiceAddress());
+      userService = RentalityUserService(adminService.getUserServiceAddress());
+      rentalityPlatform = RentalityPlatform(adminService.getRentalityPlatformAddress());
+      paymentService = RentalityPaymentService(adminService.getPaymentService());
+      claimService = RentalityClaimService(adminService.getClaimServiceAddress());
+      rentalityPlatform.updateServiceAddresses(adminService);
+    }
 
   /// @notice Retrieves information about a car by its ID.
   /// @param carId The ID of the car.
@@ -140,9 +140,9 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
   /// @notice Updates the token URI of a car. Only callable by hosts.
   /// @param carId The ID of the car to update.
   /// @param tokenUri The new token URI.
-  //  function updateCarTokenUri(uint256 carId, string memory tokenUri) public onlyHost {
-  //    return carService.updateCarTokenUri(carId, tokenUri);
-  //  }
+    function updateCarTokenUri(uint256 carId, string memory tokenUri) public onlyHost {
+      return carService.updateCarTokenUri(carId, tokenUri);
+    }
 
   //  /// @notice Burns (disables) a car. Only callable by hosts.
   //  /// @param carId The ID of the car to burn.
