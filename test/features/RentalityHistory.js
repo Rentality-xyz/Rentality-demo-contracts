@@ -17,6 +17,7 @@ describe('Rentality History Service', function () {
     rentalityGateway,
     transactionHistory,
     rentalityCurrencyConverter,
+    rentalityAdminGateway,
     owner,
     admin,
     manager,
@@ -29,6 +30,7 @@ describe('Rentality History Service', function () {
       rentalityPlatform,
       rentalityGateway,
       rentalityCurrencyConverter,
+      rentalityAdminGateway,
       owner,
       admin,
       manager,
@@ -71,7 +73,7 @@ describe('Rentality History Service', function () {
     ).not.to.be.reverted
 
     await expect(rentalityGateway.connect(host).rejectTripRequest(1)).to.not.reverted
-    const details = await rentalityGateway.getTrip(1)
+    const details = (await rentalityGateway.getTrip(1)).trip
 
     const currentTimeMillis = Date.now()
     const currentTimeSeconds = Math.floor(currentTimeMillis / 1000)
@@ -120,13 +122,13 @@ describe('Rentality History Service', function () {
     await expect(rentalityGateway.connect(host).checkOutByHost(1, [0, 0])).not.to.be.reverted
 
     const returnToHost =
-      rentPriceInEth - (rentPriceInEth * (await rentalityGateway.getPlatformFeeInPPM())) / BigInt(1_000_000)
+      rentPriceInEth - (rentPriceInEth * (await rentalityAdminGateway.getPlatformFeeInPPM())) / BigInt(1_000_000)
 
     await expect(rentalityGateway.connect(host).finishTrip(1)).to.changeEtherBalances(
       [host, rentalityPlatform],
       [returnToHost, -returnToHost]
     )
-    const details = await rentalityGateway.getTrip(1)
+    const details = (await rentalityGateway.getTrip(1)).trip
 
     const currentTimeMillis = Date.now()
     const currentTimeSeconds = Math.floor(currentTimeMillis / 1000)

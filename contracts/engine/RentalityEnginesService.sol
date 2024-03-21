@@ -57,12 +57,9 @@ contract RentalityEnginesService is Initializable, UUPSAccess {
   /// @notice Retrieves the fuel prices based on the engine type and engine parameters.
   /// @param eType The engine type for which fuel prices are requested.
   /// @param engineParams The array of engine parameters used to retrieve fuel prices.
-  /// @return An array of fuel prices corresponding to the provided engine parameters.
-  function getFuelPricesFromEngineParams(
-    uint8 eType,
-    uint64[] memory engineParams
-  ) public view returns (uint64[] memory) {
-    return engineTypeToEngineContract[eType].getFuelPricesFromEngineParams(engineParams);
+  /// @return A fuel price corresponding to the provided engine parameters.
+  function getFuelPriceFromEngineParams(uint8 eType, uint64[] memory engineParams) public view returns (uint64) {
+    return engineTypeToEngineContract[eType].getFuelPriceFromEngineParams(engineParams);
   }
 
   /// @notice Verify engine params
@@ -110,7 +107,7 @@ contract RentalityEnginesService is Initializable, UUPSAccess {
   /// @notice Retrieves the number of parameters expected by the panel for a specific engine type.
   /// @param eType The engine type for which to get the panel parameters amount.
   /// @return The number of parameters expected by the panel.
-  function getPanelParamsAmount(uint8 eType) public returns (uint256) {
+  function getPanelParamsAmount(uint8 eType) public view returns (uint256) {
     return engineTypeToEngineContract[eType].getParamsAmount();
   }
 
@@ -128,7 +125,7 @@ contract RentalityEnginesService is Initializable, UUPSAccess {
 
   /// @notice Computes the resolve amount in USD cents for a specific engine type and car rental.
   /// @param engineType The engine type associated with the car.
-  /// @param fuelPrices An array of uint64 values representing fuel prices.
+  /// @param fuelPrice Representing fuel prices.
   /// @param startParams An array of uint64 values representing the initial parameters of the rental.
   /// @param endParams An array of uint64 values representing the final parameters of the rental.
   /// @param engineParams represent engine params
@@ -138,7 +135,7 @@ contract RentalityEnginesService is Initializable, UUPSAccess {
   /// @return The total resolve amount and the fuel-specific resolve amount in USD cents.
   function getResolveAmountInUsdCents(
     uint8 engineType,
-    uint64[] memory fuelPrices,
+    uint64 fuelPrice,
     uint64[] memory startParams,
     uint64[] memory endParams,
     uint64[] memory engineParams,
@@ -148,7 +145,7 @@ contract RentalityEnginesService is Initializable, UUPSAccess {
   ) public view returns (uint64, uint64) {
     return
       engineTypeToEngineContract[engineType].getResolveAmountInUsdCents(
-        fuelPrices,
+        fuelPrice,
         startParams,
         endParams,
         engineParams,

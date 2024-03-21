@@ -5,6 +5,10 @@ pragma solidity ^0.8.9;
 /// @notice This contract defines the interface for the Rentality Geo Service, which provides geo-verification for cars info in the Rentality platform.
 /// @dev All functions in this interface are meant to be implemented by the Rentality Geo Service contract.
 interface IRentalityGeoService {
+  /// @notice Updates the address of the GeoParser contract.
+  /// @param newGeoParserAddress The new address of the GeoParser contract.
+  function updateParserAddress(address newGeoParserAddress) external;
+
   /// @notice Execute a request to verify geo-related information.
   /// @param addr The address for the geo-related request.
   /// @param key The key for the geo-related request.
@@ -19,6 +23,10 @@ interface IRentalityGeoService {
     string memory key,
     uint256 carId
   ) external returns (bytes32);
+
+  /// @notice Parse the geo-related response for a given car ID.
+  /// @param carId The ID of the car for which the geo-related response is parsed.
+  function parseGeoResponse(uint256 carId) external;
 
   /// @notice Get the validity of the coordinates for a specific car.
   /// @param carId The ID of the car.

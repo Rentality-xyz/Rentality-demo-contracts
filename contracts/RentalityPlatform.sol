@@ -5,8 +5,10 @@ import './RentalityCarToken.sol';
 import './payments/RentalityCurrencyConverter.sol';
 import './RentalityTripService.sol';
 import './RentalityUserService.sol';
+
 import './payments/RentalityPaymentService.sol';
 import './abstract/IRentalityGateway.sol';
+import './Schemas.sol';
 import './proxy/UUPSOwnable.sol';
 import './features/RentalityClaimService.sol';
 import './RentalityAdminGateway.sol';
@@ -25,7 +27,9 @@ contract RentalityPlatform is UUPSOwnable {
   RentalityUserService private userService;
   RentalityPaymentService private paymentService;
   RentalityClaimService private claimService;
-  RentalityAutomation private automationService;
+
+  // unused, have to be here, because of proxy
+  address private automationService;
 
   /// @dev Modifier to restrict access to admin users only.
   modifier onlyAdmin() {
@@ -53,7 +57,6 @@ contract RentalityPlatform is UUPSOwnable {
     userService = RentalityUserService(adminService.getTripServiceAddress());
     paymentService = RentalityPaymentService(adminService.getPaymentService());
     claimService = RentalityClaimService(adminService.getClaimServiceAddress());
-    automationService = RentalityAutomation(adminService.getAutomationServiceAddress());
   }
 
   /// @notice Withdraw a specific amount of funds from the contract.
@@ -294,7 +297,7 @@ contract RentalityPlatform is UUPSOwnable {
       'Wrong trip status.'
     );
 
-    claimService.createClaim(request);
+    claimService.createClaim(request, trip.host, trip.guest);
   }
 
   /// @notice Rejects a specific claim.
@@ -306,7 +309,7 @@ contract RentalityPlatform is UUPSOwnable {
 
     require(trip.host == tx.origin || trip.guest == tx.origin, 'Only for trip guest or host.');
 
-    claimService.rejectClaim(claimId, tx.origin);
+    claimService.rejectClaim(claimId, tx.origin, trip.host, trip.guest);
   }
 
   /// @notice Pays a specific claim, transferring funds to the host and, if applicable, refunding excess to the guest.
@@ -328,8 +331,10 @@ contract RentalityPlatform is UUPSOwnable {
       trip.paymentInfo.currencyRate,
       trip.paymentInfo.currencyDecimals
     );
-    claimService.payClaim(claimId);
+
     bool successHost;
+
+    claimService.payClaim(claimId, trip.host, trip.guest);
 
     if (currencyConverterService.isETH(trip.paymentInfo.currencyType)) {
       require(msg.value >= valueToPay, 'Insufficient funds sent.');
@@ -351,7 +356,10 @@ contract RentalityPlatform is UUPSOwnable {
   /// @dev This function is typically called periodically to check and update claim status.
   /// @param claimId ID of the claim to be updated.
   function updateClaim(uint256 claimId) public {
-    claimService.updateClaim(claimId);
+    Schemas.Claim memory claim = claimService.getClaim(claimId);
+    Schemas.Trip memory trip = tripService.getTrip(claim.tripId);
+
+    claimService.updateClaim(claimId, trip.host, trip.guest);
   }
 
   /// @notice Gets detailed information about a specific claim.
@@ -364,8 +372,14 @@ contract RentalityPlatform is UUPSOwnable {
     Schemas.CarInfo memory car = carService.getCarInfoById(trip.carId);
     string memory guestPhoneNumber = userService.getKYCInfo(trip.guest).mobilePhoneNumber;
     string memory hostPhoneNumber = userService.getKYCInfo(trip.host).mobilePhoneNumber;
+    uint valueInEth = currencyConverterService.getFromUsd(
+      trip.paymentInfo.currencyType,
+      uint(claim.amountInUsdCents),
+      trip.paymentInfo.currencyRate,
+      trip.paymentInfo.currencyDecimals
+    );
 
-    return Schemas.FullClaimInfo(claim, trip.host, trip.guest, guestPhoneNumber, hostPhoneNumber, car);
+    return Schemas.FullClaimInfo(claim, trip.host, trip.guest, guestPhoneNumber, hostPhoneNumber, car, valueInEth);
   }
 
   /// @notice Get contact information for a specific trip on the Rentality platform.
@@ -383,6 +397,22 @@ contract RentalityPlatform is UUPSOwnable {
     return (guestInfo.mobilePhoneNumber, hostInfo.mobilePhoneNumber);
   }
 
+  /// @notice Retrieves information about a trip by ID.
+  /// @param tripId The ID of the trip.
+  /// @return Trip information.
+  function getTripDTO(uint tripId) public view returns (Schemas.TripDTO memory) {
+    Schemas.Trip memory trip = tripService.getTrip(tripId);
+
+    return
+      Schemas.TripDTO(
+        trip,
+        userService.getKYCInfo(trip.guest).profilePhoto,
+        userService.getKYCInfo(trip.host).profilePhoto,
+        carService.tokenURI(trip.carId),
+        IRentalityGeoService(carService.getGeoServiceAddress()).getCarTimeZoneId(trip.carId)
+      );
+  }
+
   /// @notice Get KYC (Know Your Customer) information for the caller on the Rentality platform.
   /// @return kycInfo The KYC information for the caller.
   function getMyKYCInfo() external view returns (Schemas.KYCInfo memory kycInfo) {
@@ -392,35 +422,25 @@ contract RentalityPlatform is UUPSOwnable {
   /// @notice Get chat information for trips hosted by the caller on the Rentality platform.
   /// @return chatInfo An array of chat information for trips hosted by the caller.
   function getChatInfoForHost() public view returns (Schemas.ChatInfo[] memory) {
-    Schemas.Trip[] memory trips = RentalityQuery.getTripsByHost(address(tripService), tx.origin);
+    Schemas.TripDTO[] memory trips = RentalityQuery.getTripsByHost(
+      address(tripService),
+      address(userService),
+      address(carService),
+      tx.origin
+    );
     return RentalityUtils.populateChatInfo(trips, address(userService), address(carService));
   }
 
   /// @notice Get chat information for trips attended by the caller on the Rentality platform.
   /// @return chatInfo An array of chat information for trips attended by the caller.
   function getChatInfoForGuest() public view returns (Schemas.ChatInfo[] memory) {
-    Schemas.Trip[] memory trips = RentalityQuery.getTripsByGuest(address(tripService), tx.origin);
+    Schemas.TripDTO[] memory trips = RentalityQuery.getTripsByGuest(
+      address(tripService),
+      address(userService),
+      address(carService),
+      tx.origin
+    );
     return RentalityUtils.populateChatInfo(trips, address(userService), address(carService));
-  }
-
-  /// @notice Calls outdated automations and takes corresponding actions based on their types.
-  /// - If the automation type is Rejection, it rejects the trip request.
-  /// - If the automation type is StartTrip, it checks in the guest for the trip.
-  /// - If the automation type is any other, it checks out the guest for the trip.
-  /// Note: This function retrieves all automations and processes each one if its time has expired.
-  function callOutdated() public {
-    Schemas.AutomationData[] memory data = automationService.getAllAutomations();
-    for (uint256 i = 0; i < data.length; i++) {
-      if (data[i].whenToCallInSec <= block.timestamp) {
-        if (data[i].aType == Schemas.AutomationType.Rejection) {
-          rejectTripRequest(data[i].tripId);
-        } else if (data[i].aType == Schemas.AutomationType.StartTrip) {
-          tripService.checkInByGuest(data[i].tripId, new uint64[](2));
-        } else {
-          tripService.checkOutByGuest(data[i].tripId, new uint64[](2));
-        }
-      }
-    }
   }
 
   /// @notice Constructor to initialize the RentalityPlatform with service contract addresses.
@@ -435,8 +455,7 @@ contract RentalityPlatform is UUPSOwnable {
     address tripServiceAddress,
     address userServiceAddress,
     address paymentServiceAddress,
-    address claimServiceAddress,
-    address rentalityAutomationAddress
+    address claimServiceAddress
   ) public initializer {
     carService = RentalityCarToken(carServiceAddress);
     currencyConverterService = RentalityCurrencyConverter(currencyConverterServiceAddress);
@@ -444,7 +463,6 @@ contract RentalityPlatform is UUPSOwnable {
     userService = RentalityUserService(userServiceAddress);
     paymentService = RentalityPaymentService(paymentServiceAddress);
     claimService = RentalityClaimService(claimServiceAddress);
-    automationService = RentalityAutomation(rentalityAutomationAddress);
 
     __Ownable_init();
   }
