@@ -34,7 +34,7 @@ async function main() {
   )
 
   const rentalityPaymentServiceAddress = checkNotNull(
-    getContractAddress('RentalityPaymentService', 'scripts/deploy_2d_RentalityPaymentService.js', chainId),
+    getContractAddress('RentalityPaymentService', 'scripts/deploy_3c_RentalityPaymentService.js', chainId),
     'RentalityPaymentService'
   )
 

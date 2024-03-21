@@ -1,8 +1,6 @@
 const { expect } = require('chai')
-const { ethers, upgrades, network } = require('hardhat')
-const { time, loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
-const { Contract } = require('hardhat/internal/hardhat-network/stack-traces/model')
-const { deployDefaultFixture, getMockCarRequest, ethToken } = require('../utils')
+const { deployDefaultFixture, getMockCarRequest, ethToken, calculatePayments } = require('../utils')
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 
 describe('Ability to update car during trip', function () {
   let rentalityGateway,
@@ -45,41 +43,41 @@ describe('Ability to update car during trip', function () {
     } = await loadFixture(deployDefaultFixture))
   })
 
-  it('should has editable, - false, if car on trip ', async function () {
+  it('should has editable: false, if car on the trip', async function () {
     await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
     const availableCars = await rentalityGateway.connect(guest).getAvailableCarsForUser(guest.address)
     expect(availableCars.length).to.equal(1)
+    let dailyPriceInUsdCents = 1000
 
-    const rentPriceInUsdCents = 1000
-    const [rentPrice, currencyRate, currencyDecimals] = await rentalityCurrencyConverter.getFromUsdLatest(
-      ethToken,
-      rentPriceInUsdCents
+    const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals, rentalityFee } = await calculatePayments(
+      rentalityCurrencyConverter,
+      rentalityPaymentService,
+      dailyPriceInUsdCents,
+      1,
+      0
     )
 
-    const oneDayInMilliseconds = 24 * 60 * 60 * 1000
     await expect(
-      rentalityGateway.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequest(
         {
           carId: 1,
           host: host.address,
           startDateTime: Date.now(),
-          endDateTime: Date.now() + oneDayInMilliseconds,
-          startLocation: '',
-          endLocation: '',
-          totalDayPriceInUsdCents: rentPriceInUsdCents,
-          taxPriceInUsdCents: 0,
+          endDateTime: Date.now() + 84200,
+          startLocation: 'startLocation',
+          endLocation: 'endLocation',
+          totalDayPriceInUsdCents: dailyPriceInUsdCents,
           depositInUsdCents: 0,
-          fuelPrices: [400],
+          currencyRate: ethToCurrencyRate,
+          currencyDecimals: ethToCurrencyDecimals,
           currencyType: ethToken,
-          currencyRate: currencyRate,
-          currencyDecimals: currencyDecimals,
         },
-        { value: rentPrice }
+        { value: rentPriceInEth }
       )
-    ).to.changeEtherBalances([guest, rentalityPlatform], [-rentPrice, rentPrice])
+    ).to.changeEtherBalances([guest, rentalityPlatform], [-rentPriceInEth, rentPriceInEth])
 
     const myNotEditableCars = await rentalityGateway.connect(host).getMyCars()
 
@@ -92,28 +90,30 @@ describe('Ability to update car during trip', function () {
 
     const availableCars = await rentalityGateway.connect(guest).getAvailableCarsForUser(guest.address)
     expect(availableCars.length).to.equal(1)
+    let dailyPriceInUsdCents = 1000
 
-    const rentPriceInUsdCents = 1000
-    const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
-      await rentalityCurrencyConverter.getFromUsdLatest(ethToken, rentPriceInUsdCents)
+    const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals, rentalityFee } = await calculatePayments(
+      rentalityCurrencyConverter,
+      rentalityPaymentService,
+      dailyPriceInUsdCents,
+      1,
+      0
+    )
 
-    const oneDayInMilliseconds = 24 * 60 * 60 * 1000
     await expect(
-      rentalityGateway.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequest(
         {
           carId: 1,
           host: host.address,
           startDateTime: Date.now(),
-          endDateTime: Date.now() + oneDayInMilliseconds,
-          startLocation: '',
-          endLocation: '',
-          totalDayPriceInUsdCents: rentPriceInUsdCents,
-          taxPriceInUsdCents: 0,
+          endDateTime: Date.now() + 84200,
+          startLocation: 'startLocation',
+          endLocation: 'endLocation',
+          totalDayPriceInUsdCents: dailyPriceInUsdCents,
           depositInUsdCents: 0,
-          fuelPrices: [400],
-          currencyType: ethToken,
           currencyRate: ethToCurrencyRate,
           currencyDecimals: ethToCurrencyDecimals,
+          currencyType: ethToken,
         },
         { value: rentPriceInEth }
       )
@@ -147,26 +147,29 @@ describe('Ability to update car during trip', function () {
     expect(availableCars.length).to.equal(1)
 
     const rentPriceInUsdCents = 1000
-    const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
-      await rentalityCurrencyConverter.getFromUsdLatest(ethToken, rentPriceInUsdCents)
 
-    const oneDayInMilliseconds = 24 * 60 * 60 * 1000
+    const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals, rentalityFee } = await calculatePayments(
+      rentalityCurrencyConverter,
+      rentalityPaymentService,
+      rentPriceInUsdCents,
+      1,
+      0
+    )
+
     await expect(
-      rentalityGateway.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequest(
         {
           carId: 1,
           host: host.address,
           startDateTime: Date.now(),
-          endDateTime: Date.now() + oneDayInMilliseconds,
-          startLocation: '',
-          endLocation: '',
+          endDateTime: Date.now() + 84200,
+          startLocation: 'startLocation',
+          endLocation: 'endLocation',
           totalDayPriceInUsdCents: rentPriceInUsdCents,
-          taxPriceInUsdCents: 0,
           depositInUsdCents: 0,
-          fuelPrices: [400],
-          currencyType: ethToken,
           currencyRate: ethToCurrencyRate,
           currencyDecimals: ethToCurrencyDecimals,
+          currencyType: ethToken,
         },
         { value: rentPriceInEth }
       )
