@@ -21,6 +21,10 @@ async function main() {
   const rentalityCarTokenAddress = checkNotNull(addresses['RentalityCarToken'], 'rentalityCarTokenAddress')
   const rentalityEngineAddress = checkNotNull(addresses['RentalityEnginesService'], 'rentalityEngineAddress')
   const rentalityAdminGatewayAddress = checkNotNull(addresses['RentalityAdminGateway'], 'rentalityAdminGatewayAddress')
+  const rentalityPaymentServiceAddress = checkNotNull(
+    addresses['RentalityPaymentService'],
+    'rentalityPaymentServiceAddress'
+  )
 
   let rentalityUserServiceContract = new ethers.Contract(
     rentalityUserServiceAddress,

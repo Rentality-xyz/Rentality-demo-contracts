@@ -6,9 +6,8 @@ import './payments/RentalityCurrencyConverter.sol';
 import './RentalityTripService.sol';
 import './RentalityUserService.sol';
 
-import './payments/RentalityPaymentService.sol';
-import './abstract/IRentalityGateway.sol';
 import './Schemas.sol';
+import './payments/RentalityPaymentService.sol';
 import './proxy/UUPSOwnable.sol';
 import './features/RentalityClaimService.sol';
 import './RentalityAdminGateway.sol';
@@ -98,7 +97,20 @@ contract RentalityPlatform is UUPSOwnable {
       'Unavailable for current date.'
     );
 
-    uint64 valueSum = request.totalDayPriceInUsdCents + request.taxPriceInUsdCents + request.depositInUsdCents;
+    uint64 daysOfTrip = RentalityUtils.getCeilDays(request.startDateTime, request.endDateTime);
+
+    uint64 priceWithDiscount = paymentService.calculateSumWithDiscount(
+      request.host,
+      daysOfTrip,
+      request.totalDayPriceInUsdCents
+    );
+    uint taxId = paymentService.defineTaxesType(address(carService), request.carId);
+    require(taxId != 0, 'Taxes contract not found.');
+
+    uint64 taxes = paymentService.calculateTaxes(taxId, daysOfTrip, priceWithDiscount);
+
+    uint valueSum = priceWithDiscount + taxes + request.depositInUsdCents;
+
     uint256 valueSumInCurrency = currencyConverterService.getFromUsd(
       request.currencyType,
       valueSum,
@@ -106,11 +118,14 @@ contract RentalityPlatform is UUPSOwnable {
       request.currencyDecimals
     );
     if (currencyConverterService.isETH(request.currencyType)) {
-      require(msg.value == valueSumInCurrency, 'Rental fee must be equal to sum totalDayPrice + taxPrice + deposit');
+      require(
+        msg.value == valueSumInCurrency,
+        'Rental fee must be equal to sum: price with discount + taxes + deposit'
+      );
     } else {
       require(
         IERC20(request.currencyType).allowance(tx.origin, address(this)) >= valueSumInCurrency,
-        'Rental fee must be equal to sum totalDayPrice + taxPrice + deposit'
+        'Rental fee must be equal to sum: price with discount + taxes + deposit'
       );
 
       bool success = IERC20(request.currencyType).transferFrom(tx.origin, address(this), valueSumInCurrency);
@@ -126,7 +141,8 @@ contract RentalityPlatform is UUPSOwnable {
       tx.origin,
       address(this),
       request.totalDayPriceInUsdCents,
-      request.taxPriceInUsdCents,
+      taxes,
+      priceWithDiscount,
       request.depositInUsdCents,
       0,
       request.currencyType,
@@ -242,11 +258,9 @@ contract RentalityPlatform is UUPSOwnable {
     tripService.finishTrip(tripId);
     Schemas.Trip memory trip = tripService.getTrip(tripId);
 
-    uint256 rentalityFee = paymentService.getPlatformFeeFrom(
-      trip.paymentInfo.totalDayPriceInUsdCents + trip.paymentInfo.taxPriceInUsdCents
-    );
+    uint256 rentalityFee = paymentService.getPlatformFeeFrom(trip.paymentInfo.priceWithDiscount);
 
-    uint256 valueToHostInUsdCents = trip.paymentInfo.totalDayPriceInUsdCents +
+    uint256 valueToHostInUsdCents = trip.paymentInfo.priceWithDiscount +
       trip.paymentInfo.taxPriceInUsdCents +
       trip.paymentInfo.resolveAmountInUsdCents -
       rentalityFee;
@@ -331,10 +345,8 @@ contract RentalityPlatform is UUPSOwnable {
       trip.paymentInfo.currencyRate,
       trip.paymentInfo.currencyDecimals
     );
-
-    bool successHost;
-
     claimService.payClaim(claimId, trip.host, trip.guest);
+    bool successHost;
 
     if (currencyConverterService.isETH(trip.paymentInfo.currencyType)) {
       require(msg.value >= valueToPay, 'Insufficient funds sent.');
@@ -372,14 +384,14 @@ contract RentalityPlatform is UUPSOwnable {
     Schemas.CarInfo memory car = carService.getCarInfoById(trip.carId);
     string memory guestPhoneNumber = userService.getKYCInfo(trip.guest).mobilePhoneNumber;
     string memory hostPhoneNumber = userService.getKYCInfo(trip.host).mobilePhoneNumber;
-    uint valueInEth = currencyConverterService.getFromUsd(
+    uint valueInCurrency = currencyConverterService.getFromUsd(
       trip.paymentInfo.currencyType,
-      uint(claim.amountInUsdCents),
+      claim.amountInUsdCents,
       trip.paymentInfo.currencyRate,
       trip.paymentInfo.currencyDecimals
     );
 
-    return Schemas.FullClaimInfo(claim, trip.host, trip.guest, guestPhoneNumber, hostPhoneNumber, car, valueInEth);
+    return Schemas.FullClaimInfo(claim, trip.host, trip.guest, guestPhoneNumber, hostPhoneNumber, car, valueInCurrency);
   }
 
   /// @notice Get contact information for a specific trip on the Rentality platform.
@@ -395,22 +407,6 @@ contract RentalityPlatform is UUPSOwnable {
     Schemas.KYCInfo memory hostInfo = userService.getKYCInfo(trip.host);
 
     return (guestInfo.mobilePhoneNumber, hostInfo.mobilePhoneNumber);
-  }
-
-  /// @notice Retrieves information about a trip by ID.
-  /// @param tripId The ID of the trip.
-  /// @return Trip information.
-  function getTripDTO(uint tripId) public view returns (Schemas.TripDTO memory) {
-    Schemas.Trip memory trip = tripService.getTrip(tripId);
-
-    return
-      Schemas.TripDTO(
-        trip,
-        userService.getKYCInfo(trip.guest).profilePhoto,
-        userService.getKYCInfo(trip.host).profilePhoto,
-        carService.tokenURI(trip.carId),
-        IRentalityGeoService(carService.getGeoServiceAddress()).getCarTimeZoneId(trip.carId)
-      );
   }
 
   /// @notice Get KYC (Know Your Customer) information for the caller on the Rentality platform.
