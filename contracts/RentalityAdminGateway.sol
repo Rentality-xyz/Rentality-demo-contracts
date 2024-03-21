@@ -141,6 +141,12 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
     paymentService.setPlatformFeeInPPM(valueInPPM);
   }
 
+  /// @notice Adds currency to list of available on Rentality,
+  /// by providing ERC20 token address, and corresponding Rentality service for calculation.
+  function addCurrency(address tokenAddress, address rentalityTokenService) public onlyAdmin {
+    currencyConverterService.addCurrencyType(tokenAddress, rentalityTokenService);
+  }
+
   /// @dev Sets the waiting time, only callable by administrators.
   /// @param timeInSec, set old value to this
   function setClaimsWaitingTime(uint timeInSec) public {
@@ -166,13 +172,43 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
     return paymentService.getPlatformFeeFrom(value);
   }
 
-  /// @notice Adds currency to list of available on Rentality,
-  /// by providing ERC20 token address, and corresponding Rentality service for calculation.
-  function addCurrency(address tokenAddress, address rentalityTokenService) public onlyAdmin {
-    currencyConverterService.addCurrencyType(tokenAddress, rentalityTokenService);
+  /// @notice Calculates the total cost with applied discount for a trip.
+  /// @param daysOfTrip The duration of the trip in days.
+  /// @param value The original value of the trip.
+  /// @param user the address of discount provider
+  /// @return The total cost after applying the discount.
+  function calculateSumWithDiscount(address user, uint64 daysOfTrip, uint64 value) public view returns (uint64) {
+    return paymentService.calculateSumWithDiscount(user, daysOfTrip, value);
   }
 
-  //  @notice Initializes the contract with the provided addresses for various services.
+  /// @notice Calculates the taxes for a trip based on the specified tax ID.
+  /// @param taxesId The ID of the taxes contract.
+  /// @param daysOfTrip The duration of the trip in days.
+  /// @param value The original value of the trip.
+  /// @return The total taxes for the trip.
+  function calculateTaxes(uint taxesId, uint64 daysOfTrip, uint64 value) public view returns (uint64) {
+    return paymentService.calculateTaxes(taxesId, daysOfTrip, value);
+  }
+
+  /// @notice Adds a new taxes contract to the payment service.
+  /// @param taxesContactAddress The address of the taxes contract to add.
+  function addTaxesContract(address taxesContactAddress) public {
+    paymentService.addTaxesContract(taxesContactAddress);
+  }
+
+  /// @notice Adds a new discount contract to the payment service.
+  /// @param discountContactAddress The address of the discount contract to add.
+  function addDiscountContract(address discountContactAddress) public {
+    paymentService.addDiscountContract(discountContactAddress);
+  }
+
+  /// @notice Changes the current discount contract used by the payment service.
+  /// @param discountContract The address of the new discount contract.
+  function changeCurrentDiscountType(address discountContract) public {
+    paymentService.changeCurrentDiscountType(discountContract);
+  }
+
+  //  @dev Initializes the contract with the provided addresses for various services.
   //  @param carServiceAddress The address of the RentalityCarToken contract.
   //  @param currencyConverterServiceAddress The address of the RentalityCurrencyConverter contract.
   //  @param tripServiceAddress The address of the RentalityTripService contract.
