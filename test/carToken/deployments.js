@@ -50,8 +50,22 @@ async function deployDefaultFixture() {
   await rentalityGeoService.waitForDeployment()
   await geoParserMock.setGeoService(await rentalityGeoService.getAddress())
 
+  const RentalityFloridaTaxes = await ethers.getContractFactory('RentalityFloridaTaxes')
+
+  const rentalityFloridaTaxes = await upgrades.deployProxy(RentalityFloridaTaxes, [
+    await rentalityUserService.getAddress(),
+  ])
+
+  const RentalityBaseDiscount = await ethers.getContractFactory('RentalityBaseDiscount')
+
+  const rentalityBaseDiscount = await upgrades.deployProxy(RentalityBaseDiscount, [
+    await rentalityUserService.getAddress(),
+  ])
+
   const rentalityPaymentService = await upgrades.deployProxy(RentalityPaymentService, [
     await rentalityUserService.getAddress(),
+    await rentalityFloridaTaxes.getAddress(),
+    await rentalityBaseDiscount.getAddress(),
   ])
 
   const RentalityEth = await ethers.getContractFactory('RentalityETHConvertor')

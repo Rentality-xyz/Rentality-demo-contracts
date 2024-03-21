@@ -164,7 +164,7 @@ describe('RentalityCarToken: search functions', function () {
 
     const availableCars1 = await rentalityTripService.searchAvailableCarsForUser(guest.address, 0, 0, searchCarParams1)
 
-    expect(availableCars1.length).to.equal(1)
+    expect(availableCars1.length).to.equal(2) // It has one car with 'usa' in country params, adds during deployment
 
     const availableCars2 = await rentalityTripService.searchAvailableCarsForUser(guest.address, 0, 0, searchCarParams2)
 

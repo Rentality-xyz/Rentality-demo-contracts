@@ -1,7 +1,7 @@
 const { expect } = require('chai')
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 
-const { getMockCarRequest, deployDefaultFixture, ethToken } = require('../utils')
+const { getMockCarRequest, deployDefaultFixture, ethToken, calculatePayments } = require('../utils')
 
 describe('RentalityGateway: chat', function () {
   let rentalityGateway,
@@ -56,21 +56,28 @@ describe('RentalityGateway: chat', function () {
     const availableCars = await rentalityGateway.connect(guest).getAvailableCarsForUser(guest.address)
     expect(availableCars.length).to.equal(1)
 
-    const rentPriceInUsdCents = 1000
-    const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
-      await rentalityCurrencyConverter.getFromUsdLatest(ethToken, rentPriceInUsdCents)
+    const oneDayInSeconds = 86400
+
+    const dailyPriceInUsdCents = 1000
+
+    const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals, rentalityFee } = await calculatePayments(
+      rentalityCurrencyConverter,
+      rentalityPaymentService,
+      dailyPriceInUsdCents,
+      1,
+      0
+    )
 
     await expect(
-      rentalityGateway.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequest(
         {
           carId: 1,
           host: host.address,
-          startDateTime: 123,
-          endDateTime: 321,
+          startDateTime: Date.now(),
+          endDateTime: Date.now() + oneDayInSeconds,
           startLocation: '',
           endLocation: '',
-          totalDayPriceInUsdCents: rentPriceInUsdCents,
-          taxPriceInUsdCents: 0,
+          totalDayPriceInUsdCents: dailyPriceInUsdCents,
           depositInUsdCents: 0,
           currencyRate: ethToCurrencyRate,
           currencyDecimals: ethToCurrencyDecimals,
@@ -78,7 +85,7 @@ describe('RentalityGateway: chat', function () {
         },
         { value: rentPriceInEth }
       )
-    ).not.to.be.reverted
+    ).to.changeEtherBalances([guest, rentalityPlatform], [-rentPriceInEth, rentPriceInEth])
 
     let name = 'name'
     let surname = 'surname'
@@ -136,9 +143,6 @@ describe('RentalityGateway: chat', function () {
     const availableCars = await rentalityGateway.connect(guest).getAvailableCarsForUser(guest.address)
     expect(availableCars.length).to.equal(1)
 
-    const rentPriceInUsdCents = 1000
-    const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
-      await rentalityCurrencyConverter.getFromUsdLatest(ethToken, rentPriceInUsdCents)
     let name = 'name'
     let surname = 'surname'
     let number = '+380'
@@ -174,17 +178,28 @@ describe('RentalityGateway: chat', function () {
         )
     ).not.be.reverted
 
+    const oneDayInSeconds = 86400
+
+    const dailyPriceInUsdCents = 1000
+
+    const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals, rentalityFee } = await calculatePayments(
+      rentalityCurrencyConverter,
+      rentalityPaymentService,
+      dailyPriceInUsdCents,
+      1,
+      0
+    )
+
     await expect(
-      rentalityGateway.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequest(
         {
           carId: 1,
           host: host.address,
-          startDateTime: 123,
-          endDateTime: 321,
+          startDateTime: Date.now(),
+          endDateTime: Date.now() + oneDayInSeconds,
           startLocation: '',
           endLocation: '',
-          totalDayPriceInUsdCents: rentPriceInUsdCents,
-          taxPriceInUsdCents: 0,
+          totalDayPriceInUsdCents: dailyPriceInUsdCents,
           depositInUsdCents: 0,
           currencyRate: ethToCurrencyRate,
           currencyDecimals: ethToCurrencyDecimals,
@@ -192,7 +207,7 @@ describe('RentalityGateway: chat', function () {
         },
         { value: rentPriceInEth }
       )
-    ).not.to.be.reverted
+    ).to.changeEtherBalances([guest, rentalityPlatform], [-rentPriceInEth, rentPriceInEth])
 
     let chatInfoArray = await rentalityGateway.connect(host).getChatInfoForHost()
     expect(chatInfoArray.length).to.be.equal(1)

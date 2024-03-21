@@ -112,8 +112,22 @@ async function deployDefaultFixture() {
 
   await rentalityCarToken.waitForDeployment()
 
+  const RentalityFloridaTaxes = await ethers.getContractFactory('RentalityFloridaTaxes')
+
+  const rentalityFloridaTaxes = await upgrades.deployProxy(RentalityFloridaTaxes, [
+    await rentalityUserService.getAddress(),
+  ])
+
+  const RentalityBaseDiscount = await ethers.getContractFactory('RentalityBaseDiscount')
+
+  const rentalityBaseDiscount = await upgrades.deployProxy(RentalityBaseDiscount, [
+    await rentalityUserService.getAddress(),
+  ])
+
   const rentalityPaymentService = await upgrades.deployProxy(RentalityPaymentService, [
     await rentalityUserService.getAddress(),
+    await rentalityFloridaTaxes.getAddress(),
+    await rentalityBaseDiscount.getAddress(),
   ])
 
   const rentalityTripService = await upgrades.deployProxy(RentalityTripService, [
@@ -156,6 +170,7 @@ async function deployDefaultFixture() {
     rentalityCurrencyConverter,
     rentalityCarToken,
     rentalityPlatform,
+    rentalityPaymentService,
     owner,
     admin,
     manager,
@@ -167,13 +182,16 @@ async function deployDefaultFixture() {
 
 async function deployFixtureWithUsers() {
   const [owner, admin, manager, host, guest, anonymous] = await ethers.getSigners()
-  const RentalityUserService = await ethers.getContractFactory('RentalityUserService')
 
   const MockCivic = await ethers.getContractFactory('CivicMockVerifier')
   const mockCivic = await MockCivic.deploy()
   await mockCivic.waitForDeployment()
 
+  const RentalityUserService = await ethers.getContractFactory('RentalityUserService')
+
   const rentalityUserService = await upgrades.deployProxy(RentalityUserService, [await mockCivic.getAddress(), 0])
+
+  await rentalityUserService.waitForDeployment()
 
   await rentalityUserService.connect(owner).grantAdminRole(admin.address)
   await rentalityUserService.connect(owner).grantManagerRole(manager.address)

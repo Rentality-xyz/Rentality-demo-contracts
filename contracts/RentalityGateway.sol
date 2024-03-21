@@ -281,7 +281,7 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
   /// @param tripId The ID of the trip.
   /// @return Trip information.
   function getTrip(uint256 tripId) public view returns (Schemas.TripDTO memory) {
-    return rentalityPlatform.getTripDTO(tripId);
+    return RentalityQuery.getTripDTO(tripId, address(userService), address(tripService), address(carService));
   }
 
   /// @notice Retrieves information about trips where the caller is the guest.
