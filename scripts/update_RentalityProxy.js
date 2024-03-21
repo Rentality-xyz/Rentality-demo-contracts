@@ -1,7 +1,8 @@
 const { ethers, upgrades, network } = require('hardhat')
-const { readFromFile } = require('./utils/contractAddress')
+const { readFromFile, getContractAddress } = require('./utils/contractAddress')
 const readlineSync = require('readline-sync')
 const saveJsonAbi = require('./utils/abiSaver')
+const { checkNotNull } = require('./utils/deployHelper')
 async function main() {
   const [deployer] = await ethers.getSigners()
 
@@ -10,6 +11,15 @@ async function main() {
 
   const chainId = (await deployer.provider?.getNetwork())?.chainId ?? -1
   const contractName = readlineSync.question('Enter contract name to update:\n')
+
+  const rentalityUtilsAddress = checkNotNull(
+    getContractAddress('RentalityUtils', 'scripts/deploy_1a_RentalityUtils.js', chainId),
+    'RentalityUtils'
+  )
+  const rentalityQueryAddress = checkNotNull(
+    getContractAddress('RentalityQuery', 'scripts/deploy_1d_RentalityQuery.js', chainId),
+    'RentalityQuery'
+  )
 
   console.log('Contract name: ', contractName)
 
@@ -21,8 +31,8 @@ async function main() {
   }
   const contractFactory = await ethers.getContractFactory(contractName, {
     libraries: {
-      RentalityQuery: '0x26298746793621Dda253e8F222DE88dFF410D0a1',
-      // RentalityUtils: '0x8b5F49B36533Df2e593dFd107773Ff64d53043e4',
+      RentalityQuery: rentalityQueryAddress,
+      // RentalityUtils: rentalityUtilsAddress,
     },
   })
 

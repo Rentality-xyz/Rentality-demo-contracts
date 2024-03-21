@@ -27,6 +27,11 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
 
   mapping(uint256 => Schemas.CarInfo) private idToCarInfo;
 
+  modifier onlyAdmin() {
+    require(userService.isAdmin(tx.origin), 'Only admin.');
+    _;
+  }
+
   /// @notice Event emitted when a new car is successfully added.
   event CarAddedSuccess(
     uint256 CarId,
@@ -42,15 +47,26 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
   /// @notice Event emitted when a car is successfully removed.
   event CarRemovedSuccess(uint256 carId, string CarVinNumber, address removedBy);
 
+  /// @dev Updates the address of the RentalityEnginesService contract.
+  /// @param _engineService The address of the new RentalityEnginesService contract.
+  function updateEngineServiceAddress(address _engineService) public onlyAdmin {
+    engineService = RentalityEnginesService(_engineService);
+  }
+
   /// @notice returns RentalityGeoService address
   function getGeoServiceAddress() public view returns (address) {
     return address(geoService);
   }
   /// @notice update RentalityGeoService address
   /// @param _geoService address of service
-  function updateGeoServiceAddress(address _geoService) public {
-    require(owner() == msg.sender, 'Only owner.');
+  function updateGeoServiceAddress(address _geoService) public onlyAdmin {
     geoService = IRentalityGeoService(_geoService);
+  }
+
+  /// @notice Updates the address of the GeoParser contract.
+  /// @param newGeoParserAddress The new address of the GeoParser contract.
+  function updateGeoParsesAddress(address newGeoParserAddress) public onlyAdmin {
+    geoService.updateParserAddress(newGeoParserAddress);
   }
 
   /// @notice Returns the total supply of cars.
@@ -153,6 +169,7 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     string memory locationLongitude,
     string memory geoApiKey
   ) public {
+    require(userService.isManager(msg.sender), 'Only from manager contract.');
     require(_exists(request.carId), 'Token does not exist');
     require(ownerOf(request.carId) == tx.origin, 'Only the owner of the car can update car info');
     require(request.pricePerDayInUsdCents > 0, "Make sure the price isn't negative");
@@ -215,8 +232,11 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
 
     Schemas.CarInfo[] memory result = new Schemas.CarInfo[](itemCount);
 
+    uint elementsCounter = 0;
     for (uint i = 0; i < totalSupply(); i++) {
-      result[i] = idToCarInfo[i + 1];
+      if (_exists(i + 1)) {
+        result[elementsCounter++] = idToCarInfo[i + 1];
+      }
     }
 
     return result;

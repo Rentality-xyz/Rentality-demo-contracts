@@ -3,8 +3,16 @@ pragma solidity ^0.8.9;
 
 import '../libs/RentalityUtils.sol';
 import 'hardhat/console.sol';
+import '../features/IRentalityGeoParser.sol';
+import '../abstract/IRentalityGeoService.sol';
 // For testing purposes
-contract RentalityGeoMock {
+contract RentalityGeoMock is IRentalityGeoParser {
+  mapping(string => string) public countryToTimeZoneId;
+  mapping(string => string) public cityToTimeZoneId;
+  mapping(uint256 => Schemas.ParsedGeolocationData) public carIdToParsedGeolocationData;
+  IRentalityGeoService private geoService;
+  bool private hasGeoServiceLink;
+
   constructor() {
     countryToTimeZoneId['Ukraine'] = 'Europe/Kyiv';
     countryToTimeZoneId['USA'] = 'America/New_York';
@@ -210,28 +218,13 @@ contract RentalityGeoMock {
     cityToTimeZoneId['Edmonton'] = 'America/Edmonton';
     cityToTimeZoneId['Ottawa'] = 'America/Toronto';
   }
-  struct CarMockLocationData {
-    string carCity;
-    string carState;
-    string carCountry;
-    string timeZoneId;
-    string locationLatitude;
-    string locationLongitude;
-    bool validity;
-  }
-
-  mapping(uint256 => CarMockLocationData) private carCoordinate;
-
-  mapping(string => string) public countryToTimeZoneId;
-
-  mapping(string => string) public cityToTimeZoneId;
 
   /// @dev Function: setCarCoordinateValidity
   /// @notice Sets the validity of car coordinates for a specific car ID.
   /// @param carId The ID of the car.
   /// @param validity The validity status to be set.
   function setCarCoordinateValidity(uint256 carId, bool validity) external {
-    carCoordinate[carId].validity = validity;
+    carIdToParsedGeolocationData[carId].validCoordinates = validity;
   }
 
   /// @dev Function: setCarCity
@@ -239,7 +232,7 @@ contract RentalityGeoMock {
   /// @param carId The ID of the car.
   /// @param city The city information to be set.
   function setCarCity(uint256 carId, string memory city) external {
-    carCoordinate[carId].carCity = city;
+    carIdToParsedGeolocationData[carId].city = city;
   }
 
   /// @dev Function: setCarState
@@ -247,7 +240,7 @@ contract RentalityGeoMock {
   /// @param carId The ID of the car.
   /// @param state The state information to be set.
   function setCarState(uint256 carId, string memory state) external {
-    carCoordinate[carId].carState = state;
+    carIdToParsedGeolocationData[carId].state = state;
   }
 
   /// @dev Function: setCarCountry
@@ -255,7 +248,12 @@ contract RentalityGeoMock {
   /// @param carId The ID of the car.
   /// @param country The country information to be set.
   function setCarCountry(uint256 carId, string memory country) external {
-    carCoordinate[carId].carCountry = country;
+    carIdToParsedGeolocationData[carId].country = country;
+  }
+
+  function setGeoService(address _geoService) public {
+    geoService = IRentalityGeoService(_geoService);
+    hasGeoServiceLink = true;
   }
 
   /// @dev Function: executeRequest
@@ -273,29 +271,31 @@ contract RentalityGeoMock {
     uint256 carId
   ) external returns (bytes32) {
     string[] memory parts = RentalityUtils.splitString(addr, bytes(','));
-    CarMockLocationData storage carData = carCoordinate[carId];
+    Schemas.ParsedGeolocationData storage carData = carIdToParsedGeolocationData[carId];
 
-    carData.locationLatitude = locationLatitude;
-    carData.locationLongitude = locationLongitude;
+    carData.locationLat = locationLatitude;
+    carData.locationLng = locationLongitude;
 
     if (parts.length > 3) {
       string memory country = parts[parts.length - 1];
       string memory state = parts[parts.length - 2];
       string memory city = parts[parts.length - 3];
 
-      carData.validity = true;
-      carData.carCity = removeFirstSpaceIfExist(city);
-      carData.carState = removeFirstSpaceIfExist(state);
-      carData.carCountry = removeFirstSpaceIfExist(country);
+      carData.validCoordinates = true;
+      carData.city = removeFirstSpaceIfExist(city);
+      carData.state = removeFirstSpaceIfExist(state);
+      carData.country = removeFirstSpaceIfExist(country);
 
       if (bytes(cityToTimeZoneId[city]).length > 0) {
-        carCoordinate[carId].timeZoneId = cityToTimeZoneId[city];
+        carIdToParsedGeolocationData[carId].timeZoneId = cityToTimeZoneId[city];
       } else if (bytes(countryToTimeZoneId[country]).length > 0) {
-        carCoordinate[carId].timeZoneId = countryToTimeZoneId[country];
+        carIdToParsedGeolocationData[carId].timeZoneId = countryToTimeZoneId[country];
       } else {
-        carCoordinate[carId].timeZoneId = 'America/New_York';
+        carIdToParsedGeolocationData[carId].timeZoneId = 'America/New_York';
       }
     }
+    carIdToParsedGeolocationData[carId] = carData;
+    if (hasGeoServiceLink) geoService.parseGeoResponse(carId);
 
     return bytes32(carId);
   }
@@ -322,57 +322,7 @@ contract RentalityGeoMock {
     return string(inputBytes);
   }
 
-  /// @notice Retrieves the validity of car coordinates for a specific car ID.
-  /// @param carId The ID of the car.
-  /// @return The validity status of car coordinates.
-  function getCarCoordinateValidity(uint256 carId) external view returns (bool) {
-    return carCoordinate[carId].validity;
-  }
-
-  /// @notice Retrieves the city information for a specific car ID.
-  /// @param carId The ID of the car.
-  /// @return The city information.
-  function getCarCity(uint256 carId) external view returns (string memory) {
-    return carCoordinate[carId].carCity;
-  }
-
-  /// @notice Retrieves the state information for a specific car ID.
-  /// @param carId The ID of the car.
-  /// @return The state information.
-  function getCarState(uint256 carId) external view returns (string memory) {
-    return carCoordinate[carId].carState;
-  }
-
-  /// @notice Retrieves the country information for a specific car ID.
-  /// @param carId The ID of the car.
-  /// @return The country information.
-  function getCarCountry(uint256 carId) external view returns (string memory) {
-    return carCoordinate[carId].carCountry;
-  }
-  /// @notice Retrieves the latitude of the location associated with a car.
-  /// @param carId The ID of the car for which latitude information is requested.
-  /// @return locationLat A string representing the latitude of the car's location.
-  function getCarLocationLatitude(uint256 carId) external view returns (string memory) {
-    return carCoordinate[carId].locationLatitude;
-  }
-
-  // @notice Retrieves the longitude of the location associated with a car.
-  /// @param carId The ID of the car for which longitude information is requested.
-  /// @return locationLng A string representing the longitude of the car's location.
-  function getCarLocationLongitude(uint256 carId) external view returns (string memory) {
-    return carCoordinate[carId].locationLongitude;
-  }
-  /// @notice Retrieves the timezone information for a specific car ID.
-  /// @param carId The ID of the car.
-  /// @return The time zone id.
-  function getCarTimeZoneId(uint256 carId) external view returns (string memory) {
-    return carCoordinate[carId].timeZoneId;
-  }
-
-  /// @notice Retrieves all location info for a specific car ID.
-  /// @param carId The ID of the car.
-  /// @return The geo data info.
-  function getCarMockData(uint256 carId) public view returns (CarMockLocationData memory) {
-    return carCoordinate[carId];
+  function parseGeoResponse(uint256 carId) public view returns (Schemas.ParsedGeolocationData memory result) {
+    return carIdToParsedGeolocationData[carId];
   }
 }

@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
+pragma experimental ABIEncoderV2;
 
 interface Schemas {
   /// Car Service
@@ -22,6 +23,13 @@ interface Schemas {
     bool currentlyListed;
     bool geoVerified;
     string timeZoneId;
+  }
+
+  /// @notice Holds the car information with current ability to update.
+  struct CarInfoDTO {
+    CarInfo carInfo;
+    string metadataURI;
+    bool isEditable;
   }
 
   /// @notice Struct to store input parameters for creating a new car.
@@ -98,15 +106,15 @@ interface Schemas {
   }
 
   // Struct to store transaction history details for a trip
+  // Earnings from the trip (cancellation or completion)
+  // datetime: Timestamp of the transaction
+  // Status before trip cancellation, will be 'Finished' in case of completed trip.
   struct TransactionInfo {
     uint256 rentalityFee;
     uint256 depositRefund;
-    // Earnings from the trip (cancellation or completion)
     uint256 tripEarnings;
-    // Timestamp of the transaction
     uint256 dateTime;
-    // Status before trip cancellation, will be 'Finished' in case of completed trip.
-    Schemas.TripStatus statusBeforeCancellation;
+    TripStatus statusBeforeCancellation;
   }
   /// @dev Struct containing information about a trip.
   struct Trip {
@@ -120,10 +128,11 @@ interface Schemas {
     uint64 pricePerDayInUsdCents;
     uint64 startDateTime;
     uint64 endDateTime;
+    uint8 engineType;
     string startLocation;
     string endLocation;
     uint64 milesIncludedPerDay;
-    uint64[] fuelPrices;
+    uint64 fuelPrice;
     PaymentInfo paymentInfo;
     uint createdDateTime;
     uint approvedDateTime;
@@ -138,6 +147,14 @@ interface Schemas {
     uint64[] endParamLevels;
     uint checkedOutByHostDateTime;
     TransactionInfo transactionInfo;
+  }
+
+  struct TripDTO {
+    Trip trip;
+    string guestPhotoUrl;
+    string hostPhotoUrl;
+    string metadataURI;
+    string timeZoneId;
   }
 
   /// CHAT LOGIC
@@ -158,6 +175,7 @@ interface Schemas {
     string carMetadataUrl;
     uint64 startDateTime;
     uint64 endDateTime;
+    string timeZoneId;
   }
 
   /// @dev Struct to represent a pair of private and public chat keys
@@ -182,6 +200,7 @@ interface Schemas {
     string guestPhoneNumber;
     string hostPhoneNumber;
     CarInfo carInfo;
+    uint amountInEth;
   }
 
   // Struct to represent a claim
@@ -194,8 +213,8 @@ interface Schemas {
     string description;
     uint64 amountInUsdCents;
     uint256 payDateInSec;
-    address rejectedBy; // if so
-    uint256 rejectedDateInSec; // if so
+    address rejectedBy;
+    uint256 rejectedDateInSec;
   }
 
   // Struct to represent a request to create a new claim
@@ -278,21 +297,7 @@ interface Schemas {
     string licenseNumber;
     uint64 expirationDate;
     uint createDate;
-    bool isKYCPassed;
     bool isTCPassed;
-  }
-
-  /// Automation
-
-  struct AutomationData {
-    uint256 tripId;
-    uint256 whenToCallInSec;
-    AutomationType aType;
-  }
-  enum AutomationType {
-    Rejection,
-    StartTrip,
-    FinishTrip
   }
 
   /// Query
@@ -309,7 +314,13 @@ interface Schemas {
     address host;
     string hostName;
     string hostPhotoUrl;
-    GeoData geoData;
+    string city;
+    string country;
+    string state;
+    string locationLatitude;
+    string locationLongitude;
+    string timeZoneId;
+    string metadataURI;
   }
   struct GeoData {
     string city;
@@ -318,7 +329,9 @@ interface Schemas {
     string locationLatitude;
     string locationLongitude;
     string timeZoneId;
+    string metadataURI;
   }
+
   struct CarDetails {
     uint carId;
     string hostName;

@@ -148,7 +148,7 @@ describe('RentalityGateway: car', function () {
     let expirationDate = 10
 
     await expect(
-      rentalityGateway.connect(host).setKYCInfo(name, surname, number, photo, licenseNumber, expirationDate, true, true)
+      rentalityGateway.connect(host).setKYCInfo(name, surname, number, photo, licenseNumber, expirationDate, true)
     ).to.not.reverted
 
     let addCarRequest = {
@@ -186,12 +186,12 @@ describe('RentalityGateway: car', function () {
     expect(result.host).be.be.eq(host.address)
     expect(result.hostName).to.be.eq(name)
     expect(result.hostPhotoUrl).to.be.eq(photo)
-    expect(result.geoData.city).to.be.eq('Chicago')
-    expect(result.geoData.country).to.be.eq('USA')
-    expect(result.geoData.state).to.be.eq('IL')
-    expect(result.geoData.locationLatitude).to.be.eq('123421')
-    expect(result.geoData.locationLongitude).to.be.eq('123421')
-    expect(result.geoData.timeZoneId).to.be.eq('America/Chicago')
+    expect(result.city).to.be.eq('Chicago')
+    expect(result.country).to.be.eq('USA')
+    expect(result.state).to.be.eq('IL')
+    expect(result.locationLatitude).to.be.eq('123421')
+    expect(result.locationLongitude).to.be.eq('123421')
+    expect(result.timeZoneId).to.be.eq('America/Chicago')
   })
   it('should return complete details', async function () {
     let name = 'name'
@@ -202,9 +202,7 @@ describe('RentalityGateway: car', function () {
     let expirationDate = 10
 
     await expect(
-      await rentalityGateway
-        .connect(host)
-        .setKYCInfo(name, surname, number, photo, licenseNumber, expirationDate, true, true)
+      await rentalityGateway.connect(host).setKYCInfo(name, surname, number, photo, licenseNumber, expirationDate, true)
     ).to.not.reverted
 
     let addCarRequest = {
