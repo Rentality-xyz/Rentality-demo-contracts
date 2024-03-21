@@ -6,6 +6,7 @@ import '../Schemas.sol';
 import '../RentalityUserService.sol';
 import '../RentalityCarToken.sol';
 import '../abstract/IRentalityGeoService.sol';
+import '../RentalityTripService.sol';
 
 /// @title RentalityUtils Library
 /// @notice
@@ -352,5 +353,48 @@ library RentalityUtils {
   /// @return Returns the packed representation of the input data as a bytes array.
   function toBytes(bytes32 _data) public pure returns (bytes memory) {
     return abi.encodePacked(_data);
+  }
+
+  /// @notice This function computes various aspects of the trip receipt, including pricing, mileage, and fuel charges.
+  /// @param tripId The ID of the trip for which the receipt is calculated.
+  /// @param tripServiceAddress The address of the trip service contract.
+  /// @return tripReceipt An instance of `Schemas.TripReceiptDTO` containing the detailed trip receipt information.
+  function fullFillTripReceipt(
+    uint tripId,
+    address tripServiceAddress
+  ) public view returns (Schemas.TripReceiptDTO memory) {
+    RentalityTripService tripService = RentalityTripService(tripServiceAddress);
+
+    Schemas.Trip memory trip = tripService.getTrip(tripId);
+    uint64 ceilDays = getCeilDays(trip.startDateTime, trip.endDateTime);
+    uint64 priceForAllDays = trip.paymentInfo.totalDayPriceInUsdCents * ceilDays;
+    uint64 allowedMiles = trip.milesIncludedPerDay * ceilDays;
+
+    uint64 totalMilesDriven = trip.endParamLevels[1] - trip.startParamLevels[1];
+
+    uint64 overmiles = allowedMiles >= totalMilesDriven ? 0 : totalMilesDriven - allowedMiles;
+
+    return
+      Schemas.TripReceiptDTO(
+        trip.paymentInfo.totalDayPriceInUsdCents,
+        ceilDays,
+        priceForAllDays,
+        priceForAllDays - trip.paymentInfo.priceWithDiscount,
+        trip.paymentInfo.taxPriceInUsdCents,
+        trip.paymentInfo.depositInUsdCents,
+        trip.paymentInfo.resolveAmountInUsdCents,
+        trip.paymentInfo.depositInUsdCents - trip.paymentInfo.resolveAmountInUsdCents,
+        trip.startParamLevels[0] >= trip.endParamLevels[0] ? 0 : trip.endParamLevels[0] - trip.startParamLevels[0],
+        trip.fuelPrice,
+        trip.paymentInfo.resolveFuelAmountInUsdCents,
+        allowedMiles,
+        overmiles,
+        overmiles > 0 ? trip.paymentInfo.resolveMilesAmountInUsdCents / overmiles : 0,
+        trip.paymentInfo.resolveMilesAmountInUsdCents,
+        trip.startParamLevels[0],
+        trip.endParamLevels[0],
+        trip.startParamLevels[1],
+        trip.endParamLevels[1]
+      );
   }
 }
