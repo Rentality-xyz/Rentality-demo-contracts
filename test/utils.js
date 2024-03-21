@@ -213,6 +213,7 @@ async function deployDefaultFixture() {
   let RentalityGateway = await ethers.getContractFactory('RentalityGateway', {
     libraries: {
       RentalityQuery: await query.getAddress(),
+      RentalityUtils: await utils.getAddress(),
     },
   })
 
