@@ -154,7 +154,7 @@
       "outputs": [
         {
           "type": "tuple[]",
-          "name": "result",
+          "name": "",
           "components": [
             { "type": "uint256", "name": "carId" },
             { "type": "string", "name": "brand" },
