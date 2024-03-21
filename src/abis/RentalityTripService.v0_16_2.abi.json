@@ -126,9 +126,9 @@
             { "type": "uint64", "name": "taxPriceInUsdCents" },
             { "type": "uint64", "name": "depositInUsdCents" },
             { "type": "uint64", "name": "resolveAmountInUsdCents" },
-            { "type": "address", "name": "currencyType" },
-            { "type": "int256", "name": "currencyRate" },
-            { "type": "uint8", "name": "currencyDecimals" },
+            { "type": "uint8", "name": "currencyType" },
+            { "type": "int256", "name": "ethToCurrencyRate" },
+            { "type": "uint8", "name": "ethToCurrencyDecimals" },
             { "type": "uint64", "name": "resolveFuelAmountInUsdCents" },
             { "type": "uint64", "name": "resolveMilesAmountInUsdCents" }
           ]
@@ -194,9 +194,9 @@
                 { "type": "uint64", "name": "taxPriceInUsdCents" },
                 { "type": "uint64", "name": "depositInUsdCents" },
                 { "type": "uint64", "name": "resolveAmountInUsdCents" },
-                { "type": "address", "name": "currencyType" },
-                { "type": "int256", "name": "currencyRate" },
-                { "type": "uint8", "name": "currencyDecimals" },
+                { "type": "uint8", "name": "currencyType" },
+                { "type": "int256", "name": "ethToCurrencyRate" },
+                { "type": "uint8", "name": "ethToCurrencyDecimals" },
                 { "type": "uint64", "name": "resolveFuelAmountInUsdCents" },
                 { "type": "uint64", "name": "resolveMilesAmountInUsdCents" }
               ]
@@ -271,9 +271,9 @@
                 { "type": "uint64", "name": "taxPriceInUsdCents" },
                 { "type": "uint64", "name": "depositInUsdCents" },
                 { "type": "uint64", "name": "resolveAmountInUsdCents" },
-                { "type": "address", "name": "currencyType" },
-                { "type": "int256", "name": "currencyRate" },
-                { "type": "uint8", "name": "currencyDecimals" },
+                { "type": "uint8", "name": "currencyType" },
+                { "type": "int256", "name": "ethToCurrencyRate" },
+                { "type": "uint8", "name": "ethToCurrencyDecimals" },
                 { "type": "uint64", "name": "resolveFuelAmountInUsdCents" },
                 { "type": "uint64", "name": "resolveMilesAmountInUsdCents" }
               ]

@@ -79,8 +79,7 @@
     {
       "type": "function",
       "name": "getParamsAmount",
-      "constant": true,
-      "stateMutability": "pure",
+      "constant": false,
       "payable": false,
       "inputs": [],
       "outputs": [{ "type": "uint256", "name": "" }]
