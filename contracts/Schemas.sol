@@ -86,7 +86,6 @@ interface Schemas {
     string startLocation;
     string endLocation;
     uint64 totalDayPriceInUsdCents;
-    uint64 taxPriceInUsdCents;
     uint64 depositInUsdCents;
     int256 currencyRate;
     uint8 currencyDecimals;
@@ -271,12 +270,15 @@ interface Schemas {
   }
 
   /// @dev Struct containing payment information for a trip.
+
+  /// @dev Struct containing payment information for a trip.
   struct PaymentInfo {
     uint256 tripId;
     address from;
     address to;
     uint64 totalDayPriceInUsdCents;
     uint64 taxPriceInUsdCents;
+    uint64 priceWithDiscount;
     uint64 depositInUsdCents;
     uint64 resolveAmountInUsdCents;
     address currencyType; // tokenAddress, address(0) if eth
@@ -353,5 +355,26 @@ interface Schemas {
     string state;
     string locationLatitude;
     string locationLongitude;
+  }
+
+  // Taxes
+  struct FloridaTaxes {
+    uint32 salesTaxPPM;
+    uint32 governmentTaxPerDayInUsdCents;
+  }
+
+  // Discounts
+  struct BaseDiscount {
+    uint32 threeDaysDiscount;
+    uint32 sevenDaysDiscount;
+    uint32 thirtyDaysDiscount;
+    bool initialized;
+  }
+
+  // Taxes
+  enum TaxesLocationType {
+    City,
+    State,
+    Country
   }
 }

@@ -108,9 +108,25 @@ async function deployDefaultFixture() {
     await rentalityUserService.getAddress(),
   ])
   await rentalityCarToken.waitForDeployment()
-  const rentalityPaymentService = await upgrades.deployProxy(RentalityPaymentService, [
+
+  const RentalityFloridaTaxes = await ethers.getContractFactory('RentalityFloridaTaxes')
+
+  const rentalityFloridaTaxes = await upgrades.deployProxy(RentalityFloridaTaxes, [
     await rentalityUserService.getAddress(),
   ])
+
+  const RentalityBaseDiscount = await ethers.getContractFactory('RentalityBaseDiscount')
+
+  const rentalityBaseDiscount = await upgrades.deployProxy(RentalityBaseDiscount, [
+    await rentalityUserService.getAddress(),
+  ])
+
+  const rentalityPaymentService = await upgrades.deployProxy(RentalityPaymentService, [
+    await rentalityUserService.getAddress(),
+    await rentalityFloridaTaxes.getAddress(),
+    await rentalityBaseDiscount.getAddress(),
+  ])
+
   await rentalityPaymentService.waitForDeployment()
 
   const rentalityTripService = await upgrades.deployProxy(RentalityTripService, [
