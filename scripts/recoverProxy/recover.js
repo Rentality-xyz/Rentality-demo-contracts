@@ -2,18 +2,18 @@ const { ethers, upgrades } = require('hardhat')
 const { startRecovering } = require('./common')
 const { readFromFile, getContractAddress } = require('../utils/contractAddress')
 const { checkNotNull } = require('../utils/deployHelper')
-const getContractLibs = require("../utils/libSearch");
+const getContractLibs = require('../utils/libSearch')
 
 async function main() {
   let [contractName, chainId] = await startRecovering()
 
-   const contractAddress = checkNotNull(readFromFile(contractName, chainId), contractName)
+  const contractAddress = checkNotNull(readFromFile(contractName, chainId), contractName)
 
-    const libs = getContractLibs(contractName, chainId)
+  const libs = getContractLibs(contractName, chainId)
 
-    const contractFactory = await ethers.getContractFactory(contractName, {
-        libraries: libs
-    })
+  const contractFactory = await ethers.getContractFactory(contractName, {
+    libraries: libs,
+  })
 
   const _ = await upgrades.forceImport(contractAddress, contractFactory)
 

@@ -7,6 +7,7 @@ const {
   deployDefaultFixture,
   getEmptySearchCarParams,
   ethToken,
+  calculatePayments,
 } = require('../utils')
 
 describe('RentalityGateway: user info', function () {
@@ -118,21 +119,26 @@ describe('RentalityGateway: user info', function () {
     const availableCars = await rentalityGateway.connect(guest).getAvailableCarsForUser(guest.address)
     expect(availableCars.length).to.equal(1)
 
-    const rentPriceInUsdCents = 1000
-    const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
-      await rentalityCurrencyConverter.getFromUsdLatest(ethToken, rentPriceInUsdCents)
+    const dailyPriceInUsdCents = 1000
+
+    const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals, rentalityFee } = await calculatePayments(
+      rentalityCurrencyConverter,
+      rentalityPaymentService,
+      dailyPriceInUsdCents,
+      1,
+      0
+    )
 
     await expect(
-      rentalityGateway.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequest(
         {
           carId: 1,
           host: host.address,
-          startDateTime: 1,
-          endDateTime: 1,
+          startDateTime: 123,
+          endDateTime: 321,
           startLocation: '',
           endLocation: '',
-          totalDayPriceInUsdCents: rentPriceInUsdCents,
-          taxPriceInUsdCents: 0,
+          totalDayPriceInUsdCents: dailyPriceInUsdCents,
           depositInUsdCents: 0,
           currencyRate: ethToCurrencyRate,
           currencyDecimals: ethToCurrencyDecimals,
@@ -166,21 +172,26 @@ describe('RentalityGateway: user info', function () {
     const availableCars = await rentalityGateway.connect(guest).getAvailableCarsForUser(guest.address)
     expect(availableCars.length).to.equal(1)
 
-    const rentPriceInUsdCents = 1000
-    const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
-      await rentalityCurrencyConverter.getFromUsdLatest(ethToken, rentPriceInUsdCents)
+    const dailyPriceInUsdCents = 1000
+
+    const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals, rentalityFee } = await calculatePayments(
+      rentalityCurrencyConverter,
+      rentalityPaymentService,
+      dailyPriceInUsdCents,
+      1,
+      0
+    )
 
     await expect(
-      rentalityGateway.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequest(
         {
           carId: 1,
           host: host.address,
-          startDateTime: 1,
-          endDateTime: 1,
+          startDateTime: 123,
+          endDateTime: 321,
           startLocation: '',
           endLocation: '',
-          totalDayPriceInUsdCents: rentPriceInUsdCents,
-          taxPriceInUsdCents: 0,
+          totalDayPriceInUsdCents: dailyPriceInUsdCents,
           depositInUsdCents: 0,
           currencyRate: ethToCurrencyRate,
           currencyDecimals: ethToCurrencyDecimals,
@@ -212,21 +223,26 @@ describe('RentalityGateway: user info', function () {
     const availableCars = await rentalityGateway.connect(guest).getAvailableCarsForUser(guest.address)
     expect(availableCars.length).to.equal(1)
 
-    const rentPriceInUsdCents = 1000
-    const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
-      await rentalityCurrencyConverter.getFromUsdLatest(ethToken, rentPriceInUsdCents)
+    const dailyPriceInUsdCents = 1000
+
+    const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals, rentalityFee } = await calculatePayments(
+      rentalityCurrencyConverter,
+      rentalityPaymentService,
+      dailyPriceInUsdCents,
+      1,
+      0
+    )
 
     await expect(
-      rentalityGateway.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequest(
         {
           carId: 1,
           host: host.address,
-          startDateTime: 1,
-          endDateTime: 1,
+          startDateTime: 123,
+          endDateTime: 321,
           startLocation: '',
           endLocation: '',
-          totalDayPriceInUsdCents: rentPriceInUsdCents,
-          taxPriceInUsdCents: 0,
+          totalDayPriceInUsdCents: dailyPriceInUsdCents,
           depositInUsdCents: 0,
           currencyRate: ethToCurrencyRate,
           currencyDecimals: ethToCurrencyDecimals,

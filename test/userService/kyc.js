@@ -1,6 +1,6 @@
 const { loadFixture, time } = require('@nomicfoundation/hardhat-network-helpers')
 const { expect } = require('chai')
-const { getMockCarRequest, ethToken } = require('../utils')
+const { getMockCarRequest, ethToken, calculatePayments } = require('../utils')
 const { deployFixtureWithUsers, deployDefaultFixture } = require('./deployments')
 
 describe('RentalityUserService: KYC management', function () {
@@ -90,6 +90,7 @@ describe('RentalityUserService: KYC management', function () {
   it('After a trip is requested, the host or guest can get the contact numbers of the host and guest', async function () {
     const {
       rentalityPlatform,
+      rentalityPaymentService,
       rentalityCurrencyConverter,
       host,
       rentalityCarToken,
@@ -101,9 +102,16 @@ describe('RentalityUserService: KYC management', function () {
     await expect(rentalityCarToken.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
     const availableCars = await rentalityCarToken.connect(guest).getAvailableCarsForUser(guest.address)
     expect(availableCars.length).to.equal(1)
-    const rentPriceInUsdCents = 1600
-    const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
-      await rentalityCurrencyConverter.getFromUsdLatest(ethToken, rentPriceInUsdCents)
+    const rentPrice = 1000
+    const deposit = 400
+
+    const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals } = await calculatePayments(
+      rentalityCurrencyConverter,
+      rentalityPaymentService,
+      rentPrice,
+      1,
+      deposit
+    )
 
     const ONE_YEAR_IN_SECS = 365 * 24 * 60 * 60
     const expirationDate = (await time.latest()) + ONE_YEAR_IN_SECS
@@ -123,9 +131,8 @@ describe('RentalityUserService: KYC management', function () {
           endDateTime: 321,
           startLocation: '',
           endLocation: '',
-          totalDayPriceInUsdCents: 1000,
-          taxPriceInUsdCents: 200,
-          depositInUsdCents: 400,
+          totalDayPriceInUsdCents: rentPrice,
+          depositInUsdCents: deposit,
           currencyRate: ethToCurrencyRate,
           currencyDecimals: ethToCurrencyDecimals,
           currencyType: ethToken,
