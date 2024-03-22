@@ -288,6 +288,28 @@ interface Schemas {
     uint64 resolveMilesAmountInUsdCents;
   }
 
+  struct TripReceiptDTO {
+    uint64 totalDayPriceInUsdCents;
+    uint64 totalTripDays;
+    uint64 tripPrice;
+    uint64 discountAmount;
+    uint64 taxes;
+    uint64 depositReceived;
+    uint64 reimbursement;
+    uint64 depositReturned;
+    uint64 refuel;
+    uint64 refuelPricePerUnit;
+    uint64 refuelOrRechargeTotalPrice;
+    uint64 milesIncluded;
+    uint64 overmiles;
+    uint64 pricePerOvermileInCents;
+    uint64 overmileCharge;
+    uint64 startFuelLevel;
+    uint64 endFuelLevel;
+    uint64 startOdometer;
+    uint64 endOdometer;
+  }
+
   /// User service
 
   // Struct to store KYC (Know Your Customer) information for each user
