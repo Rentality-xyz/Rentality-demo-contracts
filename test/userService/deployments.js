@@ -182,16 +182,13 @@ async function deployDefaultFixture() {
 
 async function deployFixtureWithUsers() {
   const [owner, admin, manager, host, guest, anonymous] = await ethers.getSigners()
+  const RentalityUserService = await ethers.getContractFactory('RentalityUserService')
 
   const MockCivic = await ethers.getContractFactory('CivicMockVerifier')
   const mockCivic = await MockCivic.deploy()
   await mockCivic.waitForDeployment()
 
-  const RentalityUserService = await ethers.getContractFactory('RentalityUserService')
-
   const rentalityUserService = await upgrades.deployProxy(RentalityUserService, [await mockCivic.getAddress(), 0])
-
-  await rentalityUserService.waitForDeployment()
 
   await rentalityUserService.connect(owner).grantAdminRole(admin.address)
   await rentalityUserService.connect(owner).grantManagerRole(manager.address)
