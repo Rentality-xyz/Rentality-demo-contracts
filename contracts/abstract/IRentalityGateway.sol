@@ -11,7 +11,7 @@ interface IRentalityGateway {
   /// @admin functions
 
   /// @notice This function retrieves the actual service addresses
-  function updateServiceAddresses() external;
+    function updateServiceAddresses() external;
 
   /// @host functions
 
@@ -40,7 +40,7 @@ interface IRentalityGateway {
   /// @notice Updates the token URI of a car. Only callable by hosts.
   /// @param carId The ID of the car to update.
   /// @param tokenUri The new token URI.
-  function updateCarTokenUri(uint256 carId, string memory tokenUri) external;
+    function updateCarTokenUri(uint256 carId, string memory tokenUri) external;
 
   /// @notice Get the metadata URI for a specific car.
   /// @param carId The ID of the car.
