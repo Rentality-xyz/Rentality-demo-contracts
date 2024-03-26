@@ -246,4 +246,53 @@ describe('RentalityGateway: car', function () {
     expect(result.geoVerified).to.be.true
     expect(result.currentlyListed).to.be.true
   })
+  it.only('Should return public dto', async function () {
+    let name = 'name'
+    let surname = 'surname'
+    let number = '+380'
+    let photo = 'photo'
+    let licenseNumber = 'licenseNumber'
+    let expirationDate = 10
+
+    await expect(
+      await rentalityGateway.connect(host).setKYCInfo(name, surname, number, photo, licenseNumber, expirationDate, true)
+    ).to.not.reverted
+
+    const addCar = (num) => {
+      return {
+        tokenUri: 'uri',
+        carVinNumber: 'VIN_NUMBER' + num,
+        brand: 'BRAND',
+        model: 'MODEL',
+        yearOfProduction: 2020,
+        pricePerDayInUsdCents: 1,
+        securityDepositPerTripInUsdCents: 1,
+        engineParams: [1, 2],
+        engineType: 1,
+        milesIncludedPerDay: 10,
+        timeBufferBetweenTripsInSec: 0,
+        locationAddress: 'Michigan Ave, Chicago, IL, USA',
+        locationLatitude: '123421',
+        locationLongitude: '123421',
+        geoApiKey: 'key',
+      }
+    }
+    await expect(await rentalityCarToken.connect(host).addCar(addCar(0))).not.be.reverted
+    await expect(await rentalityCarToken.connect(host).addCar(addCar(1))).not.be.reverted
+    await expect(await rentalityCarToken.connect(host).addCar(addCar(2))).not.be.reverted
+    await expect(await rentalityCarToken.connect(host).addCar(addCar(3))).not.be.reverted
+    await expect(await rentalityCarToken.connect(host).addCar(addCar(4))).not.be.reverted
+
+    await rentalityCarToken.connect(host).burnCar(3)
+    const hostCars = await rentalityCarToken.getCarsOfHost(host.address)
+    expect(hostCars.length).to.be.eq(4)
+
+    await expect(await rentalityCarToken.connect(guest).addCar(addCar(5))).not.be.reverted
+    await expect(await rentalityCarToken.connect(guest).addCar(addCar(6))).not.be.reverted
+    await rentalityCarToken.connect(guest).burnCar(6)
+    await expect(await rentalityCarToken.connect(guest).addCar(addCar(7))).not.be.reverted
+
+    const guestCars = await rentalityCarToken.getCarsOfHost(guest.address)
+    expect(guestCars.length).to.be.eq(2)
+  })
 })
