@@ -208,6 +208,18 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
     paymentService.changeCurrentDiscountType(discountContract);
   }
 
+  /// @notice Confirms check-out for a trip.
+  /// @param tripId The ID of the trip.
+  function confirmCheckOut(uint256 tripId) public {
+    rentalityPlatform.confirmCheckOut(tripId);
+  }
+
+  /// @notice Rejects a trip request. Only callable by hosts.
+  /// @param tripId The ID of the trip to reject.
+  function rejectTripRequest(uint256 tripId) public {
+    return rentalityPlatform.rejectTripRequest(tripId);
+  }
+
   //  @dev Initializes the contract with the provided addresses for various services.
   //  @param carServiceAddress The address of the RentalityCarToken contract.
   //  @param currencyConverterServiceAddress The address of the RentalityCurrencyConverter contract.
