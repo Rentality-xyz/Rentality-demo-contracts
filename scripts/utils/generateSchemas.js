@@ -72,8 +72,6 @@ function main() {
       allStructNames.push(match[1])
     }
 
-    console.log(`allStructNames: ${JSON.stringify(allStructNames)}`)
-
     while ((match = structPattern.exec(data)) !== null) {
       const structName = match[1]
       const structContent = match[2]

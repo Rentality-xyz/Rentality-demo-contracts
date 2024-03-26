@@ -25,6 +25,18 @@ interface Schemas {
     string timeZoneId;
   }
 
+  struct PublicHostCarDTO {
+    uint carId;
+    string metadataURI;
+    string brand;
+    string model;
+    uint32 yearOfProduction;
+    uint64 pricePerDayInUsdCents;
+    uint64 securityDepositPerTripInUsdCents;
+    uint64 milesIncludedPerDay;
+    bool currentlyListed;
+  }
+
   /// @notice Holds the car information with current ability to update.
   struct CarInfoDTO {
     CarInfo carInfo;
@@ -346,6 +358,7 @@ interface Schemas {
     string timeZoneId;
     string metadataURI;
   }
+
   struct GeoData {
     string city;
     string country;

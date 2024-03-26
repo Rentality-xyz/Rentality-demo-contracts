@@ -82,6 +82,34 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     return idToCarInfo[carId];
   }
 
+  /// @notice Retrieves the cars owned by a specific host.
+  /// @dev This function returns an array of PublicHostCarDTO structs representing the cars owned by the host.
+  /// @param host The address of the host for whom to retrieve the cars.
+  /// @return An array of PublicHostCarDTO structs representing the cars owned by the host.
+  function getCarsOfHost(address host) public view returns (Schemas.PublicHostCarDTO[] memory) {
+    uint carsOwnedByHost = balanceOf(host);
+
+    Schemas.PublicHostCarDTO[] memory carDTOs = new Schemas.PublicHostCarDTO[](carsOwnedByHost);
+    uint carCounter = 0;
+    for (uint i = 1; i <= _carIdCounter.current(); i++) {
+      if (_exists(i) && ownerOf(i) == host) {
+        Schemas.CarInfo memory car = idToCarInfo[i];
+
+        carDTOs[carCounter].carId = i;
+        carDTOs[carCounter].milesIncludedPerDay = car.milesIncludedPerDay;
+        carDTOs[carCounter].metadataURI = tokenURI(i);
+        carDTOs[carCounter].yearOfProduction = car.yearOfProduction;
+        carDTOs[carCounter].currentlyListed = car.currentlyListed;
+        carDTOs[carCounter].brand = car.brand;
+        carDTOs[carCounter].model = car.model;
+        carDTOs[carCounter].pricePerDayInUsdCents = car.pricePerDayInUsdCents;
+        carDTOs[carCounter].securityDepositPerTripInUsdCents = car.securityDepositPerTripInUsdCents;
+        carCounter++;
+      }
+    }
+    return carDTOs;
+  }
+
   /// @notice Checks if a VIN number is unique among the listed cars.
   /// @param carVinNumber The VIN number to check for uniqueness.
   /// @return True if the VIN number is unique, false otherwise.
