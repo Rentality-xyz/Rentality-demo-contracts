@@ -149,15 +149,19 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
   function rejectTrip(uint256 tripId) public {
     require(userService.isManager(msg.sender), 'Only from manager contract.');
 
+    bool controversialSituation = userService.isAdmin(tx.origin) &&
+      idToTripInfo[tripId].status == Schemas.TripStatus.CheckedOutByGuest;
+
     require(
-      idToTripInfo[tripId].host == tx.origin || idToTripInfo[tripId].guest == tx.origin,
+      idToTripInfo[tripId].host == tx.origin || idToTripInfo[tripId].guest == tx.origin || controversialSituation,
       'Only host or guest of the trip can reject it'
     );
 
     require(
       idToTripInfo[tripId].status == Schemas.TripStatus.Created ||
         idToTripInfo[tripId].status == Schemas.TripStatus.Approved ||
-        idToTripInfo[tripId].status == Schemas.TripStatus.CheckedInByHost,
+        idToTripInfo[tripId].status == Schemas.TripStatus.CheckedInByHost ||
+        controversialSituation,
       'The trip is not in status Created, Approved'
     );
 
@@ -271,7 +275,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
   function checkOutByGuest(uint256 tripId, uint64[] memory panelParams) public {
     Schemas.Trip memory trip = getTrip(tripId);
 
-    require(trip.guest == tx.origin, 'For trip guest only');
+    require(trip.guest == tx.origin || trip.host == tx.origin, 'For trip guest or host only');
     Schemas.CarInfo memory carInfo = carService.getCarInfoById(trip.carId);
 
     require(
@@ -299,6 +303,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
   function checkOutByHost(uint256 tripId, uint64[] memory panelParams) public {
     Schemas.Trip memory trip = getTrip(tripId);
     require(trip.host == tx.origin, 'For trip host only');
+    require(trip.guest == trip.tripFinishedBy, 'Host already checked out.');
 
     require(
       idToTripInfo[tripId].status == Schemas.TripStatus.CheckedOutByGuest,
@@ -324,10 +329,6 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     //require(idToTripInfo[tripId].status != TripStatus.CheckedOutByHost,"The trip is not in status CheckedOutByHost");
     require(userService.isManager(msg.sender), 'Only from manager contract.');
 
-    require(
-      idToTripInfo[tripId].status == Schemas.TripStatus.CheckedOutByHost,
-      'The trip is not in status CheckedOutByHost'
-    );
     idToTripInfo[tripId].status = Schemas.TripStatus.Finished;
 
     Schemas.CarInfo memory car = carService.getCarInfoById(idToTripInfo[tripId].carId);
