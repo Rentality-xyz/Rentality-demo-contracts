@@ -492,7 +492,8 @@ library RentalityQuery {
           if (
             trips[j].status == Schemas.TripStatus.Created ||
             trips[j].status == Schemas.TripStatus.Finished ||
-            trips[j].status == Schemas.TripStatus.Canceled
+            trips[j].status == Schemas.TripStatus.Canceled ||
+            (trips[j].status == Schemas.TripStatus.CheckedOutByGuest && trips[j].host == trips[j].tripFinishedBy)
           ) {
             continue;
           }

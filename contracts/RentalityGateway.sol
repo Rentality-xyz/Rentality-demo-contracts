@@ -157,7 +157,7 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
   }
 
   /// @notice Retrieves information about available cars.
-  /// @return An array of available car information.
+  /// @return An array of available car information.'
   function getAvailableCars() public view returns (Schemas.CarInfo[] memory) {
     return getAvailableCarsForUser(tx.origin);
   }
@@ -263,6 +263,12 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
     return tripService.checkOutByGuest(tripId, panelParams);
   }
 
+  /// @notice Confirms check-out for a trip.
+  /// @param tripId The ID of the trip.
+  function confirmCheckOut(uint256 tripId) public {
+    rentalityPlatform.confirmCheckOut(tripId);
+  }
+
   /// @notice Performs check-out by the host for a trip.
   /// @param tripId The ID of the trip.
   /// @param panelParams An array representing parameters related to fuel, odometer,
@@ -341,9 +347,9 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
   /// @notice Updates the status of a specific claim through the Rentality platform.
   /// @dev This function delegates the claim update to the Rentality platform contract.
   /// @param claimId ID of the claim to be updated.
-  function updateClaim(uint256 claimId) public {
-    rentalityPlatform.updateClaim(claimId);
-  }
+  //  function updateClaim(uint256 claimId) public {
+  //    rentalityPlatform.updateClaim(claimId);
+  //  }
 
   /// @notice Gets detailed information about a specific claim through the Rentality platform.
   /// @dev This function retrieves the claim information using the Rentality platform contract.
