@@ -11,7 +11,7 @@ interface IRentalityGateway {
   /// @admin functions
 
   /// @notice This function retrieves the actual service addresses
-    function updateServiceAddresses() external;
+  function updateServiceAddresses() external;
 
   /// @host functions
 
@@ -40,7 +40,7 @@ interface IRentalityGateway {
   /// @notice Updates the token URI of a car. Only callable by hosts.
   /// @param carId The ID of the car to update.
   /// @param tokenUri The new token URI.
-    function updateCarTokenUri(uint256 carId, string memory tokenUri) external;
+  function updateCarTokenUri(uint256 carId, string memory tokenUri) external;
 
   /// @notice Get the metadata URI for a specific car.
   /// @param carId The ID of the car.
@@ -83,6 +83,10 @@ interface IRentalityGateway {
   /// @param panelParams An array representing parameters related to fuel, odometer,
   /// and other relevant details depends on engine.
   function checkOutByHost(uint256 tripId, uint64[] memory panelParams) external;
+
+  /// @notice Confirms check-out for a trip.
+  /// @param tripId The ID of the trip.
+  function confirmCheckOut(uint256 tripId) external;
 
   /// @notice Finish a trip as the host.
   /// @param tripId The ID of the trip to finish.

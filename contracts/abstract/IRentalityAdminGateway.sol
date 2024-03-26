@@ -91,4 +91,12 @@ interface IRentalityAdminGateway {
   /// @notice Get the platform fee in parts per million (PPM).
   /// @return The platform fee in PPM.
   function getPlatformFeeInPPM() external view returns (uint32);
+
+  /// @notice Confirms check-out for a trip.
+  /// @param tripId The ID of the trip.
+  function confirmCheckOut(uint256 tripId) external;
+
+  /// @notice Rejects a trip request. Only callable by hosts.
+  /// @param tripId The ID of the trip to reject.
+  function rejectTripRequest(uint256 tripId) external;
 }
