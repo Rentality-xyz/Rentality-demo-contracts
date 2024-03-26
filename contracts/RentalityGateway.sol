@@ -460,6 +460,14 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
     return RentalityUtils.fullFillTripReceipt(tripId, address(tripService));
   }
 
+  /// @notice Retrieves the cars owned by a specific host.
+  /// @dev This function returns an array of PublicHostCarDTO structs representing the cars owned by the host.
+  /// @param host The address of the host for whom to retrieve the cars.
+  /// @return An array of PublicHostCarDTO structs representing the cars owned by the host.
+  function getCarsOfHost(address host) public view returns (Schemas.PublicHostCarDTO[] memory) {
+    return carService.getCarsOfHost(host);
+  }
+
   //  @dev Initializes the contract with the provided addresses for various services.
   //  @param carServiceAddress The address of the RentalityCarToken contract.
   //  @param currencyConverterServiceAddress The address of the RentalityCurrencyConverter contract.
