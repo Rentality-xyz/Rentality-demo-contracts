@@ -59,16 +59,16 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
   /// - Claim Service
   ///
   /// This function should be called whenever the addresses of the services change.
-    function updateServiceAddresses() public {
-      carService = RentalityCarToken(adminService.getCarServiceAddress());
-      currencyConverterService = RentalityCurrencyConverter(adminService.getCurrencyConverterServiceAddress());
-      tripService = RentalityTripService(adminService.getTripServiceAddress());
-      userService = RentalityUserService(adminService.getUserServiceAddress());
-      rentalityPlatform = RentalityPlatform(adminService.getRentalityPlatformAddress());
-      paymentService = RentalityPaymentService(adminService.getPaymentService());
-      claimService = RentalityClaimService(adminService.getClaimServiceAddress());
-      rentalityPlatform.updateServiceAddresses(adminService);
-    }
+  function updateServiceAddresses() public {
+    carService = RentalityCarToken(adminService.getCarServiceAddress());
+    currencyConverterService = RentalityCurrencyConverter(adminService.getCurrencyConverterServiceAddress());
+    tripService = RentalityTripService(adminService.getTripServiceAddress());
+    userService = RentalityUserService(adminService.getUserServiceAddress());
+    rentalityPlatform = RentalityPlatform(adminService.getRentalityPlatformAddress());
+    paymentService = RentalityPaymentService(adminService.getPaymentService());
+    claimService = RentalityClaimService(adminService.getClaimServiceAddress());
+    rentalityPlatform.updateServiceAddresses(adminService);
+  }
 
   /// @notice Retrieves information about a car by its ID.
   /// @param carId The ID of the car.
@@ -140,9 +140,9 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
   /// @notice Updates the token URI of a car. Only callable by hosts.
   /// @param carId The ID of the car to update.
   /// @param tokenUri The new token URI.
-    function updateCarTokenUri(uint256 carId, string memory tokenUri) public onlyHost {
-      return carService.updateCarTokenUri(carId, tokenUri);
-    }
+  function updateCarTokenUri(uint256 carId, string memory tokenUri) public onlyHost {
+    return carService.updateCarTokenUri(carId, tokenUri);
+  }
 
   //  /// @notice Burns (disables) a car. Only callable by hosts.
   //  /// @param carId The ID of the car to burn.
@@ -452,6 +452,14 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
   /// @return tripReceipt An instance of `Schemas.TripReceiptDTO` containing the trip receipt details.
   function getTripReceipt(uint tripId) public view returns (Schemas.TripReceiptDTO memory) {
     return RentalityUtils.fullFillTripReceipt(tripId, address(tripService));
+  }
+
+  /// @notice Retrieves the cars owned by a specific host.
+  /// @dev This function returns an array of PublicHostCarDTO structs representing the cars owned by the host.
+  /// @param host The address of the host for whom to retrieve the cars.
+  /// @return An array of PublicHostCarDTO structs representing the cars owned by the host.
+  function getCarsOfHost(address host) public view returns (Schemas.PublicHostCarDTO[] memory) {
+    return carService.getCarsOfHost(host);
   }
 
   //  @dev Initializes the contract with the provided addresses for various services.
