@@ -231,7 +231,7 @@ contract RentalityPlatform is UUPSOwnable {
 
     tripService.rejectTrip(tripId);
 
-    uint64 valueToReturnInUsdCents = trip.paymentInfo.totalDayPriceInUsdCents +
+    uint64 valueToReturnInUsdCents = trip.paymentInfo.priceWithDiscount +
       trip.paymentInfo.taxPriceInUsdCents +
       trip.paymentInfo.depositInUsdCents;
 
@@ -252,9 +252,28 @@ contract RentalityPlatform is UUPSOwnable {
     tripService.saveTransactionInfo(tripId, 0, statusBeforeCancellation, valueToReturnInUsdCents, 0);
   }
 
+  /// @notice Confirms the check-out for a trip.
+  /// @param tripId The ID of the trip to be confirmed.
+  function confirmCheckOut(uint256 tripId) public {
+    Schemas.Trip memory trip = tripService.getTrip(tripId);
+
+    require(trip.guest == tx.origin || userService.isAdmin(tx.origin), 'For trip guest or admin only');
+    require(trip.host == trip.tripFinishedBy, 'No needs to confirm.');
+    require(trip.status == Schemas.TripStatus.CheckedOutByGuest, 'The trip is not in status CheckedOutByGuest');
+    _finishTrip(tripId);
+  }
+
   /// @notice Finish a trip on the Rentality platform.
   /// @param tripId The ID of the trip to finish.
   function finishTrip(uint256 tripId) public {
+    Schemas.Trip memory trip = tripService.getTrip(tripId);
+    require(trip.status == Schemas.TripStatus.CheckedOutByHost, 'The trip is not in status CheckedOutByHost');
+    _finishTrip(tripId);
+  }
+
+  /// @notice Finish a trip on the Rentality platform.
+  /// @param tripId The ID of the trip to finish.
+  function _finishTrip(uint256 tripId) internal {
     tripService.finishTrip(tripId);
     Schemas.Trip memory trip = tripService.getTrip(tripId);
 

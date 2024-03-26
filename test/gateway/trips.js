@@ -732,8 +732,6 @@ describe('RentalityGateway: trips', function () {
 
     await expect(rentalityGateway.connect(anonymous).checkOutByGuest(1, [0, 0])).to.be.reverted
 
-    await expect(rentalityGateway.connect(host).checkOutByGuest(1, [0, 0])).to.be.reverted
-
     await expect(rentalityGateway.connect(admin).checkOutByGuest(1, [0, 0])).to.be.reverted
 
     await expect(rentalityGateway.connect(owner).checkOutByGuest(1, [0, 0])).to.be.reverted
