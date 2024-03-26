@@ -84,6 +84,10 @@ interface IRentalityGateway {
   /// and other relevant details depends on engine.
   function checkOutByHost(uint256 tripId, uint64[] memory panelParams) external;
 
+  /// @notice Confirms check-out for a trip.
+  /// @param tripId The ID of the trip.
+  function confirmCheckOut(uint256 tripId) external;
+
   /// @notice Finish a trip as the host.
   /// @param tripId The ID of the trip to finish.
   function finishTrip(uint256 tripId) external;
