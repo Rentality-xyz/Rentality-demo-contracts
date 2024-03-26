@@ -16,7 +16,6 @@
   "dependencies": {
     "@chainlink/contracts": "^0.8.0",
     "@identity.com/gateway-protocol-eth": "^0.0.4",
-    "@layerzerolabs/lz-evm-oapp-v2": "^2.1.23",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.8",
     "@openzeppelin/contracts": "^4.9.0",
     "@openzeppelin/contracts-upgradeable": "^4.9.0",
