@@ -1,5 +1,5 @@
 const { expect } = require('chai')
-const { deployDefaultFixture, getMockCarRequest, ethToken } = require('../utils')
+const { deployDefaultFixture, getMockCarRequest, ethToken, calculatePayments } = require('../utils')
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 const { ethers } = require('hardhat')
 
@@ -322,5 +322,69 @@ describe('Rentality taxes & discounts', function () {
     expect(second).to.be.eq(1000 * 8 - (1000 * 8 * 20) / 100)
     let last = await rentalityPaymentService.connect(owner).calculateSumWithDiscount(owner.address, 31, 1000)
     expect(last).to.be.eq(0)
+  })
+
+  it('Calculate payments should return correct calculation', async function () {
+    const request = getMockCarRequest(10)
+    await expect(rentalityCarToken.connect(host).addCar(request)).not.to.be.reverted
+
+    const tripDays = 7
+
+    const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals, rentalityFee } = await calculatePayments(
+      rentalityCurrencyConverter,
+      rentalityPaymentService,
+      request.pricePerDayInUsdCents,
+      7,
+      request.securityDepositPerTripInUsdCents
+    )
+
+    const contractResult = await rentalityGateway.calculatePayments(
+      1,
+      tripDays,
+      '0x0000000000000000000000000000000000000000'
+    )
+    expect(contractResult.totalPrice).to.be.eq(rentPriceInEth)
+  })
+
+  it('Calculate payments: can create trip request with calculated sum', async function () {
+    const request = getMockCarRequest(10)
+    await expect(rentalityCarToken.connect(host).addCar(request)).not.to.be.reverted
+
+    const tripDays = 31
+    const oneDayInSeconds = 86400
+
+    const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals, rentalityFee } = await calculatePayments(
+      rentalityCurrencyConverter,
+      rentalityPaymentService,
+      request.pricePerDayInUsdCents,
+      31,
+      request.securityDepositPerTripInUsdCents
+    )
+
+    const contractResult = await rentalityGateway.calculatePayments(
+      1,
+      tripDays,
+      '0x0000000000000000000000000000000000000000'
+    )
+    expect(contractResult.totalPrice).to.be.eq(rentPriceInEth)
+
+    await expect(
+      rentalityPlatform.connect(guest).createTripRequest(
+        {
+          carId: 1,
+          host: host.address,
+          startDateTime: Date.now(),
+          endDateTime: Date.now() + oneDayInSeconds * tripDays,
+          startLocation: '',
+          endLocation: '',
+          totalDayPriceInUsdCents: request.pricePerDayInUsdCents,
+          depositInUsdCents: request.securityDepositPerTripInUsdCents,
+          currencyRate: contractResult.currencyRate,
+          currencyDecimals: contractResult.currencyDecimals,
+          currencyType: ethToken,
+        },
+        { value: contractResult.totalPrice }
+      )
+    ).to.changeEtherBalances([guest, rentalityPlatform], [-contractResult.totalPrice, contractResult.totalPrice])
   })
 })
