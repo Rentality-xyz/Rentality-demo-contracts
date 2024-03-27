@@ -373,6 +373,8 @@ async function deployDefaultFixture() {
   ])
   await rentalityGateway.waitForDeployment()
 
+  rentalityGateway = await ethers.getContractAt('IRentalityGateway', await rentalityGateway.getAddress())
+
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityAdminGateway.getAddress())
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityGateway.getAddress())
   await rentalityUserService.connect(owner).grantAdminRole(await rentalityGateway.getAddress())

@@ -64,6 +64,11 @@ interface IRentalityGateway {
   /// @return An array of Trip structures containing details about trips where the caller is the host.
   function getTripsAsHost() external view returns (Schemas.TripDTO[] memory);
 
+  /// @notice This function provides a detailed receipt of the trip, including payment information and trip details.
+  /// @param tripId The ID of the trip for which the receipt is requested.
+  /// @return tripReceipt An instance of `Schemas.TripReceiptDTO` containing the trip receipt details.
+  function getTripReceipt(uint tripId) external view returns (Schemas.TripReceiptDTO memory);
+
   /// @notice Approve a trip request by its ID.
   /// @param tripId The ID of the trip to approve.
   function approveTripRequest(uint256 tripId) external;
@@ -266,4 +271,6 @@ interface IRentalityGateway {
   /// @param host The address of the host for whom to retrieve the cars.
   /// @return An array of PublicHostCarDTO structs representing the cars owned by the host.
   function getCarsOfHost(address host) external view returns (Schemas.PublicHostCarDTO[] memory);
+
+  function owner() external view returns (address);
 }

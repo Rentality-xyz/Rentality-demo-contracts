@@ -246,7 +246,7 @@ describe('RentalityGateway: car', function () {
     expect(result.geoVerified).to.be.true
     expect(result.currentlyListed).to.be.true
   })
-  it.only('Should return public dto', async function () {
+  it('Should return public dto', async function () {
     let name = 'name'
     let surname = 'surname'
     let number = '+380'
