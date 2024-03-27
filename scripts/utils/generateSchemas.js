@@ -38,7 +38,7 @@ function mapSolidityTypeToTs(solidityType) {
       return 'bigint[]'
     case 'bytes32':
     case 'bytes':
-      return 'Uint8Array'
+      return 'string'
     case 'address':
       return 'string'
     case 'string':
