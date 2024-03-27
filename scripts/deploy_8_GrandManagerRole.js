@@ -38,6 +38,7 @@ async function main() {
     await rentalityUserServiceContract.grantManagerRole(rentalityCarTokenAddress)
     await rentalityUserServiceContract.grantManagerRole(rentalityAdminGatewayAddress)
     await rentalityUserServiceContract.grantManagerRole(rentalityEngineAddress)
+    await rentalityUserServiceContract.grantManagerRole(rentalityPaymentServiceAddress)
     console.log('manager role granded')
   } catch (e) {
     console.log('grand manager role error:', e)
