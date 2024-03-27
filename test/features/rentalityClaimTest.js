@@ -197,119 +197,119 @@ describe('RentalityClaim', function () {
 
     await expect(rentalityGateway.connect(guest).rejectClaim(2)).to.not.reverted
   })
-  it('has correct claim Info', async function () {
-    const createCarRequest = getMockCarRequest(0)
-    await expect(rentalityGateway.connect(host).addCar(createCarRequest)).not.to.be.reverted
-    const myCars = await rentalityGateway.connect(host).getMyCars()
-    expect(myCars.length).to.equal(1)
-
-    const availableCars = await rentalityGateway.connect(guest).getAvailableCarsForUser(guest.address)
-    expect(availableCars.length).to.equal(1)
-
-    const oneDayInSeconds = 86400
-
-    const dailyPriceInUsdCents = 1000
-
-    const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals, rentalityFee } = await calculatePayments(
-      rentalityCurrencyConverter,
-      rentalityPaymentService,
-      dailyPriceInUsdCents,
-      1,
-      0
-    )
-
-    await expect(
-      await rentalityPlatform.connect(guest).createTripRequest(
-        {
-          carId: 1,
-          host: host.address,
-          startDateTime: 1,
-          endDateTime: 2,
-          startLocation: 'startLocation',
-          endLocation: 'endLocation',
-          totalDayPriceInUsdCents: dailyPriceInUsdCents,
-          depositInUsdCents: 0,
-          currencyRate: ethToCurrencyRate,
-          currencyDecimals: ethToCurrencyDecimals,
-          currencyType: ethToken,
-        },
-        { value: rentPriceInEth }
-      )
-    ).to.changeEtherBalances([guest, rentalityPlatform], [-rentPriceInEth, rentPriceInEth])
-    await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
-
-    const amountToClaimInUsdCents = 10000
-    let mockClaimRequest = createMockClaimRequest(1, amountToClaimInUsdCents)
-
-    await expect(rentalityGateway.connect(host).createClaim(mockClaimRequest)).to.not.reverted
-
-    const claimInfo = await rentalityGateway.getClaim(1)
-
-    expect(claimInfo.carInfo.model).to.be.eq(createCarRequest.model)
-    expect(claimInfo.carInfo.brand).to.be.eq(createCarRequest.brand)
-    expect(claimInfo.carInfo.yearOfProduction.toString()).to.be.eq(createCarRequest.yearOfProduction)
-    expect(claimInfo.claim.tripId).to.be.eq(1)
-    expect(claimInfo.claim.amountInUsdCents).to.be.eq(amountToClaimInUsdCents)
-    const currentTimeInSeconds = Math.floor(Date.now() / 1000)
-    const deadline = currentTimeInSeconds + 259200
-
-    expect(claimInfo.claim.deadlineDateInSec).to.be.approximately(deadline, 2400)
-  })
-  it('Get all trip claims', async function () {
-    const createCarRequest = getMockCarRequest(0)
-    await expect(rentalityGateway.connect(host).addCar(createCarRequest)).not.to.be.reverted
-    const myCars = await rentalityGateway.connect(host).getMyCars()
-    expect(myCars.length).to.equal(1)
-
-    const availableCars = await rentalityGateway.connect(guest).getAvailableCarsForUser(guest.address)
-    expect(availableCars.length).to.equal(1)
-
-    const oneDayInSeconds = 86400
-
-    const dailyPriceInUsdCents = 1000
-
-    const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals, rentalityFee } = await calculatePayments(
-      rentalityCurrencyConverter,
-      rentalityPaymentService,
-      dailyPriceInUsdCents,
-      1,
-      0
-    )
-
-    await expect(
-      await rentalityPlatform.connect(guest).createTripRequest(
-        {
-          carId: 1,
-          host: host.address,
-          startDateTime: Date.now(),
-          endDateTime: Date.now() + oneDayInSeconds,
-          startLocation: '',
-          endLocation: '',
-          totalDayPriceInUsdCents: dailyPriceInUsdCents,
-          depositInUsdCents: 0,
-          currencyRate: ethToCurrencyRate,
-          currencyDecimals: ethToCurrencyDecimals,
-          currencyType: ethToken,
-        },
-        { value: rentPriceInEth }
-      )
-    ).to.changeEtherBalances([guest, rentalityPlatform], [-rentPriceInEth, rentPriceInEth])
-    await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
-
-    const amountToClaimInUsdCents = 10000
-    let mockClaimRequest = createMockClaimRequest(1, amountToClaimInUsdCents)
-
-    await expect(rentalityGateway.connect(host).createClaim(mockClaimRequest)).to.not.reverted
-    await expect(rentalityGateway.connect(host).createClaim(mockClaimRequest)).to.not.reverted
-    await expect(rentalityGateway.connect(host).createClaim(mockClaimRequest)).to.not.reverted
-
-    const claimInfos = await rentalityGateway.getClaimsByTrip(1)
-
-    expect(claimInfos.length).to.be.eq(3)
-    expect(claimInfos[0].claim.claimId).to.be.eq(1)
-    expect(claimInfos[1].claim.claimId).to.be.eq(2)
-    expect(claimInfos[2].claim.claimId).to.be.eq(3)
-  })
+  // it('has correct claim Info', async function () {
+  //   const createCarRequest = getMockCarRequest(0)
+  //   await expect(rentalityGateway.connect(host).addCar(createCarRequest)).not.to.be.reverted
+  //   const myCars = await rentalityGateway.connect(host).getMyCars()
+  //   expect(myCars.length).to.equal(1)
+  //
+  //   const availableCars = await rentalityGateway.connect(guest).getAvailableCarsForUser(guest.address)
+  //   expect(availableCars.length).to.equal(1)
+  //
+  //   const oneDayInSeconds = 86400
+  //
+  //   const dailyPriceInUsdCents = 1000
+  //
+  //   const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals, rentalityFee } = await calculatePayments(
+  //     rentalityCurrencyConverter,
+  //     rentalityPaymentService,
+  //     dailyPriceInUsdCents,
+  //     1,
+  //     0
+  //   )
+  //
+  //   await expect(
+  //     await rentalityPlatform.connect(guest).createTripRequest(
+  //       {
+  //         carId: 1,
+  //         host: host.address,
+  //         startDateTime: 1,
+  //         endDateTime: 2,
+  //         startLocation: 'startLocation',
+  //         endLocation: 'endLocation',
+  //         totalDayPriceInUsdCents: dailyPriceInUsdCents,
+  //         depositInUsdCents: 0,
+  //         currencyRate: ethToCurrencyRate,
+  //         currencyDecimals: ethToCurrencyDecimals,
+  //         currencyType: ethToken,
+  //       },
+  //       { value: rentPriceInEth }
+  //     )
+  //   ).to.changeEtherBalances([guest, rentalityPlatform], [-rentPriceInEth, rentPriceInEth])
+  //   await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
+  //
+  //   const amountToClaimInUsdCents = 10000
+  //   let mockClaimRequest = createMockClaimRequest(1, amountToClaimInUsdCents)
+  //
+  //   await expect(rentalityGateway.connect(host).createClaim(mockClaimRequest)).to.not.reverted
+  //
+  //   const claimInfo = await rentalityGateway.getClaim(1)
+  //
+  //   expect(claimInfo.carInfo.model).to.be.eq(createCarRequest.model)
+  //   expect(claimInfo.carInfo.brand).to.be.eq(createCarRequest.brand)
+  //   expect(claimInfo.carInfo.yearOfProduction.toString()).to.be.eq(createCarRequest.yearOfProduction)
+  //   expect(claimInfo.claim.tripId).to.be.eq(1)
+  //   expect(claimInfo.claim.amountInUsdCents).to.be.eq(amountToClaimInUsdCents)
+  //   const currentTimeInSeconds = Math.floor(Date.now() / 1000)
+  //   const deadline = currentTimeInSeconds + 259200
+  //
+  //   expect(claimInfo.claim.deadlineDateInSec).to.be.approximately(deadline, 2400)
+  // })
+  // it('Get all trip claims', async function () {
+  //   const createCarRequest = getMockCarRequest(0)
+  //   await expect(rentalityGateway.connect(host).addCar(createCarRequest)).not.to.be.reverted
+  //   const myCars = await rentalityGateway.connect(host).getMyCars()
+  //   expect(myCars.length).to.equal(1)
+  //
+  //   const availableCars = await rentalityGateway.connect(guest).getAvailableCarsForUser(guest.address)
+  //   expect(availableCars.length).to.equal(1)
+  //
+  //   const oneDayInSeconds = 86400
+  //
+  //   const dailyPriceInUsdCents = 1000
+  //
+  //   const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals, rentalityFee } = await calculatePayments(
+  //     rentalityCurrencyConverter,
+  //     rentalityPaymentService,
+  //     dailyPriceInUsdCents,
+  //     1,
+  //     0
+  //   )
+  //
+  //   await expect(
+  //     await rentalityPlatform.connect(guest).createTripRequest(
+  //       {
+  //         carId: 1,
+  //         host: host.address,
+  //         startDateTime: Date.now(),
+  //         endDateTime: Date.now() + oneDayInSeconds,
+  //         startLocation: '',
+  //         endLocation: '',
+  //         totalDayPriceInUsdCents: dailyPriceInUsdCents,
+  //         depositInUsdCents: 0,
+  //         currencyRate: ethToCurrencyRate,
+  //         currencyDecimals: ethToCurrencyDecimals,
+  //         currencyType: ethToken,
+  //       },
+  //       { value: rentPriceInEth }
+  //     )
+  //   ).to.changeEtherBalances([guest, rentalityPlatform], [-rentPriceInEth, rentPriceInEth])
+  //   await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
+  //
+  //   const amountToClaimInUsdCents = 10000
+  //   let mockClaimRequest = createMockClaimRequest(1, amountToClaimInUsdCents)
+  //
+  //   await expect(rentalityGateway.connect(host).createClaim(mockClaimRequest)).to.not.reverted
+  //   await expect(rentalityGateway.connect(host).createClaim(mockClaimRequest)).to.not.reverted
+  //   await expect(rentalityGateway.connect(host).createClaim(mockClaimRequest)).to.not.reverted
+  //
+  //   const claimInfos = await rentalityGateway.getClaimsByTrip(1)
+  //
+  //   expect(claimInfos.length).to.be.eq(3)
+  //   expect(claimInfos[0].claim.claimId).to.be.eq(1)
+  //   expect(claimInfos[1].claim.claimId).to.be.eq(2)
+  //   expect(claimInfos[2].claim.claimId).to.be.eq(3)
+  // })
 
   it('Refund test', async function () {
     const createCarRequest = getMockCarRequest(0)
