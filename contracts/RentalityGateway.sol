@@ -24,7 +24,7 @@ import './RentalityAdminGateway.sol';
 ///  selfdestruct, as far as RentalityUtils doesn't has this logic,
 /// it's completely safe for upgrade
 /// @custom:oz-upgrades-unsafe-allow external-library-linking
-contract RentalityGateway is UUPSOwnable, IRentalityGateway {
+contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
   RentalityCarToken private carService;
   RentalityCurrencyConverter private currencyConverterService;
   RentalityTripService private tripService;
@@ -40,10 +40,15 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
     _;
   }
 
-  /// @notice Ensures that the caller is either a host or a guest.
-  modifier onlyHostOrGuest() {
-    require(userService.isHost(msg.sender) || userService.isGuest(msg.sender), 'User is not a host or guest');
-    _;
+  fallback(bytes calldata data) external payable returns (bytes memory) {
+    (bool ok, bytes memory res) = address(rentalityPlatform).call{value: msg.value}(data);
+    if (!ok) {
+      // For correct encoding revert message
+      assembly {
+        revert(add(32, res), mload(res))
+      }
+    }
+    return res;
   }
 
   /// @dev Updates the addresses of various services used in the Rentality platform.
@@ -210,35 +215,6 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
     return RentalityQuery.getCarDetails(address(adminService), carId);
   }
 
-  /// @notice Creates a trip request. Callable by users with payment.
-  /// @param request The trip request details.
-  function createTripRequest(Schemas.CreateTripRequest memory request) public payable {
-    return rentalityPlatform.createTripRequest{value: msg.value}(request);
-  }
-
-  /// @notice Retrieves contact information for a trip. Only callable by hosts or guests.
-  /// @param tripId The ID of the trip.
-  /// @return guestPhoneNumber
-  /// @return hostPhoneNumber
-  /// The guest's and host's phone numbers.
-  function getTripContactInfo(
-    uint256 tripId
-  ) public view onlyHostOrGuest returns (string memory guestPhoneNumber, string memory hostPhoneNumber) {
-    return rentalityPlatform.getTripContactInfo(tripId);
-  }
-
-  /// @notice Approves a trip request. Only callable by hosts.
-  /// @param tripId The ID of the trip to approve.
-  function approveTripRequest(uint256 tripId) public {
-    return rentalityPlatform.approveTripRequest(tripId);
-  }
-
-  /// @notice Rejects a trip request. Only callable by hosts.
-  /// @param tripId The ID of the trip to reject.
-  function rejectTripRequest(uint256 tripId) public {
-    return rentalityPlatform.rejectTripRequest(tripId);
-  }
-
   /// @notice Performs check-in by the host for a trip.
   /// @param tripId The ID of the trip.
   /// @param panelParams An array representing parameters related to fuel, odometer,
@@ -263,24 +239,12 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
     return tripService.checkOutByGuest(tripId, panelParams);
   }
 
-  /// @notice Confirms check-out for a trip.
-  /// @param tripId The ID of the trip.
-  function confirmCheckOut(uint256 tripId) public {
-    rentalityPlatform.confirmCheckOut(tripId);
-  }
-
   /// @notice Performs check-out by the host for a trip.
   /// @param tripId The ID of the trip.
   /// @param panelParams An array representing parameters related to fuel, odometer,
   /// and other relevant details depends on engine.
   function checkOutByHost(uint256 tripId, uint64[] memory panelParams) public {
     return tripService.checkOutByHost(tripId, panelParams);
-  }
-
-  /// @notice Finishes a trip. Only callable by RentalityPlatform.
-  /// @param tripId The ID of the trip to finish.
-  function finishTrip(uint256 tripId) public {
-    return rentalityPlatform.finishTrip(tripId);
   }
 
   /// @notice Retrieves information about a trip by ID.
@@ -321,42 +285,6 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
   /// @return An array of trip information for the specified car.
   function getTripsByCar(uint256 carId) public view returns (Schemas.Trip[] memory) {
     return RentalityQuery.getTripsByCar(address(tripService), carId);
-  }
-
-  /// @notice Creates a new claim through the Rentality platform.
-  /// @dev This function delegates the claim creation to the Rentality platform contract.
-  /// @param request Details of the claim to be created.
-  function createClaim(Schemas.CreateClaimRequest memory request) public {
-    rentalityPlatform.createClaim(request);
-  }
-
-  /// @notice Rejects a specific claim through the Rentality platform.
-  /// @dev This function delegates the claim rejection to the Rentality platform contract.
-  /// @param claimId ID of the claim to be rejected.
-  function rejectClaim(uint256 claimId) public {
-    rentalityPlatform.rejectClaim(claimId);
-  }
-
-  /// @notice Pays a specific claim through the Rentality platform, transferring funds and handling excess.
-  /// @dev This function delegates the claim payment to the Rentality platform contract.
-  /// @param claimId ID of the claim to be paid.
-  function payClaim(uint256 claimId) public payable {
-    rentalityPlatform.payClaim{value: msg.value}(claimId);
-  }
-
-  /// @notice Updates the status of a specific claim through the Rentality platform.
-  /// @dev This function delegates the claim update to the Rentality platform contract.
-  /// @param claimId ID of the claim to be updated.
-  //  function updateClaim(uint256 claimId) public {
-  //    rentalityPlatform.updateClaim(claimId);
-  //  }
-
-  /// @notice Gets detailed information about a specific claim through the Rentality platform.
-  /// @dev This function retrieves the claim information using the Rentality platform contract.
-  /// @param claimId ID of the claim.
-  /// @return Full information about the claim.
-  function getClaim(uint256 claimId) public view returns (Schemas.FullClaimInfo memory) {
-    return rentalityPlatform.getClaimInfo(claimId);
   }
 
   /// @notice Gets an array of claims associated with a specific trip through the Rentality platform.
@@ -442,17 +370,6 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
     return userService.getMyKYCInfo();
   }
 
-  /// @notice Retrieves chat information for the caller acting as a host.
-  /// @return An array of chat information.
-  function getChatInfoForHost() public view returns (Schemas.ChatInfo[] memory) {
-    return rentalityPlatform.getChatInfoForHost();
-  }
-
-  /// @notice Retrieves chat information for the caller acting as a guest.
-  /// @return An array of chat information.
-  function getChatInfoForGuest() public view returns (Schemas.ChatInfo[] memory) {
-    return rentalityPlatform.getChatInfoForGuest();
-  }
   /// @notice This function provides a detailed receipt of the trip, including payment information and trip details.
   /// @param tripId The ID of the trip for which the receipt is requested.
   /// @return tripReceipt An instance of `Schemas.TripReceiptDTO` containing the trip receipt details.
@@ -467,6 +384,96 @@ contract RentalityGateway is UUPSOwnable, IRentalityGateway {
   function getCarsOfHost(address host) public view returns (Schemas.PublicHostCarDTO[] memory) {
     return carService.getCarsOfHost(host);
   }
+
+  //TODO!! Platform funcs, delete after full refactoring
+
+  /// @notice Creates a trip request. Callable by users with payment.
+  /// @param request The trip request details.
+  //  function createTripRequest(Schemas.CreateTripRequest memory request) public payable {
+  //    return rentalityPlatform.createTripRequest{value: msg.value}(request);
+  //  }
+
+  /// @notice Retrieves contact information for a trip. Only callable by hosts or guests.
+  /// @param tripId The ID of the trip.
+  /// @return guestPhoneNumber
+  /// @return hostPhoneNumber
+  /// The guest's and host's phone numbers.
+  //    function getTripContactInfo(
+  //        uint256 tripId
+  //    ) public view onlyHostOrGuest returns (string memory guestPhoneNumber, string memory hostPhoneNumber) {
+  //        return rentalityPlatform.getTripContactInfo(tripId);
+  //    }
+
+  /// @notice Approves a trip request. Only callable by hosts.
+  /// @param tripId The ID of the trip to approve.
+  //  function approveTripRequest(uint256 tripId) public {
+  //    return rentalityPlatform.approveTripRequest(tripId);
+  //  }
+
+  /// @notice Rejects a trip request. Only callable by hosts.
+  /// @param tripId The ID of the trip to reject.
+  //  function rejectTripRequest(uint256 tripId) public {
+  //    return rentalityPlatform.rejectTripRequest(tripId);
+  //  }
+
+  /// @notice Retrieves chat information for the caller acting as a host.
+  /// @return An array of chat information.
+  //    function getChatInfoForHost() public view returns (Schemas.ChatInfo[] memory) {
+  //        return rentalityPlatform.getChatInfoForHost();
+  //    }
+  //
+  //    /// @notice Retrieves chat information for the caller acting as a guest.
+  //    /// @return An array of chat information.
+  //    function getChatInfoForGuest() public view returns (Schemas.ChatInfo[] memory) {
+  //        return rentalityPlatform.getChatInfoForGuest();
+  //    }
+
+  /// @notice Creates a new claim through the Rentality platform.
+  /// @dev This function delegates the claim creation to the Rentality platform contract.
+  /// @param request Details of the claim to be created.
+  //  function createClaim(Schemas.CreateClaimRequest memory request) public {
+  //    rentalityPlatform.createClaim(request);
+  //  }
+
+  /// @notice Rejects a specific claim through the Rentality platform.
+  /// @dev This function delegates the claim rejection to the Rentality platform contract.
+  /// @param claimId ID of the claim to be rejected.
+  //  function rejectClaim(uint256 claimId) public {
+  //    rentalityPlatform.rejectClaim(claimId);
+  //  }
+
+  /// @notice Pays a specific claim through the Rentality platform, transferring funds and handling excess.
+  /// @dev This function delegates the claim payment to the Rentality platform contract.
+  /// @param claimId ID of the claim to be paid.
+  //  function payClaim(uint256 claimId) public payable {
+  //    rentalityPlatform.payClaim{value: msg.value}(claimId);
+  //  }
+
+  /// @notice Updates the status of a specific claim through the Rentality platform.
+  /// @dev This function delegates the claim update to the Rentality platform contract.
+  /// @param claimId ID of the claim to be updated.
+  //  function updateClaim(uint256 claimId) public {
+  //    rentalityPlatform.updateClaim(claimId);
+  //  }
+
+  /// @notice Gets detailed information about a specific claim through the Rentality platform.
+  /// @dev This function retrieves the claim information using the Rentality platform contract.
+  /// @param claimId ID of the claim.
+  /// @return Full information about the claim.
+  //    function getClaim(uint256 claimId) public view returns (Schemas.FullClaimInfo memory) {
+  //        return rentalityPlatform.getClaimInfo(claimId);
+  //    }
+
+  /// @notice Confirms check-out for a trip.
+  /// @param tripId The ID of the trip.
+  //  function confirmCheckOut(uint256 tripId) public {
+  //    rentalityPlatform.confirmCheckOut(tripId);
+  //  }
+
+  /// @notice Finishes a trip.
+  //  function finishTrip(uint256 tripId) public {
+  //    return rentalityPlatform.finishTrip(tripId);
+  //  }
 
   //  @dev Initializes the contract with the provided addresses for various services.
   //  @param carServiceAddress The address of the RentalityCarToken contract.

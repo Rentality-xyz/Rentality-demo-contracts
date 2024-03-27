@@ -397,7 +397,7 @@ contract RentalityPlatform is UUPSOwnable {
   /// @dev Returns a structure containing information about the claim, associated trip, and car details.
   /// @param claimId ID of the claim.
   /// @return Full information about the claim.
-  function getClaimInfo(uint256 claimId) public view returns (Schemas.FullClaimInfo memory) {
+  function getClaim(uint256 claimId) public view returns (Schemas.FullClaimInfo memory) {
     Schemas.Claim memory claim = claimService.getClaim(claimId);
     Schemas.Trip memory trip = tripService.getTrip(claim.tripId);
     Schemas.CarInfo memory car = carService.getCarInfoById(trip.carId);
@@ -420,6 +420,7 @@ contract RentalityPlatform is UUPSOwnable {
   function getTripContactInfo(
     uint256 tripId
   ) public view returns (string memory guestPhoneNumber, string memory hostPhoneNumber) {
+    require(userService.isHostOrGuest(tx.origin), 'User is not a host or guest');
     Schemas.Trip memory trip = tripService.getTrip(tripId);
 
     Schemas.KYCInfo memory guestInfo = userService.getKYCInfo(trip.guest);
