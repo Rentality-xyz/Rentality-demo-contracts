@@ -96,7 +96,6 @@ describe('RentalityGateway: car', function () {
     expect(carInfo.securityDepositPerTripInUsdCents).to.be.equal(update_params.securityDepositPerTripInUsdCents)
   })
 
-
   it('should have cars owned by user', async function () {
     let addCarRequest = getMockCarRequest(0)
     await expect(rentalityCarToken.connect(host).addCar(addCarRequest)).not.be.reverted
