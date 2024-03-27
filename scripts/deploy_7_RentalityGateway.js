@@ -78,7 +78,7 @@ async function main() {
   ])
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()
-  contract = await ethers.getContractAt('IRentalityGateway', contractAddress);
+  contract = await ethers.getContractAt('IRentalityGateway', contractAddress)
 
   console.log(`${contractName} was deployed to: ${contractAddress}`)
   addressSaver(contractAddress, contractName, true, chainId)

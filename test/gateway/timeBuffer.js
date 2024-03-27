@@ -104,11 +104,9 @@ describe('RentalityGateway: time buffer', function () {
 
     const searchParams = getEmptySearchCarParams()
 
-    const availableCars = await rentalityGateway.connect(guest).searchAvailableCars(
-      Date.now() + oneDayInSec * 3,
-      Date.now() + oneDayInSec * 4,
-      searchParams
-    )
+    const availableCars = await rentalityGateway
+      .connect(guest)
+      .searchAvailableCars(Date.now() + oneDayInSec * 3, Date.now() + oneDayInSec * 4, searchParams)
     expect(availableCars.length).to.be.eq(0)
   })
   it('should show car after time buffer expiration', async function () {
@@ -170,11 +168,9 @@ describe('RentalityGateway: time buffer', function () {
 
     const searchParams = getEmptySearchCarParams()
 
-    const availableCars = await rentalityGateway.connect(guest).searchAvailableCars(
-      Date.now() + oneDayInSec * 2 + oneDayInSec / 2,
-      Date.now() + oneDayInSec * 4,
-      searchParams
-    )
+    const availableCars = await rentalityGateway
+      .connect(guest)
+      .searchAvailableCars(Date.now() + oneDayInSec * 2 + oneDayInSec / 2, Date.now() + oneDayInSec * 4, searchParams)
     expect(availableCars.length).to.be.eq(1)
   })
   it('should not be able to create tripRequest if trip buffer not expired', async function () {
