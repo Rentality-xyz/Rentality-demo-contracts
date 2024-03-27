@@ -43,6 +43,7 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
   fallback(bytes calldata data) external payable returns (bytes memory) {
     (bool ok, bytes memory res) = address(rentalityPlatform).call{value: msg.value}(data);
     if (!ok) {
+      // For correct encoding revert message
       assembly {
         revert(add(32, res), mload(res))
       }
