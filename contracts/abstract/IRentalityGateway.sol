@@ -272,5 +272,18 @@ interface IRentalityGateway {
   /// @return An array of PublicHostCarDTO structs representing the cars owned by the host.
   function getCarsOfHost(address host) external view returns (Schemas.PublicHostCarDTO[] memory);
 
+  /// @dev Returns the owner of the contract.
+  /// @return The address of the contract owner.
   function owner() external view returns (address);
+
+  /// @dev Calculates the payments for a trip.
+  /// @param carId The ID of the car.
+  /// @param daysOfTrip The duration of the trip in days.
+  /// @param currency The currency to use for payment calculation.
+  /// @return calculatePaymentsDTO An object containing payment details.
+  function calculatePayments(
+    uint carId,
+    uint64 daysOfTrip,
+    address currency
+  ) external view returns (Schemas.CalculatePaymentsDTO memory calculatePaymentsDTO);
 }
