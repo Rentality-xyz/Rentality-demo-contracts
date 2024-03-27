@@ -322,6 +322,12 @@ interface Schemas {
     uint64 endOdometer;
   }
 
+  struct CalculatePaymentsDTO {
+    uint totalPrice;
+    int currencyRate;
+    uint8 currencyDecimals;
+  }
+
   /// User service
 
   // Struct to store KYC (Know Your Customer) information for each user
@@ -406,7 +412,6 @@ interface Schemas {
     bool initialized;
   }
 
-  // Taxes
   enum TaxesLocationType {
     City,
     State,
