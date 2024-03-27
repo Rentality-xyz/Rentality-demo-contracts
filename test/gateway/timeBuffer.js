@@ -104,8 +104,7 @@ describe('RentalityGateway: time buffer', function () {
 
     const searchParams = getEmptySearchCarParams()
 
-    const availableCars = await rentalityGateway.searchAvailableCarsForUser(
-      guest.address,
+    const availableCars = await rentalityGateway.connect(guest).searchAvailableCars(
       Date.now() + oneDayInSec * 3,
       Date.now() + oneDayInSec * 4,
       searchParams
@@ -171,8 +170,7 @@ describe('RentalityGateway: time buffer', function () {
 
     const searchParams = getEmptySearchCarParams()
 
-    const availableCars = await rentalityGateway.searchAvailableCarsForUser(
-      guest.address,
+    const availableCars = await rentalityGateway.connect(guest).searchAvailableCars(
       Date.now() + oneDayInSec * 2 + oneDayInSec / 2,
       Date.now() + oneDayInSec * 4,
       searchParams

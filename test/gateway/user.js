@@ -291,7 +291,7 @@ describe('RentalityGateway: user info', function () {
 
     const availableCars = await rentalityGateway
       .connect(guest)
-      .searchAvailableCarsForUser(guest.address, 0, 0, getEmptySearchCarParams(0))
+      .searchAvailableCars(0, 0, getEmptySearchCarParams(0))
     expect(availableCars.length).to.equal(1)
 
     expect(availableCars[0].hostPhotoUrl).to.be.eq(photo + 'host')
