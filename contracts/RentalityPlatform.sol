@@ -459,6 +459,32 @@ contract RentalityPlatform is UUPSOwnable {
     return RentalityUtils.populateChatInfo(trips, address(userService), address(carService));
   }
 
+  /// @dev Calculates the payments for a trip.
+  /// @param carId The ID of the car.
+  /// @param daysOfTrip The duration of the trip in days.
+  /// @param currency The currency to use for payment calculation.
+  /// @return calculatePaymentsDTO An object containing payment details.
+  function calculatePayments(
+    uint carId,
+    uint64 daysOfTrip,
+    address currency
+  ) public view returns (Schemas.CalculatePaymentsDTO memory) {
+    address carOwner = carService.ownerOf(carId);
+    Schemas.CarInfo memory car = carService.getCarInfoById(carId);
+
+    uint64 sumWithDiscount = paymentService.calculateSumWithDiscount(carOwner, daysOfTrip, car.pricePerDayInUsdCents);
+    uint taxId = paymentService.defineTaxesType(address(carService), carId);
+
+    uint64 taxes = paymentService.calculateTaxes(taxId, daysOfTrip, sumWithDiscount);
+
+    (uint256 valueSumInCurrency, int256 rate, uint8 decimals) = currencyConverterService.getFromUsdLatest(
+      currency,
+      car.securityDepositPerTripInUsdCents + taxes + sumWithDiscount
+    );
+
+    return Schemas.CalculatePaymentsDTO(valueSumInCurrency, rate, decimals);
+  }
+
   /// @notice Constructor to initialize the RentalityPlatform with service contract addresses.
   /// @param carServiceAddress The address of the RentalityCarToken contract.
   /// @param currencyConverterServiceAddress The address of the RentalityCurrencyConverter contract.

@@ -71,7 +71,7 @@ contract RentalityBaseDiscount is IRentalityDiscount, Initializable, UUPSAccess 
 
   /// @notice Verifies the validity of a discount.
   /// @param discount The discount data to verify.
-  function verifyDiscountValidity(Schemas.BaseDiscount memory discount) private view {
+  function verifyDiscountValidity(Schemas.BaseDiscount memory discount) private pure {
     verifyPercentagesValidity(discount.threeDaysDiscount);
     verifyPercentagesValidity(discount.sevenDaysDiscount);
     verifyPercentagesValidity(discount.thirtyDaysDiscount);
