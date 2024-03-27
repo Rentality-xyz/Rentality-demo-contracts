@@ -66,7 +66,7 @@ async function main() {
     },
   })
 
-  const contract = await upgrades.deployProxy(contractFactory, [
+  let contract = await upgrades.deployProxy(contractFactory, [
     rentalityCarTokenAddress,
     rentalityCurrencyConverterAddress,
     rentalityTripServiceAddress,
@@ -78,6 +78,7 @@ async function main() {
   ])
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()
+  contract = await ethers.getContractAt('IRentalityGateway', contractAddress)
 
   console.log(`${contractName} was deployed to: ${contractAddress}`)
   addressSaver(contractAddress, contractName, true, chainId)

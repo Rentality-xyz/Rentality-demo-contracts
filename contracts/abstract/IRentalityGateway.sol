@@ -40,7 +40,7 @@ interface IRentalityGateway {
   /// @notice Updates the token URI of a car. Only callable by hosts.
   /// @param carId The ID of the car to update.
   /// @param tokenUri The new token URI.
-  function updateCarTokenUri(uint256 carId, string memory tokenUri) external;
+  //  function updateCarTokenUri(uint256 carId, string memory tokenUri) external;
 
   /// @notice Get the metadata URI for a specific car.
   /// @param carId The ID of the car.
@@ -129,12 +129,12 @@ interface IRentalityGateway {
   /// @param endDateTime The end date and time of the search.
   /// @param searchParams Additional search parameters.
   /// @return An array of available car information meeting the search criteria for the specified user.
-  function searchAvailableCarsForUser(
-    address user,
-    uint64 startDateTime,
-    uint64 endDateTime,
-    Schemas.SearchCarParams memory searchParams
-  ) external view returns (Schemas.SearchCar[] memory);
+//  function searchAvailableCarsForUser(
+//    address user,
+//    uint64 startDateTime,
+//    uint64 endDateTime,
+//    Schemas.SearchCarParams memory searchParams
+//  ) external view returns (Schemas.SearchCar[] memory);
 
   /// @notice Retrieves detailed information about a car.
   /// @param carId The ID of the car for which details are requested.
@@ -169,17 +169,17 @@ interface IRentalityGateway {
   /// @notice Retrieves information about trips where the specified user is the guest.
   /// @param guest The address of the guest.
   /// @return An array of trip information for the specified guest.
-  function getTripsByGuest(address guest) external view returns (Schemas.TripDTO[] memory);
+  //  function getTripsByGuest(address guest) external view returns (Schemas.TripDTO[] memory);
 
   /// @notice Retrieves information about trips where the specified user is the host.
   /// @param host The address of the host.
   /// @return An array of trip information for the specified host.
-  function getTripsByHost(address host) external view returns (Schemas.TripDTO[] memory);
+  //  function getTripsByHost(address host) external view returns (Schemas.TripDTO[] memory);
 
   /// @notice Retrieves information about trips for a specific car.
   /// @param carId The ID of the car.
   /// @return An array of trip information for the specified car.
-  function getTripsByCar(uint256 carId) external view returns (Schemas.Trip[] memory);
+  //  function getTripsByCar(uint256 carId) external view returns (Schemas.Trip[] memory);
 
   /// @notice Creates a new claim through the Rentality platform.
   /// @dev This function delegates the claim creation to the Rentality platform contract.
@@ -199,19 +199,19 @@ interface IRentalityGateway {
   /// @notice Updates the status of a specific claim through the Rentality platform.
   /// @dev This function delegates the claim update to the Rentality platform contract.
   /// @param claimId ID of the claim to be updated.
-  function updateClaim(uint256 claimId) external;
+  //  function updateClaim(uint256 claimId) external;
 
   /// @notice Gets detailed information about a specific claim through the Rentality platform.
   /// @dev This function retrieves the claim information using the Rentality platform contract.
   /// @param claimId ID of the claim.
   /// @return Full information about the claim.
-  function getClaim(uint256 claimId) external view returns (Schemas.FullClaimInfo memory);
+  //  function getClaim(uint256 claimId) external view returns (Schemas.FullClaimInfo memory);
 
   /// @notice Gets an array of claims associated with a specific trip through the Rentality platform.
   /// @dev This function retrieves an array of detailed claim information for the given trip using the Rentality platform contract.
   /// @param tripId ID of the trip.
   /// @return Array of detailed claim information.
-  function getClaimsByTrip(uint256 tripId) external view returns (Schemas.FullClaimInfo[] memory);
+  //  function getClaimsByTrip(uint256 tripId) external view returns (Schemas.FullClaimInfo[] memory);
 
   /// @notice Retrieves all claims where the caller is the host.
   /// @dev The caller is assumed to be the host of the claims.
@@ -252,7 +252,7 @@ interface IRentalityGateway {
   /// @notice Get KYC (Know Your Customer) information for a specific user.
   /// @param user The address of the user.
   /// @return KYCInfo structure containing details about the KYC information of the specified user.
-  function getKYCInfo(address user) external view returns (Schemas.KYCInfo memory);
+  //  function getKYCInfo(address user) external view returns (Schemas.KYCInfo memory);
 
   /// @notice Get KYC (Know Your Customer) information for the caller.
   /// @return KYCInfo structure containing details about the KYC information of the caller.
