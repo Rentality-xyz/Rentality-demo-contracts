@@ -32,7 +32,7 @@ async function deployDefaultFixture() {
   const RentalityGeoService = await ethers.getContractFactory('RentalityGeoService')
 
   const RentalityCarToken = await ethers.getContractFactory('RentalityCarToken', {
-    libraries: { RentalityQuery: await query.getAddress() },
+    libraries: { RentalityUtils: await utils.getAddress() },
   })
   const RentalityPlatform = await ethers.getContractFactory('RentalityPlatform', {
     libraries: {

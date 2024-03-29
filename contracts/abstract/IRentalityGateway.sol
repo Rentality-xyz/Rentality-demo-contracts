@@ -129,12 +129,12 @@ interface IRentalityGateway {
   /// @param endDateTime The end date and time of the search.
   /// @param searchParams Additional search parameters.
   /// @return An array of available car information meeting the search criteria for the specified user.
-//  function searchAvailableCarsForUser(
-//    address user,
-//    uint64 startDateTime,
-//    uint64 endDateTime,
-//    Schemas.SearchCarParams memory searchParams
-//  ) external view returns (Schemas.SearchCar[] memory);
+  //  function searchAvailableCarsForUser(
+  //    address user,
+  //    uint64 startDateTime,
+  //    uint64 endDateTime,
+  //    Schemas.SearchCarParams memory searchParams
+  //  ) external view returns (Schemas.SearchCar[] memory);
 
   /// @notice Retrieves detailed information about a car.
   /// @param carId The ID of the car for which details are requested.
