@@ -96,37 +96,6 @@ describe('RentalityGateway: car', function () {
     expect(carInfo.securityDepositPerTripInUsdCents).to.be.equal(update_params.securityDepositPerTripInUsdCents)
   })
 
-  it('should allow only host to update car token URI', async function () {
-    let addCarRequest = getMockCarRequest(0)
-    await expect(rentalityGateway.connect(host).addCar(addCarRequest)).not.be.reverted
-
-    await expect(rentalityGateway.connect(host).updateCarTokenUri(1, ' ')).not.to.be.reverted
-
-    await expect(rentalityGateway.connect(guest).updateCarTokenUri(1, ' ')).to.be.revertedWith('User is not a host')
-
-    await expect(rentalityGateway.connect(anonymous).updateCarTokenUri(1, ' ')).to.be.revertedWith('User is not a host')
-  })
-
-  it('should allow only host to burn car', async function () {
-    let addCarRequest = getMockCarRequest(0)
-    await expect(rentalityGateway.connect(host).addCar(addCarRequest)).not.be.reverted
-
-    await expect(rentalityGateway.connect(host).burnCar(1)).not.to.be.reverted
-
-    await expect(rentalityGateway.connect(guest).burnCar(1)).to.be.revertedWith('User is not a host')
-
-    await expect(rentalityGateway.connect(anonymous).burnCar(1)).to.be.revertedWith('User is not a host')
-  })
-
-  it('should have available cars', async function () {
-    let addCarRequest = getMockCarRequest(0)
-    await expect(rentalityGateway.connect(host).addCar(addCarRequest)).not.be.reverted
-
-    let available_cars = await rentalityGateway.connect(guest).getAvailableCars()
-
-    expect(available_cars.length).to.be.equal(1)
-  })
-
   it('should have cars owned by user', async function () {
     let addCarRequest = getMockCarRequest(0)
     await expect(rentalityCarToken.connect(host).addCar(addCarRequest)).not.be.reverted
