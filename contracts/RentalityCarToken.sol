@@ -321,7 +321,7 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
       _exists(carId) &&
       idToCarInfo[carId].currentlyListed &&
       ownerOf(carId) != sender &&
-      RentalityQuery.isCarAvailableForUser(carId, searchCarParams, address(this), address(geoService));
+      RentalityUtils.isCarAvailableForUser(carId, searchCarParams, address(this), address(geoService));
   }
 
   /// @notice Fetches available cars for a specific user based on search parameters.

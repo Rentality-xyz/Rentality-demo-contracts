@@ -350,6 +350,10 @@ interface Schemas {
     string model;
     uint32 yearOfProduction;
     uint64 pricePerDayInUsdCents;
+    uint64 pricePerDayWithDiscount;
+    uint64 tripDays;
+    uint64 totalPriceWithDiscount;
+    uint64 taxes;
     uint64 securityDepositPerTripInUsdCents;
     uint8 engineType;
     uint64 milesIncludedPerDay;

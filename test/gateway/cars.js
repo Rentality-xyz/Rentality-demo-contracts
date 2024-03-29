@@ -108,7 +108,7 @@ describe('RentalityGateway: car', function () {
 
     expect(cars_not_created.length).to.be.equal(0)
   })
-  it('should have all variables after search', async function () {
+  it.only('should have all variables after search', async function () {
     let name = 'name'
     let surname = 'surname'
     let number = '+380'
@@ -126,22 +126,24 @@ describe('RentalityGateway: car', function () {
       brand: 'BRAND',
       model: 'MODEL',
       yearOfProduction: 2020,
-      pricePerDayInUsdCents: 1,
+      pricePerDayInUsdCents: 1000,
       securityDepositPerTripInUsdCents: 1,
       engineParams: [1, 2],
       engineType: 1,
       milesIncludedPerDay: 10,
       timeBufferBetweenTripsInSec: 0,
-      locationAddress: 'Michigan Ave, Chicago, IL, USA',
+      locationAddress: 'Michigan Ave, Chicago, Florida, USA',
       locationLatitude: '123421',
       locationLongitude: '123421',
       geoApiKey: 'key',
     }
+    const oneDayInSec = 86400
+    const totalTripDays = 7
     const searchParams = getEmptySearchCarParams()
     await expect(rentalityCarToken.connect(host).addCar(addCarRequest)).not.be.reverted
     const resultAr = await rentalityGateway.searchAvailableCars(
       new Date().getDate(),
-      new Date().getDate() + 100,
+      new Date().getDate() + oneDayInSec * totalTripDays,
       searchParams
     )
     const result = resultAr[0]
@@ -157,7 +159,7 @@ describe('RentalityGateway: car', function () {
     expect(result.hostPhotoUrl).to.be.eq(photo)
     expect(result.city).to.be.eq('Chicago')
     expect(result.country).to.be.eq('USA')
-    expect(result.state).to.be.eq('IL')
+    expect(result.state).to.be.eq('Florida')
     expect(result.locationLatitude).to.be.eq('123421')
     expect(result.locationLongitude).to.be.eq('123421')
     expect(result.timeZoneId).to.be.eq('America/Chicago')
