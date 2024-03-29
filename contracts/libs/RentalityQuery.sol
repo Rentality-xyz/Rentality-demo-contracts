@@ -11,6 +11,7 @@ import '../abstract/IRentalityGeoService.sol';
 import '../RentalityAdminGateway.sol';
 import '../Schemas.sol';
 import '../payments/RentalityCurrencyConverter.sol';
+import '../payments/RentalityPaymentService.sol';
 
 library RentalityQuery {
   /// @dev Checks if a specific trip has intersecting trips within a given time range.
@@ -403,49 +404,6 @@ library RentalityQuery {
     return claimInfos;
   }
 
-  /// @notice Checks if a car is available for a specific user based on search parameters.
-  /// @dev Determines availability based on several conditions, including ownership and search parameters.
-  /// @param carId The ID of the car being checked.
-  /// @param searchCarParams The parameters used to filter available cars.
-  /// @return A boolean indicating whether the car is available for the user.
-  function isCarAvailableForUser(
-    uint256 carId,
-    Schemas.SearchCarParams memory searchCarParams,
-    address carServiceAddress,
-    address geoServiceAddress
-  ) public view returns (bool) {
-    RentalityCarToken carService = RentalityCarToken(carServiceAddress);
-    IRentalityGeoService geoService = IRentalityGeoService(geoServiceAddress);
-
-    Schemas.CarInfo memory car = carService.getCarInfoById(carId);
-    return
-      (bytes(searchCarParams.brand).length == 0 ||
-        RentalityUtils.containWord(RentalityUtils.toLower(car.brand), RentalityUtils.toLower(searchCarParams.brand))) &&
-      (bytes(searchCarParams.model).length == 0 ||
-        RentalityUtils.containWord(RentalityUtils.toLower(car.model), RentalityUtils.toLower(searchCarParams.model))) &&
-      (bytes(searchCarParams.country).length == 0 ||
-        RentalityUtils.containWord(
-          RentalityUtils.toLower(geoService.getCarCountry(carId)),
-          RentalityUtils.toLower(searchCarParams.country)
-        )) &&
-      (bytes(searchCarParams.state).length == 0 ||
-        RentalityUtils.containWord(
-          RentalityUtils.toLower(geoService.getCarState(carId)),
-          RentalityUtils.toLower(searchCarParams.state)
-        )) &&
-      (bytes(searchCarParams.city).length == 0 ||
-        RentalityUtils.containWord(
-          RentalityUtils.toLower(geoService.getCarCity(carId)),
-          RentalityUtils.toLower(searchCarParams.city)
-        )) &&
-      (searchCarParams.yearOfProductionFrom == 0 || car.yearOfProduction >= searchCarParams.yearOfProductionFrom) &&
-      (searchCarParams.yearOfProductionTo == 0 || car.yearOfProduction <= searchCarParams.yearOfProductionTo) &&
-      (searchCarParams.pricePerDayInUsdCentsFrom == 0 ||
-        car.pricePerDayInUsdCents >= searchCarParams.pricePerDayInUsdCentsFrom) &&
-      (searchCarParams.pricePerDayInUsdCentsTo == 0 ||
-        car.pricePerDayInUsdCents <= searchCarParams.pricePerDayInUsdCentsTo);
-  }
-
   /// @dev Searches for available cars for a user within a specified time range and search parameters.
   /// @param user The address of the user for whom to search available cars.
   /// @param startDateTime The start date and time of the search period.
@@ -459,7 +417,8 @@ library RentalityQuery {
     Schemas.SearchCarParams memory searchParams,
     address carServiceAddress,
     address userServiceAddress,
-    address tripServiceAddress
+    address tripServiceAddress,
+    address paymentService
   ) public view returns (Schemas.SearchCar[] memory result) {
     // if (startDateTime < block.timestamp){
     //     return new RentalityCarToken.CarInfo[](0);
@@ -513,12 +472,29 @@ library RentalityQuery {
     result = new Schemas.SearchCar[](resultCount);
 
     for (uint i = 0; i < resultCount; i++) {
+      uint64 totalTripDays = uint64(Math.ceilDiv(endDateTime - startDateTime, 1 days));
+      totalTripDays = totalTripDays == 0 ? 1 : totalTripDays;
+
+      uint64 priceWithDiscount = RentalityPaymentService(paymentService).calculateSumWithDiscount(
+        carService.ownerOf(temp[i].carId),
+        totalTripDays,
+        temp[i].pricePerDayInUsdCents
+      );
+
+      uint taxId = RentalityPaymentService(paymentService).defineTaxesType(carServiceAddress, temp[i].carId);
+
+      uint64 taxes = RentalityPaymentService(paymentService).calculateTaxes(taxId, totalTripDays, priceWithDiscount);
+
       result[i] = Schemas.SearchCar(
         temp[i].carId,
         temp[i].brand,
         temp[i].model,
         temp[i].yearOfProduction,
         temp[i].pricePerDayInUsdCents,
+        priceWithDiscount / totalTripDays,
+        totalTripDays,
+        priceWithDiscount,
+        taxes,
         temp[i].securityDepositPerTripInUsdCents,
         temp[i].engineType,
         temp[i].milesIncludedPerDay,

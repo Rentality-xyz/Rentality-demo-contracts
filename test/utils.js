@@ -198,7 +198,7 @@ async function deployDefaultFixture() {
   const RentalityPaymentService = await ethers.getContractFactory('RentalityPaymentService')
   const RentalityCarToken = await ethers.getContractFactory('RentalityCarToken', {
     libraries: {
-      RentalityQuery: await query.getAddress(),
+      RentalityUtils: await utils.getAddress(),
     },
   })
 

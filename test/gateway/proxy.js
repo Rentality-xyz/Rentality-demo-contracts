@@ -51,26 +51,26 @@ describe('RentalityGateway: proxy', function () {
   it('should not be able to update carToken without access', async function () {
     const RentalityCarToken = await ethers.getContractFactory('RentalityCarToken', {
       libraries: {
-        RentalityQuery: await query.getAddress(),
+        RentalityUtils: await utils.getAddress(),
       },
       signer: anonymous,
     })
 
     const RentalityCarTokenHost = await ethers.getContractFactory('RentalityCarToken', {
       libraries: {
-        RentalityQuery: await query.getAddress(),
+        RentalityUtils: await utils.getAddress(),
       },
       signer: host,
     })
     const RentalityCarTokenGuest = await ethers.getContractFactory('RentalityCarToken', {
       libraries: {
-        RentalityQuery: await query.getAddress(),
+        RentalityUtils: await utils.getAddress(),
       },
       signer: guest,
     })
     const RentalityCarTokenOwner = await ethers.getContractFactory('RentalityCarToken', {
       libraries: {
-        RentalityQuery: await query.getAddress(),
+        RentalityUtils: await utils.getAddress(),
       },
       signer: owner,
     })
