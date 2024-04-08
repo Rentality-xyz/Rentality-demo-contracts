@@ -1,9 +1,8 @@
-const { readFileSync } = require('fs')
+const { readFileSync, writeFileSync } = require('fs')
 const { network, ethers } = require('hardhat')
 const readlineSync = require('readline-sync')
 const { spawnSync } = require('child_process')
-
-const pathToAddressFile = 'scripts/addressesContractsTestnets.json'
+const { buildPath } = require('./pathBuilder')
 
 function getContractAddress(contractName, addressToDeployScript, chainId) {
   let address = readFromFile(contractName, chainId)
@@ -47,7 +46,19 @@ function getContractAddress(contractName, addressToDeployScript, chainId) {
 
 function readFromFile(contractName, chain) {
   let chainId = Number.parseInt(chain.toString())
-  const data = readFileSync(pathToAddressFile, 'utf-8')
+  const path = buildPath()
+  let data
+  try {
+    data = readFileSync(path, 'utf-8')
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      // File does not exist, create it
+      writeFileSync(path, '[]', 'utf-8')
+      data = '[]'
+    } else {
+      throw error
+    }
+  }
   const jsonData = JSON.parse(data)
 
   const contract = jsonData.find(
