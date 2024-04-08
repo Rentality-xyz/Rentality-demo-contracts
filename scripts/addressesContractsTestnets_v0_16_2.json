@@ -22,6 +22,28 @@
     "CivicGatewayTokenContract": ""
   },
   {
+    "name": "optimism_sepolia",
+    "chainId": 11155420,
+    "RentalityQuery": "0x60d8B0E3d3a3dD72315F16cef59A395595D7f54e",
+    "RentalityUserService": "0xf5E3cA01baDE21C8878d001278366bbfFb03361B",
+    "RentalityClaimService": "0xe9cC666023A0f06040879B002AEECd901587e757",
+    "EthToUsdPriceFeedAddress": "0x828eda6b1B7266AD4d04Eb18468B965fc70940bd",
+    "RentalityCurrencyConverter": "0xc0578d9a8ad1d0ed0D0B54B0237fdAa7F59c0e8E",
+    "RentalityPaymentService": "0x9C5136588d5ADCe854C7B764ae8599ecd0Ed74c5",
+    "RentalityGeoParser": "0x83112AdF473E4f4403ab6296237Cc934feb37c78",
+    "RentalityGeoService": "0x83C24AeBe688ddB2ea0Eecc3ebd84368af08bB81",
+    "RentalityPatrolEngine": "0xe285a60aC0E68a0446e7Ec0a45567ae67E4ba0E0",
+    "RentalityElectricEngine": "0xB0F746bcfe1e3b9eC41b558e9B6557750D1deBD6",
+    "RentalityEnginesService": "0x03c7025B0Ce00292c835FE70EBA278153A3f40BB",
+    "RentalityCarToken": "0xf5Ac3F3d30B27F039677132F1F0bB9A38Dc103e1",
+    "RentalityUtils": "0x2f975Cc0c874db9F27EC38FB1E0405c0B810A00f",
+    "RentalityTripService": "0xfB2777f3d9beDC0d17735571f0Be33AfFf81a4B9",
+    "RentalityPlatform": "0x878D0d405C711339f15dfCc0258b909040ba74ee",
+    "RentalityAdminGateway": "0x9d3e6EC5bd93415e9B60a05A0b1AceFD63BC95cb",
+    "RentalityGateway": "0x00e2344484A7eD63E2A0b47161DdF4a5B3F769Cd",
+    "RentalityChatHelper": "0x8FEd5C4d5C987a476240D9C97f43Cb2e6639ed90"
+  },
+  {
     "name": "sepolia",
     "chainId": 11155111,
     "RentalityQuery": "0x095191A0c2c91E6C7aBAcd5282469aa67851B23C",
@@ -43,27 +65,5 @@
     "RentalityGateway": "0x5a06CbDfd87DD77EeDd237Cdccc453667A61c669",
     "CivicGatewayTokenContract": "0xF65b6396dF6B7e2D8a6270E3AB6c7BB08BAEF22E",
     "RentalityGeoParser": "0xEF34CDE5152Ec053355eb2f9f4396Dd0d9ffc16B"
-  },
-  {
-    "name": "optimism_sepolia",
-    "chainId": 11155420,
-    "RentalityQuery": "0x60d8B0E3d3a3dD72315F16cef59A395595D7f54e",
-    "RentalityUserService": "0xf5E3cA01baDE21C8878d001278366bbfFb03361B",
-    "RentalityClaimService": "0xe9cC666023A0f06040879B002AEECd901587e757",
-    "EthToUsdPriceFeedAddress": "0x828eda6b1B7266AD4d04Eb18468B965fc70940bd",
-    "RentalityCurrencyConverter": "0xc0578d9a8ad1d0ed0D0B54B0237fdAa7F59c0e8E",
-    "RentalityPaymentService": "0x9C5136588d5ADCe854C7B764ae8599ecd0Ed74c5",
-    "RentalityGeoParser": "0x83112AdF473E4f4403ab6296237Cc934feb37c78",
-    "RentalityGeoService": "0x83C24AeBe688ddB2ea0Eecc3ebd84368af08bB81",
-    "RentalityPatrolEngine": "0xe285a60aC0E68a0446e7Ec0a45567ae67E4ba0E0",
-    "RentalityElectricEngine": "0xB0F746bcfe1e3b9eC41b558e9B6557750D1deBD6",
-    "RentalityEnginesService": "0x03c7025B0Ce00292c835FE70EBA278153A3f40BB",
-    "RentalityCarToken": "0xf5Ac3F3d30B27F039677132F1F0bB9A38Dc103e1",
-    "RentalityUtils": "0x2f975Cc0c874db9F27EC38FB1E0405c0B810A00f",
-    "RentalityTripService": "0xfB2777f3d9beDC0d17735571f0Be33AfFf81a4B9",
-    "RentalityPlatform": "0x878D0d405C711339f15dfCc0258b909040ba74ee",
-    "RentalityAdminGateway": "0x9d3e6EC5bd93415e9B60a05A0b1AceFD63BC95cb",
-    "RentalityGateway": "0x00e2344484A7eD63E2A0b47161DdF4a5B3F769Cd",
-    "RentalityChatHelper": "0x8FEd5C4d5C987a476240D9C97f43Cb2e6639ed90"
   }
 ]
