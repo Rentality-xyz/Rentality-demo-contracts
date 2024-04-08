@@ -136,7 +136,7 @@ describe('RentalityCarToken: search functions', function () {
   it('Search with country should work', async function () {
     const { rentalityCarToken, rentalityTripService, guest } = await loadFixture(deployFixtureWith1Car)
 
-    const carRequest = getMockCarRequestWithAddress(2, 'Michigan Ave, Chicago, IL, USA')
+    const carRequest = getMockCarRequestWithAddress(2, 'Michigan Ave, Chicago, Florida, USA')
     await rentalityCarToken.addCar(carRequest)
 
     const searchCarParams1 = {
@@ -174,7 +174,7 @@ describe('RentalityCarToken: search functions', function () {
   it('Search with state should work', async function () {
     const { rentalityCarToken, rentalityTripService, guest, geoParserMock } = await loadFixture(deployFixtureWith1Car)
 
-    const carRequest = getMockCarRequestWithAddress(2, 'Michigan Ave, Chicago, IL, USA')
+    const carRequest = getMockCarRequestWithAddress(2, 'Michigan Ave, Chicago, Florida, USA')
     await rentalityCarToken.addCar(carRequest)
 
     const searchCarParams1 = {
@@ -212,7 +212,7 @@ describe('RentalityCarToken: search functions', function () {
   it('Search with city should work', async function () {
     const { rentalityCarToken, rentalityTripService, guest, geoParserMock } = await loadFixture(deployFixtureWith1Car)
 
-    const carRequest = getMockCarRequestWithAddress(2, 'Michigan Ave, Chicago, IL, USA')
+    const carRequest = getMockCarRequestWithAddress(2, 'Michigan Ave, Chicago, Florida, USA')
     await rentalityCarToken.addCar(carRequest)
 
     const searchCarParams1 = {
