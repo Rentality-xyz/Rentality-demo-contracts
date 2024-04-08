@@ -13,7 +13,7 @@ async function main() {
     getContractAddress('RentalityUserService', 'scripts/deploy_1b_RentalityUserService.js', chainId),
     'RentalityUserService'
   )
-  const usdtToken = checkNotNull(
+  let usdtToken = checkNotNull(
     getContractAddress('RentalityTestUSDT', 'scripts/deploy_0a_RentalityTestUSDT.js', chainId),
     'RentalityTestUSDT'
   )

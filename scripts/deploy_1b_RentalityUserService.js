@@ -2,8 +2,9 @@ const saveJsonAbi = require('./utils/abiSaver')
 const { ethers, upgrades } = require('hardhat')
 const addressSaver = require('./utils/addressSaver')
 const { startDeploy, checkNotNull } = require('./utils/deployHelper')
-const addresses = require('./addressesContractsTestnets.json')
+
 const readlineSync = require('readline-sync')
+const { readFromFile } = require('./utils/contractAddress')
 
 async function main() {
   const { contractName, chainId } = await startDeploy('RentalityUserService')
@@ -16,13 +17,7 @@ async function main() {
 
   if (!readlineSync.keyInYNStrict('Do you want to deploy Mock Civic contract?')) {
     // same for all networks
-    civicGatewayToken = checkNotNull(
-      addresses.find((value) => {
-        const address = value['CivicGatewayTokenContract']
-        return address !== undefined && address !== ''
-      })['CivicGatewayTokenContract'],
-      'CivicGatewayTokenContract'
-    )
+    civicGatewayToken = checkNotNull(readFromFile('CivicGatewayTokenContract', chainId), 'CivicGatewayTokenContract')
   } else {
     const mockContractName = 'CivicMockVerifier'
 
@@ -34,7 +29,6 @@ async function main() {
     civicGatewayToken = await mockCivic.getAddress()
     console.log(`${mockContractName} was deployed to: ${civicGatewayToken}`)
     addressSaver(civicGatewayToken, mockContractName, true, chainId)
-    console.log()
   }
 
   const civicGatekeeperNetworkId = process.env.CIVIC_GATEKEEPER_NETWORK || 10
