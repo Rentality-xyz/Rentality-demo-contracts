@@ -1,10 +1,11 @@
-const path = 'scripts/addressesContractsTestnets.json'
 const { readFileSync } = require('fs')
 const fs = require('fs')
 const { network } = require('hardhat')
+const { buildPath } = require('./pathBuilder')
 
 module.exports = function addressSaver(contractAddress, contractName, rewriteIfExist, chain) {
   let chainId = Number.parseInt(chain.toString())
+  const path = buildPath()
   const data = readFileSync(path, 'utf-8')
   const jsonData = JSON.parse(data)
 
