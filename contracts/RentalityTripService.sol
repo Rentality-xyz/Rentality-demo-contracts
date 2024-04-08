@@ -192,7 +192,8 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
         searchParams,
         address(carService),
         address(userService),
-        address(this)
+        address(this),
+        address(paymentService)
       );
   }
 
