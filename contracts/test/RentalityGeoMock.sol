@@ -6,6 +6,7 @@ import 'hardhat/console.sol';
 import '../features/IRentalityGeoParser.sol';
 import '../abstract/IRentalityGeoService.sol';
 // For testing purposes
+
 contract RentalityGeoMock is IRentalityGeoParser {
   mapping(string => string) public countryToTimeZoneId;
   mapping(string => string) public cityToTimeZoneId;
@@ -296,6 +297,8 @@ contract RentalityGeoMock is IRentalityGeoParser {
     }
     carIdToParsedGeolocationData[carId] = carData;
     if (hasGeoServiceLink) geoService.parseGeoResponse(carId);
+
+    IRentalityGeoService(msg.sender).parseGeoResponse(carId);
 
     return bytes32(carId);
   }
