@@ -313,6 +313,11 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
   function getCarsOfHost(address host) public view returns (Schemas.PublicHostCarDTO[] memory) {
     return carService.getCarsOfHost(host);
   }
+  /// @notice Parses the geolocation response and stores parsed data.
+  /// @param carId The ID of the car for which geolocation is parsed.
+  function parseGeoResponse(uint carId) public {
+    IRentalityGeoService(carService.getGeoServiceAddress()).parseGeoResponse(carId);
+  }
 
   // Unused
   /// @notice Searches for available cars for a specific user based on specified criteria.
