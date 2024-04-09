@@ -81,31 +81,44 @@ function main() {
       structContent.split(';').forEach((field) => {
         field = field.trim()
         if (field) {
+          if (field.startsWith('//')) {
+            field = field.split('\n')[1].trim()
+          }
           let [fieldType, fieldName] = field.split(/\s+/)
           if (allStructNames.includes(fieldType)) {
             fieldType = `Contract${fieldType}`
           }
-
+          if (fieldName === 'engineType') {
+            fieldType = 'EngineType'
+          }
           const tsFieldType = mapSolidityTypeToTs(fieldType).toString()
-          tsCode += `     ${fieldName}: ${tsFieldType};\n`
+          tsCode += `  ${fieldName}: ${tsFieldType};\n`
         }
       })
-      tsCode += '}\n\n'
+      tsCode += '};\n\n'
     }
 
     while ((match = enumPattern.exec(data)) !== null) {
       const enumName = match[1]
       const enumContent = match[2]
+      let i = 0
 
-      tsCode += `export enum ${enumName} {\n`
+      tsCode += `export type ${enumName} = bigint;\n`
+      tsCode += `export const ${enumName} = {\n`
       enumContent.split(',').forEach((value) => {
         value = value.trim()
         if (value && !value.includes('//')) {
-          tsCode += `     ${value},\n`
+          tsCode += `  ${value}: BigInt(${i}),\n`
+          i++
         }
       })
-      tsCode += '}\n\n'
+      tsCode += '};\n\n'
     }
+    tsCode += `export type EngineType = bigint;\n`
+    tsCode += `export const EngineType = {\n`
+    tsCode += `  PATROL: BigInt(1),\n`
+    tsCode += `  ELECTRIC: BigInt(2),\n`
+    tsCode += `};\n`
 
     fs.writeFile(OUTPUT_TYPESCRIPT_FILE, tsCode, (err) => {
       if (err) {
