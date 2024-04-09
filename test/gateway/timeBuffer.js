@@ -82,7 +82,7 @@ describe('RentalityGateway: time buffer', function () {
     )
 
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityGateway.connect(guest).createTripRequest(
         {
           carId: 1,
           host: host.address,
@@ -146,7 +146,7 @@ describe('RentalityGateway: time buffer', function () {
     )
 
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityGateway.connect(guest).createTripRequest(
         {
           carId: 1,
           host: host.address,
@@ -211,7 +211,7 @@ describe('RentalityGateway: time buffer', function () {
     )
 
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityGateway.connect(guest).createTripRequest(
         {
           carId: 1,
           host: host.address,
@@ -288,7 +288,7 @@ describe('RentalityGateway: time buffer', function () {
     )
 
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityGateway.connect(guest).createTripRequest(
         {
           carId: 1,
           host: host.address,

@@ -68,7 +68,7 @@ describe('RentalityGateway: trips', function () {
     )
 
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityGateway.connect(guest).createTripRequest(
         {
           carId: 1,
           host: host.address,
@@ -109,7 +109,7 @@ describe('RentalityGateway: trips', function () {
     )
 
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityGateway.connect(guest).createTripRequest(
         {
           carId: 1,
           host: host.address,
@@ -214,7 +214,7 @@ describe('RentalityGateway: trips', function () {
     )
 
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityGateway.connect(guest).createTripRequest(
         {
           carId: 1,
           host: host.address,
@@ -300,7 +300,7 @@ describe('RentalityGateway: trips', function () {
     )
 
     await expect(
-      rentalityPlatform.connect(host).createTripRequest(
+      rentalityGateway.connect(host).createTripRequest(
         {
           carId: 1,
           host: host.address,
@@ -341,7 +341,7 @@ describe('RentalityGateway: trips', function () {
     )
 
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityGateway.connect(guest).createTripRequest(
         {
           carId: 1,
           host: host.address,
@@ -386,7 +386,7 @@ describe('RentalityGateway: trips', function () {
     )
 
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityGateway.connect(guest).createTripRequest(
         {
           carId: 1,
           host: host.address,
@@ -431,7 +431,7 @@ describe('RentalityGateway: trips', function () {
     )
 
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityGateway.connect(guest).createTripRequest(
         {
           carId: 1,
           host: host.address,
@@ -481,7 +481,7 @@ describe('RentalityGateway: trips', function () {
     )
 
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityGateway.connect(guest).createTripRequest(
         {
           carId: 1,
           host: host.address,
@@ -539,7 +539,7 @@ describe('RentalityGateway: trips', function () {
     )
 
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityGateway.connect(guest).createTripRequest(
         {
           carId: 1,
           host: host.address,
@@ -560,7 +560,7 @@ describe('RentalityGateway: trips', function () {
 
     await expect(rentalityGateway.connect(host).checkOutByHost(1, [0, 0])).to.be.reverted
 
-    await expect(rentalityPlatform.connect(host).finishTrip(1)).to.be.reverted
+    await expect(rentalityGateway.connect(host).finishTrip(1)).to.be.reverted
 
     let trip = (await rentalityGateway.getTrip(1)).trip
 
@@ -586,7 +586,7 @@ describe('RentalityGateway: trips', function () {
     )
 
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityGateway.connect(guest).createTripRequest(
         {
           carId: 1,
           host: host.address,
@@ -645,7 +645,7 @@ describe('RentalityGateway: trips', function () {
     )
 
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityGateway.connect(guest).createTripRequest(
         {
           carId: 1,
           host: host.address,
@@ -707,7 +707,7 @@ describe('RentalityGateway: trips', function () {
     )
 
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityGateway.connect(guest).createTripRequest(
         {
           carId: 1,
           host: host.address,
@@ -768,7 +768,7 @@ describe('RentalityGateway: trips', function () {
     )
 
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityGateway.connect(guest).createTripRequest(
         {
           carId: 1,
           host: host.address,
@@ -834,7 +834,7 @@ describe('RentalityGateway: trips', function () {
     )
 
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityGateway.connect(guest).createTripRequest(
         {
           carId: 1,
           host: host.address,
@@ -885,7 +885,7 @@ describe('RentalityGateway: trips', function () {
     )
 
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityGateway.connect(guest).createTripRequest(
         {
           carId: 1,
           host: host.address,
@@ -966,7 +966,7 @@ describe('RentalityGateway: trips', function () {
     const oneDayInSeconds = 86400
 
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityGateway.connect(guest).createTripRequest(
         {
           carId: 1,
           host: host.address,
