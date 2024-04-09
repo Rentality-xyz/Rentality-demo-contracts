@@ -19,6 +19,7 @@ contract RentalityPaymentService is UUPSOwnable {
 
   address private currentDiscount;
   uint private taxesId;
+  uint private defaultTax;
 
   modifier onlyAdmin() {
     require(userService.isAdmin(tx.origin), 'Only admin.');
@@ -91,7 +92,7 @@ contract RentalityPaymentService is UUPSOwnable {
       }
     }
 
-    return 0;
+    return defaultTax;
   }
 
   /// @notice Adds a user discount.
@@ -128,6 +129,10 @@ contract RentalityPaymentService is UUPSOwnable {
     currentDiscount = discountContract;
   }
 
+  function setDefaultTax(uint _taxId) public onlyAdmin {
+    defaultTax = _taxId;
+  }
+
   /// @notice Constructor to initialize the RentalityPaymentService.
   /// @param _userService The address of the RentalityUserService contract
   function initialize(address _userService, address _floridaTaxes, address _baseDiscount) public initializer {
@@ -138,6 +143,7 @@ contract RentalityPaymentService is UUPSOwnable {
     discountAddressToDiscountContract[_baseDiscount] = IRentalityDiscount(_baseDiscount);
 
     taxesId = 1;
+    defaultTax = 1;
     taxesIdToTaxesContract[taxesId] = IRentalityTaxes(_floridaTaxes);
 
     __Ownable_init();
