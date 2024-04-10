@@ -12,24 +12,7 @@ async function main() {
 
   let contract
 
-  if (!readlineSync.keyInYNStrict('Do you want to deploy Mock contract?')) {
-    const linkToken = '0x779877A7B0D9E8603169DdbD7836e478b4624789'
-    const oracle = '0x6090149792dAAeE9D1D568c9f9a6F6B46AA29eFD'
-
-    const rentalityUtilsAddress = checkNotNull(
-      getContractAddress('RentalityUtils', 'scripts/deploy_1a_RentalityUtils.js', chainId),
-      'RentalityUtils'
-    )
-
-    console.log(`Deploying RentalityGeoParser for sepolia ...`)
-
-    const contractFactory = await ethers.getContractFactory(contractName, {
-      libraries: {
-        RentalityUtils: rentalityUtilsAddress,
-      },
-    })
-    contract = await contractFactory.deploy(linkToken, oracle)
-  } else {
+  const deployMock = async () => {
     const mockContractName = 'RentalityGeoMock'
 
     console.log(`Deploying geo mock contact...`)
@@ -38,6 +21,37 @@ async function main() {
     contract = await contractFactory.deploy()
   }
 
+  const silent = process.env.SILENT
+
+  switch (silent === undefined || silent === 'false') {
+    case true: {
+      if (!readlineSync.keyInYNStrict('Do you want to deploy Mock contract?')) {
+        const linkToken = '0x779877A7B0D9E8603169DdbD7836e478b4624789'
+        const oracle = '0x6090149792dAAeE9D1D568c9f9a6F6B46AA29eFD'
+
+        const rentalityUtilsAddress = checkNotNull(
+          getContractAddress('RentalityUtils', 'scripts/deploy_1a_RentalityUtils.js', chainId),
+          'RentalityUtils'
+        )
+
+        console.log(`Deploying RentalityGeoParser for sepolia ...`)
+
+        const contractFactory = await ethers.getContractFactory(contractName, {
+          libraries: {
+            RentalityUtils: rentalityUtilsAddress,
+          },
+        })
+        contract = await contractFactory.deploy(linkToken, oracle)
+      } else {
+        await deployMock()
+      }
+      break
+    }
+    case false: {
+      await deployMock()
+      break
+    }
+  }
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()
 
