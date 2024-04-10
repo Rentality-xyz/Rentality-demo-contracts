@@ -296,7 +296,6 @@ contract RentalityGeoMock is IRentalityGeoParser {
       }
     }
     carIdToParsedGeolocationData[carId] = carData;
-    if (hasGeoServiceLink) geoService.parseGeoResponse(carId);
 
     IRentalityGeoService(msg.sender).parseGeoResponse(carId);
 
