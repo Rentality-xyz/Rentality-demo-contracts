@@ -2,6 +2,7 @@ const { expect } = require('chai')
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 
 const { getMockCarRequest, deployDefaultFixture, getEmptySearchCarParams } = require('../utils')
+const { ethers } = require('hardhat')
 
 describe('RentalityGateway: car', function () {
   let rentalityGateway,
@@ -265,5 +266,49 @@ describe('RentalityGateway: car', function () {
 
     const guestCars = await rentalityCarToken.getCarsOfHost(guest.address)
     expect(guestCars.length).to.be.eq(2)
+  })
+  it('Impossible to transfer nft', async function () {
+    let name = 'name'
+    let surname = 'surname'
+    let number = '+380'
+    let photo = 'photo'
+    let licenseNumber = 'licenseNumber'
+    let expirationDate = 10
+
+    await expect(
+      await rentalityGateway.connect(host).setKYCInfo(name, surname, number, photo, licenseNumber, expirationDate, true)
+    ).to.not.reverted
+
+    const addCar = (num) => {
+      return {
+        tokenUri: 'uri',
+        carVinNumber: 'VIN_NUMBER' + num,
+        brand: 'BRAND',
+        model: 'MODEL',
+        yearOfProduction: 2020,
+        pricePerDayInUsdCents: 1,
+        securityDepositPerTripInUsdCents: 1,
+        engineParams: [1, 2],
+        engineType: 1,
+        milesIncludedPerDay: 10,
+        timeBufferBetweenTripsInSec: 0,
+        locationAddress: 'Michigan Ave, Chicago, IL, USA',
+        locationLatitude: '123421',
+        locationLongitude: '123421',
+        geoApiKey: 'key',
+      }
+    }
+    await expect(await rentalityCarToken.connect(host).addCar(addCar(0))).not.be.reverted
+
+    const tokenContract = await ethers.getContractAt(
+      'ERC721URIStorageUpgradeable',
+      await rentalityCarToken.getAddress()
+    )
+    await expect(tokenContract.connect(host).transferFrom(host.address, guest.address, 1)).to.be.revertedWith(
+      'Not implemented.'
+    )
+    await expect(tokenContract.connect(host).safeTransferFrom(host.address, guest.address, 1)).to.be.revertedWith(
+      'Not implemented.'
+    )
   })
 })
