@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import {ERC721URIStorageUpgradeable} from '@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol';
+import {ERC721URIStorageUpgradeable, ERC721Upgradeable, IERC721Upgradeable} from '@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol';
 import {UUPSUpgradeable} from '@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol';
 import '@openzeppelin/contracts/utils/Counters.sol';
 import './libs/RentalityQuery.sol';
@@ -244,6 +244,23 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     delete idToCarInfo[carId];
 
     emit CarRemovedSuccess(carId, idToCarInfo[carId].carVinNumber, tx.origin);
+  }
+  /// @notice temporary disable transfer function
+  function transferFrom(address, address, uint256) public override(ERC721Upgradeable, IERC721Upgradeable) {
+    require(false, 'Not implemented.');
+  }
+  /// @notice temporary disable transfer function
+  function safeTransferFrom(address, address, uint256) public virtual override(ERC721Upgradeable, IERC721Upgradeable) {
+    require(false, 'Not implemented.');
+  }
+  /// @notice temporary disable transfer function
+  function safeTransferFrom(
+    address,
+    address,
+    uint256,
+    bytes memory
+  ) public virtual override(ERC721Upgradeable, IERC721Upgradeable) {
+    require(false, 'Not implemented.');
   }
 
   /// @notice Retrieves information about all cars in the system.

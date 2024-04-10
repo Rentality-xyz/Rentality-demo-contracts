@@ -417,6 +417,7 @@ async function deployDefaultFixture() {
     geoParserMock,
     rentalityFloridaTaxes,
     rentalityBaseDiscount,
+    rentalityGeoService,
   }
 }
 
