@@ -108,7 +108,7 @@ describe('RentalityGateway: car', function () {
 
     expect(cars_not_created.length).to.be.equal(0)
   })
-  it.only('should have all variables after search', async function () {
+  it('should have all variables after search', async function () {
     let name = 'name'
     let surname = 'surname'
     let number = '+380'
