@@ -483,7 +483,9 @@ library RentalityQuery {
 
       uint taxId = RentalityPaymentService(paymentService).defineTaxesType(carServiceAddress, temp[i].carId);
 
-      uint64 taxes = RentalityPaymentService(paymentService).calculateTaxes(taxId, totalTripDays, priceWithDiscount);
+      uint64 taxes = taxId == 0
+        ? 0
+        : RentalityPaymentService(paymentService).calculateTaxes(taxId, totalTripDays, priceWithDiscount);
 
       result[i] = Schemas.SearchCar(
         temp[i].carId,

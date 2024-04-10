@@ -2,7 +2,7 @@
   {
     "name": "sepolia",
     "chainId": 11155111,
-    "RentalityQuery": "0x101bea2C7B15a18E0175ebe5EDac590C9C9d1463",
+    "RentalityQuery": "0x7F76B1247BFF814593985F9A97143b48B8dA6F2c",
     "RentalityUtils": "0x72295B0bCfaFB416C1B49aEfAeA64A8DcFC41e52",
     "CivicGatewayTokenContract": "0xF65b6396dF6B7e2D8a6270E3AB6c7BB08BAEF22E",
     "RentalityUserService": "0x9699cBEC48bf648811CD8A469D8a714dC386BC3f",
@@ -17,7 +17,7 @@
     "RentalityFloridaTaxes": "0xe2D8d62B233aaF5fD6eC3EB7dd2462Df51Ebf82C",
     "RentalityBaseDiscount": "0x81Cb5E5858C63057C333aeFcb994326B9F399b9b",
     "RentalityPaymentService": "0xfa4d535Db0Ea169203422C1771487572bF8B2931",
-    "RentalityGeoParser": "0xbeBdbd1C63d128771fe38Da9c1e38091C8a00308",
+    "RentalityGeoParser": "0xCC6bb4bB8Dc1cE19e42FD4551651E1C4eF079dAc",
     "RentalityGeoService": "0x1CaFf29961a49e46F507225077C442086AA61dA7",
     "RentalityPatrolEngine": "0x86E0B42b656154700D3bD903aB6C0740802e654F",
     "RentalityElectricEngine": "0xf846540f92212ad75696b161610d491e5c7DCe07",

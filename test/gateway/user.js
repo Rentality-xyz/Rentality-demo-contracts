@@ -130,7 +130,7 @@ describe('RentalityGateway: user info', function () {
     )
 
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityGateway.connect(guest).createTripRequest(
         {
           carId: 1,
           host: host.address,
@@ -183,7 +183,7 @@ describe('RentalityGateway: user info', function () {
     )
 
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityGateway.connect(guest).createTripRequest(
         {
           carId: 1,
           host: host.address,
@@ -234,7 +234,7 @@ describe('RentalityGateway: user info', function () {
     )
 
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityGateway.connect(guest).createTripRequest(
         {
           carId: 1,
           host: host.address,
