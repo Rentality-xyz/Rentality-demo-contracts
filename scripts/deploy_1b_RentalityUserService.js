@@ -14,11 +14,9 @@ async function main() {
   const contractFactory = await ethers.getContractFactory(contractName)
 
   let civicGatewayToken
+  const silent = process.env.SILENT
 
-  if (!readlineSync.keyInYNStrict('Do you want to deploy Mock Civic contract?')) {
-    // same for all networks
-    civicGatewayToken = checkNotNull(readFromFile('CivicGatewayTokenContract', chainId), 'CivicGatewayTokenContract')
-  } else {
+  const deployMock = async (chainId) => {
     const mockContractName = 'CivicMockVerifier'
 
     console.log(`Deploying civic mock contact...`)
@@ -31,6 +29,24 @@ async function main() {
     addressSaver(civicGatewayToken, mockContractName, true, chainId)
   }
 
+  switch (silent === undefined || silent === 'false') {
+    case true: {
+      if (!readlineSync.keyInYNStrict('Do you want to deploy Mock Civic contract?')) {
+        // same for all networks
+        civicGatewayToken = checkNotNull(
+          readFromFile('CivicGatewayTokenContract', chainId),
+          'CivicGatewayTokenContract'
+        )
+      } else {
+        await deployMock(chainId)
+      }
+      break
+    }
+    case false: {
+      await deployMock(chainId)
+      break
+    }
+  }
   const civicGatekeeperNetworkId = process.env.CIVIC_GATEKEEPER_NETWORK || 10
 
   const contract = await upgrades.deployProxy(contractFactory, [civicGatewayToken, civicGatekeeperNetworkId])
