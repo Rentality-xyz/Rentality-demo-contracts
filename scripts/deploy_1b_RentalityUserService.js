@@ -14,8 +14,12 @@ async function main() {
   const contractFactory = await ethers.getContractFactory(contractName)
 
   let civicGatewayToken
+  const silent = process.env.SILENT
 
-  if (!readlineSync.keyInYNStrict('Do you want to deploy Mock Civic contract?')) {
+  if (
+    (silent === undefined || silent === 'false') &&
+    !readlineSync.keyInYNStrict('Do you want to deploy Mock Civic contract?')
+  ) {
     // same for all networks
     civicGatewayToken = checkNotNull(readFromFile('CivicGatewayTokenContract', chainId), 'CivicGatewayTokenContract')
   } else {
@@ -30,7 +34,6 @@ async function main() {
     console.log(`${mockContractName} was deployed to: ${civicGatewayToken}`)
     addressSaver(civicGatewayToken, mockContractName, true, chainId)
   }
-
   const civicGatekeeperNetworkId = process.env.CIVIC_GATEKEEPER_NETWORK || 10
 
   const contract = await upgrades.deployProxy(contractFactory, [civicGatewayToken, civicGatekeeperNetworkId])
