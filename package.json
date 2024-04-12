@@ -11,7 +11,9 @@
     "format": "npx prettier --write . && npx prettier --write --plugin=prettier-plugin-solidity contracts/**/*.sol",
     "generate_schemas": "node scripts/utils/generateSchemas.js",
     "generate_interface": "node scripts/utils/generateInterface.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "deploy": "npx hardhat run scripts/deploy_x_Rentality_full.js",
+    "update": "npx hardhat run scripts/update_RentalityProxy.js"
   },
   "dependencies": {
     "@chainlink/contracts": "^0.8.0",
