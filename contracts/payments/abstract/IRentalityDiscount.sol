@@ -9,6 +9,8 @@ interface IRentalityDiscount {
   /// @return The total cost after applying the discount.
   function calculateSumWithDiscount(address user, uint64 daysOfTrip, uint64 price) external view returns (uint64);
 
+  function calculateSumWithDiscountInPMM(address user, uint64 daysOfTrip, uint64 price) external view returns (uint64);
+
   /// @notice Sets the default discount values.
   /// @param newDiscounts The new discount data.
   function setDiscount(bytes memory newDiscounts) external;

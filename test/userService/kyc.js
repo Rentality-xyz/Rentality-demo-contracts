@@ -99,11 +99,12 @@ describe('RentalityUserService: KYC management', function () {
       rentalityUserService,
     } = await loadFixture(deployDefaultFixture)
 
-    await expect(rentalityCarToken.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
+    const carRequest = getMockCarRequest(0)
+    await expect(rentalityCarToken.connect(host).addCar(carRequest)).not.to.be.reverted
     const availableCars = await rentalityCarToken.connect(guest).getAvailableCarsForUser(guest.address)
     expect(availableCars.length).to.equal(1)
-    const rentPrice = 1000
-    const deposit = 400
+    const rentPrice = carRequest.pricePerDayInUsdCents
+    const deposit = carRequest.securityDepositPerTripInUsdCents
 
     const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals } = await calculatePayments(
       rentalityCurrencyConverter,
@@ -126,16 +127,9 @@ describe('RentalityUserService: KYC management', function () {
       await rentalityPlatform.connect(guest).createTripRequest(
         {
           carId: 1,
-          host: host.address,
           startDateTime: 123,
           endDateTime: 321,
-          startLocation: '',
-          endLocation: '',
-          totalDayPriceInUsdCents: rentPrice,
-          depositInUsdCents: deposit,
-          currencyRate: ethToCurrencyRate,
-          currencyDecimals: ethToCurrencyDecimals,
-          currencyType: ethToken,
+          currencyType: ethToken
         },
         { value: rentPriceInEth }
       )
