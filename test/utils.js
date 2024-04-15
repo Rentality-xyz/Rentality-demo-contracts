@@ -17,6 +17,12 @@ const calculatePayments = async (currencyConverter, paymentService, value, tripD
         rate,
         decimals
     )
+    const taxes = await currencyConverter.getFromUsd(
+        token,
+        totalTaxes,
+        rate,
+        decimals
+    )
 
 
     const priceWithoutTaxes = await currencyConverter.getFromUsd(token, priceWithDiscount, rate, decimals)
@@ -28,6 +34,7 @@ const calculatePayments = async (currencyConverter, paymentService, value, tripD
         ethToCurrencyRate: rate,
         ethToCurrencyDecimals: decimals,
         rentalityFee,
+        taxes
     }
 }
 
@@ -46,6 +53,12 @@ const calculatePaymentsFrom = async (currencyConverter, paymentService, value, t
         rate,
         decimals
     )
+    const taxes = await currencyConverter.getFromUsd(
+        token,
+        totalTaxes,
+        rate,
+        decimals
+    )
 
     const priceWithoutTaxes = await currencyConverter.getFromUsd(token, priceWithDiscount, rate, decimals)
 
@@ -57,6 +70,7 @@ const calculatePaymentsFrom = async (currencyConverter, paymentService, value, t
         currencyRate: rate,
         currencyDecimals: decimals,
         rentalityFee,
+        taxes
     }
 }
 

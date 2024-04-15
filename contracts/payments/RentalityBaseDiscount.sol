@@ -46,10 +46,6 @@ contract RentalityBaseDiscount is IRentalityDiscount, Initializable, UUPSAccess 
 
     return (price * daysOfTrip * (1_000_000 - discountPercent)) / 1_000_000;
   }
-  function calculateSumWithDiscountInPMM(address user, uint64 daysOfTrip, uint64 price) public view returns (uint64) {
-    return calculateSumWithDiscount(user, daysOfTrip, price * 1_000_000);
-  }
-
   /// @notice Sets the default discount values.
   /// @dev Only callable by an admin.
   /// @param newDiscounts The new default discount data.

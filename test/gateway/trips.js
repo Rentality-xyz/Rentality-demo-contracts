@@ -626,7 +626,7 @@ describe('RentalityGateway: trips', function () {
         const oneDayInSeconds = 86400
 
 
-        const {rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals, rentalityFee} = await calculatePayments(
+        const {rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals, rentalityFee, taxes} = await calculatePayments(
             rentalityCurrencyConverter,
             rentalityPaymentService,
             request.pricePerDayInUsdCents,
@@ -660,11 +660,11 @@ describe('RentalityGateway: trips', function () {
             ethToCurrencyDecimals
         )
 
-        const returnToHost = rentPriceInEth - depositValue - rentalityFee
+        const returnToHost = rentPriceInEth - depositValue - rentalityFee - taxes
 
         await expect(rentalityPlatform.connect(host).finishTrip(1)).to.changeEtherBalances(
             [host, rentalityPlatform],
-            [returnToHost, -(rentPriceInEth - rentalityFee)]
+            [returnToHost, -(rentPriceInEth - rentalityFee - taxes)]
         )
     })
 

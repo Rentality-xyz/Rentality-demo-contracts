@@ -79,7 +79,13 @@ describe('Rentality History Service', function () {
 
         const oneDayInSeconds = 86400
 
-        const result = await rentalityPlatform.calculatePayments(1, 1, ethToken);
+        const {rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals, rentalityFee, taxes} = await calculatePayments(
+            rentalityCurrencyConverter,
+            rentalityPaymentService,
+            request.pricePerDayInUsdCents,
+            1,
+            request.securityDepositPerTripInUsdCents
+        )
         await expect(
             await rentalityPlatform.connect(guest).createTripRequest(
                 {
@@ -88,10 +94,10 @@ describe('Rentality History Service', function () {
                     endDateTime: Date.now() + oneDayInSeconds,
                     currencyType: ethToken,
                 },
-                {value: result.totalPrice}
+                {value: rentPriceInEth}
             )
         ).to.changeEtherBalances([guest, rentalityPlatform],
-            [-result.totalPrice, result.totalPrice])
+            [-rentPriceInEth, rentPriceInEth])
 
         await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
         await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0])).not.to.be.reverted
@@ -104,22 +110,15 @@ describe('Rentality History Service', function () {
 
         const paymentInfo = tripDetails['paymentInfo'];
 
-        const rentalityFee = await rentalityPaymentService.getPlatformFeeFrom(
-            await rentalityCurrencyConverter.getFromUsd(
-                ethToken,
-                paymentInfo.priceWithDiscount,
-                result.currencyRate,
-                result.currencyDecimals
-            ));
 
         const depositValue = await rentalityCurrencyConverter.getFromUsd(
             ethToken,
             paymentInfo.depositInUsdCents,
-            result.currencyRate,
-            result.currencyDecimals
+            ethToCurrencyRate,
+            ethToCurrencyDecimals
         )
 
-        const returnToHost = result.totalPrice - depositValue - rentalityFee
+        const returnToHost = rentPriceInEth - depositValue - rentalityFee  - taxes
 
         await expect(rentalityGateway.connect(host).finishTrip(1)).to.changeEtherBalances(
             [host, rentalityPlatform],
@@ -134,10 +133,8 @@ describe('Rentality History Service', function () {
         expect(details.transactionInfo.dateTime).to.be.approximately(currentTimeSeconds, 2000)
         expect(details.transactionInfo.tripEarnings).to.be.approximately(
             Math.floor(request.pricePerDayInUsdCents -
-            (request.pricePerDayInUsdCents * 20) / 100 /* platform fee*/ +
-            (request.pricePerDayInUsdCents * 7) / 100 /* 7% tax */ +
-            200) /* tax for one day */
-        , 1)
+            (request.pricePerDayInUsdCents * 20) / 100 /* platform fee*/
+            ), 1)
         expect(details.transactionInfo.rentalityFee).to.be.approximately(Math.floor(request.pricePerDayInUsdCents * 20 / 100),1)
         expect(details.transactionInfo.statusBeforeCancellation).to.be.eq(TripStatus.Finished)
     })

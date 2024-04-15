@@ -103,15 +103,14 @@ contract RentalityPlatform is UUPSOwnable {
         uint64 priceWithDiscount = paymentService.calculateSumWithDiscount(
             carService.ownerOf(request.carId),
             daysOfTrip,
-            carInfo.pricePerDayInUsdCents * 10_000
+            carInfo.pricePerDayInUsdCents
         );
         uint taxId = paymentService.defineTaxesType(address(carService), request.carId);
         require(taxId != 0, 'Taxes contract not found.');
 
         uint64 taxes = paymentService.calculateTaxes(taxId, daysOfTrip, priceWithDiscount);
 
-        uint valueSum = priceWithDiscount + taxes + (carInfo.securityDepositPerTripInUsdCents * 10_000);
-
+        uint valueSum = priceWithDiscount + taxes + carInfo.securityDepositPerTripInUsdCents;
         (int rate, uint8 decimals) = currencyConverterService.getCurrentRate(
             request.currencyType
         );
@@ -123,7 +122,7 @@ contract RentalityPlatform is UUPSOwnable {
         );
         if (currencyConverterService.isETH(request.currencyType)) {
             require(
-                msg.value == valueSumInCurrency / 10_000,
+                msg.value == valueSumInCurrency,
                 'Rental fee must be equal to sum: price with discount + taxes + deposit'
             );
         } else {
@@ -290,12 +289,7 @@ contract RentalityPlatform is UUPSOwnable {
         tripService.finishTrip(tripId);
         Schemas.Trip memory trip = tripService.getTrip(tripId);
 
-        uint rentalityFeeInUSDCents = currencyConverterService.getFromUsd(
-            trip.paymentInfo.currencyType,
-            trip.paymentInfo.priceWithDiscount,
-            trip.paymentInfo.currencyRate,
-            trip.paymentInfo.currencyDecimals
-        );
+        uint rentalityFeeInUSDCents = paymentService.getPlatformFeeFrom(trip.paymentInfo.priceWithDiscount);
 
         uint rentalityFee = paymentService.getPlatformFeeFrom(
         // For accuracy
@@ -307,7 +301,6 @@ contract RentalityPlatform is UUPSOwnable {
             ));
 
         uint256 valueToHostInUsdCents = trip.paymentInfo.priceWithDiscount +
-                            trip.paymentInfo.taxPriceInUsdCents +
                             trip.paymentInfo.resolveAmountInUsdCents;
 
         uint256 valueToGuestInUsdCents = trip.paymentInfo.depositInUsdCents - trip.paymentInfo.resolveAmountInUsdCents;
@@ -341,7 +334,7 @@ contract RentalityPlatform is UUPSOwnable {
             rentalityFeeInUSDCents,
             Schemas.TripStatus.Finished,
             valueToGuestInUsdCents,
-            valueToHostInUsdCents - rentalityFeeInUSDCents
+            valueToHostInUsdCents - rentalityFeeInUSDCents - trip.paymentInfo.resolveAmountInUsdCents
         );
     }
 
