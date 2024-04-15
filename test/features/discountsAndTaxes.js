@@ -284,8 +284,10 @@ describe('Rentality taxes & discounts', function () {
       ethToken,
       Math.floor(sumToPayWithDiscount)
     )
+    const [taxes, ,] = await rentalityCurrencyConverter.getFromUsdLatest(ethToken, Math.floor(totalTaxes))
 
-    const returnToHost = rentPriceInEth - (await rentalityPaymentService.getPlatformFeeFrom(valueInEthWithoutTaxes))
+    const returnToHost =
+      rentPriceInEth - (await rentalityPaymentService.getPlatformFeeFrom(valueInEthWithoutTaxes)) - taxes
 
     await expect(rentalityGateway.connect(host).finishTrip(1)).to.changeEtherBalances(
       [host, rentalityPlatform],
