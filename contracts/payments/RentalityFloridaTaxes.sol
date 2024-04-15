@@ -33,6 +33,9 @@ contract RentalityFloridaTaxes is IRentalityTaxes, Initializable, UUPSAccess {
   function calculateTaxes(uint64 tripDays, uint64 totalCost) public view returns (uint64) {
     return getSalesTaxFrom(totalCost) + getGovernmentTaxPerDayFrom(tripDays);
   }
+  function calculateTaxesInPMM(uint64 tripDays, uint64 totalCost) public view returns (uint64) {
+    return getSalesTaxFrom(totalCost * 1_000_000) + getGovernmentTaxPerDayFrom(tripDays) * 1_000_000;
+  }
 
   /// @notice Retrieves the current sales tax in parts per million (PPM).
   /// @return The current sales tax in PPM.

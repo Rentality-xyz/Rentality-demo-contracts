@@ -1,30 +1,18 @@
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
+const {loadFixture} = require('@nomicfoundation/hardhat-network-helpers')
 const {
-  deployDefaultFixture,
-  getMockCarRequest,
-  createMockClaimRequest,
-  ethToken,
-  calculatePayments,
+    deployDefaultFixture,
+    getMockCarRequest,
+    createMockClaimRequest,
 } = require('../utils')
-const { expect } = require('chai')
-const { calculatePaymentsFrom } = require('../utils')
+const {expect} = require('chai')
+const {calculatePaymentsFrom} = require('../utils')
 
 async function mintTo(contract, address, amount) {
-  await expect(contract.mint(address, amount * 10 ** 6)).to.not.be.reverted
+    await expect(contract.mint(address, amount * 10 ** 6)).to.not.be.reverted
 }
 
 describe('ERC20 payments', function () {
-  let rentalityGateway,
-    rentalityCurrencyConverter,
-    rentalityPlatform,
-    rentalityPaymentService,
-    usdtContract,
-    owner,
-    guest,
-    host,
-    rentalityAdminGateway = beforeEach(async function () {
-      ;({
-        rentalityGateway,
+    let rentalityGateway,
         rentalityCurrencyConverter,
         rentalityPlatform,
         rentalityPaymentService,
@@ -32,253 +20,247 @@ describe('ERC20 payments', function () {
         owner,
         guest,
         host,
-        rentalityAdminGateway,
-      } = await loadFixture(deployDefaultFixture))
+        rentalityTripService
+        rentalityAdminGateway = beforeEach(async function () {
+            ;({
+                rentalityGateway,
+                rentalityCurrencyConverter,
+                rentalityPlatform,
+                rentalityPaymentService,
+                usdtContract,
+                owner,
+                guest,
+                host,
+                rentalityTripService,
+                rentalityAdminGateway,
+            } = await loadFixture(deployDefaultFixture))
+        })
+    it('Should correctly сreate trip and pay deposit with usdt', async function () {
+        let usdt = await usdtContract.getAddress()
+        const request = getMockCarRequest(13)
+        await expect(rentalityGateway.connect(host).addCar(request)).not.to.be.reverted
+
+
+        const dailyPriceInUsdCents = 1000
+
+        const {rentPrice, currencyRate, currencyDecimals, rentalityFee} = await calculatePaymentsFrom(
+            rentalityCurrencyConverter,
+            rentalityPaymentService,
+            request.pricePerDayInUsdCents,
+            1,
+            request.securityDepositPerTripInUsdCents,
+            usdt
+        )
+        await mintTo(usdtContract, guest.address, 1000)
+        const balanceBeforeTrip = await usdtContract.balanceOf(guest)
+
+        await usdtContract.connect(guest).approve(await rentalityPlatform.getAddress(), rentPrice)
+
+        await expect(
+            rentalityGateway.connect(guest).createTripRequest({
+                carId: 1,
+                startDateTime: 1,
+                endDateTime: 2,
+                currencyType: usdt,
+            })
+        ).to.not.reverted
+
+        const balanceAfterTrip = await usdtContract.balanceOf(guest.address)
+        const rentalityPlatformBalance = await usdtContract.balanceOf(await rentalityPlatform.getAddress())
+
+        expect(balanceAfterTrip + rentPrice).to.be.eq(balanceBeforeTrip)
+        expect(rentalityPlatformBalance).to.be.eq(rentPrice)
     })
-  it('Should correctly сreate trip and pay deposit with usdt', async function () {
-    let usdt = await usdtContract.getAddress()
-    await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
-    const rentPriceInUsdCents = 1000
 
-    const oneDayInSeconds = 86400
+    it('should correctly finish trip with usdt, and send tokens to the host', async function () {
+        let usdt = await usdtContract.getAddress()
+        const request = getMockCarRequest(10)
+        await expect(rentalityGateway.connect(host).addCar(request)).not.to.be.reverted
 
-    const dailyPriceInUsdCents = 1000
+        await mintTo(usdtContract, guest.address, 10000000)
 
-    const { rentPrice, currencyRate, currencyDecimals, rentalityFee } = await calculatePaymentsFrom(
-      rentalityCurrencyConverter,
-      rentalityPaymentService,
-      dailyPriceInUsdCents,
-      1,
-      0,
-      usdt
-    )
-    await mintTo(usdtContract, guest.address, 1000)
-    const balanceBeforeTrip = await usdtContract.balanceOf(guest)
+        const guestBalanceBeforeTrip = await usdtContract.balanceOf(guest.address)
+        const hostBalanceBeforeTrip = await usdtContract.balanceOf(host.address)
 
-    await usdtContract.connect(guest).approve(await rentalityPlatform.getAddress(), rentPrice)
+        const {rentPrice, currencyRate, currencyDecimals, rentalityFee} = await calculatePaymentsFrom(
+            rentalityCurrencyConverter,
+            rentalityPaymentService,
+            request.pricePerDayInUsdCents,
+            1,
+            request.securityDepositPerTripInUsdCents,
+            usdt
+        )
+        await usdtContract.connect(guest).approve(await rentalityPlatform.getAddress(), rentPrice)
 
-    await expect(
-      await rentalityPlatform.connect(guest).createTripRequest({
-        carId: 1,
-        host: host.address,
-        startDateTime: Date.now(),
-        endDateTime: Date.now() + oneDayInSeconds,
-        startLocation: '',
-        endLocation: '',
-        totalDayPriceInUsdCents: dailyPriceInUsdCents,
-        depositInUsdCents: 0,
-        currencyRate: currencyRate,
-        currencyDecimals: currencyDecimals,
-        currencyType: usdt,
-      })
-    ).to.not.reverted
+        await expect(
+            rentalityGateway.connect(guest).createTripRequest({
+                carId: 1,
+                startDateTime: 1,
+                endDateTime: 2,
+                currencyType: usdt,
+            })
+        ).to.not.reverted
 
-    const balanceAfterTrip = await usdtContract.balanceOf(guest.address)
-    const rentalityPlatformBalance = await usdtContract.balanceOf(await rentalityPlatform.getAddress())
+        await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
+        await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0])).not.to.be.reverted
+        await expect(rentalityGateway.connect(guest).checkInByGuest(1, [0, 0])).not.to.be.reverted
+        await expect(rentalityGateway.connect(guest).checkOutByGuest(1, [0, 0])).not.to.be.reverted
+        await expect(rentalityGateway.connect(host).checkOutByHost(1, [0, 0])).not.to.be.reverted
 
-    expect(balanceAfterTrip + rentPrice).to.be.eq(balanceBeforeTrip)
-    expect(rentalityPlatformBalance).to.be.eq(rentPrice)
-  })
+        const deposit = await rentalityCurrencyConverter.getFromUsd(
+            usdt,
+            request.securityDepositPerTripInUsdCents,
+            currencyRate,
+            currencyDecimals
+        )
+        await expect(rentalityGateway.connect(host).finishTrip(1)).to.not.reverted
 
-  it('should correctly finish trip with usdt, and send tokens to the host', async function () {
-    let usdt = await usdtContract.getAddress()
-    await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
+        const guestBalanceAfterTrip = await usdtContract.balanceOf(guest.address)
+        const hostBalanceAfterTrip = await usdtContract.balanceOf(host.address)
 
-    await mintTo(usdtContract, guest.address, 1000)
+        const platformBalance = await usdtContract.balanceOf(await rentalityPlatform.getAddress())
 
-    const guestBalanceBeforeTrip = await usdtContract.balanceOf(guest.address)
-    const hostBalanceBeforeTrip = await usdtContract.balanceOf(host.address)
 
-    const dailyPriceInUsdCents = 1000
+        expect(guestBalanceAfterTrip).to.be.eq(guestBalanceBeforeTrip + deposit - rentPrice)
+        expect(hostBalanceAfterTrip).to.be.eq(hostBalanceBeforeTrip + rentPrice - deposit - rentalityFee)
+        expect(platformBalance).to.be.eq(rentalityFee)
+    })
 
-    const { rentPrice, currencyRate, currencyDecimals, rentalityFee } = await calculatePaymentsFrom(
-      rentalityCurrencyConverter,
-      rentalityPaymentService,
-      dailyPriceInUsdCents,
-      1,
-      0,
-      usdt
-    )
+    it('should not be able to create trip with wrong currency type', async function () {
+        let usdt = await usdtContract.getAddress()
+        await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
+        const rentPriceInUsdCents = 1000
 
-    await usdtContract.connect(guest).approve(await rentalityPlatform.getAddress(), rentPrice)
+        const dailyPriceInUsdCents = 1000
 
-    await expect(
-      rentalityGateway.connect(guest).createTripRequest({
-        carId: 1,
-        host: host.address,
-        startDateTime: 1,
-        endDateTime: 2,
-        startLocation: '',
-        endLocation: '',
-        totalDayPriceInUsdCents: dailyPriceInUsdCents,
-        depositInUsdCents: 0,
-        currencyRate: currencyRate,
-        currencyDecimals: currencyDecimals,
-        currencyType: usdt,
-      })
-    ).to.not.reverted
+        await mintTo(usdtContract, guest.address, 1000)
 
-    await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
-    await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0])).not.to.be.reverted
-    await expect(rentalityGateway.connect(guest).checkInByGuest(1, [0, 0])).not.to.be.reverted
-    await expect(rentalityGateway.connect(guest).checkOutByGuest(1, [0, 0])).not.to.be.reverted
-    await expect(rentalityGateway.connect(host).checkOutByHost(1, [0, 0])).not.to.be.reverted
+        const {rentPrice, currencyRate, currencyDecimals, rentalityFee} = await calculatePaymentsFrom(
+            rentalityCurrencyConverter,
+            rentalityPaymentService,
+            dailyPriceInUsdCents,
+            1,
+            0,
+            usdt
+        )
 
-    const returnToHost = rentPrice - BigInt(rentalityFee)
+        await usdtContract.connect(guest).approve(await rentalityPlatform.getAddress(), rentPrice)
 
-    await expect(rentalityGateway.connect(host).finishTrip(1)).to.not.reverted
+        await expect(
+            rentalityGateway.connect(guest).createTripRequest({
+                carId: 1,
+                host: host.address,
+                startDateTime: 1,
+                endDateTime: 2,
+                startLocation: '',
+                endLocation: '',
+                totalDayPriceInUsdCents: dailyPriceInUsdCents,
+                depositInUsdCents: 0,
+                currencyRate: currencyRate,
+                currencyDecimals: currencyDecimals,
+                currencyType: await rentalityPlatform.getAddress(),
+            })
+        ).to.be.revertedWith('Token is not available.')
+    })
 
-    const guestBalanceAfterTrip = await usdtContract.balanceOf(guest.address)
-    const hostBalanceAfterTrip = await usdtContract.balanceOf(host.address)
+    it('should correctly pay claim with usdt', async function () {
+        let usdt = await usdtContract.getAddress()
+        await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
 
-    const platformBalance = await usdtContract.balanceOf(await rentalityPlatform.getAddress())
+        await mintTo(usdtContract, guest.address, 10000)
 
-    expect(guestBalanceAfterTrip).to.be.eq(guestBalanceBeforeTrip - rentPrice)
-    expect(hostBalanceAfterTrip).to.be.eq(hostBalanceBeforeTrip + returnToHost)
-    expect(platformBalance).to.be.eq(rentalityFee)
-  })
+        const dailyPriceInUsdCents = 1000
 
-  it('should not be able to create trip with wrong currency type', async function () {
-    let usdt = await usdtContract.getAddress()
-    await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
-    const rentPriceInUsdCents = 1000
+        const {rentPrice, currencyRate, currencyDecimals, rentalityFee} = await calculatePaymentsFrom(
+            rentalityCurrencyConverter,
+            rentalityPaymentService,
+            dailyPriceInUsdCents,
+            1,
+            0,
+            usdt
+        )
 
-    const dailyPriceInUsdCents = 1000
+        await usdtContract.connect(guest).approve(await rentalityPlatform.getAddress(), rentPrice)
 
-    await mintTo(usdtContract, guest.address, 1000)
+        await expect(
+            rentalityGateway.connect(guest).createTripRequest({
+                carId: 1,
+                host: host.address,
+                startDateTime: 1,
+                endDateTime: 2,
+                startLocation: '',
+                endLocation: '',
+                totalDayPriceInUsdCents: dailyPriceInUsdCents,
+                depositInUsdCents: 0,
+                currencyRate: currencyRate,
+                currencyDecimals: currencyDecimals,
+                currencyType: usdt,
+            })
+        ).to.not.reverted
 
-    const { rentPrice, currencyRate, currencyDecimals, rentalityFee } = await calculatePaymentsFrom(
-      rentalityCurrencyConverter,
-      rentalityPaymentService,
-      dailyPriceInUsdCents,
-      1,
-      0,
-      usdt
-    )
+        await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
 
-    await usdtContract.connect(guest).approve(await rentalityPlatform.getAddress(), rentPrice)
+        const amountToPayForClaim = 1000
 
-    await expect(
-      rentalityGateway.connect(guest).createTripRequest({
-        carId: 1,
-        host: host.address,
-        startDateTime: 1,
-        endDateTime: 2,
-        startLocation: '',
-        endLocation: '',
-        totalDayPriceInUsdCents: dailyPriceInUsdCents,
-        depositInUsdCents: 0,
-        currencyRate: currencyRate,
-        currencyDecimals: currencyDecimals,
-        currencyType: await rentalityPlatform.getAddress(),
-      })
-    ).to.be.revertedWith('Token is not available.')
-  })
+        const [claimPriceInUsdt, ,] = await rentalityCurrencyConverter.getFromUsdLatest(
+            await usdtContract.getAddress(),
+            amountToPayForClaim
+        )
 
-  it('should correctly pay claim with usdt', async function () {
-    let usdt = await usdtContract.getAddress()
-    await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
+        await usdtContract.connect(guest).approve(await rentalityPlatform.getAddress(), claimPriceInUsdt)
+        await expect(rentalityGateway.connect(host).createClaim(createMockClaimRequest(1, amountToPayForClaim))).not.to.be
+            .reverted
+        const hostBalanceBeforeClaim = await usdtContract.balanceOf(host.address)
+        const guestBalanceBeforeClaim = await usdtContract.balanceOf(guest.address)
 
-    await mintTo(usdtContract, guest.address, 10000)
+        await expect(rentalityGateway.connect(guest).payClaim(1)).to.not.reverted
 
-    const dailyPriceInUsdCents = 1000
+        const hostBalanceAfterClaim = await usdtContract.balanceOf(host.address)
+        const guestBalanceAfterClaim = await usdtContract.balanceOf(guest.address)
 
-    const { rentPrice, currencyRate, currencyDecimals, rentalityFee } = await calculatePaymentsFrom(
-      rentalityCurrencyConverter,
-      rentalityPaymentService,
-      dailyPriceInUsdCents,
-      1,
-      0,
-      usdt
-    )
+        expect(hostBalanceAfterClaim).to.be.eq(hostBalanceBeforeClaim + claimPriceInUsdt)
+        expect(guestBalanceAfterClaim).to.be.eq(guestBalanceBeforeClaim - claimPriceInUsdt)
+    })
+    it('should be able withdraw usdt from platform ', async function () {
+        let usdt = await usdtContract.getAddress()
+        const request = getMockCarRequest(10)
+        await expect(rentalityGateway.connect(host).addCar(request)).not.to.be.reverted
 
-    await usdtContract.connect(guest).approve(await rentalityPlatform.getAddress(), rentPrice)
+        await mintTo(usdtContract, guest.address, 1000)
 
-    await expect(
-      rentalityGateway.connect(guest).createTripRequest({
-        carId: 1,
-        host: host.address,
-        startDateTime: 1,
-        endDateTime: 2,
-        startLocation: '',
-        endLocation: '',
-        totalDayPriceInUsdCents: dailyPriceInUsdCents,
-        depositInUsdCents: 0,
-        currencyRate: currencyRate,
-        currencyDecimals: currencyDecimals,
-        currencyType: usdt,
-      })
-    ).to.not.reverted
+        const dailyPriceInUsdCents = 1000
 
-    await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
+        const {rentPrice, currencyRate, currencyDecimals, rentalityFee} = await calculatePaymentsFrom(
+            rentalityCurrencyConverter,
+            rentalityPaymentService,
+            request.pricePerDayInUsdCents,
+            1,
+            request.securityDepositPerTripInUsdCents,
+            usdt
+        )
 
-    const amountToPayForClaim = 1000
+        await usdtContract.connect(guest).approve(await rentalityPlatform.getAddress(), rentPrice)
 
-    const [claimPriceInUsdt, ,] = await rentalityCurrencyConverter.getFromUsdLatest(
-      await usdtContract.getAddress(),
-      amountToPayForClaim
-    )
+        await expect(
+            rentalityGateway.connect(guest).createTripRequest({
+                carId: 1,
+                startDateTime: 1,
+                endDateTime: 2,
+                currencyType: usdt,
+            })
+        ).to.not.reverted
 
-    await usdtContract.connect(guest).approve(await rentalityPlatform.getAddress(), claimPriceInUsdt)
-    await expect(rentalityGateway.connect(host).createClaim(createMockClaimRequest(1, amountToPayForClaim))).not.to.be
-      .reverted
-    const hostBalanceBeforeClaim = await usdtContract.balanceOf(host.address)
-    const guestBalanceBeforeClaim = await usdtContract.balanceOf(guest.address)
+        await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
+        await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0])).not.to.be.reverted
+        await expect(rentalityGateway.connect(guest).checkInByGuest(1, [0, 0])).not.to.be.reverted
+        await expect(rentalityGateway.connect(guest).checkOutByGuest(1, [0, 0])).not.to.be.reverted
+        await expect(rentalityGateway.connect(host).checkOutByHost(1, [0, 0])).not.to.be.reverted
 
-    await expect(rentalityGateway.connect(guest).payClaim(1)).to.not.reverted
+        await expect(rentalityGateway.connect(host).finishTrip(1)).to.not.reverted
 
-    const hostBalanceAfterClaim = await usdtContract.balanceOf(host.address)
-    const guestBalanceAfterClaim = await usdtContract.balanceOf(guest.address)
+        await expect(rentalityAdminGateway.connect(host).withdrawAllFromPlatform(usdt)).to.not.reverted
 
-    expect(hostBalanceAfterClaim).to.be.eq(hostBalanceBeforeClaim + claimPriceInUsdt)
-    expect(guestBalanceAfterClaim).to.be.eq(guestBalanceBeforeClaim - claimPriceInUsdt)
-  })
-  it('should be able withdraw usdt from platform ', async function () {
-    let usdt = await usdtContract.getAddress()
-    await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
-
-    await mintTo(usdtContract, guest.address, 1000)
-
-    const dailyPriceInUsdCents = 1000
-
-    const { rentPrice, currencyRate, currencyDecimals, rentalityFee } = await calculatePaymentsFrom(
-      rentalityCurrencyConverter,
-      rentalityPaymentService,
-      dailyPriceInUsdCents,
-      1,
-      0,
-      usdt
-    )
-
-    await usdtContract.connect(guest).approve(await rentalityPlatform.getAddress(), rentPrice)
-
-    await expect(
-      rentalityGateway.connect(guest).createTripRequest({
-        carId: 1,
-        host: host.address,
-        startDateTime: 1,
-        endDateTime: 2,
-        startLocation: '',
-        endLocation: '',
-        totalDayPriceInUsdCents: dailyPriceInUsdCents,
-        depositInUsdCents: 0,
-        currencyRate: currencyRate,
-        currencyDecimals: currencyDecimals,
-        currencyType: usdt,
-      })
-    ).to.not.reverted
-
-    await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
-    await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0])).not.to.be.reverted
-    await expect(rentalityGateway.connect(guest).checkInByGuest(1, [0, 0])).not.to.be.reverted
-    await expect(rentalityGateway.connect(guest).checkOutByGuest(1, [0, 0])).not.to.be.reverted
-    await expect(rentalityGateway.connect(host).checkOutByHost(1, [0, 0])).not.to.be.reverted
-
-    await expect(rentalityGateway.connect(host).finishTrip(1)).to.not.reverted
-
-    await expect(rentalityAdminGateway.connect(host).withdrawAllFromPlatform(usdt)).to.not.reverted
-
-    const ownerBalance = await usdtContract.balanceOf(owner)
-    expect(ownerBalance).to.be.gt(0)
-  })
+        const ownerBalance = await usdtContract.balanceOf(owner)
+        expect(ownerBalance).to.be.gt(0)
+    })
 })

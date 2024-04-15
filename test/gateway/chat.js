@@ -60,32 +60,19 @@ describe('RentalityGateway: chat', function () {
 
     const dailyPriceInUsdCents = 1000
 
-    const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals, rentalityFee } = await calculatePayments(
-      rentalityCurrencyConverter,
-      rentalityPaymentService,
-      dailyPriceInUsdCents,
-      1,
-      0
-    )
-
-    await expect(
-      await rentalityGateway.connect(guest).createTripRequest(
-        {
-          carId: 1,
-          host: host.address,
-          startDateTime: Date.now(),
-          endDateTime: Date.now() + oneDayInSeconds,
-          startLocation: '',
-          endLocation: '',
-          totalDayPriceInUsdCents: dailyPriceInUsdCents,
-          depositInUsdCents: 0,
-          currencyRate: ethToCurrencyRate,
-          currencyDecimals: ethToCurrencyDecimals,
-          currencyType: ethToken,
-        },
-        { value: rentPriceInEth }
-      )
-    ).to.changeEtherBalances([guest, rentalityPlatform], [-rentPriceInEth, rentPriceInEth])
+      const result = await rentalityPlatform.calculatePayments(1, 2, ethToken);
+        await expect(
+            await rentalityPlatform.connect(guest).createTripRequest(
+                {
+                    carId: 1,
+                    startDateTime: Date.now(),
+                    endDateTime: Date.now() + oneDayInSeconds * 2,
+                    currencyType: ethToken,
+                },
+                {value: result.totalPrice}
+            )
+        ).to.changeEtherBalances([guest, rentalityPlatform],
+            [-result.totalPrice, result.totalPrice])
 
     let name = 'name'
     let surname = 'surname'
@@ -180,34 +167,20 @@ describe('RentalityGateway: chat', function () {
 
     const oneDayInSeconds = 86400
 
-    const dailyPriceInUsdCents = 1000
 
-    const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals, rentalityFee } = await calculatePayments(
-      rentalityCurrencyConverter,
-      rentalityPaymentService,
-      dailyPriceInUsdCents,
-      1,
-      0
-    )
-
-    await expect(
-      await rentalityGateway.connect(guest).createTripRequest(
-        {
-          carId: 1,
-          host: host.address,
-          startDateTime: Date.now(),
-          endDateTime: Date.now() + oneDayInSeconds,
-          startLocation: '',
-          endLocation: '',
-          totalDayPriceInUsdCents: dailyPriceInUsdCents,
-          depositInUsdCents: 0,
-          currencyRate: ethToCurrencyRate,
-          currencyDecimals: ethToCurrencyDecimals,
-          currencyType: ethToken,
-        },
-        { value: rentPriceInEth }
-      )
-    ).to.changeEtherBalances([guest, rentalityPlatform], [-rentPriceInEth, rentPriceInEth])
+      const result = await rentalityPlatform.calculatePayments(1, 1, ethToken);
+        await expect(
+            await rentalityPlatform.connect(guest).createTripRequest(
+                {
+                    carId: 1,
+                    startDateTime: Date.now(),
+                    endDateTime: Date.now() + oneDayInSeconds,
+                    currencyType: ethToken,
+                },
+                {value: result.totalPrice}
+            )
+        ).to.changeEtherBalances([guest, rentalityPlatform],
+            [-result.totalPrice, result.totalPrice])
 
     let chatInfoArray = await rentalityGateway.connect(host).getChatInfoForHost()
     expect(chatInfoArray.length).to.be.equal(1)
