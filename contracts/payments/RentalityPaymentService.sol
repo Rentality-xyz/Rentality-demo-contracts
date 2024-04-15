@@ -58,10 +58,6 @@ contract RentalityPaymentService is UUPSOwnable {
         return discountAddressToDiscountContract[currentDiscount].calculateSumWithDiscount(user, daysOfTrip, value);
     }
 
-    function calculateSumWithDiscountInPPM(address user, uint64 daysOfTrip, uint64 value) public view returns (uint64) {
-        return discountAddressToDiscountContract[currentDiscount].calculateSumWithDiscountInPMM(user, daysOfTrip, value);
-    }
-
     /// @notice Calculates the taxes for a given tax ID, trip duration, and value.
     /// @param taxId The ID of the tax.
     /// @param daysOfTrip The duration of the trip in days.
@@ -69,10 +65,6 @@ contract RentalityPaymentService is UUPSOwnable {
     /// @return The calculated taxes.
     function calculateTaxes(uint taxId, uint64 daysOfTrip, uint64 value) public view returns (uint64) {
         return taxesIdToTaxesContract[taxId].calculateTaxes(daysOfTrip, value);
-    }
-
-    function calculateTaxesInPMM(uint taxId, uint64 daysOfTrip, uint64 value) public view returns (uint64) {
-        return taxesIdToTaxesContract[taxId].calculateTaxesInPMM(daysOfTrip, value);
     }
 
     /// @notice Defines the type of taxes based on the location of a car.

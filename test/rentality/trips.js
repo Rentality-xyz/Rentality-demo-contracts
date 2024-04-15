@@ -111,7 +111,7 @@ describe('Rentality: trips', function () {
         expect(availableCars.length).to.equal(1)
 
 
-        const {rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals,} = await calculatePayments(
+        const {rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals, taxes} = await calculatePayments(
             rentalityCurrencyConverter,
             rentalityPaymentService,
             request.pricePerDayInUsdCents,
@@ -157,7 +157,7 @@ describe('Rentality: trips', function () {
             ethToCurrencyDecimals
         )
 
-        const returnToHost = rentPriceInEth - depositValue - rentalityFee
+        const returnToHost = rentPriceInEth - depositValue - rentalityFee - taxes
 
         await expect(rentalityPlatform.connect(host).finishTrip(1)).to.changeEtherBalances(
             [host, rentalityPlatform],

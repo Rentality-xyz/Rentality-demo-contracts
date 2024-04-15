@@ -12,7 +12,6 @@ interface IRentalityTaxes {
   /// @return The calculated taxes.
   function calculateTaxes(uint64 tripDays, uint64 totalCost) external view returns (uint64);
 
-  function calculateTaxesInPMM(uint64 tripDays, uint64 totalCost) external view returns (uint64);
   /// @notice Sets the taxes data.
   /// @dev Only callable by an admin.
   /// @param newTaxes The new taxes data.

@@ -82,7 +82,7 @@ describe('ERC20 payments', function () {
         const guestBalanceBeforeTrip = await usdtContract.balanceOf(guest.address)
         const hostBalanceBeforeTrip = await usdtContract.balanceOf(host.address)
 
-        const {rentPrice, currencyRate, currencyDecimals, rentalityFee} = await calculatePaymentsFrom(
+        const {rentPrice, currencyRate, currencyDecimals, rentalityFee, taxes} = await calculatePaymentsFrom(
             rentalityCurrencyConverter,
             rentalityPaymentService,
             request.pricePerDayInUsdCents,
@@ -122,8 +122,8 @@ describe('ERC20 payments', function () {
 
 
         expect(guestBalanceAfterTrip).to.be.eq(guestBalanceBeforeTrip + deposit - rentPrice)
-        expect(hostBalanceAfterTrip).to.be.eq(hostBalanceBeforeTrip + rentPrice - deposit - rentalityFee)
-        expect(platformBalance).to.be.eq(rentalityFee)
+        expect(hostBalanceAfterTrip).to.be.eq(hostBalanceBeforeTrip + rentPrice - deposit - rentalityFee - taxes)
+        expect(platformBalance).to.be.eq(rentalityFee + taxes)
     })
 
     it('should not be able to create trip with wrong currency type', async function () {
