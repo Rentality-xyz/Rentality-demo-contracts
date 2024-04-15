@@ -280,7 +280,6 @@ contract RentalityPlatform is UUPSOwnable {
     uint256 rentalityFee = paymentService.getPlatformFeeFrom(trip.paymentInfo.priceWithDiscount);
 
     uint256 valueToHostInUsdCents = trip.paymentInfo.priceWithDiscount +
-      trip.paymentInfo.taxPriceInUsdCents +
       trip.paymentInfo.resolveAmountInUsdCents -
       rentalityFee;
 

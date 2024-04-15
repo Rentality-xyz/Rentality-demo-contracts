@@ -13,6 +13,7 @@ const calculatePayments = async (currencyConverter, paymentService, value, tripD
     ethToken,
     priceWithDiscount + totalTaxes + BigInt(deposit)
   )
+  const [texesInEth, ,] = await currencyConverter.getFromUsdLatest(ethToken, totalTaxes)
 
   const [priceWithoutTaxes, ,] = await currencyConverter.getFromUsdLatest(ethToken, priceWithDiscount)
 
@@ -23,6 +24,7 @@ const calculatePayments = async (currencyConverter, paymentService, value, tripD
     ethToCurrencyRate,
     ethToCurrencyDecimals,
     rentalityFee,
+    taxes: texesInEth,
   }
 }
 
@@ -38,6 +40,7 @@ const calculatePaymentsFrom = async (currencyConverter, paymentService, value, t
     token,
     priceWithDiscount + totalTaxes + BigInt(deposit)
   )
+  const [taxes, ,] = await currencyConverter.getFromUsdLatest(token, totalTaxes)
 
   const [priceWithoutTaxes, ,] = await currencyConverter.getFromUsdLatest(token, priceWithDiscount)
 
@@ -48,6 +51,7 @@ const calculatePaymentsFrom = async (currencyConverter, paymentService, value, t
     currencyRate,
     currencyDecimals,
     rentalityFee,
+    taxes,
   }
 }
 

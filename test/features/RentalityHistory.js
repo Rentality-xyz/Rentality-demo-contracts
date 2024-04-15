@@ -95,7 +95,7 @@ describe('Rentality History Service', function () {
 
     const dailyPriceInUsdCents = 1000
 
-    const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals, rentalityFee } = await calculatePayments(
+    const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals, rentalityFee, taxes } = await calculatePayments(
       rentalityCurrencyConverter,
       rentalityPaymentService,
       dailyPriceInUsdCents,
@@ -128,7 +128,7 @@ describe('Rentality History Service', function () {
     await expect(rentalityGateway.connect(guest).checkOutByGuest(1, [0, 0])).not.to.be.reverted
     await expect(rentalityGateway.connect(host).checkOutByHost(1, [0, 0])).not.to.be.reverted
 
-    const returnToHost = rentPriceInEth - rentalityFee
+    const returnToHost = rentPriceInEth - rentalityFee - taxes
 
     await expect(rentalityGateway.connect(host).finishTrip(1)).to.changeEtherBalances(
       [host, rentalityPlatform],
@@ -142,10 +142,7 @@ describe('Rentality History Service', function () {
     expect(details.transactionInfo.depositRefund).to.be.eq(0)
     expect(details.transactionInfo.dateTime).to.be.approximately(currentTimeSeconds, 2000)
     expect(details.transactionInfo.tripEarnings).to.be.eq(
-      dailyPriceInUsdCents -
-        (dailyPriceInUsdCents * 20) / 100 /* platform fee*/ +
-        (dailyPriceInUsdCents * 7) / 100 /* 7% tax */ +
-        200 /* tax for one day */
+      dailyPriceInUsdCents - (dailyPriceInUsdCents * 20) / 100 /* platform fee*/
     )
     expect(details.transactionInfo.rentalityFee).to.be.eq((dailyPriceInUsdCents * 20) / 100)
     expect(details.transactionInfo.statusBeforeCancellation).to.be.eq(TripStatus.Finished)
