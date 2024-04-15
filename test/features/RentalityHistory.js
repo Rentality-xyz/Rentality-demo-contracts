@@ -84,7 +84,7 @@ describe('Rentality History Service', function () {
     expect(details.transactionInfo.statusBeforeCancellation).to.be.eq(TripStatus.Created)
   })
   it('Happy case has history', async function () {
-    await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(1))).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
@@ -123,10 +123,10 @@ describe('Rentality History Service', function () {
     ).to.changeEtherBalances([guest, rentalityPlatform], [-rentPriceInEth, rentPriceInEth])
 
     await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
-    await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0])).not.to.be.reverted
-    await expect(rentalityGateway.connect(guest).checkInByGuest(1, [0, 0])).not.to.be.reverted
-    await expect(rentalityGateway.connect(guest).checkOutByGuest(1, [0, 0])).not.to.be.reverted
-    await expect(rentalityGateway.connect(host).checkOutByHost(1, [0, 0])).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).checkInByHost(1, [100, 2])).not.to.be.reverted
+    await expect(rentalityGateway.connect(guest).checkInByGuest(1, [100, 2])).not.to.be.reverted
+    await expect(rentalityGateway.connect(guest).checkOutByGuest(1, [0, 2])).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).checkOutByHost(1, [0, 2])).not.to.be.reverted
 
     const returnToHost = rentPriceInEth - rentalityFee - taxes
 
