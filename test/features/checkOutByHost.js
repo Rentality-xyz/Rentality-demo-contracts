@@ -213,7 +213,7 @@ describe('Check out without guest', function () {
     let dayInTrip = 31
     let sumToPayWithDiscount = sumToPayInUsdCents * dayInTrip - (sumToPayInUsdCents * dayInTrip * 15) / 100
 
-    const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals, rentalityFee } = await calculatePayments(
+    const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals, rentalityFee, taxes } = await calculatePayments(
       rentalityCurrencyConverter,
       rentalityPaymentService,
       sumToPayInUsdCents,
@@ -251,7 +251,8 @@ describe('Check out without guest', function () {
       Math.floor(sumToPayWithDiscount)
     )
 
-    const returnToHost = rentPriceInEth - (await rentalityPaymentService.getPlatformFeeFrom(valueInEthWithoutTaxes))
+    const returnToHost =
+      rentPriceInEth - (await rentalityPaymentService.getPlatformFeeFrom(valueInEthWithoutTaxes)) - taxes
 
     await expect(rentalityGateway.connect(guest).confirmCheckOut(1)).to.changeEtherBalances(
       [host, rentalityPlatform],
@@ -273,7 +274,7 @@ describe('Check out without guest', function () {
     let dayInTrip = 31
     let sumToPayWithDiscount = sumToPayInUsdCents * dayInTrip - (sumToPayInUsdCents * dayInTrip * 15) / 100
 
-    const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals, rentalityFee } = await calculatePayments(
+    const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals, rentalityFee, taxes } = await calculatePayments(
       rentalityCurrencyConverter,
       rentalityPaymentService,
       sumToPayInUsdCents,
@@ -310,7 +311,8 @@ describe('Check out without guest', function () {
       Math.floor(sumToPayWithDiscount)
     )
 
-    const returnToHost = rentPriceInEth - (await rentalityPaymentService.getPlatformFeeFrom(valueInEthWithoutTaxes))
+    const returnToHost =
+      rentPriceInEth - (await rentalityPaymentService.getPlatformFeeFrom(valueInEthWithoutTaxes)) - taxes
 
     await expect(rentalityGateway.connect(admin).confirmCheckOut(1)).to.changeEtherBalances(
       [host, rentalityPlatform],

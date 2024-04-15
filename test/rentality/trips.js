@@ -156,7 +156,7 @@ describe('Rentality: trips', function () {
 
     const dailyPriceInUsdCents = 1000
 
-    const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals, rentalityFee } = await calculatePayments(
+    const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals, rentalityFee, taxes } = await calculatePayments(
       rentalityCurrencyConverter,
       rentalityPaymentService,
       dailyPriceInUsdCents,
@@ -188,7 +188,7 @@ describe('Rentality: trips', function () {
     await expect(rentalityTripService.connect(guest).checkInByGuest(1, [0, 0])).not.to.be.reverted
     await expect(rentalityTripService.connect(guest).checkOutByGuest(1, [0, 0])).not.to.be.reverted
     await expect(rentalityTripService.connect(host).checkOutByHost(1, [0, 0])).not.to.be.reverted
-    const returnToHost = rentPriceInEth - rentalityFee
+    const returnToHost = rentPriceInEth - rentalityFee - taxes
 
     await expect(rentalityPlatform.connect(host).finishTrip(1)).to.changeEtherBalances(
       [host, rentalityPlatform],
