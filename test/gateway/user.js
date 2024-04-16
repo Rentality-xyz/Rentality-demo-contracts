@@ -121,18 +121,18 @@ describe('RentalityGateway: user info', function () {
 
     const dailyPriceInUsdCents = 1000
 
- const result = await rentalityPlatform.calculatePayments(1, 1, ethToken);
-        await expect(
-            await rentalityPlatform.connect(guest).createTripRequest(
-                {
-                    carId: 1,
-                    startDateTime: 123,
-                    endDateTime: 321,
-                    currencyType: ethToken,
-                },
-                {value: result.totalPrice}
-            )
-        ).not.to.be.reverted
+    const result = await rentalityPlatform.calculatePayments(1, 1, ethToken)
+    await expect(
+      await rentalityGateway.connect(guest).createTripRequest(
+        {
+          carId: 1,
+          startDateTime: 123,
+          endDateTime: 321,
+          currencyType: ethToken,
+        },
+        { value: result.totalPrice }
+      )
+    ).not.to.be.reverted
 
     let guestNumber = '+380'
     let hostNumber = '+3801'
@@ -160,18 +160,18 @@ describe('RentalityGateway: user info', function () {
 
     const dailyPriceInUsdCents = 1000
 
- const result = await rentalityPlatform.calculatePayments(1, 1, ethToken);
-        await expect(
-            await rentalityPlatform.connect(guest).createTripRequest(
-                {
-                    carId: 1,
-                    startDateTime: 123,
-                    endDateTime: 321,
-                    currencyType: ethToken,
-                },
-                {value: result.totalPrice}
-            )
-        ).not.to.be.reverted
+    const result = await rentalityPlatform.calculatePayments(1, 1, ethToken)
+    await expect(
+      await rentalityGateway.connect(guest).createTripRequest(
+        {
+          carId: 1,
+          startDateTime: 123,
+          endDateTime: 321,
+          currencyType: ethToken,
+        },
+        { value: result.totalPrice }
+      )
+    ).not.to.be.reverted
 
     let guestNumber = '+380'
     let hostNumber = '+3801'
@@ -197,18 +197,18 @@ describe('RentalityGateway: user info', function () {
 
     const dailyPriceInUsdCents = 1000
 
- const result = await rentalityPlatform.calculatePayments(1, 1, ethToken);
-        await expect(
-            await rentalityPlatform.connect(guest).createTripRequest(
-                {
-                    carId: 1,
-                    startDateTime: 123,
-                    endDateTime: 321,
-                    currencyType: ethToken,
-                },
-                {value: result.totalPrice}
-            )
-        ).not.to.be.reverted
+    const result = await rentalityPlatform.calculatePayments(1, 1, ethToken)
+    await expect(
+      await rentalityGateway.connect(guest).createTripRequest(
+        {
+          carId: 1,
+          startDateTime: 123,
+          endDateTime: 321,
+          currencyType: ethToken,
+        },
+        { value: result.totalPrice }
+      )
+    ).not.to.be.reverted
 
     let guestNumber = '+380'
     let hostNumber = '+3801'

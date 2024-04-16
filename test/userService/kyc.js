@@ -129,7 +129,7 @@ describe('RentalityUserService: KYC management', function () {
           carId: 1,
           startDateTime: 123,
           endDateTime: 321,
-          currencyType: ethToken
+          currencyType: ethToken,
         },
         { value: rentPriceInEth }
       )
