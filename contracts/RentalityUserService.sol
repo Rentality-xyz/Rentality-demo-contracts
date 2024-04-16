@@ -5,6 +5,8 @@ import {IGatewayTokenVerifier} from '@identity.com/gateway-protocol-eth/contract
 import '@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol';
 import {AccessControlUpgradeable} from '@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol';
 import './Schemas.sol';
+import '@openzeppelin/contracts/utils/cryptography/ECDSA.sol';
+
 /// @title RentalityUserService Contract
 /// @notice
 /// This contract manages user roles and KYC (Know Your Customer) information.
@@ -24,6 +26,7 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
   mapping(address => Schemas.KYCInfo) private kycInfos;
   address private civicVerifier;
   uint private civicGatekeeperNetwork;
+  bytes32 private TCMessageHash;
 
   /// @notice Sets KYC information for the caller (host or guest).
   /// @param name The user's name.
@@ -32,7 +35,7 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
   /// @param profilePhoto The URL or identifier of the user's profile photo.
   /// @param licenseNumber The user's license number.
   /// @param expirationDate The expiration date of the user's license.
-  /// @param isTCPassed A boolean indicating whether the user has passed TC.
+  /// @param TCSignature The signature of the user indicating acceptance of Terms and Conditions (TC).
   /// Requirements:
   /// - Caller must be a host or guest.
   function setKYCInfo(
@@ -42,9 +45,13 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
     string memory profilePhoto,
     string memory licenseNumber,
     uint64 expirationDate,
-    bool isTCPassed
+    bytes memory TCSignature
   ) public {
     require(isHostOrGuest(tx.origin), 'Only for hosts or guests');
+
+    bool isTCPassed = ECDSA.recover(TCMessageHash, TCSignature) == tx.origin;
+
+    require(isTCPassed, 'Wrong signature.');
 
     kycInfos[tx.origin] = Schemas.KYCInfo(
       name,
@@ -54,7 +61,8 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
       licenseNumber,
       expirationDate,
       block.timestamp,
-      isTCPassed
+      isTCPassed,
+      TCSignature
     );
   }
   /// @notice Retrieves KYC information for a specified user.
@@ -193,6 +201,18 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
     civicGatekeeperNetwork = _civicGatekeeperNetwork;
   }
 
+  /// @notice Sets a new message for the Terms and Conditions (TC) and updates the corresponding hashed message.
+  /// @dev This function can only be called by an admin.
+  /// @param message The new message for the TC.
+  function setNewTCMessage(string memory message) public {
+    require(isAdmin(msg.sender), 'Only admin.');
+    TCMessageHash = ECDSA.toEthSignedMessageHash(bytes(message));
+  }
+
+  /// @notice Initializes the contract with the specified Civic verifier address and gatekeeper network ID, and sets the default admin role.
+  /// @dev This function is called during contract deployment.
+  /// @param _civicVerifier The address of the Civic verifier contract.
+  /// @param _civicGatekeeperNetwork The ID of the Civic gatekeeper network.
   function initialize(address _civicVerifier, uint _civicGatekeeperNetwork) public virtual initializer {
     __AccessControl_init();
 
@@ -205,6 +225,9 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
 
     civicVerifier = _civicVerifier;
     civicGatekeeperNetwork = _civicGatekeeperNetwork;
+    TCMessageHash = ECDSA.toEthSignedMessageHash(
+      'I have read and I agree with Terms of service, Cancellation policy, Prohibited uses and Privacy policy of Rentality.'
+    );
   }
 
   function _authorizeUpgrade(address /*newImplementation*/) internal view override {

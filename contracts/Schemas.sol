@@ -340,6 +340,7 @@ interface Schemas {
     uint64 expirationDate;
     uint createDate;
     bool isTCPassed;
+    bytes TCSignature;
   }
 
   /// Query
