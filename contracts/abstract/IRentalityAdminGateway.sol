@@ -99,4 +99,14 @@ interface IRentalityAdminGateway {
   /// @notice Rejects a trip request. Only callable by hosts.
   /// @param tripId The ID of the trip to reject.
   function rejectTripRequest(uint256 tripId) external;
+
+  /// @dev Sets the Civic verifier and gatekeeper network for identity verification.
+  /// @param _civicVerifier The address of the Civic verifier contract.
+  /// @param _civicGatekeeperNetwork The identifier of the Civic gatekeeper network.
+  function setCivicData(address _civicVerifier, uint _civicGatekeeperNetwork) external;
+
+  /// @notice Sets a new message for the Terms and Conditions (TC) and updates the corresponding hashed message.
+  /// @dev This function can only be called by an admin.
+  /// @param message The new message for the TC.
+  function setNewTCMessage(string memory message) external;
 }

@@ -219,6 +219,19 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
   function rejectTripRequest(uint256 tripId) public {
     return rentalityPlatform.rejectTripRequest(tripId);
   }
+  /// @dev Sets the Civic verifier and gatekeeper network for identity verification.
+  /// @param _civicVerifier The address of the Civic verifier contract.
+  /// @param _civicGatekeeperNetwork The identifier of the Civic gatekeeper network.
+  function setCivicData(address _civicVerifier, uint _civicGatekeeperNetwork) public {
+    userService.setCivicData(_civicVerifier, _civicGatekeeperNetwork);
+  }
+
+  /// @notice Sets a new message for the Terms and Conditions (TC) and updates the corresponding hashed message.
+  /// @dev This function can only be called by an admin.
+  /// @param message The new message for the TC.
+  function setNewTCMessage(string memory message) public {
+    userService.setNewTCMessage(message);
+  }
 
   //  @dev Initializes the contract with the provided addresses for various services.
   //  @param carServiceAddress The address of the RentalityCarToken contract.
