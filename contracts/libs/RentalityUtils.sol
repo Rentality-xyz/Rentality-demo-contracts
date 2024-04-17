@@ -367,7 +367,7 @@ library RentalityUtils {
 
     Schemas.Trip memory trip = tripService.getTrip(tripId);
     uint64 ceilDays = getCeilDays(trip.startDateTime, trip.endDateTime);
-    uint64 priceForAllDays = trip.paymentInfo.totalDayPriceInUsdCents * ceilDays;
+
     uint64 allowedMiles = trip.milesIncludedPerDay * ceilDays;
 
     uint64 totalMilesDriven = trip.endParamLevels[1] - trip.startParamLevels[1];
@@ -378,8 +378,8 @@ library RentalityUtils {
       Schemas.TripReceiptDTO(
         trip.paymentInfo.totalDayPriceInUsdCents,
         ceilDays,
-        priceForAllDays,
-        priceForAllDays - trip.paymentInfo.priceWithDiscount,
+        trip.paymentInfo.priceWithDiscount,
+        trip.paymentInfo.totalDayPriceInUsdCents - trip.paymentInfo.priceWithDiscount,
         trip.paymentInfo.taxPriceInUsdCents,
         trip.paymentInfo.depositInUsdCents,
         trip.paymentInfo.resolveAmountInUsdCents,

@@ -1,7 +1,7 @@
 const { expect } = require('chai')
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 
-const { getMockCarRequest, deployDefaultFixture, getEmptySearchCarParams } = require('../utils')
+const { getMockCarRequest, deployDefaultFixture, getEmptySearchCarParams, signTCMessage } = require('../utils')
 const { ethers } = require('hardhat')
 
 describe('RentalityGateway: car', function () {
@@ -117,8 +117,12 @@ describe('RentalityGateway: car', function () {
     let licenseNumber = 'licenseNumber'
     let expirationDate = 10
 
+    const hostSignature = await signTCMessage(host)
+
     await expect(
-      rentalityGateway.connect(host).setKYCInfo(name, surname, number, photo, licenseNumber, expirationDate, true)
+      rentalityGateway
+        .connect(host)
+        .setKYCInfo(name, surname, number, photo, licenseNumber, expirationDate, hostSignature)
     ).to.not.reverted
 
     let addCarRequest = {
@@ -173,8 +177,12 @@ describe('RentalityGateway: car', function () {
     let licenseNumber = 'licenseNumber'
     let expirationDate = 10
 
+    const hostSignature = await signTCMessage(host)
+
     await expect(
-      await rentalityGateway.connect(host).setKYCInfo(name, surname, number, photo, licenseNumber, expirationDate, true)
+      await rentalityGateway
+        .connect(host)
+        .setKYCInfo(name, surname, number, photo, licenseNumber, expirationDate, hostSignature)
     ).to.not.reverted
 
     let addCarRequest = {
@@ -226,8 +234,11 @@ describe('RentalityGateway: car', function () {
     let licenseNumber = 'licenseNumber'
     let expirationDate = 10
 
+    const hostSignature = await signTCMessage(host)
     await expect(
-      await rentalityGateway.connect(host).setKYCInfo(name, surname, number, photo, licenseNumber, expirationDate, true)
+      await rentalityGateway
+        .connect(host)
+        .setKYCInfo(name, surname, number, photo, licenseNumber, expirationDate, hostSignature)
     ).to.not.reverted
 
     const addCar = (num) => {
@@ -275,8 +286,11 @@ describe('RentalityGateway: car', function () {
     let licenseNumber = 'licenseNumber'
     let expirationDate = 10
 
+    const hostSignature = await signTCMessage(host)
     await expect(
-      await rentalityGateway.connect(host).setKYCInfo(name, surname, number, photo, licenseNumber, expirationDate, true)
+      await rentalityGateway
+        .connect(host)
+        .setKYCInfo(name, surname, number, photo, licenseNumber, expirationDate, hostSignature)
     ).to.not.reverted
 
     const addCar = (num) => {
