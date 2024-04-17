@@ -110,6 +110,14 @@ contract RentalityCurrencyConverter is Initializable, UUPSAccess {
     return tokenAddressToPaymentMethod[tokenAddress].getUsdWithCache(amount);
   }
 
+  /// @dev Retrieves the cached rate for a given token address.
+  /// @param tokenAddress The address of the token for which to retrieve the rate.
+  /// @return rate The cached rate as an integer.
+  /// @return decimals The number of decimal places in the rate.
+  function getCurrentRate(address tokenAddress) public view returns (int, uint8) {
+    return tokenAddressToPaymentMethod[tokenAddress].getCurrentRate();
+  }
+
   /// @notice Checks if the specified currency type is available
   /// @param tokenAddress The address of the currency type
   /// @return A boolean indicating if the currency type is available

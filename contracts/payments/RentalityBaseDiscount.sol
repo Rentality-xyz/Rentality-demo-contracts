@@ -44,9 +44,8 @@ contract RentalityBaseDiscount is IRentalityDiscount, Initializable, UUPSAccess 
       return price * daysOfTrip;
     }
 
-    return ((price * daysOfTrip) * (1_000_000 - discountPercent)) / 1_000_000;
+    return (price * daysOfTrip * (1_000_000 - discountPercent)) / 1_000_000;
   }
-
   /// @notice Sets the default discount values.
   /// @dev Only callable by an admin.
   /// @param newDiscounts The new default discount data.
