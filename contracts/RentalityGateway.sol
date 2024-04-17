@@ -276,7 +276,7 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
   /// @param profilePhoto The URL of the user's profile photo.
   /// @param licenseNumber The user's license number.
   /// @param expirationDate The expiration date of the user's license.
-  /// @param isTCPassed A boolean indicating whether the user has passed TC.
+  /// @param TCSignature The signature of the user indicating acceptance of Terms and Conditions (TC).
   function setKYCInfo(
     string memory name,
     string memory surname,
@@ -284,13 +284,21 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
     string memory profilePhoto,
     string memory licenseNumber,
     uint64 expirationDate,
-    bool isTCPassed
+    bytes memory TCSignature
   ) public {
     if (!userService.isGuest(msg.sender)) {
       userService.grantGuestRole(msg.sender);
     }
     return
-      userService.setKYCInfo(name, surname, mobilePhoneNumber, profilePhoto, licenseNumber, expirationDate, isTCPassed);
+      userService.setKYCInfo(
+        name,
+        surname,
+        mobilePhoneNumber,
+        profilePhoto,
+        licenseNumber,
+        expirationDate,
+        TCSignature
+      );
   }
 
   /// @notice Retrieves KYC information for the caller.

@@ -238,7 +238,7 @@ interface IRentalityGateway {
   /// @param profilePhoto The URL of the caller's profile photo.
   /// @param licenseNumber The driver's license number of the caller.
   /// @param expirationDate The expiration date of the caller's driver's license.
-  /// @param isTCPassed Indicates whether the user has agreed to the terms of service for the platform
+  /// @param TCSignature The signature of the user indicating acceptance of Terms and Conditions (TC).
   function setKYCInfo(
     string memory name,
     string memory surname,
@@ -246,7 +246,7 @@ interface IRentalityGateway {
     string memory profilePhoto,
     string memory licenseNumber,
     uint64 expirationDate,
-    bool isTCPassed
+    bytes memory TCSignature
   ) external;
 
   /// @notice Get KYC (Know Your Customer) information for a specific user.
