@@ -8,6 +8,7 @@ const {
   getEmptySearchCarParams,
   ethToken,
   calculatePayments,
+  signTCMessage,
 } = require('../utils')
 
 describe('RentalityGateway: user info', function () {
@@ -61,8 +62,12 @@ describe('RentalityGateway: user info', function () {
     let licenseNumber = 'licenseNumber'
     let expirationDate = 10
 
+    const hostSignature = await signTCMessage(host)
+
     await expect(
-      rentalityGateway.connect(host).setKYCInfo(name, surname, number, photo, licenseNumber, expirationDate, true)
+      rentalityGateway
+        .connect(host)
+        .setKYCInfo(name, surname, number, photo, licenseNumber, expirationDate, hostSignature)
     ).not.be.reverted
 
     const kycInfo = await rentalityGateway.connect(host).getMyKYCInfo()
@@ -82,8 +87,11 @@ describe('RentalityGateway: user info', function () {
     let licenseNumber = 'licenseNumber'
     let expirationDate = 10
 
+    const guestSignature = await signTCMessage(guest)
     await expect(
-      rentalityGateway.connect(guest).setKYCInfo(name, surname, number, photo, licenseNumber, expirationDate, true)
+      rentalityGateway
+        .connect(guest)
+        .setKYCInfo(name, surname, number, photo, licenseNumber, expirationDate, guestSignature)
     ).not.be.reverted
 
     const kycInfo = await rentalityGateway.connect(guest).getMyKYCInfo()
@@ -104,10 +112,12 @@ describe('RentalityGateway: user info', function () {
     let licenseNumber = 'licenseNumber'
     let expirationDate = 10
 
+    const anonSignature = await signTCMessage(anonymous)
+
     await expect(
       rentalityUserService
         .connect(anonymous)
-        .setKYCInfo(name, surname, number, photo, licenseNumber, expirationDate, true)
+        .setKYCInfo(name, surname, number, photo, licenseNumber, expirationDate, anonSignature)
     ).to.be.reverted
   })
 
@@ -134,14 +144,19 @@ describe('RentalityGateway: user info', function () {
       )
     ).not.to.be.reverted
 
+    const hostSignature = await signTCMessage(host)
+    const guestSignature = await signTCMessage(guest)
+
     let guestNumber = '+380'
     let hostNumber = '+3801'
     await expect(
-      rentalityUserService.connect(guest).setKYCInfo('name', 'surname', guestNumber, 'photo', 'number', 1, true)
+      rentalityUserService
+        .connect(guest)
+        .setKYCInfo('name', 'surname', guestNumber, 'photo', 'number', 1, guestSignature)
     ).not.be.reverted
 
     await expect(
-      rentalityUserService.connect(host).setKYCInfo('name', 'surname', hostNumber, 'photo', 'number', 1, true)
+      rentalityUserService.connect(host).setKYCInfo('name', 'surname', hostNumber, 'photo', 'number', 1, hostSignature)
     ).not.be.reverted
 
     let [guestPhoneNumber, hostPhoneNumber] = await rentalityGateway.connect(guest).getTripContactInfo(1)
@@ -173,13 +188,17 @@ describe('RentalityGateway: user info', function () {
       )
     ).not.to.be.reverted
 
+    const hostSignature = await signTCMessage(host)
+    const guestSignature = await signTCMessage(guest)
     let guestNumber = '+380'
     let hostNumber = '+3801'
-    await expect(rentalityGateway.connect(guest).setKYCInfo('name', 'surname', guestNumber, 'photo', 'number', 1, true))
-      .not.be.reverted
+    await expect(
+      rentalityGateway.connect(guest).setKYCInfo('name', 'surname', guestNumber, 'photo', 'number', 1, guestSignature)
+    ).not.be.reverted
 
-    await expect(rentalityGateway.connect(host).setKYCInfo('name', 'surname', hostNumber, 'photo', 'number', 1, true))
-      .not.be.reverted
+    await expect(
+      rentalityGateway.connect(host).setKYCInfo('name', 'surname', hostNumber, 'photo', 'number', 1, hostSignature)
+    ).not.be.reverted
 
     let [guestPhoneNumber, hostPhoneNumber] = await rentalityGateway.connect(host).getTripContactInfo(1)
 
@@ -210,13 +229,17 @@ describe('RentalityGateway: user info', function () {
       )
     ).not.to.be.reverted
 
+    const hostSignature = await signTCMessage(host)
+    const guestSignature = await signTCMessage(guest)
     let guestNumber = '+380'
     let hostNumber = '+3801'
-    await expect(rentalityGateway.connect(guest).setKYCInfo('name', 'surname', guestNumber, 'photo', 'number', 1, true))
-      .not.be.reverted
+    await expect(
+      rentalityGateway.connect(guest).setKYCInfo('name', 'surname', guestNumber, 'photo', 'number', 1, guestSignature)
+    ).not.be.reverted
 
-    await expect(rentalityGateway.connect(host).setKYCInfo('name', 'surname', hostNumber, 'photo', 'number', 1, true))
-      .not.be.reverted
+    await expect(
+      rentalityGateway.connect(host).setKYCInfo('name', 'surname', hostNumber, 'photo', 'number', 1, hostSignature)
+    ).not.be.reverted
 
     await expect(rentalityGateway.connect(anonymous).getTripContactInfo(1)).to.be.reverted
   })
@@ -233,6 +256,8 @@ describe('RentalityGateway: user info', function () {
     let licenseNumber = 'licenseNumber'
     let expirationDate = 10
 
+    const hostSignature = await signTCMessage(host)
+
     await expect(
       rentalityGateway
         .connect(host)
@@ -243,7 +268,7 @@ describe('RentalityGateway: user info', function () {
           photo + 'host',
           licenseNumber + 'host',
           expirationDate,
-          true
+          hostSignature
         )
     ).not.be.reverted
 

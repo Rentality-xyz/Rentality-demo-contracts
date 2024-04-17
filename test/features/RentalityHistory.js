@@ -179,7 +179,7 @@ describe('Rentality History Service', function () {
 
     let result = await rentalityGateway.getTripReceipt(1)
 
-    expect(result.totalDayPriceInUsdCents).to.be.eq(sumToPayInUsdCents)
+    expect(result.totalDayPriceInUsdCents).to.be.eq(sumToPayInUsdCents * dayInTrip)
     expect(result.totalTripDays).to.be.eq(7)
     expect(result.discountAmount).to.be.approximately(
       BigInt(Math.floor(sumToPayInUsdCents * 7 - sumToPayWithDiscount)),

@@ -1,6 +1,11 @@
 const { ethers, upgrades } = require('hardhat')
 const ethToken = ethers.getAddress('0x0000000000000000000000000000000000000000')
 
+const signTCMessage = async (user) => {
+  const message =
+    'I have read and I agree with Terms of service, Cancellation policy, Prohibited uses and Privacy policy of Rentality.'
+  return await user.signMessage(message)
+}
 const calculatePayments = async (currencyConverter, paymentService, value, tripDays, deposit, token = ethToken) => {
   let priceWithDiscount = await paymentService.calculateSumWithDiscount(
     '0x0000000000000000000000000000000000000000',
@@ -394,8 +399,10 @@ async function deployDefaultFixture() {
   await rentalityUserService.connect(owner).grantManagerRole(await engineService.getAddress())
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityPaymentService.getAddress())
 
-  await rentalityGateway.connect(host).setKYCInfo(' ', ' ', ' ', ' ', ' ', 1, true)
-  await rentalityGateway.connect(guest).setKYCInfo(' ', ' ', ' ', ' ', ' ', 1, true)
+  const hostSignature = await signTCMessage(host)
+  const guestSignature = await signTCMessage(guest)
+  await rentalityGateway.connect(host).setKYCInfo(' ', ' ', ' ', ' ', ' ', 1, hostSignature)
+  await rentalityGateway.connect(guest).setKYCInfo(' ', ' ', ' ', ' ', ' ', 1, guestSignature)
 
   await rentalityCurrencyConverter.addCurrencyType(
     await usdtContract.getAddress(),
@@ -442,4 +449,5 @@ module.exports = {
   getMockCarRequestWithAddress,
   calculatePayments,
   calculatePaymentsFrom,
+  signTCMessage,
 }

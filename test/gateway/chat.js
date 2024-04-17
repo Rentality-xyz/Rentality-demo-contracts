@@ -1,7 +1,7 @@
 const { expect } = require('chai')
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 
-const { getMockCarRequest, deployDefaultFixture, ethToken, calculatePayments } = require('../utils')
+const { getMockCarRequest, deployDefaultFixture, ethToken, calculatePayments, signTCMessage } = require('../utils')
 
 describe('RentalityGateway: chat', function () {
   let rentalityGateway,
@@ -80,6 +80,8 @@ describe('RentalityGateway: chat', function () {
     let licenseNumber = 'licenseNumber'
     let expirationDate = 10
 
+    const hostSignature = await signTCMessage(host)
+    const guestSignature = await signTCMessage(guest)
     await expect(
       rentalityGateway
         .connect(host)
@@ -90,7 +92,7 @@ describe('RentalityGateway: chat', function () {
           photo + 'host',
           licenseNumber + 'host',
           expirationDate,
-          true
+          hostSignature
         )
     ).not.be.reverted
 
@@ -104,7 +106,7 @@ describe('RentalityGateway: chat', function () {
           photo + 'guest',
           licenseNumber + 'guest',
           expirationDate,
-          true
+          guestSignature
         )
     ).not.be.reverted
 
@@ -135,7 +137,8 @@ describe('RentalityGateway: chat', function () {
     let photo = 'photo'
     let licenseNumber = 'licenseNumber'
     let expirationDate = 10
-
+    const hostSignature = await signTCMessage(host)
+    const guestSignature = await signTCMessage(guest)
     await expect(
       rentalityGateway
         .connect(host)
@@ -146,7 +149,7 @@ describe('RentalityGateway: chat', function () {
           photo + 'host',
           licenseNumber + 'host',
           expirationDate,
-          true
+          hostSignature
         )
     ).not.be.reverted
 
@@ -160,7 +163,7 @@ describe('RentalityGateway: chat', function () {
           photo + 'guest',
           licenseNumber + 'guest',
           expirationDate,
-          true
+          guestSignature
         )
     ).not.be.reverted
 

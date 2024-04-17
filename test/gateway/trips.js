@@ -744,4 +744,32 @@ describe('RentalityGateway: trips', function () {
 
     await expect(rentalityGateway.connect(host).checkInByHost(2, [0, 0])).to.be.revertedWith('Car on the trip.')
   })
+  it('Return correct total trip price', async function () {
+    const mockCreateCarRequest = getMockCarRequest(13)
+    await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest)).not.to.be.reverted
+    const myCars = await rentalityGateway.connect(host).getMyCars()
+    expect(myCars.length).to.equal(1)
+
+    const availableCars = await rentalityGateway.connect(guest).getAvailableCarsForUser(guest.address)
+    expect(availableCars.length).to.equal(1)
+
+    let dayInSeconds = 86400
+    let tripDays = 4
+    const result = await rentalityPlatform.calculatePayments(1, tripDays, ethToken)
+    await expect(
+      await rentalityGateway.connect(guest).createTripRequest(
+        {
+          carId: 1,
+          startDateTime: Date.now(),
+          endDateTime: Date.now() + dayInSeconds * tripDays,
+          currencyType: ethToken,
+        },
+        { value: result.totalPrice }
+      )
+    ).to.changeEtherBalances([guest, rentalityPlatform], [-result.totalPrice, result.totalPrice])
+
+    let paymentInfo = (await rentalityGateway.getTrip(1)).trip.paymentInfo
+
+    expect(paymentInfo.totalDayPriceInUsdCents).to.be.eq(mockCreateCarRequest.pricePerDayInUsdCents * tripDays)
+  })
 })

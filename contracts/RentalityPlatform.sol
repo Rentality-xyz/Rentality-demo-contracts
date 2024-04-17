@@ -106,7 +106,6 @@ contract RentalityPlatform is UUPSOwnable {
       carInfo.pricePerDayInUsdCents
     );
     uint taxId = paymentService.defineTaxesType(address(carService), request.carId);
-    require(taxId != 0, 'Taxes contract not found.');
 
     uint64 taxes = paymentService.calculateTaxes(taxId, daysOfTrip, priceWithDiscount);
 
@@ -138,7 +137,7 @@ contract RentalityPlatform is UUPSOwnable {
       0,
       tx.origin,
       address(this),
-      carInfo.pricePerDayInUsdCents,
+      carInfo.pricePerDayInUsdCents * daysOfTrip,
       taxes,
       priceWithDiscount,
       carInfo.securityDepositPerTripInUsdCents,
