@@ -92,15 +92,8 @@ interface Schemas {
   /// @dev Struct representing the parameters for creating a trip request.
   struct CreateTripRequest {
     uint256 carId;
-    address host;
     uint64 startDateTime;
     uint64 endDateTime;
-    string startLocation;
-    string endLocation;
-    uint64 totalDayPriceInUsdCents;
-    uint64 depositInUsdCents;
-    int256 currencyRate;
-    uint8 currencyDecimals;
     address currencyType;
   }
 

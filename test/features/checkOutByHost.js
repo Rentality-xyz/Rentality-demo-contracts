@@ -56,7 +56,8 @@ describe('Check out without guest', function () {
   })
 
   it('Host can check out without guest', async function () {
-    await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
+    let request = getMockCarRequest(1)
+    await expect(rentalityGateway.connect(host).addCar(request)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
@@ -65,29 +66,20 @@ describe('Check out without guest', function () {
 
     const oneDayInSeconds = 86400
 
-    const dailyPriceInUsdCents = 1000
-
-    const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals, rentalityFee } = await calculatePayments(
+    const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals, rentalityFee, taxes } = await calculatePayments(
       rentalityCurrencyConverter,
       rentalityPaymentService,
-      dailyPriceInUsdCents,
+      request.pricePerDayInUsdCents,
       1,
-      0
+      request.securityDepositPerTripInUsdCents
     )
 
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityGateway.connect(guest).createTripRequest(
         {
           carId: 1,
-          host: host.address,
           startDateTime: Date.now(),
           endDateTime: Date.now() + oneDayInSeconds,
-          startLocation: '',
-          endLocation: '',
-          totalDayPriceInUsdCents: dailyPriceInUsdCents,
-          depositInUsdCents: 0,
-          currencyRate: ethToCurrencyRate,
-          currencyDecimals: ethToCurrencyDecimals,
           currencyType: ethToken,
         },
         { value: rentPriceInEth }
@@ -101,7 +93,8 @@ describe('Check out without guest', function () {
   })
 
   it('Car is available on search after check out without guest', async function () {
-    await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
+    let request = getMockCarRequest(1)
+    await expect(rentalityGateway.connect(host).addCar(request)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
@@ -110,29 +103,20 @@ describe('Check out without guest', function () {
 
     const oneDayInSeconds = 86400
 
-    const dailyPriceInUsdCents = 1000
-
-    const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals, rentalityFee } = await calculatePayments(
+    const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals, rentalityFee, taxes } = await calculatePayments(
       rentalityCurrencyConverter,
       rentalityPaymentService,
-      dailyPriceInUsdCents,
+      request.pricePerDayInUsdCents,
       1,
-      0
+      request.securityDepositPerTripInUsdCents
     )
 
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityGateway.connect(guest).createTripRequest(
         {
           carId: 1,
-          host: host.address,
           startDateTime: Date.now(),
           endDateTime: Date.now() + oneDayInSeconds,
-          startLocation: '',
-          endLocation: '',
-          totalDayPriceInUsdCents: dailyPriceInUsdCents,
-          depositInUsdCents: 0,
-          currencyRate: ethToCurrencyRate,
-          currencyDecimals: ethToCurrencyDecimals,
           currencyType: ethToken,
         },
         { value: rentPriceInEth }
@@ -156,7 +140,8 @@ describe('Check out without guest', function () {
   })
 
   it('Host can not check out and finish trip without confirmation', async function () {
-    await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
+    let request = getMockCarRequest(1)
+    await expect(rentalityGateway.connect(host).addCar(request)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
@@ -165,29 +150,20 @@ describe('Check out without guest', function () {
 
     const oneDayInSeconds = 86400
 
-    const dailyPriceInUsdCents = 1000
-
-    const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals, rentalityFee } = await calculatePayments(
+    const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals, rentalityFee, taxes } = await calculatePayments(
       rentalityCurrencyConverter,
       rentalityPaymentService,
-      dailyPriceInUsdCents,
+      request.pricePerDayInUsdCents,
       1,
-      0
+      request.securityDepositPerTripInUsdCents
     )
 
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityGateway.connect(guest).createTripRequest(
         {
           carId: 1,
-          host: host.address,
           startDateTime: Date.now(),
           endDateTime: Date.now() + oneDayInSeconds,
-          startLocation: '',
-          endLocation: '',
-          totalDayPriceInUsdCents: dailyPriceInUsdCents,
-          depositInUsdCents: 0,
-          currencyRate: ethToCurrencyRate,
-          currencyDecimals: ethToCurrencyDecimals,
           currencyType: ethToken,
         },
         { value: rentPriceInEth }
@@ -202,38 +178,30 @@ describe('Check out without guest', function () {
     await expect(rentalityGateway.connect(host).finishTrip(1)).to.be.reverted
   })
   it('Happy case, with guest confirmation', async function () {
-    await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
+    let request = getMockCarRequest(3)
+    await expect(rentalityGateway.connect(host).addCar(request)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
     const availableCars = await rentalityGateway.connect(guest).getAvailableCarsForUser(guest.address)
     expect(availableCars.length).to.equal(1)
     let oneDayInSeconds = 86400
-    let sumToPayInUsdCents = 173800
     let dayInTrip = 31
-    let sumToPayWithDiscount = sumToPayInUsdCents * dayInTrip - (sumToPayInUsdCents * dayInTrip * 15) / 100
 
     const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals, rentalityFee, taxes } = await calculatePayments(
       rentalityCurrencyConverter,
       rentalityPaymentService,
-      sumToPayInUsdCents,
+      request.pricePerDayInUsdCents,
       dayInTrip,
-      0
+      request.securityDepositPerTripInUsdCents
     )
 
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityGateway.connect(guest).createTripRequest(
         {
           carId: 1,
-          host: host.address,
           startDateTime: Date.now(),
-          endDateTime: Date.now() + oneDayInSeconds * 31,
-          startLocation: '',
-          endLocation: '',
-          totalDayPriceInUsdCents: sumToPayInUsdCents,
-          depositInUsdCents: 0,
-          currencyRate: ethToCurrencyRate,
-          currencyDecimals: ethToCurrencyDecimals,
+          endDateTime: Date.now() + oneDayInSeconds * dayInTrip,
           currencyType: ethToken,
         },
         { value: rentPriceInEth }
@@ -246,55 +214,47 @@ describe('Check out without guest', function () {
     await expect(rentalityGateway.connect(host).checkOutByGuest(1, [0, 0])).not.to.be.reverted
     await expect(rentalityGateway.connect(host).confirmCheckOut(1)).to.be.reverted
 
-    const [valueInEthWithoutTaxes, ,] = await rentalityCurrencyConverter.getFromUsdLatest(
+    const depositValue = await rentalityCurrencyConverter.getFromUsd(
       ethToken,
-      Math.floor(sumToPayWithDiscount)
+      request.securityDepositPerTripInUsdCents,
+      ethToCurrencyRate,
+      ethToCurrencyDecimals
     )
 
-    const returnToHost =
-      rentPriceInEth - (await rentalityPaymentService.getPlatformFeeFrom(valueInEthWithoutTaxes)) - taxes
+    const returnToHost = rentPriceInEth - rentalityFee - taxes - depositValue
 
     await expect(rentalityGateway.connect(guest).confirmCheckOut(1)).to.changeEtherBalances(
       [host, rentalityPlatform],
-      [returnToHost, -returnToHost]
+      [returnToHost, -(rentPriceInEth - taxes - rentalityFee)]
     )
     const trip = await rentalityTripService.getTrip(1)
 
     expect(trip.status).to.be.eq(TripStatus.Finished)
   })
   it('Happy case, with admin confirmation', async function () {
-    await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
+    const request = getMockCarRequest(0)
+    await expect(rentalityGateway.connect(host).addCar(request)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
     const availableCars = await rentalityGateway.connect(guest).getAvailableCarsForUser(guest.address)
     expect(availableCars.length).to.equal(1)
-    let oneDayInSeconds = 86400
-    let sumToPayInUsdCents = 173800
-    let dayInTrip = 31
-    let sumToPayWithDiscount = sumToPayInUsdCents * dayInTrip - (sumToPayInUsdCents * dayInTrip * 15) / 100
+    const oneDayInSeconds = 86400
 
     const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals, rentalityFee, taxes } = await calculatePayments(
       rentalityCurrencyConverter,
       rentalityPaymentService,
-      sumToPayInUsdCents,
-      dayInTrip,
-      0
+      request.pricePerDayInUsdCents,
+      1,
+      request.securityDepositPerTripInUsdCents
     )
 
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityGateway.connect(guest).createTripRequest(
         {
           carId: 1,
-          host: host.address,
           startDateTime: Date.now(),
-          endDateTime: Date.now() + oneDayInSeconds * 31,
-          startLocation: '',
-          endLocation: '',
-          totalDayPriceInUsdCents: sumToPayInUsdCents,
-          depositInUsdCents: 0,
-          currencyRate: ethToCurrencyRate,
-          currencyDecimals: ethToCurrencyDecimals,
+          endDateTime: Date.now() + oneDayInSeconds,
           currencyType: ethToken,
         },
         { value: rentPriceInEth }
@@ -306,17 +266,18 @@ describe('Check out without guest', function () {
     await expect(rentalityGateway.connect(guest).checkInByGuest(1, [0, 0])).not.to.be.reverted
     await expect(rentalityGateway.connect(host).checkOutByGuest(1, [0, 0])).not.to.be.reverted
 
-    const [valueInEthWithoutTaxes, ,] = await rentalityCurrencyConverter.getFromUsdLatest(
+    const depositValue = await rentalityCurrencyConverter.getFromUsd(
       ethToken,
-      Math.floor(sumToPayWithDiscount)
+      request.securityDepositPerTripInUsdCents,
+      ethToCurrencyRate,
+      ethToCurrencyDecimals
     )
 
-    const returnToHost =
-      rentPriceInEth - (await rentalityPaymentService.getPlatformFeeFrom(valueInEthWithoutTaxes)) - taxes
+    const returnToHost = rentPriceInEth - rentalityFee - taxes - depositValue
 
     await expect(rentalityGateway.connect(admin).confirmCheckOut(1)).to.changeEtherBalances(
       [host, rentalityPlatform],
-      [returnToHost, -returnToHost]
+      [returnToHost, -(rentPriceInEth - taxes - rentalityFee)]
     )
     const trip = await rentalityTripService.getTrip(1)
 
@@ -324,38 +285,31 @@ describe('Check out without guest', function () {
   })
 
   it('Admin can reject trip, after check out without guest', async function () {
-    await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
+    let request = getMockCarRequest(2)
+    await expect(rentalityGateway.connect(host).addCar(request)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
     const availableCars = await rentalityGateway.connect(guest).getAvailableCarsForUser(guest.address)
     expect(availableCars.length).to.equal(1)
-    let oneDayInSeconds = 86400
-    let sumToPayInUsdCents = 173800
     let dayInTrip = 31
-    let sumToPayWithDiscount = sumToPayInUsdCents * dayInTrip - (sumToPayInUsdCents * dayInTrip * 15) / 100
 
-    const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals, rentalityFee } = await calculatePayments(
+    const oneDayInSeconds = 86400
+
+    const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals, rentalityFee, taxes } = await calculatePayments(
       rentalityCurrencyConverter,
       rentalityPaymentService,
-      sumToPayInUsdCents,
+      request.pricePerDayInUsdCents,
       dayInTrip,
-      0
+      request.securityDepositPerTripInUsdCents
     )
 
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityGateway.connect(guest).createTripRequest(
         {
           carId: 1,
-          host: host.address,
           startDateTime: Date.now(),
-          endDateTime: Date.now() + oneDayInSeconds * 31,
-          startLocation: '',
-          endLocation: '',
-          totalDayPriceInUsdCents: sumToPayInUsdCents,
-          depositInUsdCents: 0,
-          currencyRate: ethToCurrencyRate,
-          currencyDecimals: ethToCurrencyDecimals,
+          endDateTime: Date.now() + oneDayInSeconds * dayInTrip,
           currencyType: ethToken,
         },
         { value: rentPriceInEth }

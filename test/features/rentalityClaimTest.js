@@ -55,34 +55,18 @@ describe('RentalityClaim', function () {
 
     const oneDayInSeconds = 86400
 
-    const dailyPriceInUsdCents = 1000
-
-    const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals, rentalityFee } = await calculatePayments(
-      rentalityCurrencyConverter,
-      rentalityPaymentService,
-      dailyPriceInUsdCents,
-      1,
-      0
-    )
-
+    const result = await rentalityPlatform.calculatePayments(1, 1, ethToken)
     await expect(
       await rentalityPlatform.connect(guest).createTripRequest(
         {
           carId: 1,
-          host: host.address,
-          startDateTime: 1,
-          endDateTime: 2,
-          startLocation: 'startLocation',
-          endLocation: 'endLocation',
-          totalDayPriceInUsdCents: dailyPriceInUsdCents,
-          depositInUsdCents: 0,
-          currencyRate: ethToCurrencyRate,
-          currencyDecimals: ethToCurrencyDecimals,
+          startDateTime: Date.now(),
+          endDateTime: Date.now() + oneDayInSeconds,
           currencyType: ethToken,
         },
-        { value: rentPriceInEth }
+        { value: result.totalPrice }
       )
-    ).to.changeEtherBalances([guest, rentalityPlatform], [-rentPriceInEth, rentPriceInEth])
+    ).to.changeEtherBalances([guest, rentalityPlatform], [-result.totalPrice, result.totalPrice])
 
     const amountToClaimInUsdCents = 10000
     let mockClaimRequest = createMockClaimRequest(1, amountToClaimInUsdCents)
@@ -98,34 +82,19 @@ describe('RentalityClaim', function () {
 
     const oneDayInSeconds = 86400
 
-    const dailyPriceInUsdCents = 1000
-
-    const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals, rentalityFee } = await calculatePayments(
-      rentalityCurrencyConverter,
-      rentalityPaymentService,
-      dailyPriceInUsdCents,
-      1,
-      0
-    )
-
+    const result = await rentalityPlatform.calculatePayments(1, 1, ethToken)
     await expect(
       await rentalityPlatform.connect(guest).createTripRequest(
         {
           carId: 1,
-          host: host.address,
-          startDateTime: 1,
-          endDateTime: 2,
-          startLocation: 'startLocation',
-          endLocation: 'endLocation',
-          totalDayPriceInUsdCents: dailyPriceInUsdCents,
-          depositInUsdCents: 0,
-          currencyRate: ethToCurrencyRate,
-          currencyDecimals: ethToCurrencyDecimals,
+          startDateTime: Date.now(),
+          endDateTime: Date.now() + oneDayInSeconds,
           currencyType: ethToken,
         },
-        { value: rentPriceInEth }
+        { value: result.totalPrice }
       )
-    ).to.changeEtherBalances([guest, rentalityPlatform], [-rentPriceInEth, rentPriceInEth])
+    ).to.changeEtherBalances([guest, rentalityPlatform], [-result.totalPrice, result.totalPrice])
+
     await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
 
     const amountToClaimInUsdCents = 10000
@@ -155,34 +124,18 @@ describe('RentalityClaim', function () {
 
     const oneDayInSeconds = 86400
 
-    const dailyPriceInUsdCents = 1000
-
-    const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals, rentalityFee } = await calculatePayments(
-      rentalityCurrencyConverter,
-      rentalityPaymentService,
-      dailyPriceInUsdCents,
-      1,
-      0
-    )
-
+    const result = await rentalityPlatform.calculatePayments(1, 1, ethToken)
     await expect(
       await rentalityPlatform.connect(guest).createTripRequest(
         {
           carId: 1,
-          host: host.address,
-          startDateTime: 1,
-          endDateTime: 2,
-          startLocation: 'startLocation',
-          endLocation: 'endLocation',
-          totalDayPriceInUsdCents: dailyPriceInUsdCents,
-          depositInUsdCents: 0,
-          currencyRate: ethToCurrencyRate,
-          currencyDecimals: ethToCurrencyDecimals,
+          startDateTime: Date.now(),
+          endDateTime: Date.now() + oneDayInSeconds,
           currencyType: ethToken,
         },
-        { value: rentPriceInEth }
+        { value: result.totalPrice }
       )
-    ).to.changeEtherBalances([guest, rentalityPlatform], [-rentPriceInEth, rentPriceInEth])
+    ).to.changeEtherBalances([guest, rentalityPlatform], [-result.totalPrice, result.totalPrice])
     await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
 
     const amountToClaimInUsdCents = 10000
@@ -324,32 +277,19 @@ describe('RentalityClaim', function () {
 
     const dailyPriceInUsdCents = 1000
 
-    const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals, rentalityFee } = await calculatePayments(
-      rentalityCurrencyConverter,
-      rentalityPaymentService,
-      dailyPriceInUsdCents,
-      1,
-      0
-    )
-
+    const result = await rentalityPlatform.calculatePayments(1, 1, ethToken)
     await expect(
       await rentalityPlatform.connect(guest).createTripRequest(
         {
           carId: 1,
-          host: host.address,
           startDateTime: Date.now(),
           endDateTime: Date.now() + oneDayInSeconds,
-          startLocation: '',
-          endLocation: '',
-          totalDayPriceInUsdCents: dailyPriceInUsdCents,
-          depositInUsdCents: 0,
-          currencyRate: ethToCurrencyRate,
-          currencyDecimals: ethToCurrencyDecimals,
           currencyType: ethToken,
         },
-        { value: rentPriceInEth }
+        { value: result.totalPrice }
       )
-    ).to.changeEtherBalances([guest, rentalityPlatform], [-rentPriceInEth, rentPriceInEth])
+    ).to.changeEtherBalances([guest, rentalityPlatform], [-result.totalPrice, result.totalPrice])
+
     await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
 
     const amountToClaimInUsdCents = 362120
@@ -380,34 +320,25 @@ describe('RentalityClaim', function () {
 
       const oneDayInSeconds = 86400
 
-      const dailyPriceInUsdCents = 1000
-
       const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals, rentalityFee } = await calculatePayments(
         rentalityCurrencyConverter,
         rentalityPaymentService,
-        dailyPriceInUsdCents,
+        createCarRequest.pricePerDayInUsdCents,
         1,
-        0
+        createCarRequest.securityDepositPerTripInUsdCents
       )
-
       await expect(
         await rentalityPlatform.connect(guest).createTripRequest(
           {
-            carId: 1,
-            host: host.address,
+            carId: i,
             startDateTime: Date.now() + oneDayInSeconds * i,
             endDateTime: Date.now() + (oneDayInSeconds * i + 1),
-            startLocation: '',
-            endLocation: '',
-            totalDayPriceInUsdCents: dailyPriceInUsdCents,
-            depositInUsdCents: 0,
-            currencyRate: ethToCurrencyRate,
-            currencyDecimals: ethToCurrencyDecimals,
             currencyType: ethToken,
           },
           { value: rentPriceInEth }
         )
       ).to.changeEtherBalances([guest, rentalityPlatform], [-rentPriceInEth, rentPriceInEth])
+
       await expect(rentalityGateway.connect(host).approveTripRequest(i)).not.to.be.reverted
 
       const amountToClaimInUsdCents = 10000
