@@ -98,25 +98,20 @@ contract RentalityPlatform is UUPSOwnable {
     );
 
     uint64 daysOfTrip = RentalityUtils.getCeilDays(request.startDateTime, request.endDateTime);
+    Schemas.CarInfo memory carInfo = carService.getCarInfoById(request.carId);
 
     uint64 priceWithDiscount = paymentService.calculateSumWithDiscount(
-      request.host,
+      carService.ownerOf(request.carId),
       daysOfTrip,
-      request.totalDayPriceInUsdCents
+      carInfo.pricePerDayInUsdCents
     );
     uint taxId = paymentService.defineTaxesType(address(carService), request.carId);
-    require(taxId != 0, 'Taxes contract not found.');
 
     uint64 taxes = paymentService.calculateTaxes(taxId, daysOfTrip, priceWithDiscount);
 
-    uint valueSum = priceWithDiscount + taxes + request.depositInUsdCents;
-
-    uint256 valueSumInCurrency = currencyConverterService.getFromUsd(
-      request.currencyType,
-      valueSum,
-      request.currencyRate,
-      request.currencyDecimals
-    );
+    uint valueSum = priceWithDiscount + taxes + carInfo.securityDepositPerTripInUsdCents;
+    (int rate, uint8 decimals) = currencyConverterService.getCurrentRate(request.currencyType);
+    uint valueSumInCurrency = currencyConverterService.getFromUsd(request.currencyType, valueSum, rate, decimals);
     if (currencyConverterService.isETH(request.currencyType)) {
       require(
         msg.value == valueSumInCurrency,
@@ -131,6 +126,8 @@ contract RentalityPlatform is UUPSOwnable {
       bool success = IERC20(request.currencyType).transferFrom(tx.origin, address(this), valueSumInCurrency);
       require(success, 'Transfer failed.');
     }
+    /// updating cache currency data
+    currencyConverterService.getCurrencyRateWithCache(request.currencyType);
 
     if (!userService.isGuest(tx.origin)) {
       userService.grantGuestRole(tx.origin);
@@ -140,29 +137,27 @@ contract RentalityPlatform is UUPSOwnable {
       0,
       tx.origin,
       address(this),
-      request.totalDayPriceInUsdCents,
+      carInfo.pricePerDayInUsdCents * daysOfTrip,
       taxes,
       priceWithDiscount,
-      request.depositInUsdCents,
+      carInfo.securityDepositPerTripInUsdCents,
       0,
       request.currencyType,
-      request.currencyRate,
-      request.currencyDecimals,
+      rate,
+      decimals,
       0,
       0
     );
 
-    Schemas.CarInfo memory carInfo = carService.getCarInfoById(request.carId);
-
     tripService.createNewTrip(
       request.carId,
       tx.origin,
-      request.host,
+      carService.ownerOf(request.carId),
       carInfo.pricePerDayInUsdCents,
       request.startDateTime,
       request.endDateTime,
-      request.startLocation,
-      request.endLocation,
+      IRentalityGeoService(carService.getGeoServiceAddress()).getCarCity(request.carId),
+      IRentalityGeoService(carService.getGeoServiceAddress()).getCarCity(request.carId),
       carInfo.milesIncludedPerDay,
       paymentInfo
     );
@@ -475,10 +470,13 @@ contract RentalityPlatform is UUPSOwnable {
     uint taxId = paymentService.defineTaxesType(address(carService), carId);
 
     uint64 taxes = paymentService.calculateTaxes(taxId, daysOfTrip, sumWithDiscount);
+    (int rate, uint8 decimals) = currencyConverterService.getCurrentRate(currency);
 
-    (uint256 valueSumInCurrency, int256 rate, uint8 decimals) = currencyConverterService.getFromUsdLatest(
+    uint256 valueSumInCurrency = currencyConverterService.getFromUsd(
       currency,
-      car.securityDepositPerTripInUsdCents + taxes + sumWithDiscount
+      car.securityDepositPerTripInUsdCents + taxes + sumWithDiscount,
+      rate,
+      decimals
     );
 
     return Schemas.CalculatePaymentsDTO(valueSumInCurrency, rate, decimals);

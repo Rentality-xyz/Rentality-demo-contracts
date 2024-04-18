@@ -6,7 +6,7 @@ const signTCMessage = async (user) => {
     'I have read and I agree with Terms of service, Cancellation policy, Prohibited uses and Privacy policy of Rentality.'
   return await user.signMessage(message)
 }
-const calculatePayments = async (currencyConverter, paymentService, value, tripDays, deposit) => {
+const calculatePayments = async (currencyConverter, paymentService, value, tripDays, deposit, token = ethToken) => {
   let priceWithDiscount = await paymentService.calculateSumWithDiscount(
     '0x0000000000000000000000000000000000000000',
     tripDays,
@@ -14,22 +14,26 @@ const calculatePayments = async (currencyConverter, paymentService, value, tripD
   )
   let totalTaxes = await paymentService.calculateTaxes(1, tripDays, priceWithDiscount)
 
-  const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] = await currencyConverter.getFromUsdLatest(
-    ethToken,
-    priceWithDiscount + totalTaxes + BigInt(deposit)
+  const [rate, decimals] = await currencyConverter.getCurrentRate(token)
+
+  const rentPriceInEth = await currencyConverter.getFromUsd(
+    token,
+    priceWithDiscount + totalTaxes + BigInt(deposit),
+    rate,
+    decimals
   )
-  const [texesInEth, ,] = await currencyConverter.getFromUsdLatest(ethToken, totalTaxes)
+  const taxes = await currencyConverter.getFromUsd(token, totalTaxes, rate, decimals)
 
-  const [priceWithoutTaxes, ,] = await currencyConverter.getFromUsdLatest(ethToken, priceWithDiscount)
+  const feeInUsdCents = await paymentService.getPlatformFeeFrom(priceWithDiscount)
 
-  const rentalityFee = await paymentService.getPlatformFeeFrom(priceWithoutTaxes)
+  const rentalityFee = await currencyConverter.getFromUsd(token, feeInUsdCents, rate, decimals)
 
   return {
     rentPriceInEth,
-    ethToCurrencyRate,
-    ethToCurrencyDecimals,
+    ethToCurrencyRate: rate,
+    ethToCurrencyDecimals: decimals,
     rentalityFee,
-    taxes: texesInEth,
+    taxes,
   }
 }
 
@@ -39,22 +43,25 @@ const calculatePaymentsFrom = async (currencyConverter, paymentService, value, t
     tripDays,
     value
   )
-  let totalTaxes = await paymentService.calculateTaxes(1, tripDays, value)
+  let totalTaxes = await paymentService.calculateTaxes(1, tripDays, priceWithDiscount)
+  const [rate, decimals] = await currencyConverter.getCurrentRate(token)
 
-  const [rentPrice, currencyRate, currencyDecimals] = await currencyConverter.getFromUsdLatest(
+  const rentPriceInEth = await currencyConverter.getFromUsd(
     token,
-    priceWithDiscount + totalTaxes + BigInt(deposit)
+    priceWithDiscount + totalTaxes + BigInt(deposit),
+    rate,
+    decimals
   )
-  const [taxes, ,] = await currencyConverter.getFromUsdLatest(token, totalTaxes)
+  const taxes = await currencyConverter.getFromUsd(token, totalTaxes, rate, decimals)
 
-  const [priceWithoutTaxes, ,] = await currencyConverter.getFromUsdLatest(token, priceWithDiscount)
+  const feeInUsdCents = await paymentService.getPlatformFeeFrom(priceWithDiscount)
 
-  const rentalityFee = await paymentService.getPlatformFeeFrom(priceWithoutTaxes)
+  const rentalityFee = await currencyConverter.getFromUsd(token, feeInUsdCents, rate, decimals)
 
   return {
-    rentPrice,
-    currencyRate,
-    currencyDecimals,
+    rentPrice: rentPriceInEth,
+    currencyRate: rate,
+    currencyDecimals: decimals,
     rentalityFee,
     taxes,
   }

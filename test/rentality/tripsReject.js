@@ -25,30 +25,16 @@ describe('Rentality: reject Trip Request', function () {
     const dailyPriceInUsdCents = 1000
     const deposit = 400
 
-    const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals } = await calculatePayments(
-      rentalityCurrencyConverter,
-      rentalityPaymentService,
-      dailyPriceInUsdCents,
-      1,
-      deposit
-    )
-
+    const result = await rentalityPlatform.calculatePayments(1, 1, ethToken)
     await expect(
       await rentalityPlatform.connect(guest).createTripRequest(
         {
           carId: 1,
-          host: host.address,
           startDateTime: 123,
           endDateTime: 321,
-          startLocation: '',
-          endLocation: '',
-          totalDayPriceInUsdCents: dailyPriceInUsdCents,
-          depositInUsdCents: 400,
-          currencyRate: ethToCurrencyRate,
-          currencyDecimals: ethToCurrencyDecimals,
           currencyType: ethToken,
         },
-        { value: rentPriceInEth }
+        { value: result.totalPrice }
       )
     ).not.to.be.reverted
     expect((await rentalityTripService.connect(host).getTrip(1)).status).to.equal(0)
@@ -59,7 +45,7 @@ describe('Rentality: reject Trip Request', function () {
     expect((await rentalityTripService.connect(host).getTrip(1)).status).to.equal(7)
 
     const balanceAfterRejection = await ethers.provider.getBalance(await guest.getAddress())
-    const returnAmountDifference = rentPriceInEth - (balanceAfterRejection - balanceAfterRequest)
+    const returnAmountDifference = result.totalPrice - (balanceAfterRejection - balanceAfterRequest)
     expect(
       returnAmountDifference === BigInt(0),
       'Balance should be refunded the amount which is deducted by a trip request'
@@ -83,33 +69,17 @@ describe('Rentality: reject Trip Request', function () {
     const availableCars = await rentalityCarToken.connect(guest).getAvailableCarsForUser(guest.address)
     expect(availableCars.length).to.equal(1)
 
-    const dailyPriceInUsdCents = 1000
-    const deposit = 400
-
-    const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals } = await calculatePayments(
-      rentalityCurrencyConverter,
-      rentalityPaymentService,
-      dailyPriceInUsdCents,
-      1,
-      deposit
-    )
+    const result = await rentalityPlatform.calculatePayments(1, 1, ethToken)
 
     await expect(
       await rentalityPlatform.connect(guest).createTripRequest(
         {
           carId: 1,
-          host: host.address,
           startDateTime: 123,
           endDateTime: 321,
-          startLocation: '',
-          endLocation: '',
-          totalDayPriceInUsdCents: dailyPriceInUsdCents,
-          depositInUsdCents: 400,
-          currencyRate: ethToCurrencyRate,
-          currencyDecimals: ethToCurrencyDecimals,
           currencyType: ethToken,
         },
-        { value: rentPriceInEth }
+        { value: result.totalPrice }
       )
     ).not.to.be.reverted
     expect((await rentalityTripService.connect(host).getTrip(1)).status).to.equal(0)
@@ -122,7 +92,7 @@ describe('Rentality: reject Trip Request', function () {
 
     const balanceAfterRejection = await ethers.provider.getBalance(await guest.getAddress())
 
-    const expectedBalance = balanceBeforeRejection + rentPriceInEth - gasCost
+    const expectedBalance = balanceBeforeRejection + result.totalPrice - gasCost
 
     expect(balanceAfterRejection === BigInt(expectedBalance), 'The guest should be refunded minus the gas cost').to.be
       .true
@@ -145,33 +115,16 @@ describe('Rentality: reject Trip Request', function () {
     const availableCars = await rentalityCarToken.connect(guest).getAvailableCarsForUser(guest.address)
     expect(availableCars.length).to.equal(1)
 
-    const dailyPriceInUsdCents = 1000
-    const deposit = 400
-
-    const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals } = await calculatePayments(
-      rentalityCurrencyConverter,
-      rentalityPaymentService,
-      dailyPriceInUsdCents,
-      1,
-      deposit
-    )
-
+    const result = await rentalityPlatform.calculatePayments(1, 1, ethToken)
     await expect(
       await rentalityPlatform.connect(guest).createTripRequest(
         {
           carId: 1,
-          host: host.address,
           startDateTime: 123,
           endDateTime: 321,
-          startLocation: '',
-          endLocation: '',
-          totalDayPriceInUsdCents: dailyPriceInUsdCents,
-          depositInUsdCents: 400,
-          currencyRate: ethToCurrencyRate,
-          currencyDecimals: ethToCurrencyDecimals,
           currencyType: ethToken,
         },
-        { value: rentPriceInEth }
+        { value: result.totalPrice }
       )
     ).not.to.be.reverted
 
@@ -181,15 +134,8 @@ describe('Rentality: reject Trip Request', function () {
   })
 
   it('Guest reject | trip status CheckedInByHost', async function () {
-    const {
-      rentalityPlatform,
-      rentalityCarToken,
-      rentalityTripService,
-      rentalityCurrencyConverter,
-      rentalityPaymentService,
-      host,
-      guest,
-    } = await loadFixture(deployDefaultFixture)
+    const { rentalityPlatform, rentalityCarToken, rentalityTripService, host, guest } =
+      await loadFixture(deployDefaultFixture)
 
     await expect(rentalityCarToken.connect(host).addCar(getMockCarRequest(1))).not.to.be.reverted
     const myCars = await rentalityCarToken.connect(host).getCarsOwnedByUser(host.address)
@@ -197,33 +143,17 @@ describe('Rentality: reject Trip Request', function () {
     const availableCars = await rentalityCarToken.connect(guest).getAvailableCarsForUser(guest.address)
     expect(availableCars.length).to.equal(1)
 
-    const dailyPriceInUsdCents = 1000
-    const deposit = 400
-
-    const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals } = await calculatePayments(
-      rentalityCurrencyConverter,
-      rentalityPaymentService,
-      dailyPriceInUsdCents,
-      1,
-      deposit
-    )
+    const result = await rentalityPlatform.calculatePayments(1, 1, ethToken)
 
     await expect(
       await rentalityPlatform.connect(guest).createTripRequest(
         {
           carId: 1,
-          host: host.address,
           startDateTime: 123,
           endDateTime: 321,
-          startLocation: '',
-          endLocation: '',
-          totalDayPriceInUsdCents: dailyPriceInUsdCents,
-          depositInUsdCents: 400,
-          currencyRate: ethToCurrencyRate,
-          currencyDecimals: ethToCurrencyDecimals,
           currencyType: ethToken,
         },
-        { value: rentPriceInEth }
+        { value: result.totalPrice }
       )
     ).not.to.be.reverted
 

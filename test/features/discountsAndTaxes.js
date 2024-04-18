@@ -1,5 +1,11 @@
 const { expect } = require('chai')
-const { deployDefaultFixture, getMockCarRequest, ethToken, calculatePayments } = require('../utils')
+const {
+  deployDefaultFixture,
+  getMockCarRequest,
+  ethToken,
+  calculatePayments,
+  calculatePaymentsFrom,
+} = require('../utils')
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 const { ethers } = require('hardhat')
 
@@ -85,194 +91,148 @@ describe('Rentality taxes & discounts', function () {
     expect(thirtyDayCalculatedDiscountPrice).to.be.eq(thirtyDiscount)
   })
   it('guest payed correct value with taxes, without discount', async function () {
-    await expect(rentalityCarToken.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
+    const request = getMockCarRequest(10)
+    await expect(rentalityCarToken.connect(host).addCar(request)).not.to.be.reverted
     const myCars = await rentalityCarToken.connect(host).getCarsOwnedByUser(host.address)
     expect(myCars.length).to.equal(1)
 
     const availableCars = await rentalityCarToken.connect(guest).getAvailableCarsForUser(guest.address)
     expect(availableCars.length).to.equal(1)
 
-    let sumToPayInUsdCents = 19500
     let dayInTrip = 2
-    let totalTaxes = (sumToPayInUsdCents * dayInTrip * 7) / 100 + dayInTrip * 200
-
-    const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
-      await rentalityCurrencyConverter.getFromUsdLatest(ethToken, sumToPayInUsdCents * dayInTrip + totalTaxes)
 
     let twoDaysInSec = 172800
 
+    const result = await rentalityPlatform.calculatePayments(1, dayInTrip, ethToken)
+
     await expect(
-      rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequest(
         {
           carId: 1,
-          host: host.address,
           startDateTime: Date.now(),
           endDateTime: Date.now() + twoDaysInSec,
-          startLocation: '',
-          endLocation: '',
-          totalDayPriceInUsdCents: sumToPayInUsdCents,
-          depositInUsdCents: 0,
-          currencyRate: ethToCurrencyRate,
-          currencyDecimals: ethToCurrencyDecimals,
           currencyType: ethToken,
         },
-        { value: rentPriceInEth }
+        { value: result.totalPrice }
       )
-    ).to.changeEtherBalances([guest, rentalityPlatform], [-rentPriceInEth, rentPriceInEth])
+    ).to.changeEtherBalances([guest, rentalityPlatform], [-result.totalPrice, result.totalPrice])
   })
 
   it('guest payed correct value with taxes and 3 days discount', async function () {
-    await expect(rentalityCarToken.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
+    const request = getMockCarRequest(10)
+    await expect(rentalityCarToken.connect(host).addCar(request)).not.to.be.reverted
     const myCars = await rentalityCarToken.connect(host).getCarsOwnedByUser(host.address)
     expect(myCars.length).to.equal(1)
 
     const availableCars = await rentalityCarToken.connect(guest).getAvailableCarsForUser(guest.address)
     expect(availableCars.length).to.equal(1)
 
-    let sumToPayInUsdCents = 199500
     let dayInTrip = 4
-    let sumToPayWithDiscount = sumToPayInUsdCents * dayInTrip - (sumToPayInUsdCents * dayInTrip * 2) / 100
-
-    let totalTaxes = (sumToPayWithDiscount * 7) / 100 + dayInTrip * 200
-
-    const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
-      await rentalityCurrencyConverter.getFromUsdLatest(ethToken, Math.floor(sumToPayWithDiscount + totalTaxes))
 
     let fourDaysInSec = 345600
+    const result = await rentalityPlatform.calculatePayments(1, dayInTrip, ethToken)
 
     await expect(
-      rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequest(
         {
           carId: 1,
-          host: host.address,
           startDateTime: Date.now(),
           endDateTime: Date.now() + fourDaysInSec,
-          startLocation: '',
-          endLocation: '',
-          totalDayPriceInUsdCents: sumToPayInUsdCents,
-          depositInUsdCents: 0,
-          currencyRate: ethToCurrencyRate,
-          currencyDecimals: ethToCurrencyDecimals,
           currencyType: ethToken,
         },
-        { value: rentPriceInEth }
+        { value: result.totalPrice }
       )
-    ).to.changeEtherBalances([guest, rentalityPlatform], [-rentPriceInEth, rentPriceInEth])
+    ).to.changeEtherBalances([guest, rentalityPlatform], [-result.totalPrice, result.totalPrice])
   })
   it('guest payed correct value with taxes and 7 days discount', async function () {
-    await expect(rentalityCarToken.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
+    const request = getMockCarRequest(10)
+    await expect(rentalityCarToken.connect(host).addCar(request)).not.to.be.reverted
     const myCars = await rentalityCarToken.connect(host).getCarsOwnedByUser(host.address)
     expect(myCars.length).to.equal(1)
 
     const availableCars = await rentalityCarToken.connect(guest).getAvailableCarsForUser(guest.address)
     expect(availableCars.length).to.equal(1)
 
-    let sumToPayInUsdCents = 43100
     let dayInTrip = 8
-    let sumToPayWithDiscount = sumToPayInUsdCents * dayInTrip - (sumToPayInUsdCents * dayInTrip * 10) / 100
-
-    let totalTaxes = (sumToPayWithDiscount * 7) / 100 + dayInTrip * 200
-
-    const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
-      await rentalityCurrencyConverter.getFromUsdLatest(ethToken, Math.floor(sumToPayWithDiscount + totalTaxes))
-
     let eightDaysInSec = 691200
 
+    const result = await rentalityPlatform.calculatePayments(1, dayInTrip, ethToken)
+
     await expect(
-      rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequest(
         {
           carId: 1,
-          host: host.address,
           startDateTime: Date.now(),
           endDateTime: Date.now() + eightDaysInSec,
-          startLocation: '',
-          endLocation: '',
-          totalDayPriceInUsdCents: sumToPayInUsdCents,
-          depositInUsdCents: 0,
-          currencyRate: ethToCurrencyRate,
-          currencyDecimals: ethToCurrencyDecimals,
           currencyType: ethToken,
         },
-        { value: rentPriceInEth }
+        { value: result.totalPrice }
       )
-    ).to.changeEtherBalances([guest, rentalityPlatform], [-rentPriceInEth, rentPriceInEth])
+    ).to.changeEtherBalances([guest, rentalityPlatform], [-result.totalPrice, result.totalPrice])
   })
 
   it('guest payed correct value with taxes and 30 days discount', async function () {
-    await expect(rentalityCarToken.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
+    const request = getMockCarRequest(10)
+    await expect(rentalityCarToken.connect(host).addCar(request)).not.to.be.reverted
     const myCars = await rentalityCarToken.connect(host).getCarsOwnedByUser(host.address)
     expect(myCars.length).to.equal(1)
 
     const availableCars = await rentalityCarToken.connect(guest).getAvailableCarsForUser(guest.address)
     expect(availableCars.length).to.equal(1)
 
-    let sumToPayInUsdCents = 173800
     let dayInTrip = 31
-    let sumToPayWithDiscount = sumToPayInUsdCents * dayInTrip - (sumToPayInUsdCents * dayInTrip * 15) / 100
-
-    let totalTaxes = (sumToPayWithDiscount * 7) / 100 + dayInTrip * 200
-
-    const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
-      await rentalityCurrencyConverter.getFromUsdLatest(ethToken, Math.floor(sumToPayWithDiscount + totalTaxes))
 
     let thirtyOneDayInSec = 86400 * 31
 
+    const result = await rentalityPlatform.calculatePayments(1, dayInTrip, ethToken)
+
     await expect(
-      rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequest(
         {
           carId: 1,
-          host: host.address,
           startDateTime: Date.now(),
           endDateTime: Date.now() + thirtyOneDayInSec,
-          startLocation: '',
-          endLocation: '',
-          totalDayPriceInUsdCents: sumToPayInUsdCents,
-          depositInUsdCents: 0,
-          currencyRate: ethToCurrencyRate,
-          currencyDecimals: ethToCurrencyDecimals,
           currencyType: ethToken,
         },
-        { value: rentPriceInEth }
+        { value: result.totalPrice }
       )
-    ).to.changeEtherBalances([guest, rentalityPlatform], [-rentPriceInEth, rentPriceInEth])
+    ).to.changeEtherBalances([guest, rentalityPlatform], [-result.totalPrice, result.totalPrice])
   })
   it('after trip host get correct value', async function () {
-    await expect(rentalityCarToken.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
+    const request = getMockCarRequest(91)
+    await expect(rentalityCarToken.connect(host).addCar(request)).not.to.be.reverted
     const myCars = await rentalityCarToken.connect(host).getCarsOwnedByUser(host.address)
     expect(myCars.length).to.equal(1)
 
     const availableCars = await rentalityCarToken.connect(guest).getAvailableCarsForUser(guest.address)
     expect(availableCars.length).to.equal(1)
 
-    let sumToPayInUsdCents = 173800
+    let sumToPayInUsdCents = request.pricePerDayInUsdCents
     let dayInTrip = 31
-    let sumToPayWithDiscount = sumToPayInUsdCents * dayInTrip - (sumToPayInUsdCents * dayInTrip * 15) / 100
 
-    let totalTaxes = (sumToPayWithDiscount * 7) / 100 + dayInTrip * 200
-
-    const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
-      await rentalityCurrencyConverter.getFromUsdLatest(ethToken, Math.floor(sumToPayWithDiscount + totalTaxes))
+    const { rentalityFee, taxes } = await calculatePayments(
+      rentalityCurrencyConverter,
+      rentalityPaymentService,
+      sumToPayInUsdCents,
+      dayInTrip,
+      request.securityDepositPerTripInUsdCents
+    )
 
     let thirtyOneDayInSec = 86400 * 31
+    const result = await rentalityPlatform.calculatePayments(1, 31, ethToken)
+    const value = result[0]
 
     await expect(
-      rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequest(
         {
           carId: 1,
-          host: host.address,
           startDateTime: Date.now(),
           endDateTime: Date.now() + thirtyOneDayInSec,
-          startLocation: '',
-          endLocation: '',
-          totalDayPriceInUsdCents: sumToPayInUsdCents,
-          depositInUsdCents: 0,
-          currencyRate: ethToCurrencyRate,
-          currencyDecimals: ethToCurrencyDecimals,
           currencyType: ethToken,
         },
-        { value: rentPriceInEth }
+        { value }
       )
-    ).to.changeEtherBalances([guest, rentalityPlatform], [-rentPriceInEth, rentPriceInEth])
+    ).to.changeEtherBalances([guest, rentalityPlatform], [-value, value])
 
     await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
     await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0])).not.to.be.reverted
@@ -280,18 +240,16 @@ describe('Rentality taxes & discounts', function () {
     await expect(rentalityGateway.connect(guest).checkOutByGuest(1, [0, 0])).not.to.be.reverted
     await expect(rentalityGateway.connect(host).checkOutByHost(1, [0, 0])).not.to.be.reverted
 
-    const [valueInEthWithoutTaxes, ,] = await rentalityCurrencyConverter.getFromUsdLatest(
+    const [deposit, ,] = await rentalityCurrencyConverter.getFromUsdLatest(
       ethToken,
-      Math.floor(sumToPayWithDiscount)
+      request.securityDepositPerTripInUsdCents
     )
-    const [taxes, ,] = await rentalityCurrencyConverter.getFromUsdLatest(ethToken, Math.floor(totalTaxes))
 
-    const returnToHost =
-      rentPriceInEth - (await rentalityPaymentService.getPlatformFeeFrom(valueInEthWithoutTaxes)) - taxes
+    const returnToHost = value - deposit - rentalityFee - taxes
 
     await expect(rentalityGateway.connect(host).finishTrip(1)).to.changeEtherBalances(
       [host, rentalityPlatform],
-      [returnToHost, -returnToHost]
+      [returnToHost, -(result.totalPrice - rentalityFee - taxes)]
     )
   })
 
