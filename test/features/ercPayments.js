@@ -1,11 +1,5 @@
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
-const {
-  deployDefaultFixture,
-  getMockCarRequest,
-  createMockClaimRequest,
-  ethToken,
-  calculatePayments,
-} = require('../utils')
+const { deployDefaultFixture, getMockCarRequest, createMockClaimRequest } = require('../utils')
 const { expect } = require('chai')
 const { calculatePaymentsFrom } = require('../utils')
 
@@ -22,34 +16,34 @@ describe('ERC20 payments', function () {
     owner,
     guest,
     host,
-    rentalityAdminGateway = beforeEach(async function () {
-      ;({
-        rentalityGateway,
-        rentalityCurrencyConverter,
-        rentalityPlatform,
-        rentalityPaymentService,
-        usdtContract,
-        owner,
-        guest,
-        host,
-        rentalityAdminGateway,
-      } = await loadFixture(deployDefaultFixture))
-    })
+    rentalityTripService
+  rentalityAdminGateway = beforeEach(async function () {
+    ;({
+      rentalityGateway,
+      rentalityCurrencyConverter,
+      rentalityPlatform,
+      rentalityPaymentService,
+      usdtContract,
+      owner,
+      guest,
+      host,
+      rentalityTripService,
+      rentalityAdminGateway,
+    } = await loadFixture(deployDefaultFixture))
+  })
   it('Should correctly сreate trip and pay deposit with usdt', async function () {
     let usdt = await usdtContract.getAddress()
-    await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
-    const rentPriceInUsdCents = 1000
-
-    const oneDayInSeconds = 86400
+    const request = getMockCarRequest(13)
+    await expect(rentalityGateway.connect(host).addCar(request)).not.to.be.reverted
 
     const dailyPriceInUsdCents = 1000
 
     const { rentPrice, currencyRate, currencyDecimals, rentalityFee } = await calculatePaymentsFrom(
       rentalityCurrencyConverter,
       rentalityPaymentService,
-      dailyPriceInUsdCents,
+      request.pricePerDayInUsdCents,
       1,
-      0,
+      request.securityDepositPerTripInUsdCents,
       usdt
     )
     await mintTo(usdtContract, guest.address, 1000)
@@ -58,17 +52,10 @@ describe('ERC20 payments', function () {
     await usdtContract.connect(guest).approve(await rentalityPlatform.getAddress(), rentPrice)
 
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequest({
+      rentalityGateway.connect(guest).createTripRequest({
         carId: 1,
-        host: host.address,
-        startDateTime: Date.now(),
-        endDateTime: Date.now() + oneDayInSeconds,
-        startLocation: '',
-        endLocation: '',
-        totalDayPriceInUsdCents: dailyPriceInUsdCents,
-        depositInUsdCents: 0,
-        currencyRate: currencyRate,
-        currencyDecimals: currencyDecimals,
+        startDateTime: 1,
+        endDateTime: 2,
         currencyType: usdt,
       })
     ).to.not.reverted
@@ -82,38 +69,29 @@ describe('ERC20 payments', function () {
 
   it('should correctly finish trip with usdt, and send tokens to the host', async function () {
     let usdt = await usdtContract.getAddress()
-    await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
+    const request = getMockCarRequest(10)
+    await expect(rentalityGateway.connect(host).addCar(request)).not.to.be.reverted
 
-    await mintTo(usdtContract, guest.address, 1000)
+    await mintTo(usdtContract, guest.address, 10000000)
 
     const guestBalanceBeforeTrip = await usdtContract.balanceOf(guest.address)
     const hostBalanceBeforeTrip = await usdtContract.balanceOf(host.address)
 
-    const dailyPriceInUsdCents = 1000
-
     const { rentPrice, currencyRate, currencyDecimals, rentalityFee, taxes } = await calculatePaymentsFrom(
       rentalityCurrencyConverter,
       rentalityPaymentService,
-      dailyPriceInUsdCents,
+      request.pricePerDayInUsdCents,
       1,
-      0,
+      request.securityDepositPerTripInUsdCents,
       usdt
     )
-
     await usdtContract.connect(guest).approve(await rentalityPlatform.getAddress(), rentPrice)
 
     await expect(
       rentalityGateway.connect(guest).createTripRequest({
         carId: 1,
-        host: host.address,
         startDateTime: 1,
         endDateTime: 2,
-        startLocation: '',
-        endLocation: '',
-        totalDayPriceInUsdCents: dailyPriceInUsdCents,
-        depositInUsdCents: 0,
-        currencyRate: currencyRate,
-        currencyDecimals: currencyDecimals,
         currencyType: usdt,
       })
     ).to.not.reverted
@@ -124,8 +102,12 @@ describe('ERC20 payments', function () {
     await expect(rentalityGateway.connect(guest).checkOutByGuest(1, [0, 0])).not.to.be.reverted
     await expect(rentalityGateway.connect(host).checkOutByHost(1, [0, 0])).not.to.be.reverted
 
-    const returnToHost = rentPrice - BigInt(rentalityFee)
-
+    const deposit = await rentalityCurrencyConverter.getFromUsd(
+      usdt,
+      request.securityDepositPerTripInUsdCents,
+      currencyRate,
+      currencyDecimals
+    )
     await expect(rentalityGateway.connect(host).finishTrip(1)).to.not.reverted
 
     const guestBalanceAfterTrip = await usdtContract.balanceOf(guest.address)
@@ -133,8 +115,8 @@ describe('ERC20 payments', function () {
 
     const platformBalance = await usdtContract.balanceOf(await rentalityPlatform.getAddress())
 
-    expect(guestBalanceAfterTrip).to.be.eq(guestBalanceBeforeTrip - rentPrice)
-    expect(hostBalanceAfterTrip).to.be.eq(hostBalanceBeforeTrip + returnToHost - BigInt(taxes))
+    expect(guestBalanceAfterTrip).to.be.eq(guestBalanceBeforeTrip + deposit - rentPrice)
+    expect(hostBalanceAfterTrip).to.be.eq(hostBalanceBeforeTrip + rentPrice - deposit - rentalityFee - taxes)
     expect(platformBalance).to.be.eq(rentalityFee + taxes)
   })
 
@@ -235,7 +217,8 @@ describe('ERC20 payments', function () {
   })
   it('should be able withdraw usdt from platform ', async function () {
     let usdt = await usdtContract.getAddress()
-    await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
+    const request = getMockCarRequest(10)
+    await expect(rentalityGateway.connect(host).addCar(request)).not.to.be.reverted
 
     await mintTo(usdtContract, guest.address, 1000)
 
@@ -244,9 +227,9 @@ describe('ERC20 payments', function () {
     const { rentPrice, currencyRate, currencyDecimals, rentalityFee } = await calculatePaymentsFrom(
       rentalityCurrencyConverter,
       rentalityPaymentService,
-      dailyPriceInUsdCents,
+      request.pricePerDayInUsdCents,
       1,
-      0,
+      request.securityDepositPerTripInUsdCents,
       usdt
     )
 
@@ -255,15 +238,8 @@ describe('ERC20 payments', function () {
     await expect(
       rentalityGateway.connect(guest).createTripRequest({
         carId: 1,
-        host: host.address,
         startDateTime: 1,
         endDateTime: 2,
-        startLocation: '',
-        endLocation: '',
-        totalDayPriceInUsdCents: dailyPriceInUsdCents,
-        depositInUsdCents: 0,
-        currencyRate: currencyRate,
-        currencyDecimals: currencyDecimals,
         currencyType: usdt,
       })
     ).to.not.reverted

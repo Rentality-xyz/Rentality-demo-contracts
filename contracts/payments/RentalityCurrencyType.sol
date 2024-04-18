@@ -115,6 +115,13 @@ abstract contract ARentalityUpgradableCurrencyType is Initializable, UUPSAccess 
     return getUsd(valueInThis, rate, decimals);
   }
 
+  /// @dev Retrieves the cached rate for a given token address.
+  /// @return rate The cached rate as an integer.
+  /// @return decimals The number of decimal places in the rate.
+  function getCurrentRate() public view returns (int, uint8) {
+    return (currentToUsdRate, currentToUsdDecimals);
+  }
+
   /// @notice Initializes the contract with the specified parameters
   /// @param _userService The address of the Rentality user service contract
   /// @param _tokenAddress The address of the token contract
