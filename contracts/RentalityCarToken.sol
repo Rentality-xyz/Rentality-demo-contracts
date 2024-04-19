@@ -4,11 +4,12 @@ pragma solidity ^0.8.9;
 import {ERC721URIStorageUpgradeable, ERC721Upgradeable, IERC721Upgradeable} from '@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol';
 import {UUPSUpgradeable} from '@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol';
 import '@openzeppelin/contracts/utils/Counters.sol';
-import './libs/RentalityQuery.sol';
 import './abstract/IRentalityGeoService.sol';
 import './proxy/UUPSOwnable.sol';
 import './engine/RentalityEnginesService.sol';
 import './Schemas.sol';
+import './RentalityUserService.sol';
+import './libs/RentalityUtils.sol';
 
 /// @title RentalityCarToken
 /// @notice ERC-721 token for representing cars in the Rentality platform.
