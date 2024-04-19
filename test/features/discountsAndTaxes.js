@@ -268,13 +268,7 @@ describe('Rentality taxes & discounts', function () {
       initialized: true,
     }
 
-    let abiEncoder = ethers.AbiCoder.defaultAbiCoder()
-    const encodedData = abiEncoder.encode(
-      ['uint32', 'uint32', 'uint32', 'bool'],
-      [data.threeDaysDiscount, data.sevenDaysDiscount, data.thirtyDaysDiscount, data.initialized]
-    )
-
-    await expect(await rentalityPaymentService.connect(owner).addUserDiscount(encodedData)).to.not.reverted
+    await expect(await rentalityGateway.connect(owner).addUserDiscount(data)).to.not.reverted
 
     let first = await rentalityPaymentService.connect(owner).calculateSumWithDiscount(owner.address, 3, 1000)
     expect(first).to.be.eq(1000 * 3 - (1000 * 3 * 10) / 100)
