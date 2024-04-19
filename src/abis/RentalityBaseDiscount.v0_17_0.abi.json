@@ -32,7 +32,10 @@
       "name": "addUserDiscount",
       "constant": false,
       "payable": false,
-      "inputs": [{ "type": "bytes", "name": "newDiscounts" }],
+      "inputs": [
+        { "type": "address", "name": "user" },
+        { "type": "bytes", "name": "newDiscounts" }
+      ],
       "outputs": []
     },
     {
