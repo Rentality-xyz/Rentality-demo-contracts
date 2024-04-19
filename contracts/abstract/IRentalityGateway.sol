@@ -290,4 +290,13 @@ interface IRentalityGateway {
     uint64 daysOfTrip,
     address currency
   ) external view returns (Schemas.CalculatePaymentsDTO memory calculatePaymentsDTO);
+
+  /// @notice Gets the discount for a specific user.
+  /// @param user The address of the user.
+  /// @return The discount information for the user.
+  function getDiscount(address user) external view returns (Schemas.BaseDiscount memory);
+
+  /// @notice Adds a user discount.
+  /// @param data The discount data.
+  function addUserDiscount(Schemas.BaseDiscount memory data) external;
 }

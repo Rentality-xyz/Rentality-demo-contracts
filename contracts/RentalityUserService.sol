@@ -206,7 +206,11 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
   /// @param message The new message for the TC.
   function setNewTCMessage(string memory message) public {
     require(isAdmin(msg.sender), 'Only admin.');
-    TCMessageHash = ECDSA.toEthSignedMessageHash(bytes(message));
+    TCMessageHash = ECDSA.toEthSignedMessageHash(
+      keccak256(
+        'I have read and I agree with Terms of service, Cancellation policy, Prohibited uses and Privacy policy of Rentality.'
+      )
+    );
   }
 
   /// @notice Initializes the contract with the specified Civic verifier address and gatekeeper network ID, and sets the default admin role.
@@ -226,7 +230,9 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
     civicVerifier = _civicVerifier;
     civicGatekeeperNetwork = _civicGatekeeperNetwork;
     TCMessageHash = ECDSA.toEthSignedMessageHash(
-      'I have read and I agree with Terms of service, Cancellation policy, Prohibited uses and Privacy policy of Rentality.'
+      keccak256(
+        'I have read and I agree with Terms of service, Cancellation policy, Prohibited uses and Privacy policy of Rentality.'
+      )
     );
   }
 
