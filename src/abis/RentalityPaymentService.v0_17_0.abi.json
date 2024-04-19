@@ -38,6 +38,26 @@
     },
     {
       "type": "function",
+      "name": "addBaseDiscount",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "user" },
+        {
+          "type": "tuple",
+          "name": "data",
+          "components": [
+            { "type": "uint32", "name": "threeDaysDiscount" },
+            { "type": "uint32", "name": "sevenDaysDiscount" },
+            { "type": "uint32", "name": "thirtyDaysDiscount" },
+            { "type": "bool", "name": "initialized" }
+          ]
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
       "name": "addDiscountContract",
       "constant": false,
       "payable": false,
@@ -50,14 +70,6 @@
       "constant": false,
       "payable": false,
       "inputs": [{ "type": "address", "name": "taxesContactAddress" }],
-      "outputs": []
-    },
-    {
-      "type": "function",
-      "name": "addUserDiscount",
-      "constant": false,
-      "payable": false,
-      "inputs": [{ "type": "bytes", "name": "data" }],
       "outputs": []
     },
     {
@@ -108,12 +120,23 @@
     },
     {
       "type": "function",
-      "name": "getDiscount",
+      "name": "getBaseDiscount",
       "constant": true,
       "stateMutability": "view",
       "payable": false,
       "inputs": [{ "type": "address", "name": "userAddress" }],
-      "outputs": [{ "type": "bytes", "name": "" }]
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "",
+          "components": [
+            { "type": "uint32", "name": "threeDaysDiscount" },
+            { "type": "uint32", "name": "sevenDaysDiscount" },
+            { "type": "uint32", "name": "thirtyDaysDiscount" },
+            { "type": "bool", "name": "initialized" }
+          ]
+        }
+      ]
     },
     {
       "type": "function",
