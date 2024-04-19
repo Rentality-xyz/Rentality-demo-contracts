@@ -501,9 +501,9 @@
       "constant": false,
       "payable": false,
       "inputs": [
-        { "type": "address", "name": "from" },
-        { "type": "address", "name": "to" },
-        { "type": "uint256", "name": "tokenId" }
+        { "type": "address", "name": "" },
+        { "type": "address", "name": "" },
+        { "type": "uint256", "name": "" }
       ],
       "outputs": []
     },
@@ -513,10 +513,10 @@
       "constant": false,
       "payable": false,
       "inputs": [
-        { "type": "address", "name": "from" },
-        { "type": "address", "name": "to" },
-        { "type": "uint256", "name": "tokenId" },
-        { "type": "bytes", "name": "data" }
+        { "type": "address", "name": "" },
+        { "type": "address", "name": "" },
+        { "type": "uint256", "name": "" },
+        { "type": "bytes", "name": "" }
       ],
       "outputs": []
     },
@@ -573,9 +573,9 @@
       "constant": false,
       "payable": false,
       "inputs": [
-        { "type": "address", "name": "from" },
-        { "type": "address", "name": "to" },
-        { "type": "uint256", "name": "tokenId" }
+        { "type": "address", "name": "" },
+        { "type": "address", "name": "" },
+        { "type": "uint256", "name": "" }
       ],
       "outputs": []
     },

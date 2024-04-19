@@ -106,15 +106,8 @@
           "name": "request",
           "components": [
             { "type": "uint256", "name": "carId" },
-            { "type": "address", "name": "host" },
             { "type": "uint64", "name": "startDateTime" },
             { "type": "uint64", "name": "endDateTime" },
-            { "type": "string", "name": "startLocation" },
-            { "type": "string", "name": "endLocation" },
-            { "type": "uint64", "name": "totalDayPriceInUsdCents" },
-            { "type": "uint64", "name": "depositInUsdCents" },
-            { "type": "int256", "name": "currencyRate" },
-            { "type": "uint8", "name": "currencyDecimals" },
             { "type": "address", "name": "currencyType" }
           ]
         }
@@ -269,7 +262,8 @@
             { "type": "string", "name": "licenseNumber" },
             { "type": "uint64", "name": "expirationDate" },
             { "type": "uint256", "name": "createDate" },
-            { "type": "bool", "name": "isTCPassed" }
+            { "type": "bool", "name": "isTCPassed" },
+            { "type": "bytes", "name": "TCSignature" }
           ]
         }
       ]
