@@ -326,6 +326,17 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
   function parseGeoResponse(uint carId) public {
     IRentalityGeoService(carService.getGeoServiceAddress()).parseGeoResponse(carId);
   }
+  /// @notice Get a discount.
+  /// @param user The address of user discount.
+  function getDiscount(address user) public view returns (Schemas.BaseDiscount memory) {
+    return paymentService.getBaseDiscount(user);
+  }
+
+  /// @notice Adds a user discount.
+  /// @param data The discount data.
+  function addUserDiscount(Schemas.BaseDiscount memory data) public {
+    paymentService.addBaseDiscount(msg.sender, data);
+  }
 
   // Unused
   /// @notice Searches for available cars for a specific user based on specified criteria.

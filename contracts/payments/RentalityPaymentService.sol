@@ -97,16 +97,18 @@ contract RentalityPaymentService is UUPSOwnable {
 
   /// @notice Adds a user discount.
   /// @param data The discount data.
-  function addUserDiscount(bytes memory data) public {
+  function addBaseDiscount(address user, Schemas.BaseDiscount memory data) public {
+    require(userService.isManager(msg.sender), 'Manager only.');
     require(userService.isHost(tx.origin), 'Only host.');
-    discountAddressToDiscountContract[currentDiscount].addUserDiscount(data);
+    discountAddressToDiscountContract[currentDiscount].addUserDiscount(user, abi.encode(data));
   }
 
   /// @notice Gets the discount for a specific user.
   /// @param userAddress The address of the user.
   /// @return The discount information for the user.
-  function getDiscount(address userAddress) public view returns (bytes memory) {
-    return discountAddressToDiscountContract[currentDiscount].getDiscount(userAddress);
+  function getBaseDiscount(address userAddress) public view returns (Schemas.BaseDiscount memory) {
+    return
+      abi.decode(discountAddressToDiscountContract[currentDiscount].getDiscount(userAddress), (Schemas.BaseDiscount));
   }
 
   /// @notice Adds a taxes contract to the system.

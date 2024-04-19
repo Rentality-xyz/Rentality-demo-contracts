@@ -60,12 +60,12 @@ contract RentalityBaseDiscount is IRentalityDiscount, Initializable, UUPSAccess 
   /// @notice Adds or updates a discount for a specific user.
   /// @dev Only callable by a manager.
   /// @param newDiscounts The new discount data.
-  function addUserDiscount(bytes memory newDiscounts) public {
+  function addUserDiscount(address user, bytes memory newDiscounts) public {
     require(userService.isManager(msg.sender), 'Only manager.');
     Schemas.BaseDiscount memory newDiscountData = abi.decode(newDiscounts, (Schemas.BaseDiscount));
     verifyDiscountValidity(newDiscountData);
 
-    userAddressToBaseDiscount[tx.origin] = newDiscountData;
+    userAddressToBaseDiscount[user] = newDiscountData;
   }
 
   /// @notice Verifies the validity of a discount.
