@@ -1,9 +1,13 @@
 const { ethers, upgrades } = require('hardhat')
+const { keccak256 } = require('hardhat/internal/util/keccak')
 const ethToken = ethers.getAddress('0x0000000000000000000000000000000000000000')
 
 const signTCMessage = async (user) => {
-  const message =
-    'I have read and I agree with Terms of service, Cancellation policy, Prohibited uses and Privacy policy of Rentality.'
+  const message = keccak256(
+    Buffer.from(
+      'I have read and I agree with Terms of service, Cancellation policy, Prohibited uses and Privacy policy of Rentality.'
+    )
+  )
   return await user.signMessage(message)
 }
 const calculatePayments = async (currencyConverter, paymentService, value, tripDays, deposit, token = ethToken) => {
