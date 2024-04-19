@@ -238,10 +238,29 @@
     },
     {
       "type": "function",
+      "name": "setCivicData",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "_civicVerifier" },
+        { "type": "uint256", "name": "_civicGatekeeperNetwork" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
       "name": "setClaimsWaitingTime",
       "constant": false,
       "payable": false,
       "inputs": [{ "type": "uint256", "name": "timeInSec" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "setNewTCMessage",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "string", "name": "message" }],
       "outputs": []
     },
     {

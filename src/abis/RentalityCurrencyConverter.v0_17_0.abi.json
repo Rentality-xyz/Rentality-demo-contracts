@@ -60,6 +60,18 @@
     },
     {
       "type": "function",
+      "name": "getCurrentRate",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "tokenAddress" }],
+      "outputs": [
+        { "type": "int256", "name": "" },
+        { "type": "uint8", "name": "" }
+      ]
+    },
+    {
+      "type": "function",
       "name": "getFromUsd",
       "constant": true,
       "stateMutability": "view",
