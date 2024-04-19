@@ -29,6 +29,18 @@
     },
     {
       "type": "function",
+      "name": "getCurrentRate",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        { "type": "int256", "name": "" },
+        { "type": "uint8", "name": "" }
+      ]
+    },
+    {
+      "type": "function",
       "name": "getFromUsd",
       "constant": true,
       "stateMutability": "pure",

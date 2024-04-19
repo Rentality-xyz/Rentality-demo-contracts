@@ -15,7 +15,7 @@ interface IRentalityDiscount {
 
   /// @notice Adds or updates a discount for a specific user.
   /// @param newDiscounts The new discount data.
-  function addUserDiscount(bytes memory newDiscounts) external;
+  function addUserDiscount(address user, bytes memory newDiscounts) external;
 
   /// @notice Retrieves the discount data for a specific user.
   /// @param userAddress The address of the user.
