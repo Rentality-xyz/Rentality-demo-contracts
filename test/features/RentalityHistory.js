@@ -98,7 +98,7 @@ describe('Rentality History Service', function () {
     ).to.changeEtherBalances([guest, rentalityPlatform], [-rentPriceInEth, rentPriceInEth])
 
     await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
-    await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0])).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0], '', '')).not.to.be.reverted
     await expect(rentalityGateway.connect(guest).checkInByGuest(1, [0, 0])).not.to.be.reverted
     await expect(rentalityGateway.connect(guest).checkOutByGuest(1, [0, 0])).not.to.be.reverted
     await expect(rentalityGateway.connect(host).checkOutByHost(1, [0, 0])).not.to.be.reverted
@@ -170,7 +170,7 @@ describe('Rentality History Service', function () {
     ).to.changeEtherBalances([guest, rentalityPlatform], [-payments.totalPrice, payments.totalPrice])
 
     await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
-    await expect(rentalityGateway.connect(host).checkInByHost(1, [100, 15])).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).checkInByHost(1, [100, 15], '', '')).not.to.be.reverted
     await expect(rentalityGateway.connect(guest).checkInByGuest(1, [100, 15])).not.to.be.reverted
     await expect(rentalityGateway.connect(guest).checkOutByGuest(1, [50, 200])).not.to.be.reverted
     await expect(rentalityGateway.connect(host).checkOutByHost(1, [50, 200])).not.to.be.reverted
