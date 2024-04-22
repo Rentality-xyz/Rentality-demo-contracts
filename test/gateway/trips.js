@@ -409,7 +409,7 @@ describe('RentalityGateway: trips', function () {
       )
     ).to.changeEtherBalances([guest, rentalityPlatform], [-result.totalPrice, result.totalPrice])
 
-    await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0])).to.be.reverted
+    await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0], '', '')).to.be.reverted
 
     await expect(rentalityGateway.connect(host).checkOutByHost(1, [0, 0])).to.be.reverted
 
@@ -443,19 +443,19 @@ describe('RentalityGateway: trips', function () {
 
     expect(await rentalityGateway.connect(host).approveTripRequest(1)).not.be.reverted
 
-    await expect(rentalityGateway.connect(guest).checkInByHost(1, [0, 0])).to.be.reverted
+    await expect(rentalityGateway.connect(guest).checkInByHost(1, [0, 0], '', '')).to.be.reverted
 
-    await expect(rentalityGateway.connect(anonymous).checkInByHost(1, [0, 0])).to.be.reverted
+    await expect(rentalityGateway.connect(anonymous).checkInByHost(1, [0, 0], '', '')).to.be.reverted
 
-    await expect(rentalityGateway.connect(admin).checkInByHost(1, [0, 0])).to.be.reverted
+    await expect(rentalityGateway.connect(admin).checkInByHost(1, [0, 0], '', '')).to.be.reverted
 
-    await expect(rentalityGateway.connect(owner).checkInByHost(1, [0, 0])).to.be.reverted
+    await expect(rentalityGateway.connect(owner).checkInByHost(1, [0, 0], '', '')).to.be.reverted
 
     let trip = (await rentalityGateway.getTrip(1)).trip
 
     expect(trip.status).to.be.equal(TripStatus.Approved)
 
-    await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0])).not.be.reverted
+    await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0], '', '')).not.be.reverted
 
     let trip_checkin = (await rentalityGateway.getTrip(1)).trip
 
@@ -485,7 +485,7 @@ describe('RentalityGateway: trips', function () {
 
     expect(await rentalityGateway.connect(host).approveTripRequest(1)).not.be.reverted
 
-    await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0])).not.be.reverted
+    await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0], '', '')).not.be.reverted
 
     await expect(rentalityGateway.connect(anonymous).checkInByGuest(1, [0, 0])).to.be.reverted
 
@@ -528,7 +528,7 @@ describe('RentalityGateway: trips', function () {
     ).to.changeEtherBalances([guest, rentalityPlatform], [-result.totalPrice, result.totalPrice])
     expect(await rentalityGateway.connect(host).approveTripRequest(1)).not.be.reverted
 
-    await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0])).not.be.reverted
+    await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0], '', '')).not.be.reverted
 
     await expect(rentalityGateway.connect(guest).checkInByGuest(1, [0, 0])).not.be.reverted
 
@@ -572,7 +572,7 @@ describe('RentalityGateway: trips', function () {
 
     expect(await rentalityGateway.connect(host).approveTripRequest(1)).not.be.reverted
 
-    await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0])).not.be.reverted
+    await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0], '', '')).not.be.reverted
 
     await expect(rentalityGateway.connect(guest).checkInByGuest(1, [0, 0])).not.be.reverted
 
@@ -629,7 +629,7 @@ describe('RentalityGateway: trips', function () {
     ).to.changeEtherBalances([guest, rentalityPlatform], [-rentPriceInEth, rentPriceInEth])
 
     await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
-    await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0])).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0], '', '')).not.to.be.reverted
     await expect(rentalityGateway.connect(guest).checkInByGuest(1, [0, 0])).not.to.be.reverted
     await expect(rentalityGateway.connect(guest).checkOutByGuest(1, [0, 0])).not.to.be.reverted
     await expect(rentalityGateway.connect(host).checkOutByHost(1, [0, 0])).not.to.be.reverted
@@ -724,7 +724,7 @@ describe('RentalityGateway: trips', function () {
 
     await expect(rentalityGateway.connect(host).approveTripRequest(1)).to.not.reverted
 
-    await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0])).to.not.reverted
+    await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0], '', '')).to.not.reverted
 
     await expect(rentalityGateway.connect(guest).checkInByGuest(1, [0, 0])).to.not.reverted
 
@@ -742,7 +742,7 @@ describe('RentalityGateway: trips', function () {
 
     await expect(rentalityGateway.connect(host).approveTripRequest(2)).not.be.reverted
 
-    await expect(rentalityGateway.connect(host).checkInByHost(2, [0, 0])).to.be.revertedWith('Car on the trip.')
+    await expect(rentalityGateway.connect(host).checkInByHost(2, [0, 0], '', '')).to.be.revertedWith('Car on the trip.')
   })
   it('Return correct total trip price', async function () {
     const mockCreateCarRequest = getMockCarRequest(13)
