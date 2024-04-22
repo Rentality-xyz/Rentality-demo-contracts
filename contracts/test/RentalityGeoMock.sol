@@ -277,7 +277,7 @@ contract RentalityGeoMock is IRentalityGeoParser {
     carData.locationLat = locationLatitude;
     carData.locationLng = locationLongitude;
 
-    if (parts.length > 3) {
+    if (parts.length >= 3) {
       string memory country = parts[parts.length - 1];
       string memory state = parts[parts.length - 2];
       string memory city = parts[parts.length - 3];
