@@ -463,23 +463,15 @@ contract RentalityPlatform is UUPSOwnable {
     uint64 daysOfTrip,
     address currency
   ) public view returns (Schemas.CalculatePaymentsDTO memory) {
-    address carOwner = carService.ownerOf(carId);
-    Schemas.CarInfo memory car = carService.getCarInfoById(carId);
-
-    uint64 sumWithDiscount = paymentService.calculateSumWithDiscount(carOwner, daysOfTrip, car.pricePerDayInUsdCents);
-    uint taxId = paymentService.defineTaxesType(address(carService), carId);
-
-    uint64 taxes = paymentService.calculateTaxes(taxId, daysOfTrip, sumWithDiscount);
-    (int rate, uint8 decimals) = currencyConverterService.getCurrentRate(currency);
-
-    uint256 valueSumInCurrency = currencyConverterService.getFromUsd(
-      currency,
-      car.securityDepositPerTripInUsdCents + taxes + sumWithDiscount,
-      rate,
-      decimals
-    );
-
-    return Schemas.CalculatePaymentsDTO(valueSumInCurrency, rate, decimals);
+    return
+      RentalityUtils.calculatePayments(
+        address(carService),
+        address(paymentService),
+        address(currencyConverterService),
+        carId,
+        daysOfTrip,
+        currency
+      );
   }
 
   /// @notice Constructor to initialize the RentalityPlatform with service contract addresses.
