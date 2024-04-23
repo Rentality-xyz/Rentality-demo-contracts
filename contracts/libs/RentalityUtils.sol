@@ -7,6 +7,8 @@ import '../RentalityUserService.sol';
 import '../RentalityCarToken.sol';
 import '../abstract/IRentalityGeoService.sol';
 import '../RentalityTripService.sol';
+import '../payments/RentalityCurrencyConverter.sol';
+import '../payments/RentalityPaymentService.sol';
 
 /// @title RentalityUtils Library
 /// @notice
@@ -427,5 +429,42 @@ library RentalityUtils {
         car.pricePerDayInUsdCents >= searchCarParams.pricePerDayInUsdCentsFrom) &&
       (searchCarParams.pricePerDayInUsdCentsTo == 0 ||
         car.pricePerDayInUsdCents <= searchCarParams.pricePerDayInUsdCentsTo);
+  }
+  /// @notice Checks if a car is available for a specific user based on search parameters.
+
+  /// @dev Calculates the payments for a trip.
+  /// @param carId The ID of the car.
+  /// @param daysOfTrip The duration of the trip in days.
+  /// @param currency The currency to use for payment calculation.
+  /// @return calculatePaymentsDTO An object containing payment details.
+  function calculatePayments(
+    address carServiceAddress,
+    address paymentServiceAddress,
+    address converterAddress,
+    uint carId,
+    uint64 daysOfTrip,
+    address currency
+  ) public view returns (Schemas.CalculatePaymentsDTO memory) {
+    address carOwner = RentalityCarToken(carServiceAddress).ownerOf(carId);
+    Schemas.CarInfo memory car = RentalityCarToken(carServiceAddress).getCarInfoById(carId);
+
+    uint64 sumWithDiscount = RentalityPaymentService(paymentServiceAddress).calculateSumWithDiscount(
+      carOwner,
+      daysOfTrip,
+      car.pricePerDayInUsdCents
+    );
+    uint taxId = RentalityPaymentService(paymentServiceAddress).defineTaxesType(address(carServiceAddress), carId);
+
+    uint64 taxes = RentalityPaymentService(paymentServiceAddress).calculateTaxes(taxId, daysOfTrip, sumWithDiscount);
+    (int rate, uint8 decimals) = RentalityCurrencyConverter(converterAddress).getCurrentRate(currency);
+
+    uint256 valueSumInCurrency = RentalityCurrencyConverter(converterAddress).getFromUsd(
+      currency,
+      car.securityDepositPerTripInUsdCents + taxes + sumWithDiscount,
+      rate,
+      decimals
+    );
+
+    return Schemas.CalculatePaymentsDTO(valueSumInCurrency, rate, decimals);
   }
 }

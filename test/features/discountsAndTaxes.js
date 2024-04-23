@@ -103,7 +103,7 @@ describe('Rentality taxes & discounts', function () {
 
     let twoDaysInSec = 172800
 
-    const result = await rentalityPlatform.calculatePayments(1, dayInTrip, ethToken)
+    const result = await rentalityGateway.calculatePayments(1, dayInTrip, ethToken)
 
     await expect(
       await rentalityPlatform.connect(guest).createTripRequest(
@@ -130,7 +130,7 @@ describe('Rentality taxes & discounts', function () {
     let dayInTrip = 4
 
     let fourDaysInSec = 345600
-    const result = await rentalityPlatform.calculatePayments(1, dayInTrip, ethToken)
+    const result = await rentalityGateway.calculatePayments(1, dayInTrip, ethToken)
 
     await expect(
       await rentalityPlatform.connect(guest).createTripRequest(
@@ -156,7 +156,7 @@ describe('Rentality taxes & discounts', function () {
     let dayInTrip = 8
     let eightDaysInSec = 691200
 
-    const result = await rentalityPlatform.calculatePayments(1, dayInTrip, ethToken)
+    const result = await rentalityGateway.calculatePayments(1, dayInTrip, ethToken)
 
     await expect(
       await rentalityPlatform.connect(guest).createTripRequest(
@@ -184,7 +184,7 @@ describe('Rentality taxes & discounts', function () {
 
     let thirtyOneDayInSec = 86400 * 31
 
-    const result = await rentalityPlatform.calculatePayments(1, dayInTrip, ethToken)
+    const result = await rentalityGateway.calculatePayments(1, dayInTrip, ethToken)
 
     await expect(
       await rentalityPlatform.connect(guest).createTripRequest(
@@ -219,7 +219,7 @@ describe('Rentality taxes & discounts', function () {
     )
 
     let thirtyOneDayInSec = 86400 * 31
-    const result = await rentalityPlatform.calculatePayments(1, 31, ethToken)
+    const result = await rentalityGateway.calculatePayments(1, 31, ethToken)
     const value = result[0]
 
     await expect(

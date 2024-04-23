@@ -12,7 +12,7 @@ contract RentalityClaimService is Initializable, UUPSAccess {
   // Private variables for platform configuration
   uint256 private waitingTimeForApproveInSec;
   uint256 private claimId;
-
+  uint private platformFeeInPPM;
   // Mapping to store claims using claimId as the key
   mapping(uint256 => Schemas.Claim) private claimIdToClaim;
 
@@ -66,7 +66,9 @@ contract RentalityClaimService is Initializable, UUPSAccess {
       request.amountInUsdCents,
       0,
       address(0),
-      0
+      0,
+      request.photosUrl,
+      tx.origin == host ? true : false
     );
     claimIdToClaim[newClaimId] = newClaim;
 
@@ -136,10 +138,20 @@ contract RentalityClaimService is Initializable, UUPSAccess {
     return claimIdToClaim[_claimId].deadlineDateInSec > 0;
   }
 
+  function getPlatformFeeFrom(uint256 value) public view returns (uint256) {
+    return (value * platformFeeInPPM) / 1_000_000;
+  }
+
+  function setPlatformFee(uint value) public {
+    require(userService.isAdmin(tx.origin), 'Only admin.');
+    platformFeeInPPM = value;
+  }
+
   /// @dev constructor to initialize proxy contract
   /// @param _userService, contract for access control
   function initialize(address _userService) public initializer {
     userService = IRentalityAccessControl(_userService);
     waitingTimeForApproveInSec = 259_200;
+    platformFeeInPPM = 0;
   }
 }

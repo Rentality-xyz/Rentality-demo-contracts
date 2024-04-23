@@ -6,14 +6,18 @@ import '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 import '@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol';
 import '@openzeppelin/contracts/utils/Strings.sol';
 import '@openzeppelin/contracts/utils/Counters.sol';
-import './payments/RentalityCurrencyConverter.sol';
-import './payments/RentalityPaymentService.sol';
+
+import './features/RentalityClaimService.sol';
+import './abstract/IRentalityGateway.sol';
 import './RentalityCarToken.sol';
+import './payments/RentalityCurrencyConverter.sol';
+import './RentalityTripService.sol';
 import './RentalityUserService.sol';
-import './libs/RentalityQuery.sol';
-import './libs/RentalityUtils.sol';
-import './engine/RentalityEnginesService.sol';
+import './RentalityPlatform.sol';
+import './payments/RentalityPaymentService.sol';
 import './Schemas.sol';
+import './RentalityAdminGateway.sol';
+import './libs/RentalityQuery.sol';
 
 /// @title RentalityTripService
 /// @dev Manages the lifecycle of rental trips, including creation, approval, and completion.
@@ -36,16 +40,15 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
   /// @param newStatus The new status of the trip.
   event TripStatusChanged(uint256 tripId, Schemas.TripStatus newStatus, address indexed host, address indexed guest);
 
-  RentalityCurrencyConverter private currencyConverterService;
-  RentalityCarToken private carService;
-  RentalityPaymentService private paymentService;
-  RentalityUserService private userService;
+  RentalityContract private addresses;
+
+  using RentalityQuery for RentalityContract;
   RentalityEnginesService private engineService;
 
   /// @dev Updates the address of the RentalityEnginesService contract.
   /// @param _engineService The address of the new RentalityEnginesService contract.
   function updateEngineServiceAddress(address _engineService) public {
-    require(userService.isAdmin(msg.sender), 'Only admin.');
+    require(addresses.userService.isAdmin(msg.sender), 'Only admin.');
 
     engineService = RentalityEnginesService(_engineService);
   }
@@ -78,7 +81,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     uint64 milesIncludedPerDay,
     Schemas.PaymentInfo memory paymentInfo
   ) public {
-    require(userService.isManager(msg.sender), 'Only from manager contract.');
+    require(addresses.userService.isManager(msg.sender), 'Only from manager contract.');
     _tripIdCounter.increment();
     uint256 newTripId = _tripIdCounter.current();
     if (milesIncludedPerDay == 0) {
@@ -86,7 +89,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     }
     paymentInfo.tripId = newTripId;
 
-    Schemas.CarInfo memory carInfo = carService.getCarInfoById(carId);
+    Schemas.CarInfo memory carInfo = addresses.carService.getCarInfoById(carId);
 
     uint256 panelParamsAmount = engineService.getPanelParamsAmount(carInfo.engineType);
 
@@ -96,8 +99,8 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
       Schemas.TripStatus.Created,
       guest,
       host,
-      userService.getKYCInfo(tx.origin).name,
-      userService.getKYCInfo(host).name,
+      addresses.userService.getKYCInfo(tx.origin).name,
+      addresses.userService.getKYCInfo(host).name,
       pricePerDayInUsdCents,
       startDateTime,
       endDateTime,
@@ -131,7 +134,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
   ///   - The trip must be in status Created.
   ///  @param tripId The ID of the trip to be approved.
   function approveTrip(uint256 tripId) public {
-    require(userService.isManager(msg.sender), 'Only from manager contract.');
+    require(addresses.userService.isManager(msg.sender), 'Only from manager contract.');
     require(idToTripInfo[tripId].host == tx.origin, 'Only host of the trip can approve it');
     require(idToTripInfo[tripId].status == Schemas.TripStatus.Created, 'The trip is not in status Created');
 
@@ -147,9 +150,9 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
   ///   - The trip must be in status Created, Approved, or CheckedInByHost.
   ///  @param tripId The ID of the trip to be Rejected
   function rejectTrip(uint256 tripId) public {
-    require(userService.isManager(msg.sender), 'Only from manager contract.');
+    require(addresses.userService.isManager(msg.sender), 'Only from manager contract.');
 
-    bool controversialSituation = userService.isAdmin(tx.origin) &&
+    bool controversialSituation = addresses.userService.isAdmin(tx.origin) &&
       idToTripInfo[tripId].status == Schemas.TripStatus.CheckedOutByGuest;
 
     require(
@@ -184,17 +187,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     uint64 endDateTime,
     Schemas.SearchCarParams memory searchParams
   ) public view returns (Schemas.SearchCar[] memory) {
-    return
-      RentalityQuery.searchAvailableCarsForUser(
-        user,
-        startDateTime,
-        endDateTime,
-        searchParams,
-        address(carService),
-        address(userService),
-        address(this),
-        address(paymentService)
-      );
+    return addresses.searchAvailableCarsForUser(user, startDateTime, endDateTime, searchParams);
   }
 
   /// @notice Performs the check-in process by the host, updating the trip status and details.
@@ -221,7 +214,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
       }
     }
 
-    Schemas.CarInfo memory carInfo = carService.getCarInfoById(trip.carId);
+    Schemas.CarInfo memory carInfo = addresses.carService.getCarInfoById(trip.carId);
 
     engineService.verifyStartParams(panelParams, carInfo.engineType);
 
@@ -251,7 +244,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
 
     require(trip.guest == tx.origin, 'Only for guest');
 
-    Schemas.CarInfo memory carInfo = carService.getCarInfoById(trip.carId);
+    Schemas.CarInfo memory carInfo = addresses.carService.getCarInfoById(trip.carId);
 
     require(
       idToTripInfo[tripId].status == Schemas.TripStatus.CheckedInByHost,
@@ -277,7 +270,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     Schemas.Trip memory trip = getTrip(tripId);
 
     require(trip.guest == tx.origin || trip.host == tx.origin, 'For trip guest or host only');
-    Schemas.CarInfo memory carInfo = carService.getCarInfoById(trip.carId);
+    Schemas.CarInfo memory carInfo = addresses.carService.getCarInfoById(trip.carId);
 
     require(
       idToTripInfo[tripId].status == Schemas.TripStatus.CheckedInByGuest,
@@ -311,7 +304,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
       'The trip is not in status CheckedOutByGuest'
     );
 
-    Schemas.CarInfo memory carInfo = carService.getCarInfoById(trip.carId);
+    Schemas.CarInfo memory carInfo = addresses.carService.getCarInfoById(trip.carId);
 
     engineService.compareParams(trip.endParamLevels, panelParams, carInfo.engineType);
 
@@ -328,11 +321,11 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
   /// Emits a `TripStatusChanged` event with the new status Finished.
   function finishTrip(uint256 tripId) public {
     //require(idToTripInfo[tripId].status != TripStatus.CheckedOutByHost,"The trip is not in status CheckedOutByHost");
-    require(userService.isManager(msg.sender), 'Only from manager contract.');
+    require(addresses.userService.isManager(msg.sender), 'Only from manager contract.');
 
     idToTripInfo[tripId].status = Schemas.TripStatus.Finished;
 
-    Schemas.CarInfo memory car = carService.getCarInfoById(idToTripInfo[tripId].carId);
+    Schemas.CarInfo memory car = addresses.carService.getCarInfoById(idToTripInfo[tripId].carId);
 
     (uint64 resolveMilesAmountInUsdCents, uint64 resolveFuelAmountInUsdCents) = getResolveAmountInUsdCents(
       car.engineType,
@@ -389,7 +382,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     uint256 depositRefund,
     uint256 tripEarnings
   ) public {
-    require(userService.isManager(msg.sender), 'Manager only.');
+    require(addresses.userService.isManager(msg.sender), 'Manager only.');
 
     idToTripInfo[tripId].transactionInfo.rentalityFee = rentalityFee;
     idToTripInfo[tripId].transactionInfo.depositRefund = depositRefund;
@@ -424,14 +417,20 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     address userServiceAddress,
     address engineServiceAddress
   ) public initializer {
-    currencyConverterService = RentalityCurrencyConverter(currencyConverterServiceAddress);
-    carService = RentalityCarToken(carServiceAddress);
-    paymentService = RentalityPaymentService(paymentServiceAddress);
-    userService = RentalityUserService(userServiceAddress);
+    addresses = RentalityContract(
+      RentalityCarToken(carServiceAddress),
+      RentalityCurrencyConverter(currencyConverterServiceAddress),
+      RentalityTripService(address(this)),
+      RentalityUserService(userServiceAddress),
+      RentalityPlatform(address(0)),
+      RentalityPaymentService(paymentServiceAddress),
+      RentalityClaimService(address(0)),
+      RentalityAdminGateway(address(0))
+    );
     engineService = RentalityEnginesService(engineServiceAddress);
   }
 
   function _authorizeUpgrade(address /*newImplementation*/) internal view override {
-    require(userService.isAdmin(msg.sender), 'Only for Admin.');
+    require(addresses.userService.isAdmin(msg.sender), 'Only for Admin.');
   }
 }
