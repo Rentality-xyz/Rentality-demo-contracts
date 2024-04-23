@@ -161,6 +161,7 @@ function createMockClaimRequest(tripId, amountToClaim) {
     claimType: 1,
     description: 'Some des',
     amountInUsdCents: amountToClaim,
+    photosUrl: '',
   }
 }
 
