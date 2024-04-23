@@ -160,7 +160,7 @@ describe('Rentality: reject Trip Request', function () {
     await expect(await rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
     expect((await rentalityTripService.connect(host).getTrip(1)).status).to.equal(1)
 
-    await expect(await rentalityTripService.connect(host).checkInByHost(1, [10, 10])).not.to.be.reverted
+    await expect(await rentalityTripService.connect(host).checkInByHost(1, [10, 10], '', '')).not.to.be.reverted
     expect((await rentalityTripService.connect(host).getTrip(1)).status).to.equal(2)
   })
 })

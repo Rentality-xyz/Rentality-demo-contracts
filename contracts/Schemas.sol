@@ -141,6 +141,8 @@ interface Schemas {
     uint createdDateTime;
     uint approvedDateTime;
     uint rejectedDateTime;
+    string insuranceCompany;
+    string insuranceNumber;
     address rejectedBy;
     uint checkedInByHostDateTime;
     uint64[] startParamLevels;

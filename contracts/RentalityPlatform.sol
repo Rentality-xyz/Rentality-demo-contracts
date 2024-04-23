@@ -440,12 +440,19 @@ contract RentalityPlatform is UUPSOwnable {
         TCSignature
       );
   }
-  /// @notice Performs check-in by the host for a trip.
-  /// @param tripId The ID of the trip.
-  /// @param panelParams An array representing parameters related to fuel, odometer,
-  /// and other relevant details depends on engine.
-  function checkInByHost(uint256 tripId, uint64[] memory panelParams) public {
-    return addresses.tripService.checkInByHost(tripId, panelParams);
+  /// @notice Allows the host to perform a check-in for a specific trip.
+  /// This action typically occurs at the start of the trip and records key information
+  /// such as fuel level, odometer reading, insurance details, and any other relevant data.
+  /// @param tripId The unique identifier for the trip being checked in.
+  /// @param panelParams An array of numeric parameters representing important vehicle details.
+  ///   - panelParams[0]: Fuel level (e.g., as a percentage)
+  ///   - panelParams[1]: Odometer reading (e.g., in kilometers or miles)
+  ///   - Additional parameters can be added based on the engine and vehicle characteristics.
+  /// @param insuranceCompany The name of the insurance company covering the vehicle.
+  /// @param insuranceNumber The insurance policy number.
+  function checkInByHost(uint256 tripId, uint64[] memory panelParams,string memory insuranceCompany,
+    string memory insuranceNumber) public {
+    return addresses.tripService.checkInByHost(tripId, panelParams, insuranceCompany, insuranceNumber);
   }
 
   /// @notice Performs check-in by the guest for a trip.
@@ -513,6 +520,7 @@ contract RentalityPlatform is UUPSOwnable {
   /// @param carId The ID of the car for which geolocation is parsed.
   function parseGeoResponse(uint carId) public {
     IRentalityGeoService(addresses.carService.getGeoServiceAddress()).parseGeoResponse(carId);
+
   }
 
   /// @notice Constructor to initialize the RentalityPlatform with service contract addresses.
