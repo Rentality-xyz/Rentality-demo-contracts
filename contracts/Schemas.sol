@@ -221,6 +221,8 @@ interface Schemas {
     uint256 payDateInSec;
     address rejectedBy;
     uint256 rejectedDateInSec;
+    string photosUrl;
+    bool isHostClaims;
   }
 
   // Struct to represent a request to create a new claim
@@ -229,6 +231,7 @@ interface Schemas {
     ClaimType claimType;
     string description;
     uint64 amountInUsdCents;
+    string photosUrl;
   }
 
   // Enumeration for types of claims
@@ -236,11 +239,13 @@ interface Schemas {
     Tolls,
     Tickets,
     LateReturn,
-    Cleanliness,
     Smoking,
+    Cleanliness,
     ExteriorDamage,
     InteriorDamage,
-    Other
+    Other,
+    FaultyVehicle,
+    ListingMismatch
   }
 
   // Enumeration for claim statuses
