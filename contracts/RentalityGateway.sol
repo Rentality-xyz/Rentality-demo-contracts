@@ -14,6 +14,19 @@ import './RentalityPlatform.sol';
 import './payments/RentalityPaymentService.sol';
 import './Schemas.sol';
 import './RentalityAdminGateway.sol';
+import './RentalityAdminGateway.sol';
+import './libs/RentalityQuery.sol';
+
+struct RentalityContract {
+  RentalityCarToken carService;
+  RentalityCurrencyConverter currencyConverterService;
+  RentalityTripService tripService;
+  RentalityUserService userService;
+  RentalityPlatform rentalityPlatform;
+  RentalityPaymentService paymentService;
+  RentalityClaimService claimService;
+  RentalityAdminGateway adminService;
+}
 
 /// @title RentalityGateway
 /// @notice The main gateway contract that connects various services in the Rentality platform.
@@ -25,23 +38,16 @@ import './RentalityAdminGateway.sol';
 /// it's completely safe for upgrade
 /// @custom:oz-upgrades-unsafe-allow external-library-linking
 contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
-  RentalityCarToken private carService;
-  RentalityCurrencyConverter private currencyConverterService;
-  RentalityTripService private tripService;
-  RentalityUserService private userService;
-  RentalityPlatform private rentalityPlatform;
-  RentalityPaymentService private paymentService;
-  RentalityClaimService private claimService;
-  RentalityAdminGateway private adminService;
-
+  RentalityContract private addresses;
   /// @notice Ensures that the caller is a host.
   modifier onlyHost() {
-    require(userService.isHost(msg.sender), 'User is not a host');
+    require(addresses.userService.isHost(msg.sender), 'User is not a host');
     _;
   }
+  using RentalityQuery for RentalityContract;
 
   fallback(bytes calldata data) external payable returns (bytes memory) {
-    (bool ok, bytes memory res) = address(rentalityPlatform).call{value: msg.value}(data);
+    (bool ok, bytes memory res) = address(addresses.rentalityPlatform).call{value: msg.value}(data);
     if (!ok) {
       // For correct encoding revert message
       assembly {
@@ -64,65 +70,30 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
   /// - Claim Service
   ///
   /// This function should be called whenever the addresses of the services change.
-  function updateServiceAddresses() public {
-    carService = RentalityCarToken(adminService.getCarServiceAddress());
-    currencyConverterService = RentalityCurrencyConverter(adminService.getCurrencyConverterServiceAddress());
-    tripService = RentalityTripService(adminService.getTripServiceAddress());
-    userService = RentalityUserService(adminService.getUserServiceAddress());
-    rentalityPlatform = RentalityPlatform(adminService.getRentalityPlatformAddress());
-    paymentService = RentalityPaymentService(adminService.getPaymentService());
-    claimService = RentalityClaimService(adminService.getClaimServiceAddress());
-    rentalityPlatform.updateServiceAddresses(adminService);
-  }
+  //    function updateServiceAddresses(RentalityContract memory contrcacts) public {
+  //        carService = RentalityCarToken(adminService.getCarServiceAddress());
+  //        currencyConverterService = RentalityCurrencyConverter(adminService.getCurrencyConverterServiceAddress());
+  //        tripService = RentalityTripService(adminService.getTripServiceAddress());
+  //        userService = RentalityUserService(adminService.getUserServiceAddress());
+  //        rentalityPlatform = RentalityPlatform(adminService.getRentalityPlatformAddress());
+  //        paymentService = RentalityPaymentService(adminService.getPaymentService());
+  //        claimService = RentalityClaimService(adminService.getClaimServiceAddress());
+  //        rentalityPlatform.updateServiceAddresses(adminService);
+  //    }
 
   /// @notice Retrieves information about a car by its ID.
   /// @param carId The ID of the car.
   /// @return Car information as a struct.
   function getCarInfoById(uint256 carId) public view returns (Schemas.CarInfo memory) {
-    return carService.getCarInfoById(carId);
+    return addresses.carService.getCarInfoById(carId);
   }
 
   /// @notice Retrieves the metadata URI of a car by its ID.
   /// @param carId The ID of the car.
   /// @return The metadata URI of the car.
   function getCarMetadataURI(uint256 carId) public view returns (string memory) {
-    return carService.tokenURI(carId);
+    return addresses.carService.tokenURI(carId);
   }
-
-  /// @notice Adds a new car using the provided request. Grants host role to the caller if not already a host.
-  /// @param request The request containing car information.
-  /// @return The ID of the newly added car.
-  function addCar(Schemas.CreateCarRequest memory request) public returns (uint) {
-    if (!userService.isHost(msg.sender)) {
-      userService.grantHostRole(msg.sender);
-    }
-    return carService.addCar(request);
-  }
-
-  /// @notice Updates the information of a car. Only callable by hosts.
-  /// @param request The request containing updated car information.
-  function updateCarInfo(Schemas.UpdateCarInfoRequest memory request) public onlyHost {
-    require(RentalityQuery.isCarEditable(request.carId, address(tripService)), 'Car is not available for update.');
-
-    return carService.updateCarInfo(request, '', '', '', '');
-  }
-
-  /// @notice Updates the information of a car, including location details. Only callable by hosts.
-  /// @param request The request containing updated car information.
-  /// @param location The new location of the car.
-  /// @param geoApiKey The API key for geocoding purposes.
-  function updateCarInfoWithLocation(
-    Schemas.UpdateCarInfoRequest memory request,
-    string memory location,
-    string memory locationLatitude,
-    string memory locationLongitude,
-    string memory geoApiKey
-  ) public onlyHost {
-    require(RentalityQuery.isCarEditable(request.carId, address(tripService)), 'Car is not available for update.');
-
-    return carService.updateCarInfo(request, location, locationLatitude, locationLongitude, geoApiKey);
-  }
-
   // function updateCarInfo(
   //     RentalityCarToken.UpdateCarInfoRequest memory request
   // ) public onlyHost {
@@ -145,14 +116,14 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
   /// @notice Retrieves information about all cars.
   /// @return An array of car information.
   function getAllCars() public view returns (Schemas.CarInfo[] memory) {
-    return carService.getAllCars();
+    return addresses.carService.getAllCars();
   }
 
   /// @notice Retrieves information about available cars for a specific user.
   /// @param user The address of the user.
   /// @return An array of available car information for the specified user.
   function getAvailableCarsForUser(address user) public view returns (Schemas.CarInfo[] memory) {
-    return carService.getAvailableCarsForUser(user);
+    return addresses.carService.getAvailableCarsForUser(user);
   }
 
   /// @notice Searches for available cars based on specified criteria.
@@ -165,163 +136,99 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
     uint64 endDateTime,
     Schemas.SearchCarParams memory searchParams
   ) public view returns (Schemas.SearchCar[] memory) {
-    return tripService.searchAvailableCarsForUser(tx.origin, startDateTime, endDateTime, searchParams);
+    return addresses.tripService.searchAvailableCarsForUser(msg.sender, startDateTime, endDateTime, searchParams);
   }
 
   /// @notice Retrieves information about cars owned by the caller.
   /// @return An array of car information owned by the caller.
   function getMyCars() public view returns (Schemas.CarInfoDTO[] memory) {
-    return RentalityQuery.getCarsOwnedByUserWithEditability(address(tripService), address(carService));
+    return addresses.getCarsOwnedByUserWithEditability();
   }
 
   /// @notice Retrieves detailed information about a car.
   /// @param carId The ID of the car for which details are requested.
   /// @return details An instance of `Schemas.CarDetails` containing the details of the specified car.
   function getCarDetails(uint carId) public view returns (Schemas.CarDetails memory) {
-    return RentalityQuery.getCarDetails(address(adminService), carId);
-  }
-  /// @notice Allows the host to perform a check-in for a specific trip.
-  /// This action typically occurs at the start of the trip and records key information
-  /// such as fuel level, odometer reading, insurance details, and any other relevant data.
-  /// @param tripId The unique identifier for the trip being checked in.
-  /// @param panelParams An array of numeric parameters representing important vehicle details.
-  ///   - panelParams[0]: Fuel level (e.g., as a percentage)
-  ///   - panelParams[1]: Odometer reading (e.g., in kilometers or miles)
-  ///   - Additional parameters can be added based on the engine and vehicle characteristics.
-  /// @param insuranceCompany The name of the insurance company covering the vehicle.
-  /// @param insuranceNumber The insurance policy number.
-  function checkInByHost(
-    uint256 tripId,
-    uint64[] memory panelParams,
-    string memory insuranceCompany,
-    string memory insuranceNumber
-  ) public {
-    return tripService.checkInByHost(tripId, panelParams, insuranceCompany, insuranceNumber);
-  }
-
-  /// @notice Performs check-in by the guest for a trip.
-  /// @param tripId The ID of the trip.
-  /// @param panelParams An array representing parameters related to fuel, odometer,
-  /// and other relevant details depends on engine.
-  function checkInByGuest(uint256 tripId, uint64[] memory panelParams) public {
-    return tripService.checkInByGuest(tripId, panelParams);
-  }
-
-  /// @notice Performs check-out by the guest for a trip.
-  /// @param tripId The ID of the trip.
-  /// @param panelParams An array representing parameters related to fuel, odometer,
-  /// and other relevant details depends on engine.
-  function checkOutByGuest(uint256 tripId, uint64[] memory panelParams) public {
-    return tripService.checkOutByGuest(tripId, panelParams);
-  }
-
-  /// @notice Performs check-out by the host for a trip.
-  /// @param tripId The ID of the trip.
-  /// @param panelParams An array representing parameters related to fuel, odometer,
-  /// and other relevant details depends on engine.
-  function checkOutByHost(uint256 tripId, uint64[] memory panelParams) public {
-    return tripService.checkOutByHost(tripId, panelParams);
+    return addresses.getCarDetails(carId);
   }
 
   /// @notice Retrieves information about a trip by ID.
   /// @param tripId The ID of the trip.
   /// @return Trip information.
   function getTrip(uint256 tripId) public view returns (Schemas.TripDTO memory) {
-    return RentalityQuery.getTripDTO(tripId, address(userService), address(tripService), address(carService));
+    return addresses.getTripDTO(tripId);
   }
 
   /// @notice Retrieves information about trips where the caller is the guest.
   /// @return An array of trip information.
   function getTripsAsGuest() public view returns (Schemas.TripDTO[] memory) {
-    return RentalityQuery.getTripsByGuest(address(tripService), address(userService), address(carService), tx.origin);
+    return addresses.getTripsByGuest(tx.origin);
   }
 
   /// @notice Retrieves information about trips where the caller is the host.
   /// @return An array of trip information.
   function getTripsAsHost() public view returns (Schemas.TripDTO[] memory) {
-    return RentalityQuery.getTripsByHost(address(tripService), address(userService), address(carService), tx.origin);
+    return addresses.getTripsByHost(tx.origin);
   }
 
   /// @notice Retrieves information about trips for a specific car.
   /// @param carId The ID of the car.
   /// @return An array of trip information for the specified car.
   function getTripsByCar(uint256 carId) public view returns (Schemas.Trip[] memory) {
-    return RentalityQuery.getTripsByCar(address(tripService), carId);
+    return addresses.getTripsByCar(carId);
   }
 
   /// @notice Retrieves all claims where the caller is the host.
   /// @dev The caller is assumed to be the host of the claims.
   /// @return An array of FullClaimInfo containing information about each claim.
   function getMyClaimsAsHost() public view returns (Schemas.FullClaimInfo[] memory) {
-    return
-      RentalityQuery.getClaimsByHost(
-        address(claimService),
-        address(tripService),
-        address(carService),
-        address(userService),
-        address(currencyConverterService),
-        msg.sender
-      );
+    return addresses.getClaimsByHost(msg.sender);
   }
 
   ///  @notice Retrieves all claims where the caller is the guest.
   ///  @dev The caller is assumed to be the guest of the claims.
   ///  @return An array of FullClaimInfo containing information about each claim.
   function getMyClaimsAsGuest() public view returns (Schemas.FullClaimInfo[] memory) {
-    return
-      RentalityQuery.getClaimsByGuest(
-        address(claimService),
-        address(tripService),
-        address(carService),
-        address(userService),
-        address(currencyConverterService),
-        msg.sender
-      );
+    return addresses.getClaimsByGuest(msg.sender);
   }
 
-  /// @notice Sets Know Your Customer (KYC) information for the caller.
-  /// @param name The name of the user.
-  /// @param surname The surname of the user.
-  /// @param mobilePhoneNumber The mobile phone number of the user.
-  /// @param profilePhoto The URL of the user's profile photo.
-  /// @param licenseNumber The user's license number.
-  /// @param expirationDate The expiration date of the user's license.
-  /// @param TCSignature The signature of the user indicating acceptance of Terms and Conditions (TC).
-  function setKYCInfo(
-    string memory name,
-    string memory surname,
-    string memory mobilePhoneNumber,
-    string memory profilePhoto,
-    string memory licenseNumber,
-    uint64 expirationDate,
-    bytes memory TCSignature
-  ) public {
-    if (!userService.isGuest(msg.sender)) {
-      userService.grantGuestRole(msg.sender);
-    }
-    return
-      userService.setKYCInfo(
-        name,
-        surname,
-        mobilePhoneNumber,
-        profilePhoto,
-        licenseNumber,
-        expirationDate,
-        TCSignature
-      );
+  /// @notice Gets detailed information about a specific claim.
+  /// @dev Returns a structure containing information about the claim, associated trip, and car details.
+  /// @param claimId ID of the claim.
+  /// @return Full information about the claim.
+  function getClaim(uint256 claimId) public view returns (Schemas.FullClaimInfo memory) {
+    return addresses.getClaim(claimId);
+  }
+
+  /// @notice Get contact information for a specific trip on the Rentality platform.
+  /// @param tripId The ID of the trip to retrieve contact information for.
+  /// @return guestPhoneNumber The phone number of the guest on the trip.
+  /// @return hostPhoneNumber The phone number of the host on the trip.
+  //// Refactoring for getTripContactInfo with RentalityContract
+  function getTripContactInfo(
+    uint256 tripId
+  ) public view returns (string memory guestPhoneNumber, string memory hostPhoneNumber) {
+    require(addresses.userService.isHostOrGuest(tx.origin), 'User is not a host or guest');
+
+    Schemas.Trip memory trip = addresses.tripService.getTrip(tripId);
+
+    Schemas.KYCInfo memory guestInfo = addresses.userService.getKYCInfo(trip.guest);
+    Schemas.KYCInfo memory hostInfo = addresses.userService.getKYCInfo(trip.host);
+
+    return (guestInfo.mobilePhoneNumber, hostInfo.mobilePhoneNumber);
   }
 
   /// @notice Retrieves KYC information for the caller.
   /// @return KYC information for the caller.
   function getMyKYCInfo() external view returns (Schemas.KYCInfo memory) {
-    return userService.getMyKYCInfo();
+    return addresses.userService.getMyKYCInfo();
   }
 
   /// @notice This function provides a detailed receipt of the trip, including payment information and trip details.
   /// @param tripId The ID of the trip for which the receipt is requested.
   /// @return tripReceipt An instance of `Schemas.TripReceiptDTO` containing the trip receipt details.
   function getTripReceipt(uint tripId) public view returns (Schemas.TripReceiptDTO memory) {
-    return RentalityUtils.fullFillTripReceipt(tripId, address(tripService));
+    return RentalityUtils.fullFillTripReceipt(tripId, address(addresses.tripService));
   }
 
   /// @notice Retrieves the cars owned by a specific host.
@@ -329,23 +236,46 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
   /// @param host The address of the host for whom to retrieve the cars.
   /// @return An array of PublicHostCarDTO structs representing the cars owned by the host.
   function getCarsOfHost(address host) public view returns (Schemas.PublicHostCarDTO[] memory) {
-    return carService.getCarsOfHost(host);
-  }
-  /// @notice Parses the geolocation response and stores parsed data.
-  /// @param carId The ID of the car for which geolocation is parsed.
-  function parseGeoResponse(uint carId) public {
-    IRentalityGeoService(carService.getGeoServiceAddress()).parseGeoResponse(carId);
+    return addresses.carService.getCarsOfHost(host);
   }
   /// @notice Get a discount.
   /// @param user The address of user discount.
   function getDiscount(address user) public view returns (Schemas.BaseDiscount memory) {
-    return paymentService.getBaseDiscount(user);
+    return addresses.paymentService.getBaseDiscount(user);
   }
 
-  /// @notice Adds a user discount.
-  /// @param data The discount data.
-  function addUserDiscount(Schemas.BaseDiscount memory data) public {
-    paymentService.addBaseDiscount(msg.sender, data);
+  /// @dev Calculates the payments for a trip.
+  /// @param carId The ID of the car.
+  /// @param daysOfTrip The duration of the trip in days.
+  /// @param currency The currency to use for payment calculation.
+  /// @return calculatePaymentsDTO An object containing payment details.
+  function calculatePayments(
+    uint carId,
+    uint64 daysOfTrip,
+    address currency
+  ) public view returns (Schemas.CalculatePaymentsDTO memory) {
+    return
+      RentalityUtils.calculatePayments(
+        address(addresses.carService),
+        address(addresses.paymentService),
+        address(addresses.currencyConverterService),
+        carId,
+        daysOfTrip,
+        currency
+      );
+  }
+  /// @notice Get chat information for trips hosted by the caller on the Rentality platform.
+  /// @return chatInfo An array of chat information for trips hosted by the caller.
+  function getChatInfoForHost() public view returns (Schemas.ChatInfo[] memory) {
+    Schemas.TripDTO[] memory trips = addresses.getTripsByHost(tx.origin);
+    return RentalityUtils.populateChatInfo(trips, address(addresses.userService), address(addresses.carService));
+  }
+
+  /// @notice Get chat information for trips attended by the caller on the Rentality platform.
+  /// @return chatInfo An array of chat information for trips attended by the caller.
+  function getChatInfoForGuest() public view returns (Schemas.ChatInfo[] memory) {
+    Schemas.TripDTO[] memory trips = addresses.getTripsByGuest(tx.origin);
+    return RentalityUtils.populateChatInfo(trips, address(addresses.userService), address(addresses.carService));
   }
 
   // Unused
@@ -377,7 +307,7 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
   /// @return Array of detailed claim information.
   //  function getClaimsByTrip(uint256 tripId) public view returns (Schemas.FullClaimInfo[] memory) {
   //    return
-  //      RentalityQuery.getClaimsByTrip(
+  //      addresses.getClaimsByTrip(
   //        address(claimService),
   //        address(tripService),
   //        address(carService),
@@ -409,14 +339,14 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
   /// @param guest The address of the guest.
   /// @return An array of trip information for the specified guest.
   //  function getTripsByGuest(address guest) public view returns (Schemas.TripDTO[] memory) {
-  //    return RentalityQuery.getTripsByGuest(address(tripService), address(userService), address(carService), guest);
+  //    return addresses.getTripsByGuest(address(tripService), address(userService), address(carService), guest);
   //  }
 
   /// @notice Retrieves information about trips where the specified user is the host.
   /// @param host The address of the host.
   /// @return An array of trip information for the specified host.
   //  function getTripsByHost(address host) public view returns (Schemas.TripDTO[] memory) {
-  //    return RentalityQuery.getTripsByHost(address(tripService), address(userService), address(carService), host);
+  //    return addresses.getTripsByHost(address(tripService), address(userService), address(carService), host);
   //  }
 
   //TODO!! Platform funcs, delete after full refactoring
@@ -528,14 +458,16 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
     address claimServiceAddress,
     address rentalityAdminGatewayAddress
   ) public initializer {
-    carService = RentalityCarToken(carServiceAddress);
-    currencyConverterService = RentalityCurrencyConverter(currencyConverterServiceAddress);
-    tripService = RentalityTripService(tripServiceAddress);
-    userService = RentalityUserService(userServiceAddress);
-    rentalityPlatform = RentalityPlatform(rentalityPlatformAddress);
-    paymentService = RentalityPaymentService(paymentServiceAddress);
-    claimService = RentalityClaimService(claimServiceAddress);
-    adminService = RentalityAdminGateway(rentalityAdminGatewayAddress);
+    addresses = RentalityContract(
+      RentalityCarToken(carServiceAddress),
+      RentalityCurrencyConverter(currencyConverterServiceAddress),
+      RentalityTripService(tripServiceAddress),
+      RentalityUserService(userServiceAddress),
+      RentalityPlatform(rentalityPlatformAddress),
+      RentalityPaymentService(paymentServiceAddress),
+      RentalityClaimService(claimServiceAddress),
+      RentalityAdminGateway(rentalityAdminGatewayAddress)
+    );
 
     __Ownable_init();
   }

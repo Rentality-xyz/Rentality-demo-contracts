@@ -430,6 +430,7 @@ library RentalityUtils {
       (searchCarParams.pricePerDayInUsdCentsTo == 0 ||
         car.pricePerDayInUsdCents <= searchCarParams.pricePerDayInUsdCentsTo);
   }
+  /// @notice Checks if a car is available for a specific user based on search parameters.
   /// @dev Calculates the payments for a trip.
   /// @param carId The ID of the car.
   /// @param daysOfTrip The duration of the trip in days.

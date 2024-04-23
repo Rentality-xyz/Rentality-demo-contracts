@@ -232,6 +232,9 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
   function setNewTCMessage(string memory message) public {
     userService.setNewTCMessage(message);
   }
+  function setPlatformFee(uint value) public {
+    claimService.setPlatformFee(value);
+  }
 
   //  @dev Initializes the contract with the provided addresses for various services.
   //  @param carServiceAddress The address of the RentalityCarToken contract.
