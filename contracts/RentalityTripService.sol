@@ -110,6 +110,8 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
       block.timestamp,
       0,
       0,
+      '',
+      '',
       address(0),
       0,
       new uint64[](panelParamsAmount),
@@ -197,14 +199,22 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
       );
   }
 
-  /// @notice Performs the check-in process by the host, updating the trip status and details.
-  /// Requirements:
-  /// - The caller must be the host of the trip.
-  /// - The trip must be in status Approved.
-  /// @param tripId The ID of the trip to be checked in by the host.
-  /// @param panelParams An array representing parameters related to fuel, odometer,
-  /// and other relevant details depends on engine.
-  function checkInByHost(uint256 tripId, uint64[] memory panelParams) public {
+  /// @notice Allows the host to perform a check-in for a specific trip.
+  /// This action typically occurs at the start of the trip and records key information
+  /// such as fuel level, odometer reading, insurance details, and any other relevant data.
+  /// @param tripId The unique identifier for the trip being checked in.
+  /// @param panelParams An array of numeric parameters representing important vehicle details.
+  ///   - panelParams[0]: Fuel level (e.g., as a percentage)
+  ///   - panelParams[1]: Odometer reading (e.g., in kilometers or miles)
+  ///   - Additional parameters can be added based on the engine and vehicle characteristics.
+  /// @param insuranceCompany The name of the insurance company covering the vehicle.
+  /// @param insuranceNumber The insurance policy number.
+  function checkInByHost(
+    uint256 tripId,
+    uint64[] memory panelParams,
+    string memory insuranceCompany,
+    string memory insuranceNumber
+  ) public {
     Schemas.Trip memory trip = getTrip(tripId);
     require(trip.host == tx.origin, 'For host only');
 
@@ -230,6 +240,8 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     idToTripInfo[tripId].status = Schemas.TripStatus.CheckedInByHost;
     idToTripInfo[tripId].checkedInByHostDateTime = block.timestamp;
     idToTripInfo[tripId].startParamLevels = panelParams;
+    idToTripInfo[tripId].insuranceCompany = insuranceCompany;
+    idToTripInfo[tripId].insuranceNumber = insuranceNumber;
     emit TripStatusChanged(
       tripId,
       Schemas.TripStatus.CheckedInByHost,
