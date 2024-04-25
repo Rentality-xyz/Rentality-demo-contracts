@@ -18,8 +18,6 @@ describe('RentalityGateway: user info', function () {
     rentalityTripService,
     rentalityCurrencyConverter,
     rentalityCarToken,
-    rentalityPaymentService,
-    rentalityPlatform,
     rentalityGeoService,
     rentalityAdminGateway,
     utils,
@@ -40,7 +38,7 @@ describe('RentalityGateway: user info', function () {
       rentalityCurrencyConverter,
       rentalityCarToken,
       rentalityPaymentService,
-      rentalityPlatform,
+      rentalityGateway,
       rentalityGeoService,
       rentalityAdminGateway,
       utils,
@@ -131,7 +129,7 @@ describe('RentalityGateway: user info', function () {
 
     const dailyPriceInUsdCents = 1000
 
-    const result = await rentalityPlatform.calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway.calculatePayments(1, 1, ethToken)
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
         {
@@ -175,7 +173,7 @@ describe('RentalityGateway: user info', function () {
 
     const dailyPriceInUsdCents = 1000
 
-    const result = await rentalityPlatform.calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway.calculatePayments(1, 1, ethToken)
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
         {
@@ -216,7 +214,7 @@ describe('RentalityGateway: user info', function () {
 
     const dailyPriceInUsdCents = 1000
 
-    const result = await rentalityPlatform.calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway.calculatePayments(1, 1, ethToken)
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
         {
@@ -272,9 +270,8 @@ describe('RentalityGateway: user info', function () {
         )
     ).not.be.reverted
 
-    const availableCars = await rentalityGateway.connect(guest).searchAvailableCars(0, 0, getEmptySearchCarParams(0))
+    const availableCars = await rentalityGateway.connect(guest).searchAvailableCars(0, 1, getEmptySearchCarParams(0))
     expect(availableCars.length).to.equal(1)
-
     expect(availableCars[0].hostPhotoUrl).to.be.eq(photo + 'host')
     expect(availableCars[0].hostName).to.be.eq(name + 'host')
   })

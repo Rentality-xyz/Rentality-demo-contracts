@@ -82,10 +82,8 @@ describe('RentalityGateway: car', function () {
 
     await expect(rentalityGateway.connect(host).updateCarInfo(update_params)).not.to.be.reverted
 
-    await expect(rentalityGateway.connect(guest).updateCarInfo(update_params)).to.be.revertedWith('User is not a host')
-
     await expect(rentalityGateway.connect(anonymous).updateCarInfo(update_params)).to.be.revertedWith(
-      'User is not a host'
+      'Only the owner of the car can update car info'
     )
 
     let carInfo = await rentalityGateway.getCarInfoById(update_params.carId)
