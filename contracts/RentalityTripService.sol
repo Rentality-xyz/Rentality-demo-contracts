@@ -281,7 +281,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
   function checkOutByGuest(uint256 tripId, uint64[] memory panelParams) public {
     Schemas.Trip memory trip = getTrip(tripId);
 
-    require(trip.guest == tx.origin, 'For trip guest or host only');
+    require(trip.guest == tx.origin, 'For trip guest only');
     Schemas.CarInfo memory carInfo = addresses.carService.getCarInfoById(trip.carId);
 
     require(
