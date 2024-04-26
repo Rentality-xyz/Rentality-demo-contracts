@@ -281,7 +281,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     function checkOutByGuest(uint256 tripId, uint64[] memory panelParams) public {
         Schemas.Trip memory trip = getTrip(tripId);
 
-        require(trip.guest == tx.origin || trip.host == tx.origin, 'For trip guest or host only');
+        require(trip.guest == tx.origin, 'For trip guest or host only');
         Schemas.CarInfo memory carInfo = addresses.carService.getCarInfoById(trip.carId);
 
         require(
@@ -309,17 +309,23 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     function checkOutByHost(uint256 tripId, uint64[] memory panelParams) public {
         Schemas.Trip memory trip = getTrip(tripId);
         require(trip.host == tx.origin, 'For trip host only');
-        require(trip.guest == trip.tripFinishedBy, 'Host already checked out.');
 
         require(
-            idToTripInfo[tripId].status == Schemas.TripStatus.CheckedOutByGuest,
-            'The trip is not in status CheckedOutByGuest'
+            idToTripInfo[tripId].status == Schemas.TripStatus.CheckedOutByGuest ||
+            idToTripInfo[tripId].status == Schemas.TripStatus.CheckedInByHost,
+            'The trip is not in status CheckedOutByGuest or CheckedInByHost'
         );
 
         Schemas.CarInfo memory carInfo = addresses.carService.getCarInfoById(trip.carId);
 
-        engineService.compareParams(trip.endParamLevels, panelParams, carInfo.engineType);
-
+        if (idToTripInfo[tripId].status == Schemas.TripStatus.CheckedInByHost) {
+            engineService.verifyEndParams(trip.startParamLevels, panelParams, carInfo.engineType);
+            idToTripInfo[tripId].endParamLevels = panelParams;
+            idToTripInfo[tripId].tripFinishedBy = tx.origin;
+        }
+        else {
+            engineService.compareParams(trip.endParamLevels, panelParams, carInfo.engineType);
+        }
         idToTripInfo[tripId].status = Schemas.TripStatus.CheckedOutByHost;
         idToTripInfo[tripId].checkedOutByHostDateTime = block.timestamp;
 
