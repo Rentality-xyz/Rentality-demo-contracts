@@ -141,8 +141,8 @@ interface Schemas {
     uint createdDateTime;
     uint approvedDateTime;
     uint rejectedDateTime;
-    string insuranceCompany;
-    string insuranceNumber;
+    string guestInsuranceCompanyName;
+    string guestInsurancePolicyNumber;
     address rejectedBy;
     uint checkedInByHostDateTime;
     uint64[] startParamLevels;
@@ -161,6 +161,10 @@ interface Schemas {
     string hostPhotoUrl;
     string metadataURI;
     string timeZoneId;
+    string hostDrivingLicenseNumber;
+    uint64 hostDrivingLicenseExpirationDate;
+    string guestDrivingLicenseNumber;
+    uint64 guestDrivingLicenseExpirationDate;
   }
 
   /// CHAT LOGIC

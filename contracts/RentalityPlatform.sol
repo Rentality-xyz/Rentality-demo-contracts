@@ -450,8 +450,12 @@ contract RentalityPlatform is UUPSOwnable {
   ///   - Additional parameters can be added based on the engine and vehicle characteristics.
   /// @param insuranceCompany The name of the insurance company covering the vehicle.
   /// @param insuranceNumber The insurance policy number.
-  function checkInByHost(uint256 tripId, uint64[] memory panelParams,string memory insuranceCompany,
-    string memory insuranceNumber) public {
+  function checkInByHost(
+    uint256 tripId,
+    uint64[] memory panelParams,
+    string memory insuranceCompany,
+    string memory insuranceNumber
+  ) public {
     return addresses.tripService.checkInByHost(tripId, panelParams, insuranceCompany, insuranceNumber);
   }
 
@@ -520,7 +524,6 @@ contract RentalityPlatform is UUPSOwnable {
   /// @param carId The ID of the car for which geolocation is parsed.
   function parseGeoResponse(uint carId) public {
     IRentalityGeoService(addresses.carService.getGeoServiceAddress()).parseGeoResponse(carId);
-
   }
 
   /// @notice Constructor to initialize the RentalityPlatform with service contract addresses.
