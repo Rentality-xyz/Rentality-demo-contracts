@@ -118,13 +118,7 @@ library RentalityQuery {
 
     for (uint i = 1; i <= tripService.totalTripCount(); i++) {
       if (tripService.getTrip(i).guest == guest) {
-        Schemas.Trip memory currentItem = tripService.getTrip(i);
-        result[currentIndex].trip = currentItem;
-        result[currentIndex].guestPhotoUrl = contracts.userService.getKYCInfo(guest).profilePhoto;
-        result[currentIndex].hostPhotoUrl = contracts.userService.getKYCInfo(currentItem.host).profilePhoto;
-        result[currentIndex].metadataURI = contracts.carService.tokenURI(currentItem.carId);
-        result[currentIndex].timeZoneId = IRentalityGeoService(contracts.carService.getGeoServiceAddress())
-          .getCarTimeZoneId(currentItem.carId);
+        result[currentIndex] = getTripDTO(contracts, i);
 
         currentIndex += 1;
       }
@@ -151,14 +145,7 @@ library RentalityQuery {
 
     for (uint i = 1; i <= tripService.totalTripCount(); i++) {
       if (tripService.getTrip(i).host == host) {
-        Schemas.Trip memory currentItem = tripService.getTrip(i);
-        result[currentIndex].trip = currentItem;
-        result[currentIndex].guestPhotoUrl = contracts.userService.getKYCInfo(currentItem.guest).profilePhoto;
-        result[currentIndex].hostPhotoUrl = contracts.userService.getKYCInfo(host).profilePhoto;
-        result[currentIndex].metadataURI = contracts.carService.tokenURI(currentItem.carId);
-        result[currentIndex].timeZoneId = IRentalityGeoService(contracts.carService.getGeoServiceAddress())
-          .getCarTimeZoneId(currentItem.carId);
-
+        result[currentIndex] = getTripDTO(contracts, i);
         currentIndex += 1;
       }
     }
@@ -496,7 +483,11 @@ library RentalityQuery {
         userService.getKYCInfo(trip.guest).profilePhoto,
         userService.getKYCInfo(trip.host).profilePhoto,
         carService.tokenURI(trip.carId),
-        IRentalityGeoService(carService.getGeoServiceAddress()).getCarTimeZoneId(trip.carId)
+        IRentalityGeoService(carService.getGeoServiceAddress()).getCarTimeZoneId(trip.carId),
+        userService.getKYCInfo(trip.host).licenseNumber,
+        userService.getKYCInfo(trip.host).expirationDate,
+        userService.getKYCInfo(trip.guest).licenseNumber,
+        userService.getKYCInfo(trip.guest).expirationDate
       );
   }
 
