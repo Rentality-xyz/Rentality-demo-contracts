@@ -255,7 +255,7 @@ contract RentalityPlatform is UUPSOwnable {
 
     require(trip.guest == tx.origin || addresses.userService.isAdmin(tx.origin), 'For trip guest or admin only');
     require(trip.host == trip.tripFinishedBy, 'No needs to confirm.');
-    require(trip.status == Schemas.TripStatus.CheckedOutByGuest, 'The trip is not in status CheckedOutByGuest');
+    require(trip.status == Schemas.TripStatus.CheckedOutByHost, 'The trip is not in status CheckedOutByHost');
     _finishTrip(tripId);
   }
 
@@ -263,7 +263,11 @@ contract RentalityPlatform is UUPSOwnable {
   /// @param tripId The ID of the trip to finish.
   function finishTrip(uint256 tripId) public {
     Schemas.Trip memory trip = addresses.tripService.getTrip(tripId);
-    require(trip.status == Schemas.TripStatus.CheckedOutByHost, 'The trip is not in status CheckedOutByHost');
+    require(
+      trip.status == Schemas.TripStatus.CheckedOutByHost
+      && trip.tripFinishedBy == trip.guest,
+      'The trip is not in status CheckedOutByHost'
+    );
     _finishTrip(tripId);
   }
 
