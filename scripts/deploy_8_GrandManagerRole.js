@@ -1,4 +1,4 @@
-const RentalityUserServiceJSON_ABI = require('../src/abis/RentalityUserService.v0_17_0.abis.json')
+const RentalityUserServiceJSON_ABI = require('../src/abis/RentalityUserService.v0_17_0.abi.json')
 const { ethers, network } = require('hardhat')
 const { buildPath } = require('./utils/pathBuilder')
 const { readFileSync } = require('fs')
