@@ -265,6 +265,14 @@
     },
     {
       "type": "function",
+      "name": "setPlatformFee",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "value" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
       "name": "setPlatformFeeInPPM",
       "constant": false,
       "payable": false,
