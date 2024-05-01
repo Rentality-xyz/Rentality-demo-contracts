@@ -1,0 +1,31 @@
+[
+  {
+    "name": "sepolia",
+    "chainId": 11155111,
+    "RentalityClaimService": "0x98fD825a63221C78E0c2F97586c2CeF5ddeD31c6",
+    "RentalityGateway": "0x955DB1170A0E9B9c70F1F206Cc6C24556F09081C",
+    "RentalityPlatform": "0x6620Eb6279e8B8A4BaA15FA3378Be82AE5474BcB",
+    "RentalityTripService": "0xeF1626fEE7dc0a9A54c4c17E84f6a88Bd14878b8",
+    "RentalityAdminGateway": "0xF4F37c4a3790Dc3077abfc0A10179a4866919743",
+    "EthToUsdPriceFeedAddress": "0x694AA1769357215DE4FAC081bf1f309aDC325306",
+    "RentalityETHConvertor": "0xA86b069Ad34a568dcF9a1979B6c99A22FF476F2F",
+    "RentalityTestUSDT": "0x67D76b1814E5e0CE2F125bCD1e92a1b222b7212E",
+    "UsdtToUsdPriceFeedAddress": "0xA2F78ab2355fe2f984D808B5CeE7FD0A93D5270E",
+    "RentalityUSDTConverter": "0xA2318f7a3479816663C891D4446Aba463b594DD3",
+    "RentalityCurrencyConverter": "0xE5e9B4da612aBbcE97564285b33136E4CdB9c418",
+    "RentalityFloridaTaxes": "0xe2D8d62B233aaF5fD6eC3EB7dd2462Df51Ebf82C",
+    "RentalityBaseDiscount": "0x81Cb5E5858C63057C333aeFcb994326B9F399b9b",
+    "RentalityPaymentService": "0xfa4d535Db0Ea169203422C1771487572bF8B2931",
+    "RentalityGeoParser": "0xCC6bb4bB8Dc1cE19e42FD4551651E1C4eF079dAc",
+    "RentalityGeoService": "0x1CaFf29961a49e46F507225077C442086AA61dA7",
+    "RentalityPatrolEngine": "0x86E0B42b656154700D3bD903aB6C0740802e654F",
+    "RentalityElectricEngine": "0xf846540f92212ad75696b161610d491e5c7DCe07",
+    "RentalityEnginesService": "0x70421c4c0eD05b39f9d60FB0d0699A66d45E7306",
+    "RentalityCarToken": "0x3378d1D747B3F1C2f375C825C48b677581daAC56",
+    "RentalityQuery": "0x7F76B1247BFF814593985F9A97143b48B8dA6F2c",
+    "RentalityUtils": "0x72295B0bCfaFB416C1B49aEfAeA64A8DcFC41e52",
+    "CivicGatewayTokenContract": "0xF65b6396dF6B7e2D8a6270E3AB6c7BB08BAEF22E",
+    "RentalityUserService": "0x9699cBEC48bf648811CD8A469D8a714dC386BC3f",
+    "RentalityChatHelper": "0x9880969a6D91aaE575082c05A3fA114b7586A4cB"
+  }
+]

@@ -74,7 +74,9 @@
       "payable": false,
       "inputs": [
         { "type": "uint256", "name": "tripId" },
-        { "type": "uint64[]", "name": "panelParams" }
+        { "type": "uint64[]", "name": "panelParams" },
+        { "type": "string", "name": "insuranceCompany" },
+        { "type": "string", "name": "insuranceNumber" }
       ],
       "outputs": []
     },
@@ -206,6 +208,8 @@
             { "type": "uint256", "name": "createdDateTime" },
             { "type": "uint256", "name": "approvedDateTime" },
             { "type": "uint256", "name": "rejectedDateTime" },
+            { "type": "string", "name": "guestInsuranceCompanyName" },
+            { "type": "string", "name": "guestInsurancePolicyNumber" },
             { "type": "address", "name": "rejectedBy" },
             { "type": "uint256", "name": "checkedInByHostDateTime" },
             { "type": "uint64[]", "name": "startParamLevels" },
@@ -284,6 +288,8 @@
             { "type": "uint256", "name": "createdDateTime" },
             { "type": "uint256", "name": "approvedDateTime" },
             { "type": "uint256", "name": "rejectedDateTime" },
+            { "type": "string", "name": "guestInsuranceCompanyName" },
+            { "type": "string", "name": "guestInsurancePolicyNumber" },
             { "type": "address", "name": "rejectedBy" },
             { "type": "uint256", "name": "checkedInByHostDateTime" },
             { "type": "uint64[]", "name": "startParamLevels" },

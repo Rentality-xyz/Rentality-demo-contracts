@@ -98,7 +98,9 @@
       "payable": false,
       "inputs": [
         { "type": "uint256", "name": "tripId" },
-        { "type": "uint64[]", "name": "panelParams" }
+        { "type": "uint64[]", "name": "panelParams" },
+        { "type": "string", "name": "insuranceCompany" },
+        { "type": "string", "name": "insuranceNumber" }
       ],
       "outputs": []
     },
@@ -145,7 +147,8 @@
             { "type": "uint256", "name": "tripId" },
             { "type": "uint8", "name": "claimType" },
             { "type": "string", "name": "description" },
-            { "type": "uint64", "name": "amountInUsdCents" }
+            { "type": "uint64", "name": "amountInUsdCents" },
+            { "type": "string", "name": "photosUrl" }
           ]
         }
       ],
@@ -524,7 +527,9 @@
                 { "type": "uint64", "name": "amountInUsdCents" },
                 { "type": "uint256", "name": "payDateInSec" },
                 { "type": "address", "name": "rejectedBy" },
-                { "type": "uint256", "name": "rejectedDateInSec" }
+                { "type": "uint256", "name": "rejectedDateInSec" },
+                { "type": "string", "name": "photosUrl" },
+                { "type": "bool", "name": "isHostClaims" }
               ]
             },
             { "type": "address", "name": "host" },
@@ -583,7 +588,9 @@
                 { "type": "uint64", "name": "amountInUsdCents" },
                 { "type": "uint256", "name": "payDateInSec" },
                 { "type": "address", "name": "rejectedBy" },
-                { "type": "uint256", "name": "rejectedDateInSec" }
+                { "type": "uint256", "name": "rejectedDateInSec" },
+                { "type": "string", "name": "photosUrl" },
+                { "type": "bool", "name": "isHostClaims" }
               ]
             },
             { "type": "address", "name": "host" },
@@ -695,6 +702,8 @@
                 { "type": "uint256", "name": "createdDateTime" },
                 { "type": "uint256", "name": "approvedDateTime" },
                 { "type": "uint256", "name": "rejectedDateTime" },
+                { "type": "string", "name": "guestInsuranceCompanyName" },
+                { "type": "string", "name": "guestInsurancePolicyNumber" },
                 { "type": "address", "name": "rejectedBy" },
                 { "type": "uint256", "name": "checkedInByHostDateTime" },
                 { "type": "uint64[]", "name": "startParamLevels" },
@@ -720,7 +729,11 @@
             { "type": "string", "name": "guestPhotoUrl" },
             { "type": "string", "name": "hostPhotoUrl" },
             { "type": "string", "name": "metadataURI" },
-            { "type": "string", "name": "timeZoneId" }
+            { "type": "string", "name": "timeZoneId" },
+            { "type": "string", "name": "hostDrivingLicenseNumber" },
+            { "type": "uint64", "name": "hostDrivingLicenseExpirationDate" },
+            { "type": "string", "name": "guestDrivingLicenseNumber" },
+            { "type": "uint64", "name": "guestDrivingLicenseExpirationDate" }
           ]
         }
       ]
@@ -825,6 +838,8 @@
                 { "type": "uint256", "name": "createdDateTime" },
                 { "type": "uint256", "name": "approvedDateTime" },
                 { "type": "uint256", "name": "rejectedDateTime" },
+                { "type": "string", "name": "guestInsuranceCompanyName" },
+                { "type": "string", "name": "guestInsurancePolicyNumber" },
                 { "type": "address", "name": "rejectedBy" },
                 { "type": "uint256", "name": "checkedInByHostDateTime" },
                 { "type": "uint64[]", "name": "startParamLevels" },
@@ -850,7 +865,11 @@
             { "type": "string", "name": "guestPhotoUrl" },
             { "type": "string", "name": "hostPhotoUrl" },
             { "type": "string", "name": "metadataURI" },
-            { "type": "string", "name": "timeZoneId" }
+            { "type": "string", "name": "timeZoneId" },
+            { "type": "string", "name": "hostDrivingLicenseNumber" },
+            { "type": "uint64", "name": "hostDrivingLicenseExpirationDate" },
+            { "type": "string", "name": "guestDrivingLicenseNumber" },
+            { "type": "uint64", "name": "guestDrivingLicenseExpirationDate" }
           ]
         }
       ]
@@ -908,6 +927,8 @@
                 { "type": "uint256", "name": "createdDateTime" },
                 { "type": "uint256", "name": "approvedDateTime" },
                 { "type": "uint256", "name": "rejectedDateTime" },
+                { "type": "string", "name": "guestInsuranceCompanyName" },
+                { "type": "string", "name": "guestInsurancePolicyNumber" },
                 { "type": "address", "name": "rejectedBy" },
                 { "type": "uint256", "name": "checkedInByHostDateTime" },
                 { "type": "uint64[]", "name": "startParamLevels" },
@@ -933,7 +954,11 @@
             { "type": "string", "name": "guestPhotoUrl" },
             { "type": "string", "name": "hostPhotoUrl" },
             { "type": "string", "name": "metadataURI" },
-            { "type": "string", "name": "timeZoneId" }
+            { "type": "string", "name": "timeZoneId" },
+            { "type": "string", "name": "hostDrivingLicenseNumber" },
+            { "type": "uint64", "name": "hostDrivingLicenseExpirationDate" },
+            { "type": "string", "name": "guestDrivingLicenseNumber" },
+            { "type": "uint64", "name": "guestDrivingLicenseExpirationDate" }
           ]
         }
       ]
