@@ -1,0 +1,112 @@
+{
+  "hostWalletPrivateKey": "",
+  "guestWalletPrivateKey": "",
+
+  "hostProfileInfo": {
+    "name": "",
+    "surname": "",
+    "mobilePhoneNumber": "",
+    "profilePhoto": "",
+    "licenseNumber": "",
+    "expirationDate": 0,
+    "tcSignature": ""
+  },
+
+  "guestProfileInfo": {
+    "name": "",
+    "surname": "",
+    "mobilePhoneNumber": "",
+    "profilePhoto": "",
+    "licenseNumber": "",
+    "expirationDate": 0,
+    "tcSignature": ""
+  },
+
+  "carInfos": [
+    {
+      "tokenUri": "",
+      "carVinNumber": "",
+      "brand": "",
+      "model": "",
+      "yearOfProduction": 0,
+      "pricePerDayInUsdCents": 0,
+      "securityDepositPerTripInUsdCents": 0,
+      "milesIncludedPerDay": 0,
+      "geoApiKey": "",
+      "engineType": 0,
+      "engineParams": [0, 0],
+      "locationAddress": "",
+      "timeBufferBetweenTripsInSec": "",
+      "locationLatitude": "",
+      "locationLongitude": ""
+    },
+    {
+      "tokenUri": "",
+      "carVinNumber": "",
+      "brand": "",
+      "model": "",
+      "yearOfProduction": 0,
+      "pricePerDayInUsdCents": 0,
+      "securityDepositPerTripInUsdCents": 0,
+      "milesIncludedPerDay": 0,
+      "geoApiKey": "",
+      "engineType": 0,
+      "engineParams": [0, 0],
+      "locationAddress": "",
+      "timeBufferBetweenTripsInSec": "",
+      "locationLatitude": "",
+      "locationLongitude": ""
+    },
+    {
+      "tokenUri": "",
+      "carVinNumber": "",
+      "brand": "",
+      "model": "",
+      "yearOfProduction": 0,
+      "pricePerDayInUsdCents": 0,
+      "securityDepositPerTripInUsdCents": 0,
+      "milesIncludedPerDay": 0,
+      "geoApiKey": "",
+      "engineType": 0,
+      "engineParams": [0, 0],
+      "locationAddress": "",
+      "timeBufferBetweenTripsInSec": "",
+      "locationLatitude": "",
+      "locationLongitude": ""
+    },
+    {
+      "tokenUri": "",
+      "carVinNumber": "",
+      "brand": "",
+      "model": "",
+      "yearOfProduction": 0,
+      "pricePerDayInUsdCents": 0,
+      "securityDepositPerTripInUsdCents": 0,
+      "milesIncludedPerDay": 0,
+      "geoApiKey": "",
+      "engineType": 0,
+      "engineParams": [0, 0],
+      "locationAddress": "",
+      "timeBufferBetweenTripsInSec": "",
+      "locationLatitude": "",
+      "locationLongitude": ""
+    },
+    {
+      "tokenUri": "",
+      "carVinNumber": "",
+      "brand": "",
+      "model": "",
+      "yearOfProduction": 0,
+      "pricePerDayInUsdCents": 0,
+      "securityDepositPerTripInUsdCents": 0,
+      "milesIncludedPerDay": 0,
+      "geoApiKey": "",
+      "engineType": 0,
+      "engineParams": [0, 0],
+      "locationAddress": "",
+      "timeBufferBetweenTripsInSec": "",
+      "locationLatitude": "",
+      "locationLongitude": ""
+    }
+  ]
+}

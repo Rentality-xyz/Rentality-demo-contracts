@@ -18,12 +18,12 @@ var saveJsonAbi = async function (fileName, chainId, contract) {
     if (err) throw err
   })
 
-  let filePath = './src/abis/' + fileName + '.' + version + '.abis.' + 'json'
+  let filePath = './src/abis/' + fileName + '.' + version + '.abi.' + 'json'
   fs.writeFileSync(filePath, JSON.stringify(onlyAbiJsonData))
-  console.log('JSON abis saved to ' + filePath)
+  console.log('JSON abi saved to ' + filePath)
 
   filePath = updateAddress(fileName, await contract.getAddress(), chainId)
-  console.log('JSON abis saved to ' + filePath)
+  console.log('JSON abi saved to ' + filePath)
 }
 
 module.exports = saveJsonAbi
