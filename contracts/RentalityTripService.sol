@@ -312,13 +312,15 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
 
     require(
       idToTripInfo[tripId].status == Schemas.TripStatus.CheckedOutByGuest ||
-        idToTripInfo[tripId].status == Schemas.TripStatus.CheckedInByHost,
-      'The trip is not in status CheckedOutByGuest or CheckedInByHost'
+        idToTripInfo[tripId].status == Schemas.TripStatus.CheckedInByHost ||
+      idToTripInfo[tripId].status == Schemas.TripStatus.CheckedInByGuest,
+      'The trip is not in status CheckedOutByGuest, CheckedInByHost or CheckedInByGuest'
     );
 
     Schemas.CarInfo memory carInfo = addresses.carService.getCarInfoById(trip.carId);
 
-    if (idToTripInfo[tripId].status == Schemas.TripStatus.CheckedInByHost) {
+    if (idToTripInfo[tripId].status == Schemas.TripStatus.CheckedInByHost ||
+      idToTripInfo[tripId].status == Schemas.TripStatus.CheckedInByGuest) {
       engineService.verifyEndParams(trip.startParamLevels, panelParams, carInfo.engineType);
       idToTripInfo[tripId].endParamLevels = panelParams;
       idToTripInfo[tripId].tripFinishedBy = tx.origin;
