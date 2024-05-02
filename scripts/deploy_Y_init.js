@@ -1,4 +1,4 @@
-const RentalityGatewayJSON_ABI = require('../src/abis/RentalityGateway.v0_17_0.abi.json')
+const RentalityGatewayJSON_ABI = require('../src/abis/RentalityGateway.v0_17_1.abi.json')
 const testData = require('./testData/testData.json')
 const { ethers, network } = require('hardhat')
 const { buildPath } = require('./utils/pathBuilder')
@@ -141,7 +141,7 @@ async function createPendingTrip(tripIndex, carId, host, guest, gateway) {
 }
 
 async function createRejectedByGuestTrip(tripIndex, carId, host, guest, gateway) {
-  const tripId = createPendingTrip(tripIndex, carId, host, guest, gateway)
+  const tripId = await createPendingTrip(tripIndex, carId, host, guest, gateway)
 
   if (tripId < 0) {
     throw new error('create trip error ')
@@ -152,7 +152,7 @@ async function createRejectedByGuestTrip(tripIndex, carId, host, guest, gateway)
 }
 
 async function createRejectedByHostTrip(tripIndex, carId, host, guest, gateway) {
-  const tripId = createPendingTrip(tripIndex, carId, host, guest, gateway)
+  const tripId = await createPendingTrip(tripIndex, carId, host, guest, gateway)
 
   if (tripId < 0) {
     throw new error('create trip error ')
@@ -163,7 +163,7 @@ async function createRejectedByHostTrip(tripIndex, carId, host, guest, gateway) 
 }
 
 async function createConfirmedTrip(tripIndex, carId, host, guest, gateway) {
-  const tripId = createPendingTrip(tripIndex, carId, host, guest, gateway)
+  const tripId = await createPendingTrip(tripIndex, carId, host, guest, gateway)
 
   if (tripId < 0) {
     throw new error('create trip error ')
@@ -174,7 +174,7 @@ async function createConfirmedTrip(tripIndex, carId, host, guest, gateway) {
 }
 
 async function createCheckedInByHostTrip(tripIndex, carId, host, guest, gateway) {
-  const tripId = createConfirmedTrip(tripIndex, carId, host, guest, gateway)
+  const tripId = await createConfirmedTrip(tripIndex, carId, host, guest, gateway)
 
   if (tripId < 0) {
     throw new error('create trip error ')
@@ -185,7 +185,7 @@ async function createCheckedInByHostTrip(tripIndex, carId, host, guest, gateway)
 }
 
 async function createStartedTrip(tripIndex, carId, host, guest, gateway) {
-  const tripId = createCheckedInByHostTrip(tripIndex, carId, host, guest, gateway)
+  const tripId = await createCheckedInByHostTrip(tripIndex, carId, host, guest, gateway)
 
   if (tripId < 0) {
     throw new error('create trip error ')
@@ -196,7 +196,7 @@ async function createStartedTrip(tripIndex, carId, host, guest, gateway) {
 }
 
 async function createCheckedOutByGuestTrip(tripIndex, carId, host, guest, gateway) {
-  const tripId = createStartedTrip(tripIndex, carId, host, guest, gateway)
+  const tripId = await createStartedTrip(tripIndex, carId, host, guest, gateway)
 
   if (tripId < 0) {
     throw new error('create trip error ')
@@ -207,7 +207,7 @@ async function createCheckedOutByGuestTrip(tripIndex, carId, host, guest, gatewa
 }
 
 async function createFinishedTrip(tripIndex, carId, host, guest, gateway) {
-  const tripId = createCheckedOutByGuestTrip(tripIndex, carId, host, guest, gateway)
+  const tripId = await createCheckedOutByGuestTrip(tripIndex, carId, host, guest, gateway)
 
   if (tripId < 0) {
     throw new error('create trip error ')
@@ -218,7 +218,7 @@ async function createFinishedTrip(tripIndex, carId, host, guest, gateway) {
 }
 
 async function createClosedTrip(tripIndex, carId, host, guest, gateway) {
-  const tripId = createFinishedTrip(tripIndex, carId, host, guest, gateway)
+  const tripId = await createFinishedTrip(tripIndex, carId, host, guest, gateway)
 
   if (tripId < 0) {
     throw new error('create trip error ')
@@ -229,7 +229,7 @@ async function createClosedTrip(tripIndex, carId, host, guest, gateway) {
 }
 
 async function createCompletedWithoutGuestComfirmationTrip(tripIndex, carId, host, guest, gateway) {
-  const tripId = createStartedTrip(tripIndex, carId, host, guest, gateway)
+  const tripId = await createStartedTrip(tripIndex, carId, host, guest, gateway)
 
   if (tripId < 0) {
     throw new error('create trip error ')
@@ -240,7 +240,7 @@ async function createCompletedWithoutGuestComfirmationTrip(tripIndex, carId, hos
 }
 
 async function createConfirmedAfterCompletedWithoutGuestComfirmationTrip(tripIndex, carId, host, guest, gateway) {
-  const tripId = createCompletedWithoutGuestComfirmationTrip(tripIndex, carId, host, guest, gateway)
+  const tripId = await createCompletedWithoutGuestComfirmationTrip(tripIndex, carId, host, guest, gateway)
 
   if (tripId < 0) {
     throw new error('create trip error ')
@@ -277,30 +277,26 @@ async function main() {
     }
   }
 
-  if (carIds.length > 1 && tripCount == 6) {
+  if (carIds.length > 1 && tripCount <= 6) {
     console.log(`\nCreating trips for car #${carIds[1]}...`)
     await createStartedTrip(6, carIds[1], host, guest, gateway)
-    tripCount++
   }
-  if (carIds.length > 2 && tripCount == 7) {
+  if (carIds.length > 2 && tripCount <= 7) {
     console.log(`\nCreating trips for car #${carIds[2]}...`)
     await createCheckedOutByGuestTrip(7, carIds[2], host, guest, gateway)
     tripCount++
   }
-  if (carIds.length > 3 && tripCount == 8) {
+  if (carIds.length > 3 && tripCount <= 8) {
     console.log(`\nCreating trips for car #${carIds[3]}...`)
     await createFinishedTrip(8, carIds[3], host, guest, gateway)
-    tripCount++
   }
-  if (carIds.length > 4 && tripCount == 9) {
+  if (carIds.length > 4 && tripCount <= 9) {
     console.log(`\nCreating trips for car #${carIds[4]}...`)
     await createCompletedWithoutGuestComfirmationTrip(9, carIds[4], host, guest, gateway)
-    tripCount++
   }
-  if (carIds.length > 5 && tripCount == 10) {
+  if (carIds.length > 5 && tripCount <= 10) {
     console.log(`\nCreating trips for car #${carIds[5]}...`)
     await createConfirmedAfterCompletedWithoutGuestComfirmationTrip(10, carIds[5], host, guest, gateway)
-    tripCount++
   }
 }
 
