@@ -95,14 +95,14 @@ async function setCarsForHost(host, gateway) {
   let listedCars = await gateway.connect(host).getMyCars()
   const carCount = listedCars.length
 
-  if (carCount > 5) {
+  if (carCount > 6) {
     console.log(
       `All car has been already listed. Car ids: ${JSON.stringify(listedCars.map((i) => Number(i.carInfo.carId)))}`
     )
     return listedCars.map((i) => i.carInfo.carId)
   }
 
-  for (let index = carCount; index < 5; index++) {
+  for (let index = carCount; index < 6; index++) {
     console.log(`Listing car #${index}...`)
 
     await gateway.connect(host).addCar(testData.carInfos[index])
@@ -239,6 +239,17 @@ async function createCompletedWithoutGuestComfirmationTrip(tripIndex, carId, hos
   return tripId
 }
 
+async function createConfirmedAfterCompletedWithoutGuestComfirmationTrip(tripIndex, carId, host, guest, gateway) {
+  const tripId = createCompletedWithoutGuestComfirmationTrip(tripIndex, carId, host, guest, gateway)
+
+  if (tripId < 0) {
+    throw new error('create trip error ')
+  }
+  await gateway.connect(guest).confirmCheckOut(tripId)
+  console.log(`Status of the trip #${tripIndex} was changed to 'Closed?'`)
+  return tripId
+}
+
 async function main() {
   const [host, guest, gateway] = await checkInitialization()
 
@@ -284,6 +295,11 @@ async function main() {
   if (carIds.length > 4 && tripCount == 9) {
     console.log(`\nCreating trips for car #${carIds[4]}...`)
     await createCompletedWithoutGuestComfirmationTrip(9, carIds[4], host, guest, gateway)
+    tripCount++
+  }
+  if (carIds.length > 5 && tripCount == 10) {
+    console.log(`\nCreating trips for car #${carIds[5]}...`)
+    await createConfirmedAfterCompletedWithoutGuestComfirmationTrip(10, carIds[5], host, guest, gateway)
     tripCount++
   }
 }
