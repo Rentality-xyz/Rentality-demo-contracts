@@ -153,6 +153,7 @@ interface Schemas {
     uint64[] endParamLevels;
     uint checkedOutByHostDateTime;
     TransactionInfo transactionInfo;
+    uint finishDateTime;
   }
 
   struct TripDTO {
