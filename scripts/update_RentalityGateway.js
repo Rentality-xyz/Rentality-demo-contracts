@@ -12,7 +12,7 @@ async function main() {
   console.log('Deployer address is:', await deployer.getAddress(), ' with balance:', balance)
 
   const chainId = (await deployer.provider?.getNetwork())?.chainId ?? -1
-  const contractName = "RentalityGateway"
+  const contractName = 'RentalityGateway'
 
   const libs = getContractLibs(contractName, chainId)
 
@@ -52,7 +52,7 @@ async function main() {
     })
   }
 
-  contract = await ethers.getContractAt("IRentalityGateway", contractAddress);
+  contract = await ethers.getContractAt('IRentalityGateway', contractAddress)
   await saveJsonAbi(contractName, chainId, contract)
 }
 
