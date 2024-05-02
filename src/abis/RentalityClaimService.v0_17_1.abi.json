@@ -57,7 +57,8 @@
             { "type": "uint256", "name": "tripId" },
             { "type": "uint8", "name": "claimType" },
             { "type": "string", "name": "description" },
-            { "type": "uint64", "name": "amountInUsdCents" }
+            { "type": "uint64", "name": "amountInUsdCents" },
+            { "type": "string", "name": "photosUrl" }
           ]
         },
         { "type": "address", "name": "host" },
@@ -95,7 +96,9 @@
             { "type": "uint64", "name": "amountInUsdCents" },
             { "type": "uint256", "name": "payDateInSec" },
             { "type": "address", "name": "rejectedBy" },
-            { "type": "uint256", "name": "rejectedDateInSec" }
+            { "type": "uint256", "name": "rejectedDateInSec" },
+            { "type": "string", "name": "photosUrl" },
+            { "type": "bool", "name": "isHostClaims" }
           ]
         }
       ]
@@ -107,6 +110,15 @@
       "stateMutability": "view",
       "payable": false,
       "inputs": [],
+      "outputs": [{ "type": "uint256", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getPlatformFeeFrom",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "value" }],
       "outputs": [{ "type": "uint256", "name": "" }]
     },
     {
@@ -158,6 +170,14 @@
         { "type": "address", "name": "host" },
         { "type": "address", "name": "guest" }
       ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "setPlatformFee",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "value" }],
       "outputs": []
     },
     {
