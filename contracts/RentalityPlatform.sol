@@ -264,8 +264,7 @@ contract RentalityPlatform is UUPSOwnable {
   function finishTrip(uint256 tripId) public {
     Schemas.Trip memory trip = addresses.tripService.getTrip(tripId);
     require(
-      trip.status == Schemas.TripStatus.CheckedOutByHost
-      && trip.tripFinishedBy == trip.guest,
+      trip.status == Schemas.TripStatus.CheckedOutByHost && trip.tripFinishedBy == trip.guest,
       'The trip is not in status CheckedOutByHost'
     );
     _finishTrip(tripId);
