@@ -319,7 +319,8 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
 
     Schemas.CarInfo memory carInfo = addresses.carService.getCarInfoById(trip.carId);
 
-    if (idToTripInfo[tripId].status == Schemas.TripStatus.CheckedInByHost) {
+    if (idToTripInfo[tripId].status == Schemas.TripStatus.CheckedInByHost ||
+      idToTripInfo[tripId].status == Schemas.TripStatus.CheckedInByGuest) {
       engineService.verifyEndParams(trip.startParamLevels, panelParams, carInfo.engineType);
       idToTripInfo[tripId].endParamLevels = panelParams;
       idToTripInfo[tripId].tripFinishedBy = tx.origin;
