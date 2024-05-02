@@ -124,7 +124,8 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
       address(0),
       new uint64[](panelParamsAmount),
       0,
-      Schemas.TransactionInfo(0, 0, 0, 0, Schemas.TripStatus.Created)
+      Schemas.TransactionInfo(0, 0, 0, 0, Schemas.TripStatus.Created),
+      0
     );
 
     emit TripCreated(newTripId, host, guest);
@@ -313,14 +314,16 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     require(
       idToTripInfo[tripId].status == Schemas.TripStatus.CheckedOutByGuest ||
         idToTripInfo[tripId].status == Schemas.TripStatus.CheckedInByHost ||
-      idToTripInfo[tripId].status == Schemas.TripStatus.CheckedInByGuest,
+        idToTripInfo[tripId].status == Schemas.TripStatus.CheckedInByGuest,
       'The trip is not in status CheckedOutByGuest, CheckedInByHost or CheckedInByGuest'
     );
 
     Schemas.CarInfo memory carInfo = addresses.carService.getCarInfoById(trip.carId);
 
-    if (idToTripInfo[tripId].status == Schemas.TripStatus.CheckedInByHost ||
-      idToTripInfo[tripId].status == Schemas.TripStatus.CheckedInByGuest) {
+    if (
+      idToTripInfo[tripId].status == Schemas.TripStatus.CheckedInByHost ||
+      idToTripInfo[tripId].status == Schemas.TripStatus.CheckedInByGuest
+    ) {
       engineService.verifyEndParams(trip.startParamLevels, panelParams, carInfo.engineType);
       idToTripInfo[tripId].endParamLevels = panelParams;
       idToTripInfo[tripId].tripFinishedBy = tx.origin;
@@ -360,6 +363,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
       resolveAmountInUsdCents = idToTripInfo[tripId].paymentInfo.depositInUsdCents;
     }
     idToTripInfo[tripId].paymentInfo.resolveAmountInUsdCents = resolveAmountInUsdCents;
+    idToTripInfo[tripId].finishDateTime = block.timestamp;
 
     emit TripStatusChanged(tripId, Schemas.TripStatus.Finished, idToTripInfo[tripId].host, idToTripInfo[tripId].guest);
   }
