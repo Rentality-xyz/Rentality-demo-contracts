@@ -7,11 +7,14 @@ import './RentalityCarToken.sol';
 import './payments/RentalityCurrencyConverter.sol';
 import './RentalityTripService.sol';
 import './RentalityUserService.sol';
-import './RentalityPlatform.sol';
 import './payments/RentalityPaymentService.sol';
 import './Schemas.sol';
 import './RentalityAdminGateway.sol';
 import './libs/RentalityQuery.sol';
+import {RentalityCarDelivery} from './features/RentalityCarDelivery.sol';
+import {UUPSOwnable} from './proxy/UUPSOwnable.sol';
+import {RentalityUtils} from './libs/RentalityUtils.sol';
+
 /// @title Rentality Platform Contract
 /// @notice This contract manages various services related to the Rentality platform, including cars, trips, users, and payments.
 /// @dev It allows updating service contracts, creating and managing trips, handling payments, and more.
@@ -21,6 +24,7 @@ import './libs/RentalityQuery.sol';
 /// @custom:oz-upgrades-unsafe-allow external-library-linking
 contract RentalityPlatform is UUPSOwnable {
   RentalityContract private addresses;
+  RentalityCarDelivery private deliveryService;
 
   // unused, have to be here, because of proxy
   address private automationService;
@@ -51,6 +55,7 @@ contract RentalityPlatform is UUPSOwnable {
     addresses.userService = RentalityUserService(adminService.getTripServiceAddress());
     addresses.paymentService = RentalityPaymentService(adminService.getPaymentService());
     addresses.claimService = RentalityClaimService(adminService.getClaimServiceAddress());
+    deliveryService = RentalityCarDelivery(adminService.getDeliveryServiceAddress());
   }
 
   /// @notice Withdraw a specific amount of funds from the contract.
@@ -81,123 +86,102 @@ contract RentalityPlatform is UUPSOwnable {
     return withdrawFromPlatform(address(this).balance, currencyType);
   }
 
-  /// @notice Create a new trip request on the Rentality platform.
-  /// @param request The details of the trip request as specified in IRentalityGateway.CreateTripRequest.
-  function createTripRequest(Schemas.CreateTripRequest memory request) public payable {
-    require(addresses.userService.hasPassedKYCAndTC(tx.origin), 'KYC or TC not passed.');
-    require(
-      addresses.currencyConverterService.currencyTypeIsAvailable(request.currencyType),
-      'Token is not available.'
-    );
-    require(addresses.carService.ownerOf(request.carId) != tx.origin, 'Car is not available for creator');
-    require(
-      !isCarUnavailable(request.carId, request.startDateTime, request.endDateTime),
-      'Unavailable for current date.'
-    );
-
-    uint64 daysOfTrip = RentalityUtils.getCeilDays(request.startDateTime, request.endDateTime);
-    Schemas.CarInfo memory carInfo = addresses.carService.getCarInfoById(request.carId);
-
-    uint64 priceWithDiscount = addresses.paymentService.calculateSumWithDiscount(
-      addresses.carService.ownerOf(request.carId),
-      daysOfTrip,
-      carInfo.pricePerDayInUsdCents
-    );
-    uint taxId = addresses.paymentService.defineTaxesType(address(addresses.carService), request.carId);
-
-    uint64 taxes = addresses.paymentService.calculateTaxes(taxId, daysOfTrip, priceWithDiscount);
-
-    uint valueSum = priceWithDiscount + taxes + carInfo.securityDepositPerTripInUsdCents;
-    (int rate, uint8 decimals) = addresses.currencyConverterService.getCurrentRate(request.currencyType);
-    uint valueSumInCurrency = addresses.currencyConverterService.getFromUsd(
+  /// @notice Creates a trip request with delivery.
+  /// @param request The trip request with delivery details.
+  function createTripRequestWithDelivery(Schemas.CreateTripRequestWithDelivery memory request) public payable {
+    RentalityUtils.validateTripRequest(
+      addresses,
       request.currencyType,
-      valueSum,
-      rate,
-      decimals
+      request.carId,
+      request.startDateTime,
+      request.endDateTime
     );
-    if (addresses.currencyConverterService.isETH(request.currencyType)) {
+
+    uint64 priceInUsdCents = deliveryService.calculatePriceByDeliveryDataInUsdCents(
+      request.deliveryInfo,
+      IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getCarLocationLatitude(request.carId),
+      IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getCarLocationLongitude(request.carId)
+    );
+
+    _createTripRequest(
+      request.currencyType,
+      request.carId,
+      request.startDateTime,
+      request.endDateTime,
+      priceInUsdCents
+    );
+  }
+  /// @notice Create a trip request.
+  /// @param request The request parameters for creating a new trip.
+  function createTripRequest(Schemas.CreateTripRequest memory request) public payable {
+    RentalityUtils.validateTripRequest(
+      addresses,
+      request.currencyType,
+      request.carId,
+      request.startDateTime,
+      request.endDateTime
+    );
+
+    _createTripRequest(request.currencyType, request.carId, request.startDateTime, request.endDateTime, 0);
+  }
+  /// @notice Creates a trip request with specified details.
+  /// @dev This function is private and should only be called internally.
+  /// @param currencyType Address of the currency type contract.
+  /// @param carId ID of the car for the trip request.
+  /// @param startDateTime Start date and time of the trip request.
+  /// @param endDateTime End date and time of the trip request.
+  /// @param deliveryFee Fee for delivery associated with the trip request.
+  function _createTripRequest(
+    address currencyType,
+    uint carId,
+    uint64 startDateTime,
+    uint64 endDateTime,
+    uint64 deliveryFee
+  ) private {
+    Schemas.CarInfo memory carInfo = addresses.carService.getCarInfoById(carId);
+
+    (Schemas.PaymentInfo memory paymentInfo, uint valueSumInCurrency) = RentalityUtils.createPaymentInfo(
+      addresses,
+      carId,
+      startDateTime,
+      endDateTime,
+      currencyType,
+      deliveryFee
+    );
+
+    if (addresses.currencyConverterService.isETH(currencyType)) {
       require(
         msg.value == valueSumInCurrency,
-        'Rental fee must be equal to sum: price with discount + taxes + deposit'
+        'Rental fee must be equal to sum: price with discount + taxes + deposit + delivery'
       );
     } else {
       require(
-        IERC20(request.currencyType).allowance(tx.origin, address(this)) >= valueSumInCurrency,
-        'Rental fee must be equal to sum: price with discount + taxes + deposit'
+        IERC20(currencyType).allowance(tx.origin, address(this)) >= valueSumInCurrency,
+        'Rental fee must be equal to sum: price with discount + taxes + deposit + delivery'
       );
 
-      bool success = IERC20(request.currencyType).transferFrom(tx.origin, address(this), valueSumInCurrency);
+      bool success = IERC20(currencyType).transferFrom(tx.origin, address(this), valueSumInCurrency);
       require(success, 'Transfer failed.');
     }
     /// updating cache currency data
-    addresses.currencyConverterService.getCurrencyRateWithCache(request.currencyType);
+    addresses.currencyConverterService.getCurrencyRateWithCache(currencyType);
 
     if (!addresses.userService.isGuest(tx.origin)) {
       addresses.userService.grantGuestRole(tx.origin);
     }
 
-    Schemas.PaymentInfo memory paymentInfo = Schemas.PaymentInfo(
-      0,
-      tx.origin,
-      address(this),
-      carInfo.pricePerDayInUsdCents * daysOfTrip,
-      taxes,
-      priceWithDiscount,
-      carInfo.securityDepositPerTripInUsdCents,
-      0,
-      request.currencyType,
-      rate,
-      decimals,
-      0,
-      0
-    );
-
     addresses.tripService.createNewTrip(
-      request.carId,
+      carId,
       tx.origin,
-      addresses.carService.ownerOf(request.carId),
+      addresses.carService.ownerOf(carId),
       carInfo.pricePerDayInUsdCents,
-      request.startDateTime,
-      request.endDateTime,
-      IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getCarCity(request.carId),
-      IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getCarCity(request.carId),
+      startDateTime,
+      endDateTime,
+      IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getCarCity(carId),
+      IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getCarCity(carId),
       carInfo.milesIncludedPerDay,
       paymentInfo
     );
-  }
-
-  // @dev Checks if a car has any active trips within the specified time range.
-  // @param carId The ID of the car to check for availability.
-  // @param startDateTime The start time of the time range.
-  // @param endDateTime The end time of the time range.
-  // @return A boolean indicating whether the car is unavailable during the specified time range.
-  function isCarUnavailable(uint256 carId, uint64 startDateTime, uint64 endDateTime) private view returns (bool) {
-    // Iterate through all trips to check for intersections with the specified car and time range.
-    for (uint256 tripId = 1; tripId <= addresses.tripService.totalTripCount(); tripId++) {
-      Schemas.Trip memory trip = addresses.tripService.getTrip(tripId);
-      Schemas.CarInfo memory car = addresses.carService.getCarInfoById(trip.carId);
-
-      if (
-        trip.carId == carId &&
-        trip.endDateTime + car.timeBufferBetweenTripsInSec > startDateTime &&
-        trip.startDateTime < endDateTime
-      ) {
-        Schemas.TripStatus tripStatus = trip.status;
-
-        // Check if the trip is active (not in Created, Finished, or Canceled status).
-        bool isActiveTrip = (tripStatus != Schemas.TripStatus.Created &&
-          tripStatus != Schemas.TripStatus.Finished &&
-          tripStatus != Schemas.TripStatus.Canceled);
-
-        // Return true if an active trip is found.
-        if (isActiveTrip) {
-          return true;
-        }
-      }
-    }
-
-    // If no active trips are found, return false indicating the car is available.
-    return false;
   }
 
   /// @notice Approve a trip request on the Rentality platform.
@@ -228,7 +212,8 @@ contract RentalityPlatform is UUPSOwnable {
     addresses.tripService.rejectTrip(tripId);
 
     uint64 valueToReturnInUsdCents = trip.paymentInfo.priceWithDiscount +
-      trip.paymentInfo.taxPriceInUsdCents +
+      trip.paymentInfo.salesTax +
+      trip.paymentInfo.governmentTax +
       trip.paymentInfo.depositInUsdCents;
 
     uint256 valueToReturnInToken = addresses.currencyConverterService.getFromUsd(
@@ -279,6 +264,7 @@ contract RentalityPlatform is UUPSOwnable {
     uint256 rentalityFee = addresses.paymentService.getPlatformFeeFrom(trip.paymentInfo.priceWithDiscount);
 
     uint256 valueToHostInUsdCents = trip.paymentInfo.priceWithDiscount +
+      trip.paymentInfo.deliveryFee +
       trip.paymentInfo.resolveAmountInUsdCents -
       rentalityFee;
 
@@ -523,6 +509,10 @@ contract RentalityPlatform is UUPSOwnable {
   function addUserDiscount(Schemas.BaseDiscount memory data) public {
     addresses.paymentService.addBaseDiscount(tx.origin, data);
   }
+
+  function addUserDeliveryPrices(uint64 underTwentyFiveMilesInUsdCents, uint64 aboveTwentyFiveMilesInUsdCents) public {
+    deliveryService.setUserDeliveryPrices(underTwentyFiveMilesInUsdCents, aboveTwentyFiveMilesInUsdCents);
+  }
   /// @notice Parses the geolocation response and stores parsed data.
   /// @param carId The ID of the car for which geolocation is parsed.
   function parseGeoResponse(uint carId) public {
@@ -541,7 +531,8 @@ contract RentalityPlatform is UUPSOwnable {
     address tripServiceAddress,
     address userServiceAddress,
     address paymentServiceAddress,
-    address claimServiceAddress
+    address claimServiceAddress,
+    address carDeliveryAddress
   ) public initializer {
     addresses = RentalityContract(
       RentalityCarToken(carServiceAddress),
@@ -553,6 +544,7 @@ contract RentalityPlatform is UUPSOwnable {
       RentalityClaimService(claimServiceAddress),
       RentalityAdminGateway(address(0))
     );
+    deliveryService = RentalityCarDelivery(carDeliveryAddress);
 
     __Ownable_init();
   }

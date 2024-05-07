@@ -59,9 +59,9 @@ describe('Rentality taxes & discounts', function () {
     let dayInTrip = 3
     let totalTaxes = (sumToPayInUsdCents * 7) / 100 + dayInTrip * 200
 
-    let calculatedTaxes = await rentalityPaymentService.calculateTaxes(1, dayInTrip, sumToPayInUsdCents)
+    let [sales, gov] = await rentalityPaymentService.calculateTaxes(1, dayInTrip, sumToPayInUsdCents)
 
-    expect(totalTaxes).to.be.eq(calculatedTaxes)
+    expect(totalTaxes).to.be.eq(sales + gov)
   })
   it('should correctly calculate discount', async function () {
     let sumToPay = 37800

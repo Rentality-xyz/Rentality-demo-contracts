@@ -1,4 +1,5 @@
-pragma solidity ^0.8.0;
+/// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.9;
 
 import '../RentalityCarToken.sol';
 import '../payments/RentalityCurrencyConverter.sol';
@@ -8,10 +9,8 @@ import '../RentalityUserService.sol';
 import '../RentalityPlatform.sol';
 import '../features/RentalityClaimService.sol';
 import '../RentalityAdminGateway.sol';
-import '../Schemas.sol';
 import '../RentalityGateway.sol';
-import '../Schemas.sol';
-import '../Schemas.sol';
+import {IRentalityGeoService} from '../abstract/IRentalityGeoService.sol';
 import '../Schemas.sol';
 
 library RentalityQuery {
@@ -369,7 +368,9 @@ library RentalityQuery {
 
       uint taxId = contracts.paymentService.defineTaxesType(address(contracts.carService), temp[i].carId);
 
-      uint64 taxes = taxId == 0 ? 0 : contracts.paymentService.calculateTaxes(taxId, totalTripDays, priceWithDiscount);
+      (uint64 salesTaxes, uint64 govTax) = taxId == 0
+        ? (0, 0)
+        : contracts.paymentService.calculateTaxes(taxId, totalTripDays, priceWithDiscount);
 
       result[i] = Schemas.SearchCar(
         temp[i].carId,
@@ -380,7 +381,7 @@ library RentalityQuery {
         priceWithDiscount / totalTripDays,
         totalTripDays,
         priceWithDiscount,
-        taxes,
+        salesTaxes + govTax,
         temp[i].securityDepositPerTripInUsdCents,
         temp[i].engineType,
         temp[i].milesIncludedPerDay,
