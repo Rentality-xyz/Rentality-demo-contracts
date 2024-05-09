@@ -723,7 +723,8 @@
                     { "type": "uint256", "name": "dateTime" },
                     { "type": "uint8", "name": "statusBeforeCancellation" }
                   ]
-                }
+                },
+                { "type": "uint256", "name": "finishDateTime" }
               ]
             },
             { "type": "string", "name": "guestPhotoUrl" },
@@ -733,7 +734,10 @@
             { "type": "string", "name": "hostDrivingLicenseNumber" },
             { "type": "uint64", "name": "hostDrivingLicenseExpirationDate" },
             { "type": "string", "name": "guestDrivingLicenseNumber" },
-            { "type": "uint64", "name": "guestDrivingLicenseExpirationDate" }
+            { "type": "uint64", "name": "guestDrivingLicenseExpirationDate" },
+            { "type": "string", "name": "model" },
+            { "type": "string", "name": "brand" },
+            { "type": "uint32", "name": "yearOfProduction" }
           ]
         }
       ]
@@ -859,7 +863,8 @@
                     { "type": "uint256", "name": "dateTime" },
                     { "type": "uint8", "name": "statusBeforeCancellation" }
                   ]
-                }
+                },
+                { "type": "uint256", "name": "finishDateTime" }
               ]
             },
             { "type": "string", "name": "guestPhotoUrl" },
@@ -869,7 +874,10 @@
             { "type": "string", "name": "hostDrivingLicenseNumber" },
             { "type": "uint64", "name": "hostDrivingLicenseExpirationDate" },
             { "type": "string", "name": "guestDrivingLicenseNumber" },
-            { "type": "uint64", "name": "guestDrivingLicenseExpirationDate" }
+            { "type": "uint64", "name": "guestDrivingLicenseExpirationDate" },
+            { "type": "string", "name": "model" },
+            { "type": "string", "name": "brand" },
+            { "type": "uint32", "name": "yearOfProduction" }
           ]
         }
       ]
@@ -948,7 +956,8 @@
                     { "type": "uint256", "name": "dateTime" },
                     { "type": "uint8", "name": "statusBeforeCancellation" }
                   ]
-                }
+                },
+                { "type": "uint256", "name": "finishDateTime" }
               ]
             },
             { "type": "string", "name": "guestPhotoUrl" },
@@ -958,7 +967,10 @@
             { "type": "string", "name": "hostDrivingLicenseNumber" },
             { "type": "uint64", "name": "hostDrivingLicenseExpirationDate" },
             { "type": "string", "name": "guestDrivingLicenseNumber" },
-            { "type": "uint64", "name": "guestDrivingLicenseExpirationDate" }
+            { "type": "uint64", "name": "guestDrivingLicenseExpirationDate" },
+            { "type": "string", "name": "model" },
+            { "type": "string", "name": "brand" },
+            { "type": "uint32", "name": "yearOfProduction" }
           ]
         }
       ]
