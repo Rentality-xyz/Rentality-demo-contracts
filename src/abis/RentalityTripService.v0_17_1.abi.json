@@ -229,7 +229,8 @@
                 { "type": "uint256", "name": "dateTime" },
                 { "type": "uint8", "name": "statusBeforeCancellation" }
               ]
-            }
+            },
+            { "type": "uint256", "name": "finishDateTime" }
           ]
         },
         { "type": "uint64[]", "name": "engineParams" }
@@ -309,7 +310,8 @@
                 { "type": "uint256", "name": "dateTime" },
                 { "type": "uint8", "name": "statusBeforeCancellation" }
               ]
-            }
+            },
+            { "type": "uint256", "name": "finishDateTime" }
           ]
         }
       ]

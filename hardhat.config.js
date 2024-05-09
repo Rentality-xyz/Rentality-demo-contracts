@@ -47,9 +47,19 @@ module.exports = {
       accounts: [process.env.PRIVATE_KEY],
       chainId: 11155420,
     },
+    base_sepolia: {
+      url: process.env.BASE_SEPOLIA_URL,
+      accounts: [process.env.PRIVATE_KEY],
+      chainId: 84532,
+    },
+    opBNB: {
+      url: process.env.OP_BNB_URL,
+      accounts: [process.env.PRIVATE_KEY],
+      chainId: 5611,
+    },
   },
   solidity: {
-    version: '0.8.17',
+    version: '0.8.19',
     settings: {
       optimizer: {
         enabled: true,
