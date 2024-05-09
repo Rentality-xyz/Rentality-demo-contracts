@@ -116,7 +116,7 @@ function main() {
     }
     tsCode += `export type EngineType = bigint;\n`
     tsCode += `export const EngineType = {\n`
-    tsCode += `  PATROL: BigInt(1),\n`
+    tsCode += `  PETROL: BigInt(1),\n`
     tsCode += `  ELECTRIC: BigInt(2),\n`
     tsCode += `};\n`
 
