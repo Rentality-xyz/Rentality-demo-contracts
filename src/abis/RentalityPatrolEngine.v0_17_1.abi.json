@@ -1,1 +1,166 @@
-{"abi":[{"type":"constructor","stateMutability":"undefined","payable":false,"inputs":[{"type":"address","name":"_userService"}]},{"type":"error","name":"EngineParamsNotMatch","inputs":[]},{"type":"error","name":"WrongEngineArgs","inputs":[]},{"type":"function","name":"compareParams","constant":true,"stateMutability":"pure","payable":false,"inputs":[{"type":"uint64[]","name":"start"},{"type":"uint64[]","name":"end"}],"outputs":[]},{"type":"function","name":"extraCosts","constant":true,"stateMutability":"pure","payable":false,"inputs":[{"type":"uint64[]","name":""}],"outputs":[{"type":"uint64","name":""}]},{"type":"function","name":"getDrivenMilesResolveAmountInUsdCents","constant":true,"stateMutability":"pure","payable":false,"inputs":[{"type":"uint64","name":"startOdometr"},{"type":"uint64","name":"endOdometr"},{"type":"uint64","name":"milesIncludedPerDay"},{"type":"uint64","name":"pricePerDayInUsdCents"},{"type":"uint64","name":"tripDays"}],"outputs":[{"type":"uint64","name":""}]},{"type":"function","name":"getEType","constant":true,"stateMutability":"view","payable":false,"inputs":[],"outputs":[{"type":"uint8","name":""}]},{"type":"function","name":"getFuelPriceFromEngineParams","constant":true,"stateMutability":"pure","payable":false,"inputs":[{"type":"uint64[]","name":"engineParams"}],"outputs":[{"type":"uint64","name":""}]},{"type":"function","name":"getFuelResolveAmountInUsdCents","constant":true,"stateMutability":"pure","payable":false,"inputs":[{"type":"uint64","name":"endFuelLevelInPercents"},{"type":"uint64","name":"startFuelLevelInPercents"},{"type":"uint64[]","name":"engineParams"},{"type":"uint64","name":"fuelPricePerGalInUsdCents"}],"outputs":[{"type":"uint64","name":""}]},{"type":"function","name":"getParamsAmount","constant":true,"stateMutability":"pure","payable":false,"inputs":[],"outputs":[{"type":"uint256","name":""}]},{"type":"function","name":"getResolveAmountInUsdCents","constant":true,"stateMutability":"pure","payable":false,"inputs":[{"type":"uint64","name":"fuelPrice"},{"type":"uint64[]","name":"startParams"},{"type":"uint64[]","name":"endParams"},{"type":"uint64[]","name":"engineParams"},{"type":"uint64","name":"milesIncludedPerDay"},{"type":"uint64","name":"pricePerDayInUsdCents"},{"type":"uint64","name":"tripDays"}],"outputs":[{"type":"uint64","name":""},{"type":"uint64","name":""}]},{"type":"function","name":"isEmptyParams","constant":true,"stateMutability":"pure","payable":false,"inputs":[{"type":"uint64[]","name":"params"}],"outputs":[{"type":"bool","name":""}]},{"type":"function","name":"setEType","constant":false,"payable":false,"inputs":[{"type":"uint8","name":"_eType"}],"outputs":[]},{"type":"function","name":"verifyCreateParams","constant":true,"stateMutability":"view","payable":false,"inputs":[{"type":"uint64[]","name":"params"}],"outputs":[]},{"type":"function","name":"verifyEndParams","constant":false,"payable":false,"inputs":[{"type":"uint64[]","name":"startParams"},{"type":"uint64[]","name":"endParams"}],"outputs":[]},{"type":"function","name":"verifyStartParams","constant":false,"payable":false,"inputs":[{"type":"uint64[]","name":"params"}],"outputs":[]},{"type":"function","name":"verifyUpdateParams","constant":true,"stateMutability":"view","payable":false,"inputs":[{"type":"uint64[]","name":"newParams"},{"type":"uint64[]","name":"oldParams"}],"outputs":[{"type":"uint64[]","name":""}]}]}
+{
+  "abi": [
+    {
+      "type": "constructor",
+      "stateMutability": "undefined",
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "_userService" }]
+    },
+    { "type": "error", "name": "EngineParamsNotMatch", "inputs": [] },
+    { "type": "error", "name": "WrongEngineArgs", "inputs": [] },
+    {
+      "type": "function",
+      "name": "compareParams",
+      "constant": true,
+      "stateMutability": "pure",
+      "payable": false,
+      "inputs": [
+        { "type": "uint64[]", "name": "start" },
+        { "type": "uint64[]", "name": "end" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "extraCosts",
+      "constant": true,
+      "stateMutability": "pure",
+      "payable": false,
+      "inputs": [{ "type": "uint64[]", "name": "" }],
+      "outputs": [{ "type": "uint64", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getDrivenMilesResolveAmountInUsdCents",
+      "constant": true,
+      "stateMutability": "pure",
+      "payable": false,
+      "inputs": [
+        { "type": "uint64", "name": "startOdometr" },
+        { "type": "uint64", "name": "endOdometr" },
+        { "type": "uint64", "name": "milesIncludedPerDay" },
+        { "type": "uint64", "name": "pricePerDayInUsdCents" },
+        { "type": "uint64", "name": "tripDays" }
+      ],
+      "outputs": [{ "type": "uint64", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getEType",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "uint8", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getFuelPriceFromEngineParams",
+      "constant": true,
+      "stateMutability": "pure",
+      "payable": false,
+      "inputs": [{ "type": "uint64[]", "name": "engineParams" }],
+      "outputs": [{ "type": "uint64", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getFuelResolveAmountInUsdCents",
+      "constant": true,
+      "stateMutability": "pure",
+      "payable": false,
+      "inputs": [
+        { "type": "uint64", "name": "endFuelLevelInPercents" },
+        { "type": "uint64", "name": "startFuelLevelInPercents" },
+        { "type": "uint64[]", "name": "engineParams" },
+        { "type": "uint64", "name": "fuelPricePerGalInUsdCents" }
+      ],
+      "outputs": [{ "type": "uint64", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getParamsAmount",
+      "constant": true,
+      "stateMutability": "pure",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "uint256", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getResolveAmountInUsdCents",
+      "constant": true,
+      "stateMutability": "pure",
+      "payable": false,
+      "inputs": [
+        { "type": "uint64", "name": "fuelPrice" },
+        { "type": "uint64[]", "name": "startParams" },
+        { "type": "uint64[]", "name": "endParams" },
+        { "type": "uint64[]", "name": "engineParams" },
+        { "type": "uint64", "name": "milesIncludedPerDay" },
+        { "type": "uint64", "name": "pricePerDayInUsdCents" },
+        { "type": "uint64", "name": "tripDays" }
+      ],
+      "outputs": [
+        { "type": "uint64", "name": "" },
+        { "type": "uint64", "name": "" }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "isEmptyParams",
+      "constant": true,
+      "stateMutability": "pure",
+      "payable": false,
+      "inputs": [{ "type": "uint64[]", "name": "params" }],
+      "outputs": [{ "type": "bool", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "setEType",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "uint8", "name": "_eType" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "verifyCreateParams",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "uint64[]", "name": "params" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "verifyEndParams",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint64[]", "name": "startParams" },
+        { "type": "uint64[]", "name": "endParams" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "verifyStartParams",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "uint64[]", "name": "params" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "verifyUpdateParams",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        { "type": "uint64[]", "name": "newParams" },
+        { "type": "uint64[]", "name": "oldParams" }
+      ],
+      "outputs": [{ "type": "uint64[]", "name": "" }]
+    }
+  ]
+}
