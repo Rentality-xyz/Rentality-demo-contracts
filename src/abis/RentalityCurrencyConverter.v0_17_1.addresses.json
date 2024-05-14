@@ -3,7 +3,7 @@
     { "chainId": 11155111, "address": "0xE5e9B4da612aBbcE97564285b33136E4CdB9c418" },
     { "chainId": 11155420, "address": "0x9AD9877E362D6fe771c99AbFC1b51cBFC0a2580D" },
     { "chainId": 84532, "address": "0x27Bb15b06B3DA15A384Bb47990dD054cA8A38b2D" },
-    { "chainId": 5611, "address": "0x3efe5C325f37a31cDa3432e1bf2d4f1123Ca8A71" },
+    { "chainId": 5611, "address": "0xB0F746bcfe1e3b9eC41b558e9B6557750D1deBD6" },
     { "chainId": 1337, "address": "0x2732885d4465877a3392A6d2d6568AbEf2047FC8" }
   ]
 }
