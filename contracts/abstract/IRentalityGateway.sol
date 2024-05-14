@@ -3,6 +3,7 @@ pragma solidity ^0.8.9;
 
 import '../RentalityCarToken.sol';
 import '../RentalityTripService.sol';
+import '../Schemas.sol';
 
 /// @title RentalityGateway
 /// @notice This contract defines the interface for the Rentality Gateway, which facilitates interactions between various services in the Rentality platform.
@@ -156,6 +157,20 @@ interface IRentalityGateway {
   /// @param request The request parameters for creating a new trip.
   function createTripRequest(Schemas.CreateTripRequest memory request) external payable;
 
+  /// @notice Creates a trip request with delivery.
+  /// @param request The trip request with delivery details.
+  function createTripRequestWithDelivery(Schemas.CreateTripRequestWithDelivery memory request) external payable;
+
+  /// @dev Retrieves delivery data for a given car.
+  /// @param carId The ID of the car for which delivery data is requested.
+  /// @return deliveryData The delivery data including location details and delivery prices.
+  function getDeliveryData(uint carId) external view returns (Schemas.DeliveryData memory);
+
+  /// @notice Adds user delivery prices.
+  /// @param underTwentyFiveMilesInUsdCents The delivery price in USD cents for distances under 25 miles.
+  /// @param aboveTwentyFiveMilesInUsdCents The delivery price in USD cents for distances above 25 miles.
+  function addUserDeliveryPrices(uint64 underTwentyFiveMilesInUsdCents, uint64 aboveTwentyFiveMilesInUsdCents) external;
+
   /// @notice Get information about all trips where the caller is the guest.
   /// @return An array of Trip structures containing details about trips where the caller is the guest.
   function getTripsAsGuest() external view returns (Schemas.TripDTO[] memory);
@@ -301,6 +316,19 @@ interface IRentalityGateway {
     uint64 daysOfTrip,
     address currency
   ) external view returns (Schemas.CalculatePaymentsDTO memory calculatePaymentsDTO);
+
+  /// @dev Calculates the payments for a trip.
+  /// @param carId The ID of the car.
+  /// @param daysOfTrip The duration of the trip in days.
+  /// @param currency The currency to use for payment calculation.
+  /// @param deliveryData lat and lon of pickUp and return locations.
+  /// @return calculatePaymentsDTO An object containing payment details.
+  function calculatePaymentsWithDelivery(
+    uint carId,
+    uint64 daysOfTrip,
+    address currency,
+    Schemas.DeliveryLocations memory deliveryData
+  ) external view returns (Schemas.CalculatePaymentsDTO memory);
 
   /// @notice Gets the discount for a specific user.
   /// @param user The address of the user.

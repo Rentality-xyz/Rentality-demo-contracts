@@ -9,6 +9,7 @@ import '../abstract/IRentalityGeoService.sol';
 import '../RentalityTripService.sol';
 import '../payments/RentalityCurrencyConverter.sol';
 import '../payments/RentalityPaymentService.sol';
+import {RentalityContract} from '../RentalityGateway.sol';
 
 /// @title RentalityUtils Library
 /// @notice
@@ -382,7 +383,8 @@ library RentalityUtils {
         ceilDays,
         trip.paymentInfo.priceWithDiscount,
         trip.paymentInfo.totalDayPriceInUsdCents - trip.paymentInfo.priceWithDiscount,
-        trip.paymentInfo.taxPriceInUsdCents,
+        trip.paymentInfo.salesTax,
+        trip.paymentInfo.governmentTax,
         trip.paymentInfo.depositInUsdCents,
         trip.paymentInfo.resolveAmountInUsdCents,
         trip.paymentInfo.depositInUsdCents - trip.paymentInfo.resolveAmountInUsdCents,
@@ -442,7 +444,8 @@ library RentalityUtils {
     address converterAddress,
     uint carId,
     uint64 daysOfTrip,
-    address currency
+    address currency,
+    uint64 deliveryFee
   ) public view returns (Schemas.CalculatePaymentsDTO memory) {
     address carOwner = RentalityCarToken(carServiceAddress).ownerOf(carId);
     Schemas.CarInfo memory car = RentalityCarToken(carServiceAddress).getCarInfoById(carId);
@@ -454,16 +457,122 @@ library RentalityUtils {
     );
     uint taxId = RentalityPaymentService(paymentServiceAddress).defineTaxesType(address(carServiceAddress), carId);
 
-    uint64 taxes = RentalityPaymentService(paymentServiceAddress).calculateTaxes(taxId, daysOfTrip, sumWithDiscount);
+    (uint64 salesTaxes, uint64 govTax) = RentalityPaymentService(paymentServiceAddress).calculateTaxes(
+      taxId,
+      daysOfTrip,
+      sumWithDiscount + deliveryFee
+    );
     (int rate, uint8 decimals) = RentalityCurrencyConverter(converterAddress).getCurrentRate(currency);
 
     uint256 valueSumInCurrency = RentalityCurrencyConverter(converterAddress).getFromUsd(
       currency,
-      car.securityDepositPerTripInUsdCents + taxes + sumWithDiscount,
+      car.securityDepositPerTripInUsdCents + salesTaxes + govTax + sumWithDiscount + deliveryFee,
       rate,
       decimals
     );
 
     return Schemas.CalculatePaymentsDTO(valueSumInCurrency, rate, decimals);
+  }
+
+  function validateTripRequest(
+    RentalityContract memory addresses,
+    address currencyType,
+    uint carId,
+    uint64 startDateTime,
+    uint64 endDateTime
+  ) public view {
+    require(addresses.userService.hasPassedKYCAndTC(tx.origin), 'KYC or TC not passed.');
+    require(addresses.currencyConverterService.currencyTypeIsAvailable(currencyType), 'Token is not available.');
+    require(addresses.carService.ownerOf(carId) != tx.origin, 'Car is not available for creator');
+    require(!isCarUnavailable(addresses, carId, startDateTime, endDateTime), 'Unavailable for current date.');
+  }
+
+  // @dev Checks if a car has any active trips within the specified time range.
+  // @param carId The ID of the car to check for availability.
+  // @param startDateTime The start time of the time range.
+  // @param endDateTime The end time of the time range.
+  // @return A boolean indicating whether the car is unavailable during the specified time range.
+  function isCarUnavailable(
+    RentalityContract memory addresses,
+    uint256 carId,
+    uint64 startDateTime,
+    uint64 endDateTime
+  ) private view returns (bool) {
+    // Iterate through all trips to check for intersections with the specified car and time range.
+    for (uint256 tripId = 1; tripId <= addresses.tripService.totalTripCount(); tripId++) {
+      Schemas.Trip memory trip = addresses.tripService.getTrip(tripId);
+      Schemas.CarInfo memory car = addresses.carService.getCarInfoById(trip.carId);
+
+      if (
+        trip.carId == carId &&
+        trip.endDateTime + car.timeBufferBetweenTripsInSec > startDateTime &&
+        trip.startDateTime < endDateTime
+      ) {
+        Schemas.TripStatus tripStatus = trip.status;
+
+        // Check if the trip is active (not in Created, Finished, or Canceled status).
+        bool isActiveTrip = (tripStatus != Schemas.TripStatus.Created &&
+          tripStatus != Schemas.TripStatus.Finished &&
+          tripStatus != Schemas.TripStatus.Canceled);
+
+        // Return true if an active trip is found.
+        if (isActiveTrip) {
+          return true;
+        }
+      }
+    }
+
+    // If no active trips are found, return false indicating the car is available.
+    return false;
+  }
+
+  function createPaymentInfo(
+    RentalityContract memory addresses,
+    uint256 carId,
+    uint64 startDateTime,
+    uint64 endDateTime,
+    address currencyType,
+    uint64 deliveryFee
+  ) public view returns (Schemas.PaymentInfo memory, uint) {
+    Schemas.CarInfo memory carInfo = addresses.carService.getCarInfoById(carId);
+
+    uint64 daysOfTrip = getCeilDays(startDateTime, endDateTime);
+
+    uint64 priceWithDiscount = addresses.paymentService.calculateSumWithDiscount(
+      addresses.carService.ownerOf(carId),
+      daysOfTrip,
+      carInfo.pricePerDayInUsdCents
+    );
+    uint taxId = addresses.paymentService.defineTaxesType(address(addresses.carService), carId);
+
+    (uint64 salesTaxes, uint64 govTax) = addresses.paymentService.calculateTaxes(
+      taxId,
+      daysOfTrip,
+      priceWithDiscount + deliveryFee
+    );
+
+    uint valueSum = priceWithDiscount + salesTaxes + govTax + carInfo.securityDepositPerTripInUsdCents + deliveryFee;
+    (int rate, uint8 decimals) = addresses.currencyConverterService.getCurrentRate(currencyType);
+    uint valueSumInCurrency = addresses.currencyConverterService.getFromUsd(currencyType, valueSum, rate, decimals);
+
+    Schemas.PaymentInfo memory paymentInfo = Schemas.PaymentInfo(
+      0,
+      tx.origin,
+      address(this),
+      carInfo.pricePerDayInUsdCents * daysOfTrip,
+      salesTaxes,
+      govTax,
+      priceWithDiscount,
+      carInfo.securityDepositPerTripInUsdCents,
+      0,
+      currencyType,
+      rate,
+      decimals,
+      0,
+      0,
+      deliveryFee
+    );
+
+    return (paymentInfo, valueSumInCurrency);
   }
 }

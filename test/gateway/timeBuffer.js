@@ -63,6 +63,7 @@ describe('RentalityGateway: time buffer', function () {
       locationLatitude: '123421',
       locationLongitude: '123421',
       geoApiKey: 'key',
+      insuranceIncluded: true,
     }
 
     await expect(rentalityGateway.connect(host).addCar(createCarRequest)).not.to.be.reverted
@@ -111,6 +112,7 @@ describe('RentalityGateway: time buffer', function () {
       locationLatitude: '123421',
       locationLongitude: '123421',
       geoApiKey: 'key',
+      insuranceIncluded: true,
     }
 
     await expect(rentalityGateway.connect(host).addCar(createCarRequest)).not.to.be.reverted
@@ -162,6 +164,7 @@ describe('RentalityGateway: time buffer', function () {
       locationLatitude: '123421',
       locationLongitude: '123421',
       geoApiKey: 'key',
+      insuranceIncluded: true,
     }
 
     await expect(rentalityGateway.connect(host).addCar(createCarRequest)).not.to.be.reverted
@@ -217,6 +220,7 @@ describe('RentalityGateway: time buffer', function () {
       locationLongitude: '123421',
 
       geoApiKey: 'key',
+      insuranceIncluded: true,
     }
 
     await expect(rentalityGateway.connect(host).addCar(createCarRequest)).not.to.be.reverted
