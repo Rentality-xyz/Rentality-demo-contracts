@@ -139,6 +139,7 @@ describe('RentalityGateway: car', function () {
       locationLatitude: '123421',
       locationLongitude: '123421',
       geoApiKey: 'key',
+      insuranceIncluded: true,
     }
     const oneDayInSec = 86400
     const totalTripDays = 7
@@ -199,6 +200,7 @@ describe('RentalityGateway: car', function () {
       locationLatitude: '123421',
       locationLongitude: '123421',
       geoApiKey: 'key',
+      insuranceIncluded: true,
     }
     await expect(await rentalityCarToken.connect(host).addCar(addCarRequest)).not.be.reverted
     const result = await rentalityGateway.connect(guest).getCarDetails(1)
@@ -256,6 +258,7 @@ describe('RentalityGateway: car', function () {
         locationLatitude: '123421',
         locationLongitude: '123421',
         geoApiKey: 'key',
+        insuranceIncluded: true,
       }
     }
     await expect(await rentalityCarToken.connect(host).addCar(addCar(0))).not.be.reverted
@@ -308,6 +311,7 @@ describe('RentalityGateway: car', function () {
         locationLatitude: '123421',
         locationLongitude: '123421',
         geoApiKey: 'key',
+        insuranceIncluded: true,
       }
     }
     await expect(await rentalityCarToken.connect(host).addCar(addCar(0))).not.be.reverted

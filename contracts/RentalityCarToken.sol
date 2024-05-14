@@ -165,7 +165,8 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
       request.timeBufferBetweenTripsInSec,
       true,
       false,
-      ''
+      '',
+      request.insuranceIncluded
     );
 
     _approve(address(this), newCarId);
