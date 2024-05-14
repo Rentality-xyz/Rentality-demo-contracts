@@ -31,21 +31,31 @@ module.exports = {
       chainId: 1337,
     },
     goerli: {
-      url: process.env.ALCHEMY_API_URL_GOERLI,
+      url: process.env.ALCHEMY_API_URL_GOERLI ?? '',
       accounts: [process.env.PRIVATE_KEY],
     },
     mumbai: {
-      url: process.env.ALCHEMY_API_URL_MUMBAI,
+      url: process.env.ALCHEMY_API_URL_MUMBAI ?? '',
       accounts: [process.env.PRIVATE_KEY],
     },
     sepolia: {
-      url: process.env.ALCHEMY_API_URL_SEPOLIA,
+      url: process.env.ALCHEMY_API_URL_SEPOLIA ?? '',
       accounts: [process.env.PRIVATE_KEY],
     },
     optimism_sepolia: {
-      url: process.env.OPTIMISM_SEPOLIA_URL,
+      url: process.env.OPTIMISM_SEPOLIA_URL ?? '',
       accounts: [process.env.PRIVATE_KEY],
       chainId: 11155420,
+    },
+    base_sepolia: {
+      url: process.env.BASE_SEPOLIA_URL ?? '',
+      accounts: [process.env.PRIVATE_KEY],
+      chainId: 84532,
+    },
+    opBNB: {
+      url: process.env.OP_BNB_URL ?? '',
+      accounts: [process.env.PRIVATE_KEY],
+      chainId: 5611,
     },
   },
   solidity: {

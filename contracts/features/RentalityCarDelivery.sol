@@ -34,7 +34,7 @@ contract RentalityCarDelivery is Initializable, UUPSAccess {
   /// @param user Address of the user
   /// @return DeliveryPrices struct containing the user's delivery prices
   function getUserDeliveryPrices(address user) public view returns (Schemas.DeliveryPrices memory) {
-    return userToDeliveryPrice[user];
+    return userToDeliveryPrice[user].initialized ? userToDeliveryPrice[user] : defaultPrices;
   }
 
   /// @notice Calculates the total price for a delivery based on given delivery data and user's location

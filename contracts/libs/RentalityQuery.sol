@@ -477,6 +477,7 @@ library RentalityQuery {
     RentalityUserService userService = contracts.userService;
 
     Schemas.Trip memory trip = tripService.getTrip(tripId);
+    Schemas.CarInfo memory car = carService.getCarInfoById(trip.carId);
 
     return
       Schemas.TripDTO(
@@ -488,7 +489,10 @@ library RentalityQuery {
         userService.getKYCInfo(trip.host).licenseNumber,
         userService.getKYCInfo(trip.host).expirationDate,
         userService.getKYCInfo(trip.guest).licenseNumber,
-        userService.getKYCInfo(trip.guest).expirationDate
+        userService.getKYCInfo(trip.guest).expirationDate,
+        car.model,
+        car.brand,
+        car.yearOfProduction
       );
   }
 

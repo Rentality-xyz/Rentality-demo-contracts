@@ -176,6 +176,9 @@ interface Schemas {
     uint64 hostDrivingLicenseExpirationDate;
     string guestDrivingLicenseNumber;
     uint64 guestDrivingLicenseExpirationDate;
+    string model;
+    string brand;
+    uint32 yearOfProduction;
   }
 
   /// CHAT LOGIC
