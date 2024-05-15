@@ -94,24 +94,6 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
   function getCarMetadataURI(uint256 carId) public view returns (string memory) {
     return addresses.carService.tokenURI(carId);
   }
-  // function updateCarInfo(
-  //     RentalityCarToken.UpdateCarInfoRequest memory request
-  // ) public onlyHost {
-  //     return
-  //         carService.updateCarInfo(
-  //             request.carId,
-  //             request.pricePerDayInUsdCents,
-  //             request.securityDepositPerTripInUsdCents,
-  //             request.fuelPricePerGalInUsdCents,
-  //             request.milesIncludedPerDay,
-  //             request.country,
-  //             request.state,
-  //             request.city,
-  //             request.locationLatitudeInPPM,
-  //             request.locationLongitudeInPPM,
-  //             request.currentlyListed
-  //         );
-  // }
 
   /// @notice Retrieves information about all cars.
   /// @return An array of car information.
@@ -278,21 +260,16 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
     address currency,
     Schemas.DeliveryLocations memory deliveryData
   ) public view returns (Schemas.CalculatePaymentsDTO memory) {
-    uint64 deliveryFee = RentalityCarDelivery(addresses.adminService.getDeliveryServiceAddress())
-      .calculatePriceByDeliveryDataInUsdCents(
-        deliveryData,
-        IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getCarLocationLatitude(carId),
-        IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getCarLocationLongitude(carId)
-      );
     return
-      RentalityUtils.calculatePayments(
+      RentalityUtils.calculatePaymentsWithDelivery(
         address(addresses.carService),
         address(addresses.paymentService),
         address(addresses.currencyConverterService),
+        addresses.adminService.getDeliveryServiceAddress(),
         carId,
         daysOfTrip,
         currency,
-        deliveryFee
+        deliveryData
       );
   }
   /// @notice Get chat information for trips hosted by the caller on the Rentality platform.
@@ -330,6 +307,13 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
         deliveryPrices.aboveTwentyFiveMilesInUsdCents,
         addresses.carService.getCarInfoById(carId).insuranceIncluded
       );
+  }
+
+  /// @dev Retrieves delivery data for a given user.
+  /// @param user The user address for which delivery data is requested.
+  /// @return deliveryData The delivery data including location details and delivery prices.
+  function getUserDeliveryPrices(address user) public view returns (Schemas.DeliveryPrices memory) {
+    return RentalityCarDelivery(addresses.adminService.getDeliveryServiceAddress()).getUserDeliveryPrices(user);
   }
 
   // Unused

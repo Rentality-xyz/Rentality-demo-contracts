@@ -166,6 +166,11 @@ interface IRentalityGateway {
   /// @return deliveryData The delivery data including location details and delivery prices.
   function getDeliveryData(uint carId) external view returns (Schemas.DeliveryData memory);
 
+  /// @dev Retrieves delivery data for a given user.
+  /// @param user The user address for which delivery data is requested.
+  /// @return deliveryPrices The user prices for delivery.
+  function getUserDeliveryPrices(address user) external view returns (Schemas.DeliveryPrices memory);
+
   /// @notice Adds user delivery prices.
   /// @param underTwentyFiveMilesInUsdCents The delivery price in USD cents for distances under 25 miles.
   /// @param aboveTwentyFiveMilesInUsdCents The delivery price in USD cents for distances above 25 miles.
