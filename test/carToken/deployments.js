@@ -201,16 +201,16 @@ async function deployDefaultFixture() {
 
   rentalityGateway = await ethers.getContractAt('IRentalityGateway', await rentalityGateway.getAddress())
 
-
   await rentalityUserService.connect(owner).grantHostRole(await rentalityPlatform.getAddress())
 
-  await rentalityUserService.connect(owner).grantManagerRole(await rentalityPlatform.getAddress())
-
-  await rentalityUserService.connect(owner).grantManagerRole(await rentalityTripService.getAddress())
-
-  await rentalityUserService.connect(owner).grantManagerRole(await rentalityPlatform.getAddress())
-
+  await rentalityUserService.connect(owner).grantManagerRole(await rentalityAdminGateway.getAddress())
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityGateway.getAddress())
+  await rentalityUserService.connect(owner).grantAdminRole(await rentalityGateway.getAddress())
+  await rentalityUserService.connect(owner).grantAdminRole(await rentalityAdminGateway.getAddress())
+  await rentalityUserService.connect(owner).grantManagerRole(await rentalityCarToken.getAddress())
+  await rentalityUserService.connect(owner).grantManagerRole(await engineService.getAddress())
+  await rentalityUserService.connect(owner).grantManagerRole(await rentalityPlatform.getAddress())
+  await rentalityUserService.connect(owner).grantManagerRole(await rentalityPaymentService.getAddress())
 
   const hostSignature = await signTCMessage(host)
   const guestSignature = await signTCMessage(guest)
@@ -241,7 +241,7 @@ async function deployFixtureWith1Car() {
     rentalityUserService,
     rentalityTripService,
     rentalityGeoService,
-      rentalityGateway,
+    rentalityGateway,
     owner,
     admin,
     manager,
@@ -260,6 +260,7 @@ async function deployFixtureWith1Car() {
     rentalityUserService,
     rentalityTripService,
     rentalityGeoService,
+    rentalityGateway,
     owner,
     admin,
     manager,
