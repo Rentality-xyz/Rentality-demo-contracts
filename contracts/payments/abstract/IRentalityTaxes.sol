@@ -10,7 +10,7 @@ interface IRentalityTaxes {
   /// @param tripDays The duration of the trip in days.
   /// @param totalCost The total cost of the trip.
   /// @return The calculated taxes.
-  function calculateTaxes(uint64 tripDays, uint64 totalCost) external view returns (uint64);
+  function calculateTaxes(uint64 tripDays, uint64 totalCost) external view returns (uint64, uint64);
 
   /// @notice Sets the taxes data.
   /// @dev Only callable by an admin.

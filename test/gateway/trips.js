@@ -75,6 +75,7 @@ describe('RentalityGateway: trips', function () {
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
+    let tax = (mockCreateCarRequest.pricePerDayInUsdCents * 7) / 100
     const availableCars = await rentalityGateway.connect(guest).getAvailableCarsForUser(guest.address)
     expect(availableCars.length).to.equal(1)
 
@@ -116,6 +117,7 @@ describe('RentalityGateway: trips', function () {
         guest.address,
         await rentalityPlatform.getAddress(),
         BigInt(mockCreateCarRequest.pricePerDayInUsdCents),
+        BigInt(0),
         BigInt(200),
         BigInt(mockCreateCarRequest.pricePerDayInUsdCents),
         mockCreateCarRequest.securityDepositPerTripInUsdCents,
@@ -123,6 +125,7 @@ describe('RentalityGateway: trips', function () {
         ethToken,
         result.currencyRate,
         result.currencyDecimals,
+        0n,
         0n,
         0n,
       ],
@@ -162,6 +165,7 @@ describe('RentalityGateway: trips', function () {
       locationLatitude: '123421',
       locationLongitude: '123421',
       geoApiKey: 'key',
+      insuranceIncluded: true,
     }
 
     await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest)).not.to.be.reverted
@@ -201,6 +205,7 @@ describe('RentalityGateway: trips', function () {
       locationLatitude: '123421',
       locationLongitude: '123421',
       geoApiKey: 'key',
+      insuranceIncluded: true,
     }
     await expect(rentalityGateway.connect(host).addCar(mockPatrolCreateCarRequest)).not.to.be.reverted
     const resultPatrol = await rentalityGateway.calculatePayments(2, 1, ethToken)

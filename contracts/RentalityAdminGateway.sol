@@ -13,6 +13,7 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
   RentalityPlatform private rentalityPlatform;
   RentalityPaymentService private paymentService;
   RentalityClaimService private claimService;
+  RentalityCarDelivery private deliveryService;
 
   // unused, have to be here, because of proxy
   address private automationService;
@@ -119,6 +120,18 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
     carService.updateGeoParsesAddress(newGeoParserAddress);
   }
 
+  /// @notice Retrieves the address of the RentalityCarDelivery contract.
+  /// @return The address of the RentalityCarDelivery contract.
+  function getDeliveryServiceAddress() public view returns (address) {
+    return address(deliveryService);
+  }
+
+  /// @notice Updates the address of the RentalityCarDelivery contract. Only callable by admins.
+  /// @param contractAddress The new address of the RentalityCarDeliveryn contract.
+  function updateDeliveryService(address contractAddress) public onlyAdmin {
+    deliveryService = RentalityCarDelivery(contractAddress);
+  }
+
   /// @notice Withdraws the specified amount from the RentalityPlatform contract.
   /// @param amount The amount to withdraw.
   /// @param tokenAddress one of available on Rentality currency
@@ -186,7 +199,7 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
   /// @param daysOfTrip The duration of the trip in days.
   /// @param value The original value of the trip.
   /// @return The total taxes for the trip.
-  function calculateTaxes(uint taxesId, uint64 daysOfTrip, uint64 value) public view returns (uint64) {
+  function calculateTaxes(uint taxesId, uint64 daysOfTrip, uint64 value) public view returns (uint64, uint64) {
     return paymentService.calculateTaxes(taxesId, daysOfTrip, value);
   }
 
@@ -232,6 +245,7 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
   function setNewTCMessage(string memory message) public {
     userService.setNewTCMessage(message);
   }
+
   function setPlatformFee(uint value) public {
     claimService.setPlatformFee(value);
   }
@@ -252,7 +266,8 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
     address userServiceAddress,
     address rentalityPlatformAddress,
     address paymentServiceAddress,
-    address claimServiceAddress
+    address claimServiceAddress,
+    address carDeliveryAddress
   ) public initializer {
     carService = RentalityCarToken(carServiceAddress);
     currencyConverterService = RentalityCurrencyConverter(currencyConverterServiceAddress);
@@ -261,6 +276,7 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
     rentalityPlatform = RentalityPlatform(rentalityPlatformAddress);
     paymentService = RentalityPaymentService(paymentServiceAddress);
     claimService = RentalityClaimService(claimServiceAddress);
+    deliveryService = RentalityCarDelivery(carDeliveryAddress);
 
     __Ownable_init();
   }

@@ -18,6 +18,7 @@ import './payments/RentalityPaymentService.sol';
 import './Schemas.sol';
 import './RentalityAdminGateway.sol';
 import './libs/RentalityQuery.sol';
+import './features/RentalityCarDelivery.sol';
 
 /// @title RentalityTripService
 /// @dev Manages the lifecycle of rental trips, including creation, approval, and completion.
