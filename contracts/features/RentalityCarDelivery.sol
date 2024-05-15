@@ -124,10 +124,6 @@ contract RentalityCarDelivery is Initializable, UUPSAccess {
     return RealMath.div(RealMath.mul(degrees, RealMath.REAL_PI), RealMath.toReal(180));
   }
 
-  function getEmptyLocations() public pure returns (Schemas.DeliveryLocations memory) {
-    return Schemas.DeliveryLocations('', '', '', '');
-  }
-
   /// @notice Initializes the contract with the provided user service address
   /// @param _userService Address of the user service contract
   function initialize(address _userService) public initializer {
