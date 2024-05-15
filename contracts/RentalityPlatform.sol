@@ -475,8 +475,8 @@ contract RentalityPlatform is UUPSOwnable {
   /// @param request The request containing car information.
   /// @return The ID of the newly added car.
   function addCar(Schemas.CreateCarRequest memory request) public returns (uint) {
-    if (!addresses.userService.isHost(msg.sender)) {
-      addresses.userService.grantHostRole(msg.sender);
+    if (!addresses.userService.isHost(tx.origin)) {
+      addresses.userService.grantHostRole(tx.origin);
     }
     return addresses.carService.addCar(request);
   }
