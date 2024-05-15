@@ -63,7 +63,7 @@ contract RentalityPaymentService is UUPSOwnable {
   /// @param daysOfTrip The duration of the trip in days.
   /// @param value The total value of the trip.
   /// @return The calculated taxes.
-  function calculateTaxes(uint taxId, uint64 daysOfTrip, uint64 value) public view returns (uint64) {
+  function calculateTaxes(uint taxId, uint64 daysOfTrip, uint64 value) public view returns (uint64, uint64) {
     return taxesIdToTaxesContract[taxId].calculateTaxes(daysOfTrip, value);
   }
 

@@ -292,7 +292,6 @@ describe('RentalityClaim', function () {
       expect(myCars.length).to.equal(i)
 
       const oneDayInSeconds = 86400
-
       const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals, rentalityFee } = await calculatePayments(
         rentalityCurrencyConverter,
         rentalityPaymentService,

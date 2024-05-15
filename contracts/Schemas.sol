@@ -23,6 +23,7 @@ interface Schemas {
     bool currentlyListed;
     bool geoVerified;
     string timeZoneId;
+    bool insuranceIncluded;
   }
 
   struct PublicHostCarDTO {
@@ -61,6 +62,7 @@ interface Schemas {
     string locationLatitude;
     string locationLongitude;
     string geoApiKey;
+    bool insuranceIncluded;
   }
 
   /// @notice Struct to store input parameters for updating car information.
@@ -95,6 +97,14 @@ interface Schemas {
     uint64 startDateTime;
     uint64 endDateTime;
     address currencyType;
+  }
+
+  struct CreateTripRequestWithDelivery {
+    uint256 carId;
+    uint64 startDateTime;
+    uint64 endDateTime;
+    address currencyType;
+    DeliveryLocations deliveryInfo;
   }
 
   /// @dev Enumeration representing verious states of a trip.
@@ -297,7 +307,8 @@ interface Schemas {
     address from;
     address to;
     uint64 totalDayPriceInUsdCents;
-    uint64 taxPriceInUsdCents;
+    uint64 salesTax;
+    uint64 governmentTax;
     uint64 priceWithDiscount;
     uint64 depositInUsdCents;
     uint64 resolveAmountInUsdCents;
@@ -306,6 +317,7 @@ interface Schemas {
     uint8 currencyDecimals;
     uint64 resolveFuelAmountInUsdCents;
     uint64 resolveMilesAmountInUsdCents;
+    uint128 deliveryFee;
   }
 
   struct TripReceiptDTO {
@@ -313,7 +325,8 @@ interface Schemas {
     uint64 totalTripDays;
     uint64 tripPrice;
     uint64 discountAmount;
-    uint64 taxes;
+    uint64 salesTax;
+    uint64 governmentTax;
     uint64 depositReceived;
     uint64 reimbursement;
     uint64 depositReturned;
@@ -429,5 +442,30 @@ interface Schemas {
     City,
     State,
     Country
+  }
+
+  // Delivery
+  struct DeliveryPrices {
+    uint64 underTwentyFiveMilesInUsdCents;
+    uint64 aboveTwentyFiveMilesInUsdCents;
+    bool initialized;
+  }
+
+  struct DeliveryLocations {
+    string pickUpLat;
+    string pickUpLon;
+    string returnLat;
+    string returnLon;
+  }
+
+  struct DeliveryData {
+    string city;
+    string state;
+    string country;
+    string locationLat;
+    string locationLon;
+    uint64 underTwentyFiveMilesInUsdCents;
+    uint64 aboveTwentyFiveMilesInUsdCents;
+    bool insuranceIncluded;
   }
 }

@@ -261,7 +261,38 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
         address(addresses.currencyConverterService),
         carId,
         daysOfTrip,
-        currency
+        currency,
+        0
+      );
+  }
+
+  /// @dev Calculates the payments for a trip.
+  /// @param carId The ID of the car.
+  /// @param daysOfTrip The duration of the trip in days.
+  /// @param currency The currency to use for payment calculation.
+  /// @param deliveryData lat and lon of pickUp and return locations.
+  /// @return calculatePaymentsDTO An object containing payment details.
+  function calculatePaymentsWithDelivery(
+    uint carId,
+    uint64 daysOfTrip,
+    address currency,
+    Schemas.DeliveryLocations memory deliveryData
+  ) public view returns (Schemas.CalculatePaymentsDTO memory) {
+    uint64 deliveryFee = RentalityCarDelivery(addresses.adminService.getDeliveryServiceAddress())
+      .calculatePriceByDeliveryDataInUsdCents(
+        deliveryData,
+        IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getCarLocationLatitude(carId),
+        IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getCarLocationLongitude(carId)
+      );
+    return
+      RentalityUtils.calculatePayments(
+        address(addresses.carService),
+        address(addresses.paymentService),
+        address(addresses.currencyConverterService),
+        carId,
+        daysOfTrip,
+        currency,
+        deliveryFee
       );
   }
   /// @notice Get chat information for trips hosted by the caller on the Rentality platform.
@@ -276,6 +307,29 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
   function getChatInfoForGuest() public view returns (Schemas.ChatInfo[] memory) {
     Schemas.TripDTO[] memory trips = addresses.getTripsByGuest(tx.origin);
     return RentalityUtils.populateChatInfo(trips, address(addresses.userService), address(addresses.carService));
+  }
+
+  /// @dev Retrieves delivery data for a given car.
+  /// @param carId The ID of the car for which delivery data is requested.
+  /// @return deliveryData The delivery data including location details and delivery prices.
+  function getDeliveryData(uint carId) public view returns (Schemas.DeliveryData memory) {
+    IRentalityGeoService geoService = IRentalityGeoService(addresses.carService.getGeoServiceAddress());
+
+    Schemas.DeliveryPrices memory deliveryPrices = RentalityCarDelivery(
+      addresses.adminService.getDeliveryServiceAddress()
+    ).getUserDeliveryPrices(addresses.carService.ownerOf(carId));
+
+    return
+      Schemas.DeliveryData(
+        geoService.getCarCity(carId),
+        geoService.getCarState(carId),
+        geoService.getCarCountry(carId),
+        geoService.getCarLocationLatitude(carId),
+        geoService.getCarLocationLongitude(carId),
+        deliveryPrices.underTwentyFiveMilesInUsdCents,
+        deliveryPrices.aboveTwentyFiveMilesInUsdCents,
+        addresses.carService.getCarInfoById(carId).insuranceIncluded
+      );
   }
 
   // Unused
