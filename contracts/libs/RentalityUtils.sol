@@ -10,6 +10,7 @@ import '../RentalityTripService.sol';
 import '../payments/RentalityCurrencyConverter.sol';
 import '../payments/RentalityPaymentService.sol';
 import {RentalityContract} from '../RentalityGateway.sol';
+import {RentalityCarDelivery} from '../features/RentalityCarDelivery.sol';
 
 /// @title RentalityUtils Library
 /// @notice
@@ -431,6 +432,39 @@ library RentalityUtils {
         car.pricePerDayInUsdCents >= searchCarParams.pricePerDayInUsdCentsFrom) &&
       (searchCarParams.pricePerDayInUsdCentsTo == 0 ||
         car.pricePerDayInUsdCents <= searchCarParams.pricePerDayInUsdCentsTo);
+  }
+
+  /// @dev Calculates the payments for a trip.
+  /// @param carId The ID of the car.
+  /// @param daysOfTrip The duration of the trip in days.
+  /// @param currency The currency to use for payment calculation.
+  /// @param deliveryData lat and lon of pickUp and return locations.
+  /// @return calculatePaymentsDTO An object containing payment details.
+  function calculatePaymentsWithDelivery(
+    address carServiceAddress,
+    address paymentServiceAddress,
+    address converterAddress,
+    address deliveryServiceAddress,
+    uint carId,
+    uint64 daysOfTrip,
+    address currency,
+    Schemas.DeliveryLocations memory deliveryData
+  ) public view returns (Schemas.CalculatePaymentsDTO memory) {
+    uint64 deliveryFee = RentalityCarDelivery(deliveryServiceAddress).calculatePriceByDeliveryDataInUsdCents(
+      deliveryData,
+      IRentalityGeoService(RentalityCarToken(carServiceAddress).getGeoServiceAddress()).getCarLocationLatitude(carId),
+      IRentalityGeoService(RentalityCarToken(carServiceAddress).getGeoServiceAddress()).getCarLocationLongitude(carId)
+    );
+    return
+      calculatePayments(
+        carServiceAddress,
+        paymentServiceAddress,
+        converterAddress,
+        carId,
+        daysOfTrip,
+        currency,
+        deliveryFee
+      );
   }
   /// @notice Checks if a car is available for a specific user based on search parameters.
   /// @dev Calculates the payments for a trip.
