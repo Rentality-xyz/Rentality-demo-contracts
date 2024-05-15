@@ -265,9 +265,9 @@ describe('Rentality: trips', function () {
     const timestampNow = Math.floor(Date.now() / 1000)
     const timestampIn1Day = timestampNow + 3600 * 24
     const searchCarParams = getEmptySearchCarParams()
-    const availableCars = await rentalityTripService
+    const availableCars = await rentalityGateway
       .connect(guest)
-      .searchAvailableCarsForUser(guest.address, timestampNow, timestampIn1Day, searchCarParams)
+      .searchAvailableCars( timestampNow, timestampIn1Day, searchCarParams)
     expect(availableCars.length).to.equal(1)
 
     const result = await rentalityGateway.calculatePayments(1, 1, ethToken)
@@ -285,9 +285,9 @@ describe('Rentality: trips', function () {
 
     expect((await rentalityTripService.connect(host).getTrip(1)).status).to.equal(0)
 
-    const availableCars2 = await rentalityTripService
+    const availableCars2 = await rentalityGateway
       .connect(guest)
-      .searchAvailableCarsForUser(guest.address, timestampNow, timestampIn1Day, searchCarParams)
+      .searchAvailableCars( timestampNow, timestampIn1Day, searchCarParams)
     expect(availableCars2.length).to.equal(1)
   })
 
@@ -302,9 +302,9 @@ describe('Rentality: trips', function () {
     const timestampNow = Math.floor(Date.now() / 1000)
     const timestampIn1Day = timestampNow + 3600 * 24
     const searchCarParams = getEmptySearchCarParams()
-    const availableCars = await rentalityTripService
+    const availableCars = await rentalityGateway
       .connect(guest)
-      .searchAvailableCarsForUser(guest.address, timestampNow, timestampIn1Day, searchCarParams)
+      .searchAvailableCars( timestampNow, timestampIn1Day, searchCarParams)
     expect(availableCars.length).to.equal(1)
 
     const result = await rentalityGateway.calculatePayments(1, 1, ethToken)
@@ -326,9 +326,9 @@ describe('Rentality: trips', function () {
 
     const trip1 = await rentalityTripService.connect(host).getTrip(1)
     expect(trip1.status).to.equal(1)
-    const availableCars2 = await rentalityTripService
+    const availableCars2 = await rentalityGateway
       .connect(guest)
-      .searchAvailableCarsForUser(guest.address, timestampNow, timestampIn1Day, searchCarParams)
+      .searchAvailableCars( timestampNow, timestampIn1Day, searchCarParams)
     expect(availableCars2.length).to.equal(0)
   })
 })
