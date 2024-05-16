@@ -663,4 +663,30 @@ library RentalityUtils {
       geo.getCarLocationLongitude(carId)
     );
   }
+
+  /// @dev Retrieves delivery data for a given car.
+  /// @param carId The ID of the car for which delivery data is requested.
+  /// @return deliveryData The delivery data including location details and delivery prices.
+  function getDeliveryData(
+    RentalityContract memory addresses,
+    uint carId
+  ) public view returns (Schemas.DeliveryData memory) {
+    IRentalityGeoService geoService = IRentalityGeoService(addresses.carService.getGeoServiceAddress());
+
+    Schemas.DeliveryPrices memory deliveryPrices = RentalityCarDelivery(
+      addresses.adminService.getDeliveryServiceAddress()
+    ).getUserDeliveryPrices(addresses.carService.ownerOf(carId));
+
+    return
+      Schemas.DeliveryData(
+        geoService.getCarCity(carId),
+        geoService.getCarState(carId),
+        geoService.getCarCountry(carId),
+        geoService.getCarLocationLatitude(carId),
+        geoService.getCarLocationLongitude(carId),
+        deliveryPrices.underTwentyFiveMilesInUsdCents,
+        deliveryPrices.aboveTwentyFiveMilesInUsdCents,
+        addresses.carService.getCarInfoById(carId).insuranceIncluded
+      );
+  }
 }
