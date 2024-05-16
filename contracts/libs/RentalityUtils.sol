@@ -609,4 +609,58 @@ library RentalityUtils {
 
     return (paymentInfo, valueSumInCurrency);
   }
+
+  /// @notice Get contact information for a specific trip on the Rentality platform.
+  /// @param tripId The ID of the trip to retrieve contact information for.
+  /// @return guestPhoneNumber The phone number of the guest on the trip.
+  /// @return hostPhoneNumber The phone number of the host on the trip.
+  //// Refactoring for getTripContactInfo with RentalityContract
+  function getTripContactInfo(
+    uint256 tripId,
+    address tripService,
+    address userService
+  ) public view returns (string memory guestPhoneNumber, string memory hostPhoneNumber) {
+    require(RentalityUserService(userService).isHostOrGuest(tx.origin), 'User is not a host or guest');
+
+    Schemas.Trip memory trip = RentalityTripService(tripService).getTrip(tripId);
+
+    Schemas.KYCInfo memory guestInfo = RentalityUserService(userService).getKYCInfo(trip.guest);
+    Schemas.KYCInfo memory hostInfo = RentalityUserService(userService).getKYCInfo(trip.host);
+
+    return (guestInfo.mobilePhoneNumber, hostInfo.mobilePhoneNumber);
+  }
+  // Updated function getCarDetails with RentalityContract parameter
+  function getCarDetails(
+    RentalityContract memory contracts,
+    uint carId
+  ) public view returns (Schemas.CarDetails memory details) {
+    RentalityCarToken carService = contracts.carService;
+    IRentalityGeoService geo = IRentalityGeoService(carService.getGeoServiceAddress());
+    RentalityUserService userService = contracts.userService;
+
+    Schemas.CarInfo memory car = carService.getCarInfoById(carId);
+
+    details = Schemas.CarDetails(
+      carId,
+      userService.getKYCInfo(car.createdBy).name,
+      userService.getKYCInfo(car.createdBy).profilePhoto,
+      car.createdBy,
+      car.brand,
+      car.model,
+      car.yearOfProduction,
+      car.pricePerDayInUsdCents,
+      car.securityDepositPerTripInUsdCents,
+      car.milesIncludedPerDay,
+      car.engineType,
+      car.engineParams,
+      geo.getCarCoordinateValidity(carId),
+      car.currentlyListed,
+      geo.getCarTimeZoneId(carId),
+      geo.getCarCity(carId),
+      geo.getCarCountry(carId),
+      geo.getCarState(carId),
+      geo.getCarLocationLatitude(carId),
+      geo.getCarLocationLongitude(carId)
+    );
+  }
 }

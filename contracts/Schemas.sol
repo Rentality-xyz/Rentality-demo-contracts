@@ -389,6 +389,10 @@ interface Schemas {
     string locationLongitude;
     string timeZoneId;
     string metadataURI;
+    uint64 underTwentyFiveMilesInUsdCents;
+    uint64 aboveTwentyFiveMilesInUsdCents;
+    uint64 deliveryFee;
+    bool insuranceIncluded;
   }
 
   struct GeoData {
