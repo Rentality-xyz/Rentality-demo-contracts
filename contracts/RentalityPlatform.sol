@@ -24,7 +24,6 @@ import {RentalityUtils} from './libs/RentalityUtils.sol';
 /// @custom:oz-upgrades-unsafe-allow external-library-linking
 contract RentalityPlatform is UUPSOwnable {
   RentalityContract private addresses;
-  RentalityCarDelivery private deliveryService;
 
   // unused, have to be here, because of proxy
   address private automationService;
@@ -49,13 +48,8 @@ contract RentalityPlatform is UUPSOwnable {
   // }
 
   function updateServiceAddresses(RentalityAdminGateway adminService) public {
-    addresses.carService = RentalityCarToken(adminService.getCarServiceAddress());
-    addresses.currencyConverterService = RentalityCurrencyConverter(adminService.getCurrencyConverterServiceAddress());
-    addresses.tripService = RentalityTripService(adminService.getTripServiceAddress());
-    addresses.userService = RentalityUserService(adminService.getTripServiceAddress());
-    addresses.paymentService = RentalityPaymentService(adminService.getPaymentService());
-    addresses.claimService = RentalityClaimService(adminService.getClaimServiceAddress());
-    deliveryService = RentalityCarDelivery(adminService.getDeliveryServiceAddress());
+    require(addresses.userService.isAdmin(tx.origin), 'only Admin.');
+    addresses = adminService.getRentalityContracts();
   }
 
   /// @notice Withdraw a specific amount of funds from the contract.
@@ -82,9 +76,9 @@ contract RentalityPlatform is UUPSOwnable {
     require(success, 'Transfer failed.');
   }
 
-  function withdrawAllFromPlatform(address currencyType) public {
-    return withdrawFromPlatform(address(this).balance, currencyType);
-  }
+  //    function withdrawAllFromPlatform(address currencyType) public {
+  //        return withdrawFromPlatform(address(this).balance, currencyType);
+  //    }
 
   /// @notice Creates a trip request with delivery.
   /// @param request The trip request with delivery details.
@@ -97,7 +91,7 @@ contract RentalityPlatform is UUPSOwnable {
       request.endDateTime
     );
 
-    uint64 priceInUsdCents = deliveryService.calculatePriceByDeliveryDataInUsdCents(
+    uint64 priceInUsdCents = addresses.deliveryService.calculatePriceByDeliveryDataInUsdCents(
       request.deliveryInfo,
       IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getCarLocationLatitude(request.carId),
       IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getCarLocationLongitude(request.carId)
@@ -511,7 +505,7 @@ contract RentalityPlatform is UUPSOwnable {
   }
 
   function addUserDeliveryPrices(uint64 underTwentyFiveMilesInUsdCents, uint64 aboveTwentyFiveMilesInUsdCents) public {
-    deliveryService.setUserDeliveryPrices(underTwentyFiveMilesInUsdCents, aboveTwentyFiveMilesInUsdCents);
+    addresses.deliveryService.setUserDeliveryPrices(underTwentyFiveMilesInUsdCents, aboveTwentyFiveMilesInUsdCents);
   }
   /// @notice Parses the geolocation response and stores parsed data.
   /// @param carId The ID of the car for which geolocation is parsed.
@@ -542,9 +536,9 @@ contract RentalityPlatform is UUPSOwnable {
       RentalityPlatform(address(this)),
       RentalityPaymentService(paymentServiceAddress),
       RentalityClaimService(claimServiceAddress),
-      RentalityAdminGateway(address(0))
+      RentalityAdminGateway(address(0)),
+      RentalityCarDelivery(carDeliveryAddress)
     );
-    deliveryService = RentalityCarDelivery(carDeliveryAddress);
 
     __Ownable_init();
   }

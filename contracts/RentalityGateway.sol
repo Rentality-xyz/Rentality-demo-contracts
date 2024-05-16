@@ -26,6 +26,7 @@ struct RentalityContract {
   RentalityPaymentService paymentService;
   RentalityClaimService claimService;
   RentalityAdminGateway adminService;
+  RentalityCarDelivery deliveryService;
 }
 
 /// @title RentalityGateway
@@ -57,29 +58,24 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
     return res;
   }
 
-  /// @dev Updates the addresses of various services used in the Rentality platform.
-  ///
-  /// This function retrieves the actual service addresses from the `adminService` and updates
-  /// the contract's state variables with these addresses. The services include:
-  /// - Car Token Service
-  /// - Currency Converter Service
-  /// - Trip Service
-  /// - User Service
-  /// - Platform Service
-  /// - Payment Service
-  /// - Claim Service
-  ///
-  /// This function should be called whenever the addresses of the services change.
-  //    function updateServiceAddresses(RentalityContract memory contrcacts) public {
-  //        carService = RentalityCarToken(adminService.getCarServiceAddress());
-  //        currencyConverterService = RentalityCurrencyConverter(adminService.getCurrencyConverterServiceAddress());
-  //        tripService = RentalityTripService(adminService.getTripServiceAddress());
-  //        userService = RentalityUserService(adminService.getUserServiceAddress());
-  //        rentalityPlatform = RentalityPlatform(adminService.getRentalityPlatformAddress());
-  //        paymentService = RentalityPaymentService(adminService.getPaymentService());
-  //        claimService = RentalityClaimService(adminService.getClaimServiceAddress());
-  //        rentalityPlatform.updateServiceAddresses(adminService);
-  //    }
+  // @dev Updates the addresses of various services used in the Rentality platform.
+  //
+  // This function retrieves the actual service addresses from the `adminService` and updates
+  // the contract's state variables with these addresses. The services include:
+  // - Car Token Service
+  // - Currency Converter Service
+  // - Trip Service
+  // - User Service
+  // - Platform Service
+  // - Payment Service
+  // - Claim Service
+  //
+  // This function should be called whenever the addresses of the services change.
+  function updateServiceAddresses() public {
+    require(addresses.userService.isAdmin(tx.origin), 'only Admin.');
+    addresses = addresses.adminService.getRentalityContracts();
+    addresses.rentalityPlatform.updateServiceAddresses(addresses.adminService);
+  }
 
   /// @notice Retrieves information about a car by its ID.
   /// @param carId The ID of the car.
@@ -314,23 +310,7 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
   /// @param carId The ID of the car for which delivery data is requested.
   /// @return deliveryData The delivery data including location details and delivery prices.
   function getDeliveryData(uint carId) public view returns (Schemas.DeliveryData memory) {
-    IRentalityGeoService geoService = IRentalityGeoService(addresses.carService.getGeoServiceAddress());
-
-    Schemas.DeliveryPrices memory deliveryPrices = RentalityCarDelivery(
-      addresses.adminService.getDeliveryServiceAddress()
-    ).getUserDeliveryPrices(addresses.carService.ownerOf(carId));
-
-    return
-      Schemas.DeliveryData(
-        geoService.getCarCity(carId),
-        geoService.getCarState(carId),
-        geoService.getCarCountry(carId),
-        geoService.getCarLocationLatitude(carId),
-        geoService.getCarLocationLongitude(carId),
-        deliveryPrices.underTwentyFiveMilesInUsdCents,
-        deliveryPrices.aboveTwentyFiveMilesInUsdCents,
-        addresses.carService.getCarInfoById(carId).insuranceIncluded
-      );
+    return RentalityUtils.getDeliveryData(addresses, carId);
   }
 
   /// @dev Retrieves delivery data for a given user.
@@ -518,7 +498,8 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
     address rentalityPlatformAddress,
     address paymentServiceAddress,
     address claimServiceAddress,
-    address rentalityAdminGatewayAddress
+    address rentalityAdminGatewayAddress,
+    address deliveryServiceAddress
   ) public initializer {
     addresses = RentalityContract(
       RentalityCarToken(carServiceAddress),
@@ -528,7 +509,8 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
       RentalityPlatform(rentalityPlatformAddress),
       RentalityPaymentService(paymentServiceAddress),
       RentalityClaimService(claimServiceAddress),
-      RentalityAdminGateway(rentalityAdminGatewayAddress)
+      RentalityAdminGateway(rentalityAdminGatewayAddress),
+      RentalityCarDelivery(deliveryServiceAddress)
     );
 
     __Ownable_init();
