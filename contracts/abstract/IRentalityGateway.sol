@@ -343,4 +343,17 @@ interface IRentalityGateway {
   /// @notice Adds a user discount.
   /// @param data The discount data.
   function addUserDiscount(Schemas.BaseDiscount memory data) external;
+
+  /// @notice Searches for available cars based on specified criteria.
+  /// @param startDateTime The start date and time of the search.
+  /// @param endDateTime The end date and time of the search.
+  /// @param searchParams Additional search parameters.
+  /// @param locations Lat and lon of return and pickUp locations
+  /// @return An array of available car information meeting the search criteria.
+  function searchAvailableCarsWithDelivery(
+    uint64 startDateTime,
+    uint64 endDateTime,
+    Schemas.SearchCarParams memory searchParams,
+    Schemas.DeliveryLocations memory locations
+  ) external view returns (Schemas.SearchCar[] memory);
 }
