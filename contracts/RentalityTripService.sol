@@ -179,21 +179,6 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     emit TripStatusChanged(tripId, Schemas.TripStatus.Canceled, idToTripInfo[tripId].host, idToTripInfo[tripId].guest);
   }
 
-  /// @dev Searches for available cars for a user within a specified time range and search parameters.
-  /// @param user The address of the user for whom to search available cars.
-  /// @param startDateTime The start date and time of the search period.
-  /// @param endDateTime The end date and time of the search period.
-  /// @param searchParams The search parameters for filtering available cars.
-  /// @return An array of available car information matching the search criteria.
-  function searchAvailableCarsForUser(
-    address user,
-    uint64 startDateTime,
-    uint64 endDateTime,
-    Schemas.SearchCarParams memory searchParams
-  ) public view returns (Schemas.SearchCar[] memory) {
-    return addresses.searchAvailableCarsForUser(user, startDateTime, endDateTime, searchParams);
-  }
-
   /// @notice Allows the host to perform a check-in for a specific trip.
   /// This action typically occurs at the start of the trip and records key information
   /// such as fuel level, odometer reading, insurance details, and any other relevant data.
