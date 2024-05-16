@@ -4,6 +4,7 @@ pragma solidity ^0.8.9;
 import './payments/RentalityPaymentService.sol';
 import './RentalityPlatform.sol';
 import './abstract/IRentalityAdminGateway.sol';
+import {RentalityContract, RentalityGateway} from './RentalityGateway.sol';
 
 contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
   RentalityCarToken private carService;
@@ -15,8 +16,6 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
   RentalityClaimService private claimService;
   RentalityCarDelivery private deliveryService;
 
-  // unused, have to be here, because of proxy
-  address private automationService;
   /// @notice Ensures that the caller is either an admin, the contract owner, or an admin from the origin transaction.
   modifier onlyAdmin() {
     require(
@@ -24,6 +23,20 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
       'User is not an admin'
     );
     _;
+  }
+  function getRentalityContracts() public view returns (RentalityContract memory) {
+    return
+      RentalityContract(
+        carService,
+        currencyConverterService,
+        tripService,
+        userService,
+        rentalityPlatform,
+        paymentService,
+        claimService,
+        RentalityAdminGateway(this),
+        deliveryService
+      );
   }
 
   /// @notice Retrieves the address of the RentalityCarToken contract.

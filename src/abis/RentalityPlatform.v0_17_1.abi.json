@@ -60,11 +60,23 @@
             { "type": "string", "name": "locationAddress" },
             { "type": "string", "name": "locationLatitude" },
             { "type": "string", "name": "locationLongitude" },
-            { "type": "string", "name": "geoApiKey" }
+            { "type": "string", "name": "geoApiKey" },
+            { "type": "bool", "name": "insuranceIncluded" }
           ]
         }
       ],
       "outputs": [{ "type": "uint256", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "addUserDeliveryPrices",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint64", "name": "underTwentyFiveMilesInUsdCents" },
+        { "type": "uint64", "name": "aboveTwentyFiveMilesInUsdCents" }
+      ],
+      "outputs": []
     },
     {
       "type": "function",
@@ -189,6 +201,36 @@
     },
     {
       "type": "function",
+      "name": "createTripRequestWithDelivery",
+      "constant": false,
+      "stateMutability": "payable",
+      "payable": true,
+      "inputs": [
+        {
+          "type": "tuple",
+          "name": "request",
+          "components": [
+            { "type": "uint256", "name": "carId" },
+            { "type": "uint64", "name": "startDateTime" },
+            { "type": "uint64", "name": "endDateTime" },
+            { "type": "address", "name": "currencyType" },
+            {
+              "type": "tuple",
+              "name": "deliveryInfo",
+              "components": [
+                { "type": "string", "name": "pickUpLat" },
+                { "type": "string", "name": "pickUpLon" },
+                { "type": "string", "name": "returnLat" },
+                { "type": "string", "name": "returnLon" }
+              ]
+            }
+          ]
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
       "name": "finishTrip",
       "constant": false,
       "payable": false,
@@ -206,7 +248,8 @@
         { "type": "address", "name": "tripServiceAddress" },
         { "type": "address", "name": "userServiceAddress" },
         { "type": "address", "name": "paymentServiceAddress" },
-        { "type": "address", "name": "claimServiceAddress" }
+        { "type": "address", "name": "claimServiceAddress" },
+        { "type": "address", "name": "carDeliveryAddress" }
       ],
       "outputs": []
     },
@@ -375,14 +418,6 @@
         { "type": "address", "name": "newImplementation" },
         { "type": "bytes", "name": "data" }
       ],
-      "outputs": []
-    },
-    {
-      "type": "function",
-      "name": "withdrawAllFromPlatform",
-      "constant": false,
-      "payable": false,
-      "inputs": [{ "type": "address", "name": "currencyType" }],
       "outputs": []
     },
     {
