@@ -17,7 +17,6 @@ import './RentalityPlatform.sol';
 import './payments/RentalityPaymentService.sol';
 import './Schemas.sol';
 import './RentalityAdminGateway.sol';
-import './libs/RentalityQuery.sol';
 import './features/RentalityCarDelivery.sol';
 
 /// @title RentalityTripService
@@ -434,7 +433,8 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
       RentalityPlatform(address(0)),
       RentalityPaymentService(paymentServiceAddress),
       RentalityClaimService(address(0)),
-      RentalityAdminGateway(address(0))
+      RentalityAdminGateway(address(0)),
+      RentalityCarDelivery(address(0))
     );
     engineService = RentalityEnginesService(engineServiceAddress);
   }

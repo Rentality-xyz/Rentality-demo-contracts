@@ -191,6 +191,7 @@ async function deployDefaultFixture() {
     await rentalityPaymentService.getAddress(),
     await claimService.getAddress(),
     await ethContract.getAddress(),
+    await ethContract.getAddress(),
   ])
   await rentalityGateway.waitForDeployment()
 
