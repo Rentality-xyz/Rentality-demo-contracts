@@ -118,7 +118,38 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
     uint64 endDateTime,
     Schemas.SearchCarParams memory searchParams
   ) public view returns (Schemas.SearchCar[] memory) {
-    return addresses.tripService.searchAvailableCarsForUser(msg.sender, startDateTime, endDateTime, searchParams);
+    return
+      addresses.searchAvailableCarsForUser(
+        msg.sender,
+        startDateTime,
+        endDateTime,
+        searchParams,
+        Schemas.DeliveryLocations('', '', '', ''),
+        RentalityAdminGateway(addresses.adminService).getDeliveryServiceAddress()
+      );
+  }
+
+  /// @notice Searches for available cars based on specified criteria.
+  /// @param startDateTime The start date and time of the search.
+  /// @param endDateTime The end date and time of the search.
+  /// @param searchParams Additional search parameters.
+  /// @param locations Lat and lon of return and pickUp locations
+  /// @return An array of available car information meeting the search criteria.
+  function searchAvailableCarsWithDelivery(
+    uint64 startDateTime,
+    uint64 endDateTime,
+    Schemas.SearchCarParams memory searchParams,
+    Schemas.DeliveryLocations memory locations
+  ) public view returns (Schemas.SearchCar[] memory) {
+    return
+      addresses.searchAvailableCarsForUser(
+        msg.sender,
+        startDateTime,
+        endDateTime,
+        searchParams,
+        locations,
+        RentalityAdminGateway(addresses.adminService).getDeliveryServiceAddress()
+      );
   }
 
   /// @notice Retrieves information about cars owned by the caller.
@@ -131,7 +162,7 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
   /// @param carId The ID of the car for which details are requested.
   /// @return details An instance of `Schemas.CarDetails` containing the details of the specified car.
   function getCarDetails(uint carId) public view returns (Schemas.CarDetails memory) {
-    return addresses.getCarDetails(carId);
+    return RentalityUtils.getCarDetails(addresses, carId);
   }
 
   /// @notice Retrieves information about a trip by ID.
@@ -190,14 +221,7 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
   function getTripContactInfo(
     uint256 tripId
   ) public view returns (string memory guestPhoneNumber, string memory hostPhoneNumber) {
-    require(addresses.userService.isHostOrGuest(tx.origin), 'User is not a host or guest');
-
-    Schemas.Trip memory trip = addresses.tripService.getTrip(tripId);
-
-    Schemas.KYCInfo memory guestInfo = addresses.userService.getKYCInfo(trip.guest);
-    Schemas.KYCInfo memory hostInfo = addresses.userService.getKYCInfo(trip.host);
-
-    return (guestInfo.mobilePhoneNumber, hostInfo.mobilePhoneNumber);
+    return RentalityUtils.getTripContactInfo(tripId, address(addresses.tripService), address(addresses.userService));
   }
 
   /// @notice Retrieves KYC information for the caller.

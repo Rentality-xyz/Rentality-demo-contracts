@@ -11,6 +11,7 @@ import '../features/RentalityClaimService.sol';
 import '../RentalityAdminGateway.sol';
 import '../RentalityGateway.sol';
 import {IRentalityGeoService} from '../abstract/IRentalityGeoService.sol';
+import {RentalityCarDelivery} from '../features/RentalityCarDelivery.sol';
 import '../Schemas.sol';
 
 library RentalityQuery {
@@ -309,11 +310,10 @@ library RentalityQuery {
     address user,
     uint64 startDateTime,
     uint64 endDateTime,
-    Schemas.SearchCarParams memory searchParams
+    Schemas.SearchCarParams memory searchParams,
+    Schemas.DeliveryLocations memory locations,
+    address deliveryServiceAddress
   ) public view returns (Schemas.SearchCar[] memory result) {
-    // if (startDateTime < block.timestamp){
-    //     return new RentalityCarToken.CarInfo[](0);
-    // }
     RentalityCarToken carService = contracts.carService;
     Schemas.CarInfo[] memory availableCars = carService.fetchAvailableCarsForUser(user, searchParams);
     if (availableCars.length == 0) return new Schemas.SearchCar[](0);
@@ -356,6 +356,9 @@ library RentalityQuery {
     }
     result = new Schemas.SearchCar[](resultCount);
 
+    Schemas.DeliveryPrices memory deliveryPrices = RentalityCarDelivery(deliveryServiceAddress).getUserDeliveryPrices(
+      user
+    );
     for (uint i = 0; i < resultCount; i++) {
       uint64 totalTripDays = uint64(Math.ceilDiv(endDateTime - startDateTime, 1 days));
       totalTripDays = totalTripDays == 0 ? 1 : totalTripDays;
@@ -365,6 +368,14 @@ library RentalityQuery {
         totalTripDays,
         temp[i].pricePerDayInUsdCents
       );
+      uint64 deliveryFee = 0;
+      if (bytes(locations.pickUpLat).length != 0) {
+        deliveryFee = RentalityCarDelivery(deliveryServiceAddress).calculatePriceByDeliveryDataInUsdCents(
+          locations,
+          IRentalityGeoService(carService.getGeoServiceAddress()).getCarLocationLatitude(temp[i].carId),
+          IRentalityGeoService(carService.getGeoServiceAddress()).getCarLocationLongitude(temp[i].carId)
+        );
+      }
 
       uint taxId = contracts.paymentService.defineTaxesType(address(contracts.carService), temp[i].carId);
 
@@ -394,44 +405,14 @@ library RentalityQuery {
         IRentalityGeoService(carService.getGeoServiceAddress()).getCarLocationLatitude(temp[i].carId),
         IRentalityGeoService(carService.getGeoServiceAddress()).getCarLocationLongitude(temp[i].carId),
         IRentalityGeoService(carService.getGeoServiceAddress()).getCarTimeZoneId(temp[i].carId),
-        carService.tokenURI(temp[i].carId)
+        carService.tokenURI(temp[i].carId),
+        deliveryPrices.underTwentyFiveMilesInUsdCents,
+        deliveryPrices.aboveTwentyFiveMilesInUsdCents,
+        deliveryFee,
+        temp[i].insuranceIncluded
       );
     }
     return result;
-  }
-  // Updated function getCarDetails with RentalityContract parameter
-  function getCarDetails(
-    RentalityContract memory contracts,
-    uint carId
-  ) public view returns (Schemas.CarDetails memory details) {
-    RentalityCarToken carService = contracts.carService;
-    IRentalityGeoService geo = IRentalityGeoService(carService.getGeoServiceAddress());
-    RentalityUserService userService = contracts.userService;
-
-    Schemas.CarInfo memory car = carService.getCarInfoById(carId);
-
-    details = Schemas.CarDetails(
-      carId,
-      userService.getKYCInfo(car.createdBy).name,
-      userService.getKYCInfo(car.createdBy).profilePhoto,
-      car.createdBy,
-      car.brand,
-      car.model,
-      car.yearOfProduction,
-      car.pricePerDayInUsdCents,
-      car.securityDepositPerTripInUsdCents,
-      car.milesIncludedPerDay,
-      car.engineType,
-      car.engineParams,
-      geo.getCarCoordinateValidity(carId),
-      car.currentlyListed,
-      geo.getCarTimeZoneId(carId),
-      geo.getCarCity(carId),
-      geo.getCarCountry(carId),
-      geo.getCarState(carId),
-      geo.getCarLocationLatitude(carId),
-      geo.getCarLocationLongitude(carId)
-    );
   }
 
   // Updated function getCarsOwnedByUserWithEditability with RentalityContract parameter
