@@ -12,7 +12,45 @@
         { "type": "address", "name": "converterAddress" },
         { "type": "uint256", "name": "carId" },
         { "type": "uint64", "name": "daysOfTrip" },
-        { "type": "address", "name": "currency" }
+        { "type": "address", "name": "currency" },
+        { "type": "uint64", "name": "deliveryFee" }
+      ],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "",
+          "components": [
+            { "type": "uint256", "name": "totalPrice" },
+            { "type": "int256", "name": "currencyRate" },
+            { "type": "uint8", "name": "currencyDecimals" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "calculatePaymentsWithDelivery",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "carServiceAddress" },
+        { "type": "address", "name": "paymentServiceAddress" },
+        { "type": "address", "name": "converterAddress" },
+        { "type": "address", "name": "deliveryServiceAddress" },
+        { "type": "uint256", "name": "carId" },
+        { "type": "uint64", "name": "daysOfTrip" },
+        { "type": "address", "name": "currency" },
+        {
+          "type": "tuple",
+          "name": "deliveryData",
+          "components": [
+            { "type": "string", "name": "pickUpLat" },
+            { "type": "string", "name": "pickUpLon" },
+            { "type": "string", "name": "returnLat" },
+            { "type": "string", "name": "returnLon" }
+          ]
+        }
       ],
       "outputs": [
         {
@@ -61,7 +99,8 @@
             { "type": "uint64", "name": "totalTripDays" },
             { "type": "uint64", "name": "tripPrice" },
             { "type": "uint64", "name": "discountAmount" },
-            { "type": "uint64", "name": "taxes" },
+            { "type": "uint64", "name": "salesTax" },
+            { "type": "uint64", "name": "governmentTax" },
             { "type": "uint64", "name": "depositReceived" },
             { "type": "uint64", "name": "reimbursement" },
             { "type": "uint64", "name": "depositReturned" },
@@ -91,6 +130,22 @@
         { "type": "uint64", "name": "endDateTime" }
       ],
       "outputs": [{ "type": "uint64", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getTripContactInfo",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        { "type": "uint256", "name": "tripId" },
+        { "type": "address", "name": "tripService" },
+        { "type": "address", "name": "userService" }
+      ],
+      "outputs": [
+        { "type": "string", "name": "guestPhoneNumber" },
+        { "type": "string", "name": "hostPhoneNumber" }
+      ]
     },
     {
       "type": "function",
