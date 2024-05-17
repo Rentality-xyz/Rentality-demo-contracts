@@ -59,7 +59,8 @@
           ]
         },
         { "type": "string", "name": "homeLat" },
-        { "type": "string", "name": "homeLon" }
+        { "type": "string", "name": "homeLon" },
+        { "type": "address", "name": "user" }
       ],
       "outputs": [{ "type": "uint64", "name": "" }]
     },
