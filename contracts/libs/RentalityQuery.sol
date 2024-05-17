@@ -356,24 +356,25 @@ library RentalityQuery {
     }
     result = new Schemas.SearchCar[](resultCount);
 
-    Schemas.DeliveryPrices memory deliveryPrices = RentalityCarDelivery(deliveryServiceAddress).getUserDeliveryPrices(
-      user
-    );
     for (uint i = 0; i < resultCount; i++) {
       uint64 totalTripDays = uint64(Math.ceilDiv(endDateTime - startDateTime, 1 days));
       totalTripDays = totalTripDays == 0 ? 1 : totalTripDays;
 
+      Schemas.DeliveryPrices memory deliveryPrices = RentalityCarDelivery(deliveryServiceAddress).getUserDeliveryPrices(
+        temp[i].createdBy
+      );
       uint64 priceWithDiscount = contracts.paymentService.calculateSumWithDiscount(
         carService.ownerOf(temp[i].carId),
         totalTripDays,
         temp[i].pricePerDayInUsdCents
       );
       uint64 deliveryFee = 0;
-      if (bytes(locations.pickUpLat).length != 0) {
+      if (bytes(locations.pickUpLat).length != 0 || bytes(locations.returnLat).length != 0) {
         deliveryFee = RentalityCarDelivery(deliveryServiceAddress).calculatePriceByDeliveryDataInUsdCents(
           locations,
           IRentalityGeoService(carService.getGeoServiceAddress()).getCarLocationLatitude(temp[i].carId),
-          IRentalityGeoService(carService.getGeoServiceAddress()).getCarLocationLongitude(temp[i].carId)
+          IRentalityGeoService(carService.getGeoServiceAddress()).getCarLocationLongitude(temp[i].carId),
+          temp[i].createdBy
         );
       }
 
