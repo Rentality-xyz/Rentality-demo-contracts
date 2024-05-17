@@ -94,7 +94,8 @@ contract RentalityPlatform is UUPSOwnable {
     uint64 priceInUsdCents = addresses.deliveryService.calculatePriceByDeliveryDataInUsdCents(
       request.deliveryInfo,
       IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getCarLocationLatitude(request.carId),
-      IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getCarLocationLongitude(request.carId)
+      IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getCarLocationLongitude(request.carId),
+      addresses.carService.getCarInfoById(request.carId).createdBy
     );
 
     _createTripRequest(
