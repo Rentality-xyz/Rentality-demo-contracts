@@ -45,12 +45,13 @@ contract RentalityCarDelivery is Initializable, UUPSAccess {
   function calculatePriceByDeliveryDataInUsdCents(
     Schemas.DeliveryLocations memory deliveryData,
     string memory homeLat,
-    string memory homeLon
+    string memory homeLon,
+    address user
   ) public view returns (uint64) {
     int128 pickUpDistance = calculateDistance(deliveryData.pickUpLat, deliveryData.pickUpLon, homeLat, homeLon);
     int128 returnDistance = calculateDistance(deliveryData.returnLat, deliveryData.returnLon, homeLat, homeLon);
     uint64 total = 0;
-    Schemas.DeliveryPrices memory userPrices = userToDeliveryPrice[tx.origin];
+    Schemas.DeliveryPrices memory userPrices = userToDeliveryPrice[user];
     if (!userPrices.initialized) {
       userPrices = defaultPrices;
     }
@@ -62,7 +63,7 @@ contract RentalityCarDelivery is Initializable, UUPSAccess {
     if (returnDistance > 25) {
       total += uint64(uint128(returnDistance)) * userPrices.aboveTwentyFiveMilesInUsdCents;
     } else {
-      total += uint64(uint128(returnDistance)) * userPrices.aboveTwentyFiveMilesInUsdCents;
+      total += uint64(uint128(returnDistance)) * userPrices.underTwentyFiveMilesInUsdCents;
     }
     return total;
   }
@@ -79,6 +80,9 @@ contract RentalityCarDelivery is Initializable, UUPSAccess {
     string memory lat2,
     string memory lon2
   ) public pure returns (int128) {
+    if (bytes(lat1).length == 0 || bytes(lat2).length == 0) {
+      return 0;
+    }
     return calculateDistanceFromReal(toReal(lat1), toReal(lon1), toReal(lat2), toReal(lon2));
   }
 

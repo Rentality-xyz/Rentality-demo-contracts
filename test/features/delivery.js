@@ -74,7 +74,7 @@ describe('Rentality Delivery', function () {
         returnLat: pickUpLat,
         returnLon: pickUpLon,
       }
-      let result = await deliveryService.calculatePriceByDeliveryDataInUsdCents(location, homeLat, homeLon)
+      let result = await deliveryService.calculatePriceByDeliveryDataInUsdCents(location, homeLat, homeLon, host)
 
       let expectedResult = 608 /*miles*/ * 300 /*price in usd cents*/ * 2
       expect(result).to.be.eq(expectedResult)
@@ -91,7 +91,7 @@ describe('Rentality Delivery', function () {
       returnLat: homeLat,
       returnLon: homeLon,
     }
-    let result = await deliveryService.calculatePriceByDeliveryDataInUsdCents(location, homeLat, homeLon)
+    let result = await deliveryService.calculatePriceByDeliveryDataInUsdCents(location, homeLat, homeLon, host)
 
     let expectedResult = 14 /*miles*/ * 250 /*price in usd cents*/
     expect(result).to.be.eq(expectedResult, 'Return price should be 0, because it has same address as home')
@@ -109,7 +109,9 @@ describe('Rentality Delivery', function () {
       returnLon: homeLon,
     }
     await rentalityPlatform.connect(host).addUserDeliveryPrices(500, 500)
-    let result = await deliveryService.connect(host).calculatePriceByDeliveryDataInUsdCents(location, homeLat, homeLon)
+    let result = await deliveryService
+      .connect(host)
+      .calculatePriceByDeliveryDataInUsdCents(location, homeLat, homeLon, host)
 
     let expectedResult = 14 /*miles*/ * 500 /*price in usd cents*/
     expect(result).to.be.eq(expectedResult, 'Return price should be 0, because it has same address as home')
@@ -176,7 +178,7 @@ describe('Rentality Delivery', function () {
 
     let totalDeliveryPrice = await deliveryService
       .connect(host)
-      .calculatePriceByDeliveryDataInUsdCents(location, homeLat, homeLon)
+      .calculatePriceByDeliveryDataInUsdCents(location, homeLat, homeLon, host)
 
     let trip = await rentalityTripService.getTrip(1)
     let fee = (mockCreateCarRequest.pricePerDayInUsdCents * 20) / 100

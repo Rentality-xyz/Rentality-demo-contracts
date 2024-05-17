@@ -453,7 +453,8 @@ library RentalityUtils {
     uint64 deliveryFee = RentalityCarDelivery(deliveryServiceAddress).calculatePriceByDeliveryDataInUsdCents(
       deliveryData,
       IRentalityGeoService(RentalityCarToken(carServiceAddress).getGeoServiceAddress()).getCarLocationLatitude(carId),
-      IRentalityGeoService(RentalityCarToken(carServiceAddress).getGeoServiceAddress()).getCarLocationLongitude(carId)
+      IRentalityGeoService(RentalityCarToken(carServiceAddress).getGeoServiceAddress()).getCarLocationLongitude(carId),
+      RentalityCarToken(carServiceAddress).getCarInfoById(carId).createdBy
     );
     return
       calculatePayments(
