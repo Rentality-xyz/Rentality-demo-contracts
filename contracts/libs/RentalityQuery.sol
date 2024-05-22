@@ -278,11 +278,9 @@ library RentalityQuery {
 
     Schemas.FullClaimInfo[] memory claimInfos = new Schemas.FullClaimInfo[](arraySize);
     uint256 counter = 0;
-
     for (uint256 i = 1; i <= claimService.getClaimsAmount(); i++) {
       Schemas.Claim memory claim = claimService.getClaim(i);
       Schemas.Trip memory trip = tripService.getTrip(claim.tripId);
-
       if (trip.guest == guest) {
         uint valueInEth = currencyConverterService.getFromUsd(
           trip.paymentInfo.currencyType,
