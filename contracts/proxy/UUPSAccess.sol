@@ -2,7 +2,7 @@
 pragma solidity ^0.8.9;
 
 import {UUPSUpgradeable} from '@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol';
-import '../IRentalityAccessControl.sol';
+import '../abstract/IRentalityAccessControl.sol';
 
 /// @title UUPSAccess
 /// @dev An upgradeable contract with access control based on UUPS (Universal Upgradeable Proxy Standard).

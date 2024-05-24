@@ -23,6 +23,19 @@ interface Schemas {
     bool currentlyListed;
     bool geoVerified;
     string timeZoneId;
+    bool insuranceIncluded;
+  }
+
+  struct PublicHostCarDTO {
+    uint carId;
+    string metadataURI;
+    string brand;
+    string model;
+    uint32 yearOfProduction;
+    uint64 pricePerDayInUsdCents;
+    uint64 securityDepositPerTripInUsdCents;
+    uint64 milesIncludedPerDay;
+    bool currentlyListed;
   }
 
   /// @notice Holds the car information with current ability to update.
@@ -49,6 +62,7 @@ interface Schemas {
     string locationLatitude;
     string locationLongitude;
     string geoApiKey;
+    bool insuranceIncluded;
   }
 
   /// @notice Struct to store input parameters for updating car information.
@@ -80,16 +94,17 @@ interface Schemas {
   /// @dev Struct representing the parameters for creating a trip request.
   struct CreateTripRequest {
     uint256 carId;
-    address host;
     uint64 startDateTime;
     uint64 endDateTime;
-    string startLocation;
-    string endLocation;
-    uint64 totalDayPriceInUsdCents;
-    uint64 taxPriceInUsdCents;
-    uint64 depositInUsdCents;
-    int256 ethToCurrencyRate;
-    uint8 ethToCurrencyDecimals;
+    address currencyType;
+  }
+
+  struct CreateTripRequestWithDelivery {
+    uint256 carId;
+    uint64 startDateTime;
+    uint64 endDateTime;
+    address currencyType;
+    DeliveryLocations deliveryInfo;
   }
 
   /// @dev Enumeration representing verious states of a trip.
@@ -136,6 +151,8 @@ interface Schemas {
     uint createdDateTime;
     uint approvedDateTime;
     uint rejectedDateTime;
+    string guestInsuranceCompanyName;
+    string guestInsurancePolicyNumber;
     address rejectedBy;
     uint checkedInByHostDateTime;
     uint64[] startParamLevels;
@@ -146,6 +163,7 @@ interface Schemas {
     uint64[] endParamLevels;
     uint checkedOutByHostDateTime;
     TransactionInfo transactionInfo;
+    uint finishDateTime;
   }
 
   struct TripDTO {
@@ -154,6 +172,13 @@ interface Schemas {
     string hostPhotoUrl;
     string metadataURI;
     string timeZoneId;
+    string hostDrivingLicenseNumber;
+    uint64 hostDrivingLicenseExpirationDate;
+    string guestDrivingLicenseNumber;
+    uint64 guestDrivingLicenseExpirationDate;
+    string model;
+    string brand;
+    uint32 yearOfProduction;
   }
 
   /// CHAT LOGIC
@@ -214,6 +239,8 @@ interface Schemas {
     uint256 payDateInSec;
     address rejectedBy;
     uint256 rejectedDateInSec;
+    string photosUrl;
+    bool isHostClaims;
   }
 
   // Struct to represent a request to create a new claim
@@ -222,6 +249,7 @@ interface Schemas {
     ClaimType claimType;
     string description;
     uint64 amountInUsdCents;
+    string photosUrl;
   }
 
   // Enumeration for types of claims
@@ -229,11 +257,13 @@ interface Schemas {
     Tolls,
     Tickets,
     LateReturn,
-    Cleanliness,
     Smoking,
+    Cleanliness,
     ExteriorDamage,
     InteriorDamage,
-    Other
+    Other,
+    FaultyVehicle,
+    ListingMismatch
   }
 
   // Enumeration for claim statuses
@@ -270,19 +300,53 @@ interface Schemas {
   }
 
   /// @dev Struct containing payment information for a trip.
+
+  /// @dev Struct containing payment information for a trip.
   struct PaymentInfo {
     uint256 tripId;
     address from;
     address to;
     uint64 totalDayPriceInUsdCents;
-    uint64 taxPriceInUsdCents;
+    uint64 salesTax;
+    uint64 governmentTax;
+    uint64 priceWithDiscount;
     uint64 depositInUsdCents;
     uint64 resolveAmountInUsdCents;
-    CurrencyType currencyType;
-    int256 ethToCurrencyRate;
-    uint8 ethToCurrencyDecimals;
+    address currencyType; // tokenAddress, address(0) if eth
+    int256 currencyRate;
+    uint8 currencyDecimals;
     uint64 resolveFuelAmountInUsdCents;
     uint64 resolveMilesAmountInUsdCents;
+    uint128 deliveryFee;
+  }
+
+  struct TripReceiptDTO {
+    uint64 totalDayPriceInUsdCents;
+    uint64 totalTripDays;
+    uint64 tripPrice;
+    uint64 discountAmount;
+    uint64 salesTax;
+    uint64 governmentTax;
+    uint64 depositReceived;
+    uint64 reimbursement;
+    uint64 depositReturned;
+    uint64 refuel;
+    uint64 refuelPricePerUnit;
+    uint64 refuelOrRechargeTotalPrice;
+    uint64 milesIncluded;
+    uint64 overmiles;
+    uint64 pricePerOvermileInCents;
+    uint64 overmileCharge;
+    uint64 startFuelLevel;
+    uint64 endFuelLevel;
+    uint64 startOdometer;
+    uint64 endOdometer;
+  }
+
+  struct CalculatePaymentsDTO {
+    uint totalPrice;
+    int currencyRate;
+    uint8 currencyDecimals;
   }
 
   /// User service
@@ -297,6 +361,7 @@ interface Schemas {
     uint64 expirationDate;
     uint createDate;
     bool isTCPassed;
+    bytes TCSignature;
   }
 
   /// Query
@@ -307,12 +372,30 @@ interface Schemas {
     string model;
     uint32 yearOfProduction;
     uint64 pricePerDayInUsdCents;
+    uint64 pricePerDayWithDiscount;
+    uint64 tripDays;
+    uint64 totalPriceWithDiscount;
+    uint64 taxes;
     uint64 securityDepositPerTripInUsdCents;
     uint8 engineType;
     uint64 milesIncludedPerDay;
     address host;
     string hostName;
     string hostPhotoUrl;
+    string city;
+    string country;
+    string state;
+    string locationLatitude;
+    string locationLongitude;
+    string timeZoneId;
+    string metadataURI;
+    uint64 underTwentyFiveMilesInUsdCents;
+    uint64 aboveTwentyFiveMilesInUsdCents;
+    uint64 deliveryFee;
+    bool insuranceIncluded;
+  }
+
+  struct GeoData {
     string city;
     string country;
     string state;
@@ -343,5 +426,50 @@ interface Schemas {
     string state;
     string locationLatitude;
     string locationLongitude;
+  }
+
+  // Taxes
+  struct FloridaTaxes {
+    uint32 salesTaxPPM;
+    uint32 governmentTaxPerDayInUsdCents;
+  }
+
+  // Discounts
+  struct BaseDiscount {
+    uint32 threeDaysDiscount;
+    uint32 sevenDaysDiscount;
+    uint32 thirtyDaysDiscount;
+    bool initialized;
+  }
+
+  enum TaxesLocationType {
+    City,
+    State,
+    Country
+  }
+
+  // Delivery
+  struct DeliveryPrices {
+    uint64 underTwentyFiveMilesInUsdCents;
+    uint64 aboveTwentyFiveMilesInUsdCents;
+    bool initialized;
+  }
+
+  struct DeliveryLocations {
+    string pickUpLat;
+    string pickUpLon;
+    string returnLat;
+    string returnLon;
+  }
+
+  struct DeliveryData {
+    string city;
+    string state;
+    string country;
+    string locationLat;
+    string locationLon;
+    uint64 underTwentyFiveMilesInUsdCents;
+    uint64 aboveTwentyFiveMilesInUsdCents;
+    bool insuranceIncluded;
   }
 }

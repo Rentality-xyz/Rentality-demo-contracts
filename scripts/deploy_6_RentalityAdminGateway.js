@@ -20,12 +20,12 @@ async function main() {
   )
 
   const rentalityCurrencyConverterAddress = checkNotNull(
-    getContractAddress('RentalityCurrencyConverter', 'scripts/deploy_2c_RentalityCurrencyConverter.js', chainId),
+    getContractAddress('RentalityCurrencyConverter', 'scripts/deploy_3b_RentalityCurrencyConverter.js', chainId),
     'RentalityCurrencyConverter'
   )
 
   const rentalityPaymentServiceAddress = checkNotNull(
-    getContractAddress('RentalityPaymentService', 'scripts/deploy_2d_RentalityPaymentService.js', chainId),
+    getContractAddress('RentalityPaymentService', 'scripts/deploy_3c_RentalityPaymentService.js', chainId),
     'RentalityPaymentService'
   )
 
@@ -43,6 +43,10 @@ async function main() {
     getContractAddress('RentalityPlatform', 'scripts/deploy_5_RentalityPlatform.js', chainId),
     'RentalityPlatform'
   )
+  const rentalityCarDelivery = checkNotNull(
+    getContractAddress('RentalityCarDelivery', 'scripts/deploy_2i_RentalityCarDelivery.js', chainId),
+    'RentalityCarDelivery'
+  )
 
   const contractFactory = await ethers.getContractFactory(contractName)
 
@@ -54,6 +58,7 @@ async function main() {
     rentalityPlatformAddress,
     rentalityPaymentServiceAddress,
     rentalityClaimService,
+    rentalityCarDelivery,
   ])
 
   await contract.waitForDeployment()

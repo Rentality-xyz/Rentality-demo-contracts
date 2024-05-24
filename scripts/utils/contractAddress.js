@@ -1,19 +1,20 @@
-const { readFileSync } = require('fs')
+const { readFileSync, writeFileSync } = require('fs')
 const { network, ethers } = require('hardhat')
 const readlineSync = require('readline-sync')
 const { spawnSync } = require('child_process')
-
-const pathToAddressFile = 'scripts/addressesContractsTestnets.json'
+const { buildPath, extractReadVersion, buildPathWithVersion } = require('./pathBuilder')
 
 function getContractAddress(contractName, addressToDeployScript, chainId) {
   let address = readFromFile(contractName, chainId)
 
   if (address === null) {
     const message = `Do you want to deploy ${contractName};`
-    if (!readlineSync.keyInYNStrict(message)) {
-      console.log('Finishing...')
-      process.exit(1)
-    }
+    const silent = process.env.SILENT
+    if (silent === undefined || silent === 'false')
+      if (!readlineSync.keyInYNStrict(message)) {
+        console.log('Finishing...')
+        process.exit(1)
+      }
     console.log(`The contract ${contractName} is not deployed. Starting deployment...`)
 
     const command = 'npx hardhat run ' + addressToDeployScript
@@ -45,16 +46,38 @@ function getContractAddress(contractName, addressToDeployScript, chainId) {
   return address
 }
 
-function readFromFile(contractName, chain) {
-  let chainId = Number.parseInt(chain.toString())
-  const data = readFileSync(pathToAddressFile, 'utf-8')
+function readAddress(path, chain, name) {
+  let data
+
+  try {
+    data = readFileSync(path, 'utf-8')
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      // File does not exist, create it
+      writeFileSync(path, '[]', 'utf-8')
+      data = '[]'
+    } else {
+      throw error
+    }
+  }
   const jsonData = JSON.parse(data)
 
-  const contract = jsonData.find(
-    (el) =>
-      el.name === network.name && el.chainId === chainId && el[contractName] !== undefined && el[contractName] !== ''
+  return jsonData.find(
+    (el) => el.name === network.name && el.chainId === chain && el[name] !== undefined && el[name] !== ''
   )
-  return contract === undefined ? null : contract[contractName]
+}
+
+function readFromFile(contractName, chain) {
+  let chainId = Number.parseInt(chain.toString())
+  const version = extractReadVersion()
+  const { oldPath, path } = buildPathWithVersion(version)
+  let contract = readAddress(path, chainId, contractName)
+  if (contract === undefined && oldPath === undefined) return null
+  else if (contract === undefined) {
+    contract = readAddress(oldPath, chainId, contractName)
+    if (contract === undefined) return null
+  }
+  return contract[contractName]
 }
 
 module.exports = {

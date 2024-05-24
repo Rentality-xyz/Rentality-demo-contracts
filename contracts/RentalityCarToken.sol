@@ -1,14 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import {ERC721URIStorageUpgradeable} from '@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol';
+import {ERC721URIStorageUpgradeable, ERC721Upgradeable, IERC721Upgradeable} from '@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol';
 import {UUPSUpgradeable} from '@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol';
 import '@openzeppelin/contracts/utils/Counters.sol';
-import './libs/RentalityQuery.sol';
-import './IRentalityGeoService.sol';
+import './abstract/IRentalityGeoService.sol';
 import './proxy/UUPSOwnable.sol';
 import './engine/RentalityEnginesService.sol';
 import './Schemas.sol';
+import './RentalityUserService.sol';
+import './libs/RentalityUtils.sol';
 
 /// @title RentalityCarToken
 /// @notice ERC-721 token for representing cars in the Rentality platform.
@@ -82,6 +83,34 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     return idToCarInfo[carId];
   }
 
+  /// @notice Retrieves the cars owned by a specific host.
+  /// @dev This function returns an array of PublicHostCarDTO structs representing the cars owned by the host.
+  /// @param host The address of the host for whom to retrieve the cars.
+  /// @return An array of PublicHostCarDTO structs representing the cars owned by the host.
+  function getCarsOfHost(address host) public view returns (Schemas.PublicHostCarDTO[] memory) {
+    uint carsOwnedByHost = balanceOf(host);
+
+    Schemas.PublicHostCarDTO[] memory carDTOs = new Schemas.PublicHostCarDTO[](carsOwnedByHost);
+    uint carCounter = 0;
+    for (uint i = 1; i <= _carIdCounter.current(); i++) {
+      if (_exists(i) && ownerOf(i) == host) {
+        Schemas.CarInfo memory car = idToCarInfo[i];
+
+        carDTOs[carCounter].carId = i;
+        carDTOs[carCounter].milesIncludedPerDay = car.milesIncludedPerDay;
+        carDTOs[carCounter].metadataURI = tokenURI(i);
+        carDTOs[carCounter].yearOfProduction = car.yearOfProduction;
+        carDTOs[carCounter].currentlyListed = car.currentlyListed;
+        carDTOs[carCounter].brand = car.brand;
+        carDTOs[carCounter].model = car.model;
+        carDTOs[carCounter].pricePerDayInUsdCents = car.pricePerDayInUsdCents;
+        carDTOs[carCounter].securityDepositPerTripInUsdCents = car.securityDepositPerTripInUsdCents;
+        carCounter++;
+      }
+    }
+    return carDTOs;
+  }
+
   /// @notice Checks if a VIN number is unique among the listed cars.
   /// @param carVinNumber The VIN number to check for uniqueness.
   /// @return True if the VIN number is unique, false otherwise.
@@ -136,7 +165,8 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
       request.timeBufferBetweenTripsInSec,
       true,
       false,
-      ''
+      '',
+      request.insuranceIncluded
     );
 
     _approve(address(this), newCarId);
@@ -217,6 +247,23 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
 
     emit CarRemovedSuccess(carId, idToCarInfo[carId].carVinNumber, tx.origin);
   }
+  /// @notice temporary disable transfer function
+  function transferFrom(address, address, uint256) public override(ERC721Upgradeable, IERC721Upgradeable) {
+    require(false, 'Not implemented.');
+  }
+  /// @notice temporary disable transfer function
+  function safeTransferFrom(address, address, uint256) public virtual override(ERC721Upgradeable, IERC721Upgradeable) {
+    require(false, 'Not implemented.');
+  }
+  /// @notice temporary disable transfer function
+  function safeTransferFrom(
+    address,
+    address,
+    uint256,
+    bytes memory
+  ) public virtual override(ERC721Upgradeable, IERC721Upgradeable) {
+    require(false, 'Not implemented.');
+  }
 
   /// @notice Retrieves information about all cars in the system.
   /// @return An array containing information about all cars.
@@ -293,7 +340,7 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
       _exists(carId) &&
       idToCarInfo[carId].currentlyListed &&
       ownerOf(carId) != sender &&
-      RentalityQuery.isCarAvailableForUser(carId, searchCarParams, address(this), address(geoService));
+      RentalityUtils.isCarAvailableForUser(carId, searchCarParams, address(this), address(geoService));
   }
 
   /// @notice Fetches available cars for a specific user based on search parameters.

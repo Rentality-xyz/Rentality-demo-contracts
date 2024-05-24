@@ -1,6 +1,8 @@
-const RentalityUserServiceJSON_ABI = require('../src/abis/RentalityUserService.v0_16_2.abi.json')
+const RentalityUserServiceJSON_ABI = require('../src/abis/RentalityUserService.v0_17_0.abi.json')
 const { ethers, network } = require('hardhat')
-const addressesContractsTestnets = require('./addressesContractsTestnets.json')
+const { buildPath } = require('./utils/pathBuilder')
+const { readFileSync } = require('fs')
+
 const { checkNotNull, startDeploy } = require('./utils/deployHelper')
 
 async function main() {
@@ -8,7 +10,11 @@ async function main() {
 
   if (chainId < 0) throw new Error('chainId is not set')
 
-  const addresses = addressesContractsTestnets.find((i) => i.chainId === Number(chainId) && i.name === network.name)
+  const path = buildPath()
+  const addressesContractsTestnets = readFileSync(path, 'utf-8')
+  const addresses = JSON.parse(addressesContractsTestnets).find(
+    (i) => i.chainId === Number(chainId) && i.name === network.name
+  )
   if (addresses == null) {
     console.error(`Addresses for chainId:${chainId} was not found in addressesContractsTestnets.json`)
     return
@@ -21,6 +27,10 @@ async function main() {
   const rentalityCarTokenAddress = checkNotNull(addresses['RentalityCarToken'], 'rentalityCarTokenAddress')
   const rentalityEngineAddress = checkNotNull(addresses['RentalityEnginesService'], 'rentalityEngineAddress')
   const rentalityAdminGatewayAddress = checkNotNull(addresses['RentalityAdminGateway'], 'rentalityAdminGatewayAddress')
+  const rentalityPaymentServiceAddress = checkNotNull(
+    addresses['RentalityPaymentService'],
+    'rentalityPaymentServiceAddress'
+  )
 
   let rentalityUserServiceContract = new ethers.Contract(
     rentalityUserServiceAddress,
@@ -34,6 +44,7 @@ async function main() {
     await rentalityUserServiceContract.grantManagerRole(rentalityCarTokenAddress)
     await rentalityUserServiceContract.grantManagerRole(rentalityAdminGatewayAddress)
     await rentalityUserServiceContract.grantManagerRole(rentalityEngineAddress)
+    await rentalityUserServiceContract.grantManagerRole(rentalityPaymentServiceAddress)
     console.log('manager role granded')
   } catch (e) {
     console.log('grand manager role error:', e)
