@@ -179,7 +179,8 @@ interface Schemas {
     string model;
     string brand;
     uint32 yearOfProduction;
-    LocationInfo carLocation;
+    LocationInfo pickUpLocation;
+    LocationInfo returnLocation;
   }
 
   /// CHAT LOGIC
