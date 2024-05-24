@@ -32,9 +32,7 @@ interface IRentalityGateway {
   /// @param geoApiKey the key to verify location by google geo api
   function updateCarInfoWithLocation(
     Schemas.UpdateCarInfoRequest memory request,
-    string memory location,
-    string memory locationLatitude,
-    string memory locationLongitude,
+    Schemas.SignedLocationInfo memory location,
     string memory geoApiKey
   ) external;
 
@@ -326,13 +324,13 @@ interface IRentalityGateway {
   /// @param carId The ID of the car.
   /// @param daysOfTrip The duration of the trip in days.
   /// @param currency The currency to use for payment calculation.
-  /// @param deliveryData lat and lon of pickUp and return locations.
   /// @return calculatePaymentsDTO An object containing payment details.
   function calculatePaymentsWithDelivery(
     uint carId,
     uint64 daysOfTrip,
     address currency,
-    Schemas.DeliveryLocations memory deliveryData
+    Schemas.LocationInfo memory pickUpLocation,
+    Schemas.LocationInfo memory returnLocation
   ) external view returns (Schemas.CalculatePaymentsDTO memory);
 
   /// @notice Gets the discount for a specific user.
@@ -348,12 +346,12 @@ interface IRentalityGateway {
   /// @param startDateTime The start date and time of the search.
   /// @param endDateTime The end date and time of the search.
   /// @param searchParams Additional search parameters.
-  /// @param locations Lat and lon of return and pickUp locations
   /// @return An array of available car information meeting the search criteria.
   function searchAvailableCarsWithDelivery(
     uint64 startDateTime,
     uint64 endDateTime,
     Schemas.SearchCarParams memory searchParams,
-    Schemas.DeliveryLocations memory locations
+    Schemas.LocationInfo memory pickUpInfo,
+    Schemas.LocationInfo memory returnInfo
   ) external view returns (Schemas.SearchCar[] memory);
 }

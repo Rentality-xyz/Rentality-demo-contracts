@@ -116,6 +116,16 @@ contract RentalityGeoService is IRentalityGeoService, Initializable, UUPSAccess 
     }
 
     function createLocationInfo(Schemas.LocationInfo memory info) public returns (bytes32) {
+        bytes32 hash = hashLocationInfo(info);
+        locationDictionary[hash] = info;
+
+        return hash;
+    }
+
+    function hashLocationInfo(Schemas.LocationInfo memory info) public view returns (bytes32) {
+        if (bytes(info.longitude).length == 0) {
+            return bytes32("");
+        }
         bytes32 hash = keccak256(
             abi.encode(
                 info.country,
@@ -126,8 +136,7 @@ contract RentalityGeoService is IRentalityGeoService, Initializable, UUPSAccess 
                 info.timeZoneId
             )
         );
-        locationDictionary[hash] = info;
-        
+
         return hash;
     }
 

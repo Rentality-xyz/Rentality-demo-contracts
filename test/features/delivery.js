@@ -1,189 +1,251 @@
-const { expect } = require('chai')
-const { deployDefaultFixture, ethToken } = require('../utils')
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
-const { ethers } = require('hardhat')
+const {expect} = require('chai')
+const {deployDefaultFixture, ethToken, locationInfo} = require('../utils')
+const {loadFixture} = require('@nomicfoundation/hardhat-network-helpers')
+const {ethers} = require('hardhat')
 
 describe('Rentality Delivery', function () {
-  let rentalityGateway,
-    rentalityMockPriceFeed,
-    rentalityUserService,
-    rentalityTripService,
-    rentalityCurrencyConverter,
-    rentalityCarToken,
-    rentalityPaymentService,
-    rentalityPlatform,
-    engineService,
-    rentalityAutomationService,
-    deliveryService,
-    elEngine,
-    pEngine,
-    hEngine,
-    owner,
-    admin,
-    manager,
-    host,
-    guest,
-    anonymous
+    let rentalityGateway,
+        rentalityMockPriceFeed,
+        rentalityUserService,
+        rentalityTripService,
+        rentalityCurrencyConverter,
+        rentalityCarToken,
+        rentalityPaymentService,
+        rentalityPlatform,
+        engineService,
+        rentalityAutomationService,
+        deliveryService,
+        elEngine,
+        pEngine,
+        hEngine,
+        owner,
+        admin,
+        manager,
+        host,
+        guest,
+        anonymous
 
-  beforeEach(async function () {
-    ;({
-      rentalityGateway,
-      rentalityMockPriceFeed,
-      rentalityUserService,
-      rentalityTripService,
-      rentalityCurrencyConverter,
-      rentalityCarToken,
-      rentalityPaymentService,
-      rentalityPlatform,
-      engineService,
-      rentalityAutomationService,
-      deliveryService,
-      elEngine,
-      pEngine,
-      hEngine,
-      owner,
-      admin,
-      manager,
-      host,
-      guest,
-      anonymous,
-    } = await loadFixture(deployDefaultFixture))
-  })
-
-  it('should correctly calculate distance', async function () {
-    let resultLong = await deliveryService.calculateDistance('25.820121', '-80.120817', '33.829662', '-84.363986')
-    expect(resultLong).to.be.approximately(600, 10, 'Huge distance, 592 calculated by CHAT GPT')
-
-    let resultSmall = await deliveryService.calculateDistance('25.820121', '-80.120817', '25.771325', '-80.185969')
-
-    expect(resultSmall).to.be.approximately(4, 1, 'Small distance, 3.47 calculated by CHAT GPT')
-
-    let resultMedium = await deliveryService.calculateDistance('25.623529', '-80.343476', '25.797641', '-80.202987')
-
-    expect(resultMedium).to.be.approximately(16, 3, 'Medium distance, 16.87 calculated by CHAT GPT')
-  }),
-    it('should correctly calculate price in usd cents with return to another address, above 25', async function () {
-      let homeLat = '25.820121'
-      let homeLon = '-80.120817'
-      let pickUpLat = '33.829662'
-      let pickUpLon = '-84.363986'
-
-      let location = {
-        pickUpLat: pickUpLat,
-        pickUpLon: pickUpLon,
-        returnLat: pickUpLat,
-        returnLon: pickUpLon,
-      }
-      let result = await deliveryService.calculatePriceByDeliveryDataInUsdCents(location, homeLat, homeLon, host)
-
-      let expectedResult = 608 /*miles*/ * 300 /*price in usd cents*/ * 2
-      expect(result).to.be.eq(expectedResult)
+    beforeEach(async function () {
+        ;({
+            rentalityGateway,
+            rentalityMockPriceFeed,
+            rentalityUserService,
+            rentalityTripService,
+            rentalityCurrencyConverter,
+            rentalityCarToken,
+            rentalityPaymentService,
+            rentalityPlatform,
+            engineService,
+            rentalityAutomationService,
+            deliveryService,
+            elEngine,
+            pEngine,
+            hEngine,
+            owner,
+            admin,
+            manager,
+            host,
+            guest,
+            anonymous,
+        } = await loadFixture(deployDefaultFixture))
     })
-  it('should correctly calculate price in usd cents with return to home, under 25', async function () {
-    let homeLat = '25.623529'
-    let homeLon = '-80.343476'
-    let pickUpLat = '25.797641'
-    let pickUpLon = '-80.202987'
 
-    let location = {
-      pickUpLat: pickUpLat,
-      pickUpLon: pickUpLon,
-      returnLat: homeLat,
-      returnLon: homeLon,
-    }
-    let result = await deliveryService.calculatePriceByDeliveryDataInUsdCents(location, homeLat, homeLon, host)
+    it('should correctly calculate distance', async function () {
+        let resultLong = await deliveryService.calculateDistance('25.820121', '-80.120817', '33.829662', '-84.363986')
+        expect(resultLong).to.be.approximately(600, 10, 'Huge distance, 592 calculated by CHAT GPT')
 
-    let expectedResult = 14 /*miles*/ * 250 /*price in usd cents*/
-    expect(result).to.be.eq(expectedResult, 'Return price should be 0, because it has same address as home')
-  })
-  it('should correctly calculate price with user data', async function () {
-    let homeLat = '25.623529'
-    let homeLon = '-80.343476'
-    let pickUpLat = '25.797641'
-    let pickUpLon = '-80.202987'
+        let resultSmall = await deliveryService.calculateDistance('25.820121', '-80.120817', '25.771325', '-80.185969')
 
-    let location = {
-      pickUpLat: pickUpLat,
-      pickUpLon: pickUpLon,
-      returnLat: homeLat,
-      returnLon: homeLon,
-    }
-    await rentalityPlatform.connect(host).addUserDeliveryPrices(500, 500)
-    let result = await deliveryService
-      .connect(host)
-      .calculatePriceByDeliveryDataInUsdCents(location, homeLat, homeLon, host)
+        expect(resultSmall).to.be.approximately(4, 1, 'Small distance, 3.47 calculated by CHAT GPT')
 
-    let expectedResult = 14 /*miles*/ * 500 /*price in usd cents*/
-    expect(result).to.be.eq(expectedResult, 'Return price should be 0, because it has same address as home')
-  })
-  it('Happy case with delivery', async function () {
-    let homeLat = '25.623529'
-    let homeLon = '-80.343476'
-    let pickUpLat = '25.797641'
-    let pickUpLon = '-80.202987'
+        let resultMedium = await deliveryService.calculateDistance('25.623529', '-80.343476', '25.797641', '-80.202987')
 
-    const mockCreateCarRequest = {
-      tokenUri: 'uri',
-      carVinNumber: 'VIN_NUMBER',
-      brand: 'BRAND',
-      model: 'MODEL',
-      yearOfProduction: 2020,
-      pricePerDayInUsdCents: 1000,
-      securityDepositPerTripInUsdCents: 0,
-      engineParams: [10],
-      engineType: 2,
-      milesIncludedPerDay: 1000000,
-      timeBufferBetweenTripsInSec: 0,
-      locationAddress: 'Miami Riverwalk, Miami, Florida, USA',
-      locationLatitude: homeLat,
-      locationLongitude: homeLon,
-      geoApiKey: 'key',
-      insuranceIncluded: true,
-    }
+        expect(resultMedium).to.be.approximately(16, 3, 'Medium distance, 16.87 calculated by CHAT GPT')
+    }),
+        it('should correctly calculate price in usd cents with return to another address, above 25', async function () {
+            let homeLat = '25.820121'
+            let homeLon = '-80.120817'
+            let pickUpLat = '33.829662'
+            let pickUpLon = '-84.363986'
 
-    await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest)).not.to.be.reverted
-    const myCars = await rentalityGateway.connect(host).getMyCars()
-    expect(myCars.length).to.equal(1)
+            let locationInfo = {
+                latitude: pickUpLat,
+                longitude: pickUpLon,
+                userAddress: 'Miami Riverwalk, Miami, Florida, USA',
+                country: 'USA',
+                state: 'Florida',
+                city: 'Miami',
 
-    const availableCars = await rentalityGateway.connect(guest).getAvailableCarsForUser(guest.address)
-    expect(availableCars.length).to.equal(1)
+                timeZoneId: 'id'
+            }
+            let locationInfo2 = {
+                latitude: pickUpLat,
+                longitude: pickUpLon,
+                userAddress: 'Miami Riverwalk, Miami, Florida, USA',
+                country: 'USA',
+                state: 'Florida',
+                city: 'Miami',
 
-    let location = {
-      pickUpLat: pickUpLat,
-      pickUpLon: pickUpLon,
-      returnLat: pickUpLat,
-      returnLon: pickUpLon,
-    }
-    let result = await rentalityGateway.calculatePaymentsWithDelivery(1, 1, ethToken, location)
+                timeZoneId: 'id'
+            }
+            let result = await deliveryService.calculatePriceByDeliveryDataInUsdCents(locationInfo, locationInfo2, homeLat, homeLon, host)
 
-    await expect(
-      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
-        {
-          carId: 1,
-          startDateTime: 123,
-          endDateTime: 321,
-          currencyType: ethToken,
-          deliveryInfo: location,
-        },
-        { value: result.totalPrice }
-      )
-    ).to.changeEtherBalances([guest, rentalityPlatform], [-result.totalPrice, result.totalPrice])
+            let expectedResult = 608 /*miles*/ * 300 /*price in usd cents*/ * 2
+            expect(result).to.be.eq(expectedResult)
+        })
+    it('should correctly calculate price in usd cents with return to home, under 25', async function () {
+        let homeLat = '25.623529'
+        let homeLon = '-80.343476'
+        let pickUpLat = '25.797641'
+        let pickUpLon = '-80.202987'
 
-    await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
-    await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0], '', '')).not.to.be.reverted
-    await expect(rentalityGateway.connect(guest).checkInByGuest(1, [0, 0])).not.to.be.reverted
-    await expect(rentalityGateway.connect(guest).checkOutByGuest(1, [0, 0])).not.to.be.reverted
-    await expect(rentalityGateway.connect(host).checkOutByHost(1, [0, 0])).not.to.be.reverted
-    await expect(rentalityGateway.connect(host).finishTrip(1)).to.not.reverted
+        let locationInfo = {
+            latitude: pickUpLat,
+            longitude: pickUpLon,
+            userAddress: 'Miami Riverwalk, Miami, Florida, USA',
+            country: 'USA',
+            state: 'Florida',
+            city: 'Miami',
 
-    let totalDeliveryPrice = await deliveryService
-      .connect(host)
-      .calculatePriceByDeliveryDataInUsdCents(location, homeLat, homeLon, host)
+            timeZoneId: 'id'
+        }
+        let locationInfo2 = {
+            latitude: homeLat,
+            longitude: homeLon,
+            userAddress: 'Miami Riverwalk, Miami, Florida, USA',
+            country: 'USA',
+            state: 'Florida',
+            city: 'Miami',
 
-    let trip = await rentalityTripService.getTrip(1)
-    let fee = (mockCreateCarRequest.pricePerDayInUsdCents * 20) / 100
-    expect(trip.transactionInfo.tripEarnings).to.be.eq(
-      BigInt(mockCreateCarRequest.pricePerDayInUsdCents - fee) + totalDeliveryPrice
-    )
-  })
+            timeZoneId: 'id'
+        }
+        let result = await deliveryService.calculatePriceByDeliveryDataInUsdCents(locationInfo, locationInfo2, homeLat, homeLon, host)
+
+        let expectedResult = 14 /*miles*/ * 250 /*price in usd cents*/
+        expect(result).to.be.eq(expectedResult, 'Return price should be 0, because it has same address as home')
+    })
+    it('should correctly calculate price with user data', async function () {
+        let homeLat = '25.623529'
+        let homeLon = '-80.343476'
+        let pickUpLat = '25.797641'
+        let pickUpLon = '-80.202987'
+        let locationInfo = {
+            latitude: pickUpLat,
+            longitude: pickUpLon,
+            userAddress: 'Miami Riverwalk, Miami, Florida, USA',
+            country: 'USA',
+            state: 'Florida',
+            city: 'Miami',
+
+            timeZoneId: 'id'
+        }
+        let locationInfo2 = {
+            latitude: homeLat,
+            longitude: homeLon,
+            userAddress: 'Miami Riverwalk, Miami, Florida, USA',
+            country: 'USA',
+            state: 'Florida',
+            city: 'Miami',
+
+            timeZoneId: 'id'
+        }
+
+        await rentalityPlatform.connect(host).addUserDeliveryPrices(500, 500)
+        let result = await deliveryService
+            .connect(host)
+            .calculatePriceByDeliveryDataInUsdCents(locationInfo, locationInfo2, homeLat, homeLon, host)
+
+        let expectedResult = 14 /*miles*/ * 500 /*price in usd cents*/
+        expect(result).to.be.eq(expectedResult, 'Return price should be 0, because it has same address as home')
+    })
+    it('Happy case with delivery', async function () {
+        let homeLat = '25.623529'
+        let homeLon = '-80.343476'
+        let pickUpLat = '25.797641'
+        let pickUpLon = '-80.202987'
+
+        let locationInfo = {
+            latitude: pickUpLat,
+            longitude: pickUpLon,
+            userAddress: 'Miami Riverwalk, Miami, Florida, USA',
+            country: 'USA',
+            state: 'Florida',
+            city: 'Miami',
+
+            timeZoneId: 'id'
+        }
+
+        const mockCreateCarRequest = {
+            tokenUri: 'uri',
+            carVinNumber: 'VIN_NUMBER',
+            brand: 'BRAND',
+            model: 'MODEL',
+            yearOfProduction: 2020,
+            pricePerDayInUsdCents: 1000,
+            securityDepositPerTripInUsdCents: 0,
+            engineParams: [10],
+            engineType: 2,
+            milesIncludedPerDay: 1000000,
+            timeBufferBetweenTripsInSec: 0,
+            geoApiKey: 'key',
+            locationInfo,
+            insuranceIncluded: true,
+        }
+
+        await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest)).not.to.be.reverted
+        const myCars = await rentalityGateway.connect(host).getMyCars()
+        expect(myCars.length).to.equal(1)
+
+        const availableCars = await rentalityGateway.connect(guest).getAvailableCarsForUser(guest.address)
+        expect(availableCars.length).to.equal(1)
+
+        let locationInfo2 = {
+            latitude: homeLat,
+            longitude: homeLon,
+            userAddress: 'Miami Riverwalk, Miami, Florida, USA',
+            country: 'USA',
+            state: 'Florida',
+            city: 'Miami',
+
+            timeZoneId: 'id'
+        }
+        let result = await rentalityGateway.calculatePaymentsWithDelivery(1, 1, ethToken, locationInfo, locationInfo2)
+
+        await expect(
+            await rentalityGateway.connect(guest).createTripRequestWithDelivery(
+                {
+                    carId: 1,
+                    startDateTime: 123,
+                    endDateTime: 321,
+                    currencyType: ethToken,
+                    pickUpInfo: {
+                        signature: guest.address,
+                        locationInfo
+                    },
+                    returnInfo: {
+                        signature: guest.address,
+                        locationInfo: locationInfo2
+                    }
+                },
+                {value: result.totalPrice}
+            )
+        ).to.changeEtherBalances([guest, rentalityPlatform], [-result.totalPrice, result.totalPrice])
+
+        await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
+        await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0], '', '')).not.to.be.reverted
+        await expect(rentalityGateway.connect(guest).checkInByGuest(1, [0, 0])).not.to.be.reverted
+        await expect(rentalityGateway.connect(guest).checkOutByGuest(1, [0, 0])).not.to.be.reverted
+        await expect(rentalityGateway.connect(host).checkOutByHost(1, [0, 0])).not.to.be.reverted
+        await expect(rentalityGateway.connect(host).finishTrip(1)).to.not.reverted
+
+        let totalDeliveryPrice = await deliveryService
+            .connect(host)
+            .calculatePriceByDeliveryDataInUsdCents(locationInfo,locationInfo2, homeLat, homeLon, host)
+
+        let trip = await rentalityTripService.getTrip(1)
+        let fee = (mockCreateCarRequest.pricePerDayInUsdCents * 20) / 100
+        expect(trip.transactionInfo.tripEarnings).to.be.eq(
+            BigInt(mockCreateCarRequest.pricePerDayInUsdCents - fee) + totalDeliveryPrice
+        )
+    })
 })
