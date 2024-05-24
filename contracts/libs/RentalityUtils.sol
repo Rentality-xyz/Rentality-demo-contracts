@@ -11,7 +11,6 @@ import '../payments/RentalityCurrencyConverter.sol';
 import '../payments/RentalityPaymentService.sol';
 import {RentalityContract} from '../RentalityGateway.sol';
 import {RentalityCarDelivery} from '../features/RentalityCarDelivery.sol';
-
 /// @title RentalityUtils Library
 /// @notice
 /// This library provides utility functions for handling coordinates, string manipulation,
@@ -705,6 +704,10 @@ library RentalityUtils {
     Schemas.Trip memory trip = tripService.getTrip(tripId);
     Schemas.CarInfo memory car = carService.getCarInfoById(trip.carId);
 
+    Schemas.LocationInfo memory pickUpLocation = IRentalityGeoService(carService.getGeoServiceAddress())
+      .getLocationInfo(trip.pickUpHash);
+    Schemas.LocationInfo memory returnLocation = IRentalityGeoService(carService.getGeoServiceAddress())
+      .getLocationInfo(trip.returnHash);
     return
       Schemas.TripDTO(
         trip,
@@ -719,7 +722,12 @@ library RentalityUtils {
         car.model,
         car.brand,
         car.yearOfProduction,
-        IRentalityGeoService(contracts.carService.getGeoServiceAddress()).getLocationInfo(car.locationHash)
+        bytes(pickUpLocation.latitude).length == 0
+          ? IRentalityGeoService(carService.getGeoServiceAddress()).getLocationInfo(car.locationHash)
+          : pickUpLocation,
+        bytes(pickUpLocation.latitude).length == 0
+          ? IRentalityGeoService(carService.getGeoServiceAddress()).getLocationInfo(car.locationHash)
+          : returnLocation
       );
   }
 }
