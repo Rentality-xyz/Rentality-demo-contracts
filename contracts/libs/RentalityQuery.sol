@@ -352,12 +352,7 @@ library RentalityQuery {
         deliveryPrices.aboveTwentyFiveMilesInUsdCents,
         deliveryFee,
         temp[i].insuranceIncluded,
-        bytes(pickUpInfo.latitude).length == 0
-          ? IRentalityGeoService(carService.getGeoServiceAddress()).getLocationInfo(temp[i].locationHash)
-          : pickUpInfo,
-        bytes(returnInfo.latitude).length == 0
-          ? IRentalityGeoService(carService.getGeoServiceAddress()).getLocationInfo(temp[i].locationHash)
-          : returnInfo
+        IRentalityGeoService(carService.getGeoServiceAddress()).getLocationInfo(temp[i].locationHash)
       );
     }
     return result;
