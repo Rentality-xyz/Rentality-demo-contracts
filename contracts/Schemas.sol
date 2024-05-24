@@ -389,8 +389,7 @@ interface Schemas {
     uint64 aboveTwentyFiveMilesInUsdCents;
     uint64 deliveryFee;
     bool insuranceIncluded;
-    LocationInfo pickUpLocation;
-    LocationInfo returnLocation;
+    LocationInfo locationInfo;
   }
 
   struct GeoData {
