@@ -1,7 +1,14 @@
 const { expect } = require('chai')
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 
-const { getMockCarRequest, TripStatus, deployDefaultFixture, ethToken, calculatePayments, locationInfo} = require('../utils')
+const {
+  getMockCarRequest,
+  TripStatus,
+  deployDefaultFixture,
+  ethToken,
+  calculatePayments,
+  locationInfo,
+} = require('../utils')
 const { ethers } = require('hardhat')
 
 describe('RentalityGateway: trips', function () {
@@ -149,15 +156,15 @@ describe('RentalityGateway: trips', function () {
   })
 
   it('Return valid fuel prices', async function () {
-      const locationInfo = {
-          userAddress: 'Miami Riverwalk, Miami, Florida, USA',
-          country: 'USA',
-          state: 'Florida',
-          city: 'Miami',
-          latitude: '1.2',
-          longitude: '1.3',
-          timeZoneId: 'id'
-      }
+    const locationInfo = {
+      userAddress: 'Miami Riverwalk, Miami, Florida, USA',
+      country: 'USA',
+      state: 'Florida',
+      city: 'Miami',
+      latitude: '1.2',
+      longitude: '1.3',
+      timeZoneId: 'id',
+    }
     const mockCreateCarRequest = {
       tokenUri: 'uri',
       carVinNumber: 'VIN_NUMBER',
@@ -172,7 +179,7 @@ describe('RentalityGateway: trips', function () {
       timeBufferBetweenTripsInSec: 0,
       geoApiKey: 'key',
       insuranceIncluded: true,
-        locationInfo
+      locationInfo,
     }
 
     await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest)).not.to.be.reverted
@@ -210,7 +217,7 @@ describe('RentalityGateway: trips', function () {
       timeBufferBetweenTripsInSec: 0,
       geoApiKey: 'key',
       insuranceIncluded: true,
-        locationInfo
+      locationInfo,
     }
     await expect(rentalityGateway.connect(host).addCar(mockPatrolCreateCarRequest)).not.to.be.reverted
     const resultPatrol = await rentalityGateway.calculatePayments(2, 1, ethToken)

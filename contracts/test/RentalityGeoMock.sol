@@ -14,7 +14,6 @@ contract RentalityGeoMock is IRentalityGeoParser {
   IRentalityGeoService private geoService;
   bool private hasGeoServiceLink;
 
-
   constructor() {
     countryToTimeZoneId['Ukraine'] = 'Europe/Kyiv';
     countryToTimeZoneId['USA'] = 'America/New_York';

@@ -1,7 +1,13 @@
 const { expect } = require('chai')
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 
-const { getMockCarRequest, deployDefaultFixture, getEmptySearchCarParams, signTCMessage, locationInfo} = require('../utils')
+const {
+  getMockCarRequest,
+  deployDefaultFixture,
+  getEmptySearchCarParams,
+  signTCMessage,
+  locationInfo,
+} = require('../utils')
 const { ethers } = require('hardhat')
 
 describe('RentalityGateway: car', function () {
@@ -137,7 +143,7 @@ describe('RentalityGateway: car', function () {
       timeBufferBetweenTripsInSec: 0,
       geoApiKey: 'key',
       insuranceIncluded: true,
-      locationInfo
+      locationInfo,
     }
     const oneDayInSec = 86400
     const totalTripDays = 7
@@ -159,10 +165,8 @@ describe('RentalityGateway: car', function () {
     expect(result.host).be.be.eq(host.address)
     expect(result.hostName).to.be.eq(name)
     expect(result.hostPhotoUrl).to.be.eq(photo)
-
   })
-  it('should return co' +
-      'locationInfomplete details', async function () {
+  it('should return co' + 'locationInfomplete details', async function () {
     let name = 'name'
     let surname = 'surname'
     let number = '+380'
@@ -192,7 +196,7 @@ describe('RentalityGateway: car', function () {
       timeBufferBetweenTripsInSec: 0,
       geoApiKey: 'key',
       insuranceIncluded: true,
-      locationInfo
+      locationInfo,
     }
     await expect(await rentalityCarToken.connect(host).addCar(addCarRequest)).not.be.reverted
     const result = await rentalityGateway.connect(guest).getCarDetails(1)
@@ -208,8 +212,7 @@ describe('RentalityGateway: car', function () {
     expect(result.hostPhotoUrl).to.be.eq(photo)
     expect(result.locationInfo.city).to.be.eq('Miami')
     expect(result.locationInfo.country).to.be.eq('USA')
-    expect(result.milesIncludedPerDay).to.
-    be.equal(addCarRequest.milesIncludedPerDay)
+    expect(result.milesIncludedPerDay).to.be.equal(addCarRequest.milesIncludedPerDay)
     expect(result.engineType).to.be.equal(addCarRequest.engineType)
     expect(result.engineParams).to.deep.equal(addCarRequest.engineParams)
     expect(result.geoVerified).to.be.true
@@ -245,7 +248,7 @@ describe('RentalityGateway: car', function () {
         timeBufferBetweenTripsInSec: 0,
         geoApiKey: 'key',
         insuranceIncluded: true,
-        locationInfo
+        locationInfo,
       }
     }
     await expect(await rentalityCarToken.connect(host).addCar(addCar(0))).not.be.reverted
@@ -296,7 +299,7 @@ describe('RentalityGateway: car', function () {
         timeBufferBetweenTripsInSec: 0,
         geoApiKey: 'key',
         insuranceIncluded: true,
-        locationInfo
+        locationInfo,
       }
     }
     await expect(await rentalityCarToken.connect(host).addCar(addCar(0))).not.be.reverted

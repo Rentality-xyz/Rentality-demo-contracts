@@ -1,7 +1,14 @@
 const { expect } = require('chai')
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 
-const { TripStatus, getEmptySearchCarParams, deployDefaultFixture, ethToken, calculatePayments, locationInfo} = require('../utils')
+const {
+  TripStatus,
+  getEmptySearchCarParams,
+  deployDefaultFixture,
+  ethToken,
+  calculatePayments,
+  locationInfo,
+} = require('../utils')
 
 describe('RentalityGateway: time buffer', function () {
   let rentalityGateway,
@@ -61,7 +68,7 @@ describe('RentalityGateway: time buffer', function () {
       timeBufferBetweenTripsInSec: oneDayInSec * 2,
       geoApiKey: 'key',
       insuranceIncluded: true,
-      locationInfo
+      locationInfo,
     }
 
     await expect(rentalityGateway.connect(host).addCar(createCarRequest)).not.to.be.reverted
@@ -109,7 +116,7 @@ describe('RentalityGateway: time buffer', function () {
 
       geoApiKey: 'key',
       insuranceIncluded: true,
-      locationInfo
+      locationInfo,
     }
 
     await expect(rentalityGateway.connect(host).addCar(createCarRequest)).not.to.be.reverted
@@ -159,7 +166,7 @@ describe('RentalityGateway: time buffer', function () {
       timeBufferBetweenTripsInSec: oneDayInSec,
       insuranceIncluded: true,
       locationInfo,
-      geoApiKey: "aasda"
+      geoApiKey: 'aasda',
     }
 
     await expect(rentalityGateway.connect(host).addCar(createCarRequest)).not.to.be.reverted
@@ -213,7 +220,7 @@ describe('RentalityGateway: time buffer', function () {
 
       geoApiKey: 'key',
       insuranceIncluded: true,
-      locationInfo
+      locationInfo,
     }
 
     await expect(rentalityGateway.connect(host).addCar(createCarRequest)).not.to.be.reverted
