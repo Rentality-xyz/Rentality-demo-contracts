@@ -1,7 +1,7 @@
 const { expect } = require('chai')
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 
-const { getMockCarRequest, deployDefaultFixture } = require('../utils')
+const { getMockCarRequest, deployDefaultFixture, ethToken, calculatePayments, signTCMessage } = require('../utils')
 
 describe('RentalityGateway: chat', function () {
   let rentalityGateway,
@@ -56,29 +56,22 @@ describe('RentalityGateway: chat', function () {
     const availableCars = await rentalityGateway.connect(guest).getAvailableCarsForUser(guest.address)
     expect(availableCars.length).to.equal(1)
 
-    const rentPriceInUsdCents = 1000
-    const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
-      await rentalityCurrencyConverter.getEthFromUsdLatest(rentPriceInUsdCents)
+    const oneDayInSeconds = 86400
 
+    const dailyPriceInUsdCents = 1000
+
+    const result = await rentalityGateway.calculatePayments(1, 2, ethToken)
     await expect(
-      rentalityGateway.connect(guest).createTripRequest(
+      await rentalityGateway.connect(guest).createTripRequest(
         {
           carId: 1,
-          host: host.address,
-          startDateTime: 123,
-          endDateTime: 321,
-          startLocation: '',
-          endLocation: '',
-          totalDayPriceInUsdCents: rentPriceInUsdCents,
-          taxPriceInUsdCents: 0,
-          depositInUsdCents: 0,
-          fuelPrices: [400],
-          ethToCurrencyRate: ethToCurrencyRate,
-          ethToCurrencyDecimals: ethToCurrencyDecimals,
+          startDateTime: Date.now(),
+          endDateTime: Date.now() + oneDayInSeconds * 2,
+          currencyType: ethToken,
         },
-        { value: rentPriceInEth }
+        { value: result.totalPrice }
       )
-    ).not.to.be.reverted
+    ).to.changeEtherBalances([guest, rentalityPlatform], [-result.totalPrice, result.totalPrice])
 
     let name = 'name'
     let surname = 'surname'
@@ -87,6 +80,8 @@ describe('RentalityGateway: chat', function () {
     let licenseNumber = 'licenseNumber'
     let expirationDate = 10
 
+    const hostSignature = await signTCMessage(host)
+    const guestSignature = await signTCMessage(guest)
     await expect(
       rentalityGateway
         .connect(host)
@@ -97,7 +92,7 @@ describe('RentalityGateway: chat', function () {
           photo + 'host',
           licenseNumber + 'host',
           expirationDate,
-          true
+          hostSignature
         )
     ).not.be.reverted
 
@@ -111,7 +106,7 @@ describe('RentalityGateway: chat', function () {
           photo + 'guest',
           licenseNumber + 'guest',
           expirationDate,
-          true
+          guestSignature
         )
     ).not.be.reverted
 
@@ -136,16 +131,14 @@ describe('RentalityGateway: chat', function () {
     const availableCars = await rentalityGateway.connect(guest).getAvailableCarsForUser(guest.address)
     expect(availableCars.length).to.equal(1)
 
-    const rentPriceInUsdCents = 1000
-    const [rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals] =
-      await rentalityCurrencyConverter.getEthFromUsdLatest(rentPriceInUsdCents)
     let name = 'name'
     let surname = 'surname'
     let number = '+380'
     let photo = 'photo'
     let licenseNumber = 'licenseNumber'
     let expirationDate = 10
-
+    const hostSignature = await signTCMessage(host)
+    const guestSignature = await signTCMessage(guest)
     await expect(
       rentalityGateway
         .connect(host)
@@ -156,7 +149,7 @@ describe('RentalityGateway: chat', function () {
           photo + 'host',
           licenseNumber + 'host',
           expirationDate,
-          true
+          hostSignature
         )
     ).not.be.reverted
 
@@ -170,29 +163,24 @@ describe('RentalityGateway: chat', function () {
           photo + 'guest',
           licenseNumber + 'guest',
           expirationDate,
-          true
+          guestSignature
         )
     ).not.be.reverted
 
+    const oneDayInSeconds = 86400
+
+    const result = await rentalityGateway.calculatePayments(1, 1, ethToken)
     await expect(
-      rentalityGateway.connect(guest).createTripRequest(
+      await rentalityGateway.connect(guest).createTripRequest(
         {
           carId: 1,
-          host: host.address,
-          startDateTime: 123,
-          endDateTime: 321,
-          startLocation: '',
-          endLocation: '',
-          totalDayPriceInUsdCents: rentPriceInUsdCents,
-          taxPriceInUsdCents: 0,
-          depositInUsdCents: 0,
-          fuelPrices: [400],
-          ethToCurrencyRate: ethToCurrencyRate,
-          ethToCurrencyDecimals: ethToCurrencyDecimals,
+          startDateTime: Date.now(),
+          endDateTime: Date.now() + oneDayInSeconds,
+          currencyType: ethToken,
         },
-        { value: rentPriceInEth }
+        { value: result.totalPrice }
       )
-    ).not.to.be.reverted
+    ).to.changeEtherBalances([guest, rentalityPlatform], [-result.totalPrice, result.totalPrice])
 
     let chatInfoArray = await rentalityGateway.connect(host).getChatInfoForHost()
     expect(chatInfoArray.length).to.be.equal(1)

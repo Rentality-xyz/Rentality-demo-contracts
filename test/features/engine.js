@@ -1,8 +1,7 @@
 const { expect } = require('chai')
 const { ethers, upgrades, network } = require('hardhat')
-const { time, loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
-const { Contract } = require('hardhat/internal/hardhat-network/stack-traces/model')
-const { deployDefaultFixture, getMockCarRequest } = require('../utils')
+const { deployDefaultFixture, getMockCarRequest, ethToken, calculatePayments } = require('../utils')
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 
 describe('RentalityEngines', function () {
   let rentalityGateway,

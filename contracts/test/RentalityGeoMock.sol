@@ -3,9 +3,10 @@ pragma solidity ^0.8.9;
 
 import '../libs/RentalityUtils.sol';
 import 'hardhat/console.sol';
-import '../IRentalityGeoParser.sol';
-import '../IRentalityGeoService.sol';
+import '../features/IRentalityGeoParser.sol';
+import '../abstract/IRentalityGeoService.sol';
 // For testing purposes
+
 contract RentalityGeoMock is IRentalityGeoParser {
   mapping(string => string) public countryToTimeZoneId;
   mapping(string => string) public cityToTimeZoneId;
@@ -276,7 +277,7 @@ contract RentalityGeoMock is IRentalityGeoParser {
     carData.locationLat = locationLatitude;
     carData.locationLng = locationLongitude;
 
-    if (parts.length > 3) {
+    if (parts.length >= 3) {
       string memory country = parts[parts.length - 1];
       string memory state = parts[parts.length - 2];
       string memory city = parts[parts.length - 3];
@@ -295,7 +296,8 @@ contract RentalityGeoMock is IRentalityGeoParser {
       }
     }
     carIdToParsedGeolocationData[carId] = carData;
-    if (hasGeoServiceLink) geoService.parseGeoResponse(carId);
+
+    IRentalityGeoService(msg.sender).parseGeoResponse(carId);
 
     return bytes32(carId);
   }

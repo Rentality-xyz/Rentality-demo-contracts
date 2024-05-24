@@ -1,7 +1,8 @@
 const { expect } = require('chai')
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 
-const { getMockCarRequest, deployDefaultFixture, getEmptySearchCarParams } = require('../utils')
+const { getMockCarRequest, deployDefaultFixture, getEmptySearchCarParams, signTCMessage } = require('../utils')
+const { ethers } = require('hardhat')
 
 describe('RentalityGateway: car', function () {
   let rentalityGateway,
@@ -81,10 +82,8 @@ describe('RentalityGateway: car', function () {
 
     await expect(rentalityGateway.connect(host).updateCarInfo(update_params)).not.to.be.reverted
 
-    await expect(rentalityGateway.connect(guest).updateCarInfo(update_params)).to.be.revertedWith('User is not a host')
-
     await expect(rentalityGateway.connect(anonymous).updateCarInfo(update_params)).to.be.revertedWith(
-      'User is not a host'
+      'Only the owner of the car can update car info'
     )
 
     let carInfo = await rentalityGateway.getCarInfoById(update_params.carId)
@@ -94,37 +93,6 @@ describe('RentalityGateway: car', function () {
     expect(carInfo.milesIncludedPerDay).to.be.equal(update_params.milesIncludedPerDay)
     expect(carInfo.engineParams[1]).to.be.equal(update_params.engineParams[0])
     expect(carInfo.securityDepositPerTripInUsdCents).to.be.equal(update_params.securityDepositPerTripInUsdCents)
-  })
-
-  it('should allow only host to update car token URI', async function () {
-    let addCarRequest = getMockCarRequest(0)
-    await expect(rentalityGateway.connect(host).addCar(addCarRequest)).not.be.reverted
-
-    await expect(rentalityGateway.connect(host).updateCarTokenUri(1, ' ')).not.to.be.reverted
-
-    await expect(rentalityGateway.connect(guest).updateCarTokenUri(1, ' ')).to.be.revertedWith('User is not a host')
-
-    await expect(rentalityGateway.connect(anonymous).updateCarTokenUri(1, ' ')).to.be.revertedWith('User is not a host')
-  })
-
-  it('should allow only host to burn car', async function () {
-    let addCarRequest = getMockCarRequest(0)
-    await expect(rentalityGateway.connect(host).addCar(addCarRequest)).not.be.reverted
-
-    await expect(rentalityGateway.connect(host).burnCar(1)).not.to.be.reverted
-
-    await expect(rentalityGateway.connect(guest).burnCar(1)).to.be.revertedWith('User is not a host')
-
-    await expect(rentalityGateway.connect(anonymous).burnCar(1)).to.be.revertedWith('User is not a host')
-  })
-
-  it('should have available cars', async function () {
-    let addCarRequest = getMockCarRequest(0)
-    await expect(rentalityGateway.connect(host).addCar(addCarRequest)).not.be.reverted
-
-    let available_cars = await rentalityGateway.connect(guest).getAvailableCars()
-
-    expect(available_cars.length).to.be.equal(1)
   })
 
   it('should have cars owned by user', async function () {
@@ -147,8 +115,12 @@ describe('RentalityGateway: car', function () {
     let licenseNumber = 'licenseNumber'
     let expirationDate = 10
 
+    const hostSignature = await signTCMessage(host)
+
     await expect(
-      rentalityGateway.connect(host).setKYCInfo(name, surname, number, photo, licenseNumber, expirationDate, true)
+      rentalityGateway
+        .connect(host)
+        .setKYCInfo(name, surname, number, photo, licenseNumber, expirationDate, hostSignature)
     ).to.not.reverted
 
     let addCarRequest = {
@@ -157,22 +129,25 @@ describe('RentalityGateway: car', function () {
       brand: 'BRAND',
       model: 'MODEL',
       yearOfProduction: 2020,
-      pricePerDayInUsdCents: 1,
+      pricePerDayInUsdCents: 1000,
       securityDepositPerTripInUsdCents: 1,
       engineParams: [1, 2],
       engineType: 1,
       milesIncludedPerDay: 10,
       timeBufferBetweenTripsInSec: 0,
-      locationAddress: 'Michigan Ave, Chicago, IL, USA',
+      locationAddress: 'Michigan Ave, Chicago, Florida, USA',
       locationLatitude: '123421',
       locationLongitude: '123421',
       geoApiKey: 'key',
+      insuranceIncluded: true,
     }
+    const oneDayInSec = 86400
+    const totalTripDays = 7
     const searchParams = getEmptySearchCarParams()
     await expect(rentalityCarToken.connect(host).addCar(addCarRequest)).not.be.reverted
     const resultAr = await rentalityGateway.searchAvailableCars(
       new Date().getDate(),
-      new Date().getDate() + 100,
+      new Date().getDate() + oneDayInSec * totalTripDays,
       searchParams
     )
     const result = resultAr[0]
@@ -188,7 +163,7 @@ describe('RentalityGateway: car', function () {
     expect(result.hostPhotoUrl).to.be.eq(photo)
     expect(result.city).to.be.eq('Chicago')
     expect(result.country).to.be.eq('USA')
-    expect(result.state).to.be.eq('IL')
+    expect(result.state).to.be.eq('Florida')
     expect(result.locationLatitude).to.be.eq('123421')
     expect(result.locationLongitude).to.be.eq('123421')
     expect(result.timeZoneId).to.be.eq('America/Chicago')
@@ -201,8 +176,12 @@ describe('RentalityGateway: car', function () {
     let licenseNumber = 'licenseNumber'
     let expirationDate = 10
 
+    const hostSignature = await signTCMessage(host)
+
     await expect(
-      await rentalityGateway.connect(host).setKYCInfo(name, surname, number, photo, licenseNumber, expirationDate, true)
+      await rentalityGateway
+        .connect(host)
+        .setKYCInfo(name, surname, number, photo, licenseNumber, expirationDate, hostSignature)
     ).to.not.reverted
 
     let addCarRequest = {
@@ -221,6 +200,7 @@ describe('RentalityGateway: car', function () {
       locationLatitude: '123421',
       locationLongitude: '123421',
       geoApiKey: 'key',
+      insuranceIncluded: true,
     }
     await expect(await rentalityCarToken.connect(host).addCar(addCarRequest)).not.be.reverted
     const result = await rentalityGateway.connect(guest).getCarDetails(1)
@@ -245,5 +225,106 @@ describe('RentalityGateway: car', function () {
     expect(result.engineParams).to.deep.equal(addCarRequest.engineParams)
     expect(result.geoVerified).to.be.true
     expect(result.currentlyListed).to.be.true
+  })
+  it('Should return public dto', async function () {
+    let name = 'name'
+    let surname = 'surname'
+    let number = '+380'
+    let photo = 'photo'
+    let licenseNumber = 'licenseNumber'
+    let expirationDate = 10
+
+    const hostSignature = await signTCMessage(host)
+    await expect(
+      await rentalityGateway
+        .connect(host)
+        .setKYCInfo(name, surname, number, photo, licenseNumber, expirationDate, hostSignature)
+    ).to.not.reverted
+
+    const addCar = (num) => {
+      return {
+        tokenUri: 'uri',
+        carVinNumber: 'VIN_NUMBER' + num,
+        brand: 'BRAND',
+        model: 'MODEL',
+        yearOfProduction: 2020,
+        pricePerDayInUsdCents: 1,
+        securityDepositPerTripInUsdCents: 1,
+        engineParams: [1, 2],
+        engineType: 1,
+        milesIncludedPerDay: 10,
+        timeBufferBetweenTripsInSec: 0,
+        locationAddress: 'Michigan Ave, Chicago, IL, USA',
+        locationLatitude: '123421',
+        locationLongitude: '123421',
+        geoApiKey: 'key',
+        insuranceIncluded: true,
+      }
+    }
+    await expect(await rentalityCarToken.connect(host).addCar(addCar(0))).not.be.reverted
+    await expect(await rentalityCarToken.connect(host).addCar(addCar(1))).not.be.reverted
+    await expect(await rentalityCarToken.connect(host).addCar(addCar(2))).not.be.reverted
+    await expect(await rentalityCarToken.connect(host).addCar(addCar(3))).not.be.reverted
+    await expect(await rentalityCarToken.connect(host).addCar(addCar(4))).not.be.reverted
+
+    await rentalityCarToken.connect(host).burnCar(3)
+    const hostCars = await rentalityCarToken.getCarsOfHost(host.address)
+    expect(hostCars.length).to.be.eq(4)
+
+    await expect(await rentalityCarToken.connect(guest).addCar(addCar(5))).not.be.reverted
+    await expect(await rentalityCarToken.connect(guest).addCar(addCar(6))).not.be.reverted
+    await rentalityCarToken.connect(guest).burnCar(6)
+    await expect(await rentalityCarToken.connect(guest).addCar(addCar(7))).not.be.reverted
+
+    const guestCars = await rentalityCarToken.getCarsOfHost(guest.address)
+    expect(guestCars.length).to.be.eq(2)
+  })
+  it('Impossible to transfer nft', async function () {
+    let name = 'name'
+    let surname = 'surname'
+    let number = '+380'
+    let photo = 'photo'
+    let licenseNumber = 'licenseNumber'
+    let expirationDate = 10
+
+    const hostSignature = await signTCMessage(host)
+    await expect(
+      await rentalityGateway
+        .connect(host)
+        .setKYCInfo(name, surname, number, photo, licenseNumber, expirationDate, hostSignature)
+    ).to.not.reverted
+
+    const addCar = (num) => {
+      return {
+        tokenUri: 'uri',
+        carVinNumber: 'VIN_NUMBER' + num,
+        brand: 'BRAND',
+        model: 'MODEL',
+        yearOfProduction: 2020,
+        pricePerDayInUsdCents: 1,
+        securityDepositPerTripInUsdCents: 1,
+        engineParams: [1, 2],
+        engineType: 1,
+        milesIncludedPerDay: 10,
+        timeBufferBetweenTripsInSec: 0,
+        locationAddress: 'Michigan Ave, Chicago, IL, USA',
+        locationLatitude: '123421',
+        locationLongitude: '123421',
+        geoApiKey: 'key',
+        insuranceIncluded: true,
+      }
+    }
+    await expect(await rentalityCarToken.connect(host).addCar(addCar(0))).not.be.reverted
+
+    const tokenContract = await ethers.getContractAt(
+      'ERC721URIStorageUpgradeable',
+      await rentalityCarToken.getAddress()
+    )
+    await expect(tokenContract.connect(host).transferFrom(host.address, guest.address, 1)).to.be.revertedWith(
+      'Not implemented.'
+    )
+    await expect(tokenContract.connect(host).safeTransferFrom(host.address, guest.address, 1)).to.be.revertedWith(
+      'Not implemented.'
+    )
   })
 })
