@@ -76,8 +76,8 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     uint64 pricePerDayInUsdCents,
     uint64 startDateTime,
     uint64 endDateTime,
-    string memory startLocation,
-    string memory endLocation,
+    bytes32 startLocation,
+    bytes32 endLocation,
     uint64 milesIncludedPerDay,
     Schemas.PaymentInfo memory paymentInfo
   ) public {
@@ -105,8 +105,6 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
       startDateTime,
       endDateTime,
       carInfo.engineType,
-      startLocation,
-      endLocation,
       milesIncludedPerDay,
       engineService.getFuelPriceFromEngineParams(carInfo.engineType, carInfo.engineParams),
       paymentInfo,
@@ -125,7 +123,9 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
       new uint64[](panelParamsAmount),
       0,
       Schemas.TransactionInfo(0, 0, 0, 0, Schemas.TripStatus.Created),
-      0
+      0,
+      startLocation == bytes32('') ? carInfo.locationHash : startLocation,
+      endLocation == bytes32('') ? carInfo.locationHash : endLocation
     );
 
     emit TripCreated(newTripId, host, guest);
