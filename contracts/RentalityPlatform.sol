@@ -92,18 +92,26 @@ contract RentalityPlatform is UUPSOwnable {
     );
 
     uint64 priceInUsdCents = addresses.deliveryService.calculatePriceByDeliveryDataInUsdCents(
-      request.deliveryInfo,
+      request.pickUpInfo.locationInfo,
+      request.returnInfo.locationInfo,
       IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getCarLocationLatitude(request.carId),
       IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getCarLocationLongitude(request.carId),
       addresses.carService.getCarInfoById(request.carId).createdBy
     );
-
+    bytes32 pickUpHash = IRentalityGeoService(addresses.carService.getGeoServiceAddress()).createLocationInfo(
+      request.pickUpInfo.locationInfo
+    );
+    bytes32 returnHash = IRentalityGeoService(addresses.carService.getGeoServiceAddress()).createLocationInfo(
+      request.returnInfo.locationInfo
+    );
     _createTripRequest(
       request.currencyType,
       request.carId,
       request.startDateTime,
       request.endDateTime,
-      priceInUsdCents
+      priceInUsdCents,
+      pickUpHash,
+      returnHash
     );
   }
   /// @notice Create a trip request.
@@ -117,7 +125,15 @@ contract RentalityPlatform is UUPSOwnable {
       request.endDateTime
     );
 
-    _createTripRequest(request.currencyType, request.carId, request.startDateTime, request.endDateTime, 0);
+    _createTripRequest(
+      request.currencyType,
+      request.carId,
+      request.startDateTime,
+      request.endDateTime,
+      0,
+      bytes32(''),
+      bytes32('')
+    );
   }
   /// @notice Creates a trip request with specified details.
   /// @dev This function is private and should only be called internally.
@@ -131,7 +147,9 @@ contract RentalityPlatform is UUPSOwnable {
     uint carId,
     uint64 startDateTime,
     uint64 endDateTime,
-    uint64 deliveryFee
+    uint64 deliveryFee,
+    bytes32 pickUpHash,
+    bytes32 returnHash
   ) private {
     Schemas.CarInfo memory carInfo = addresses.carService.getCarInfoById(carId);
 
@@ -172,8 +190,8 @@ contract RentalityPlatform is UUPSOwnable {
       carInfo.pricePerDayInUsdCents,
       startDateTime,
       endDateTime,
-      IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getCarCity(carId),
-      IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getCarCity(carId),
+      pickUpHash,
+      returnHash,
       carInfo.milesIncludedPerDay,
       paymentInfo
     );
@@ -206,16 +224,8 @@ contract RentalityPlatform is UUPSOwnable {
 
     addresses.tripService.rejectTrip(tripId);
 
-    uint64 valueToReturnInUsdCents = trip.paymentInfo.priceWithDiscount +
-      trip.paymentInfo.salesTax +
-      trip.paymentInfo.governmentTax +
-      trip.paymentInfo.depositInUsdCents;
-
-    uint256 valueToReturnInToken = addresses.currencyConverterService.getFromUsd(
-      trip.paymentInfo.currencyType,
-      valueToReturnInUsdCents,
-      trip.paymentInfo.currencyRate,
-      trip.paymentInfo.currencyDecimals
+    (uint valueToReturnInUsdCents, uint valueToReturnInToken) = addresses.currencyConverterService.calculateTripReject(
+      trip.paymentInfo
     );
     bool successGuest;
     if (addresses.currencyConverterService.isETH(trip.paymentInfo.currencyType)) {
@@ -258,25 +268,9 @@ contract RentalityPlatform is UUPSOwnable {
 
     uint256 rentalityFee = addresses.paymentService.getPlatformFeeFrom(trip.paymentInfo.priceWithDiscount);
 
-    uint256 valueToHostInUsdCents = trip.paymentInfo.priceWithDiscount +
-      trip.paymentInfo.deliveryFee +
-      trip.paymentInfo.resolveAmountInUsdCents -
-      rentalityFee;
-
-    uint256 valueToGuestInUsdCents = trip.paymentInfo.depositInUsdCents - trip.paymentInfo.resolveAmountInUsdCents;
-
-    uint256 valueToHost = addresses.currencyConverterService.getFromUsd(
-      trip.paymentInfo.currencyType,
-      valueToHostInUsdCents,
-      trip.paymentInfo.currencyRate,
-      trip.paymentInfo.currencyDecimals
-    );
-    uint256 valueToGuest = addresses.currencyConverterService.getFromUsd(
-      trip.paymentInfo.currencyType,
-      valueToGuestInUsdCents,
-      trip.paymentInfo.currencyRate,
-      trip.paymentInfo.currencyDecimals
-    );
+    (uint valueToHost, uint valueToGuest, uint valueToHostInUsdCents, uint valueToGuestInUsdCents) = addresses
+      .currencyConverterService
+      .calculateTripFinsish(trip.paymentInfo, rentalityFee);
     bool successHost;
     bool successGuest;
     if (addresses.currencyConverterService.isETH(trip.paymentInfo.currencyType)) {
@@ -343,19 +337,14 @@ contract RentalityPlatform is UUPSOwnable {
     );
     uint commission = addresses.claimService.getPlatformFeeFrom(claim.amountInUsdCents);
 
-    uint256 valueToPay = addresses.currencyConverterService.getFromUsd(
+    (uint valueToPay, uint feeInCurrency) = addresses.currencyConverterService.calculateValueWithFee(
       trip.paymentInfo.currencyType,
-      claim.amountInUsdCents + commission,
-      trip.paymentInfo.currencyRate,
-      trip.paymentInfo.currencyDecimals
-    );
-
-    uint256 feeInCurrency = addresses.currencyConverterService.getFromUsd(
-      trip.paymentInfo.currencyType,
+      claim.amountInUsdCents,
       commission,
       trip.paymentInfo.currencyRate,
       trip.paymentInfo.currencyDecimals
     );
+
     addresses.claimService.payClaim(claimId, trip.host, trip.guest);
     bool successHost;
 
@@ -481,7 +470,12 @@ contract RentalityPlatform is UUPSOwnable {
   function updateCarInfo(Schemas.UpdateCarInfoRequest memory request) public {
     require(addresses.isCarEditable(request.carId), 'Car is not available for update.');
 
-    return addresses.carService.updateCarInfo(request, '', '', '', '');
+    return
+      addresses.carService.updateCarInfo(
+        request,
+        IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getLocationInfo(bytes32('')),
+        string('')
+      );
   }
 
   /// @notice Updates the information of a car, including location details. Only callable by hosts.
@@ -490,14 +484,12 @@ contract RentalityPlatform is UUPSOwnable {
   /// @param geoApiKey The API key for geocoding purposes.
   function updateCarInfoWithLocation(
     Schemas.UpdateCarInfoRequest memory request,
-    string memory location,
-    string memory locationLatitude,
-    string memory locationLongitude,
+    Schemas.SignedLocationInfo memory location,
     string memory geoApiKey
   ) public {
     require(addresses.isCarEditable(request.carId), 'Car is not available for update.');
 
-    return addresses.carService.updateCarInfo(request, location, locationLatitude, locationLongitude, geoApiKey);
+    return addresses.carService.updateCarInfo(request, location.locationInfo, geoApiKey);
   }
   /// @notice Adds a user discount.
   /// @param data The discount data.

@@ -120,7 +120,8 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
         startDateTime,
         endDateTime,
         searchParams,
-        Schemas.DeliveryLocations('', '', '', ''),
+        IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getLocationInfo(bytes32('')),
+        IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getLocationInfo(bytes32('')),
         RentalityAdminGateway(addresses.adminService).getDeliveryServiceAddress()
       );
   }
@@ -129,13 +130,15 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
   /// @param startDateTime The start date and time of the search.
   /// @param endDateTime The end date and time of the search.
   /// @param searchParams Additional search parameters.
-  /// @param locations Lat and lon of return and pickUp locations
+  /// @param pickUpInfo Lat and lon of return and pickUp locations
+  /// @param returnInfo Lat and lon of return and pickUp locations
   /// @return An array of available car information meeting the search criteria.
   function searchAvailableCarsWithDelivery(
     uint64 startDateTime,
     uint64 endDateTime,
     Schemas.SearchCarParams memory searchParams,
-    Schemas.DeliveryLocations memory locations
+    Schemas.LocationInfo memory pickUpInfo,
+    Schemas.LocationInfo memory returnInfo
   ) public view returns (Schemas.SearchCar[] memory) {
     return
       addresses.searchAvailableCarsForUser(
@@ -143,7 +146,8 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
         startDateTime,
         endDateTime,
         searchParams,
-        locations,
+        pickUpInfo,
+        returnInfo,
         RentalityAdminGateway(addresses.adminService).getDeliveryServiceAddress()
       );
   }
@@ -158,26 +162,26 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
   /// @param carId The ID of the car for which details are requested.
   /// @return details An instance of `Schemas.CarDetails` containing the details of the specified car.
   function getCarDetails(uint carId) public view returns (Schemas.CarDetails memory) {
-    return RentalityUtils.getCarDetails(addresses, carId);
+    return RentalityQuery.getCarDetails(addresses, carId);
   }
 
   /// @notice Retrieves information about a trip by ID.
   /// @param tripId The ID of the trip.
   /// @return Trip information.
   function getTrip(uint256 tripId) public view returns (Schemas.TripDTO memory) {
-    return addresses.getTripDTO(tripId);
+    return RentalityUtils.getTripDTO(addresses, tripId);
   }
 
   /// @notice Retrieves information about trips where the caller is the guest.
   /// @return An array of trip information.
   function getTripsAsGuest() public view returns (Schemas.TripDTO[] memory) {
-    return addresses.getTripsByGuest(tx.origin);
+    return RentalityUtils.getTripsByGuest(addresses, tx.origin);
   }
 
   /// @notice Retrieves information about trips where the caller is the host.
   /// @return An array of trip information.
   function getTripsAsHost() public view returns (Schemas.TripDTO[] memory) {
-    return addresses.getTripsByHost(tx.origin);
+    return RentalityUtils.getTripsByHost(addresses, tx.origin);
   }
 
   /// @notice Retrieves information about trips for a specific car.
@@ -256,54 +260,43 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
     uint64 daysOfTrip,
     address currency
   ) public view returns (Schemas.CalculatePaymentsDTO memory) {
-    return
-      RentalityUtils.calculatePayments(
-        address(addresses.carService),
-        address(addresses.paymentService),
-        address(addresses.currencyConverterService),
-        carId,
-        daysOfTrip,
-        currency,
-        0
-      );
+    return RentalityUtils.calculatePayments(addresses, carId, daysOfTrip, currency, 0);
   }
 
   /// @dev Calculates the payments for a trip.
   /// @param carId The ID of the car.
   /// @param daysOfTrip The duration of the trip in days.
   /// @param currency The currency to use for payment calculation.
-  /// @param deliveryData lat and lon of pickUp and return locations.
+  /// @param pickUpLocation lat and lon of pickUp and return locations.
+  /// @param returnLocation lat and lon of pickUp and return locations.
   /// @return calculatePaymentsDTO An object containing payment details.
   function calculatePaymentsWithDelivery(
     uint carId,
     uint64 daysOfTrip,
     address currency,
-    Schemas.DeliveryLocations memory deliveryData
+    Schemas.LocationInfo memory pickUpLocation,
+    Schemas.LocationInfo memory returnLocation
   ) public view returns (Schemas.CalculatePaymentsDTO memory) {
     return
       RentalityUtils.calculatePaymentsWithDelivery(
-        address(addresses.carService),
-        address(addresses.paymentService),
-        address(addresses.currencyConverterService),
-        addresses.adminService.getDeliveryServiceAddress(),
+        addresses,
         carId,
         daysOfTrip,
         currency,
-        deliveryData
+        pickUpLocation,
+        returnLocation
       );
   }
   /// @notice Get chat information for trips hosted by the caller on the Rentality platform.
   /// @return chatInfo An array of chat information for trips hosted by the caller.
   function getChatInfoForHost() public view returns (Schemas.ChatInfo[] memory) {
-    Schemas.TripDTO[] memory trips = addresses.getTripsByHost(tx.origin);
-    return RentalityUtils.populateChatInfo(trips, address(addresses.userService), address(addresses.carService));
+    return RentalityUtils.populateChatInfo(false, addresses);
   }
 
   /// @notice Get chat information for trips attended by the caller on the Rentality platform.
   /// @return chatInfo An array of chat information for trips attended by the caller.
   function getChatInfoForGuest() public view returns (Schemas.ChatInfo[] memory) {
-    Schemas.TripDTO[] memory trips = addresses.getTripsByGuest(tx.origin);
-    return RentalityUtils.populateChatInfo(trips, address(addresses.userService), address(addresses.carService));
+    return RentalityUtils.populateChatInfo(true, addresses);
   }
 
   /// @dev Retrieves delivery data for a given car.

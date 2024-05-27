@@ -38,18 +38,20 @@ contract RentalityCarDelivery is Initializable, UUPSAccess {
   }
 
   /// @notice Calculates the total price for a delivery based on given delivery data and user's location
-  /// @param deliveryData Delivery location details
+  /// @param pickUpLoc Delivery pickUp location details
+  /// @param returnLoc Delivery return location details
   /// @param homeLat Latitude of user's home location
   /// @param homeLon Longitude of user's home location
   /// @return Total price in USD cents
   function calculatePriceByDeliveryDataInUsdCents(
-    Schemas.DeliveryLocations memory deliveryData,
+    Schemas.LocationInfo memory pickUpLoc,
+    Schemas.LocationInfo memory returnLoc,
     string memory homeLat,
     string memory homeLon,
     address user
   ) public view returns (uint64) {
-    int128 pickUpDistance = calculateDistance(deliveryData.pickUpLat, deliveryData.pickUpLon, homeLat, homeLon);
-    int128 returnDistance = calculateDistance(deliveryData.returnLat, deliveryData.returnLon, homeLat, homeLon);
+    int128 pickUpDistance = calculateDistance(pickUpLoc.latitude, pickUpLoc.longitude, homeLat, homeLon);
+    int128 returnDistance = calculateDistance(returnLoc.latitude, returnLoc.longitude, homeLat, homeLon);
     uint64 total = 0;
     Schemas.DeliveryPrices memory userPrices = userToDeliveryPrice[user];
     if (!userPrices.initialized) {
@@ -65,6 +67,7 @@ contract RentalityCarDelivery is Initializable, UUPSAccess {
     } else {
       total += uint64(uint128(returnDistance)) * userPrices.underTwentyFiveMilesInUsdCents;
     }
+
     return total;
   }
 
