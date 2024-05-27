@@ -15,6 +15,8 @@ contract RentalityGeoService is IRentalityGeoService, Initializable, UUPSAccess 
   mapping(uint256 => Schemas.ParsedGeolocationData) public carIdToParsedGeolocationData;
   IRentalityGeoParser private geoParser;
 
+  mapping(bytes32 => Schemas.LocationInfo) public locationDictionary;
+
   /// @notice Updates the address of the geolocation parser contract.
   /// @param _geoParser The address of the new geolocation parser contract.
   function updateParserAddress(address _geoParser) public {
@@ -111,6 +113,28 @@ contract RentalityGeoService is IRentalityGeoService, Initializable, UUPSAccess 
   /// @return timeZone A string representing the time zone of the specified car's geolocation data.
   function getCarTimeZoneId(uint256 carId) public view returns (string memory) {
     return carIdToParsedGeolocationData[carId].timeZoneId;
+  }
+
+  function createLocationInfo(Schemas.LocationInfo memory info) public returns (bytes32) {
+    bytes32 hash = hashLocationInfo(info);
+    locationDictionary[hash] = info;
+
+    return hash;
+  }
+
+  function hashLocationInfo(Schemas.LocationInfo memory info) public view returns (bytes32) {
+    if (bytes(info.longitude).length == 0) {
+      return bytes32('');
+    }
+    bytes32 hash = keccak256(
+      abi.encode(info.country, info.state, info.city, info.latitude, info.longitude, info.timeZoneId)
+    );
+
+    return hash;
+  }
+
+  function getLocationInfo(bytes32 hash) public view returns (Schemas.LocationInfo memory) {
+    return locationDictionary[hash];
   }
 
   /// @notice Initializes the contract with the specified addresses for user service and geolocation parser.

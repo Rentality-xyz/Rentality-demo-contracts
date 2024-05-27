@@ -1,5 +1,5 @@
 const { expect } = require('chai')
-const { deployDefaultFixture, ethToken } = require('../utils')
+const { deployDefaultFixture, ethToken, locationInfo } = require('../utils')
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 const { ethers } = require('hardhat')
 
@@ -68,13 +68,33 @@ describe('Rentality Delivery', function () {
       let pickUpLat = '33.829662'
       let pickUpLon = '-84.363986'
 
-      let location = {
-        pickUpLat: pickUpLat,
-        pickUpLon: pickUpLon,
-        returnLat: pickUpLat,
-        returnLon: pickUpLon,
+      let locationInfo = {
+        latitude: pickUpLat,
+        longitude: pickUpLon,
+        userAddress: 'Miami Riverwalk, Miami, Florida, USA',
+        country: 'USA',
+        state: 'Florida',
+        city: 'Miami',
+
+        timeZoneId: 'id',
       }
-      let result = await deliveryService.calculatePriceByDeliveryDataInUsdCents(location, homeLat, homeLon, host)
+      let locationInfo2 = {
+        latitude: pickUpLat,
+        longitude: pickUpLon,
+        userAddress: 'Miami Riverwalk, Miami, Florida, USA',
+        country: 'USA',
+        state: 'Florida',
+        city: 'Miami',
+
+        timeZoneId: 'id',
+      }
+      let result = await deliveryService.calculatePriceByDeliveryDataInUsdCents(
+        locationInfo,
+        locationInfo2,
+        homeLat,
+        homeLon,
+        host
+      )
 
       let expectedResult = 608 /*miles*/ * 300 /*price in usd cents*/ * 2
       expect(result).to.be.eq(expectedResult)
@@ -85,13 +105,33 @@ describe('Rentality Delivery', function () {
     let pickUpLat = '25.797641'
     let pickUpLon = '-80.202987'
 
-    let location = {
-      pickUpLat: pickUpLat,
-      pickUpLon: pickUpLon,
-      returnLat: homeLat,
-      returnLon: homeLon,
+    let locationInfo = {
+      latitude: pickUpLat,
+      longitude: pickUpLon,
+      userAddress: 'Miami Riverwalk, Miami, Florida, USA',
+      country: 'USA',
+      state: 'Florida',
+      city: 'Miami',
+
+      timeZoneId: 'id',
     }
-    let result = await deliveryService.calculatePriceByDeliveryDataInUsdCents(location, homeLat, homeLon, host)
+    let locationInfo2 = {
+      latitude: homeLat,
+      longitude: homeLon,
+      userAddress: 'Miami Riverwalk, Miami, Florida, USA',
+      country: 'USA',
+      state: 'Florida',
+      city: 'Miami',
+
+      timeZoneId: 'id',
+    }
+    let result = await deliveryService.calculatePriceByDeliveryDataInUsdCents(
+      locationInfo,
+      locationInfo2,
+      homeLat,
+      homeLon,
+      host
+    )
 
     let expectedResult = 14 /*miles*/ * 250 /*price in usd cents*/
     expect(result).to.be.eq(expectedResult, 'Return price should be 0, because it has same address as home')
@@ -101,17 +141,31 @@ describe('Rentality Delivery', function () {
     let homeLon = '-80.343476'
     let pickUpLat = '25.797641'
     let pickUpLon = '-80.202987'
+    let locationInfo = {
+      latitude: pickUpLat,
+      longitude: pickUpLon,
+      userAddress: 'Miami Riverwalk, Miami, Florida, USA',
+      country: 'USA',
+      state: 'Florida',
+      city: 'Miami',
 
-    let location = {
-      pickUpLat: pickUpLat,
-      pickUpLon: pickUpLon,
-      returnLat: homeLat,
-      returnLon: homeLon,
+      timeZoneId: 'id',
     }
+    let locationInfo2 = {
+      latitude: homeLat,
+      longitude: homeLon,
+      userAddress: 'Miami Riverwalk, Miami, Florida, USA',
+      country: 'USA',
+      state: 'Florida',
+      city: 'Miami',
+
+      timeZoneId: 'id',
+    }
+
     await rentalityPlatform.connect(host).addUserDeliveryPrices(500, 500)
     let result = await deliveryService
       .connect(host)
-      .calculatePriceByDeliveryDataInUsdCents(location, homeLat, homeLon, host)
+      .calculatePriceByDeliveryDataInUsdCents(locationInfo, locationInfo2, homeLat, homeLon, host)
 
     let expectedResult = 14 /*miles*/ * 500 /*price in usd cents*/
     expect(result).to.be.eq(expectedResult, 'Return price should be 0, because it has same address as home')
@@ -121,6 +175,17 @@ describe('Rentality Delivery', function () {
     let homeLon = '-80.343476'
     let pickUpLat = '25.797641'
     let pickUpLon = '-80.202987'
+
+    let locationInfo = {
+      latitude: pickUpLat,
+      longitude: pickUpLon,
+      userAddress: 'Miami Riverwalk, Miami, Florida, USA',
+      country: 'USA',
+      state: 'Florida',
+      city: 'Miami',
+
+      timeZoneId: 'id',
+    }
 
     const mockCreateCarRequest = {
       tokenUri: 'uri',
@@ -134,10 +199,8 @@ describe('Rentality Delivery', function () {
       engineType: 2,
       milesIncludedPerDay: 1000000,
       timeBufferBetweenTripsInSec: 0,
-      locationAddress: 'Miami Riverwalk, Miami, Florida, USA',
-      locationLatitude: homeLat,
-      locationLongitude: homeLon,
       geoApiKey: 'key',
+      locationInfo,
       insuranceIncluded: true,
     }
 
@@ -148,13 +211,17 @@ describe('Rentality Delivery', function () {
     const availableCars = await rentalityGateway.connect(guest).getAvailableCarsForUser(guest.address)
     expect(availableCars.length).to.equal(1)
 
-    let location = {
-      pickUpLat: pickUpLat,
-      pickUpLon: pickUpLon,
-      returnLat: pickUpLat,
-      returnLon: pickUpLon,
+    let locationInfo2 = {
+      latitude: homeLat,
+      longitude: homeLon,
+      userAddress: 'Miami Riverwalk, Miami, Florida, USA',
+      country: 'USA',
+      state: 'Florida',
+      city: 'Miami',
+
+      timeZoneId: 'id',
     }
-    let result = await rentalityGateway.calculatePaymentsWithDelivery(1, 1, ethToken, location)
+    let result = await rentalityGateway.calculatePaymentsWithDelivery(1, 1, ethToken, locationInfo, locationInfo2)
 
     await expect(
       await rentalityGateway.connect(guest).createTripRequestWithDelivery(
@@ -163,7 +230,14 @@ describe('Rentality Delivery', function () {
           startDateTime: 123,
           endDateTime: 321,
           currencyType: ethToken,
-          deliveryInfo: location,
+          pickUpInfo: {
+            signature: guest.address,
+            locationInfo,
+          },
+          returnInfo: {
+            signature: guest.address,
+            locationInfo: locationInfo2,
+          },
         },
         { value: result.totalPrice }
       )
@@ -178,7 +252,7 @@ describe('Rentality Delivery', function () {
 
     let totalDeliveryPrice = await deliveryService
       .connect(host)
-      .calculatePriceByDeliveryDataInUsdCents(location, homeLat, homeLon, host)
+      .calculatePriceByDeliveryDataInUsdCents(locationInfo, locationInfo2, homeLat, homeLon, host)
 
     let trip = await rentalityTripService.getTrip(1)
     let fee = (mockCreateCarRequest.pricePerDayInUsdCents * 20) / 100

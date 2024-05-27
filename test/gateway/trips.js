@@ -1,7 +1,14 @@
 const { expect } = require('chai')
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 
-const { getMockCarRequest, TripStatus, deployDefaultFixture, ethToken, calculatePayments } = require('../utils')
+const {
+  getMockCarRequest,
+  TripStatus,
+  deployDefaultFixture,
+  ethToken,
+  calculatePayments,
+  locationInfo,
+} = require('../utils')
 const { ethers } = require('hardhat')
 
 describe('RentalityGateway: trips', function () {
@@ -93,7 +100,7 @@ describe('RentalityGateway: trips', function () {
     ).to.changeEtherBalances([guest, rentalityPlatform], [-result.totalPrice, result.totalPrice])
 
     let trip = (await rentalityGateway.getTrip(1)).trip
-    const carCity = await rentalityGeoService.getCarCity(1)
+    const carLocation = await rentalityGeoService.hashLocationInfo(locationInfo)
 
     expect(trip.tripId).to.be.equal(1, 'trip.tripId)')
     expect(trip.carId).to.be.equal(1, 'trip.carId')
@@ -102,9 +109,9 @@ describe('RentalityGateway: trips', function () {
     expect(trip.host).to.be.equal(host.address, 'trip.host')
     expect(trip.pricePerDayInUsdCents).to.be.equal(2, 'trip.pricePerDayInUsdCents')
     expect(trip.startDateTime).to.be.equal(123, 'trip.startDateTime')
-    expect(trip.endDateTime).to.be.equal(321, 'trip.endDateTime')
-    expect(trip.startLocation).to.be.equal(carCity, 'trip.startLocation')
-    expect(trip.endLocation).to.be.equal(carCity, 'trip.endLocation')
+    expect(trip.endDateTime).to.be.equal(321, 'trip.pickUpHash')
+    expect(trip.pickUpHash).to.be.equal(carLocation, 'trip.returnHash')
+    expect(trip.returnHash).to.be.equal(carLocation, 'trip.endLocation')
     expect(trip.milesIncludedPerDay).to.be.equal(6, 'trip.milesIncludedPerDay')
     expect(BigInt(trip.fuelPrice)).to.deep.equal(
       mockCreateCarRequest.engineParams[1] /*[0] - is tank volume,
@@ -149,6 +156,15 @@ describe('RentalityGateway: trips', function () {
   })
 
   it('Return valid fuel prices', async function () {
+    const locationInfo = {
+      userAddress: 'Miami Riverwalk, Miami, Florida, USA',
+      country: 'USA',
+      state: 'Florida',
+      city: 'Miami',
+      latitude: '1.2',
+      longitude: '1.3',
+      timeZoneId: 'id',
+    }
     const mockCreateCarRequest = {
       tokenUri: 'uri',
       carVinNumber: 'VIN_NUMBER',
@@ -161,11 +177,9 @@ describe('RentalityGateway: trips', function () {
       engineType: 2,
       milesIncludedPerDay: 10,
       timeBufferBetweenTripsInSec: 0,
-      locationAddress: 'Miami Riverwalk, Miami, Florida, USA',
-      locationLatitude: '123421',
-      locationLongitude: '123421',
       geoApiKey: 'key',
       insuranceIncluded: true,
+      locationInfo,
     }
 
     await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest)).not.to.be.reverted
@@ -201,11 +215,9 @@ describe('RentalityGateway: trips', function () {
       engineType: 1,
       milesIncludedPerDay: 10,
       timeBufferBetweenTripsInSec: 0,
-      locationAddress: 'Miami Riverwalk, Miami, Florida, USA',
-      locationLatitude: '123421',
-      locationLongitude: '123421',
       geoApiKey: 'key',
       insuranceIncluded: true,
+      locationInfo,
     }
     await expect(rentalityGateway.connect(host).addCar(mockPatrolCreateCarRequest)).not.to.be.reverted
     const resultPatrol = await rentalityGateway.calculatePayments(2, 1, ethToken)

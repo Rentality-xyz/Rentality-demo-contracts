@@ -100,59 +100,6 @@ library RentalityQuery {
     return result;
   }
 
-  function getTripsByGuest(
-    RentalityContract memory contracts,
-    address guest
-  ) public view returns (Schemas.TripDTO[] memory) {
-    RentalityTripService tripService = contracts.tripService;
-    uint itemCount = 0;
-
-    for (uint i = 1; i <= tripService.totalTripCount(); i++) {
-      if (tripService.getTrip(i).guest == guest) {
-        itemCount += 1;
-      }
-    }
-
-    Schemas.TripDTO[] memory result = new Schemas.TripDTO[](itemCount);
-    uint currentIndex = 0;
-
-    for (uint i = 1; i <= tripService.totalTripCount(); i++) {
-      if (tripService.getTrip(i).guest == guest) {
-        result[currentIndex] = getTripDTO(contracts, i);
-
-        currentIndex += 1;
-      }
-    }
-
-    return result;
-  }
-
-  function getTripsByHost(
-    RentalityContract memory contracts,
-    address host
-  ) public view returns (Schemas.TripDTO[] memory) {
-    RentalityTripService tripService = contracts.tripService;
-    uint itemCount = 0;
-
-    for (uint i = 1; i <= tripService.totalTripCount(); i++) {
-      if (tripService.getTrip(i).host == host) {
-        itemCount += 1;
-      }
-    }
-
-    Schemas.TripDTO[] memory result = new Schemas.TripDTO[](itemCount);
-    uint currentIndex = 0;
-
-    for (uint i = 1; i <= tripService.totalTripCount(); i++) {
-      if (tripService.getTrip(i).host == host) {
-        result[currentIndex] = getTripDTO(contracts, i);
-        currentIndex += 1;
-      }
-    }
-
-    return result;
-  }
-
   function getClaimsByTrip(
     RentalityContract memory contracts,
     uint256 tripId
@@ -278,11 +225,9 @@ library RentalityQuery {
 
     Schemas.FullClaimInfo[] memory claimInfos = new Schemas.FullClaimInfo[](arraySize);
     uint256 counter = 0;
-
     for (uint256 i = 1; i <= claimService.getClaimsAmount(); i++) {
       Schemas.Claim memory claim = claimService.getClaim(i);
       Schemas.Trip memory trip = tripService.getTrip(claim.tripId);
-
       if (trip.guest == guest) {
         uint valueInEth = currencyConverterService.getFromUsd(
           trip.paymentInfo.currencyType,
@@ -311,7 +256,8 @@ library RentalityQuery {
     uint64 startDateTime,
     uint64 endDateTime,
     Schemas.SearchCarParams memory searchParams,
-    Schemas.DeliveryLocations memory locations,
+    Schemas.LocationInfo memory pickUpInfo,
+    Schemas.LocationInfo memory returnInfo,
     address deliveryServiceAddress
   ) public view returns (Schemas.SearchCar[] memory result) {
     RentalityCarToken carService = contracts.carService;
@@ -369,9 +315,10 @@ library RentalityQuery {
         temp[i].pricePerDayInUsdCents
       );
       uint64 deliveryFee = 0;
-      if (bytes(locations.pickUpLat).length != 0 || bytes(locations.returnLat).length != 0) {
+      if (bytes(pickUpInfo.latitude).length != 0 || bytes(returnInfo.longitude).length != 0) {
         deliveryFee = RentalityCarDelivery(deliveryServiceAddress).calculatePriceByDeliveryDataInUsdCents(
-          locations,
+          pickUpInfo,
+          returnInfo,
           IRentalityGeoService(carService.getGeoServiceAddress()).getCarLocationLatitude(temp[i].carId),
           IRentalityGeoService(carService.getGeoServiceAddress()).getCarLocationLongitude(temp[i].carId),
           temp[i].createdBy
@@ -400,17 +347,12 @@ library RentalityQuery {
         temp[i].createdBy,
         contracts.userService.getKYCInfo(temp[i].createdBy).name,
         contracts.userService.getKYCInfo(temp[i].createdBy).profilePhoto,
-        IRentalityGeoService(carService.getGeoServiceAddress()).getCarCity(temp[i].carId),
-        IRentalityGeoService(carService.getGeoServiceAddress()).getCarCountry(temp[i].carId),
-        IRentalityGeoService(carService.getGeoServiceAddress()).getCarState(temp[i].carId),
-        IRentalityGeoService(carService.getGeoServiceAddress()).getCarLocationLatitude(temp[i].carId),
-        IRentalityGeoService(carService.getGeoServiceAddress()).getCarLocationLongitude(temp[i].carId),
-        IRentalityGeoService(carService.getGeoServiceAddress()).getCarTimeZoneId(temp[i].carId),
         carService.tokenURI(temp[i].carId),
         deliveryPrices.underTwentyFiveMilesInUsdCents,
         deliveryPrices.aboveTwentyFiveMilesInUsdCents,
         deliveryFee,
-        temp[i].insuranceIncluded
+        temp[i].insuranceIncluded,
+        IRentalityGeoService(carService.getGeoServiceAddress()).getLocationInfo(temp[i].locationHash)
       );
     }
     return result;
@@ -450,32 +392,6 @@ library RentalityQuery {
     }
 
     return true;
-  }
-
-  // Updated function getTripDTO with RentalityContract parameter
-  function getTripDTO(RentalityContract memory contracts, uint tripId) public view returns (Schemas.TripDTO memory) {
-    RentalityTripService tripService = contracts.tripService;
-    RentalityCarToken carService = contracts.carService;
-    RentalityUserService userService = contracts.userService;
-
-    Schemas.Trip memory trip = tripService.getTrip(tripId);
-    Schemas.CarInfo memory car = carService.getCarInfoById(trip.carId);
-
-    return
-      Schemas.TripDTO(
-        trip,
-        userService.getKYCInfo(trip.guest).profilePhoto,
-        userService.getKYCInfo(trip.host).profilePhoto,
-        carService.tokenURI(trip.carId),
-        IRentalityGeoService(carService.getGeoServiceAddress()).getCarTimeZoneId(trip.carId),
-        userService.getKYCInfo(trip.host).licenseNumber,
-        userService.getKYCInfo(trip.host).expirationDate,
-        userService.getKYCInfo(trip.guest).licenseNumber,
-        userService.getKYCInfo(trip.guest).expirationDate,
-        car.model,
-        car.brand,
-        car.yearOfProduction
-      );
   }
 
   // Refactoring for getClaim with RentalityContract
@@ -533,6 +449,36 @@ library RentalityQuery {
     }
 
     return result;
+  }
+
+  // Updated function getCarDetails with RentalityContract parameter
+  function getCarDetails(
+    RentalityContract memory contracts,
+    uint carId
+  ) public view returns (Schemas.CarDetails memory details) {
+    RentalityCarToken carService = contracts.carService;
+    IRentalityGeoService geo = IRentalityGeoService(carService.getGeoServiceAddress());
+    RentalityUserService userService = contracts.userService;
+
+    Schemas.CarInfo memory car = carService.getCarInfoById(carId);
+
+    details = Schemas.CarDetails(
+      carId,
+      userService.getKYCInfo(car.createdBy).name,
+      userService.getKYCInfo(car.createdBy).profilePhoto,
+      car.createdBy,
+      car.brand,
+      car.model,
+      car.yearOfProduction,
+      car.pricePerDayInUsdCents,
+      car.securityDepositPerTripInUsdCents,
+      car.milesIncludedPerDay,
+      car.engineType,
+      car.engineParams,
+      geo.getCarCoordinateValidity(carId),
+      car.currentlyListed,
+      geo.getLocationInfo(car.locationHash)
+    );
   }
 
   //// Refactoring for getTripContactInfo with RentalityContract
