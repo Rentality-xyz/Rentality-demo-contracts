@@ -480,6 +480,10 @@ library RentalityQuery {
       geo.getLocationInfo(car.locationHash)
     );
   }
+  function calculateKycCommission(RentalityContract memory addresses, address currency) public view returns (uint) {
+    (int rate, uint8 dec) = addresses.currencyConverterService.getCurrentRate(currency);
+    return addresses.currencyConverterService.getFromUsd(currency, addresses.userService.getKycCommission(), rate, dec);
+  }
 
   //// Refactoring for getTripContactInfo with RentalityContract
   //    function getTripContactInfo(RentalityContract memory contracts, uint256 tripId)
