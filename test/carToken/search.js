@@ -141,11 +141,11 @@ describe('RentalityCarToken: search functions', function () {
     const { rentalityCarToken, rentalityTripService, guest, rentalityGateway } =
       await loadFixture(deployFixtureWith1Car)
 
-    const carRequest = getMockCarRequestWithAddress(2, 'Michigan Ave, Chicago, Florida, USA')
+    const carRequest = getMockCarRequestWithAddress(2, 'Michigan Ave, Chicago, Florida, Country')
     await rentalityCarToken.addCar(carRequest)
 
     const searchCarParams1 = {
-      country: 'usa',
+      country: 'Country',
       state: '',
       city: '',
       brand: '',
@@ -169,7 +169,7 @@ describe('RentalityCarToken: search functions', function () {
 
     const availableCars1 = await rentalityGateway.connect(guest).searchAvailableCars(0, 0, searchCarParams1)
 
-    expect(availableCars1.length).to.equal(2) // It has one car with 'usa' in country params, adds during deployment
+    expect(availableCars1.length).to.equal(1)
 
     const availableCars2 = await rentalityGateway.connect(guest).searchAvailableCars(0, 0, searchCarParams2)
 
@@ -180,13 +180,13 @@ describe('RentalityCarToken: search functions', function () {
     const { rentalityCarToken, rentalityTripService, guest, geoParserMock, rentalityGateway } =
       await loadFixture(deployFixtureWith1Car)
 
-    const carRequest = getMockCarRequestWithAddress(2, 'Michigan Ave, Chicago, Florida, USA')
+    const carRequest = getMockCarRequestWithAddress(2, 'Michigan Ave, Chicago, MYSTATE, USA')
     await rentalityCarToken.addCar(carRequest)
 
     const searchCarParams1 = {
       country: '',
-      state: '',
-      city: 'chicago',
+      state: 'MYSTATE',
+      city: '',
       brand: '',
       model: '',
       yearOfProductionFrom: 0,
@@ -219,13 +219,13 @@ describe('RentalityCarToken: search functions', function () {
     const { rentalityCarToken, rentalityTripService, guest, geoParserMock, rentalityGateway } =
       await loadFixture(deployFixtureWith1Car)
 
-    const carRequest = getMockCarRequestWithAddress(2, 'Michigan Ave, Chicago, Florida, USA')
+    const carRequest = getMockCarRequestWithAddress(2, 'Michigan Ave, City, Florida, USA')
     await rentalityCarToken.addCar(carRequest)
 
     const searchCarParams1 = {
       country: '',
       state: '',
-      city: 'Chicago',
+      city: 'City',
       brand: '',
       model: '',
       yearOfProductionFrom: 0,

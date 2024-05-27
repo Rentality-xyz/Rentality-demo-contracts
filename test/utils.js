@@ -112,8 +112,19 @@ function getMockCarRequest(seed) {
   }
 }
 
+const locationInfo = {
+  userAddress: 'Miami Riverwalk, Miami, Florida, USA',
+  country: 'USA',
+  state: 'Florida',
+  city: 'Miami',
+  latitude: '1.2',
+  longitude: '1.3',
+  timeZoneId: 'id',
+}
+
 function getMockCarRequestWithAddress(seed, address) {
-  return { ...getMockCarRequest(seed), locationAddress: address }
+  let locationInfo2 = { ...locationInfo, userAddress: address }
+  return { ...getMockCarRequest(seed), locationInfo: locationInfo2 }
 }
 
 function getMockCarRequest(seed) {
@@ -149,11 +160,9 @@ function getMockCarRequest(seed) {
     engineType: ETYPE,
     milesIncludedPerDay: DISTANCE_INCLUDED,
     timeBufferBetweenTripsInSec: timeBufferBetweenTripsInSec,
-    locationAddress: location,
-    locationLatitude,
-    locationLongitude,
     geoApiKey: apiKey,
     insuranceIncluded: true,
+    locationInfo,
   }
 }
 
@@ -470,4 +479,5 @@ module.exports = {
   calculatePayments,
   calculatePaymentsFrom,
   signTCMessage,
+  locationInfo,
 }

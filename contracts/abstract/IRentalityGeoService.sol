@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
+import '../Schemas.sol';
+
 /// @title RentalityGeoService
 /// @notice This contract defines the interface for the Rentality Geo Service, which provides geo-verification for cars info in the Rentality platform.
 /// @dev All functions in this interface are meant to be implemented by the Rentality Geo Service contract.
@@ -62,4 +64,10 @@ interface IRentalityGeoService {
   /// @param carId The ID of the car for which longitude information is requested.
   /// @return locationLng A string representing the longitude of the car's location.
   function getCarLocationLongitude(uint256 carId) external view returns (string memory);
+
+  function createLocationInfo(Schemas.LocationInfo memory info) external returns (bytes32);
+
+  function hashLocationInfo(Schemas.LocationInfo memory info) external returns (bytes32);
+
+  function getLocationInfo(bytes32 hash) external view returns (Schemas.LocationInfo memory);
 }
