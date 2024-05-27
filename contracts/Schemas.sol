@@ -475,4 +475,9 @@ interface Schemas {
     LocationInfo locationInfo;
     string signature;
   }
+
+  struct KycCommissionData {
+    uint paidTime;
+    bool commissionPaid;
+  }
 }

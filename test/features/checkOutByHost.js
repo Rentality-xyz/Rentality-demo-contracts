@@ -84,7 +84,7 @@ describe('Check out without guest', function () {
         },
         { value: rentPriceInEth }
       )
-    ).to.changeEtherBalances([guest, rentalityPlatform], [-rentPriceInEth, rentPriceInEth])
+    ).to.changeEtherBalances([guest, rentalityPaymentService], [-rentPriceInEth, rentPriceInEth])
 
     await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
     await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0], '', '')).not.to.be.reverted
@@ -120,7 +120,7 @@ describe('Check out without guest', function () {
         },
         { value: rentPriceInEth }
       )
-    ).to.changeEtherBalances([guest, rentalityPlatform], [-rentPriceInEth, rentPriceInEth])
+    ).to.changeEtherBalances([guest, rentalityPaymentService], [-rentPriceInEth, rentPriceInEth])
 
     await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
     await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0], '', '')).not.to.be.reverted
@@ -166,7 +166,7 @@ describe('Check out without guest', function () {
         },
         { value: rentPriceInEth }
       )
-    ).to.changeEtherBalances([guest, rentalityPlatform], [-rentPriceInEth, rentPriceInEth])
+    ).to.changeEtherBalances([guest, rentalityPaymentService], [-rentPriceInEth, rentPriceInEth])
 
     await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
     await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0], '', '')).not.to.be.reverted
@@ -202,7 +202,7 @@ describe('Check out without guest', function () {
         },
         { value: rentPriceInEth }
       )
-    ).to.changeEtherBalances([guest, rentalityPlatform], [-rentPriceInEth, rentPriceInEth])
+    ).to.changeEtherBalances([guest, rentalityPaymentService], [-rentPriceInEth, rentPriceInEth])
 
     await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
     await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0], '', '')).not.to.be.reverted
@@ -219,7 +219,7 @@ describe('Check out without guest', function () {
     const returnToHost = rentPriceInEth - rentalityFee - taxes - depositValue
 
     await expect(rentalityGateway.connect(guest).confirmCheckOut(1)).to.changeEtherBalances(
-      [host, rentalityPlatform],
+      [host, rentalityPaymentService],
       [returnToHost, -(rentPriceInEth - taxes - rentalityFee)]
     )
     const trip = await rentalityTripService.getTrip(1)
@@ -254,7 +254,7 @@ describe('Check out without guest', function () {
         },
         { value: rentPriceInEth }
       )
-    ).to.changeEtherBalances([guest, rentalityPlatform], [-rentPriceInEth, rentPriceInEth])
+    ).to.changeEtherBalances([guest, rentalityPaymentService], [-rentPriceInEth, rentPriceInEth])
 
     await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
     await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0], '', '')).not.to.be.reverted
@@ -270,7 +270,7 @@ describe('Check out without guest', function () {
     const returnToHost = rentPriceInEth - rentalityFee - taxes - depositValue
 
     await expect(rentalityGateway.connect(admin).confirmCheckOut(1)).to.changeEtherBalances(
-      [host, rentalityPlatform],
+      [host, rentalityPaymentService],
       [returnToHost, -(rentPriceInEth - taxes - rentalityFee)]
     )
     const trip = await rentalityTripService.getTrip(1)
@@ -308,7 +308,7 @@ describe('Check out without guest', function () {
         },
         { value: rentPriceInEth }
       )
-    ).to.changeEtherBalances([guest, rentalityPlatform], [-rentPriceInEth, rentPriceInEth])
+    ).to.changeEtherBalances([guest, rentalityPaymentService], [-rentPriceInEth, rentPriceInEth])
 
     await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
     await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0], '', '')).not.to.be.reverted
@@ -318,7 +318,7 @@ describe('Check out without guest', function () {
     await expect(rentalityGateway.connect(host).rejectTripRequest(1)).to.be.reverted
 
     await expect(rentalityGateway.connect(admin).rejectTripRequest(1)).to.changeEtherBalances(
-      [guest, rentalityPlatform],
+      [guest, rentalityPaymentService],
       [rentPriceInEth, -rentPriceInEth]
     )
     const trip = await rentalityTripService.getTrip(1)

@@ -354,4 +354,29 @@ interface IRentalityGateway {
     Schemas.LocationInfo memory pickUpInfo,
     Schemas.LocationInfo memory returnInfo
   ) external view returns (Schemas.SearchCar[] memory);
+
+  ///  @notice Calculates the KYC commission for a given currency.
+  ///  @param currency The address of the currency to calculate the KYC commission for.
+  ///  @return The calculated KYC commission amount.
+  function calculateKycCommission(address currency) external view returns (uint);
+
+  /// @notice Retrieves the KYC commission amount.
+  /// @dev Calls the `getKycCommission` function from the `userService` contract.
+  /// @return The current KYC commission amount.
+  function getKycCommission() external view returns (uint);
+
+  /// @notice Checks if the KYC commission has been paid by a user.
+  /// @dev Calls the `isCommissionPaidForUser` function from the `userService` contract.
+  /// @param user The address of the user to check.
+  /// @return True if the KYC commission has been paid by the user, false otherwise.
+  function isKycCommissionPaid(address user) external view returns (bool);
+
+  /// @notice Pays the KYC commission.
+  /// @dev This function should be called with the appropriate amount of Ether to cover the KYC commission.
+  function payKycCommission() external payable;
+
+  ///  @notice Uses the KYC commission for a specific user.
+  ///  @param user The address of the user whose KYC commission will be used.
+  ///  @dev This function is typically called after the user has paid the KYC commission to apply it to their account.
+  function useKycCommission(address user) external;
 }
