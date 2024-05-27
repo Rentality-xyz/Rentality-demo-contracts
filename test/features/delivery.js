@@ -96,7 +96,7 @@ describe('Rentality Delivery', function () {
         host
       )
 
-      let expectedResult = 608 /*miles*/ * 300 /*price in usd cents*/ * 2
+      let expectedResult = 608 /*miles*/ * 250 /*price in usd cents*/ * 2
       expect(result).to.be.eq(expectedResult)
     })
   it('should correctly calculate price in usd cents with return to home, under 25', async function () {
@@ -133,7 +133,7 @@ describe('Rentality Delivery', function () {
       host
     )
 
-    let expectedResult = 14 /*miles*/ * 250 /*price in usd cents*/
+    let expectedResult = 14 /*miles*/ * 300 /*price in usd cents*/
     expect(result).to.be.eq(expectedResult, 'Return price should be 0, because it has same address as home')
   })
   it('should correctly calculate price with user data', async function () {
@@ -241,7 +241,7 @@ describe('Rentality Delivery', function () {
         },
         { value: result.totalPrice }
       )
-    ).to.changeEtherBalances([guest, rentalityPlatform], [-result.totalPrice, result.totalPrice])
+    ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
 
     await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
     await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0], '', '')).not.to.be.reverted
