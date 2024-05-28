@@ -66,10 +66,10 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
   // - Claim Service
   //
   // This function should be called whenever the addresses of the services change.
-  function updateServiceAddresses() public {
-    require(addresses.userService.isAdmin(tx.origin), 'only Admin.');
-    addresses = addresses.adminService.getRentalityContracts();
-  }
+  //    function updateServiceAddresses() public {
+  //        require(addresses.userService.isAdmin(tx.origin), 'only Admin.');
+  //        addresses = addresses.adminService.getRentalityContracts();
+  //    }
 
   /// @notice Retrieves information about a car by its ID.
   /// @param carId The ID of the car.
@@ -81,9 +81,9 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
   /// @notice Retrieves the metadata URI of a car by its ID.
   /// @param carId The ID of the car.
   /// @return The metadata URI of the car.
-  function getCarMetadataURI(uint256 carId) public view returns (string memory) {
-    return addresses.carService.tokenURI(carId);
-  }
+  //    function getCarMetadataURI(uint256 carId) public view returns (string memory) {
+  //        return addresses.carService.tokenURI(carId);
+  //    }
 
   /// @notice Retrieves information about all cars.
   /// @return An array of car information.
@@ -133,17 +133,17 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
     Schemas.SearchCarParams memory searchParams,
     Schemas.LocationInfo memory pickUpInfo,
     Schemas.LocationInfo memory returnInfo
-  ) public view returns (Schemas.SearchCar[] memory) {
-    return
-      addresses.searchAvailableCarsForUser(
-        msg.sender,
-        startDateTime,
-        endDateTime,
-        searchParams,
-        pickUpInfo,
-        returnInfo,
-        RentalityAdminGateway(addresses.adminService).getDeliveryServiceAddress()
-      );
+  ) public view returns (Schemas.SearchCarWithDistance[] memory) {
+    Schemas.SearchCar[] memory result = addresses.searchAvailableCarsForUser(
+      msg.sender,
+      startDateTime,
+      endDateTime,
+      searchParams,
+      IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getLocationInfo(bytes32('')),
+      IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getLocationInfo(bytes32('')),
+      RentalityAdminGateway(addresses.adminService).getDeliveryServiceAddress()
+    );
+    return addresses.deliveryService.sortCarsByDistance(result, pickUpInfo);
   }
 
   /// @notice Retrieves information about cars owned by the caller.

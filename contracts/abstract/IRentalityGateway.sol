@@ -353,7 +353,7 @@ interface IRentalityGateway {
     Schemas.SearchCarParams memory searchParams,
     Schemas.LocationInfo memory pickUpInfo,
     Schemas.LocationInfo memory returnInfo
-  ) external view returns (Schemas.SearchCar[] memory);
+  ) external view returns (Schemas.SearchCarWithDistance[] memory);
 
   ///  @notice Calculates the KYC commission for a given currency.
   ///  @param currency The address of the currency to calculate the KYC commission for.

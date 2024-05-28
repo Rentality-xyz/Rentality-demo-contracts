@@ -368,6 +368,10 @@ interface Schemas {
   }
 
   /// Query
+  struct SearchCarWithDistance {
+    SearchCar car;
+    int distance;
+  }
 
   struct SearchCar {
     uint carId;
