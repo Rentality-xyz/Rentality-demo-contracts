@@ -37,43 +37,9 @@ contract RentalityPlatform is UUPSOwnable {
     _;
   }
 
-  // modifier onlyHost() {
-  //     require(addresses.userService.isHost(msg.sender), "User is not a host");
-  //     _;
-  // }
-
-  // modifier onlyGuest() {
-  //     require(addresses.userService.isGuest(msg.sender), "User is not a guest");
-  //     _;
-  // }
-
   function updateServiceAddresses(RentalityAdminGateway adminService) public {
     require(addresses.userService.isAdmin(tx.origin), 'only Admin.');
     addresses = adminService.getRentalityContracts();
-  }
-
-  /// @notice Withdraw a specific amount of funds from the contract.
-  /// @param amount The amount to withdraw from the contract.
-  function withdrawFromPlatform(uint256 amount, address currencyType) public {
-    require(
-      address(this).balance > 0 || IERC20(currencyType).balanceOf(address(this)) > 0,
-      'There is no commission to withdraw'
-    );
-
-    require(
-      address(this).balance >= amount || IERC20(currencyType).balanceOf(address(this)) >= amount,
-      'There is not enough balance on the contract'
-    );
-
-    bool success;
-    if (addresses.currencyConverterService.isETH(currencyType)) {
-      //require(payable(owner()).send(amount));
-      (success, ) = payable(owner()).call{value: amount}('');
-      require(success, 'Transfer failed.');
-    } else {
-      success = IERC20(currencyType).transfer(owner(), amount);
-    }
-    require(success, 'Transfer failed.');
   }
 
   //    function withdrawAllFromPlatform(address currencyType) public {
@@ -113,6 +79,21 @@ contract RentalityPlatform is UUPSOwnable {
       pickUpHash,
       returnHash
     );
+  }
+
+  function payKycCommission(address currency) public payable {
+    (int rate, uint8 dec) = addresses.currencyConverterService.getCurrentRate(currency);
+    uint valueToPay = addresses.currencyConverterService.getFromUsd(
+      currency,
+      addresses.userService.getKycCommission(),
+      rate,
+      dec
+    );
+    addresses.paymentService.payKycCommission{value: msg.value}(valueToPay, currency);
+  }
+
+  function useKycCommission(address user) public {
+    addresses.userService.useKycCommission(user);
   }
   /// @notice Create a trip request.
   /// @param request The request parameters for creating a new trip.
@@ -162,20 +143,8 @@ contract RentalityPlatform is UUPSOwnable {
       deliveryFee
     );
 
-    if (addresses.currencyConverterService.isETH(currencyType)) {
-      require(
-        msg.value == valueSumInCurrency,
-        'Rental fee must be equal to sum: price with discount + taxes + deposit + delivery'
-      );
-    } else {
-      require(
-        IERC20(currencyType).allowance(tx.origin, address(this)) >= valueSumInCurrency,
-        'Rental fee must be equal to sum: price with discount + taxes + deposit + delivery'
-      );
+    addresses.paymentService.payCreateTrip{value: msg.value}(currencyType, valueSumInCurrency);
 
-      bool success = IERC20(currencyType).transferFrom(tx.origin, address(this), valueSumInCurrency);
-      require(success, 'Transfer failed.');
-    }
     /// updating cache currency data
     addresses.currencyConverterService.getCurrencyRateWithCache(currencyType);
 
@@ -227,13 +196,7 @@ contract RentalityPlatform is UUPSOwnable {
     (uint valueToReturnInUsdCents, uint valueToReturnInToken) = addresses.currencyConverterService.calculateTripReject(
       trip.paymentInfo
     );
-    bool successGuest;
-    if (addresses.currencyConverterService.isETH(trip.paymentInfo.currencyType)) {
-      (successGuest, ) = payable(trip.guest).call{value: valueToReturnInToken}('');
-    } else {
-      successGuest = IERC20(trip.paymentInfo.currencyType).transfer(trip.guest, valueToReturnInToken);
-    }
-    require(successGuest, 'Transfer to guest failed.');
+    addresses.paymentService.payRejectTrip(trip, valueToReturnInToken);
 
     addresses.tripService.saveTransactionInfo(tripId, 0, statusBeforeCancellation, valueToReturnInUsdCents, 0);
   }
@@ -271,16 +234,8 @@ contract RentalityPlatform is UUPSOwnable {
     (uint valueToHost, uint valueToGuest, uint valueToHostInUsdCents, uint valueToGuestInUsdCents) = addresses
       .currencyConverterService
       .calculateTripFinsish(trip.paymentInfo, rentalityFee);
-    bool successHost;
-    bool successGuest;
-    if (addresses.currencyConverterService.isETH(trip.paymentInfo.currencyType)) {
-      (successHost, ) = payable(trip.host).call{value: valueToHost}('');
-      (successGuest, ) = payable(trip.guest).call{value: valueToGuest}('');
-    } else {
-      successHost = IERC20(trip.paymentInfo.currencyType).transfer(trip.host, valueToHost);
-      successGuest = IERC20(trip.paymentInfo.currencyType).transfer(trip.guest, valueToGuest);
-    }
-    require(successHost && successGuest, 'Transfer failed.');
+
+    addresses.paymentService.payFinishTrip(trip, valueToHost, valueToGuest);
 
     addresses.tripService.saveTransactionInfo(
       tripId,
@@ -346,30 +301,7 @@ contract RentalityPlatform is UUPSOwnable {
     );
 
     addresses.claimService.payClaim(claimId, trip.host, trip.guest);
-    bool successHost;
-
-    if (addresses.currencyConverterService.isETH(trip.paymentInfo.currencyType)) {
-      require(msg.value >= valueToPay, 'Insufficient funds sent.');
-      (successHost, ) = payable(trip.host).call{value: valueToPay - feeInCurrency}('');
-
-      if (msg.value > valueToPay + feeInCurrency) {
-        uint256 excessValue = msg.value - valueToPay;
-        (bool successRefund, ) = payable(tx.origin).call{value: excessValue}('');
-        require(successRefund, 'Refund to guest failed.');
-      }
-    } else {
-      require(IERC20(trip.paymentInfo.currencyType).allowance(tx.origin, address(this)) >= valueToPay);
-      successHost = IERC20(trip.paymentInfo.currencyType).transferFrom(
-        tx.origin,
-        trip.host,
-        valueToPay - feeInCurrency
-      );
-      if (commission != 0) {
-        bool successPlatform = IERC20(trip.paymentInfo.currencyType).transferFrom(tx.origin, trip.host, feeInCurrency);
-        require(successPlatform, 'Fail to transfer fee.');
-      }
-    }
-    require(successHost, 'Transfer to host failed.');
+    addresses.paymentService.payClaim{value: msg.value}(trip, valueToPay, feeInCurrency, commission);
   }
 
   /// @notice Updates the status of a specific claim based on the current timestamp.
@@ -527,7 +459,7 @@ contract RentalityPlatform is UUPSOwnable {
       RentalityTripService(tripServiceAddress),
       RentalityUserService(userServiceAddress),
       RentalityPlatform(address(this)),
-      RentalityPaymentService(paymentServiceAddress),
+      RentalityPaymentService(payable(paymentServiceAddress)),
       RentalityClaimService(claimServiceAddress),
       RentalityAdminGateway(address(0)),
       RentalityCarDelivery(carDeliveryAddress)

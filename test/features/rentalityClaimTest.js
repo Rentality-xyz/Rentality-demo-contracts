@@ -66,7 +66,7 @@ describe('RentalityClaim', function () {
         },
         { value: result.totalPrice }
       )
-    ).to.changeEtherBalances([guest, rentalityPlatform], [-result.totalPrice, result.totalPrice])
+    ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
 
     const amountToClaimInUsdCents = 10000
     let mockClaimRequest = createMockClaimRequest(1, amountToClaimInUsdCents)
@@ -93,7 +93,7 @@ describe('RentalityClaim', function () {
         },
         { value: result.totalPrice }
       )
-    ).to.changeEtherBalances([guest, rentalityPlatform], [-result.totalPrice, result.totalPrice])
+    ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
 
     await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
 
@@ -135,7 +135,7 @@ describe('RentalityClaim', function () {
         },
         { value: result.totalPrice }
       )
-    ).to.changeEtherBalances([guest, rentalityPlatform], [-result.totalPrice, result.totalPrice])
+    ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
     await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
 
     const amountToClaimInUsdCents = 10000
@@ -174,7 +174,7 @@ describe('RentalityClaim', function () {
         },
         { value: result.totalPrice }
       )
-    ).to.changeEtherBalances([guest, rentalityPlatform], [-result.totalPrice, result.totalPrice])
+    ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
     await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
 
     const amountToClaimInUsdCents = 10000
@@ -219,7 +219,7 @@ describe('RentalityClaim', function () {
         },
         { value: result.totalPrice }
       )
-    ).to.changeEtherBalances([guest, rentalityPlatform], [-result.totalPrice, result.totalPrice])
+    ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
     await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
 
     const amountToClaimInUsdCents = 10000
@@ -261,7 +261,7 @@ describe('RentalityClaim', function () {
         },
         { value: result.totalPrice }
       )
-    ).to.changeEtherBalances([guest, rentalityPlatform], [-result.totalPrice, result.totalPrice])
+    ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
 
     await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
 
@@ -309,7 +309,7 @@ describe('RentalityClaim', function () {
           },
           { value: rentPriceInEth }
         )
-      ).to.changeEtherBalances([guest, rentalityPlatform], [-rentPriceInEth, rentPriceInEth])
+      ).to.changeEtherBalances([guest, rentalityPaymentService], [-rentPriceInEth, rentPriceInEth])
 
       await expect(rentalityGateway.connect(host).approveTripRequest(i)).not.to.be.reverted
 
@@ -354,7 +354,7 @@ describe('RentalityClaim', function () {
         },
         { value: result.totalPrice }
       )
-    ).to.changeEtherBalances([guest, rentalityPlatform], [-result.totalPrice, result.totalPrice])
+    ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
     await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
 
     const amountToClaimInUsdCents = 10000
@@ -397,7 +397,7 @@ describe('RentalityClaim', function () {
         },
         { value: payments.totalPrice }
       )
-    ).to.changeEtherBalances([guest, rentalityPlatform], [-payments.totalPrice, payments.totalPrice])
+    ).to.changeEtherBalances([guest, rentalityPaymentService], [-payments.totalPrice, payments.totalPrice])
     await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
     let claim = {
       tripId: 1,
@@ -452,7 +452,7 @@ describe('RentalityClaim', function () {
         },
         { value: payments.totalPrice }
       )
-    ).to.changeEtherBalances([guest, rentalityPlatform], [-payments.totalPrice, payments.totalPrice])
+    ).to.changeEtherBalances([guest, rentalityPaymentService], [-payments.totalPrice, payments.totalPrice])
     await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
     let claim = {
       tripId: 1,
@@ -507,7 +507,7 @@ describe('RentalityClaim', function () {
         },
         { value: payments.totalPrice }
       )
-    ).to.changeEtherBalances([guest, rentalityPlatform], [-payments.totalPrice, payments.totalPrice])
+    ).to.changeEtherBalances([guest, rentalityPaymentService], [-payments.totalPrice, payments.totalPrice])
     await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
     let claim = {
       tripId: 1,
