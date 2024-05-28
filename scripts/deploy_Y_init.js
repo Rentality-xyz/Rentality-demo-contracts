@@ -1,4 +1,5 @@
 const RentalityGatewayJSON_ABI = require('../src/abis/RentalityGateway.v0_17_1.abi.json')
+const RentalityChatHelperJSON_ABI = require('../src/abis/RentalityChatHelper.v0_17_1.abi.json')
 const testData = require('./testData/testData.json')
 const { ethers, network } = require('hardhat')
 const { buildPath } = require('./utils/pathBuilder')
@@ -19,10 +20,14 @@ const checkInitialization = async () => {
   if (addresses == null) {
     throw new Error(`Addresses for chainId:${chainId} was not found in addressesContractsTestnets.json`)
   }
-  const contractAddress = checkNotNull(addresses['RentalityGateway'], 'rentalityGatewayAddress')
-
-  if (!contractAddress) {
+  const rentalityGatewayAddress = checkNotNull(addresses['RentalityGateway'], 'rentalityGatewayAddress')
+  if (!rentalityGatewayAddress) {
     throw new Error(`Addresses for RentalityGateway was not found`)
+  }
+
+  const chatHelperAddress = checkNotNull(addresses['RentalityChatHelper'], 'chatHelperAddress')
+  if (!chatHelperAddress) {
+    throw new Error(`Addresses for RentalityChatHelper was not found`)
   }
 
   const HOST_PRIVATE_KEY = testData.hostWalletPrivateKey
@@ -37,11 +42,13 @@ const checkInitialization = async () => {
   }
   const guest = new ethers.Wallet(GUEST_PRIVATE_KEY, ethers.provider)
 
-  const gateway = new ethers.Contract(contractAddress, RentalityGatewayJSON_ABI.abi, deployer)
-  return [host, guest, gateway]
+  const gateway = new ethers.Contract(rentalityGatewayAddress, RentalityGatewayJSON_ABI.abi, deployer)
+  const chatService = new ethers.Contract(chatHelperAddress, RentalityChatHelperJSON_ABI.abi, deployer)
+
+  return [host, guest, gateway, chatService]
 }
 
-async function setHostKycIfNotSet(host, gateway) {
+async function setHostKycIfNotSet(host, gateway, chatService) {
   console.log('\nSetting KYC for host...')
 
   if ((await gateway.connect(host).getMyKYCInfo()).name) {
@@ -61,11 +68,12 @@ async function setHostKycIfNotSet(host, gateway) {
       data.expirationDate,
       data.tcSignature
     )
+  await chatService.connect(host).setMyChatPublicKey(data.privateKey, data.publicKey)
 
   console.log('KYC for host was set')
 }
 
-async function setGuestKycIfNotSet(guest, gateway) {
+async function setGuestKycIfNotSet(guest, gateway, chatService) {
   console.log('\nSetting KYC for guest...')
 
   if ((await gateway.connect(guest).getMyKYCInfo()).name) {
@@ -85,6 +93,7 @@ async function setGuestKycIfNotSet(guest, gateway) {
       data.expirationDate,
       data.tcSignature
     )
+  await chatService.connect(guest).setMyChatPublicKey(data.privateKey, data.publicKey)
 
   console.log('KYC for guest was set')
 }
@@ -179,7 +188,9 @@ async function createCheckedInByHostTrip(tripIndex, carId, host, guest, gateway)
   if (tripId < 0) {
     throw new error('create trip error ')
   }
-  await gateway.connect(host).checkInByHost(tripId, [0, 0], 'Insurance Company', 'Insurance Numbre 123')
+  await gateway
+    .connect(host)
+    .checkInByHost(tripId, [tripIndex * 10, tripIndex * 100], 'Insurance Company', 'Insurance Numbre 123')
   console.log(`Status of the trip #${tripIndex} was changed to 'CheckedInByHost'`)
   return tripId
 }
@@ -190,7 +201,7 @@ async function createStartedTrip(tripIndex, carId, host, guest, gateway) {
   if (tripId < 0) {
     throw new error('create trip error ')
   }
-  await gateway.connect(guest).checkInByGuest(tripId, [0, 0])
+  await gateway.connect(guest).checkInByGuest(tripId, [tripIndex * 10, tripIndex * 100])
   console.log(`Status of the trip #${tripIndex} was changed to 'Started'`)
   return tripId
 }
@@ -201,7 +212,7 @@ async function createCheckedOutByGuestTrip(tripIndex, carId, host, guest, gatewa
   if (tripId < 0) {
     throw new error('create trip error ')
   }
-  await gateway.connect(guest).checkOutByGuest(tripId, [0, 0])
+  await gateway.connect(guest).checkOutByGuest(tripId, [tripIndex * 10, tripIndex * 100])
   console.log(`Status of the trip #${tripIndex} was changed to 'CheckedOutByGuest'`)
   return tripId
 }
@@ -212,7 +223,7 @@ async function createFinishedTrip(tripIndex, carId, host, guest, gateway) {
   if (tripId < 0) {
     throw new error('create trip error ')
   }
-  await gateway.connect(host).checkOutByHost(tripId, [0, 0])
+  await gateway.connect(host).checkOutByHost(tripId, [tripIndex * 10, tripIndex * 100])
   console.log(`Status of the trip #${tripIndex} was changed to 'Finished'`)
   return tripId
 }
@@ -234,7 +245,7 @@ async function createCompletedWithoutGuestComfirmationTrip(tripIndex, carId, hos
   if (tripId < 0) {
     throw new error('create trip error ')
   }
-  await gateway.connect(host).checkOutByHost(tripId, [0, 0])
+  await gateway.connect(host).checkOutByHost(tripId, [tripIndex * 10, tripIndex * 100])
   console.log(`Status of the trip #${tripIndex} was changed to 'CompletedWithoutGuestComfirmation'`)
   return tripId
 }
@@ -251,10 +262,10 @@ async function createConfirmedAfterCompletedWithoutGuestComfirmationTrip(tripInd
 }
 
 async function main() {
-  const [host, guest, gateway] = await checkInitialization()
+  const [host, guest, gateway, chatService] = await checkInitialization()
 
-  await setHostKycIfNotSet(host, gateway)
-  await setGuestKycIfNotSet(guest, gateway)
+  await setHostKycIfNotSet(host, gateway, chatService)
+  await setGuestKycIfNotSet(guest, gateway, chatService)
 
   const carIds = await setCarsForHost(host, gateway)
   let tripCount = await getTripCount(host, gateway)
