@@ -227,6 +227,7 @@ interface Schemas {
     string hostPhoneNumber;
     CarInfo carInfo;
     uint amountInEth;
+    string timeZoneId;
   }
 
   // Struct to represent a claim
@@ -474,5 +475,10 @@ interface Schemas {
   struct SignedLocationInfo {
     LocationInfo locationInfo;
     string signature;
+  }
+
+  struct KycCommissionData {
+    uint paidTime;
+    bool commissionPaid;
   }
 }

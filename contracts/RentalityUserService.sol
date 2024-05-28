@@ -27,6 +27,8 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
   address private civicVerifier;
   uint private civicGatekeeperNetwork;
   bytes32 private TCMessageHash;
+  uint private kycCommission;
+  mapping(address => Schemas.KycCommissionData[]) private userToKYCCommission;
 
   /// @notice Sets KYC information for the caller (host or guest).
   /// @param name The user's name.
@@ -210,6 +212,39 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
     TCMessageHash = ECDSA.toEthSignedMessageHash(keccak256(bytes(message)));
   }
 
+  function setKycCommission(uint newCommission) public {
+    require(isAdmin(tx.origin), 'Only admin.');
+    kycCommission = newCommission;
+  }
+
+  function getKycCommission() public view returns (uint) {
+    return kycCommission;
+  }
+
+  function useKycCommission(address user) public {
+    require(isManager(tx.origin) || msg.sender == user, 'only Manager');
+
+    Schemas.KycCommissionData[] memory commissions = userToKYCCommission[user];
+    if (commissions.length == 0) {
+      revert('not paid');
+    }
+    require(commissions[commissions.length - 1].commissionPaid, 'not paid');
+    commissions[commissions.length - 1].commissionPaid = false;
+    userToKYCCommission[user] = commissions;
+  }
+
+  function isCommissionPaidForUser(address user) public view returns (bool) {
+    require(isManager(user) || tx.origin == user, 'Not allowed');
+    Schemas.KycCommissionData[] memory commissions = userToKYCCommission[user];
+    if (commissions.length == 0) return false;
+    return commissions[commissions.length - 1].commissionPaid;
+  }
+
+  function payCommission() public {
+    require(isManager(msg.sender), 'only manager.');
+    userToKYCCommission[tx.origin].push(Schemas.KycCommissionData(block.timestamp, true));
+  }
+
   /// @notice Initializes the contract with the specified Civic verifier address and gatekeeper network ID, and sets the default admin role.
   /// @dev This function is called during contract deployment.
   /// @param _civicVerifier The address of the Civic verifier contract.
@@ -231,6 +266,7 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
         'I have read and I agree with Terms of service, Cancellation policy, Prohibited uses and Privacy policy of Rentality.'
       )
     );
+    kycCommission = 200;
   }
 
   function _authorizeUpgrade(address /*newImplementation*/) internal view override {

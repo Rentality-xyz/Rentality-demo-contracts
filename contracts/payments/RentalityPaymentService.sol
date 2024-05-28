@@ -135,6 +135,116 @@ contract RentalityPaymentService is UUPSOwnable {
     defaultTax = _taxId;
   }
 
+  /// @notice Withdraw a specific amount of funds from the contract.
+  /// @param amount The amount to withdraw from the contract.
+
+  function withdrawFromPlatform(uint256 amount, address currencyType) public {
+    require(
+      address(this).balance > 0 || IERC20(currencyType).balanceOf(address(this)) > 0,
+      'There is no commission to withdraw'
+    );
+
+    require(
+      address(this).balance >= amount || IERC20(currencyType).balanceOf(address(this)) >= amount,
+      'There is not enough balance on the contract'
+    );
+
+    bool success;
+    if (address(0) == currencyType) {
+      //require(payable(owner()).send(amount));
+      (success, ) = payable(owner()).call{value: amount}('');
+      require(success, 'Transfer failed.');
+    } else {
+      success = IERC20(currencyType).transfer(owner(), amount);
+    }
+    require(success, 'Transfer failed.');
+  }
+
+  function payFinishTrip(Schemas.Trip memory trip, uint valueToHost, uint valueToGuest) public payable {
+    require(userService.isManager(msg.sender), 'Only manager');
+    bool successHost;
+    bool successGuest;
+    if (trip.paymentInfo.currencyType == address(0)) {
+      (successHost, ) = payable(trip.host).call{value: valueToHost}('');
+      (successGuest, ) = payable(trip.guest).call{value: valueToGuest}('');
+    } else {
+      successHost = IERC20(trip.paymentInfo.currencyType).transfer(trip.host, valueToHost);
+      successGuest = IERC20(trip.paymentInfo.currencyType).transfer(trip.guest, valueToGuest);
+    }
+    require(successHost && successGuest, 'Transfer failed.');
+  }
+
+  function payKycCommission(uint valueInCurrency, address currencyType) public payable {
+    require(userService.isManager(msg.sender), 'Only manager');
+    require(!RentalityUserService(address(userService)).isCommissionPaidForUser(tx.origin), 'Commission paid');
+    if (currencyType == address(0)) {
+      require(msg.value == valueInCurrency, 'Not enough tokens');
+    } else {
+      require(IERC20(currencyType).allowance(tx.origin, address(this)) >= valueInCurrency, 'Not enough tokens');
+      bool success = IERC20(currencyType).transferFrom(tx.origin, address(this), valueInCurrency);
+      require(success, 'Fail to pay');
+    }
+
+    RentalityUserService(address(userService)).payCommission();
+  }
+
+  function payCreateTrip(address currencyType, uint valueSumInCurrency) public payable {
+    require(userService.isManager(msg.sender), 'only manager');
+    if (currencyType == address(0)) {
+      require(
+        msg.value == valueSumInCurrency,
+        'Rental fee must be equal to sum: price with discount + taxes + deposit + delivery'
+      );
+    } else {
+      require(
+        IERC20(currencyType).allowance(tx.origin, address(this)) >= valueSumInCurrency,
+        'Rental fee must be equal to sum: price with discount + taxes + deposit + delivery'
+      );
+
+      bool success = IERC20(currencyType).transferFrom(tx.origin, address(this), valueSumInCurrency);
+      require(success, 'Transfer failed.');
+    }
+  }
+
+  function payClaim(Schemas.Trip memory trip, uint valueToPay, uint feeInCurrency, uint commission) public payable {
+    require(userService.isManager(msg.sender), 'Only manager');
+    bool successHost;
+
+    if (trip.paymentInfo.currencyType == address(0)) {
+      require(msg.value >= valueToPay, 'Insufficient funds sent.');
+      (successHost, ) = payable(trip.host).call{value: valueToPay - feeInCurrency}('');
+
+      if (msg.value > valueToPay + feeInCurrency) {
+        uint256 excessValue = msg.value - valueToPay;
+        (bool successRefund, ) = payable(tx.origin).call{value: excessValue}('');
+        require(successRefund, 'Refund to guest failed.');
+      }
+    } else {
+      require(IERC20(trip.paymentInfo.currencyType).allowance(tx.origin, address(this)) >= valueToPay);
+      successHost = IERC20(trip.paymentInfo.currencyType).transferFrom(
+        tx.origin,
+        trip.host,
+        valueToPay - feeInCurrency
+      );
+      if (commission != 0) {
+        bool successPlatform = IERC20(trip.paymentInfo.currencyType).transferFrom(tx.origin, trip.host, feeInCurrency);
+        require(successPlatform, 'Fail to transfer fee.');
+      }
+    }
+    require(successHost, 'Transfer to host failed.');
+  }
+
+  function payRejectTrip(Schemas.Trip memory trip, uint valueToReturnInToken) public {
+    bool successGuest;
+    if ((trip.paymentInfo.currencyType == address(0))) {
+      (successGuest, ) = payable(trip.guest).call{value: valueToReturnInToken}('');
+    } else {
+      successGuest = IERC20(trip.paymentInfo.currencyType).transfer(trip.guest, valueToReturnInToken);
+    }
+    require(successGuest, 'Transfer to guest failed.');
+  }
+
+  receive() external payable {}
   /// @notice Constructor to initialize the RentalityPaymentService.
   /// @param _userService The address of the RentalityUserService contract
   function initialize(address _userService, address _floridaTaxes, address _baseDiscount) public initializer {

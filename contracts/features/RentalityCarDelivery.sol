@@ -135,6 +135,6 @@ contract RentalityCarDelivery is Initializable, UUPSAccess {
   /// @param _userService Address of the user service contract
   function initialize(address _userService) public initializer {
     userService = IRentalityAccessControl(_userService);
-    defaultPrices = Schemas.DeliveryPrices(250, 300, true);
+    defaultPrices = Schemas.DeliveryPrices(300, 250, true);
   }
 }

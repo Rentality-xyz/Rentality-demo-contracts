@@ -59,7 +59,7 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
   /// @notice Updates the address of the RentalityCarToken contract. Only callable by admins.
   /// @param contractAddress The new address of the RentalityPayment contract.
   function updatePaymentService(address contractAddress) public onlyAdmin {
-    paymentService = RentalityPaymentService(contractAddress);
+    paymentService = RentalityPaymentService(payable(contractAddress));
   }
   /// @notice Retrieves the address of the RentalityClaim contract.
   /// @return The address of the RentalityClaim contract.
@@ -149,17 +149,17 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
   /// @param amount The amount to withdraw.
   /// @param tokenAddress one of available on Rentality currency
   function withdrawFromPlatform(uint256 amount, address tokenAddress) public {
-    rentalityPlatform.withdrawFromPlatform(amount, tokenAddress);
+    paymentService.withdrawFromPlatform(amount, tokenAddress);
   }
 
   /// @notice Withdraws the entire balance from the RentalityPlatform contract.
   /// @param tokenAddress one of available on Rentality currency
   function withdrawAllFromPlatform(address tokenAddress) public {
     uint balance = currencyConverterService.isETH(tokenAddress)
-      ? address(rentalityPlatform).balance
-      : IERC20(tokenAddress).balanceOf(address(rentalityPlatform));
+      ? address(paymentService).balance
+      : IERC20(tokenAddress).balanceOf(address(paymentService));
 
-    rentalityPlatform.withdrawFromPlatform(balance, tokenAddress);
+    paymentService.withdrawFromPlatform(balance, tokenAddress);
   }
   /// @notice Sets the platform fee in parts per million (PPM). Only callable by admins.
   /// @param valueInPPM The new platform fee value in PPM.
@@ -252,7 +252,7 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
     userService.setCivicData(_civicVerifier, _civicGatekeeperNetwork);
   }
 
-  /// @notice Sets a new message for the Terms and Conditions (TC) and updates the corresponding hashed message.
+  // @notice Sets a new message for the Terms and Conditions (TC) and updates the corresponding hashed message.
   /// @dev This function can only be called by an admin.
   /// @param message The new message for the TC.
   function setNewTCMessage(string memory message) public {
@@ -261,6 +261,14 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
 
   function setPlatformFee(uint value) public {
     claimService.setPlatformFee(value);
+  }
+
+  function setKycCommission(uint value) public {
+    userService.setKycCommission(value);
+  }
+
+  function getKycCommission() public view returns (uint) {
+    return userService.getKycCommission();
   }
 
   //  @dev Initializes the contract with the provided addresses for various services.
@@ -287,7 +295,7 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
     tripService = RentalityTripService(tripServiceAddress);
     userService = RentalityUserService(userServiceAddress);
     rentalityPlatform = RentalityPlatform(rentalityPlatformAddress);
-    paymentService = RentalityPaymentService(paymentServiceAddress);
+    paymentService = RentalityPaymentService(payable(paymentServiceAddress));
     claimService = RentalityClaimService(claimServiceAddress);
     deliveryService = RentalityCarDelivery(carDeliveryAddress);
 

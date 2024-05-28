@@ -88,7 +88,7 @@ describe('RentalityGateway: time buffer', function () {
         },
         { value: result.totalPrice }
       )
-    ).to.changeEtherBalances([guest, rentalityPlatform], [-result.totalPrice, result.totalPrice])
+    ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
 
     await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
 
@@ -138,7 +138,7 @@ describe('RentalityGateway: time buffer', function () {
         },
         { value: result.totalPrice }
       )
-    ).to.changeEtherBalances([guest, rentalityPlatform], [-result.totalPrice, result.totalPrice])
+    ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
 
     await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
 
@@ -186,7 +186,7 @@ describe('RentalityGateway: time buffer', function () {
         },
         { value: result.totalPrice }
       )
-    ).to.changeEtherBalances([guest, rentalityPlatform], [-result.totalPrice, result.totalPrice])
+    ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
 
     await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
 
@@ -240,7 +240,7 @@ describe('RentalityGateway: time buffer', function () {
         },
         { value: result.totalPrice }
       )
-    ).to.changeEtherBalances([guest, rentalityPlatform], [-result.totalPrice, result.totalPrice])
+    ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
 
     const resultTwoDays = await rentalityGateway.calculatePayments(1, 2, ethToken)
     await expect(
@@ -253,7 +253,7 @@ describe('RentalityGateway: time buffer', function () {
         },
         { value: resultTwoDays.totalPrice }
       )
-    ).to.changeEtherBalances([guest, rentalityPlatform], [-resultTwoDays.totalPrice, resultTwoDays.totalPrice])
+    ).to.changeEtherBalances([guest, rentalityPaymentService], [-resultTwoDays.totalPrice, resultTwoDays.totalPrice])
 
     await expect(await rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
 

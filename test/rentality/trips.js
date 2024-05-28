@@ -30,7 +30,7 @@ describe('Rentality: trips', function () {
   })
 
   it('host can reject created trip', async function () {
-    const { rentalityPlatform, rentalityGateway, rentalityCarToken, host, guest } =
+    const { rentalityPlatform, rentalityGateway, rentalityCarToken, host, guest, rentalityPaymentService } =
       await loadFixture(deployDefaultFixture)
 
     await expect(rentalityCarToken.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
@@ -51,16 +51,16 @@ describe('Rentality: trips', function () {
         },
         { value: result.totalPrice }
       )
-    ).to.changeEtherBalances([guest, rentalityPlatform], [-result.totalPrice, result.totalPrice])
+    ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
 
     await expect(rentalityPlatform.connect(host).rejectTripRequest(1)).to.changeEtherBalances(
-      [guest, rentalityPlatform],
+      [guest, rentalityPaymentService],
       [result.totalPrice, -result.totalPrice]
     )
   })
 
   it('guest can reject created trip', async function () {
-    const { rentalityPlatform, rentalityGateway, rentalityCarToken, host, guest } =
+    const { rentalityPlatform, rentalityGateway, rentalityCarToken, host, guest, rentalityPaymentService } =
       await loadFixture(deployDefaultFixture)
 
     await expect(rentalityCarToken.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
@@ -81,10 +81,10 @@ describe('Rentality: trips', function () {
         },
         { value: result.totalPrice }
       )
-    ).to.changeEtherBalances([guest, rentalityPlatform], [-result.totalPrice, result.totalPrice])
+    ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
 
     await expect(rentalityPlatform.connect(guest).rejectTripRequest(1)).to.changeEtherBalances(
-      [guest, rentalityPlatform],
+      [guest, rentalityPaymentService],
       [result.totalPrice, -result.totalPrice]
     )
   })
@@ -143,7 +143,7 @@ describe('Rentality: trips', function () {
     const returnToHost = rentPriceInEth - depositValue - rentalityFee - taxes
 
     await expect(rentalityPlatform.connect(host).finishTrip(1)).to.changeEtherBalances(
-      [host, rentalityPlatform],
+      [host, rentalityPaymentService],
       [returnToHost, -(rentPriceInEth - rentalityFee - taxes)]
     )
   })
@@ -195,7 +195,7 @@ describe('Rentality: trips', function () {
     expect((await rentalityTripService.connect(host).getTrip(2)).status).to.equal(0)
 
     await expect(rentalityPlatform.connect(host).approveTripRequest(1)).to.changeEtherBalances(
-      [guest, rentalityPlatform],
+      [guest, rentalityPaymentService],
       [result.totalPrice, -result.totalPrice]
     )
 

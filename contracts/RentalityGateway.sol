@@ -40,11 +40,6 @@ struct RentalityContract {
 /// @custom:oz-upgrades-unsafe-allow external-library-linking
 contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
   RentalityContract private addresses;
-  /// @notice Ensures that the caller is a host.
-  modifier onlyHost() {
-    require(addresses.userService.isHost(msg.sender), 'User is not a host');
-    _;
-  }
   using RentalityQuery for RentalityContract;
 
   fallback(bytes calldata data) external payable returns (bytes memory) {
@@ -74,7 +69,6 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
   function updateServiceAddresses() public {
     require(addresses.userService.isAdmin(tx.origin), 'only Admin.');
     addresses = addresses.adminService.getRentalityContracts();
-    addresses.rentalityPlatform.updateServiceAddresses(addresses.adminService);
   }
 
   /// @notice Retrieves information about a car by its ID.
@@ -313,6 +307,28 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
     return RentalityCarDelivery(addresses.adminService.getDeliveryServiceAddress()).getUserDeliveryPrices(user);
   }
 
+  ///  @notice Calculates the KYC commission for a given currency.
+  ///  @param currency The address of the currency to calculate the KYC commission for.
+  ///  @return The calculated KYC commission amount.
+  function calculateKycCommission(address currency) public view returns (uint) {
+    return RentalityQuery.calculateKycCommission(addresses, currency);
+  }
+
+  /// @notice Retrieves the KYC commission amount.
+  /// @dev Calls the `getKycCommission` function from the `userService` contract.
+  /// @return The current KYC commission amount.
+  function getKycCommission() public view returns (uint) {
+    return addresses.userService.getKycCommission();
+  }
+
+  /// @notice Checks if the KYC commission has been paid by a user.
+  /// @dev Calls the `isCommissionPaidForUser` function from the `userService` contract.
+  /// @param user The address of the user to check.
+  /// @return True if the KYC commission has been paid by the user, false otherwise.
+  function isKycCommissionPaid(address user) public view returns (bool) {
+    return addresses.userService.isCommissionPaidForUser(user);
+  }
+
   // Unused
   /// @notice Searches for available cars for a specific user based on specified criteria.
   /// @param user The address of the user.
@@ -500,7 +516,7 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
       RentalityTripService(tripServiceAddress),
       RentalityUserService(userServiceAddress),
       RentalityPlatform(rentalityPlatformAddress),
-      RentalityPaymentService(paymentServiceAddress),
+      RentalityPaymentService(payable(paymentServiceAddress)),
       RentalityClaimService(claimServiceAddress),
       RentalityAdminGateway(rentalityAdminGatewayAddress),
       RentalityCarDelivery(deliveryServiceAddress)
