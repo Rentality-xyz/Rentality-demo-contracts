@@ -332,7 +332,7 @@ library RentalityQuery {
 
       (uint64 salesTaxes, uint64 govTax) = taxId == 0
         ? (0, 0)
-        : contracts.paymentService.calculateTaxes(taxId, totalTripDays, priceWithDiscount);
+        : contracts.paymentService.calculateTaxes(taxId, totalTripDays, priceWithDiscount + deliveryFee);
 
       result[i] = Schemas.SearchCar(
         temp[i].carId,
