@@ -1,5 +1,5 @@
 const { expect } = require('chai')
-const { deployDefaultFixture, ethToken, locationInfo } = require('../utils')
+const { deployDefaultFixture, ethToken, locationInfo, getEmptySearchCarParams } = require('../utils')
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 const { ethers } = require('hardhat')
 
@@ -259,5 +259,161 @@ describe('Rentality Delivery', function () {
     expect(trip.transactionInfo.tripEarnings).to.be.eq(
       BigInt(mockCreateCarRequest.pricePerDayInUsdCents - fee) + totalDeliveryPrice
     )
+  })
+  it('should sort cars', async function () {
+    let homeLat = '25.623529'
+    let homeLon = '-80.343476'
+    let pickUpLat = '25.797641'
+    let pickUpLon = '-80.202987'
+    let locationInfo = {
+      latitude: homeLat,
+      longitude: homeLon,
+      userAddress: 'Miami Riverwalk, Miami, Florida, USA',
+      country: 'USA',
+      state: 'Florida',
+      city: 'Miami',
+
+      timeZoneId: 'id',
+    }
+    let locationInfo1 = {
+      latitude: '33.829662',
+      longitude: '-84.363986',
+      userAddress: 'Miami Riverwalk, Miami, Florida, USA',
+      country: 'USA',
+      state: 'Florida',
+      city: 'Miami',
+
+      timeZoneId: 'id',
+    }
+
+    let locationInfo2 = {
+      latitude: '25.771325',
+      longitude: '-80.185969',
+      userAddress: 'Miami Riverwalk, Miami, Florida, USA',
+      country: 'USA',
+      state: 'Florida',
+      city: 'Miami',
+
+      timeZoneId: 'id',
+    }
+    const mockCreateCarRequest = {
+      tokenUri: 'uri',
+      carVinNumber: 'VIN_NфвUMBER',
+      brand: 'BRAND',
+      model: 'MODEL',
+      yearOfProduction: 2020,
+      pricePerDayInUsdCents: 1000,
+      securityDepositPerTripInUsdCents: 0,
+      engineParams: [10],
+      engineType: 2,
+      milesIncludedPerDay: 1000000,
+      timeBufferBetweenTripsInSec: 0,
+      geoApiKey: 'key',
+      locationInfo,
+      insuranceIncluded: true,
+    }
+    await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest)).not.to.be.reverted
+
+    const mockCreateCarRequest1 = {
+      tokenUri: 'uri',
+      carVinNumber: 'VIN_NUdadMBER',
+      brand: 'BRAND',
+      model: 'MODEL',
+      yearOfProduction: 2020,
+      pricePerDayInUsdCents: 1000,
+      securityDepositPerTripInUsdCents: 0,
+      engineParams: [10],
+      engineType: 2,
+      milesIncludedPerDay: 1000000,
+      timeBufferBetweenTripsInSec: 0,
+      geoApiKey: 'key',
+      locationInfo: locationInfo1,
+      insuranceIncluded: true,
+    }
+    await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest1)).not.to.be.reverted
+
+    const mockCreateCarRequest2 = {
+      tokenUri: 'uri',
+      carVinNumber: 'VIN_NUadadaMBER',
+      brand: 'BRAND',
+      model: 'MODEL',
+      yearOfProduction: 2020,
+      pricePerDayInUsdCents: 1000,
+      securityDepositPerTripInUsdCents: 0,
+      engineParams: [10],
+      engineType: 2,
+      milesIncludedPerDay: 1000000,
+      timeBufferBetweenTripsInSec: 0,
+      geoApiKey: 'key',
+      locationInfo: locationInfo2,
+      insuranceIncluded: true,
+    }
+    await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest2)).not.to.be.reverted
+    let loc = {
+      latitude: pickUpLat,
+      longitude: pickUpLon,
+      userAddress: 'Miami Riverwalk, Miami, Florida, USA',
+      country: 'USA',
+      state: 'Florida',
+      city: 'Miami',
+
+      timeZoneId: 'id',
+    }
+    const mockCreateCarRequest5 = {
+      tokenUri: 'uri',
+      carVinNumber: 'VIN_NUadaadsdaMBER',
+      brand: 'BRAND',
+      model: 'MODEL',
+      yearOfProduction: 2020,
+      pricePerDayInUsdCents: 1000,
+      securityDepositPerTripInUsdCents: 0,
+      engineParams: [10],
+      engineType: 2,
+      milesIncludedPerDay: 1000000,
+      timeBufferBetweenTripsInSec: 0,
+      geoApiKey: 'key',
+      locationInfo: locationInfo1,
+      insuranceIncluded: true,
+    }
+    const mockCreateCarRequest3 = {
+      tokenUri: 'uri',
+      carVinNumber: 'VIN_NUadaadasdaMBER',
+      brand: 'BRAND',
+      model: 'MODEL',
+      yearOfProduction: 2020,
+      pricePerDayInUsdCents: 1000,
+      securityDepositPerTripInUsdCents: 0,
+      engineParams: [10],
+      engineType: 2,
+      milesIncludedPerDay: 1000000,
+      timeBufferBetweenTripsInSec: 0,
+      geoApiKey: 'key',
+      locationInfo: locationInfo,
+      insuranceIncluded: true,
+    }
+    const mockCreateCarRequest4 = {
+      tokenUri: 'uri',
+      carVinNumber: 'VIN_NUada132daMBER',
+      brand: 'BRAND',
+      model: 'MODEL',
+      yearOfProduction: 2020,
+      pricePerDayInUsdCents: 1000,
+      securityDepositPerTripInUsdCents: 0,
+      engineParams: [10],
+      engineType: 2,
+      milesIncludedPerDay: 1000000,
+      timeBufferBetweenTripsInSec: 0,
+      geoApiKey: 'key',
+      locationInfo: locationInfo2,
+      insuranceIncluded: true,
+    }
+    await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest4)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest5)).not.to.be.reverted
+
+    await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest3)).not.to.be.reverted
+
+    let result = await rentalityGateway.searchAvailableCarsWithDelivery(0, 1, getEmptySearchCarParams(), loc, loc)
+
+    console.log(result)
   })
 })
