@@ -145,7 +145,7 @@ contract RentalityCarDelivery is Initializable, UUPSAccess {
         pickUpLocation.latitude,
         pickUpLocation.longitude
       );
-      if (distance > max) {
+      if (distance >= max) {
         max = distance;
         result[i] = Schemas.SearchCarWithDistance(cars[i], distance);
       } else {
