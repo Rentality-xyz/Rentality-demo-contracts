@@ -373,7 +373,7 @@ interface IRentalityGateway {
 
   /// @notice Pays the KYC commission.
   /// @dev This function should be called with the appropriate amount of Ether to cover the KYC commission.
-  function payKycCommission() external payable;
+  function payKycCommission(address currency) external payable;
 
   ///  @notice Uses the KYC commission for a specific user.
   ///  @param user The address of the user whose KYC commission will be used.

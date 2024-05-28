@@ -174,12 +174,16 @@ contract RentalityPaymentService is UUPSOwnable {
     require(successHost && successGuest, 'Transfer failed.');
   }
 
-  function payKycCommission() public payable {
+  function payKycCommission(uint valueInCurrency, address currencyType) public payable {
     require(userService.isManager(msg.sender), 'Only manager');
-    uint commission = RentalityUserService(address(userService)).getKycCommission();
     require(!RentalityUserService(address(userService)).isCommissionPaidForUser(tx.origin), 'Commission paid');
-
-    require(msg.value == commission, 'Not enough tokens');
+    if (currencyType == address(0)) {
+      require(msg.value == valueInCurrency, 'Not enough tokens');
+    } else {
+      require(IERC20(currencyType).allowance(tx.origin, address(this)) >= valueInCurrency, 'Not enough tokens');
+      bool success = IERC20(currencyType).transferFrom(tx.origin, address(this), valueInCurrency);
+      require(success, 'Fail to pay');
+    }
 
     RentalityUserService(address(userService)).payCommission();
   }

@@ -144,7 +144,8 @@ library RentalityQuery {
           guestPhoneNumber,
           hostPhoneNumber,
           carInfo,
-          valueInEth
+          valueInEth,
+          IRentalityGeoService(contracts.carService.getGeoServiceAddress()).getCarTimeZoneId(carInfo.carId)
         );
       }
     }
@@ -194,7 +195,8 @@ library RentalityQuery {
           userService.getKYCInfo(trip.guest).mobilePhoneNumber,
           userService.getKYCInfo(host).mobilePhoneNumber,
           carService.getCarInfoById(trip.carId),
-          valueInEth
+          valueInEth,
+          IRentalityGeoService(contracts.carService.getGeoServiceAddress()).getCarTimeZoneId(trip.carId)
         );
       }
     }
@@ -242,7 +244,8 @@ library RentalityQuery {
           userService.getKYCInfo(guest).mobilePhoneNumber,
           userService.getKYCInfo(trip.host).mobilePhoneNumber,
           carService.getCarInfoById(trip.carId),
-          valueInEth
+          valueInEth,
+          IRentalityGeoService(contracts.carService.getGeoServiceAddress()).getCarTimeZoneId(trip.carId)
         );
       }
     }
@@ -283,7 +286,7 @@ library RentalityQuery {
             trips[j].status == Schemas.TripStatus.Created ||
             trips[j].status == Schemas.TripStatus.Finished ||
             trips[j].status == Schemas.TripStatus.Canceled ||
-            (trips[j].status == Schemas.TripStatus.CheckedOutByGuest && trips[j].host == trips[j].tripFinishedBy)
+            (trips[j].status == Schemas.TripStatus.CheckedOutByHost && trips[j].host == trips[j].tripFinishedBy)
           ) {
             continue;
           }
@@ -385,7 +388,9 @@ library RentalityQuery {
 
       if (
         tripInfo.carId == carId &&
-        (tripInfo.status != Schemas.TripStatus.Finished && tripInfo.status != Schemas.TripStatus.Canceled)
+        (tripInfo.status != Schemas.TripStatus.Finished &&
+          tripInfo.status != Schemas.TripStatus.Canceled &&
+          (tripInfo.status != Schemas.TripStatus.CheckedOutByHost && tripInfo.host != tripInfo.tripFinishedBy))
       ) {
         return false;
       }
@@ -419,7 +424,17 @@ library RentalityQuery {
       trip.paymentInfo.currencyDecimals
     );
 
-    return Schemas.FullClaimInfo(claim, trip.host, trip.guest, guestPhoneNumber, hostPhoneNumber, car, valueInCurrency);
+    return
+      Schemas.FullClaimInfo(
+        claim,
+        trip.host,
+        trip.guest,
+        guestPhoneNumber,
+        hostPhoneNumber,
+        car,
+        valueInCurrency,
+        IRentalityGeoService(contracts.carService.getGeoServiceAddress()).getCarTimeZoneId(trip.carId)
+      );
   }
 
   function getTripsThatIntersect(
@@ -480,6 +495,7 @@ library RentalityQuery {
       geo.getLocationInfo(car.locationHash)
     );
   }
+
   function calculateKycCommission(RentalityContract memory addresses, address currency) public view returns (uint) {
     (int rate, uint8 dec) = addresses.currencyConverterService.getCurrentRate(currency);
     return addresses.currencyConverterService.getFromUsd(currency, addresses.userService.getKycCommission(), rate, dec);

@@ -81,8 +81,15 @@ contract RentalityPlatform is UUPSOwnable {
     );
   }
 
-  function payKycCommission() public payable {
-    addresses.paymentService.payKycCommission{value: msg.value}();
+  function payKycCommission(address currency) public payable {
+    (int rate, uint8 dec) = addresses.currencyConverterService.getCurrentRate(currency);
+    uint valueToPay = addresses.currencyConverterService.getFromUsd(
+      currency,
+      addresses.userService.getKycCommission(),
+      rate,
+      dec
+    );
+    addresses.paymentService.payKycCommission{value: msg.value}(valueToPay, currency);
   }
 
   function useKycCommission(address user) public {
