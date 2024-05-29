@@ -260,7 +260,7 @@ describe('Rentality Delivery', function () {
       BigInt(mockCreateCarRequest.pricePerDayInUsdCents - fee) + totalDeliveryPrice
     )
   })
-  it.only('should sort cars', async function () {
+  it('should sort cars', async function () {
     let homeLat = '25.623529'
     let homeLon = '-80.343476'
     let pickUpLat = '25.797641'

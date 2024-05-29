@@ -22,7 +22,9 @@ contract RentalityCarDelivery is Initializable, UUPSAccess {
   /// @param underTwentyFiveMilesInUsdCents Price in USD cents for distances under 25 miles
   /// @param aboveTwentyFiveMilesInUsdCents Price in USD cents for distances above 25 miles
   function setUserDeliveryPrices(uint64 underTwentyFiveMilesInUsdCents, uint64 aboveTwentyFiveMilesInUsdCents) public {
-    require(userService.isHost(tx.origin), 'Only host.');
+    if (!userService.isHost(tx.origin)) {
+      RentalityUserService(address(userService)).grantHostRole(tx.origin);
+    }
     userToDeliveryPrice[tx.origin] = Schemas.DeliveryPrices(
       underTwentyFiveMilesInUsdCents,
       aboveTwentyFiveMilesInUsdCents,
