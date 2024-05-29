@@ -132,7 +132,7 @@ describe('Check out without guest', function () {
       new Date().getDate() + 100,
       searchParams
     )
-    const carId = resultAr[0].carId
+    const carId = resultAr[0].car.carId
 
     expect(carId).to.be.eq(1)
   })

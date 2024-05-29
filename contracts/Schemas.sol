@@ -86,6 +86,7 @@ interface Schemas {
     uint32 yearOfProductionTo;
     uint64 pricePerDayInUsdCentsFrom;
     uint64 pricePerDayInUsdCentsTo;
+    LocationInfo userLocation;
   }
 
   /// Trip Service

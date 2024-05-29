@@ -260,7 +260,7 @@ describe('Rentality Delivery', function () {
       BigInt(mockCreateCarRequest.pricePerDayInUsdCents - fee) + totalDeliveryPrice
     )
   })
-  it('should sort cars', async function () {
+  it.only('should sort cars', async function () {
     let homeLat = '25.623529'
     let homeLon = '-80.343476'
     let pickUpLat = '25.797641'
@@ -412,7 +412,8 @@ describe('Rentality Delivery', function () {
 
     await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest3)).not.to.be.reverted
 
-    let result = await rentalityGateway.searchAvailableCarsWithDelivery(0, 1, getEmptySearchCarParams(), loc, loc)
+    let emptySearchParams = { ...getEmptySearchCarParams(), userLocation: loc }
+    let result = await rentalityGateway.searchAvailableCarsWithDelivery(0, 1, emptySearchParams, loc, loc)
 
     console.log(result)
   })
