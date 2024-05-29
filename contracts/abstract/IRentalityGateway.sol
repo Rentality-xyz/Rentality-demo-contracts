@@ -131,7 +131,7 @@ interface IRentalityGateway {
     uint64 startDateTime,
     uint64 endDateTime,
     Schemas.SearchCarParams memory searchParams
-  ) external view returns (Schemas.SearchCar[] memory);
+  ) external view returns (Schemas.SearchCarWithDistance[] memory);
 
   /// @notice Searches for available cars for a specific user based on specified criteria.
   /// @param user The address of the user.
@@ -353,7 +353,7 @@ interface IRentalityGateway {
     Schemas.SearchCarParams memory searchParams,
     Schemas.LocationInfo memory pickUpInfo,
     Schemas.LocationInfo memory returnInfo
-  ) external view returns (Schemas.SearchCar[] memory);
+  ) external view returns (Schemas.SearchCarWithDistance[] memory);
 
   ///  @notice Calculates the KYC commission for a given currency.
   ///  @param currency The address of the currency to calculate the KYC commission for.

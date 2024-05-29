@@ -154,7 +154,7 @@ describe('RentalityGateway: car', function () {
       new Date().getDate() + oneDayInSec * totalTripDays,
       searchParams
     )
-    const result = resultAr[0]
+    const result = resultAr[0].car
 
     expect(result.carId).to.be.equal(1)
     expect(result.brand).to.be.eq(addCarRequest.brand)
