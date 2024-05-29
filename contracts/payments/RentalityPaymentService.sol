@@ -99,7 +99,9 @@ contract RentalityPaymentService is UUPSOwnable {
   /// @param data The discount data.
   function addBaseDiscount(address user, Schemas.BaseDiscount memory data) public {
     require(userService.isManager(msg.sender), 'Manager only.');
-    require(userService.isHost(tx.origin), 'Only host.');
+    if (!userService.isHost(user)) {
+      RentalityUserService(address(userService)).grantHostRole(user);
+    }
     discountAddressToDiscountContract[currentDiscount].addUserDiscount(user, abi.encode(data));
   }
 

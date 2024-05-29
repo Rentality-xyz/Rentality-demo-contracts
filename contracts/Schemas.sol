@@ -86,6 +86,7 @@ interface Schemas {
     uint32 yearOfProductionTo;
     uint64 pricePerDayInUsdCentsFrom;
     uint64 pricePerDayInUsdCentsTo;
+    LocationInfo userLocation;
   }
 
   /// Trip Service
@@ -368,6 +369,10 @@ interface Schemas {
   }
 
   /// Query
+  struct SearchCarWithDistance {
+    SearchCar car;
+    int distance;
+  }
 
   struct SearchCar {
     uint carId;

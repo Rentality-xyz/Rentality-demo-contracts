@@ -1,7 +1,7 @@
 const { expect } = require('chai')
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 
-const { getMockCarRequest, getMockCarRequestWithAddress } = require('../utils')
+const { getMockCarRequest, getMockCarRequestWithAddress, locationInfo } = require('../utils')
 const { deployFixtureWith1Car } = require('./deployments')
 
 describe('RentalityCarToken: search functions', function () {
@@ -19,6 +19,7 @@ describe('RentalityCarToken: search functions', function () {
       yearOfProductionTo: 0,
       pricePerDayInUsdCentsFrom: 0,
       pricePerDayInUsdCentsTo: 0,
+      userLocation: locationInfo,
     }
 
     const availableCars = await rentalityGateway.connect(guest).searchAvailableCars(0, 0, searchCarParams)
@@ -41,6 +42,7 @@ describe('RentalityCarToken: search functions', function () {
       yearOfProductionTo: 0,
       pricePerDayInUsdCentsFrom: 0,
       pricePerDayInUsdCentsTo: 0,
+      userLocation: locationInfo,
     }
     const searchCarParams2 = {
       country: '',
@@ -52,6 +54,7 @@ describe('RentalityCarToken: search functions', function () {
       yearOfProductionTo: 0,
       pricePerDayInUsdCentsFrom: 0,
       pricePerDayInUsdCentsTo: 0,
+      userLocation: locationInfo,
     }
 
     const availableCars1 = await rentalityGateway.connect(guest).searchAvailableCars(0, 0, searchCarParams1)
@@ -78,6 +81,7 @@ describe('RentalityCarToken: search functions', function () {
       yearOfProductionTo: 0,
       pricePerDayInUsdCentsFrom: 0,
       pricePerDayInUsdCentsTo: 0,
+      userLocation: locationInfo,
     }
     const searchCarParams2 = {
       country: '',
@@ -89,6 +93,7 @@ describe('RentalityCarToken: search functions', function () {
       yearOfProductionTo: 0,
       pricePerDayInUsdCentsFrom: 0,
       pricePerDayInUsdCentsTo: 0,
+      userLocation: locationInfo,
     }
 
     const availableCars1 = await rentalityGateway.connect(guest).searchAvailableCars(0, 0, searchCarParams1)
@@ -115,6 +120,7 @@ describe('RentalityCarToken: search functions', function () {
       yearOfProductionTo: 0,
       pricePerDayInUsdCentsFrom: 0,
       pricePerDayInUsdCentsTo: 0,
+      userLocation: locationInfo,
     }
     const searchCarParams2 = {
       country: '',
@@ -126,6 +132,7 @@ describe('RentalityCarToken: search functions', function () {
       yearOfProductionTo: 0,
       pricePerDayInUsdCentsFrom: 0,
       pricePerDayInUsdCentsTo: 0,
+      userLocation: locationInfo,
     }
 
     const availableCars1 = await rentalityGateway.connect(guest).searchAvailableCars(0, 0, searchCarParams1)
@@ -154,6 +161,7 @@ describe('RentalityCarToken: search functions', function () {
       yearOfProductionTo: 0,
       pricePerDayInUsdCentsFrom: 0,
       pricePerDayInUsdCentsTo: 0,
+      userLocation: locationInfo,
     }
     const searchCarParams2 = {
       country: '!',
@@ -165,6 +173,7 @@ describe('RentalityCarToken: search functions', function () {
       yearOfProductionTo: 0,
       pricePerDayInUsdCentsFrom: 0,
       pricePerDayInUsdCentsTo: 0,
+      userLocation: locationInfo,
     }
 
     const availableCars1 = await rentalityGateway.connect(guest).searchAvailableCars(0, 0, searchCarParams1)
@@ -193,6 +202,7 @@ describe('RentalityCarToken: search functions', function () {
       yearOfProductionTo: 0,
       pricePerDayInUsdCentsFrom: 0,
       pricePerDayInUsdCentsTo: 0,
+      userLocation: locationInfo,
     }
     const searchCarParams2 = {
       country: '',
@@ -204,6 +214,7 @@ describe('RentalityCarToken: search functions', function () {
       yearOfProductionTo: 0,
       pricePerDayInUsdCentsFrom: 0,
       pricePerDayInUsdCentsTo: 0,
+      userLocation: locationInfo,
     }
 
     const availableCars1 = await rentalityGateway.connect(guest).searchAvailableCars(0, 0, searchCarParams1)
@@ -232,6 +243,7 @@ describe('RentalityCarToken: search functions', function () {
       yearOfProductionTo: 0,
       pricePerDayInUsdCentsFrom: 0,
       pricePerDayInUsdCentsTo: 0,
+      userLocation: locationInfo,
     }
     const searchCarParams2 = {
       country: '',
@@ -243,6 +255,7 @@ describe('RentalityCarToken: search functions', function () {
       yearOfProductionTo: 0,
       pricePerDayInUsdCentsFrom: 0,
       pricePerDayInUsdCentsTo: 0,
+      userLocation: locationInfo,
     }
 
     const availableCars1 = await rentalityGateway.connect(guest).searchAvailableCars(0, 0, searchCarParams1)
@@ -269,6 +282,7 @@ describe('RentalityCarToken: search functions', function () {
       yearOfProductionTo: 0,
       pricePerDayInUsdCentsFrom: request.pricePerDayInUsdCents,
       pricePerDayInUsdCentsTo: 0,
+      userLocation: locationInfo,
     }
     const searchCarParams2 = {
       country: '',
@@ -280,6 +294,7 @@ describe('RentalityCarToken: search functions', function () {
       yearOfProductionTo: 0,
       pricePerDayInUsdCentsFrom: request.pricePerDayInUsdCents + 1,
       pricePerDayInUsdCentsTo: 0,
+      userLocation: locationInfo,
     }
     const searchCarParams3 = {
       country: '',
@@ -291,6 +306,7 @@ describe('RentalityCarToken: search functions', function () {
       yearOfProductionTo: 0,
       pricePerDayInUsdCentsFrom: request.pricePerDayInUsdCents - 1,
       pricePerDayInUsdCentsTo: 0,
+      userLocation: locationInfo,
     }
 
     const availableCars1 = await rentalityGateway.connect(guest).searchAvailableCars(0, 0, searchCarParams1)
@@ -321,6 +337,7 @@ describe('RentalityCarToken: search functions', function () {
       yearOfProductionTo: 0,
       pricePerDayInUsdCentsFrom: 0,
       pricePerDayInUsdCentsTo: request.pricePerDayInUsdCents,
+      userLocation: locationInfo,
     }
     const searchCarParams2 = {
       country: '',
@@ -332,6 +349,7 @@ describe('RentalityCarToken: search functions', function () {
       yearOfProductionTo: 0,
       pricePerDayInUsdCentsFrom: 0,
       pricePerDayInUsdCentsTo: request.pricePerDayInUsdCents + 1,
+      userLocation: locationInfo,
     }
     const searchCarParams3 = {
       country: '',
@@ -343,6 +361,7 @@ describe('RentalityCarToken: search functions', function () {
       yearOfProductionTo: 0,
       pricePerDayInUsdCentsFrom: 0,
       pricePerDayInUsdCentsTo: request.pricePerDayInUsdCents - 1,
+      userLocation: locationInfo,
     }
 
     const availableCars1 = await rentalityGateway.connect(guest).searchAvailableCars(0, 0, searchCarParams1)
