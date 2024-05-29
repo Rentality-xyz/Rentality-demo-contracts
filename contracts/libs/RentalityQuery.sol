@@ -361,6 +361,32 @@ library RentalityQuery {
     return result;
   }
 
+  function searchSortedCars(
+    RentalityContract memory contracts,
+    address user,
+    uint64 startDateTime,
+    uint64 endDateTime,
+    Schemas.SearchCarParams memory searchParams,
+    Schemas.LocationInfo memory pickUpInfo,
+    Schemas.LocationInfo memory returnInfo,
+    address deliveryServiceAddress
+  ) public view returns (Schemas.SearchCarWithDistance[] memory) {
+    return
+      RentalityCarDelivery(deliveryServiceAddress).sortCarsByDistance(
+        searchAvailableCarsForUser(
+          contracts,
+          user,
+          startDateTime,
+          endDateTime,
+          searchParams,
+          pickUpInfo,
+          returnInfo,
+          deliveryServiceAddress
+        ),
+        searchParams.userLocation
+      );
+  }
+
   // Updated function getCarsOwnedByUserWithEditability with RentalityContract parameter
   function getCarsOwnedByUserWithEditability(
     RentalityContract memory contracts

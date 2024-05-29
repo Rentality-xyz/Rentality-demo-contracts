@@ -107,9 +107,9 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
     uint64 startDateTime,
     uint64 endDateTime,
     Schemas.SearchCarParams memory searchParams
-  ) public view returns (Schemas.SearchCar[] memory) {
+  ) public view returns (Schemas.SearchCarWithDistance[] memory) {
     return
-      addresses.searchAvailableCarsForUser(
+      addresses.searchSortedCars(
         msg.sender,
         startDateTime,
         endDateTime,
@@ -134,16 +134,16 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
     Schemas.LocationInfo memory pickUpInfo,
     Schemas.LocationInfo memory returnInfo
   ) public view returns (Schemas.SearchCarWithDistance[] memory) {
-    Schemas.SearchCar[] memory result = addresses.searchAvailableCarsForUser(
-      msg.sender,
-      startDateTime,
-      endDateTime,
-      searchParams,
-      IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getLocationInfo(bytes32('')),
-      IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getLocationInfo(bytes32('')),
-      RentalityAdminGateway(addresses.adminService).getDeliveryServiceAddress()
-    );
-    return addresses.deliveryService.sortCarsByDistance(result, pickUpInfo);
+    return
+      addresses.searchSortedCars(
+        msg.sender,
+        startDateTime,
+        endDateTime,
+        searchParams,
+        IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getLocationInfo(bytes32('')),
+        IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getLocationInfo(bytes32('')),
+        RentalityAdminGateway(addresses.adminService).getDeliveryServiceAddress()
+      );
   }
 
   /// @notice Retrieves information about cars owned by the caller.

@@ -131,7 +131,7 @@ interface IRentalityGateway {
     uint64 startDateTime,
     uint64 endDateTime,
     Schemas.SearchCarParams memory searchParams
-  ) external view returns (Schemas.SearchCar[] memory);
+  ) external view returns (Schemas.SearchCarWithDistance[] memory);
 
   /// @notice Searches for available cars for a specific user based on specified criteria.
   /// @param user The address of the user.
