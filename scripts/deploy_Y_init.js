@@ -42,6 +42,30 @@ const checkInitialization = async () => {
   }
   const guest = new ethers.Wallet(GUEST_PRIVATE_KEY, ethers.provider)
 
+  if (chainId === 1337n) {
+    const hardhatAccount = new ethers.Wallet(
+      '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
+      ethers.provider
+    )
+    if ((await ethers.provider.getBalance(hardhatAccount.address)) > 0) {
+      console.log('Transfering ETH for host and guest fot the Hardhat node')
+
+      const txHost = await hardhatAccount.sendTransaction({
+        to: host.address,
+        value: ethers.parseEther('100.0'),
+      })
+      await txHost.wait()
+
+      const txGuest = await hardhatAccount.sendTransaction({
+        to: guest.address,
+        value: ethers.parseEther('100.0'),
+      })
+      await txGuest.wait()
+    } else {
+      console.log('It is not hardhat node')
+    }
+  }
+
   const gateway = new ethers.Contract(rentalityGatewayAddress, RentalityGatewayJSON_ABI.abi, deployer)
   const chatService = new ethers.Contract(chatHelperAddress, RentalityChatHelperJSON_ABI.abi, deployer)
 
