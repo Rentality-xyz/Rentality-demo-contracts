@@ -198,6 +198,7 @@ function getEmptySearchCarParams(seed) {
     yearOfProductionTo: 0,
     pricePerDayInUsdCentsFrom: 0,
     pricePerDayInUsdCentsTo: 0,
+    userLocation: locationInfo,
   }
 }
 

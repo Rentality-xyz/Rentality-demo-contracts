@@ -332,7 +332,7 @@ library RentalityQuery {
 
       (uint64 salesTaxes, uint64 govTax) = taxId == 0
         ? (0, 0)
-        : contracts.paymentService.calculateTaxes(taxId, totalTripDays, priceWithDiscount);
+        : contracts.paymentService.calculateTaxes(taxId, totalTripDays, priceWithDiscount + deliveryFee);
 
       result[i] = Schemas.SearchCar(
         temp[i].carId,
@@ -359,6 +359,32 @@ library RentalityQuery {
       );
     }
     return result;
+  }
+
+  function searchSortedCars(
+    RentalityContract memory contracts,
+    address user,
+    uint64 startDateTime,
+    uint64 endDateTime,
+    Schemas.SearchCarParams memory searchParams,
+    Schemas.LocationInfo memory pickUpInfo,
+    Schemas.LocationInfo memory returnInfo,
+    address deliveryServiceAddress
+  ) public view returns (Schemas.SearchCarWithDistance[] memory) {
+    return
+      RentalityCarDelivery(deliveryServiceAddress).sortCarsByDistance(
+        searchAvailableCarsForUser(
+          contracts,
+          user,
+          startDateTime,
+          endDateTime,
+          searchParams,
+          pickUpInfo,
+          returnInfo,
+          deliveryServiceAddress
+        ),
+        searchParams.userLocation
+      );
   }
 
   // Updated function getCarsOwnedByUserWithEditability with RentalityContract parameter

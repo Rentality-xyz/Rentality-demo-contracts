@@ -22,7 +22,9 @@ contract RentalityCarDelivery is Initializable, UUPSAccess {
   /// @param underTwentyFiveMilesInUsdCents Price in USD cents for distances under 25 miles
   /// @param aboveTwentyFiveMilesInUsdCents Price in USD cents for distances above 25 miles
   function setUserDeliveryPrices(uint64 underTwentyFiveMilesInUsdCents, uint64 aboveTwentyFiveMilesInUsdCents) public {
-    require(userService.isHost(tx.origin), 'Only host.');
+    if (!userService.isHost(tx.origin)) {
+      RentalityUserService(address(userService)).grantHostRole(tx.origin);
+    }
     userToDeliveryPrice[tx.origin] = Schemas.DeliveryPrices(
       underTwentyFiveMilesInUsdCents,
       aboveTwentyFiveMilesInUsdCents,
@@ -129,6 +131,49 @@ contract RentalityCarDelivery is Initializable, UUPSAccess {
   /// @return Value in radians
   function deg2rad(int128 degrees) internal pure returns (int128) {
     return RealMath.div(RealMath.mul(degrees, RealMath.REAL_PI), RealMath.toReal(180));
+  }
+
+  function sortCarsByDistance(
+    Schemas.SearchCar[] memory cars,
+    Schemas.LocationInfo memory pickUpLocation
+  ) public view returns (Schemas.SearchCarWithDistance[] memory result) {
+    int max = 0;
+
+    result = new Schemas.SearchCarWithDistance[](cars.length);
+    for (uint i = 0; i < cars.length; i++) {
+      int distance = calculateDistance(
+        cars[i].locationInfo.latitude,
+        cars[i].locationInfo.longitude,
+        pickUpLocation.latitude,
+        pickUpLocation.longitude
+      );
+      if (distance >= max) {
+        max = distance;
+        result[i] = Schemas.SearchCarWithDistance(cars[i], distance);
+      } else {
+        for (uint j = 0; j < i; j++) {
+          if (result[j].distance >= distance) {
+            assembly {
+              // shifting by memcopy all calculated values from j..i to j + 1..i + 1
+              mcopy(
+                add(
+                  /*  mem pointer where we will save data
+                                     result is location of array, add 32 to skip pointer */
+                  add(32, result),
+                  mul(32, add(j, 1))
+                ),
+                /* mem pointer read from*/
+                add(add(32, result), mul(32, j)),
+                /* amount bytes to copy, 32 is size of pointers*/
+                mul(32, i)
+              )
+            }
+            result[j] = Schemas.SearchCarWithDistance(cars[i], distance);
+            break;
+          }
+        }
+      }
+    }
   }
 
   /// @notice Initializes the contract with the provided user service address
