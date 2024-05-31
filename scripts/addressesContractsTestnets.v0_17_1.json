@@ -35,7 +35,7 @@
     "chainId": 84532,
     "RentalityQuery": "0x53675A0060e65e80a524496CCcc7AFEA5679A447",
     "RentalityUtils": "0x3957e236C6C586CbadA3d470D43626F2F73724eA",
-    "CivicMockVerifier": "0x01B133b85bf7D4F031B63629F8Ec247778733b7E",
+    "CivicMockVerifier": "0xDCFCdD8edd9Bbbf4d69470F524714e909667850b",
     "EthToUsdPriceFeedAddress": "0x4aDC67696bA383F43DD60A9e78F2C97Fbbfc7cb1",
     "UsdtToUsdPriceFeedAddress": "0x3ec8593F930EA45ea58c968260e6e9FF53FC934f",
     "RentalityTestUSDT": "0xD8E1CB7Cb4f3d40714F8cC20fb17F01Df0A2B2Cc",
