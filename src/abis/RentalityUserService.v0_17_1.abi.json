@@ -120,6 +120,15 @@
     },
     {
       "type": "function",
+      "name": "getKycCommission",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "uint256", "name": "" }]
+    },
+    {
+      "type": "function",
       "name": "getMyKYCInfo",
       "constant": true,
       "stateMutability": "view",
@@ -256,6 +265,15 @@
     },
     {
       "type": "function",
+      "name": "isCommissionPaidForUser",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "user" }],
+      "outputs": [{ "type": "bool", "name": "" }]
+    },
+    {
+      "type": "function",
       "name": "isGuest",
       "constant": true,
       "stateMutability": "view",
@@ -290,6 +308,7 @@
       "inputs": [{ "type": "address", "name": "user" }],
       "outputs": [{ "type": "bool", "name": "" }]
     },
+    { "type": "function", "name": "payCommission", "constant": false, "payable": false, "inputs": [], "outputs": [] },
     {
       "type": "function",
       "name": "proxiableUUID",
@@ -382,6 +401,14 @@
     },
     {
       "type": "function",
+      "name": "setKycCommission",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "newCommission" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
       "name": "setNewTCMessage",
       "constant": false,
       "payable": false,
@@ -415,6 +442,14 @@
         { "type": "address", "name": "newImplementation" },
         { "type": "bytes", "name": "data" }
       ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "useKycCommission",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "user" }],
       "outputs": []
     }
   ]
