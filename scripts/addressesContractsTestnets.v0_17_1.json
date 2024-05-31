@@ -123,11 +123,5 @@
     "RentalityChatHelper": "0x4a9B5C16E0fC69bCb7845Ef7f90F250993a4Bc07",
     "RealMath": "0xF221cC0E31C0E941c55365436Dd4acd0E6286ED1",
     "RentalityCarDelivery": "0xe0A0c41EE52274A74911a992e467689cc9d6cF11"
-  },
-  {
-    "name": "localhost",
-    "chainId": 1337,
-    "CivicMockVerifier": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
-    "RentalityUserService": "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9"
   }
 ]
