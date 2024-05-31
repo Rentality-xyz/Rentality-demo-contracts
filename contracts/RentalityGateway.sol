@@ -65,11 +65,11 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
   // - Payment Service
   // - Claim Service
   //
-  // This function should be called whenever the addresses of the services change.
-  //    function updateServiceAddresses() public {
-  //        require(addresses.userService.isAdmin(tx.origin), 'only Admin.');
-  //        addresses = addresses.adminService.getRentalityContracts();
-  //    }
+  //   This function should be called whenever the addresses of the services change.
+  function updateServiceAddresses() public {
+    require(addresses.userService.isAdmin(tx.origin), 'only Admin.');
+    addresses = addresses.adminService.getRentalityContracts();
+  }
 
   /// @notice Retrieves information about a car by its ID.
   /// @param carId The ID of the car.
