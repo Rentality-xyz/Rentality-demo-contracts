@@ -210,7 +210,7 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
       require(bytes(geoApiKey).length > 0, 'Provide a valid geo API key');
       geoService.executeRequest(location.userAddress, location.latitude, location.longitude, geoApiKey, request.carId);
       idToCarInfo[request.carId].geoVerified = false;
-      bytes32 hash = geoService.hashLocationInfo(location);
+      bytes32 hash = geoService.createLocationInfo(location);
       idToCarInfo[request.carId].locationHash = hash;
     }
 
