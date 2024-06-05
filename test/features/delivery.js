@@ -257,7 +257,8 @@ describe('Rentality Delivery', function () {
     let trip = await rentalityTripService.getTrip(1)
     let fee = (mockCreateCarRequest.pricePerDayInUsdCents * 20) / 100
     expect(trip.transactionInfo.tripEarnings).to.be.eq(
-      BigInt(mockCreateCarRequest.pricePerDayInUsdCents - fee) + totalDeliveryPrice
+      BigInt(mockCreateCarRequest.pricePerDayInUsdCents - fee) +
+        (totalDeliveryPrice - (totalDeliveryPrice * BigInt(20)) / BigInt(100))
     )
   })
   it('should sort cars', async function () {
