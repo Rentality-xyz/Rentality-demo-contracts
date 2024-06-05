@@ -29,6 +29,7 @@ module.exports = {
       url: process.env.URL_LOCALHOST_GANACHE,
       accounts: [process.env.GANACHE_PRIVATE_KEY],
       chainId: 1337,
+      timeout: 1_000_000,
     },
     goerli: {
       url: process.env.ALCHEMY_API_URL_GOERLI ?? '',
