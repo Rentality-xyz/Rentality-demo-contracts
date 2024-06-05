@@ -183,6 +183,12 @@ contract RentalityCarDelivery is Initializable, UUPSAccess {
     }
   }
 
+  function setDefaultPrices(uint64 underTwentyFiveMilesInUsdCents, uint64 aboveTwentyFiveMilesInUsdCents) public {
+    require(userService.isAdmin(msg.sender),"only admin.");
+    defaultPrices = Schemas.DeliveryPrices(underTwentyFiveMilesInUsdCents, aboveTwentyFiveMilesInUsdCents, true);
+
+  }
+
   /// @notice Initializes the contract with the provided user service address
   /// @param _userService Address of the user service contract
   function initialize(address _userService) public initializer {
