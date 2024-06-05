@@ -229,7 +229,9 @@ contract RentalityPlatform is UUPSOwnable {
     addresses.tripService.finishTrip(tripId);
     Schemas.Trip memory trip = addresses.tripService.getTrip(tripId);
 
-    uint256 rentalityFee = addresses.paymentService.getPlatformFeeFrom(trip.paymentInfo.priceWithDiscount);
+    uint256 rentalityFee = addresses.paymentService.getPlatformFeeFrom(
+      trip.paymentInfo.priceWithDiscount + trip.paymentInfo.deliveryFee
+    );
 
     (uint valueToHost, uint valueToGuest, uint valueToHostInUsdCents, uint valueToGuestInUsdCents) = addresses
       .currencyConverterService
