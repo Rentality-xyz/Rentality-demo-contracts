@@ -117,8 +117,8 @@ const locationInfo = {
   country: 'USA',
   state: 'Florida',
   city: 'Miami',
-  latitude: '1.2',
-  longitude: '1.3',
+  latitude: '45.509248',
+  longitude: '-122.682653',
   timeZoneId: 'id',
 }
 
