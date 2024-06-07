@@ -73,6 +73,34 @@ contract RentalityCarDelivery is Initializable, UUPSAccess {
     return total;
   }
 
+  function calculatePricesByDeliveryDataInUsdCents(
+    Schemas.LocationInfo memory pickUpLoc,
+    Schemas.LocationInfo memory returnLoc,
+    string memory homeLat,
+    string memory homeLon,
+    address user
+  ) public view returns (uint64, uint64) {
+    int128 pickUpDistance = calculateDistance(pickUpLoc.latitude, pickUpLoc.longitude, homeLat, homeLon);
+    int128 returnDistance = calculateDistance(returnLoc.latitude, returnLoc.longitude, homeLat, homeLon);
+    uint64 pickUp = 0;
+    uint64 dropOf = 0;
+    Schemas.DeliveryPrices memory userPrices = userToDeliveryPrice[user];
+    if (!userPrices.initialized) {
+      userPrices = defaultPrices;
+    }
+    if (pickUpDistance > 25) {
+      pickUp += uint64(uint128(pickUpDistance)) * userPrices.aboveTwentyFiveMilesInUsdCents;
+    } else {
+      pickUp += uint64(uint128(pickUpDistance)) * userPrices.underTwentyFiveMilesInUsdCents;
+    }
+    if (returnDistance > 25) {
+      dropOf += uint64(uint128(returnDistance)) * userPrices.aboveTwentyFiveMilesInUsdCents;
+    } else {
+      dropOf += uint64(uint128(returnDistance)) * userPrices.underTwentyFiveMilesInUsdCents;
+    }
+    return (pickUp, dropOf);
+  }
+
   /// @notice Calculates the distance between two points on the Earth's surface using Haversine formula
   /// @param lat1 Latitude of first point
   /// @param lon1 Longitude of first point
