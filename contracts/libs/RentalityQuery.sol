@@ -317,9 +317,10 @@ library RentalityQuery {
         totalTripDays,
         temp[i].pricePerDayInUsdCents
       );
-      uint64 deliveryFee = 0;
+      uint64 pickUp = 0;
+      uint64 dropOf = 0;
       if (bytes(pickUpInfo.latitude).length != 0 || bytes(returnInfo.longitude).length != 0) {
-        deliveryFee = RentalityCarDelivery(deliveryServiceAddress).calculatePriceByDeliveryDataInUsdCents(
+        (pickUp, dropOf) = RentalityCarDelivery(deliveryServiceAddress).calculatePricesByDeliveryDataInUsdCents(
           pickUpInfo,
           returnInfo,
           IRentalityGeoService(carService.getGeoServiceAddress()).getCarLocationLatitude(temp[i].carId),
@@ -332,7 +333,7 @@ library RentalityQuery {
 
       (uint64 salesTaxes, uint64 govTax) = taxId == 0
         ? (0, 0)
-        : contracts.paymentService.calculateTaxes(taxId, totalTripDays, priceWithDiscount + deliveryFee);
+        : contracts.paymentService.calculateTaxes(taxId, totalTripDays, priceWithDiscount + pickUp + dropOf);
 
       result[i] = Schemas.SearchCar(
         temp[i].carId,
@@ -353,7 +354,8 @@ library RentalityQuery {
         carService.tokenURI(temp[i].carId),
         deliveryPrices.underTwentyFiveMilesInUsdCents,
         deliveryPrices.aboveTwentyFiveMilesInUsdCents,
-        deliveryFee,
+        pickUp,
+        dropOf,
         temp[i].insuranceIncluded,
         IRentalityGeoService(carService.getGeoServiceAddress()).getLocationInfo(temp[i].locationHash)
       );

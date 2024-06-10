@@ -556,7 +556,8 @@ library RentalityUtils {
     uint64 startDateTime,
     uint64 endDateTime,
     address currencyType,
-    uint64 deliveryFee
+    uint64 pickUp,
+    uint64 dropOf
   ) public view returns (Schemas.PaymentInfo memory, uint) {
     Schemas.CarInfo memory carInfo = addresses.carService.getCarInfoById(carId);
 
@@ -572,10 +573,15 @@ library RentalityUtils {
     (uint64 salesTaxes, uint64 govTax) = addresses.paymentService.calculateTaxes(
       taxId,
       daysOfTrip,
-      priceWithDiscount + deliveryFee
+      priceWithDiscount + pickUp + dropOf
     );
 
-    uint valueSum = priceWithDiscount + salesTaxes + govTax + carInfo.securityDepositPerTripInUsdCents + deliveryFee;
+    uint valueSum = priceWithDiscount +
+      salesTaxes +
+      govTax +
+      carInfo.securityDepositPerTripInUsdCents +
+      pickUp +
+      dropOf;
     (int rate, uint8 decimals) = addresses.currencyConverterService.getCurrentRate(currencyType);
     uint valueSumInCurrency = addresses.currencyConverterService.getFromUsd(currencyType, valueSum, rate, decimals);
 
@@ -594,7 +600,8 @@ library RentalityUtils {
       decimals,
       0,
       0,
-      deliveryFee
+      pickUp,
+      dropOf
     );
 
     return (paymentInfo, valueSumInCurrency);
