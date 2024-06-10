@@ -135,6 +135,7 @@ describe('RentalityGateway: trips', function () {
         0n,
         0n,
         0n,
+        0n,
       ],
       'trip.paymentInfo'
     )

@@ -57,7 +57,7 @@ contract RentalityPlatform is UUPSOwnable {
       request.endDateTime
     );
 
-    uint64 priceInUsdCents = addresses.deliveryService.calculatePriceByDeliveryDataInUsdCents(
+    (uint64 pickUp, uint64 dropOf) = addresses.deliveryService.calculatePricesByDeliveryDataInUsdCents(
       request.pickUpInfo.locationInfo,
       request.returnInfo.locationInfo,
       IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getCarLocationLatitude(request.carId),
@@ -75,7 +75,8 @@ contract RentalityPlatform is UUPSOwnable {
       request.carId,
       request.startDateTime,
       request.endDateTime,
-      priceInUsdCents,
+      pickUp,
+      dropOf,
       pickUpHash,
       returnHash
     );
@@ -112,6 +113,7 @@ contract RentalityPlatform is UUPSOwnable {
       request.startDateTime,
       request.endDateTime,
       0,
+      0,
       bytes32(''),
       bytes32('')
     );
@@ -122,13 +124,15 @@ contract RentalityPlatform is UUPSOwnable {
   /// @param carId ID of the car for the trip request.
   /// @param startDateTime Start date and time of the trip request.
   /// @param endDateTime End date and time of the trip request.
-  /// @param deliveryFee Fee for delivery associated with the trip request.
+  /// @param pickUp Fee for delivery associated with the trip request.
+  /// @param dropOf Fee for delivery associated with the trip request.
   function _createTripRequest(
     address currencyType,
     uint carId,
     uint64 startDateTime,
     uint64 endDateTime,
-    uint64 deliveryFee,
+    uint64 pickUp,
+    uint64 dropOf,
     bytes32 pickUpHash,
     bytes32 returnHash
   ) private {
@@ -140,7 +144,8 @@ contract RentalityPlatform is UUPSOwnable {
       startDateTime,
       endDateTime,
       currencyType,
-      deliveryFee
+      pickUp,
+      dropOf
     );
 
     addresses.paymentService.payCreateTrip{value: msg.value}(currencyType, valueSumInCurrency);
@@ -229,7 +234,9 @@ contract RentalityPlatform is UUPSOwnable {
     addresses.tripService.finishTrip(tripId);
     Schemas.Trip memory trip = addresses.tripService.getTrip(tripId);
 
-    uint256 rentalityFee = addresses.paymentService.getPlatformFeeFrom(trip.paymentInfo.priceWithDiscount);
+    uint256 rentalityFee = addresses.paymentService.getPlatformFeeFrom(
+      trip.paymentInfo.priceWithDiscount + trip.paymentInfo.pickUpFee + trip.paymentInfo.dropOfFee
+    );
 
     (uint valueToHost, uint valueToGuest, uint valueToHostInUsdCents, uint valueToGuestInUsdCents) = addresses
       .currencyConverterService

@@ -143,7 +143,8 @@ contract RentalityCurrencyConverter is Initializable, UUPSAccess {
     uint256 rentalityFee
   ) public view returns (uint, uint, uint, uint) {
     uint256 valueToHostInUsdCents = paymentInfo.priceWithDiscount +
-      paymentInfo.deliveryFee +
+      paymentInfo.pickUpFee +
+      paymentInfo.dropOfFee +
       paymentInfo.resolveAmountInUsdCents -
       rentalityFee;
 

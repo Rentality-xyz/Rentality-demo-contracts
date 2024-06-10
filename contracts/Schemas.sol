@@ -321,7 +321,8 @@ interface Schemas {
     uint8 currencyDecimals;
     uint64 resolveFuelAmountInUsdCents;
     uint64 resolveMilesAmountInUsdCents;
-    uint128 deliveryFee;
+    uint128 pickUpFee;
+    uint128 dropOfFee;
   }
 
   struct TripReceiptDTO {
@@ -393,7 +394,8 @@ interface Schemas {
     string metadataURI;
     uint64 underTwentyFiveMilesInUsdCents;
     uint64 aboveTwentyFiveMilesInUsdCents;
-    uint64 deliveryFee;
+    uint64 pickUp;
+    uint64 dropOf;
     bool insuranceIncluded;
     LocationInfo locationInfo;
   }
