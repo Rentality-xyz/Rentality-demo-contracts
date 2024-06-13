@@ -80,8 +80,12 @@ contract RentalityCarDelivery is Initializable, UUPSAccess {
     string memory homeLon,
     address user
   ) public view returns (uint64, uint64) {
-    int128 pickUpDistance = calculateDistance(pickUpLoc.latitude, pickUpLoc.longitude, homeLat, homeLon);
-    int128 returnDistance = calculateDistance(returnLoc.latitude, returnLoc.longitude, homeLat, homeLon);
+    int128 pickUpDistance = (bytes(pickUpLoc.latitude).length == 0)
+      ? int128(0)
+      : calculateDistance(pickUpLoc.latitude, pickUpLoc.longitude, homeLat, homeLon);
+    int128 returnDistance = (bytes(returnLoc.latitude).length == 0)
+      ? int128(0)
+      : calculateDistance(returnLoc.latitude, returnLoc.longitude, homeLat, homeLon);
     uint64 pickUp = 0;
     uint64 dropOf = 0;
     Schemas.DeliveryPrices memory userPrices = userToDeliveryPrice[user];

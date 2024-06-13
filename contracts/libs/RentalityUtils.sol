@@ -50,7 +50,7 @@ library RentalityUtils {
   /// @notice Parses an integer from a string.
   /// @param _a The input string to parse.
   /// @return Returns the parsed integer value.
-  function parseInt(string memory _a) internal pure returns (int256) {
+  function parseInt(string memory _a) public pure returns (int256) {
     bytes memory bresult = bytes(_a);
     int256 mint = 0;
     bool decimals = false;
