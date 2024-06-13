@@ -118,6 +118,17 @@
     },
     {
       "type": "function",
+      "name": "setDefaultPrices",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint64", "name": "underTwentyFiveMilesInUsdCents" },
+        { "type": "uint64", "name": "aboveTwentyFiveMilesInUsdCents" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
       "name": "setUserDeliveryPrices",
       "constant": false,
       "payable": false,

@@ -1,5 +1,5 @@
-const RentalityGatewayJSON_ABI = require('../src/abis/RentalityGateway.v0_17_1.abi.json')
-const RentalityChatHelperJSON_ABI = require('../src/abis/RentalityChatHelper.v0_17_1.abi.json')
+const RentalityGatewayJSON_ABI = require('../src/abis/RentalityGateway.v0_17_2.abi.json')
+const RentalityChatHelperJSON_ABI = require('../src/abis/RentalityChatHelper.v0_17_2.abi.json')
 const testData = require('./testData/testData.json')
 const { ethers, network } = require('hardhat')
 const { buildPath } = require('./utils/pathBuilder')
