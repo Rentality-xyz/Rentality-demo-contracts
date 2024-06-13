@@ -2,8 +2,8 @@
   {
     "name": "base_sepolia",
     "chainId": 84532,
-    "RentalityUtils": "0xcD7B61A77ac1949503641DD6aC8d17a7cf0eD3B9",
-    "RentalityQuery": "0xBf2870FA23B7167e63afdE7BbDdD293B511635fF",
+    "RentalityUtils": "0x8A57e359e5BDC15aAcFcf9DA01653A3A1fE91A18",
+    "RentalityQuery": "0xEAd1961d78802A3479d71C326B5590A94AE5b5CA",
     "CivicMockVerifier": "0xDCFCdD8edd9Bbbf4d69470F524714e909667850b",
     "EthToUsdPriceFeedAddress": "0x4aDC67696bA383F43DD60A9e78F2C97Fbbfc7cb1",
     "UsdtToUsdPriceFeedAddress": "0x3ec8593F930EA45ea58c968260e6e9FF53FC934f",
@@ -12,9 +12,9 @@
     "RentalityCarDelivery": "0xD36451570ed00516F8F62Ac537f197D104e9b5c7",
     "RentalityUserService": "0x2DA7746ac08077BE483C9788925B7B65b4A6bF5B",
     "RentalityClaimService": "0xc9ec3fa02205332c141190C1c7eB8Ca5f9016372",
-    "RentalityETHConvertor": "0x69B5F20F866CfD14428407fc679Ef00701565A37",
+    "RentalityETHConvertor": "0x16943D338a4DD65E3a689FEDD01ef0fBe7eC0CFd",
     "RentalityUSDTConverter": "0x195b6Dfc6d3909F8D29082be2F1737a66618ca0D",
-    "RentalityCurrencyConverter": "0x7618c3B0a8438cCE276c3F9b154D986b239eABb9",
+    "RentalityCurrencyConverter": "0x26EDD866746fF96D668FB3e86256b2CF2F7e36A7",
     "RentalityFloridaTaxes": "0x4615fc12f7B74d28c8EB8851839BFEb62a9cf230",
     "RentalityBaseDiscount": "0x7521FD98A1C3F72A67507366b71cb7dc9D0ef562",
     "RentalityPaymentService": "0x50e18d5be7aEa5e05a950CBC90F3BfbEe8318580",
@@ -24,10 +24,16 @@
     "RentalityElectricEngine": "0x51CEf468258AfA7c56EC94899A27CcD1f14314dD",
     "RentalityEnginesService": "0xF816bB6b2523FcB8eB6881a9807F5b8D04947D94",
     "RentalityCarToken": "0x190F5e100F609507d54e0e17F98fe76326507C08",
-    "RentalityTripService": "0xEF30BdCA6Ed9649c0e003e90CD966eE85656D698",
+    "RentalityTripService": "0x3a2C9884706f098967b9528E355A8f1C85895E3E",
     "RentalityPlatform": "0x4636c2f08B8821eaeC6c3EDcfDe2A372409E8522",
     "RentalityAdminGateway": "0xDB9f33608ea3beA2e5D8B6300E5D46B453063b12",
     "RentalityGateway": "0x9C7222781dDe0ac7408286B797b711397b114059",
     "RentalityChatHelper": "0x7f582BbcD776bAf4E5C812EA7b96CDDf219571a5"
+  },
+  {
+    "name": "localhost",
+    "chainId": 84532,
+    "RentalityUtils": "0xAE246E208ea35B3F23dE72b697D47044FC594D5F",
+    "RentalityQuery": "0x82BBAA3B0982D88741B275aE1752DB85CAfe3c65"
   }
 ]

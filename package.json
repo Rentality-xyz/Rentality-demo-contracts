@@ -21,9 +21,11 @@
     "@nomicfoundation/hardhat-network-helpers": "^1.0.8",
     "@openzeppelin/contracts": "^4.9.0",
     "@openzeppelin/contracts-upgradeable": "^4.9.0",
+    "@openzeppelin/upgrades": "^2.8.0",
     "chai": "^4.3.10",
     "child_process": "^1.0.2",
     "dotenv": "^16.0.4",
+    "hardhat-change-network": "^0.0.7",
     "readline-sync": "^1.4.10"
   },
   "devDependencies": {

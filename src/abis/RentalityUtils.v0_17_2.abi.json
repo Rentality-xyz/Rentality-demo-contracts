@@ -126,6 +126,15 @@
     },
     {
       "type": "function",
+      "name": "parseInt",
+      "constant": true,
+      "stateMutability": "pure",
+      "payable": false,
+      "inputs": [{ "type": "string", "name": "_a" }],
+      "outputs": [{ "type": "int256", "name": "" }]
+    },
+    {
+      "type": "function",
       "name": "parseResponse",
       "constant": true,
       "stateMutability": "pure",
