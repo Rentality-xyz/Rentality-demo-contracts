@@ -82,6 +82,48 @@
     },
     {
       "type": "function",
+      "name": "calculatePricesByDeliveryDataInUsdCents",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        {
+          "type": "tuple",
+          "name": "pickUpLoc",
+          "components": [
+            { "type": "string", "name": "userAddress" },
+            { "type": "string", "name": "country" },
+            { "type": "string", "name": "state" },
+            { "type": "string", "name": "city" },
+            { "type": "string", "name": "latitude" },
+            { "type": "string", "name": "longitude" },
+            { "type": "string", "name": "timeZoneId" }
+          ]
+        },
+        {
+          "type": "tuple",
+          "name": "returnLoc",
+          "components": [
+            { "type": "string", "name": "userAddress" },
+            { "type": "string", "name": "country" },
+            { "type": "string", "name": "state" },
+            { "type": "string", "name": "city" },
+            { "type": "string", "name": "latitude" },
+            { "type": "string", "name": "longitude" },
+            { "type": "string", "name": "timeZoneId" }
+          ]
+        },
+        { "type": "string", "name": "homeLat" },
+        { "type": "string", "name": "homeLon" },
+        { "type": "address", "name": "user" }
+      ],
+      "outputs": [
+        { "type": "uint64", "name": "" },
+        { "type": "uint64", "name": "" }
+      ]
+    },
+    {
+      "type": "function",
       "name": "getUserDeliveryPrices",
       "constant": true,
       "stateMutability": "view",
@@ -167,7 +209,8 @@
             { "type": "string", "name": "metadataURI" },
             { "type": "uint64", "name": "underTwentyFiveMilesInUsdCents" },
             { "type": "uint64", "name": "aboveTwentyFiveMilesInUsdCents" },
-            { "type": "uint64", "name": "deliveryFee" },
+            { "type": "uint64", "name": "pickUp" },
+            { "type": "uint64", "name": "dropOf" },
             { "type": "bool", "name": "insuranceIncluded" },
             {
               "type": "tuple",
@@ -225,7 +268,8 @@
                 { "type": "string", "name": "metadataURI" },
                 { "type": "uint64", "name": "underTwentyFiveMilesInUsdCents" },
                 { "type": "uint64", "name": "aboveTwentyFiveMilesInUsdCents" },
-                { "type": "uint64", "name": "deliveryFee" },
+                { "type": "uint64", "name": "pickUp" },
+                { "type": "uint64", "name": "dropOf" },
                 { "type": "bool", "name": "insuranceIncluded" },
                 {
                   "type": "tuple",

@@ -15,9 +15,14 @@ async function main() {
     'RentalityUserService'
   )
 
+  const rentalityUtilsAddress = checkNotNull(
+    getContractAddress('RentalityUtils', 'scripts/deploy_1a_RentalityUtils.js', chainId),
+    'RentalityUtils'
+  )
   const contractFactory = await ethers.getContractFactory(contractName, {
     libraries: {
       RealMath: realMath,
+      RentalityUtils: rentalityUtilsAddress,
     },
   })
   const contract = await upgrades.deployProxy(contractFactory, [rentalityUserServiceAddress])

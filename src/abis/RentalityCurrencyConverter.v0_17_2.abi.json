@@ -63,7 +63,8 @@
             { "type": "uint8", "name": "currencyDecimals" },
             { "type": "uint64", "name": "resolveFuelAmountInUsdCents" },
             { "type": "uint64", "name": "resolveMilesAmountInUsdCents" },
-            { "type": "uint128", "name": "deliveryFee" }
+            { "type": "uint128", "name": "pickUpFee" },
+            { "type": "uint128", "name": "dropOfFee" }
           ]
         },
         { "type": "uint256", "name": "rentalityFee" }
@@ -100,7 +101,8 @@
             { "type": "uint8", "name": "currencyDecimals" },
             { "type": "uint64", "name": "resolveFuelAmountInUsdCents" },
             { "type": "uint64", "name": "resolveMilesAmountInUsdCents" },
-            { "type": "uint128", "name": "deliveryFee" }
+            { "type": "uint128", "name": "pickUpFee" },
+            { "type": "uint128", "name": "dropOfFee" }
           ]
         }
       ],
