@@ -1,23 +1,10 @@
-// /** @type import('hardhat/config').HardhatUserConfig */
-// require('@nomiclabs/hardhat-waffle')
-
+// npm i @nomiclabs/hardhat-ethers
 require('dotenv').config()
 require('@nomicfoundation/hardhat-toolbox')
 require('@openzeppelin/hardhat-upgrades')
 require('solidity-docgen')
-// require("hardhat-change-network");
-// const {task} = require("hardhat/config");
-// const {applyProviderWrappers} = require("hardhat/internal/core/providers/construction");
-//
-// const customTask = task('network',(taskArgs) => {
-// }).addParam('myNetwork')
-//     .setAction((taskArgs,hre)=>{
-//
-//         const network = taskArgs['myNetwork'];
-//         hre.changeNetwork(network)
-//     });
+
 module.exports = {
-  // tasks:{network:customTask},
   docgen: {
     outputFormat: 'md',
     path: './docs', // Output directory for the generated documentation
