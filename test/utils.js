@@ -369,6 +369,7 @@ async function deployDefaultFixture() {
   const DeliveryService = await ethers.getContractFactory('RentalityCarDelivery', {
     libraries: {
       RealMath: await realMath.getAddress(),
+      RentalityUtils: await utils.getAddress(),
     },
   })
   const deliveryService = await upgrades.deployProxy(DeliveryService, [await rentalityUserService.getAddress()])
