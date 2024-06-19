@@ -16,17 +16,17 @@ const calculatePayments = async (currencyConverter, paymentService, value, tripD
     tripDays,
     value
   )
-  let totalTaxes = await paymentService.calculateTaxes(1, tripDays, priceWithDiscount)
+  let [salesTaxes, govTaxes] = await paymentService.calculateTaxes(1, tripDays, priceWithDiscount)
 
   const [rate, decimals] = await currencyConverter.getCurrentRate(token)
 
   const rentPriceInEth = await currencyConverter.getFromUsd(
     token,
-    priceWithDiscount + totalTaxes + BigInt(deposit),
+    priceWithDiscount + salesTaxes + govTaxes + BigInt(deposit),
     rate,
     decimals
   )
-  const taxes = await currencyConverter.getFromUsd(token, totalTaxes, rate, decimals)
+  const taxes = await currencyConverter.getFromUsd(token, salesTaxes + govTaxes, rate, decimals)
 
   const feeInUsdCents = await paymentService.getPlatformFeeFrom(priceWithDiscount)
 
@@ -47,16 +47,16 @@ const calculatePaymentsFrom = async (currencyConverter, paymentService, value, t
     tripDays,
     value
   )
-  let totalTaxes = await paymentService.calculateTaxes(1, tripDays, priceWithDiscount)
+  let [salesTaxes, govTaxes] = await paymentService.calculateTaxes(1, tripDays, priceWithDiscount)
   const [rate, decimals] = await currencyConverter.getCurrentRate(token)
 
   const rentPriceInEth = await currencyConverter.getFromUsd(
     token,
-    priceWithDiscount + totalTaxes + BigInt(deposit),
+    priceWithDiscount + salesTaxes + govTaxes + BigInt(deposit),
     rate,
     decimals
   )
-  const taxes = await currencyConverter.getFromUsd(token, totalTaxes, rate, decimals)
+  const taxes = await currencyConverter.getFromUsd(token, salesTaxes + govTaxes, rate, decimals)
 
   const feeInUsdCents = await paymentService.getPlatformFeeFrom(priceWithDiscount)
 
@@ -108,11 +108,23 @@ function getMockCarRequest(seed) {
     locationLatitude,
     locationLongitude,
     geoApiKey: apiKey,
+    insuranceIncluded: true,
   }
 }
 
+const locationInfo = {
+  userAddress: 'Miami Riverwalk, Miami, Florida, USA',
+  country: 'USA',
+  state: 'Florida',
+  city: 'Miami',
+  latitude: '45.509248',
+  longitude: '-122.682653',
+  timeZoneId: 'id',
+}
+
 function getMockCarRequestWithAddress(seed, address) {
-  return { ...getMockCarRequest(seed), locationAddress: address }
+  let locationInfo2 = { ...locationInfo, userAddress: address }
+  return { ...getMockCarRequest(seed), locationInfo: locationInfo2 }
 }
 
 function getMockCarRequest(seed) {
@@ -148,10 +160,9 @@ function getMockCarRequest(seed) {
     engineType: ETYPE,
     milesIncludedPerDay: DISTANCE_INCLUDED,
     timeBufferBetweenTripsInSec: timeBufferBetweenTripsInSec,
-    locationAddress: location,
-    locationLatitude,
-    locationLongitude,
     geoApiKey: apiKey,
+    insuranceIncluded: true,
+    locationInfo,
   }
 }
 
@@ -187,6 +198,7 @@ function getEmptySearchCarParams(seed) {
     yearOfProductionTo: 0,
     pricePerDayInUsdCentsFrom: 0,
     pricePerDayInUsdCentsTo: 0,
+    userLocation: locationInfo,
   }
 }
 
@@ -210,7 +222,6 @@ async function deployDefaultFixture() {
   const RentalityUserService = await ethers.getContractFactory('RentalityUserService')
   const RentalityTripService = await ethers.getContractFactory('RentalityTripService', {
     libraries: {
-      RentalityQuery: await query.getAddress(),
       RentalityUtils: await utils.getAddress(),
     },
   })
@@ -352,6 +363,17 @@ async function deployDefaultFixture() {
   const claimService = await upgrades.deployProxy(RentalityClaimService, [await rentalityUserService.getAddress()])
   await claimService.waitForDeployment()
 
+  const RealMath = await ethers.getContractFactory('RealMath')
+  const realMath = await RealMath.deploy()
+
+  const DeliveryService = await ethers.getContractFactory('RentalityCarDelivery', {
+    libraries: {
+      RealMath: await realMath.getAddress(),
+      RentalityUtils: await utils.getAddress(),
+    },
+  })
+  const deliveryService = await upgrades.deployProxy(DeliveryService, [await rentalityUserService.getAddress()])
+
   const rentalityPlatform = await upgrades.deployProxy(RentalityPlatform, [
     await rentalityCarToken.getAddress(),
     await rentalityCurrencyConverter.getAddress(),
@@ -359,6 +381,7 @@ async function deployDefaultFixture() {
     await rentalityUserService.getAddress(),
     await rentalityPaymentService.getAddress(),
     await claimService.getAddress(),
+    await deliveryService.getAddress(),
   ])
   await rentalityPlatform.waitForDeployment()
 
@@ -371,6 +394,7 @@ async function deployDefaultFixture() {
     await rentalityPlatform.getAddress(),
     await rentalityPaymentService.getAddress(),
     await claimService.getAddress(),
+    await deliveryService.getAddress(),
   ])
   await rentalityAdminGateway.waitForDeployment()
 
@@ -391,6 +415,7 @@ async function deployDefaultFixture() {
     await rentalityPaymentService.getAddress(),
     await claimService.getAddress(),
     await rentalityAdminGateway.getAddress(),
+    await deliveryService.getAddress(),
   ])
   await rentalityGateway.waitForDeployment()
 
@@ -424,6 +449,7 @@ async function deployDefaultFixture() {
     rentalityPaymentService,
     rentalityPlatform,
     rentalityAdminGateway,
+    deliveryService,
     utils,
     query,
     engineService,
@@ -455,4 +481,5 @@ module.exports = {
   calculatePayments,
   calculatePaymentsFrom,
   signTCMessage,
+  locationInfo,
 }

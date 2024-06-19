@@ -17,7 +17,7 @@ import './RentalityPlatform.sol';
 import './payments/RentalityPaymentService.sol';
 import './Schemas.sol';
 import './RentalityAdminGateway.sol';
-import './libs/RentalityQuery.sol';
+import './features/RentalityCarDelivery.sol';
 
 /// @title RentalityTripService
 /// @dev Manages the lifecycle of rental trips, including creation, approval, and completion.
@@ -76,8 +76,8 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     uint64 pricePerDayInUsdCents,
     uint64 startDateTime,
     uint64 endDateTime,
-    string memory startLocation,
-    string memory endLocation,
+    bytes32 startLocation,
+    bytes32 endLocation,
     uint64 milesIncludedPerDay,
     Schemas.PaymentInfo memory paymentInfo
   ) public {
@@ -105,8 +105,6 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
       startDateTime,
       endDateTime,
       carInfo.engineType,
-      startLocation,
-      endLocation,
       milesIncludedPerDay,
       engineService.getFuelPriceFromEngineParams(carInfo.engineType, carInfo.engineParams),
       paymentInfo,
@@ -124,7 +122,10 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
       address(0),
       new uint64[](panelParamsAmount),
       0,
-      Schemas.TransactionInfo(0, 0, 0, 0, Schemas.TripStatus.Created)
+      Schemas.TransactionInfo(0, 0, 0, 0, Schemas.TripStatus.Created),
+      0,
+      startLocation == bytes32('') ? carInfo.locationHash : startLocation,
+      endLocation == bytes32('') ? carInfo.locationHash : endLocation
     );
 
     emit TripCreated(newTripId, host, guest);
@@ -175,21 +176,6 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     idToTripInfo[tripId].rejectedBy = tx.origin;
 
     emit TripStatusChanged(tripId, Schemas.TripStatus.Canceled, idToTripInfo[tripId].host, idToTripInfo[tripId].guest);
-  }
-
-  /// @dev Searches for available cars for a user within a specified time range and search parameters.
-  /// @param user The address of the user for whom to search available cars.
-  /// @param startDateTime The start date and time of the search period.
-  /// @param endDateTime The end date and time of the search period.
-  /// @param searchParams The search parameters for filtering available cars.
-  /// @return An array of available car information matching the search criteria.
-  function searchAvailableCarsForUser(
-    address user,
-    uint64 startDateTime,
-    uint64 endDateTime,
-    Schemas.SearchCarParams memory searchParams
-  ) public view returns (Schemas.SearchCar[] memory) {
-    return addresses.searchAvailableCarsForUser(user, startDateTime, endDateTime, searchParams);
   }
 
   /// @notice Allows the host to perform a check-in for a specific trip.
@@ -312,13 +298,17 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
 
     require(
       idToTripInfo[tripId].status == Schemas.TripStatus.CheckedOutByGuest ||
-        idToTripInfo[tripId].status == Schemas.TripStatus.CheckedInByHost,
-      'The trip is not in status CheckedOutByGuest or CheckedInByHost'
+        idToTripInfo[tripId].status == Schemas.TripStatus.CheckedInByHost ||
+        idToTripInfo[tripId].status == Schemas.TripStatus.CheckedInByGuest,
+      'The trip is not in status CheckedOutByGuest, CheckedInByHost or CheckedInByGuest'
     );
 
     Schemas.CarInfo memory carInfo = addresses.carService.getCarInfoById(trip.carId);
 
-    if (idToTripInfo[tripId].status == Schemas.TripStatus.CheckedInByHost) {
+    if (
+      idToTripInfo[tripId].status == Schemas.TripStatus.CheckedInByHost ||
+      idToTripInfo[tripId].status == Schemas.TripStatus.CheckedInByGuest
+    ) {
       engineService.verifyEndParams(trip.startParamLevels, panelParams, carInfo.engineType);
       idToTripInfo[tripId].endParamLevels = panelParams;
       idToTripInfo[tripId].tripFinishedBy = tx.origin;
@@ -358,6 +348,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
       resolveAmountInUsdCents = idToTripInfo[tripId].paymentInfo.depositInUsdCents;
     }
     idToTripInfo[tripId].paymentInfo.resolveAmountInUsdCents = resolveAmountInUsdCents;
+    idToTripInfo[tripId].finishDateTime = block.timestamp;
 
     emit TripStatusChanged(tripId, Schemas.TripStatus.Finished, idToTripInfo[tripId].host, idToTripInfo[tripId].guest);
   }
@@ -440,9 +431,10 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
       RentalityTripService(address(this)),
       RentalityUserService(userServiceAddress),
       RentalityPlatform(address(0)),
-      RentalityPaymentService(paymentServiceAddress),
+      RentalityPaymentService(payable(paymentServiceAddress)),
       RentalityClaimService(address(0)),
-      RentalityAdminGateway(address(0))
+      RentalityAdminGateway(address(0)),
+      RentalityCarDelivery(address(0))
     );
     engineService = RentalityEnginesService(engineServiceAddress);
   }
