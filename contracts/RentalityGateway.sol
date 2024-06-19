@@ -26,6 +26,7 @@ struct RentalityContract {
   RentalityPaymentService paymentService;
   RentalityClaimService claimService;
   RentalityAdminGateway adminService;
+  RentalityCarDelivery deliveryService;
 }
 
 /// @title RentalityGateway
@@ -39,11 +40,6 @@ struct RentalityContract {
 /// @custom:oz-upgrades-unsafe-allow external-library-linking
 contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
   RentalityContract private addresses;
-  /// @notice Ensures that the caller is a host.
-  modifier onlyHost() {
-    require(addresses.userService.isHost(msg.sender), 'User is not a host');
-    _;
-  }
   using RentalityQuery for RentalityContract;
 
   fallback(bytes calldata data) external payable returns (bytes memory) {
@@ -57,29 +53,23 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
     return res;
   }
 
-  /// @dev Updates the addresses of various services used in the Rentality platform.
-  ///
-  /// This function retrieves the actual service addresses from the `adminService` and updates
-  /// the contract's state variables with these addresses. The services include:
-  /// - Car Token Service
-  /// - Currency Converter Service
-  /// - Trip Service
-  /// - User Service
-  /// - Platform Service
-  /// - Payment Service
-  /// - Claim Service
-  ///
-  /// This function should be called whenever the addresses of the services change.
-  //    function updateServiceAddresses(RentalityContract memory contrcacts) public {
-  //        carService = RentalityCarToken(adminService.getCarServiceAddress());
-  //        currencyConverterService = RentalityCurrencyConverter(adminService.getCurrencyConverterServiceAddress());
-  //        tripService = RentalityTripService(adminService.getTripServiceAddress());
-  //        userService = RentalityUserService(adminService.getUserServiceAddress());
-  //        rentalityPlatform = RentalityPlatform(adminService.getRentalityPlatformAddress());
-  //        paymentService = RentalityPaymentService(adminService.getPaymentService());
-  //        claimService = RentalityClaimService(adminService.getClaimServiceAddress());
-  //        rentalityPlatform.updateServiceAddresses(adminService);
-  //    }
+  // @dev Updates the addresses of various services used in the Rentality platform.
+  //
+  // This function retrieves the actual service addresses from the `adminService` and updates
+  // the contract's state variables with these addresses. The services include:
+  // - Car Token Service
+  // - Currency Converter Service
+  // - Trip Service
+  // - User Service
+  // - Platform Service
+  // - Payment Service
+  // - Claim Service
+  //
+  //   This function should be called whenever the addresses of the services change.
+  //  function updateServiceAddresses() public {
+  //    require(addresses.userService.isAdmin(tx.origin), 'only Admin.');
+  //    addresses = addresses.adminService.getRentalityContracts();
+  //  }
 
   /// @notice Retrieves information about a car by its ID.
   /// @param carId The ID of the car.
@@ -94,24 +84,6 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
   function getCarMetadataURI(uint256 carId) public view returns (string memory) {
     return addresses.carService.tokenURI(carId);
   }
-  // function updateCarInfo(
-  //     RentalityCarToken.UpdateCarInfoRequest memory request
-  // ) public onlyHost {
-  //     return
-  //         carService.updateCarInfo(
-  //             request.carId,
-  //             request.pricePerDayInUsdCents,
-  //             request.securityDepositPerTripInUsdCents,
-  //             request.fuelPricePerGalInUsdCents,
-  //             request.milesIncludedPerDay,
-  //             request.country,
-  //             request.state,
-  //             request.city,
-  //             request.locationLatitudeInPPM,
-  //             request.locationLongitudeInPPM,
-  //             request.currentlyListed
-  //         );
-  // }
 
   /// @notice Retrieves information about all cars.
   /// @return An array of car information.
@@ -135,8 +107,43 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
     uint64 startDateTime,
     uint64 endDateTime,
     Schemas.SearchCarParams memory searchParams
-  ) public view returns (Schemas.SearchCar[] memory) {
-    return addresses.tripService.searchAvailableCarsForUser(msg.sender, startDateTime, endDateTime, searchParams);
+  ) public view returns (Schemas.SearchCarWithDistance[] memory) {
+    return
+      addresses.searchSortedCars(
+        msg.sender,
+        startDateTime,
+        endDateTime,
+        searchParams,
+        IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getLocationInfo(bytes32('')),
+        IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getLocationInfo(bytes32('')),
+        RentalityAdminGateway(addresses.adminService).getDeliveryServiceAddress()
+      );
+  }
+
+  /// @notice Searches for available cars based on specified criteria.
+  /// @param startDateTime The start date and time of the search.
+  /// @param endDateTime The end date and time of the search.
+  /// @param searchParams Additional search parameters.
+  /// @param pickUpInfo Lat and lon of return and pickUp locations
+  /// @param returnInfo Lat and lon of return and pickUp locations
+  /// @return An array of available car information meeting the search criteria.
+  function searchAvailableCarsWithDelivery(
+    uint64 startDateTime,
+    uint64 endDateTime,
+    Schemas.SearchCarParams memory searchParams,
+    Schemas.LocationInfo memory pickUpInfo,
+    Schemas.LocationInfo memory returnInfo
+  ) public view returns (Schemas.SearchCarWithDistance[] memory) {
+    return
+      addresses.searchSortedCars(
+        msg.sender,
+        startDateTime,
+        endDateTime,
+        searchParams,
+        pickUpInfo,
+        returnInfo,
+        RentalityAdminGateway(addresses.adminService).getDeliveryServiceAddress()
+      );
   }
 
   /// @notice Retrieves information about cars owned by the caller.
@@ -149,26 +156,26 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
   /// @param carId The ID of the car for which details are requested.
   /// @return details An instance of `Schemas.CarDetails` containing the details of the specified car.
   function getCarDetails(uint carId) public view returns (Schemas.CarDetails memory) {
-    return addresses.getCarDetails(carId);
+    return RentalityQuery.getCarDetails(addresses, carId);
   }
 
   /// @notice Retrieves information about a trip by ID.
   /// @param tripId The ID of the trip.
   /// @return Trip information.
   function getTrip(uint256 tripId) public view returns (Schemas.TripDTO memory) {
-    return addresses.getTripDTO(tripId);
+    return RentalityUtils.getTripDTO(addresses, tripId);
   }
 
   /// @notice Retrieves information about trips where the caller is the guest.
   /// @return An array of trip information.
   function getTripsAsGuest() public view returns (Schemas.TripDTO[] memory) {
-    return addresses.getTripsByGuest(tx.origin);
+    return RentalityUtils.getTripsByGuest(addresses, tx.origin);
   }
 
   /// @notice Retrieves information about trips where the caller is the host.
   /// @return An array of trip information.
   function getTripsAsHost() public view returns (Schemas.TripDTO[] memory) {
-    return addresses.getTripsByHost(tx.origin);
+    return RentalityUtils.getTripsByHost(addresses, tx.origin);
   }
 
   /// @notice Retrieves information about trips for a specific car.
@@ -208,14 +215,7 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
   function getTripContactInfo(
     uint256 tripId
   ) public view returns (string memory guestPhoneNumber, string memory hostPhoneNumber) {
-    require(addresses.userService.isHostOrGuest(tx.origin), 'User is not a host or guest');
-
-    Schemas.Trip memory trip = addresses.tripService.getTrip(tripId);
-
-    Schemas.KYCInfo memory guestInfo = addresses.userService.getKYCInfo(trip.guest);
-    Schemas.KYCInfo memory hostInfo = addresses.userService.getKYCInfo(trip.host);
-
-    return (guestInfo.mobilePhoneNumber, hostInfo.mobilePhoneNumber);
+    return RentalityUtils.getTripContactInfo(tripId, address(addresses.tripService), address(addresses.userService));
   }
 
   /// @notice Retrieves KYC information for the caller.
@@ -254,28 +254,79 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
     uint64 daysOfTrip,
     address currency
   ) public view returns (Schemas.CalculatePaymentsDTO memory) {
+    return RentalityUtils.calculatePayments(addresses, carId, daysOfTrip, currency, 0);
+  }
+
+  /// @dev Calculates the payments for a trip.
+  /// @param carId The ID of the car.
+  /// @param daysOfTrip The duration of the trip in days.
+  /// @param currency The currency to use for payment calculation.
+  /// @param pickUpLocation lat and lon of pickUp and return locations.
+  /// @param returnLocation lat and lon of pickUp and return locations.
+  /// @return calculatePaymentsDTO An object containing payment details.
+  function calculatePaymentsWithDelivery(
+    uint carId,
+    uint64 daysOfTrip,
+    address currency,
+    Schemas.LocationInfo memory pickUpLocation,
+    Schemas.LocationInfo memory returnLocation
+  ) public view returns (Schemas.CalculatePaymentsDTO memory) {
     return
-      RentalityUtils.calculatePayments(
-        address(addresses.carService),
-        address(addresses.paymentService),
-        address(addresses.currencyConverterService),
+      RentalityUtils.calculatePaymentsWithDelivery(
+        addresses,
         carId,
         daysOfTrip,
-        currency
+        currency,
+        pickUpLocation,
+        returnLocation
       );
   }
   /// @notice Get chat information for trips hosted by the caller on the Rentality platform.
   /// @return chatInfo An array of chat information for trips hosted by the caller.
   function getChatInfoForHost() public view returns (Schemas.ChatInfo[] memory) {
-    Schemas.TripDTO[] memory trips = addresses.getTripsByHost(tx.origin);
-    return RentalityUtils.populateChatInfo(trips, address(addresses.userService), address(addresses.carService));
+    return RentalityUtils.populateChatInfo(false, addresses);
   }
 
   /// @notice Get chat information for trips attended by the caller on the Rentality platform.
   /// @return chatInfo An array of chat information for trips attended by the caller.
   function getChatInfoForGuest() public view returns (Schemas.ChatInfo[] memory) {
-    Schemas.TripDTO[] memory trips = addresses.getTripsByGuest(tx.origin);
-    return RentalityUtils.populateChatInfo(trips, address(addresses.userService), address(addresses.carService));
+    return RentalityUtils.populateChatInfo(true, addresses);
+  }
+
+  /// @dev Retrieves delivery data for a given car.
+  /// @param carId The ID of the car for which delivery data is requested.
+  /// @return deliveryData The delivery data including location details and delivery prices.
+  function getDeliveryData(uint carId) public view returns (Schemas.DeliveryData memory) {
+    return RentalityUtils.getDeliveryData(addresses, carId);
+  }
+
+  /// @dev Retrieves delivery data for a given user.
+  /// @param user The user address for which delivery data is requested.
+  /// @return deliveryData The delivery data including location details and delivery prices.
+  function getUserDeliveryPrices(address user) public view returns (Schemas.DeliveryPrices memory) {
+    return RentalityCarDelivery(addresses.adminService.getDeliveryServiceAddress()).getUserDeliveryPrices(user);
+  }
+
+  ///  @notice Calculates the KYC commission for a given currency.
+  ///  @param currency The address of the currency to calculate the KYC commission for.
+  ///  @return The calculated KYC commission amount.
+  function calculateKycCommission(address currency) public view returns (uint) {
+    return RentalityQuery.calculateKycCommission(addresses, currency);
+  }
+
+  /// @notice Retrieves the KYC commission amount.
+  /// @dev Calls the `getKycCommission` function from the `userService` contract.
+  /// @return The current KYC commission amount.
+  function getKycCommission() public view returns (uint) {
+    return addresses.userService.getKycCommission();
+  }
+
+  /// @notice Checks if the KYC commission has been paid by a user.
+  /// @dev Calls the `isCommissionPaidForUser` function from the `userService` contract.
+  /// @param user The address of the user to check.
+  /// @return True if the KYC commission has been paid by the user, false otherwise.
+  function isKycCommissionPaid(address user) public view returns (bool) {
+    return addresses.userService.isCommissionPaidForUser(user);
   }
 
   // Unused
@@ -456,7 +507,8 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
     address rentalityPlatformAddress,
     address paymentServiceAddress,
     address claimServiceAddress,
-    address rentalityAdminGatewayAddress
+    address rentalityAdminGatewayAddress,
+    address deliveryServiceAddress
   ) public initializer {
     addresses = RentalityContract(
       RentalityCarToken(carServiceAddress),
@@ -464,9 +516,10 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
       RentalityTripService(tripServiceAddress),
       RentalityUserService(userServiceAddress),
       RentalityPlatform(rentalityPlatformAddress),
-      RentalityPaymentService(paymentServiceAddress),
+      RentalityPaymentService(payable(paymentServiceAddress)),
       RentalityClaimService(claimServiceAddress),
-      RentalityAdminGateway(rentalityAdminGatewayAddress)
+      RentalityAdminGateway(rentalityAdminGatewayAddress),
+      RentalityCarDelivery(deliveryServiceAddress)
     );
 
     __Ownable_init();

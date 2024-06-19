@@ -1,0 +1,226 @@
+{
+  "abi": [
+    { "type": "error", "name": "Overflow", "inputs": [] },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "AdminChanged",
+      "inputs": [
+        { "type": "address", "name": "previousAdmin", "indexed": false },
+        { "type": "address", "name": "newAdmin", "indexed": false }
+      ]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "BeaconUpgraded",
+      "inputs": [{ "type": "address", "name": "beacon", "indexed": true }]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "Initialized",
+      "inputs": [{ "type": "uint8", "name": "version", "indexed": false }]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "Upgraded",
+      "inputs": [{ "type": "address", "name": "implementation", "indexed": true }]
+    },
+    {
+      "type": "function",
+      "name": "addEngineService",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "engineService" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "compareParams",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        { "type": "uint64[]", "name": "startParams" },
+        { "type": "uint64[]", "name": "endParams" },
+        { "type": "uint8", "name": "eType" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "extraCosts",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint8", "name": "eType" },
+        { "type": "uint64[]", "name": "params" }
+      ],
+      "outputs": [{ "type": "uint64", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getEngineAddressById",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "uint8", "name": "eType" }],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getFuelPriceFromEngineParams",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        { "type": "uint8", "name": "eType" },
+        { "type": "uint64[]", "name": "engineParams" }
+      ],
+      "outputs": [{ "type": "uint64", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getPanelParamsAmount",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "uint8", "name": "eType" }],
+      "outputs": [{ "type": "uint256", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getResolveAmountInUsdCents",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        { "type": "uint8", "name": "engineType" },
+        { "type": "uint64", "name": "fuelPrice" },
+        { "type": "uint64[]", "name": "startParams" },
+        { "type": "uint64[]", "name": "endParams" },
+        { "type": "uint64[]", "name": "engineParams" },
+        { "type": "uint64", "name": "milesIncludedPerDay" },
+        { "type": "uint64", "name": "pricePerDayInUsdCents" },
+        { "type": "uint64", "name": "tripDays" }
+      ],
+      "outputs": [
+        { "type": "uint64", "name": "" },
+        { "type": "uint64", "name": "" }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "initialize",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "_userService" },
+        { "type": "address[]", "name": "engineServices" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "isEmptyParams",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        { "type": "uint8", "name": "eType" },
+        { "type": "uint64[]", "name": "params" }
+      ],
+      "outputs": [{ "type": "bool", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "proxiableUUID",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "bytes32", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "updateEngineService",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "engineService" },
+        { "type": "uint8", "name": "eType" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "upgradeTo",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "newImplementation" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "upgradeToAndCall",
+      "constant": false,
+      "stateMutability": "payable",
+      "payable": true,
+      "inputs": [
+        { "type": "address", "name": "newImplementation" },
+        { "type": "bytes", "name": "data" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "verifyCreateParams",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        { "type": "uint8", "name": "eType" },
+        { "type": "uint64[]", "name": "params" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "verifyEndParams",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint64[]", "name": "startParams" },
+        { "type": "uint64[]", "name": "endParams" },
+        { "type": "uint8", "name": "eType" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "verifyStartParams",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint64[]", "name": "params" },
+        { "type": "uint8", "name": "eType" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "verifyUpdateParams",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        { "type": "uint8", "name": "eType" },
+        { "type": "uint64[]", "name": "newParams" },
+        { "type": "uint64[]", "name": "oldParams" }
+      ],
+      "outputs": [{ "type": "uint64[]", "name": "" }]
+    }
+  ]
+}

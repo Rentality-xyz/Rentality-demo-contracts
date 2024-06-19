@@ -4,6 +4,7 @@ pragma solidity ^0.8.9;
 import './payments/RentalityPaymentService.sol';
 import './RentalityPlatform.sol';
 import './abstract/IRentalityAdminGateway.sol';
+import {RentalityContract, RentalityGateway} from './RentalityGateway.sol';
 
 contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
   RentalityCarToken private carService;
@@ -13,9 +14,8 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
   RentalityPlatform private rentalityPlatform;
   RentalityPaymentService private paymentService;
   RentalityClaimService private claimService;
+  RentalityCarDelivery private deliveryService;
 
-  // unused, have to be here, because of proxy
-  address private automationService;
   /// @notice Ensures that the caller is either an admin, the contract owner, or an admin from the origin transaction.
   modifier onlyAdmin() {
     require(
@@ -23,6 +23,20 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
       'User is not an admin'
     );
     _;
+  }
+  function getRentalityContracts() public view returns (RentalityContract memory) {
+    return
+      RentalityContract(
+        carService,
+        currencyConverterService,
+        tripService,
+        userService,
+        rentalityPlatform,
+        paymentService,
+        claimService,
+        RentalityAdminGateway(this),
+        deliveryService
+      );
   }
 
   /// @notice Retrieves the address of the RentalityCarToken contract.
@@ -45,7 +59,7 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
   /// @notice Updates the address of the RentalityCarToken contract. Only callable by admins.
   /// @param contractAddress The new address of the RentalityPayment contract.
   function updatePaymentService(address contractAddress) public onlyAdmin {
-    paymentService = RentalityPaymentService(contractAddress);
+    paymentService = RentalityPaymentService(payable(contractAddress));
   }
   /// @notice Retrieves the address of the RentalityClaim contract.
   /// @return The address of the RentalityClaim contract.
@@ -119,21 +133,33 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
     carService.updateGeoParsesAddress(newGeoParserAddress);
   }
 
+  /// @notice Retrieves the address of the RentalityCarDelivery contract.
+  /// @return The address of the RentalityCarDelivery contract.
+  function getDeliveryServiceAddress() public view returns (address) {
+    return address(deliveryService);
+  }
+
+  /// @notice Updates the address of the RentalityCarDelivery contract. Only callable by admins.
+  /// @param contractAddress The new address of the RentalityCarDeliveryn contract.
+  function updateDeliveryService(address contractAddress) public onlyAdmin {
+    deliveryService = RentalityCarDelivery(contractAddress);
+  }
+
   /// @notice Withdraws the specified amount from the RentalityPlatform contract.
   /// @param amount The amount to withdraw.
   /// @param tokenAddress one of available on Rentality currency
   function withdrawFromPlatform(uint256 amount, address tokenAddress) public {
-    rentalityPlatform.withdrawFromPlatform(amount, tokenAddress);
+    paymentService.withdrawFromPlatform(amount, tokenAddress);
   }
 
   /// @notice Withdraws the entire balance from the RentalityPlatform contract.
   /// @param tokenAddress one of available on Rentality currency
   function withdrawAllFromPlatform(address tokenAddress) public {
     uint balance = currencyConverterService.isETH(tokenAddress)
-      ? address(rentalityPlatform).balance
-      : IERC20(tokenAddress).balanceOf(address(rentalityPlatform));
+      ? address(paymentService).balance
+      : IERC20(tokenAddress).balanceOf(address(paymentService));
 
-    rentalityPlatform.withdrawFromPlatform(balance, tokenAddress);
+    paymentService.withdrawFromPlatform(balance, tokenAddress);
   }
   /// @notice Sets the platform fee in parts per million (PPM). Only callable by admins.
   /// @param valueInPPM The new platform fee value in PPM.
@@ -186,7 +212,7 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
   /// @param daysOfTrip The duration of the trip in days.
   /// @param value The original value of the trip.
   /// @return The total taxes for the trip.
-  function calculateTaxes(uint taxesId, uint64 daysOfTrip, uint64 value) public view returns (uint64) {
+  function calculateTaxes(uint taxesId, uint64 daysOfTrip, uint64 value) public view returns (uint64, uint64) {
     return paymentService.calculateTaxes(taxesId, daysOfTrip, value);
   }
 
@@ -226,14 +252,23 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
     userService.setCivicData(_civicVerifier, _civicGatekeeperNetwork);
   }
 
-  /// @notice Sets a new message for the Terms and Conditions (TC) and updates the corresponding hashed message.
+  // @notice Sets a new message for the Terms and Conditions (TC) and updates the corresponding hashed message.
   /// @dev This function can only be called by an admin.
   /// @param message The new message for the TC.
   function setNewTCMessage(string memory message) public {
     userService.setNewTCMessage(message);
   }
+
   function setPlatformFee(uint value) public {
     claimService.setPlatformFee(value);
+  }
+
+  function setKycCommission(uint value) public {
+    userService.setKycCommission(value);
+  }
+
+  function getKycCommission() public view returns (uint) {
+    return userService.getKycCommission();
   }
 
   //  @dev Initializes the contract with the provided addresses for various services.
@@ -252,15 +287,17 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
     address userServiceAddress,
     address rentalityPlatformAddress,
     address paymentServiceAddress,
-    address claimServiceAddress
+    address claimServiceAddress,
+    address carDeliveryAddress
   ) public initializer {
     carService = RentalityCarToken(carServiceAddress);
     currencyConverterService = RentalityCurrencyConverter(currencyConverterServiceAddress);
     tripService = RentalityTripService(tripServiceAddress);
     userService = RentalityUserService(userServiceAddress);
     rentalityPlatform = RentalityPlatform(rentalityPlatformAddress);
-    paymentService = RentalityPaymentService(paymentServiceAddress);
+    paymentService = RentalityPaymentService(payable(paymentServiceAddress));
     claimService = RentalityClaimService(claimServiceAddress);
+    deliveryService = RentalityCarDelivery(carDeliveryAddress);
 
     __Ownable_init();
   }

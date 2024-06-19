@@ -30,8 +30,8 @@ contract RentalityFloridaTaxes is IRentalityTaxes, Initializable, UUPSAccess {
   /// @param tripDays The duration of the trip in days.
   /// @param totalCost The total cost of the trip.
   /// @return The total taxes for the trip.
-  function calculateTaxes(uint64 tripDays, uint64 totalCost) public view returns (uint64) {
-    return getSalesTaxFrom(totalCost) + getGovernmentTaxPerDayFrom(tripDays);
+  function calculateTaxes(uint64 tripDays, uint64 totalCost) public view returns (uint64, uint64) {
+    return (getSalesTaxFrom(totalCost), getGovernmentTaxPerDayFrom(tripDays));
   }
   /// @notice Retrieves the current sales tax in parts per million (PPM).
   /// @return The current sales tax in PPM.
