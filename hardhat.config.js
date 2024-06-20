@@ -1,6 +1,4 @@
-// /** @type import('hardhat/config').HardhatUserConfig */
-// require('@nomiclabs/hardhat-waffle')
-
+// npm i @nomiclabs/hardhat-ethers
 require('dotenv').config()
 require('@nomicfoundation/hardhat-toolbox')
 require('@openzeppelin/hardhat-upgrades')
@@ -29,33 +27,45 @@ module.exports = {
       url: process.env.URL_LOCALHOST_GANACHE,
       accounts: [process.env.GANACHE_PRIVATE_KEY],
       chainId: 1337,
+      timeout: 1_000_000,
     },
     goerli: {
-      url: process.env.ALCHEMY_API_URL_GOERLI,
+      url: process.env.ALCHEMY_API_URL_GOERLI ?? '',
       accounts: [process.env.PRIVATE_KEY],
     },
     mumbai: {
-      url: process.env.ALCHEMY_API_URL_MUMBAI,
+      url: process.env.ALCHEMY_API_URL_MUMBAI ?? '',
       accounts: [process.env.PRIVATE_KEY],
     },
     sepolia: {
-      url: process.env.ALCHEMY_API_URL_SEPOLIA,
+      url: process.env.ALCHEMY_API_URL_SEPOLIA ?? '',
       accounts: [process.env.PRIVATE_KEY],
     },
     optimism_sepolia: {
-      url: process.env.OPTIMISM_SEPOLIA_URL,
+      url: process.env.OPTIMISM_SEPOLIA_URL ?? '',
       accounts: [process.env.PRIVATE_KEY],
       chainId: 11155420,
     },
+    base_sepolia: {
+      url: process.env.BASE_SEPOLIA_URL ?? '',
+      accounts: [process.env.PRIVATE_KEY],
+      chainId: 84532,
+    },
+    opBNB: {
+      url: process.env.OP_BNB_URL ?? '',
+      accounts: [process.env.PRIVATE_KEY],
+      chainId: 5611,
+    },
   },
   solidity: {
-    version: '0.8.17',
+    version: '0.8.19',
     settings: {
       optimizer: {
         enabled: true,
         runs: 200,
       },
       viaIR: true,
+      // evmVersion: 'cancun',
     },
   },
 }

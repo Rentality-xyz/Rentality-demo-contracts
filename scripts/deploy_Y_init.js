@@ -1,4 +1,5 @@
-const RentalityGatewayJSON_ABI = require('../src/abis/RentalityGateway.v0_17_0.abi.json')
+const RentalityGatewayJSON_ABI = require('../src/abis/RentalityGateway.v0_17_2.abi.json')
+const RentalityChatHelperJSON_ABI = require('../src/abis/RentalityChatHelper.v0_17_2.abi.json')
 const testData = require('./testData/testData.json')
 const { ethers, network } = require('hardhat')
 const { buildPath } = require('./utils/pathBuilder')
@@ -19,10 +20,14 @@ const checkInitialization = async () => {
   if (addresses == null) {
     throw new Error(`Addresses for chainId:${chainId} was not found in addressesContractsTestnets.json`)
   }
-  const contractAddress = checkNotNull(addresses['RentalityGateway'], 'rentalityGatewayAddress')
-
-  if (!contractAddress) {
+  const rentalityGatewayAddress = checkNotNull(addresses['RentalityGateway'], 'rentalityGatewayAddress')
+  if (!rentalityGatewayAddress) {
     throw new Error(`Addresses for RentalityGateway was not found`)
+  }
+
+  const chatHelperAddress = checkNotNull(addresses['RentalityChatHelper'], 'chatHelperAddress')
+  if (!chatHelperAddress) {
+    throw new Error(`Addresses for RentalityChatHelper was not found`)
   }
 
   const HOST_PRIVATE_KEY = testData.hostWalletPrivateKey
@@ -37,11 +42,37 @@ const checkInitialization = async () => {
   }
   const guest = new ethers.Wallet(GUEST_PRIVATE_KEY, ethers.provider)
 
-  const gateway = new ethers.Contract(contractAddress, RentalityGatewayJSON_ABI.abi, deployer)
-  return [host, guest, gateway]
+  if (chainId === 1337n) {
+    const hardhatAccount = new ethers.Wallet(
+      '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
+      ethers.provider
+    )
+    if ((await ethers.provider.getBalance(hardhatAccount.address)) > 0) {
+      console.log('Transfering ETH for host and guest fot the Hardhat node')
+
+      const txHost = await hardhatAccount.sendTransaction({
+        to: host.address,
+        value: ethers.parseEther('100.0'),
+      })
+      await txHost.wait()
+
+      const txGuest = await hardhatAccount.sendTransaction({
+        to: guest.address,
+        value: ethers.parseEther('100.0'),
+      })
+      await txGuest.wait()
+    } else {
+      console.log('It is not hardhat node')
+    }
+  }
+
+  const gateway = new ethers.Contract(rentalityGatewayAddress, RentalityGatewayJSON_ABI.abi, deployer)
+  const chatService = new ethers.Contract(chatHelperAddress, RentalityChatHelperJSON_ABI.abi, deployer)
+
+  return [host, guest, gateway, chatService]
 }
 
-async function setHostKycIfNotSet(host, gateway) {
+async function setHostKycIfNotSet(host, gateway, chatService) {
   console.log('\nSetting KYC for host...')
 
   if ((await gateway.connect(host).getMyKYCInfo()).name) {
@@ -61,11 +92,12 @@ async function setHostKycIfNotSet(host, gateway) {
       data.expirationDate,
       data.tcSignature
     )
+  await chatService.connect(host).setMyChatPublicKey(data.privateKey, data.publicKey)
 
   console.log('KYC for host was set')
 }
 
-async function setGuestKycIfNotSet(guest, gateway) {
+async function setGuestKycIfNotSet(guest, gateway, chatService) {
   console.log('\nSetting KYC for guest...')
 
   if ((await gateway.connect(guest).getMyKYCInfo()).name) {
@@ -85,6 +117,7 @@ async function setGuestKycIfNotSet(guest, gateway) {
       data.expirationDate,
       data.tcSignature
     )
+  await chatService.connect(guest).setMyChatPublicKey(data.privateKey, data.publicKey)
 
   console.log('KYC for guest was set')
 }
@@ -95,14 +128,14 @@ async function setCarsForHost(host, gateway) {
   let listedCars = await gateway.connect(host).getMyCars()
   const carCount = listedCars.length
 
-  if (carCount > 5) {
+  if (carCount > 6) {
     console.log(
       `All car has been already listed. Car ids: ${JSON.stringify(listedCars.map((i) => Number(i.carInfo.carId)))}`
     )
     return listedCars.map((i) => i.carInfo.carId)
   }
 
-  for (let index = carCount; index < 5; index++) {
+  for (let index = carCount; index < 6; index++) {
     console.log(`Listing car #${index}...`)
 
     await gateway.connect(host).addCar(testData.carInfos[index])
@@ -141,7 +174,7 @@ async function createPendingTrip(tripIndex, carId, host, guest, gateway) {
 }
 
 async function createRejectedByGuestTrip(tripIndex, carId, host, guest, gateway) {
-  const tripId = createPendingTrip(tripIndex, carId, host, guest, gateway)
+  const tripId = await createPendingTrip(tripIndex, carId, host, guest, gateway)
 
   if (tripId < 0) {
     throw new error('create trip error ')
@@ -152,7 +185,7 @@ async function createRejectedByGuestTrip(tripIndex, carId, host, guest, gateway)
 }
 
 async function createRejectedByHostTrip(tripIndex, carId, host, guest, gateway) {
-  const tripId = createPendingTrip(tripIndex, carId, host, guest, gateway)
+  const tripId = await createPendingTrip(tripIndex, carId, host, guest, gateway)
 
   if (tripId < 0) {
     throw new error('create trip error ')
@@ -163,7 +196,7 @@ async function createRejectedByHostTrip(tripIndex, carId, host, guest, gateway) 
 }
 
 async function createConfirmedTrip(tripIndex, carId, host, guest, gateway) {
-  const tripId = createPendingTrip(tripIndex, carId, host, guest, gateway)
+  const tripId = await createPendingTrip(tripIndex, carId, host, guest, gateway)
 
   if (tripId < 0) {
     throw new error('create trip error ')
@@ -174,51 +207,53 @@ async function createConfirmedTrip(tripIndex, carId, host, guest, gateway) {
 }
 
 async function createCheckedInByHostTrip(tripIndex, carId, host, guest, gateway) {
-  const tripId = createConfirmedTrip(tripIndex, carId, host, guest, gateway)
+  const tripId = await createConfirmedTrip(tripIndex, carId, host, guest, gateway)
 
   if (tripId < 0) {
     throw new error('create trip error ')
   }
-  await gateway.connect(host).checkInByHost(tripId, [0, 0], 'Insurance Company', 'Insurance Numbre 123')
+  await gateway
+    .connect(host)
+    .checkInByHost(tripId, [tripIndex * 10, tripIndex * 100], 'Insurance Company', 'Insurance Numbre 123')
   console.log(`Status of the trip #${tripIndex} was changed to 'CheckedInByHost'`)
   return tripId
 }
 
 async function createStartedTrip(tripIndex, carId, host, guest, gateway) {
-  const tripId = createCheckedInByHostTrip(tripIndex, carId, host, guest, gateway)
+  const tripId = await createCheckedInByHostTrip(tripIndex, carId, host, guest, gateway)
 
   if (tripId < 0) {
     throw new error('create trip error ')
   }
-  await gateway.connect(guest).checkInByGuest(tripId, [0, 0])
+  await gateway.connect(guest).checkInByGuest(tripId, [tripIndex * 10, tripIndex * 100])
   console.log(`Status of the trip #${tripIndex} was changed to 'Started'`)
   return tripId
 }
 
 async function createCheckedOutByGuestTrip(tripIndex, carId, host, guest, gateway) {
-  const tripId = createStartedTrip(tripIndex, carId, host, guest, gateway)
+  const tripId = await createStartedTrip(tripIndex, carId, host, guest, gateway)
 
   if (tripId < 0) {
     throw new error('create trip error ')
   }
-  await gateway.connect(guest).checkOutByGuest(tripId, [0, 0])
+  await gateway.connect(guest).checkOutByGuest(tripId, [tripIndex * 10, tripIndex * 100])
   console.log(`Status of the trip #${tripIndex} was changed to 'CheckedOutByGuest'`)
   return tripId
 }
 
 async function createFinishedTrip(tripIndex, carId, host, guest, gateway) {
-  const tripId = createCheckedOutByGuestTrip(tripIndex, carId, host, guest, gateway)
+  const tripId = await createCheckedOutByGuestTrip(tripIndex, carId, host, guest, gateway)
 
   if (tripId < 0) {
     throw new error('create trip error ')
   }
-  await gateway.connect(host).checkOutByHost(tripId, [0, 0])
+  await gateway.connect(host).checkOutByHost(tripId, [tripIndex * 10, tripIndex * 100])
   console.log(`Status of the trip #${tripIndex} was changed to 'Finished'`)
   return tripId
 }
 
 async function createClosedTrip(tripIndex, carId, host, guest, gateway) {
-  const tripId = createFinishedTrip(tripIndex, carId, host, guest, gateway)
+  const tripId = await createFinishedTrip(tripIndex, carId, host, guest, gateway)
 
   if (tripId < 0) {
     throw new error('create trip error ')
@@ -229,21 +264,32 @@ async function createClosedTrip(tripIndex, carId, host, guest, gateway) {
 }
 
 async function createCompletedWithoutGuestComfirmationTrip(tripIndex, carId, host, guest, gateway) {
-  const tripId = createStartedTrip(tripIndex, carId, host, guest, gateway)
+  const tripId = await createStartedTrip(tripIndex, carId, host, guest, gateway)
 
   if (tripId < 0) {
     throw new error('create trip error ')
   }
-  await gateway.connect(host).checkOutByHost(tripId, [0, 0])
+  await gateway.connect(host).checkOutByHost(tripId, [tripIndex * 10, tripIndex * 100])
   console.log(`Status of the trip #${tripIndex} was changed to 'CompletedWithoutGuestComfirmation'`)
   return tripId
 }
 
-async function main() {
-  const [host, guest, gateway] = await checkInitialization()
+async function createConfirmedAfterCompletedWithoutGuestComfirmationTrip(tripIndex, carId, host, guest, gateway) {
+  const tripId = await createCompletedWithoutGuestComfirmationTrip(tripIndex, carId, host, guest, gateway)
 
-  await setHostKycIfNotSet(host, gateway)
-  await setGuestKycIfNotSet(guest, gateway)
+  if (tripId < 0) {
+    throw new error('create trip error ')
+  }
+  await gateway.connect(guest).confirmCheckOut(tripId)
+  console.log(`Status of the trip #${tripIndex} was changed to 'Closed?'`)
+  return tripId
+}
+
+async function main() {
+  const [host, guest, gateway, chatService] = await checkInitialization()
+
+  await setHostKycIfNotSet(host, gateway, chatService)
+  await setGuestKycIfNotSet(guest, gateway, chatService)
 
   const carIds = await setCarsForHost(host, gateway)
   let tripCount = await getTripCount(host, gateway)
@@ -266,25 +312,26 @@ async function main() {
     }
   }
 
-  if (carIds.length > 1 && tripCount == 6) {
+  if (carIds.length > 1 && tripCount <= 6) {
     console.log(`\nCreating trips for car #${carIds[1]}...`)
     await createStartedTrip(6, carIds[1], host, guest, gateway)
-    tripCount++
   }
-  if (carIds.length > 2 && tripCount == 7) {
+  if (carIds.length > 2 && tripCount <= 7) {
     console.log(`\nCreating trips for car #${carIds[2]}...`)
     await createCheckedOutByGuestTrip(7, carIds[2], host, guest, gateway)
     tripCount++
   }
-  if (carIds.length > 3 && tripCount == 8) {
+  if (carIds.length > 3 && tripCount <= 8) {
     console.log(`\nCreating trips for car #${carIds[3]}...`)
     await createFinishedTrip(8, carIds[3], host, guest, gateway)
-    tripCount++
   }
-  if (carIds.length > 4 && tripCount == 9) {
+  if (carIds.length > 4 && tripCount <= 9) {
     console.log(`\nCreating trips for car #${carIds[4]}...`)
     await createCompletedWithoutGuestComfirmationTrip(9, carIds[4], host, guest, gateway)
-    tripCount++
+  }
+  if (carIds.length > 5 && tripCount <= 10) {
+    console.log(`\nCreating trips for car #${carIds[5]}...`)
+    await createConfirmedAfterCompletedWithoutGuestComfirmationTrip(10, carIds[5], host, guest, gateway)
   }
 }
 

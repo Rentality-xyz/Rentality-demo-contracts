@@ -1,8 +1,27 @@
 import "./Schemas.sol";
 import "./RentalityGateway.sol";
+import "./RentalityAdminGateway.sol";
+import "./RentalityPlatform.sol";
+import "./RentalityTripService.sol";
+import "./RentalityUserService.sol";
+import "./RentalityCarToken.sol";
+import "./features/RentalityClaimService.sol";
+import "./payments/RentalityPaymentService.sol";
+import "./payments/RentalityCurrencyConverter.sol";
+import "./libs/RentalityUtils.sol";
+import "./libs/RentalityQuery.sol";
+import '@openzeppelin/contracts/proxy/utils/Initializable.sol';
+import '@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol';
 
-contract RentalityView is UUPSAccess {
+contract RentalityView is UUPSUpgradeable, Initializable {
     RentalityContract public addresses;
+    using RentalityQuery for RentalityContract;
+    using RentalityUtils for RentalityContract;
+
+    function updateServiceAddresses(RentalityAdminGateway adminService) public {
+        require(addresses.userService.isAdmin(tx.origin), 'only Admin.');
+        addresses = adminService.getRentalityContracts();
+    }
 
     /// @notice Retrieves information about a car by its ID.
     /// @param carId The ID of the car.
@@ -49,19 +68,6 @@ contract RentalityView is UUPSAccess {
         return addresses.carService.getAvailableCarsForUser(user);
     }
 
-    /// @notice Searches for available cars based on specified criteria.
-    /// @param startDateTime The start date and time of the search.
-    /// @param endDateTime The end date and time of the search.
-    /// @param searchParams Additional search parameters.
-    /// @return An array of available car information meeting the search criteria.
-    function searchAvailableCars(
-        uint64 startDateTime,
-        uint64 endDateTime,
-        Schemas.SearchCarParams memory searchParams
-    ) public view returns (Schemas.SearchCar[] memory) {
-        return addresses.tripService.searchAvailableCarsForUser(msg.sender, startDateTime, endDateTime, searchParams);
-    }
-
     /// @notice Retrieves information about cars owned by the caller.
     /// @return An array of car information owned by the caller.
     function getMyCars() public view returns (Schemas.CarInfoDTO[] memory) {
@@ -79,7 +85,7 @@ contract RentalityView is UUPSAccess {
     /// @param tripId The ID of the trip.
     /// @return Trip information.
     function getTrip(uint256 tripId) public view returns (Schemas.TripDTO memory) {
-        return addresses.getTripDTO(tripId);
+        return RentalityUtils.getTripDTO(addresses, tripId);
     }
 
     /// @notice Retrieves information about trips where the caller is the guest.
@@ -179,26 +185,25 @@ contract RentalityView is UUPSAccess {
     ) public view returns (Schemas.CalculatePaymentsDTO memory) {
         return
             RentalityUtils.calculatePayments(
-            address(addresses.carService),
-            address(addresses.paymentService),
-            address(addresses.currencyConverterService),
+            addresses,
             carId,
             daysOfTrip,
-            currency
+            currency,
+            0
         );
     }
     /// @notice Get chat information for trips hosted by the caller on the Rentality platform.
     /// @return chatInfo An array of chat information for trips hosted by the caller.
     function getChatInfoForHost() public view returns (Schemas.ChatInfo[] memory) {
         Schemas.TripDTO[] memory trips = addresses.getTripsByHost(tx.origin);
-        return RentalityUtils.populateChatInfo(trips, address(addresses.userService), address(addresses.carService));
+        return RentalityUtils.populateChatInfo(false, addresses);
     }
 
     /// @notice Get chat information for trips attended by the caller on the Rentality platform.
     /// @return chatInfo An array of chat information for trips attended by the caller.
     function getChatInfoForGuest() public view returns (Schemas.ChatInfo[] memory) {
         Schemas.TripDTO[] memory trips = addresses.getTripsByGuest(tx.origin);
-        return RentalityUtils.populateChatInfo(trips, address(addresses.userService), address(addresses.carService));
+        return RentalityUtils.populateChatInfo(true, addresses);
     }
 
     function initialize(
@@ -207,18 +212,24 @@ contract RentalityView is UUPSAccess {
         address tripServiceAddress,
         address userServiceAddress,
         address paymentServiceAddress,
-        address claimServiceAddress
+        address claimServiceAddress,
+        address carDeliveryAddress
     ) public initializer {
         addresses = RentalityContract(
             RentalityCarToken(carServiceAddress),
             RentalityCurrencyConverter(currencyConverterServiceAddress),
             RentalityTripService(tripServiceAddress),
             RentalityUserService(userServiceAddress),
-            RentalityPlatform(address(this)),
-            RentalityPaymentService(paymentServiceAddress),
+            RentalityPlatform(address(0)),
+            RentalityPaymentService(payable(paymentServiceAddress)),
             RentalityClaimService(claimServiceAddress),
-            RentalityAdminGateway(address(0))
+            RentalityAdminGateway(address(0)),
+            RentalityCarDelivery(carDeliveryAddress),
+            this
         );
     }
 
+    function _authorizeUpgrade(address /*newImplementation*/) internal view override {
+        require(addresses.userService.isAdmin(msg.sender), 'Only for Admin.');
+    }
 }

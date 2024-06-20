@@ -59,9 +59,9 @@ describe('Rentality taxes & discounts', function () {
     let dayInTrip = 3
     let totalTaxes = (sumToPayInUsdCents * 7) / 100 + dayInTrip * 200
 
-    let calculatedTaxes = await rentalityPaymentService.calculateTaxes(1, dayInTrip, sumToPayInUsdCents)
+    let [sales, gov] = await rentalityPaymentService.calculateTaxes(1, dayInTrip, sumToPayInUsdCents)
 
-    expect(totalTaxes).to.be.eq(calculatedTaxes)
+    expect(totalTaxes).to.be.eq(sales + gov)
   })
   it('should correctly calculate discount', async function () {
     let sumToPay = 37800
@@ -115,7 +115,7 @@ describe('Rentality taxes & discounts', function () {
         },
         { value: result.totalPrice }
       )
-    ).to.changeEtherBalances([guest, rentalityPlatform], [-result.totalPrice, result.totalPrice])
+    ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
   })
 
   it('guest payed correct value with taxes and 3 days discount', async function () {
@@ -142,7 +142,7 @@ describe('Rentality taxes & discounts', function () {
         },
         { value: result.totalPrice }
       )
-    ).to.changeEtherBalances([guest, rentalityPlatform], [-result.totalPrice, result.totalPrice])
+    ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
   })
   it('guest payed correct value with taxes and 7 days discount', async function () {
     const request = getMockCarRequest(10)
@@ -168,7 +168,7 @@ describe('Rentality taxes & discounts', function () {
         },
         { value: result.totalPrice }
       )
-    ).to.changeEtherBalances([guest, rentalityPlatform], [-result.totalPrice, result.totalPrice])
+    ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
   })
 
   it('guest payed correct value with taxes and 30 days discount', async function () {
@@ -196,7 +196,7 @@ describe('Rentality taxes & discounts', function () {
         },
         { value: result.totalPrice }
       )
-    ).to.changeEtherBalances([guest, rentalityPlatform], [-result.totalPrice, result.totalPrice])
+    ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
   })
   it('after trip host get correct value', async function () {
     const request = getMockCarRequest(91)
@@ -232,7 +232,7 @@ describe('Rentality taxes & discounts', function () {
         },
         { value }
       )
-    ).to.changeEtherBalances([guest, rentalityPlatform], [-value, value])
+    ).to.changeEtherBalances([guest, rentalityPaymentService], [-value, value])
 
     await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
     await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0], '', '')).not.to.be.reverted
@@ -248,7 +248,7 @@ describe('Rentality taxes & discounts', function () {
     const returnToHost = value - deposit - rentalityFee - taxes
 
     await expect(rentalityGateway.connect(host).finishTrip(1)).to.changeEtherBalances(
-      [host, rentalityPlatform],
+      [host, rentalityPaymentService],
       [returnToHost, -(result.totalPrice - rentalityFee - taxes)]
     )
   })
@@ -339,6 +339,6 @@ describe('Rentality taxes & discounts', function () {
         },
         { value: contractResult.totalPrice }
       )
-    ).to.changeEtherBalances([guest, rentalityPlatform], [-contractResult.totalPrice, contractResult.totalPrice])
+    ).to.changeEtherBalances([guest, rentalityPaymentService], [-contractResult.totalPrice, contractResult.totalPrice])
   })
 })

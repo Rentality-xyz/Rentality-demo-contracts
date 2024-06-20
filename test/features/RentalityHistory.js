@@ -54,7 +54,7 @@ describe('Rentality History Service', function () {
         },
         { value: result.totalPrice }
       )
-    ).to.changeEtherBalances([guest, rentalityPlatform], [-result.totalPrice, result.totalPrice])
+    ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
 
     await expect(rentalityGateway.connect(host).rejectTripRequest(1)).to.not.reverted
     const details = (await rentalityGateway.getTrip(1)).trip
@@ -95,7 +95,7 @@ describe('Rentality History Service', function () {
         },
         { value: rentPriceInEth }
       )
-    ).to.changeEtherBalances([guest, rentalityPlatform], [-rentPriceInEth, rentPriceInEth])
+    ).to.changeEtherBalances([guest, rentalityPaymentService], [-rentPriceInEth, rentPriceInEth])
 
     await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
     await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0], '', '')).not.to.be.reverted
@@ -118,7 +118,7 @@ describe('Rentality History Service', function () {
     const returnToHost = rentPriceInEth - depositValue - rentalityFee - taxes
 
     await expect(rentalityGateway.connect(host).finishTrip(1)).to.changeEtherBalances(
-      [host, rentalityPlatform],
+      [host, rentalityPaymentService],
       [returnToHost, -(returnToHost + depositValue)]
     )
     const details = (await rentalityGateway.getTrip(1)).trip
@@ -167,7 +167,7 @@ describe('Rentality History Service', function () {
         },
         { value: payments.totalPrice }
       )
-    ).to.changeEtherBalances([guest, rentalityPlatform], [-payments.totalPrice, payments.totalPrice])
+    ).to.changeEtherBalances([guest, rentalityPaymentService], [-payments.totalPrice, payments.totalPrice])
 
     await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
     await expect(rentalityGateway.connect(host).checkInByHost(1, [100, 15], '', '')).not.to.be.reverted
@@ -178,14 +178,14 @@ describe('Rentality History Service', function () {
     await expect(rentalityGateway.connect(host).finishTrip(1)).to.not.reverted
 
     let result = await rentalityGateway.getTripReceipt(1)
-
     expect(result.totalDayPriceInUsdCents).to.be.eq(sumToPayInUsdCents * dayInTrip)
     expect(result.totalTripDays).to.be.eq(7)
     expect(result.discountAmount).to.be.approximately(
       BigInt(Math.floor(sumToPayInUsdCents * 7 - sumToPayWithDiscount)),
       1
     )
-    expect(result.taxes).to.be.eq(BigInt(Math.floor(totalTaxes)))
+
+    expect(result.salesTax + result.governmentTax).to.be.eq(BigInt(Math.floor(totalTaxes)))
     expect(result.depositReceived).to.be.eq(BigInt(request.securityDepositPerTripInUsdCents))
     expect(result.startFuelLevel).to.be.eq(BigInt(100))
     expect(result.endFuelLevel).to.be.eq(BigInt(50))
