@@ -141,10 +141,12 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     _safeMint(tx.origin, newCarId);
     _setTokenURI(newCarId, request.tokenUri);
 
+    bytes32 hash = geoService.createLocationInfo(request.locationInfo);
+
     geoService.executeRequest(
-      request.locationAddress,
-      request.locationLatitude,
-      request.locationLongitude,
+      request.locationInfo.userAddress,
+      request.locationInfo.latitude,
+      request.locationInfo.longitude,
       request.geoApiKey,
       newCarId
     );
@@ -165,7 +167,9 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
       request.timeBufferBetweenTripsInSec,
       true,
       false,
-      ''
+      '',
+      request.insuranceIncluded,
+      hash
     );
 
     _approve(address(this), newCarId);
@@ -193,9 +197,7 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
   /// can be empty, if location param is empty.
   function updateCarInfo(
     Schemas.UpdateCarInfoRequest memory request,
-    string memory location,
-    string memory locationLatitude,
-    string memory locationLongitude,
+    Schemas.LocationInfo memory location,
     string memory geoApiKey
   ) public {
     require(userService.isManager(msg.sender), 'Only from manager contract.');
@@ -204,10 +206,12 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     require(request.pricePerDayInUsdCents > 0, "Make sure the price isn't negative");
     require(request.milesIncludedPerDay > 0, "Make sure the included distance isn't negative");
 
-    if (bytes(location).length > 0) {
+    if (bytes(location.userAddress).length > 0) {
       require(bytes(geoApiKey).length > 0, 'Provide a valid geo API key');
-      geoService.executeRequest(location, locationLatitude, locationLongitude, geoApiKey, request.carId);
+      geoService.executeRequest(location.userAddress, location.latitude, location.longitude, geoApiKey, request.carId);
       idToCarInfo[request.carId].geoVerified = false;
+      bytes32 hash = geoService.createLocationInfo(location);
+      idToCarInfo[request.carId].locationHash = hash;
     }
 
     uint64[] memory engineParams = engineService.verifyUpdateParams(

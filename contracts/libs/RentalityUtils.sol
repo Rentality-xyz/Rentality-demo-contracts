@@ -9,7 +9,8 @@ import '../abstract/IRentalityGeoService.sol';
 import '../RentalityTripService.sol';
 import '../payments/RentalityCurrencyConverter.sol';
 import '../payments/RentalityPaymentService.sol';
-
+import {RentalityContract} from '../RentalityGateway.sol';
+import {RentalityCarDelivery} from '../features/RentalityCarDelivery.sol';
 /// @title RentalityUtils Library
 /// @notice
 /// This library provides utility functions for handling coordinates, string manipulation,
@@ -49,7 +50,7 @@ library RentalityUtils {
   /// @notice Parses an integer from a string.
   /// @param _a The input string to parse.
   /// @return Returns the parsed integer value.
-  function parseInt(string memory _a) internal pure returns (int256) {
+  function parseInt(string memory _a) public pure returns (int256) {
     bytes memory bresult = bytes(_a);
     int256 mint = 0;
     bool decimals = false;
@@ -159,17 +160,17 @@ library RentalityUtils {
   }
 
   /// @notice Populates an array of chat information using data from trips, user service, and car service.
-  /// @param trips Array of RentalityTripService.Trip structures.
-  /// @param userServiceAddress RentalityUserService contract instance.
-  /// @param carServiceAddress RentalityCarToken contract instance.
   /// @return chatInfoList Array of IRentalityGateway.ChatInfo structures.
   function populateChatInfo(
-    Schemas.TripDTO[] memory trips,
-    address userServiceAddress,
-    address carServiceAddress
+    bool byGuest,
+    RentalityContract memory addresses
   ) public view returns (Schemas.ChatInfo[] memory) {
-    RentalityUserService userService = RentalityUserService(userServiceAddress);
-    RentalityCarToken carService = RentalityCarToken(carServiceAddress);
+    Schemas.TripDTO[] memory trips = byGuest
+      ? getTripsByGuest(addresses, tx.origin)
+      : getTripsByHost(addresses, tx.origin);
+
+    RentalityUserService userService = addresses.userService;
+    RentalityCarToken carService = addresses.carService;
 
     Schemas.ChatInfo[] memory chatInfoList = new Schemas.ChatInfo[](trips.length);
 
@@ -382,7 +383,8 @@ library RentalityUtils {
         ceilDays,
         trip.paymentInfo.priceWithDiscount,
         trip.paymentInfo.totalDayPriceInUsdCents - trip.paymentInfo.priceWithDiscount,
-        trip.paymentInfo.taxPriceInUsdCents,
+        trip.paymentInfo.salesTax,
+        trip.paymentInfo.governmentTax,
         trip.paymentInfo.depositInUsdCents,
         trip.paymentInfo.resolveAmountInUsdCents,
         trip.paymentInfo.depositInUsdCents - trip.paymentInfo.resolveAmountInUsdCents,
@@ -430,6 +432,32 @@ library RentalityUtils {
       (searchCarParams.pricePerDayInUsdCentsTo == 0 ||
         car.pricePerDayInUsdCents <= searchCarParams.pricePerDayInUsdCentsTo);
   }
+
+  /// @dev Calculates the payments for a trip.
+  /// @param carId The ID of the car.
+  /// @param daysOfTrip The duration of the trip in days.
+  /// @param currency The currency to use for payment calculation.
+  /// @param pickUpLocation lat and lon of pickUp and return locations.
+  /// @param returnLocation lat and lon of pickUp and return locations.
+  /// @return calculatePaymentsDTO An object containing payment details.
+  function calculatePaymentsWithDelivery(
+    RentalityContract memory addresses,
+    uint carId,
+    uint64 daysOfTrip,
+    address currency,
+    Schemas.LocationInfo memory pickUpLocation,
+    Schemas.LocationInfo memory returnLocation
+  ) public view returns (Schemas.CalculatePaymentsDTO memory) {
+    uint64 deliveryFee = RentalityCarDelivery(addresses.adminService.getDeliveryServiceAddress())
+      .calculatePriceByDeliveryDataInUsdCents(
+        pickUpLocation,
+        returnLocation,
+        IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getCarLocationLatitude(carId),
+        IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getCarLocationLongitude(carId),
+        addresses.carService.getCarInfoById(carId).createdBy
+      );
+    return calculatePayments(addresses, carId, daysOfTrip, currency, deliveryFee);
+  }
   /// @notice Checks if a car is available for a specific user based on search parameters.
   /// @dev Calculates the payments for a trip.
   /// @param carId The ID of the car.
@@ -437,33 +465,276 @@ library RentalityUtils {
   /// @param currency The currency to use for payment calculation.
   /// @return calculatePaymentsDTO An object containing payment details.
   function calculatePayments(
-    address carServiceAddress,
-    address paymentServiceAddress,
-    address converterAddress,
+    RentalityContract memory addresses,
     uint carId,
     uint64 daysOfTrip,
-    address currency
+    address currency,
+    uint64 deliveryFee
   ) public view returns (Schemas.CalculatePaymentsDTO memory) {
-    address carOwner = RentalityCarToken(carServiceAddress).ownerOf(carId);
-    Schemas.CarInfo memory car = RentalityCarToken(carServiceAddress).getCarInfoById(carId);
+    address carOwner = addresses.carService.ownerOf(carId);
+    Schemas.CarInfo memory car = addresses.carService.getCarInfoById(carId);
 
-    uint64 sumWithDiscount = RentalityPaymentService(paymentServiceAddress).calculateSumWithDiscount(
+    uint64 sumWithDiscount = addresses.paymentService.calculateSumWithDiscount(
       carOwner,
       daysOfTrip,
       car.pricePerDayInUsdCents
     );
-    uint taxId = RentalityPaymentService(paymentServiceAddress).defineTaxesType(address(carServiceAddress), carId);
+    uint taxId = addresses.paymentService.defineTaxesType(address(addresses.carService), carId);
 
-    uint64 taxes = RentalityPaymentService(paymentServiceAddress).calculateTaxes(taxId, daysOfTrip, sumWithDiscount);
-    (int rate, uint8 decimals) = RentalityCurrencyConverter(converterAddress).getCurrentRate(currency);
+    (uint64 salesTaxes, uint64 govTax) = addresses.paymentService.calculateTaxes(
+      taxId,
+      daysOfTrip,
+      sumWithDiscount + deliveryFee
+    );
+    (int rate, uint8 decimals) = addresses.currencyConverterService.getCurrentRate(currency);
 
-    uint256 valueSumInCurrency = RentalityCurrencyConverter(converterAddress).getFromUsd(
+    uint256 valueSumInCurrency = addresses.currencyConverterService.getFromUsd(
       currency,
-      car.securityDepositPerTripInUsdCents + taxes + sumWithDiscount,
+      car.securityDepositPerTripInUsdCents + salesTaxes + govTax + sumWithDiscount + deliveryFee,
       rate,
       decimals
     );
 
     return Schemas.CalculatePaymentsDTO(valueSumInCurrency, rate, decimals);
+  }
+
+  function validateTripRequest(
+    RentalityContract memory addresses,
+    address currencyType,
+    uint carId,
+    uint64 startDateTime,
+    uint64 endDateTime
+  ) public view {
+    require(addresses.userService.hasPassedKYCAndTC(tx.origin), 'KYC or TC not passed.');
+    require(addresses.currencyConverterService.currencyTypeIsAvailable(currencyType), 'Token is not available.');
+    require(addresses.carService.ownerOf(carId) != tx.origin, 'Car is not available for creator');
+    require(!isCarUnavailable(addresses, carId, startDateTime, endDateTime), 'Unavailable for current date.');
+  }
+
+  // @dev Checks if a car has any active trips within the specified time range.
+  // @param carId The ID of the car to check for availability.
+  // @param startDateTime The start time of the time range.
+  // @param endDateTime The end time of the time range.
+  // @return A boolean indicating whether the car is unavailable during the specified time range.
+  function isCarUnavailable(
+    RentalityContract memory addresses,
+    uint256 carId,
+    uint64 startDateTime,
+    uint64 endDateTime
+  ) private view returns (bool) {
+    // Iterate through all trips to check for intersections with the specified car and time range.
+    for (uint256 tripId = 1; tripId <= addresses.tripService.totalTripCount(); tripId++) {
+      Schemas.Trip memory trip = addresses.tripService.getTrip(tripId);
+      Schemas.CarInfo memory car = addresses.carService.getCarInfoById(trip.carId);
+
+      if (
+        trip.carId == carId &&
+        trip.endDateTime + car.timeBufferBetweenTripsInSec > startDateTime &&
+        trip.startDateTime < endDateTime
+      ) {
+        Schemas.TripStatus tripStatus = trip.status;
+
+        // Check if the trip is active (not in Created, Finished, or Canceled status).
+        bool isActiveTrip = (tripStatus != Schemas.TripStatus.Created &&
+          tripStatus != Schemas.TripStatus.Finished &&
+          tripStatus != Schemas.TripStatus.Canceled);
+
+        // Return true if an active trip is found.
+        if (isActiveTrip) {
+          return true;
+        }
+      }
+    }
+
+    // If no active trips are found, return false indicating the car is available.
+    return false;
+  }
+
+  function createPaymentInfo(
+    RentalityContract memory addresses,
+    uint256 carId,
+    uint64 startDateTime,
+    uint64 endDateTime,
+    address currencyType,
+    uint64 pickUp,
+    uint64 dropOf
+  ) public view returns (Schemas.PaymentInfo memory, uint) {
+    Schemas.CarInfo memory carInfo = addresses.carService.getCarInfoById(carId);
+
+    uint64 daysOfTrip = getCeilDays(startDateTime, endDateTime);
+
+    uint64 priceWithDiscount = addresses.paymentService.calculateSumWithDiscount(
+      addresses.carService.ownerOf(carId),
+      daysOfTrip,
+      carInfo.pricePerDayInUsdCents
+    );
+    uint taxId = addresses.paymentService.defineTaxesType(address(addresses.carService), carId);
+
+    (uint64 salesTaxes, uint64 govTax) = addresses.paymentService.calculateTaxes(
+      taxId,
+      daysOfTrip,
+      priceWithDiscount + pickUp + dropOf
+    );
+
+    uint valueSum = priceWithDiscount +
+      salesTaxes +
+      govTax +
+      carInfo.securityDepositPerTripInUsdCents +
+      pickUp +
+      dropOf;
+    (int rate, uint8 decimals) = addresses.currencyConverterService.getCurrentRate(currencyType);
+    uint valueSumInCurrency = addresses.currencyConverterService.getFromUsd(currencyType, valueSum, rate, decimals);
+
+    Schemas.PaymentInfo memory paymentInfo = Schemas.PaymentInfo(
+      0,
+      tx.origin,
+      address(this),
+      carInfo.pricePerDayInUsdCents * daysOfTrip,
+      salesTaxes,
+      govTax,
+      priceWithDiscount,
+      carInfo.securityDepositPerTripInUsdCents,
+      0,
+      currencyType,
+      rate,
+      decimals,
+      0,
+      0,
+      pickUp,
+      dropOf
+    );
+
+    return (paymentInfo, valueSumInCurrency);
+  }
+
+  /// @notice Get contact information for a specific trip on the Rentality platform.
+  /// @param tripId The ID of the trip to retrieve contact information for.
+  /// @return guestPhoneNumber The phone number of the guest on the trip.
+  /// @return hostPhoneNumber The phone number of the host on the trip.
+  //// Refactoring for getTripContactInfo with RentalityContract
+  function getTripContactInfo(
+    uint256 tripId,
+    address tripService,
+    address userService
+  ) public view returns (string memory guestPhoneNumber, string memory hostPhoneNumber) {
+    require(RentalityUserService(userService).isHostOrGuest(tx.origin), 'User is not a host or guest');
+
+    Schemas.Trip memory trip = RentalityTripService(tripService).getTrip(tripId);
+
+    Schemas.KYCInfo memory guestInfo = RentalityUserService(userService).getKYCInfo(trip.guest);
+    Schemas.KYCInfo memory hostInfo = RentalityUserService(userService).getKYCInfo(trip.host);
+
+    return (guestInfo.mobilePhoneNumber, hostInfo.mobilePhoneNumber);
+  }
+
+  /// @dev Retrieves delivery data for a given car.
+  /// @param carId The ID of the car for which delivery data is requested.
+  /// @return deliveryData The delivery data including location details and delivery prices.
+  function getDeliveryData(
+    RentalityContract memory addresses,
+    uint carId
+  ) public view returns (Schemas.DeliveryData memory) {
+    IRentalityGeoService geoService = IRentalityGeoService(addresses.carService.getGeoServiceAddress());
+
+    Schemas.DeliveryPrices memory deliveryPrices = RentalityCarDelivery(
+      addresses.adminService.getDeliveryServiceAddress()
+    ).getUserDeliveryPrices(addresses.carService.ownerOf(carId));
+
+    return
+      Schemas.DeliveryData(
+        geoService.getLocationInfo(addresses.carService.getCarInfoById(carId).locationHash),
+        deliveryPrices.underTwentyFiveMilesInUsdCents,
+        deliveryPrices.aboveTwentyFiveMilesInUsdCents,
+        addresses.carService.getCarInfoById(carId).insuranceIncluded
+      );
+  }
+
+  function getTripsByGuest(
+    RentalityContract memory contracts,
+    address guest
+  ) public view returns (Schemas.TripDTO[] memory) {
+    RentalityTripService tripService = contracts.tripService;
+    uint itemCount = 0;
+
+    for (uint i = 1; i <= tripService.totalTripCount(); i++) {
+      if (tripService.getTrip(i).guest == guest) {
+        itemCount += 1;
+      }
+    }
+
+    Schemas.TripDTO[] memory result = new Schemas.TripDTO[](itemCount);
+    uint currentIndex = 0;
+
+    for (uint i = 1; i <= tripService.totalTripCount(); i++) {
+      if (tripService.getTrip(i).guest == guest) {
+        result[currentIndex] = getTripDTO(contracts, i);
+
+        currentIndex += 1;
+      }
+    }
+
+    return result;
+  }
+
+  function getTripsByHost(
+    RentalityContract memory contracts,
+    address host
+  ) public view returns (Schemas.TripDTO[] memory) {
+    RentalityTripService tripService = contracts.tripService;
+    uint itemCount = 0;
+
+    for (uint i = 1; i <= tripService.totalTripCount(); i++) {
+      if (tripService.getTrip(i).host == host) {
+        itemCount += 1;
+      }
+    }
+
+    Schemas.TripDTO[] memory result = new Schemas.TripDTO[](itemCount);
+    uint currentIndex = 0;
+
+    for (uint i = 1; i <= tripService.totalTripCount(); i++) {
+      if (tripService.getTrip(i).host == host) {
+        result[currentIndex] = getTripDTO(contracts, i);
+        currentIndex += 1;
+      }
+    }
+
+    return result;
+  }
+
+  // Updated function getTripDTO with RentalityContract parameter
+  function getTripDTO(RentalityContract memory contracts, uint tripId) public view returns (Schemas.TripDTO memory) {
+    RentalityTripService tripService = contracts.tripService;
+    RentalityCarToken carService = contracts.carService;
+    RentalityUserService userService = contracts.userService;
+
+    Schemas.Trip memory trip = tripService.getTrip(tripId);
+    Schemas.CarInfo memory car = carService.getCarInfoById(trip.carId);
+
+    Schemas.LocationInfo memory pickUpLocation = IRentalityGeoService(carService.getGeoServiceAddress())
+      .getLocationInfo(trip.pickUpHash);
+    Schemas.LocationInfo memory returnLocation = IRentalityGeoService(carService.getGeoServiceAddress())
+      .getLocationInfo(trip.returnHash);
+    return
+      Schemas.TripDTO(
+        trip,
+        userService.getKYCInfo(trip.guest).profilePhoto,
+        userService.getKYCInfo(trip.host).profilePhoto,
+        carService.tokenURI(trip.carId),
+        IRentalityGeoService(carService.getGeoServiceAddress()).getCarTimeZoneId(trip.carId),
+        userService.getKYCInfo(trip.host).licenseNumber,
+        userService.getKYCInfo(trip.host).expirationDate,
+        userService.getKYCInfo(trip.guest).licenseNumber,
+        userService.getKYCInfo(trip.guest).expirationDate,
+        car.model,
+        car.brand,
+        car.yearOfProduction,
+        bytes(pickUpLocation.latitude).length == 0
+          ? IRentalityGeoService(carService.getGeoServiceAddress()).getLocationInfo(car.locationHash)
+          : pickUpLocation,
+        bytes(pickUpLocation.latitude).length == 0
+          ? IRentalityGeoService(carService.getGeoServiceAddress()).getLocationInfo(car.locationHash)
+          : returnLocation
+      );
   }
 }

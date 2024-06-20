@@ -1,7 +1,7 @@
 const { expect } = require('chai')
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 
-const { getMockCarRequest } = require('../utils')
+const { getMockCarRequest, locationInfo } = require('../utils')
 const { deployFixtureWith1Car, deployDefaultFixture } = require('./deployments')
 
 describe('RentalityCarToken: deployment and update', function () {
@@ -39,7 +39,7 @@ it('Update car without location should work fine', async function () {
     currentlyListed: false,
   }
 
-  await expect(rentalityCarToken.updateCarInfo(update_params, '', '', '', '')).not.be.reverted
+  await expect(rentalityCarToken.updateCarInfo(update_params, locationInfo, 'das')).not.be.reverted
 
   let car_info = await rentalityCarToken.getCarInfoById(2)
 
@@ -64,7 +64,7 @@ it('Update car with location, but without api should revert', async function () 
     currentlyListed: false,
   }
 
-  await expect(rentalityCarToken.updateCarInfo(update_params, 'location', '', '', '')).to.be.reverted
+  await expect(rentalityCarToken.updateCarInfo(update_params, locationInfo, '')).to.be.reverted
 })
 it('Update with location should pass locationVarification param to false', async function () {
   const { rentalityCarToken, rentalityGeoService, geoParserMock } = await loadFixture(deployFixtureWith1Car)
@@ -86,7 +86,7 @@ it('Update with location should pass locationVarification param to false', async
 
   await expect(rentalityCarToken.verifyGeo(2)).to.not.reverted
 
-  await expect(rentalityCarToken.updateCarInfo(update_params, 'location', '', '', 'geoApi')).to.not.reverted
+  await expect(rentalityCarToken.updateCarInfo(update_params, locationInfo, 'geoApi')).to.not.reverted
 
   let car_info = await rentalityCarToken.getCarInfoById(2)
 
