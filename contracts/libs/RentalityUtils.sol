@@ -154,7 +154,7 @@ library RentalityUtils {
   /// @param startDateTime The numerator of the division.
   /// @param endDateTime The denominator of the division.
   /// @return Returns the result of the division rounded up to the nearest whole number.
-  function getCeilDays(uint64 startDateTime, uint64 endDateTime) public pure returns (uint64) {
+  function getCeilDays(uint64 startDateTime, uint64 endDateTime) internal pure returns (uint64) {
     uint64 duration = endDateTime - startDateTime;
     return uint64(Math.ceilDiv(duration, 1 days));
   }
@@ -166,8 +166,8 @@ library RentalityUtils {
     RentalityContract memory addresses
   ) public view returns (Schemas.ChatInfo[] memory) {
     Schemas.TripDTO[] memory trips = byGuest
-      ? getTripsByGuest(addresses, tx.origin)
-      : getTripsByHost(addresses, tx.origin);
+      ? addresses.viewService.getTripsAsGuest()
+      : addresses.viewService.getTripsAsHost();
 
     RentalityUserService userService = addresses.userService;
     RentalityCarToken carService = addresses.carService;
@@ -358,49 +358,6 @@ library RentalityUtils {
     return abi.encodePacked(_data);
   }
 
-  /// @notice This function computes various aspects of the trip receipt, including pricing, mileage, and fuel charges.
-  /// @param tripId The ID of the trip for which the receipt is calculated.
-  /// @param tripServiceAddress The address of the trip service contract.
-  /// @return tripReceipt An instance of `Schemas.TripReceiptDTO` containing the detailed trip receipt information.
-  function fullFillTripReceipt(
-    uint tripId,
-    address tripServiceAddress
-  ) public view returns (Schemas.TripReceiptDTO memory) {
-    RentalityTripService tripService = RentalityTripService(tripServiceAddress);
-
-    Schemas.Trip memory trip = tripService.getTrip(tripId);
-    uint64 ceilDays = getCeilDays(trip.startDateTime, trip.endDateTime);
-
-    uint64 allowedMiles = trip.milesIncludedPerDay * ceilDays;
-
-    uint64 totalMilesDriven = trip.endParamLevels[1] - trip.startParamLevels[1];
-
-    uint64 overmiles = allowedMiles >= totalMilesDriven ? 0 : totalMilesDriven - allowedMiles;
-
-    return
-      Schemas.TripReceiptDTO(
-        trip.paymentInfo.totalDayPriceInUsdCents,
-        ceilDays,
-        trip.paymentInfo.priceWithDiscount,
-        trip.paymentInfo.totalDayPriceInUsdCents - trip.paymentInfo.priceWithDiscount,
-        trip.paymentInfo.salesTax,
-        trip.paymentInfo.governmentTax,
-        trip.paymentInfo.depositInUsdCents,
-        trip.paymentInfo.resolveAmountInUsdCents,
-        trip.paymentInfo.depositInUsdCents - trip.paymentInfo.resolveAmountInUsdCents,
-        trip.startParamLevels[0] >= trip.endParamLevels[0] ? 0 : trip.endParamLevels[0] - trip.startParamLevels[0],
-        trip.fuelPrice,
-        trip.paymentInfo.resolveFuelAmountInUsdCents,
-        allowedMiles,
-        overmiles,
-        overmiles > 0 ? trip.paymentInfo.resolveMilesAmountInUsdCents / overmiles : 0,
-        trip.paymentInfo.resolveMilesAmountInUsdCents,
-        trip.startParamLevels[0],
-        trip.endParamLevels[0],
-        trip.startParamLevels[1],
-        trip.endParamLevels[1]
-      );
-  }
   /// @notice Checks if a car is available for a specific user based on search parameters.
   /// @dev Determines availability based on several conditions, including ownership and search parameters.
   /// @param carId The ID of the car being checked.
@@ -607,25 +564,6 @@ library RentalityUtils {
     return (paymentInfo, valueSumInCurrency);
   }
 
-  /// @notice Get contact information for a specific trip on the Rentality platform.
-  /// @param tripId The ID of the trip to retrieve contact information for.
-  /// @return guestPhoneNumber The phone number of the guest on the trip.
-  /// @return hostPhoneNumber The phone number of the host on the trip.
-  //// Refactoring for getTripContactInfo with RentalityContract
-  function getTripContactInfo(
-    uint256 tripId,
-    address tripService,
-    address userService
-  ) public view returns (string memory guestPhoneNumber, string memory hostPhoneNumber) {
-    require(RentalityUserService(userService).isHostOrGuest(tx.origin), 'User is not a host or guest');
-
-    Schemas.Trip memory trip = RentalityTripService(tripService).getTrip(tripId);
-
-    Schemas.KYCInfo memory guestInfo = RentalityUserService(userService).getKYCInfo(trip.guest);
-    Schemas.KYCInfo memory hostInfo = RentalityUserService(userService).getKYCInfo(trip.host);
-
-    return (guestInfo.mobilePhoneNumber, hostInfo.mobilePhoneNumber);
-  }
 
   /// @dev Retrieves delivery data for a given car.
   /// @param carId The ID of the car for which delivery data is requested.
@@ -649,92 +587,4 @@ library RentalityUtils {
       );
   }
 
-  function getTripsByGuest(
-    RentalityContract memory contracts,
-    address guest
-  ) public view returns (Schemas.TripDTO[] memory) {
-    RentalityTripService tripService = contracts.tripService;
-    uint itemCount = 0;
-
-    for (uint i = 1; i <= tripService.totalTripCount(); i++) {
-      if (tripService.getTrip(i).guest == guest) {
-        itemCount += 1;
-      }
-    }
-
-    Schemas.TripDTO[] memory result = new Schemas.TripDTO[](itemCount);
-    uint currentIndex = 0;
-
-    for (uint i = 1; i <= tripService.totalTripCount(); i++) {
-      if (tripService.getTrip(i).guest == guest) {
-        result[currentIndex] = getTripDTO(contracts, i);
-
-        currentIndex += 1;
-      }
-    }
-
-    return result;
-  }
-
-  function getTripsByHost(
-    RentalityContract memory contracts,
-    address host
-  ) public view returns (Schemas.TripDTO[] memory) {
-    RentalityTripService tripService = contracts.tripService;
-    uint itemCount = 0;
-
-    for (uint i = 1; i <= tripService.totalTripCount(); i++) {
-      if (tripService.getTrip(i).host == host) {
-        itemCount += 1;
-      }
-    }
-
-    Schemas.TripDTO[] memory result = new Schemas.TripDTO[](itemCount);
-    uint currentIndex = 0;
-
-    for (uint i = 1; i <= tripService.totalTripCount(); i++) {
-      if (tripService.getTrip(i).host == host) {
-        result[currentIndex] = getTripDTO(contracts, i);
-        currentIndex += 1;
-      }
-    }
-
-    return result;
-  }
-
-  // Updated function getTripDTO with RentalityContract parameter
-  function getTripDTO(RentalityContract memory contracts, uint tripId) public view returns (Schemas.TripDTO memory) {
-    RentalityTripService tripService = contracts.tripService;
-    RentalityCarToken carService = contracts.carService;
-    RentalityUserService userService = contracts.userService;
-
-    Schemas.Trip memory trip = tripService.getTrip(tripId);
-    Schemas.CarInfo memory car = carService.getCarInfoById(trip.carId);
-
-    Schemas.LocationInfo memory pickUpLocation = IRentalityGeoService(carService.getGeoServiceAddress())
-      .getLocationInfo(trip.pickUpHash);
-    Schemas.LocationInfo memory returnLocation = IRentalityGeoService(carService.getGeoServiceAddress())
-      .getLocationInfo(trip.returnHash);
-    return
-      Schemas.TripDTO(
-        trip,
-        userService.getKYCInfo(trip.guest).profilePhoto,
-        userService.getKYCInfo(trip.host).profilePhoto,
-        carService.tokenURI(trip.carId),
-        IRentalityGeoService(carService.getGeoServiceAddress()).getCarTimeZoneId(trip.carId),
-        userService.getKYCInfo(trip.host).licenseNumber,
-        userService.getKYCInfo(trip.host).expirationDate,
-        userService.getKYCInfo(trip.guest).licenseNumber,
-        userService.getKYCInfo(trip.guest).expirationDate,
-        car.model,
-        car.brand,
-        car.yearOfProduction,
-        bytes(pickUpLocation.latitude).length == 0
-          ? IRentalityGeoService(carService.getGeoServiceAddress()).getLocationInfo(car.locationHash)
-          : pickUpLocation,
-        bytes(pickUpLocation.latitude).length == 0
-          ? IRentalityGeoService(carService.getGeoServiceAddress()).getLocationInfo(car.locationHash)
-          : returnLocation
-      );
-  }
 }

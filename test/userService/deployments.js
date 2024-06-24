@@ -23,7 +23,6 @@ async function deployDefaultFixture() {
   const RentalityUserService = await ethers.getContractFactory('RentalityUserService')
   const RentalityTripService = await ethers.getContractFactory('RentalityTripService', {
     libraries: {
-      RentalityUtils: await utils.getAddress(),
     },
   })
   const RentalityCurrencyConverter = await ethers.getContractFactory('RentalityCurrencyConverter')
@@ -33,10 +32,13 @@ async function deployDefaultFixture() {
   const RentalityCarToken = await ethers.getContractFactory('RentalityCarToken', {
     libraries: { RentalityUtils: await utils.getAddress() },
   })
+  let TripsQuery = await ethers.getContractFactory('RentalityTripsQuery')
+  let tripsQuery = await TripsQuery.deploy()
   const RentalityPlatform = await ethers.getContractFactory('RentalityPlatform', {
     libraries: {
       RentalityUtils: await utils.getAddress(),
       RentalityQuery: await query.getAddress(),
+
     },
   })
 
@@ -153,6 +155,25 @@ async function deployDefaultFixture() {
   })
   const deliveryService = await upgrades.deployProxy(DeliveryService, [await rentalityUserService.getAddress()])
 
+
+  let RentalityView = await ethers.getContractFactory('RentalityView',{
+    libraries:{
+      RentalityUtils: await utils.getAddress(),
+      RentalityQuery: await query.getAddress(),
+      RentalityTripsQuery: await tripsQuery.getAddress()
+    }
+  });
+  const rentalityView = await upgrades.deployProxy(RentalityView, [
+    await rentalityCarToken.getAddress(),
+    await rentalityCurrencyConverter.getAddress(),
+    await rentalityTripService.getAddress(),
+    await rentalityUserService.getAddress(),
+    await rentalityPaymentService.getAddress(),
+    await claimService.getAddress(),
+    await deliveryService.getAddress(),
+  ])
+  await rentalityView.waitForDeployment()
+
   const rentalityPlatform = await upgrades.deployProxy(RentalityPlatform, [
     await rentalityCarToken.getAddress(),
     await rentalityCurrencyConverter.getAddress(),
@@ -161,6 +182,7 @@ async function deployDefaultFixture() {
     await rentalityPaymentService.getAddress(),
     await claimService.getAddress(),
     await deliveryService.getAddress(),
+    await rentalityView.getAddress()
   ])
 
   await rentalityPlatform.waitForDeployment()
@@ -178,8 +200,6 @@ async function deployDefaultFixture() {
 
   let RentalityGateway = await ethers.getContractFactory('RentalityGateway', {
     libraries: {
-      RentalityQuery: await query.getAddress(),
-      RentalityUtils: await utils.getAddress(),
     },
   })
 
@@ -193,6 +213,7 @@ async function deployDefaultFixture() {
     await claimService.getAddress(),
     await ethContract.getAddress(),
     await ethContract.getAddress(),
+    await rentalityView.getAddress()
   ])
   await rentalityGateway.waitForDeployment()
 
