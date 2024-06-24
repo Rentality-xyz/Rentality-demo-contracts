@@ -45,16 +45,39 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
     using RentalityQuery for RentalityContract;
 
     fallback(bytes calldata data) external payable returns (bytes memory) {
-        (bool ok, bytes memory res) = address(addresses.rentalityPlatform).call{value: msg.value}(data);
+        try  _view(data) returns (bytes memory result) {
+            return result;
+        }
+        catch FunctionNotFound() {
+            (bool ok, bytes memory res) = address(addresses.rentalityPlatform).call{value: msg.value}(data);
+            if (!ok) {
+                // For correct encoding revert message
+                assembly {
+                    revert(add(32, res), mload(res))
+                }
+            }
+            return res;
+        }
+        catch (bytes memory result) {
+            assembly {
+                revert(add(32, res), mload(result))
+            }
+        }
+        return bytes("");
+
+    }
+
+    function _view(bytes calldata data) internal view returns (bytes memory){
+        (bool ok, bytes memory res) = address(addresses.viewService).staticcall(data);
         if (!ok) {
-// For correct encoding revert message
+            // For correct encoding revert message
             assembly {
                 revert(add(32, res), mload(res))
             }
         }
         return res;
-    }
 
+    }
 // @dev Updates the addresses of various services used in the Rentality platform.
 //
 // This function retrieves the actual service addresses from the `adminService` and updates

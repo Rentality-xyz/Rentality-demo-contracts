@@ -33,20 +33,9 @@ contract RentalityPlatform is UUPSOwnable {
     modifier onlyAdmin() {
         require(
             addresses.userService.isAdmin(msg.sender) || addresses.userService.isAdmin(tx.origin) || (tx.origin == owner()),
-            'User is not an admin'
+            'User is n ot an admin'
         );
         _;
-    }
-
-    fallback(bytes calldata data) external returns (bytes memory) {
-        (bool ok, bytes memory res) = address(addresses.viewService).staticcall(data);
-        if (!ok) {
-// For correct encoding revert message
-            assembly {
-                revert(add(32, res), mload(res))
-            }
-        }
-        return res;
     }
 
     function updateServiceAddresses(RentalityAdminGateway adminService) public {
@@ -189,7 +178,8 @@ contract RentalityPlatform is UUPSOwnable {
         addresses.tripService.approveTrip(tripId);
 
         Schemas.Trip memory trip = addresses.tripService.getTrip(tripId);
-        Schemas.Trip[] memory intersectedTrips = addresses.getTripsForCarThatIntersect(
+        Schemas.Trip[] memory intersectedTrips = RentalityTripsQuery.getTripsForCarThatIntersect(
+            addresses,
             trip.carId,
             trip.startDateTime,
             trip.endDateTime
