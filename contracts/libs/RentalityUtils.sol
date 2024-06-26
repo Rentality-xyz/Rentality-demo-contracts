@@ -564,7 +564,6 @@ library RentalityUtils {
     return (paymentInfo, valueSumInCurrency);
   }
 
-
   /// @dev Retrieves delivery data for a given car.
   /// @param carId The ID of the car for which delivery data is requested.
   /// @return deliveryData The delivery data including location details and delivery prices.
@@ -586,5 +585,4 @@ library RentalityUtils {
         addresses.carService.getCarInfoById(carId).insuranceIncluded
       );
   }
-
 }
