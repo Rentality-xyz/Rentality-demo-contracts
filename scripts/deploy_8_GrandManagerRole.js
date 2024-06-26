@@ -4,6 +4,7 @@ const { buildPath } = require('./utils/pathBuilder')
 const { readFileSync } = require('fs')
 
 const { checkNotNull, startDeploy } = require('./utils/deployHelper')
+const { getContractAddress } = require('./utils/contractAddress')
 
 async function main() {
   const { chainId, deployer } = await startDeploy('')
@@ -31,6 +32,7 @@ async function main() {
     addresses['RentalityPaymentService'],
     'rentalityPaymentServiceAddress'
   )
+  const rentalityView = checkNotNull(addresses['RentalityView'], 'RentalityViewAddress')
 
   let rentalityUserServiceContract = new ethers.Contract(
     rentalityUserServiceAddress,
@@ -38,6 +40,7 @@ async function main() {
     deployer
   )
   try {
+    await rentalityUserServiceContract.grantManagerRole(rentalityView)
     await rentalityUserServiceContract.grantManagerRole(rentalityGatewayAddress)
     await rentalityUserServiceContract.grantManagerRole(rentalityTripServiceAddress)
     await rentalityUserServiceContract.grantManagerRole(rentalityPlatformAddress)
