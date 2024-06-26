@@ -15,6 +15,7 @@ import {RentalityCarDelivery} from '../features/RentalityCarDelivery.sol';
 import '../Schemas.sol';
 import './RentalityUtils.sol';
 import './RentalityQuery.sol';
+import '@openzeppelin/contracts/utils/math/Math.sol';
 
 library RentalityTripsQuery {
   function isTripThatIntersect(
@@ -153,7 +154,7 @@ library RentalityTripsQuery {
         trip.paymentInfo.resolveFuelAmountInUsdCents,
         allowedMiles,
         overmiles,
-        overmiles > 0 ? trip.paymentInfo.resolveMilesAmountInUsdCents / overmiles : 0,
+        overmiles > 0 ? uint64(Math.ceilDiv(trip.paymentInfo.totalDayPriceInUsdCents, trip.milesIncludedPerDay)) : 0,
         trip.paymentInfo.resolveMilesAmountInUsdCents,
         trip.startParamLevels[0],
         trip.endParamLevels[0],
