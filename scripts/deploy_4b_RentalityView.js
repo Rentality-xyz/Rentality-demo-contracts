@@ -5,9 +5,22 @@ const addressSaver = require('./utils/addressSaver')
 const { checkNotNull, startDeploy } = require('./utils/deployHelper')
 
 async function main() {
-  const { contractName, chainId } = await startDeploy('RentalityAdminGateway')
+  const { contractName, chainId } = await startDeploy('RentalityView')
 
   if (chainId < 0) throw new Error('chainId is not set')
+
+  const rentalityUtilsAddress = checkNotNull(
+    getContractAddress('RentalityUtils', 'scripts/deploy_1a_RentalityUtils.js', chainId),
+    'RentalityUtils'
+  )
+  const rentalityQueryAddress = checkNotNull(
+    getContractAddress('RentalityQuery', 'scripts/deploy_1d_RentalityQuery.js', chainId),
+    'RentalityQuery'
+  )
+  const rentalityTripsQueryAddress = checkNotNull(
+    getContractAddress('RentalityTripsQuery', 'scripts/deploy_1e_RentalityTripsQuery.js', chainId),
+    'RentalityTripsQuery'
+  )
 
   const rentalityUserServiceAddress = checkNotNull(
     getContractAddress('RentalityUserService', 'scripts/deploy_1b_RentalityUserService.js', chainId),
@@ -39,33 +52,27 @@ async function main() {
     'RentalityTripService'
   )
 
-  const rentalityPlatformAddress = checkNotNull(
-    getContractAddress('RentalityPlatform', 'scripts/deploy_5_RentalityPlatform.js', chainId),
-    'RentalityPlatform'
-  )
   const rentalityCarDelivery = checkNotNull(
     getContractAddress('RentalityCarDelivery', 'scripts/deploy_2i_RentalityCarDelivery.js', chainId),
     'RentalityCarDelivery'
   )
-  const rentalityView = checkNotNull(
-    getContractAddress('RentalityView', 'scripts/deploy_4b_RentalityView.js', chainId),
-    'RentalityView'
-  )
 
-  const contractFactory = await ethers.getContractFactory(contractName)
-
+  const contractFactory = await ethers.getContractFactory(contractName, {
+    libraries: {
+      RentalityUtils: rentalityUtilsAddress,
+      RentalityQuery: rentalityQueryAddress,
+      RentalityTripsQuery: rentalityTripsQueryAddress,
+    },
+  })
   const contract = await upgrades.deployProxy(contractFactory, [
     rentalityCarTokenAddress,
     rentalityCurrencyConverterAddress,
     rentalityTripServiceAddress,
     rentalityUserServiceAddress,
-    rentalityPlatformAddress,
     rentalityPaymentServiceAddress,
     rentalityClaimService,
     rentalityCarDelivery,
-    rentalityView,
   ])
-
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()
 
