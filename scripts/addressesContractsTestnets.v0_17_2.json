@@ -29,11 +29,5 @@
     "RentalityAdminGateway": "0xDB9f33608ea3beA2e5D8B6300E5D46B453063b12",
     "RentalityGateway": "0x9C7222781dDe0ac7408286B797b711397b114059",
     "RentalityChatHelper": "0x7f582BbcD776bAf4E5C812EA7b96CDDf219571a5"
-  },
-  {
-    "name": "localhost",
-    "chainId": 84532,
-    "RentalityUtils": "0xAE246E208ea35B3F23dE72b697D47044FC594D5F",
-    "RentalityQuery": "0x82BBAA3B0982D88741B275aE1752DB85CAfe3c65"
   }
 ]

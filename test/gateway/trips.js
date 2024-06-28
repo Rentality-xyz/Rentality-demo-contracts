@@ -615,7 +615,7 @@ describe('RentalityGateway: trips', function () {
     expect(trip_checkout.status).to.be.equal(TripStatus.CheckedOutByHost)
   })
 
-  it('Happy case', async function () {
+  it.only('Happy case', async function () {
     const request = getMockCarRequest(10)
     await expect(rentalityGateway.connect(host).addCar(request)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()

@@ -15,6 +15,7 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
   RentalityPaymentService private paymentService;
   RentalityClaimService private claimService;
   RentalityCarDelivery private deliveryService;
+  RentalityView private viewService;
 
   /// @notice Ensures that the caller is either an admin, the contract owner, or an admin from the origin transaction.
   modifier onlyAdmin() {
@@ -35,7 +36,8 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
         paymentService,
         claimService,
         RentalityAdminGateway(this),
-        deliveryService
+        deliveryService,
+        viewService
       );
   }
 
@@ -288,7 +290,8 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
     address rentalityPlatformAddress,
     address paymentServiceAddress,
     address claimServiceAddress,
-    address carDeliveryAddress
+    address carDeliveryAddress,
+    address viewServiceAddress
   ) public initializer {
     carService = RentalityCarToken(carServiceAddress);
     currencyConverterService = RentalityCurrencyConverter(currencyConverterServiceAddress);
@@ -298,7 +301,9 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
     paymentService = RentalityPaymentService(payable(paymentServiceAddress));
     claimService = RentalityClaimService(claimServiceAddress);
     deliveryService = RentalityCarDelivery(carDeliveryAddress);
+    viewService = RentalityView(viewServiceAddress);
 
+    viewService.updateServiceAddresses(getRentalityContracts());
     __Ownable_init();
   }
 }

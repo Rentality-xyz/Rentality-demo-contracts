@@ -434,7 +434,8 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
       RentalityPaymentService(payable(paymentServiceAddress)),
       RentalityClaimService(address(0)),
       RentalityAdminGateway(address(0)),
-      RentalityCarDelivery(address(0))
+      RentalityCarDelivery(address(0)),
+      RentalityView(address(0))
     );
     engineService = RentalityEnginesService(engineServiceAddress);
   }

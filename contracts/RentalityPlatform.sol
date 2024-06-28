@@ -14,6 +14,7 @@ import './libs/RentalityQuery.sol';
 import {RentalityCarDelivery} from './features/RentalityCarDelivery.sol';
 import {UUPSOwnable} from './proxy/UUPSOwnable.sol';
 import {RentalityUtils} from './libs/RentalityUtils.sol';
+import './RentalityView.sol';
 
 /// @title Rentality Platform Contract
 /// @notice This contract manages various services related to the Rentality platform, including cars, trips, users, and payments.
@@ -28,11 +29,12 @@ contract RentalityPlatform is UUPSOwnable {
   // unused, have to be here, because of proxy
   address private automationService;
   using RentalityQuery for RentalityContract;
+  using RentalityTripsQuery for RentalityContract;
   /// @dev Modifier to restrict access to admin users only.
   modifier onlyAdmin() {
     require(
       addresses.userService.isAdmin(msg.sender) || addresses.userService.isAdmin(tx.origin) || (tx.origin == owner()),
-      'User is not an admin'
+      'User is n ot an admin'
     );
     _;
   }
@@ -458,7 +460,8 @@ contract RentalityPlatform is UUPSOwnable {
     address userServiceAddress,
     address paymentServiceAddress,
     address claimServiceAddress,
-    address carDeliveryAddress
+    address carDeliveryAddress,
+    address viewService
   ) public initializer {
     addresses = RentalityContract(
       RentalityCarToken(carServiceAddress),
@@ -469,7 +472,8 @@ contract RentalityPlatform is UUPSOwnable {
       RentalityPaymentService(payable(paymentServiceAddress)),
       RentalityClaimService(claimServiceAddress),
       RentalityAdminGateway(address(0)),
-      RentalityCarDelivery(carDeliveryAddress)
+      RentalityCarDelivery(carDeliveryAddress),
+      RentalityView(viewService)
     );
 
     __Ownable_init();

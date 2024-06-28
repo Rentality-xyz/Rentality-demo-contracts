@@ -3,6 +3,7 @@ pragma solidity ^0.8.9;
 
 import '../abstract/IRentalityAccessControl.sol';
 import '../Schemas.sol';
+import '@openzeppelin/contracts/utils/math/Math.sol';
 
 /// @title ARentalityEngine - Abstract contract for a rental engine in the Rentality system.
 /// @notice This contract defines the basic structure and functions required for a rental engine.
@@ -76,7 +77,13 @@ abstract contract ARentalityEngine {
   ) public pure virtual returns (uint64) {
     if (endOdometr - startOdometr <= milesIncludedPerDay * tripDays) return 0;
 
-    return ((endOdometr - startOdometr - milesIncludedPerDay * tripDays) * pricePerDayInUsdCents) / milesIncludedPerDay;
+    return
+      uint64(
+        Math.ceilDiv(
+          ((endOdometr - startOdometr - milesIncludedPerDay * tripDays) * pricePerDayInUsdCents),
+          milesIncludedPerDay
+        )
+      );
   }
 
   /// @notice Verifies the correctness of start parameters.
