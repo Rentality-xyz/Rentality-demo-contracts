@@ -1,10 +1,10 @@
 const { extractVersion } = require('./pathBuilder')
 const { readFileSync, writeFileSync } = require('fs')
 const ProxyList = [
-  // 'RentalityPlatform',
-  // 'RentalityCarToken',
-  // 'RentalityGateway',
-  // 'RentalityTripService',
+  'RentalityPlatform',
+  'RentalityCarToken',
+  'RentalityGateway',
+  'RentalityTripService',
   'RentalityEnginesService',
   'RentalityCarDelivery',
   'RentalityClaimService',
@@ -15,9 +15,9 @@ const ProxyList = [
   'RentalityFloridaTaxes',
   'RentalityPaymentService',
   'RentalityUSDTConverter',
-  // 'RentalityAdminGateway',
+  'RentalityAdminGateway',
   'RentalityUserService',
-  // 'RentalityView'
+  'RentalityView',
 ]
 
 function getChains() {
