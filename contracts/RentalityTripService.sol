@@ -364,7 +364,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     Schemas.Trip memory tripInfo,
     uint64[] memory engineParams
   ) public view returns (uint64, uint64) {
-    uint64 duration = tripInfo.startDateTime - tripInfo.endDateTime;
+    uint64 duration = tripInfo.endDateTime - tripInfo.startDateTime;
     uint64 tripDays = uint64(Math.ceilDiv(duration, 1 days));
 
     return
