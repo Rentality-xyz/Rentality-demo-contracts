@@ -123,6 +123,10 @@ describe('RentalityGateway: car', function () {
 
     const hostSignature = await signTCMessage(host)
 
+    let locationInfo1 = {
+      locationInfo,
+      signature: await signTCMessage(owner),
+    }
     await expect(
       rentalityGateway
         .connect(host)
@@ -143,7 +147,7 @@ describe('RentalityGateway: car', function () {
       timeBufferBetweenTripsInSec: 0,
       geoApiKey: 'key',
       insuranceIncluded: true,
-      locationInfo,
+      locationInfo: locationInfo1,
     }
     const oneDayInSec = 86400
     const totalTripDays = 7
@@ -175,7 +179,10 @@ describe('RentalityGateway: car', function () {
     let expirationDate = 10
 
     const hostSignature = await signTCMessage(host)
-
+    let locationInfo1 = {
+      locationInfo,
+      signature: await signTCMessage(owner),
+    }
     await expect(
       await rentalityGateway
         .connect(host)
@@ -196,7 +203,7 @@ describe('RentalityGateway: car', function () {
       timeBufferBetweenTripsInSec: 0,
       geoApiKey: 'key',
       insuranceIncluded: true,
-      locationInfo,
+      locationInfo: locationInfo1,
     }
     await expect(await rentalityCarToken.connect(host).addCar(addCarRequest)).not.be.reverted
     const result = await rentalityGateway.connect(guest).getCarDetails(1)
@@ -232,7 +239,10 @@ describe('RentalityGateway: car', function () {
         .connect(host)
         .setKYCInfo(name, surname, number, photo, licenseNumber, expirationDate, hostSignature)
     ).to.not.reverted
-
+    let locationInfo1 = {
+      locationInfo,
+      signature: await signTCMessage(owner),
+    }
     const addCar = (num) => {
       return {
         tokenUri: 'uri',
@@ -248,7 +258,7 @@ describe('RentalityGateway: car', function () {
         timeBufferBetweenTripsInSec: 0,
         geoApiKey: 'key',
         insuranceIncluded: true,
-        locationInfo,
+        locationInfo: locationInfo1,
       }
     }
     await expect(await rentalityCarToken.connect(host).addCar(addCar(0))).not.be.reverted
@@ -284,6 +294,10 @@ describe('RentalityGateway: car', function () {
         .setKYCInfo(name, surname, number, photo, licenseNumber, expirationDate, hostSignature)
     ).to.not.reverted
 
+    let locationInfo1 = {
+      locationInfo,
+      signature: await signTCMessage(owner),
+    }
     const addCar = (num) => {
       return {
         tokenUri: 'uri',
@@ -299,7 +313,7 @@ describe('RentalityGateway: car', function () {
         timeBufferBetweenTripsInSec: 0,
         geoApiKey: 'key',
         insuranceIncluded: true,
-        locationInfo,
+        locationInfo: locationInfo1,
       }
     }
     await expect(await rentalityCarToken.connect(host).addCar(addCar(0))).not.be.reverted

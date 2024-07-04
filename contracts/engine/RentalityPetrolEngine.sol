@@ -3,9 +3,9 @@ pragma solidity ^0.8.9;
 
 import './ARentalityEngine.sol';
 
-/// @title RentalityPatrolEngine - Implementation of a patrol engine in the Rentality system.
+/// @title RentalityPetrolEngine.sol - Implementation of a patrol engine in the Rentality system.
 /// @notice This contract extends ARentalityEngine and adds functionality specific to patrol engines.
-contract RentalityPatrolEngine is ARentalityEngine {
+contract RentalityPetrolEngine is ARentalityEngine {
   constructor(address _userService) {
     userService = IRentalityAccessControl(_userService);
   }
