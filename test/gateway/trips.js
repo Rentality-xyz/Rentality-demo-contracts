@@ -8,6 +8,7 @@ const {
   ethToken,
   calculatePayments,
   locationInfo,
+  signTCMessage,
 } = require('../utils')
 const { ethers } = require('hardhat')
 
@@ -166,6 +167,10 @@ describe('RentalityGateway: trips', function () {
       longitude: '1.3',
       timeZoneId: 'id',
     }
+    let locationInfo1 = {
+      locationInfo,
+      signature: await signTCMessage(owner),
+    }
     const mockCreateCarRequest = {
       tokenUri: 'uri',
       carVinNumber: 'VIN_NUMBER',
@@ -180,7 +185,7 @@ describe('RentalityGateway: trips', function () {
       timeBufferBetweenTripsInSec: 0,
       geoApiKey: 'key',
       insuranceIncluded: true,
-      locationInfo,
+      locationInfo: locationInfo1,
     }
 
     await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest)).not.to.be.reverted
@@ -614,7 +619,7 @@ describe('RentalityGateway: trips', function () {
 
     expect(trip_checkout.status).to.be.equal(TripStatus.CheckedOutByHost)
   })
-    it('Happy case', async function () {
+  it('Happy case', async function () {
     const request = getMockCarRequest(10)
     await expect(rentalityGateway.connect(host).addCar(request)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()

@@ -6,6 +6,7 @@ import '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 import '@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol';
 import '@openzeppelin/contracts/utils/Strings.sol';
 import '@openzeppelin/contracts/utils/Counters.sol';
+import '@openzeppelin/contracts/utils/math/Math.sol';
 
 import './features/RentalityClaimService.sol';
 import './abstract/IRentalityGateway.sol';
@@ -363,7 +364,8 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     Schemas.Trip memory tripInfo,
     uint64[] memory engineParams
   ) public view returns (uint64, uint64) {
-    uint64 tripDays = RentalityUtils.getCeilDays(tripInfo.startDateTime, tripInfo.endDateTime);
+    uint64 duration = tripInfo.startDateTime - tripInfo.endDateTime;
+    uint64 tripDays = uint64(Math.ceilDiv(duration, 1 days));
 
     return
       engineService.getResolveAmountInUsdCents(

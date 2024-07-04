@@ -246,6 +246,29 @@ contract RentalityPaymentService is UUPSOwnable {
     require(successGuest, 'Transfer to guest failed.');
   }
 
+  function taxExist(Schemas.LocationInfo memory locationInfo) public view returns (uint) {
+    bytes32 cityHash = keccak256(abi.encode(locationInfo.city));
+    bytes32 stateHash = keccak256(abi.encode(locationInfo.state));
+    bytes32 countryHash = keccak256(abi.encode(locationInfo.country));
+
+    for (uint i = 1; i <= taxesId; i++) {
+      IRentalityTaxes taxContract = taxesIdToTaxesContract[i];
+      (bytes32 locationHash, Schemas.TaxesLocationType taxesLocationType) = taxContract.getLocation();
+
+      if (taxesLocationType == Schemas.TaxesLocationType.City) {
+        if (locationHash == cityHash) return i;
+      }
+      if (taxesLocationType == Schemas.TaxesLocationType.State) {
+        if (locationHash == stateHash) return i;
+      }
+      if (taxesLocationType == Schemas.TaxesLocationType.Country) {
+        if (locationHash == countryHash) return i;
+      }
+    }
+
+    return 0;
+  }
+
   receive() external payable {}
   /// @notice Constructor to initialize the RentalityPaymentService.
   /// @param _userService The address of the RentalityUserService contract
