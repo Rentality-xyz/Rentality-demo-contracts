@@ -8,6 +8,7 @@ const {
   ethToken,
   calculatePayments,
   locationInfo,
+  signTCMessage,
 } = require('../utils')
 
 describe('RentalityGateway: time buffer', function () {
@@ -54,6 +55,10 @@ describe('RentalityGateway: time buffer', function () {
   })
   it('should not show car, while time buffer not expired', async function () {
     const oneDayInSec = 86400
+    let locationInfo1 = {
+      locationInfo,
+      signature: await signTCMessage(owner),
+    }
     const createCarRequest = {
       tokenUri: 'uri',
       carVinNumber: 'VIN_NUMBER',
@@ -68,7 +73,7 @@ describe('RentalityGateway: time buffer', function () {
       timeBufferBetweenTripsInSec: oneDayInSec * 2,
       geoApiKey: 'key',
       insuranceIncluded: true,
-      locationInfo,
+      locationInfo: locationInfo1,
     }
 
     await expect(rentalityGateway.connect(host).addCar(createCarRequest)).not.to.be.reverted
@@ -101,6 +106,10 @@ describe('RentalityGateway: time buffer', function () {
   })
   it('should show car after time buffer expiration', async function () {
     const oneDayInSec = 86400
+    let locationInfo1 = {
+      locationInfo,
+      signature: await signTCMessage(owner),
+    }
     const createCarRequest = {
       tokenUri: 'uri',
       carVinNumber: 'VIN_NUMBER',
@@ -116,7 +125,7 @@ describe('RentalityGateway: time buffer', function () {
 
       geoApiKey: 'key',
       insuranceIncluded: true,
-      locationInfo,
+      locationInfo: locationInfo1,
     }
 
     await expect(rentalityGateway.connect(host).addCar(createCarRequest)).not.to.be.reverted
@@ -151,7 +160,10 @@ describe('RentalityGateway: time buffer', function () {
   })
   it('should not be able to create tripRequest if trip buffer not expired', async function () {
     const oneDayInSec = 86400
-
+    let locationInfo1 = {
+      locationInfo,
+      signature: await signTCMessage(owner),
+    }
     const createCarRequest = {
       tokenUri: 'uri',
       carVinNumber: 'VIN_NUMBER',
@@ -165,7 +177,7 @@ describe('RentalityGateway: time buffer', function () {
       milesIncludedPerDay: 10,
       timeBufferBetweenTripsInSec: oneDayInSec,
       insuranceIncluded: true,
-      locationInfo,
+      locationInfo: locationInfo1,
       geoApiKey: 'aasda',
     }
 
@@ -204,7 +216,10 @@ describe('RentalityGateway: time buffer', function () {
   })
   it('should reject created trip with time buffer after approve', async function () {
     const oneDayInSeconds = 86400
-
+    let locationInfo1 = {
+      locationInfo,
+      signature: await signTCMessage(owner),
+    }
     const createCarRequest = {
       tokenUri: 'uri',
       carVinNumber: 'VIN_NUMBER',
@@ -220,7 +235,7 @@ describe('RentalityGateway: time buffer', function () {
 
       geoApiKey: 'key',
       insuranceIncluded: true,
-      locationInfo,
+      locationInfo: locationInfo1,
     }
 
     await expect(rentalityGateway.connect(host).addCar(createCarRequest)).not.to.be.reverted

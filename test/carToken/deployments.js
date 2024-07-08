@@ -96,7 +96,7 @@ async function deployDefaultFixture() {
   await rentalityUserService.connect(owner).grantHostRole(host.address)
   await rentalityUserService.connect(owner).grantGuestRole(guest.address)
 
-  const patrolEngine = await ethers.getContractFactory('RentalityPatrolEngine')
+  const patrolEngine = await ethers.getContractFactory('RentalityPetrolEngine')
   const pEngine = await patrolEngine.deploy(await rentalityUserService.getAddress())
 
   const electricEngine = await ethers.getContractFactory('RentalityElectricEngine')
@@ -314,7 +314,7 @@ async function deployFixtureWith2UserService() {
   const rentalityGeoService = await RentalityGeoService.deploy()
   await rentalityGeoService.waitForDeployment()
 
-  const patrolEngine = await ethers.getContractFactory('RentalityPatrolEngine')
+  const patrolEngine = await ethers.getContractFactory('RentalityPetrolEngine.sol')
   const pEngine = await patrolEngine.deploy(await rentalityUserService.getAddress()())
 
   const electricEngine = await ethers.getContractFactory('RentalityElectricEngine')

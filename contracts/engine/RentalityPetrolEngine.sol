@@ -3,9 +3,9 @@ pragma solidity ^0.8.9;
 
 import './ARentalityEngine.sol';
 
-/// @title RentalityPatrolEngine - Implementation of a patrol engine in the Rentality system.
+/// @title RentalityPetrolEngine.sol - Implementation of a patrol engine in the Rentality system.
 /// @notice This contract extends ARentalityEngine and adds functionality specific to patrol engines.
-contract RentalityPatrolEngine is ARentalityEngine {
+contract RentalityPetrolEngine is ARentalityEngine {
   constructor(address _userService) {
     userService = IRentalityAccessControl(_userService);
   }
@@ -100,8 +100,9 @@ contract RentalityPatrolEngine is ARentalityEngine {
     uint64 fuelPricePerGalInUsdCents
   ) public pure returns (uint64) {
     if (endFuelLevelInPercents >= startFuelLevelInPercents) return 0;
+    uint priceFor10PercentsMultipliedOn1000 = ((engineParams[0] * fuelPricePerGalInUsdCents) * 1000) / 10;
+    uint diffInPercents = startFuelLevelInPercents - endFuelLevelInPercents;
 
-    return ((((((startFuelLevelInPercents - endFuelLevelInPercents) * engineParams[0]) * 1000) / 100) *
-      fuelPricePerGalInUsdCents) / 1000);
+    return uint64(Math.ceilDiv(((priceFor10PercentsMultipliedOn1000 * diffInPercents) / 10), 1000));
   }
 }

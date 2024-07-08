@@ -1,5 +1,5 @@
 const { expect } = require('chai')
-const { deployDefaultFixture, ethToken, locationInfo, getEmptySearchCarParams } = require('../utils')
+const { deployDefaultFixture, ethToken, locationInfo, getEmptySearchCarParams, signTCMessage } = require('../utils')
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 const { ethers } = require('hardhat')
 
@@ -187,6 +187,10 @@ describe('Rentality Delivery', function () {
       timeZoneId: 'id',
     }
 
+    let locationInfo1 = {
+      locationInfo,
+      signature: await signTCMessage(owner),
+    }
     const mockCreateCarRequest = {
       tokenUri: 'uri',
       carVinNumber: 'VIN_NUMBER',
@@ -200,7 +204,7 @@ describe('Rentality Delivery', function () {
       milesIncludedPerDay: 1000000,
       timeBufferBetweenTripsInSec: 0,
       geoApiKey: 'key',
-      locationInfo,
+      locationInfo: locationInfo1,
       insuranceIncluded: true,
     }
 
@@ -266,36 +270,47 @@ describe('Rentality Delivery', function () {
     let homeLon = '-80.343476'
     let pickUpLat = '25.797641'
     let pickUpLon = '-80.202987'
-    let locationInfo = {
-      latitude: homeLat,
-      longitude: homeLon,
-      userAddress: 'Miami Riverwalk, Miami, Florida, USA',
-      country: 'USA',
-      state: 'Florida',
-      city: 'Miami',
 
-      timeZoneId: 'id',
+    let signature = await signTCMessage(owner)
+    let locationInfo = {
+      locationInfo: {
+        latitude: homeLat,
+        longitude: homeLon,
+        userAddress: 'Miami Riverwalk, Miami, Florida, USA',
+        country: 'USA',
+        state: 'Florida',
+        city: 'Miami',
+
+        timeZoneId: 'id',
+      },
+      signature: signature,
     }
     let locationInfo1 = {
-      latitude: '33.829662',
-      longitude: '-84.363986',
-      userAddress: 'Miami Riverwalk, Miami, Florida, USA',
-      country: 'USA',
-      state: 'Florida',
-      city: 'Miami',
+      locationInfo: {
+        latitude: '33.829662',
+        longitude: '-84.363986',
+        userAddress: 'Miami Riverwalk, Miami, Florida, USA',
+        country: 'USA',
+        state: 'Florida',
+        city: 'Miami',
 
-      timeZoneId: 'id',
+        timeZoneId: 'id',
+      },
+      signature: signature,
     }
 
     let locationInfo2 = {
-      latitude: '25.771325',
-      longitude: '-80.185969',
-      userAddress: 'Miami Riverwalk, Miami, Florida, USA',
-      country: 'USA',
-      state: 'Florida',
-      city: 'Miami',
+      locationInfo: {
+        latitude: '25.771325',
+        longitude: '-80.185969',
+        userAddress: 'Miami Riverwalk, Miami, Florida, USA',
+        country: 'USA',
+        state: 'Florida',
+        city: 'Miami',
 
-      timeZoneId: 'id',
+        timeZoneId: 'id',
+      },
+      signature: signature,
     }
     const mockCreateCarRequest = {
       tokenUri: 'uri',

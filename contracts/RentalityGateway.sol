@@ -14,8 +14,6 @@ import './RentalityPlatform.sol';
 import './payments/RentalityPaymentService.sol';
 import './Schemas.sol';
 import './RentalityAdminGateway.sol';
-import './RentalityAdminGateway.sol';
-import './libs/RentalityQuery.sol';
 import './RentalityView.sol';
 
 struct RentalityContract {

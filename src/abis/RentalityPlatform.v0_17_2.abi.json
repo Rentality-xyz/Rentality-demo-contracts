@@ -63,13 +63,20 @@
               "type": "tuple",
               "name": "locationInfo",
               "components": [
-                { "type": "string", "name": "userAddress" },
-                { "type": "string", "name": "country" },
-                { "type": "string", "name": "state" },
-                { "type": "string", "name": "city" },
-                { "type": "string", "name": "latitude" },
-                { "type": "string", "name": "longitude" },
-                { "type": "string", "name": "timeZoneId" }
+                {
+                  "type": "tuple",
+                  "name": "locationInfo",
+                  "components": [
+                    { "type": "string", "name": "userAddress" },
+                    { "type": "string", "name": "country" },
+                    { "type": "string", "name": "state" },
+                    { "type": "string", "name": "city" },
+                    { "type": "string", "name": "latitude" },
+                    { "type": "string", "name": "longitude" },
+                    { "type": "string", "name": "timeZoneId" }
+                  ]
+                },
+                { "type": "string", "name": "signature" }
               ]
             }
           ]
@@ -289,7 +296,8 @@
         { "type": "address", "name": "userServiceAddress" },
         { "type": "address", "name": "paymentServiceAddress" },
         { "type": "address", "name": "claimServiceAddress" },
-        { "type": "address", "name": "carDeliveryAddress" }
+        { "type": "address", "name": "carDeliveryAddress" },
+        { "type": "address", "name": "viewService" }
       ],
       "outputs": []
     },
