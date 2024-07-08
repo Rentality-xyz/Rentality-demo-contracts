@@ -15,8 +15,8 @@ async function main() {
   )
 
   const patrolEngine = checkNotNull(
-    getContractAddress('RentalityPatrolEngine', 'scripts/deploy_2b_1_RentalityPatrolEngine.js', chainId),
-    'RentalityPatrolEngine'
+    getContractAddress('RentalityPetrolEngine.sol', 'scripts/deploy_2b_1_RentalityPatrolEngine.js', chainId),
+    'RentalityPetrolEngine.sol'
   )
 
   const electricEngine = checkNotNull(

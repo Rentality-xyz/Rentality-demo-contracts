@@ -403,6 +403,7 @@ contract RentalityPlatform is UUPSOwnable {
     if (!addresses.userService.isHost(tx.origin)) {
       addresses.userService.grantHostRole(tx.origin);
     }
+    require(addresses.paymentService.taxExist(request.locationInfo.locationInfo) != 0, 'Tax not exist.');
     return addresses.carService.addCar(request);
   }
 

@@ -53,7 +53,7 @@ async function deployDefaultFixture() {
   const elEngine = await electricEngine.deploy(await rentalityUserService.getAddress())
   await elEngine.waitForDeployment()
 
-  const patrolEngine = await ethers.getContractFactory('RentalityPatrolEngine')
+  const patrolEngine = await ethers.getContractFactory('RentalityPetrolEngine')
   const pEngine = await patrolEngine.deploy(await rentalityUserService.getAddress())
   await pEngine.waitForDeployment()
 

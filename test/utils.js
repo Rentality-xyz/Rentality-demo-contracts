@@ -10,6 +10,7 @@ const signTCMessage = async (user) => {
   )
   return await user.signMessage(message)
 }
+
 const calculatePayments = async (currencyConverter, paymentService, value, tripDays, deposit, token = ethToken) => {
   let priceWithDiscount = await paymentService.calculateSumWithDiscount(
     '0x0000000000000000000000000000000000000000',
@@ -71,47 +72,6 @@ const calculatePaymentsFrom = async (currencyConverter, paymentService, value, t
   }
 }
 
-function getMockCarRequest(seed) {
-  const seedStr = seed?.toString() ?? ''
-  const seedInt = Number(seed) ?? 0
-
-  const TOKEN_URI = 'TOKEN_URI' + seedStr
-  const VIN_NUMBER = 'VIN_NUMBER' + seedStr
-  const BRAND = 'BRAND' + seedStr
-  const MODEL = 'MODEL' + seedStr
-  const YEAR = '200' + seedStr
-  const PRICE_PER_DAY = seedInt * 100 + 2
-  const DEPOSIT = seedInt * 100 + 3
-  const ENGINE_PARAMS = [seedInt * 100 + 4, seedInt * 100 + 5]
-  const ETYPE = 1
-  const DISTANCE_INCLUDED = seedInt * 100 + 6
-  const location = 'kyiv ukraine'
-  const locationCoordinates = ' ' + seedInt
-  const apiKey = process.env.GOOGLE_API_KEY || ' '
-  const timeBufferBetweenTripsInSec = 0
-  const locationLatitude = seedStr
-  const locationLongitude = seedStr
-
-  return {
-    tokenUri: TOKEN_URI,
-    carVinNumber: VIN_NUMBER,
-    brand: BRAND,
-    model: MODEL,
-    yearOfProduction: YEAR,
-    pricePerDayInUsdCents: PRICE_PER_DAY,
-    securityDepositPerTripInUsdCents: DEPOSIT,
-    engineParams: ENGINE_PARAMS,
-    engineType: ETYPE,
-    milesIncludedPerDay: DISTANCE_INCLUDED,
-    timeBufferBetweenTripsInSec: timeBufferBetweenTripsInSec,
-    locationAddress: location,
-    locationLatitude,
-    locationLongitude,
-    geoApiKey: apiKey,
-    insuranceIncluded: true,
-  }
-}
-
 const locationInfo = {
   userAddress: 'Miami Riverwalk, Miami, Florida, USA',
   country: 'USA',
@@ -147,6 +107,11 @@ function getMockCarRequest(seed) {
   const timeBufferBetweenTripsInSec = 0
   const locationLatitude = seedStr
   const locationLongitude = seedStr
+  const locationInfo1 = {
+    locationInfo: locationInfo,
+    signature:
+      '0x3a80baacf29a445c27ed3b4d280ca0803dbf0e6647d4c7c90cd11fe7528650d705029370876e1a168c97d9025e5b6c4a5f3b2cc0f6c262348bdd9313bf6ef15a1c',
+  }
 
   return {
     tokenUri: TOKEN_URI,
@@ -162,7 +127,7 @@ function getMockCarRequest(seed) {
     timeBufferBetweenTripsInSec: timeBufferBetweenTripsInSec,
     geoApiKey: apiKey,
     insuranceIncluded: true,
-    locationInfo,
+    locationInfo: locationInfo1,
   }
 }
 
@@ -263,7 +228,7 @@ async function deployDefaultFixture() {
   const electricEngine = await ethers.getContractFactory('RentalityElectricEngine')
   const elEngine = await electricEngine.deploy(await rentalityUserService.getAddress())
 
-  const patrolEngine = await ethers.getContractFactory('RentalityPatrolEngine')
+  const patrolEngine = await ethers.getContractFactory('RentalityPetrolEngine')
   const pEngine = await patrolEngine.deploy(await rentalityUserService.getAddress())
 
   const hybridEngine = await ethers.getContractFactory('RentalityHybridEngine')
