@@ -22,7 +22,6 @@ contract RentalityView is UUPSUpgradeable, Initializable {
   RentalityContract public addresses;
   using RentalityQuery for RentalityContract;
   using RentalityTripsQuery for RentalityContract;
-  using RentalityTripsQuery for RentalityContract;
 
   function updateServiceAddresses(RentalityContract memory contracts) public {
     require(addresses.userService.isAdmin(tx.origin), 'only Admin.');
