@@ -481,6 +481,29 @@
     },
     {
       "type": "function",
+      "name": "taxExist",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        {
+          "type": "tuple",
+          "name": "locationInfo",
+          "components": [
+            { "type": "string", "name": "userAddress" },
+            { "type": "string", "name": "country" },
+            { "type": "string", "name": "state" },
+            { "type": "string", "name": "city" },
+            { "type": "string", "name": "latitude" },
+            { "type": "string", "name": "longitude" },
+            { "type": "string", "name": "timeZoneId" }
+          ]
+        }
+      ],
+      "outputs": [{ "type": "uint256", "name": "" }]
+    },
+    {
+      "type": "function",
       "name": "transferOwnership",
       "constant": false,
       "payable": false,

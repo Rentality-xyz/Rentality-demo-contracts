@@ -61,7 +61,7 @@ interface Schemas {
     uint32 timeBufferBetweenTripsInSec;
     string geoApiKey;
     bool insuranceIncluded;
-    LocationInfo locationInfo;
+    SignedLocationInfo locationInfo;
   }
 
   /// @notice Struct to store input parameters for updating car information.

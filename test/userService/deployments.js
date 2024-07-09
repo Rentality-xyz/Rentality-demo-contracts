@@ -22,9 +22,7 @@ async function deployDefaultFixture() {
   const RentalityMockPriceFeed = await ethers.getContractFactory('RentalityMockPriceFeed')
   const RentalityUserService = await ethers.getContractFactory('RentalityUserService')
   const RentalityTripService = await ethers.getContractFactory('RentalityTripService', {
-    libraries: {
-      RentalityUtils: await utils.getAddress(),
-    },
+    libraries: {},
   })
   const RentalityCurrencyConverter = await ethers.getContractFactory('RentalityCurrencyConverter')
   const RentalityPaymentService = await ethers.getContractFactory('RentalityPaymentService')
@@ -33,6 +31,8 @@ async function deployDefaultFixture() {
   const RentalityCarToken = await ethers.getContractFactory('RentalityCarToken', {
     libraries: { RentalityUtils: await utils.getAddress() },
   })
+  let TripsQuery = await ethers.getContractFactory('RentalityTripsQuery')
+  let tripsQuery = await TripsQuery.deploy()
   const RentalityPlatform = await ethers.getContractFactory('RentalityPlatform', {
     libraries: {
       RentalityUtils: await utils.getAddress(),
@@ -53,7 +53,7 @@ async function deployDefaultFixture() {
   const elEngine = await electricEngine.deploy(await rentalityUserService.getAddress())
   await elEngine.waitForDeployment()
 
-  const patrolEngine = await ethers.getContractFactory('RentalityPatrolEngine')
+  const patrolEngine = await ethers.getContractFactory('RentalityPetrolEngine')
   const pEngine = await patrolEngine.deploy(await rentalityUserService.getAddress())
   await pEngine.waitForDeployment()
 
@@ -153,6 +153,24 @@ async function deployDefaultFixture() {
   })
   const deliveryService = await upgrades.deployProxy(DeliveryService, [await rentalityUserService.getAddress()])
 
+  let RentalityView = await ethers.getContractFactory('RentalityView', {
+    libraries: {
+      RentalityUtils: await utils.getAddress(),
+      RentalityQuery: await query.getAddress(),
+      RentalityTripsQuery: await tripsQuery.getAddress(),
+    },
+  })
+  const rentalityView = await upgrades.deployProxy(RentalityView, [
+    await rentalityCarToken.getAddress(),
+    await rentalityCurrencyConverter.getAddress(),
+    await rentalityTripService.getAddress(),
+    await rentalityUserService.getAddress(),
+    await rentalityPaymentService.getAddress(),
+    await claimService.getAddress(),
+    await deliveryService.getAddress(),
+  ])
+  await rentalityView.waitForDeployment()
+
   const rentalityPlatform = await upgrades.deployProxy(RentalityPlatform, [
     await rentalityCarToken.getAddress(),
     await rentalityCurrencyConverter.getAddress(),
@@ -161,6 +179,7 @@ async function deployDefaultFixture() {
     await rentalityPaymentService.getAddress(),
     await claimService.getAddress(),
     await deliveryService.getAddress(),
+    await rentalityView.getAddress(),
   ])
 
   await rentalityPlatform.waitForDeployment()
@@ -177,10 +196,7 @@ async function deployDefaultFixture() {
   await rentalityUserService.connect(guest).setKYCInfo(' ', ' ', ' ', ' ', ' ', 1, guestSignature)
 
   let RentalityGateway = await ethers.getContractFactory('RentalityGateway', {
-    libraries: {
-      RentalityQuery: await query.getAddress(),
-      RentalityUtils: await utils.getAddress(),
-    },
+    libraries: {},
   })
 
   let rentalityGateway = await upgrades.deployProxy(RentalityGateway.connect(owner), [
@@ -193,11 +209,26 @@ async function deployDefaultFixture() {
     await claimService.getAddress(),
     await ethContract.getAddress(),
     await ethContract.getAddress(),
+    await rentalityView.getAddress(),
   ])
   await rentalityGateway.waitForDeployment()
 
   rentalityGateway = await ethers.getContractAt('IRentalityGateway', await rentalityGateway.getAddress())
 
+  const RentalityAdminGateway = await ethers.getContractFactory('RentalityAdminGateway')
+  const rentalityAdminGateway = await upgrades.deployProxy(RentalityAdminGateway, [
+    await rentalityCarToken.getAddress(),
+    await rentalityCurrencyConverter.getAddress(),
+    await rentalityTripService.getAddress(),
+    await rentalityUserService.getAddress(),
+    await rentalityPlatform.getAddress(),
+    await rentalityPaymentService.getAddress(),
+    await claimService.getAddress(),
+    await deliveryService.getAddress(),
+    await rentalityView.getAddress(),
+  ])
+  await rentalityAdminGateway.waitForDeployment()
+  await rentalityUserService.connect(owner).grantManagerRole(await rentalityView.getAddress())
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityAdminGateway.getAddress())
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityGateway.getAddress())
   await rentalityUserService.connect(owner).grantAdminRole(await rentalityGateway.getAddress())

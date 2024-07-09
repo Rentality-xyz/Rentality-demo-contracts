@@ -200,7 +200,8 @@
             { "type": "address", "name": "paymentService" },
             { "type": "address", "name": "claimService" },
             { "type": "address", "name": "adminService" },
-            { "type": "address", "name": "deliveryService" }
+            { "type": "address", "name": "deliveryService" },
+            { "type": "address", "name": "viewService" }
           ]
         }
       ]
@@ -245,7 +246,8 @@
         { "type": "address", "name": "rentalityPlatformAddress" },
         { "type": "address", "name": "paymentServiceAddress" },
         { "type": "address", "name": "claimServiceAddress" },
-        { "type": "address", "name": "carDeliveryAddress" }
+        { "type": "address", "name": "carDeliveryAddress" },
+        { "type": "address", "name": "viewServiceAddress" }
       ],
       "outputs": []
     },

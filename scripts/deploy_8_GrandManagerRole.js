@@ -4,6 +4,7 @@ const { buildPath } = require('./utils/pathBuilder')
 const { readFileSync } = require('fs')
 
 const { checkNotNull, startDeploy } = require('./utils/deployHelper')
+const { getContractAddress } = require('./utils/contractAddress')
 
 async function main() {
   const { chainId, deployer } = await startDeploy('')
@@ -31,6 +32,8 @@ async function main() {
     addresses['RentalityPaymentService'],
     'rentalityPaymentServiceAddress'
   )
+  const rentalityView = checkNotNull(addresses['RentalityView'], 'RentalityViewAddress')
+  const rentalityCarDelivery = checkNotNull(addresses['RentalityCarDelivery'], 'RentalityCarDelivery')
 
   let rentalityUserServiceContract = new ethers.Contract(
     rentalityUserServiceAddress,
@@ -38,6 +41,7 @@ async function main() {
     deployer
   )
   try {
+    await rentalityUserServiceContract.grantManagerRole(rentalityView)
     await rentalityUserServiceContract.grantManagerRole(rentalityGatewayAddress)
     await rentalityUserServiceContract.grantManagerRole(rentalityTripServiceAddress)
     await rentalityUserServiceContract.grantManagerRole(rentalityPlatformAddress)
@@ -45,6 +49,7 @@ async function main() {
     await rentalityUserServiceContract.grantManagerRole(rentalityAdminGatewayAddress)
     await rentalityUserServiceContract.grantManagerRole(rentalityEngineAddress)
     await rentalityUserServiceContract.grantManagerRole(rentalityPaymentServiceAddress)
+    await rentalityUserServiceContract.grantManagerRole(rentalityCarDelivery)
     console.log('manager role granded')
   } catch (e) {
     console.log('grand manager role error:', e)
