@@ -13,52 +13,9 @@ import '../RentalityGateway.sol';
 import {IRentalityGeoService} from '../abstract/IRentalityGeoService.sol';
 import {RentalityCarDelivery} from '../features/RentalityCarDelivery.sol';
 import '../Schemas.sol';
+import {RentalityTripsQuery} from './RentalityTripsQuery.sol';
 
 library RentalityQuery {
-  function isTripThatIntersect(
-    RentalityContract memory contracts,
-    uint256 tripId,
-    uint64 startDateTime,
-    uint64 endDateTime
-  ) internal view returns (bool) {
-    Schemas.Trip memory trip = contracts.tripService.getTrip(tripId);
-    Schemas.CarInfo memory carInfo = contracts.carService.getCarInfoById(trip.carId);
-    return
-      (trip.endDateTime + carInfo.timeBufferBetweenTripsInSec > startDateTime) && (trip.startDateTime < endDateTime);
-  }
-
-  function getTripsForCarThatIntersect(
-    RentalityContract memory contracts,
-    uint256 carId,
-    uint64 startDateTime,
-    uint64 endDateTime
-  ) public view returns (Schemas.Trip[] memory) {
-    uint itemCount = 0;
-    RentalityTripService tripService = contracts.tripService;
-
-    uint32 timeBuffer = contracts.carService.getCarInfoById(carId).timeBufferBetweenTripsInSec;
-
-    for (uint i = 0; i < tripService.totalTripCount(); i++) {
-      uint currentId = i + 1;
-      if (isCarThatIntersect(contracts, currentId, carId, startDateTime, endDateTime + timeBuffer)) {
-        itemCount += 1;
-      }
-    }
-
-    Schemas.Trip[] memory result = new Schemas.Trip[](itemCount);
-    uint currentIndex = 0;
-
-    for (uint i = 0; i < tripService.totalTripCount(); i++) {
-      uint currentId = i + 1;
-      if (isCarThatIntersect(contracts, currentId, carId, startDateTime, endDateTime + timeBuffer)) {
-        result[currentIndex] = tripService.getTrip(currentId);
-        currentIndex += 1;
-      }
-    }
-
-    return result;
-  }
-
   function isCarThatIntersect(
     RentalityContract memory contracts,
     uint256 tripId,
@@ -68,36 +25,6 @@ library RentalityQuery {
   ) internal view returns (bool) {
     Schemas.Trip memory trip = contracts.tripService.getTrip(tripId);
     return (trip.carId == carId) && (trip.endDateTime > startDateTime) && (trip.startDateTime < endDateTime);
-  }
-
-  /// @dev Retrieves an array of trips associated with a specific car ID.
-  /// @param carId The ID of the car.
-  /// @return trips An array of trips associated with the specified car ID.
-  function getTripsByCar(
-    RentalityContract memory contracts,
-    uint256 carId
-  ) public view returns (Schemas.Trip[] memory) {
-    RentalityTripService tripService = contracts.tripService;
-    uint itemCount = 0;
-
-    for (uint i = 1; i <= tripService.totalTripCount(); i++) {
-      if (tripService.getTrip(i).carId == carId) {
-        itemCount += 1;
-      }
-    }
-
-    Schemas.Trip[] memory result = new Schemas.Trip[](itemCount);
-    uint currentIndex = 0;
-
-    for (uint i = 1; i <= tripService.totalTripCount(); i++) {
-      if (tripService.getTrip(i).carId == carId) {
-        Schemas.Trip memory currentItem = tripService.getTrip(i);
-        result[currentIndex] = currentItem;
-        currentIndex += 1;
-      }
-    }
-
-    return result;
   }
 
   function getClaimsByTrip(
@@ -267,7 +194,7 @@ library RentalityQuery {
     Schemas.CarInfo[] memory availableCars = carService.fetchAvailableCarsForUser(user, searchParams);
     if (availableCars.length == 0) return new Schemas.SearchCar[](0);
 
-    Schemas.Trip[] memory trips = getTripsThatIntersect(contracts, startDateTime, endDateTime);
+    Schemas.Trip[] memory trips = RentalityTripsQuery.getTripsThatIntersect(contracts, startDateTime, endDateTime);
     Schemas.CarInfo[] memory temp;
     uint256 resultCount;
 
@@ -464,36 +391,6 @@ library RentalityQuery {
         IRentalityGeoService(contracts.carService.getGeoServiceAddress()).getCarTimeZoneId(trip.carId)
       );
   }
-
-  function getTripsThatIntersect(
-    RentalityContract memory contracts,
-    uint64 startDateTime,
-    uint64 endDateTime
-  ) public view returns (Schemas.Trip[] memory) {
-    uint itemCount = 0;
-    RentalityTripService tripService = contracts.tripService;
-
-    for (uint i = 0; i < tripService.totalTripCount(); i++) {
-      uint currentId = i + 1;
-      if (isTripThatIntersect(contracts, currentId, startDateTime, endDateTime)) {
-        itemCount += 1;
-      }
-    }
-
-    Schemas.Trip[] memory result = new Schemas.Trip[](itemCount);
-    uint currentIndex = 0;
-
-    for (uint i = 0; i < tripService.totalTripCount(); i++) {
-      uint currentId = i + 1;
-      if (isTripThatIntersect(contracts, currentId, startDateTime, endDateTime)) {
-        result[currentIndex] = tripService.getTrip(currentId);
-        currentIndex += 1;
-      }
-    }
-
-    return result;
-  }
-
   // Updated function getCarDetails with RentalityContract parameter
   function getCarDetails(
     RentalityContract memory contracts,

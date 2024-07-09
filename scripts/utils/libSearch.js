@@ -17,6 +17,10 @@ const existingLibs = [
     name: 'RealMath',
     pathToDeploy: './scripts/deploy_1c_RealMath.js',
   },
+  {
+    name: 'RentalityTripsQuery',
+    pathToDeploy: './scripts/deploy_4b_RentalityView.js',
+  },
 ]
 
 const getContractLibs = (contract, chainId) => {

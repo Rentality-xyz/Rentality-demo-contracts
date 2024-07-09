@@ -141,12 +141,12 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     _safeMint(tx.origin, newCarId);
     _setTokenURI(newCarId, request.tokenUri);
 
-    bytes32 hash = geoService.createLocationInfo(request.locationInfo);
+    bytes32 hash = geoService.createLocationInfo(request.locationInfo.locationInfo);
 
     geoService.executeRequest(
-      request.locationInfo.userAddress,
-      request.locationInfo.latitude,
-      request.locationInfo.longitude,
+      request.locationInfo.locationInfo.userAddress,
+      request.locationInfo.locationInfo.latitude,
+      request.locationInfo.locationInfo.longitude,
       request.geoApiKey,
       newCarId
     );
