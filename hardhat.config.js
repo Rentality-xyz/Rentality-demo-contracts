@@ -15,7 +15,7 @@ module.exports = {
                    'files': one page per input Solidity file  */,
   },
 
-  defaultNetwork: 'base_sepolia',
+  defaultNetwork: 'localhost',
   networks: {
     hardhat: {
       chainId: 1337,
