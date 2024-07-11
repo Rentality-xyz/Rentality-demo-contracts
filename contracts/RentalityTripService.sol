@@ -327,6 +327,20 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     ) {
       engineService.verifyEndParams(trip.startParamLevels, panelParams, carInfo.engineType);
       idToTripInfo[tripId].endParamLevels = panelParams;
+      (uint64 resolveMilesAmountInUsdCents, uint64 resolveFuelAmountInUsdCents) = getResolveAmountInUsdCents(
+        carInfo.engineType,
+        idToTripInfo[tripId],
+        carInfo.engineParams
+      );
+      idToTripInfo[tripId].paymentInfo.resolveMilesAmountInUsdCents = resolveMilesAmountInUsdCents;
+      idToTripInfo[tripId].paymentInfo.resolveFuelAmountInUsdCents = resolveFuelAmountInUsdCents;
+
+      uint64 resolveAmountInUsdCents = resolveMilesAmountInUsdCents + resolveFuelAmountInUsdCents;
+
+      if (resolveAmountInUsdCents > idToTripInfo[tripId].paymentInfo.depositInUsdCents) {
+        resolveAmountInUsdCents = idToTripInfo[tripId].paymentInfo.depositInUsdCents;
+      }
+      idToTripInfo[tripId].paymentInfo.resolveAmountInUsdCents = resolveAmountInUsdCents;
       idToTripInfo[tripId].tripFinishedBy = tx.origin;
     } else {
       engineService.compareParams(trip.endParamLevels, panelParams, carInfo.engineType);
