@@ -182,6 +182,8 @@ interface Schemas {
     uint32 yearOfProduction;
     LocationInfo pickUpLocation;
     LocationInfo returnLocation;
+    string guestPhoneNumber;
+    string hostPhoneNumber;
   }
 
   /// CHAT LOGIC
