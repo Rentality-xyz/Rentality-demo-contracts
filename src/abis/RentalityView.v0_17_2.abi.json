@@ -808,7 +808,9 @@
                 { "type": "string", "name": "longitude" },
                 { "type": "string", "name": "timeZoneId" }
               ]
-            }
+            },
+            { "type": "string", "name": "guestPhoneNumber" },
+            { "type": "string", "name": "hostPhoneNumber" }
           ]
         }
       ]
@@ -978,7 +980,9 @@
                 { "type": "string", "name": "longitude" },
                 { "type": "string", "name": "timeZoneId" }
               ]
-            }
+            },
+            { "type": "string", "name": "guestPhoneNumber" },
+            { "type": "string", "name": "hostPhoneNumber" }
           ]
         }
       ]
@@ -1100,7 +1104,9 @@
                 { "type": "string", "name": "longitude" },
                 { "type": "string", "name": "timeZoneId" }
               ]
-            }
+            },
+            { "type": "string", "name": "guestPhoneNumber" },
+            { "type": "string", "name": "hostPhoneNumber" }
           ]
         }
       ]

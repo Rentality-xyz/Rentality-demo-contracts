@@ -79,10 +79,8 @@ abstract contract ARentalityEngine {
 
     return
       uint64(
-        Math.ceilDiv(
-          ((endOdometr - startOdometr - milesIncludedPerDay * tripDays) * pricePerDayInUsdCents),
-          milesIncludedPerDay
-        )
+        Math.ceilDiv(pricePerDayInUsdCents, milesIncludedPerDay) *
+          ((endOdometr - startOdometr - milesIncludedPerDay * tripDays))
       );
   }
 
