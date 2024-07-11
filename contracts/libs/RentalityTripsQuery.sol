@@ -249,6 +249,11 @@ library RentalityTripsQuery {
       .getLocationInfo(trip.pickUpHash);
     Schemas.LocationInfo memory returnLocation = IRentalityGeoService(carService.getGeoServiceAddress())
       .getLocationInfo(trip.returnHash);
+    (string memory guestPhoneNumber, string memory hostPhoneNumber) = getTripContactInfo(
+      tripId,
+      address(tripService),
+      address(userService)
+    );
     return
       Schemas.TripDTO(
         trip,
@@ -268,7 +273,9 @@ library RentalityTripsQuery {
           : pickUpLocation,
         bytes(pickUpLocation.latitude).length == 0
           ? IRentalityGeoService(carService.getGeoServiceAddress()).getLocationInfo(car.locationHash)
-          : returnLocation
+          : returnLocation,
+        guestPhoneNumber,
+        hostPhoneNumber
       );
   }
 }
