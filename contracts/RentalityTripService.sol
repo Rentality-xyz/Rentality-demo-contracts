@@ -275,11 +275,26 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
       idToTripInfo[tripId].status == Schemas.TripStatus.CheckedInByGuest,
       'The trip is not in status CheckedInByGuest'
     );
+    Schemas.CarInfo memory car = addresses.carService.getCarInfoById(idToTripInfo[tripId].carId);
     engineService.verifyEndParams(trip.startParamLevels, panelParams, carInfo.engineType);
     idToTripInfo[tripId].endParamLevels = panelParams;
     idToTripInfo[tripId].tripFinishedBy = tx.origin;
 
     idToTripInfo[tripId].status = Schemas.TripStatus.CheckedOutByGuest;
+    (uint64 resolveMilesAmountInUsdCents, uint64 resolveFuelAmountInUsdCents) = getResolveAmountInUsdCents(
+      car.engineType,
+      idToTripInfo[tripId],
+      car.engineParams
+    );
+    idToTripInfo[tripId].paymentInfo.resolveMilesAmountInUsdCents = resolveMilesAmountInUsdCents;
+    idToTripInfo[tripId].paymentInfo.resolveFuelAmountInUsdCents = resolveFuelAmountInUsdCents;
+
+    uint64 resolveAmountInUsdCents = resolveMilesAmountInUsdCents + resolveFuelAmountInUsdCents;
+
+    if (resolveAmountInUsdCents > idToTripInfo[tripId].paymentInfo.depositInUsdCents) {
+      resolveAmountInUsdCents = idToTripInfo[tripId].paymentInfo.depositInUsdCents;
+    }
+    idToTripInfo[tripId].paymentInfo.resolveAmountInUsdCents = resolveAmountInUsdCents;
     idToTripInfo[tripId].checkedOutByGuestDateTime = block.timestamp;
 
     emit TripStatusChanged(tripId, Schemas.TripStatus.CheckedOutByGuest, trip.host, trip.guest);
@@ -333,22 +348,6 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
 
     idToTripInfo[tripId].status = Schemas.TripStatus.Finished;
 
-    Schemas.CarInfo memory car = addresses.carService.getCarInfoById(idToTripInfo[tripId].carId);
-
-    (uint64 resolveMilesAmountInUsdCents, uint64 resolveFuelAmountInUsdCents) = getResolveAmountInUsdCents(
-      car.engineType,
-      idToTripInfo[tripId],
-      car.engineParams
-    );
-    idToTripInfo[tripId].paymentInfo.resolveMilesAmountInUsdCents = resolveMilesAmountInUsdCents;
-    idToTripInfo[tripId].paymentInfo.resolveFuelAmountInUsdCents = resolveFuelAmountInUsdCents;
-
-    uint64 resolveAmountInUsdCents = resolveMilesAmountInUsdCents + resolveFuelAmountInUsdCents;
-
-    if (resolveAmountInUsdCents > idToTripInfo[tripId].paymentInfo.depositInUsdCents) {
-      resolveAmountInUsdCents = idToTripInfo[tripId].paymentInfo.depositInUsdCents;
-    }
-    idToTripInfo[tripId].paymentInfo.resolveAmountInUsdCents = resolveAmountInUsdCents;
     idToTripInfo[tripId].finishDateTime = block.timestamp;
 
     emit TripStatusChanged(tripId, Schemas.TripStatus.Finished, idToTripInfo[tripId].host, idToTripInfo[tripId].guest);
