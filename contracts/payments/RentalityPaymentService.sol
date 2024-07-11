@@ -140,7 +140,7 @@ contract RentalityPaymentService is UUPSOwnable {
   /// @notice Withdraw a specific amount of funds from the contract.
   /// @param amount The amount to withdraw from the contract.
 
-  function withdrawFromPlatform(uint256 amount, address currencyType) public {
+  function withdrawFromPlatform(uint256 amount, address currencyType) public onlyAdmin {
     require(
       address(this).balance > 0 || IERC20(currencyType).balanceOf(address(this)) > 0,
       'There is no commission to withdraw'
