@@ -169,6 +169,8 @@ contract RentalityCurrencyConverter is Initializable, UUPSAccess {
     uint64 valueToReturnInUsdCents = paymentInfo.priceWithDiscount +
       paymentInfo.salesTax +
       paymentInfo.governmentTax +
+      uint64(paymentInfo.pickUpFee) +
+      uint64(paymentInfo.dropOfFee) +
       paymentInfo.depositInUsdCents;
 
     uint256 valueToReturnInToken = getFromUsd(
