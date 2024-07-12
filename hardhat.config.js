@@ -46,15 +46,20 @@ module.exports = {
       accounts: [process.env.PRIVATE_KEY],
       chainId: 11155420,
     },
+    opBNB_testnet: {
+      url: process.env.OP_BNB_TESTNET_URL ?? '',
+      accounts: [process.env.PRIVATE_KEY],
+      chainId: 5611,
+    },
+    base: {
+      url: process.env.BASE_URL ?? '',
+      accounts: [process.env.PRIVATE_KEY],
+      chainId: 8453,
+    },
     base_sepolia: {
       url: process.env.BASE_SEPOLIA_URL ?? '',
       accounts: [process.env.PRIVATE_KEY],
       chainId: 84532,
-    },
-    opBNB: {
-      url: process.env.OP_BNB_URL ?? '',
-      accounts: [process.env.PRIVATE_KEY],
-      chainId: 5611,
     },
   },
   solidity: {
