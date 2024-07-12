@@ -1,12 +1,12 @@
 {
-  "name": "demoappreact",
-  "version": "0.17.2",
+  "name": "rentality-contracts",
+  "version": "0.2.0",
   "description": "",
   "main": "index.js",
   "private": true,
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "scripts": {
     "format": "npx prettier --write . && npx prettier --write --plugin=prettier-plugin-solidity contracts/**/*.sol",
     "generate_schemas": "node scripts/utils/generateSchemas.js",
