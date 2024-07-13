@@ -34,7 +34,7 @@ async function main() {
     console.log(`${mockContractName} was deployed to: ${civicGatewayToken}`)
     addressSaver(civicGatewayToken, mockContractName, true, chainId)
   }
-  const civicGatekeeperNetworkId = process.env.CIVIC_GATEKEEPER_NETWORK || 10
+  const civicGatekeeperNetworkId = process.env.CIVIV_GATEKEEPER_NETWORK || 10
 
   const contract = await upgrades.deployProxy(contractFactory, [civicGatewayToken, civicGatekeeperNetworkId])
   await contract.waitForDeployment()
