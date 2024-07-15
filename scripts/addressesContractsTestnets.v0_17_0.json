@@ -72,7 +72,7 @@
     "RentalityTestUSDT": "0x29df40d7a3D419F3bc8913DF35151F76b209bEf6",
     "UsdtToUsdPriceFeedAddress": "0x3ec8593F930EA45ea58c968260e6e9FF53FC934f",
     "RentalityUSDTConverter": "0xe76e5a7891d34035B35cE7DC3e427887676D09A2",
-    "RentalityCurrencyConverter": "0x4E94d7F964058Bb0D4A5B940241C72c02E76F2B9",
+    "RentalityCurrencyConverter":z "0x4E94d7F964058Bb0D4A5B940241C72c02E76F2B9",
     "RentalityFloridaTaxes": "0x0d87Eb03D4920bA502f3A67036D9DF8BbE56DB60",
     "RentalityBaseDiscount": "0xfE1853C98D07f03bFf27BF8d8dddF71EA5Ba4E61",
     "RentalityPaymentService": "0xa379B1dc50113d4cbbAA191B4457cF3D99816Dd0",
@@ -117,5 +117,11 @@
     "RentalityAdminGateway": "0x65647Bb441B90FA1411f72d42D452200083466D4",
     "RentalityGateway": "0x4d2C67efbCE2369574247c622D2E32963D7F33b0",
     "CivicMockVerifier": "0x90800A233871fd30E23B410EaDa0f0CE2a73d6D5"
+  },
+  {
+    "name": "base_sepolia",
+    "chainId": 84532,
+    "CivicMockVerifier": "0xd63f15Be8cFE193c6F568d45701b2F93037e0c00",
+    "RentalityUserService": "0xBE81eb3cE4e07211160Fa0e29f22838eB24D3033"
   }
 ]
