@@ -117,5 +117,11 @@
     "RentalityAdminGateway": "0x65647Bb441B90FA1411f72d42D452200083466D4",
     "RentalityGateway": "0x4d2C67efbCE2369574247c622D2E32963D7F33b0",
     "CivicMockVerifier": "0x90800A233871fd30E23B410EaDa0f0CE2a73d6D5"
+  },
+  {
+    "name": "base_sepolia",
+    "chainId": 84532,
+    "CivicMockVerifier": "0xd63f15Be8cFE193c6F568d45701b2F93037e0c00",
+    "RentalityUserService": "0xBE81eb3cE4e07211160Fa0e29f22838eB24D3033"
   }
 ]
