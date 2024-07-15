@@ -1,0 +1,9 @@
+[
+  {
+    "name": "base",
+    "chainId": 8453,
+    "CivicGatewayTokenContract": "0xF65b6396dF6B7e2D8a6270E3AB6c7BB08BAEF22E",
+    "EthToUsdPriceFeedAddress": "0x71041dddad3595F9CEd3DcCFBe3D1F4b0a16Bb70",
+    "UsdtToUsdPriceFeedAddress": "0xf19d560eB8d2ADf07BD6D13ed03e1D11215721F9"
+  }
+]

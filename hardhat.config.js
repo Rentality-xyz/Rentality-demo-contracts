@@ -24,21 +24,23 @@ module.exports = {
       chainId: 1337,
     },
     ganache: {
-      url: process.env.URL_LOCALHOST_GANACHE,
+      url: process.env.GANACHE_LOCALHOST_URL,
       accounts: [process.env.GANACHE_PRIVATE_KEY],
       chainId: 1337,
       timeout: 1_000_000,
     },
-    goerli: {
-      url: process.env.ALCHEMY_API_URL_GOERLI ?? '',
+    base: {
+      url: process.env.BASE_URL ?? '',
       accounts: [process.env.PRIVATE_KEY],
+      chainId: 8453,
     },
-    mumbai: {
-      url: process.env.ALCHEMY_API_URL_MUMBAI ?? '',
+    base_sepolia: {
+      url: process.env.BASE_SEPOLIA_URL ?? '',
       accounts: [process.env.PRIVATE_KEY],
+      chainId: 84532,
     },
     sepolia: {
-      url: process.env.ALCHEMY_API_URL_SEPOLIA ?? '',
+      url: process.env.SEPOLIA_URL ?? '',
       accounts: [process.env.PRIVATE_KEY],
     },
     optimism_sepolia: {
@@ -46,13 +48,8 @@ module.exports = {
       accounts: [process.env.PRIVATE_KEY],
       chainId: 11155420,
     },
-    base_sepolia: {
-      url: process.env.BASE_SEPOLIA_URL ?? '',
-      accounts: [process.env.PRIVATE_KEY],
-      chainId: 84532,
-    },
-    opBNB: {
-      url: process.env.OP_BNB_URL ?? '',
+    opBNB_testnet: {
+      url: process.env.OP_BNB_TESTNET_URL ?? '',
       accounts: [process.env.PRIVATE_KEY],
       chainId: 5611,
     },
