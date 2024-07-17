@@ -211,10 +211,11 @@ contract RentalityPaymentService is UUPSOwnable {
   function payClaim(Schemas.Trip memory trip, uint valueToPay, uint feeInCurrency, uint commission) public payable {
     require(userService.isManager(msg.sender), 'Only manager');
     bool successHost;
+    address to = tx.origin == trip.host ? trip.guest : trip.host;
 
     if (trip.paymentInfo.currencyType == address(0)) {
       require(msg.value >= valueToPay, 'Insufficient funds sent.');
-      (successHost, ) = payable(trip.host).call{value: valueToPay - feeInCurrency}('');
+      (successHost, ) = payable(to).call{value: valueToPay - feeInCurrency}('');
 
       if (msg.value > valueToPay + feeInCurrency) {
         uint256 excessValue = msg.value - valueToPay;
@@ -223,13 +224,9 @@ contract RentalityPaymentService is UUPSOwnable {
       }
     } else {
       require(IERC20(trip.paymentInfo.currencyType).allowance(tx.origin, address(this)) >= valueToPay);
-      successHost = IERC20(trip.paymentInfo.currencyType).transferFrom(
-        tx.origin,
-        trip.host,
-        valueToPay - feeInCurrency
-      );
+      successHost = IERC20(trip.paymentInfo.currencyType).transferFrom(tx.origin, to, valueToPay - feeInCurrency);
       if (commission != 0) {
-        bool successPlatform = IERC20(trip.paymentInfo.currencyType).transferFrom(tx.origin, trip.host, feeInCurrency);
+        bool successPlatform = IERC20(trip.paymentInfo.currencyType).transferFrom(tx.origin, to, feeInCurrency);
         require(successPlatform, 'Fail to transfer fee.');
       }
     }
