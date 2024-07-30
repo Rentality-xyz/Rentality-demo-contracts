@@ -495,9 +495,12 @@ interface Schemas {
     struct CarInvestment {
         CreateCarRequest car;
         uint priceInUsd;
+        bool inProgress;
     }
 
-    struct CreateInvestmentRequest {
-        CarInvestment [] cars;
+    struct InvestmentDTO {
+        string tokenURI;
+        uint income;
+        uint myIncome;
     }
 }
