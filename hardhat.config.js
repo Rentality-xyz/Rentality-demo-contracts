@@ -23,12 +23,12 @@ module.exports = {
     localhost: {
       chainId: 1337,
     },
-    // ganache: {
-    //   url: process.env.GANACHE_LOCALHOST_URL,
-    //   accounts: [process.env.GANACHE_PRIVATE_KEY],
-    //   chainId: 1337,
-    //   timeout: 1_000_000,
-    // },
+    ganache: {
+      url: process.env.GANACHE_LOCALHOST_URL,
+      accounts: [process.env.GANACHE_PRIVATE_KEY],
+      chainId: 1337,
+      timeout: 1_000_000,
+    },
     base: {
       url: process.env.BASE_URL ?? '',
       accounts: [process.env.PRIVATE_KEY],
