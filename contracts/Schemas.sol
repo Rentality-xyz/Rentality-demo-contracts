@@ -73,6 +73,7 @@ interface Schemas {
     uint64 milesIncludedPerDay;
     uint32 timeBufferBetweenTripsInSec;
     bool currentlyListed;
+    bool insuranceIncluded;
   }
 
   /// @notice Struct to store search parameters for querying cars.

@@ -84,6 +84,7 @@ describe('RentalityGateway: car', function () {
       milesIncludedPerDay: 2,
       timeBufferBetweenTripsInSec: 2,
       currentlyListed: false,
+      insuranceIncluded: true,
     }
 
     await expect(rentalityGateway.connect(host).updateCarInfo(update_params)).not.to.be.reverted
