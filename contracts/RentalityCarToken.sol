@@ -225,6 +225,7 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     idToCarInfo[request.carId].engineParams = engineParams;
     idToCarInfo[request.carId].timeBufferBetweenTripsInSec = request.timeBufferBetweenTripsInSec;
     idToCarInfo[request.carId].currentlyListed = request.currentlyListed;
+    idToCarInfo[request.carId].insuranceIncluded = request.insuranceIncluded;
 
     emit CarUpdatedSuccess(request.carId, request.pricePerDayInUsdCents, request.currentlyListed);
   }

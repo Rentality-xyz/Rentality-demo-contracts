@@ -103,6 +103,7 @@ describe('Ability to update car during trip', function () {
       milesIncludedPerDay: 2,
       timeBufferBetweenTripsInSec: 2,
       currentlyListed: false,
+      insuranceIncluded: true,
     }
 
     await expect(rentalityGateway.connect(host).updateCarInfo(update_params)).to.be.revertedWith(
