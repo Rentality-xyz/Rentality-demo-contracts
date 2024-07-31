@@ -37,6 +37,7 @@ it('Update car without location should work fine', async function () {
     milesIncludedPerDay: 2,
     timeBufferBetweenTripsInSec: 0,
     currentlyListed: false,
+    insuranceIncluded: true,
   }
 
   await expect(rentalityCarToken.updateCarInfo(update_params, locationInfo, 'das')).not.be.reverted
@@ -62,6 +63,7 @@ it('Update car with location, but without api should revert', async function () 
     milesIncludedPerDay: 2,
     timeBufferBetweenTripsInSec: 0,
     currentlyListed: false,
+    insuranceIncluded: true,
   }
 
   await expect(rentalityCarToken.updateCarInfo(update_params, locationInfo, '')).to.be.reverted
@@ -80,6 +82,7 @@ it('Update with location should pass locationVarification param to false', async
     timeBufferBetweenTripsInSec: 0,
     milesIncludedPerDay: 2,
     currentlyListed: false,
+    insuranceIncluded: true,
   }
 
   await geoParserMock.setCarCoordinateValidity(2, true) // mock

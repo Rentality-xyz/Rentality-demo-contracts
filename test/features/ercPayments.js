@@ -252,7 +252,7 @@ describe('ERC20 payments', function () {
 
     await expect(rentalityGateway.connect(host).finishTrip(1)).to.not.reverted
 
-    await expect(rentalityAdminGateway.connect(host).withdrawAllFromPlatform(usdt)).to.not.reverted
+    await expect(rentalityAdminGateway.connect(admin).withdrawAllFromPlatform(usdt)).to.not.reverted
 
     const ownerBalance = await usdtContract.balanceOf(owner)
     expect(ownerBalance).to.be.gt(0)
