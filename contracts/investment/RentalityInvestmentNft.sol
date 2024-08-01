@@ -29,8 +29,8 @@ contract RentalityInvestmentNft is ERC721 {
     function getAllMyTokensWithTotalPrice() public view returns (uint[] memory, uint) {
         uint[] memory result = new uint[](balanceOf(tx.origin));
         uint counter = 0;
-        uint totalPrice;
-        for (uint i = 0; i < result.length; i++)
+        uint totalPrice = 0;
+        for (uint i = 1; i <= result.length; i++)
             if (_ownerOf(i) == tx.origin) {
                 result[counter] = i;
                 counter += 1;

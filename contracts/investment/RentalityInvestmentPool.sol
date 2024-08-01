@@ -27,19 +27,20 @@ contract RentalityCarInvestmentPool {
         incomes.push(msg.value);
     }
 
-    function claimAllMy() public {
+    function claimAllMy() public  {
         require(incomes.length > 0, "no incomes");
         (uint[] memory tokens, uint totalPriceOfMyTokens) = nft.getAllMyTokensWithTotalPrice();
         uint toClaim = 0;
         for (uint i = 0; i < tokens.length; i++) {
             uint lastIncomeClaimed = nftIdToLastIncomeNumber[tokens[i]];
             if (incomes.length > lastIncomeClaimed) {
-                for (uint i = lastIncomeClaimed - 1; i < incomes.length; i++) {
+                for (uint i = lastIncomeClaimed; i < incomes.length; i++) {
                     toClaim += incomes[i];
                 }
-                nftIdToLastIncomeNumber[tokens[i]] = incomes[incomes.length];
+                nftIdToLastIncomeNumber[tokens[i]] = incomes.length;
             }
         }
+
         uint part = (totalPriceOfMyTokens * 100_000) / totalPriceInEth;
         uint result = (toClaim * part) / 100_000;
 
