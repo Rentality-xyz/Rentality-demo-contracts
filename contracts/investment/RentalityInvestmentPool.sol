@@ -27,25 +27,26 @@ contract RentalityCarInvestmentPool {
         incomes.push(msg.value);
     }
 
-    function claimAllMy() public  {
+    function claimAllMy() public {
         require(incomes.length > 0, "no incomes");
-        (uint[] memory tokens, uint totalPriceOfMyTokens) = nft.getAllMyTokensWithTotalPrice();
+        uint[] memory tokens = nft.getMyTokens();
         uint toClaim = 0;
         for (uint i = 0; i < tokens.length; i++) {
             uint lastIncomeClaimed = nftIdToLastIncomeNumber[tokens[i]];
+            uint tokenPrice = nft.tokenIdToPriceInEth(tokens[i]);
+            uint part = (tokenPrice * 100_000) / totalPriceInEth;
             if (incomes.length > lastIncomeClaimed) {
+                uint totalIncome = 0;
                 for (uint i = lastIncomeClaimed; i < incomes.length; i++) {
-                    toClaim += incomes[i];
+                    totalIncome += incomes[i];
                 }
+                toClaim += (totalIncome * part) / 100_000;
                 nftIdToLastIncomeNumber[tokens[i]] = incomes.length;
             }
         }
 
-        uint part = (totalPriceOfMyTokens * 100_000) / totalPriceInEth;
-        uint result = (toClaim * part) / 100_000;
-
-        if (result > 0) {
-            (bool successRefund,) = payable(tx.origin).call{value: result}('');
+        if (toClaim > 0) {
+            (bool successRefund,) = payable(tx.origin).call{value: toClaim}('');
             require(successRefund, 'payment failed.');
 
         }
