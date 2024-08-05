@@ -34,7 +34,7 @@ async function main() {
   )
 
   const rentalityPaymentServiceAddress = checkNotNull(
-    getContractAddress('RentalityPaymentService', 'scripts/deploy_3c_RentalityPaymentService.js', chainId),
+    getContractAddress('RentalityPaymentService', 'scripts/deploy_3d_RentalityPaymentService.js', chainId),
     'RentalityPaymentService'
   )
 
@@ -56,7 +56,10 @@ async function main() {
     getContractAddress('RentalityView', 'scripts/deploy_4b_RentalityView.js', chainId),
     'RentalityView'
   )
-
+  const investService = checkNotNull(
+      getContractAddress('RentalityInvestment', 'scripts/deploy_3c_RentalityInvestment.js', chainId),
+      'RentalityInvestment'
+  )
   const contractFactory = await ethers.getContractFactory(contractName, {
     libraries: {
       RentalityUtils: rentalityUtilsAddress,
@@ -73,6 +76,7 @@ async function main() {
     rentalityClaimService,
     rentalityCarDelivery,
     rentalityView,
+    investService
   ])
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()

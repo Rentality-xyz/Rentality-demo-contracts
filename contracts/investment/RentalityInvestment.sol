@@ -9,7 +9,7 @@ import "./RentalityInvestmentPool.sol";
 import "../RentalityCarToken.sol";
 import "../Schemas.sol";
 
-
+/// TODO: security review, code refactoring
 contract RentalityInvestment is Initializable, UUPSAccess {
     uint public investmentId;
     RentalityCurrencyConverter private converter;
@@ -23,7 +23,6 @@ contract RentalityInvestment is Initializable, UUPSAccess {
     mapping(uint => uint) private carIdToInvestId;
 
     function createCarInvestment(Schemas.CarInvestment memory car, string memory name_, string memory symbol_) public {
-        require(userService.isHost(tx.origin), "only Host");
         investmentId += 1;
         investmentIdToCarInfo[investmentId] = car;
         RentalityInvestmentNft newNftCollection = new RentalityInvestmentNft(name_, symbol_, investmentId, car.car.tokenUri);
@@ -75,19 +74,21 @@ contract RentalityInvestment is Initializable, UUPSAccess {
 
     function getPaymentsInfo(uint carId) public view returns (uint, RentalityCarInvestmentPool) {
         uint investID = carIdToInvestId[carId];
-        require(investID != 0, "Is not investment car");
+        require(investID != 0, "Wrong car");
 
-        Schemas.CarInvestment storage investment = investmentIdToCarInfo[investID];
-        return (investment.creatorPercents, investIdToPool[investID]);
+        return (investmentIdToCarInfo[investID].creatorPercents, investIdToPool[investID]);
     }
 
 
     function getAllInvestments() public view returns (Schemas.InvestmentDTO[] memory) {
         Schemas.InvestmentDTO[] memory cars = new Schemas.InvestmentDTO[](investmentId);
         for (uint i = 1; i <= investmentId; i++) {
+            (uint payed,,)= converter.getToUsdLatest(address(0), investmentIdToPayedInETH[i]);
             cars[i - 1] = Schemas.InvestmentDTO(
-                investmentIdToCarInfo[i],
-                address(investIdToNft[i])
+            investmentIdToCarInfo[i],
+            address(investIdToNft[i]),
+            i,
+            payed
             );
         }
         return cars;

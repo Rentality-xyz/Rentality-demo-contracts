@@ -373,6 +373,7 @@ async function deployDefaultFixture() {
         await claimService.getAddress(),
         await deliveryService.getAddress(),
         await rentalityView.getAddress(),
+        await investorsService.getAddress()
     ])
     await rentalityPlatform.waitForDeployment()
 
@@ -388,6 +389,7 @@ async function deployDefaultFixture() {
         await claimService.getAddress(),
         await deliveryService.getAddress(),
         await rentalityView.getAddress(),
+        await investorsService.getAddress()
     ])
     await rentalityAdminGateway.waitForDeployment()
 

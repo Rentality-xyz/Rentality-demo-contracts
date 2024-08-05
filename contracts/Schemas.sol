@@ -508,5 +508,7 @@ interface Schemas {
     struct InvestmentDTO {
         CarInvestment investment;
         address nft;
+        uint investmentId;
+        uint payedInUsd;
     }
 }

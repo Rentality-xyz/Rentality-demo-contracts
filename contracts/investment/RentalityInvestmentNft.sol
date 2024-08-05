@@ -21,8 +21,8 @@ contract RentalityInvestmentNft is ERC721 {
         tokenIdToPriceInEth[tokenId] = priceInEth;
     }
 
-    function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
-        _requireMinted(tokenId);
+    function tokenURI(uint256 id) public view virtual override returns (string memory) {
+        _requireMinted(id);
         return _tokenUri;
     }
 
