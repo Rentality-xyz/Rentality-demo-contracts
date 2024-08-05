@@ -37,8 +37,8 @@ contract RentalityCarInvestmentPool {
             uint part = (tokenPrice * 100_000) / totalPriceInEth;
             if (incomes.length > lastIncomeClaimed) {
                 uint totalIncome = 0;
-                for (uint i = lastIncomeClaimed; i < incomes.length; i++) {
-                    totalIncome += incomes[i];
+                for (uint j = lastIncomeClaimed; j < incomes.length; j++) {
+                    totalIncome += incomes[j];
                 }
                 toClaim += (totalIncome * part) / 100_000;
                 nftIdToLastIncomeNumber[tokens[i]] = incomes.length;

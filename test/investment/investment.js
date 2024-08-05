@@ -12,7 +12,7 @@ let mockCarInvestment = {
     inProgress: true,
     creatorPercents: 10
 }
-describe.only('Rentality investment', function () {
+describe('Rentality investment', function () {
     let rentalityGateway,
         rentalityMockPriceFeed,
         rentalityUserService,
