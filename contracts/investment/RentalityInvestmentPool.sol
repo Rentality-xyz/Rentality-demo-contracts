@@ -52,29 +52,6 @@ contract RentalityCarInvestmentPool {
         }
     }
 
-    function claim(uint tokenId) public {
-        require(nft.ownerOf(tokenId) == tx.origin, "only Owner");
-        require(incomes.length > 0, "no incomes");
-
-        uint lastIncomeClaimed = nftIdToLastIncomeNumber[tokenId];
-        require(incomes.length <= lastIncomeClaimed, "income claimed");
-
-        uint price = nft.tokenIdToPriceInEth(tokenId);
-        uint part = (price * 100_000) / totalPriceInEth;
-        uint totalAmount = 0;
-        for (uint i = lastIncomeClaimed - 1; i < incomes.length; i++) {
-            totalAmount += incomes[i];
-        }
-        uint result = (totalAmount * part) / 100_000;
-        if (result > 0) {
-            (bool successRefund,) = payable(tx.origin).call{value: result}('');
-            require(successRefund, 'payment failed.');
-
-        }
-
-
-    }
-
     function getIncomesByNftId(uint id) public view returns (uint) {
         uint lastIncomeClaimed = nftIdToLastIncomeNumber[id];
         uint result = 0;
