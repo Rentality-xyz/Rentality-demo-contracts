@@ -2,8 +2,9 @@
 pragma solidity ^0.8.9;
 
 import '@openzeppelin/contracts/token/ERC721/ERC721.sol';
+import '@openzeppelin/contracts/access/Ownable.sol';
 
-contract RentalityInvestmentNft is ERC721 {
+contract RentalityInvestmentNft is ERC721, Ownable {
     uint public tokenId;
     uint immutable public investId;
     mapping(uint => uint) public tokenIdToPriceInEth;
@@ -15,7 +16,7 @@ contract RentalityInvestmentNft is ERC721 {
         investId = investId_;
         _tokenUri = tokenUri_;
     }
-    function mint(uint priceInEth) public {
+    function mint(uint priceInEth) public  onlyOwner() {
         tokenId += 1;
         _mint(tx.origin, tokenId);
         tokenIdToPriceInEth[tokenId] = priceInEth;
@@ -50,9 +51,6 @@ contract RentalityInvestmentNft is ERC721 {
         return result;
     }
 
-    function hasInvestments(address owner) public view returns (bool) {
-        return balanceOf(owner) > 0;
-    }
 
 
 }
