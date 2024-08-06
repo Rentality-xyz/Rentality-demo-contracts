@@ -458,7 +458,7 @@ contract RentalityPlatform is UUPSOwnable {
     }
 
     function invest(uint investId) public payable {
-        investment.invest(investId);
+        investment.invest{value: msg.value}(investId);
     }
 
     function claimAndCreatePool(uint investId) public {
