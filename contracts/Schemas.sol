@@ -510,5 +510,9 @@ interface Schemas {
         address nft;
         uint investmentId;
         uint payedInUsd;
+        address creator;
+        bool isCarBought;
+        uint income;
+        uint myIncome;
     }
 }

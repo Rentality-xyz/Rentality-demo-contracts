@@ -95,8 +95,8 @@ describe('Rentality investment', function () {
         await expect(
             investorsService.connect(host).claimAndCreatePool(1)).to.not.reverted
 
-        let claimsGuestCanDo = await investorsService.connect(guest).getMyInvestmentsToClaim()
-        expect(claimsGuestCanDo.length).to.be.eq(1)
+        let claimsGuestCanDo = await investorsService.connect(guest).getAllInvestments()
+        expect(claimsGuestCanDo[0].isCarBought).to.be.eq(true)
     })
 
     it('Happy case with investors car', async function () {
@@ -137,8 +137,8 @@ describe('Rentality investment', function () {
 
         await expect(await rentalityGateway.connect(host).finishTrip(1)).to.not.reverted
 
-        let claimsGuestCanDo = await investorsService.connect(guest).getMyInvestmentsToClaim()
-        expect(claimsGuestCanDo.length).to.be.eq(1)
+        let claimsGuestCanDo =  await investorsService.connect(guest).getAllInvestments()
+        expect(claimsGuestCanDo[0].isCarBought).to.be.eq(true)
 
     })
 
@@ -181,8 +181,8 @@ describe('Rentality investment', function () {
 
         await expect(await rentalityGateway.connect(host).finishTrip(1)).to.not.reverted
 
-        let claimsGuestCanDo = await investorsService.connect(guest).getMyInvestmentsToClaim()
-        expect(claimsGuestCanDo.length).to.be.eq(1)
+        let claimsGuestCanDo =  await investorsService.connect(guest).getAllInvestments()
+        expect(claimsGuestCanDo[0].isCarBought).to.be.eq(true)
 
         await expect(investorsService.connect(guest).claimAllMy(1)).to.changeEtherBalance(
             guest, 9000000000000
@@ -228,8 +228,8 @@ describe('Rentality investment', function () {
 
         await expect(await rentalityGateway.connect(host).finishTrip(1)).to.not.reverted
 
-        let claimsGuestCanDo = await investorsService.connect(guest).getMyInvestmentsToClaim()
-        expect(claimsGuestCanDo.length).to.be.eq(1)
+        let claimsGuestCanDo =  await investorsService.connect(guest).getAllInvestments()
+        expect(claimsGuestCanDo[0].isCarBought).to.be.eq(true)
 
         await expect(investorsService.connect(guest).claimAllMy(1)).to.changeEtherBalance(
             guest, 9000000000000
@@ -522,8 +522,8 @@ describe('Rentality investment', function () {
 
         await expect(await rentalityGateway.connect(host).finishTrip(1)).to.not.reverted
 
-        let claimsGuestCanDo = await investorsService.connect(guest).getMyInvestmentsToClaim()
-        expect(claimsGuestCanDo.length).to.be.eq(1)
+        let claimsGuestCanDo =  await investorsService.connect(guest).getAllInvestments()
+        expect(claimsGuestCanDo[0].isCarBought).to.be.eq(true)
 
         let investments = await investorsService.getAllInvestments();
         let nft = await ethers.getContractAt('RentalityInvestmentNft', investments[0].nft)

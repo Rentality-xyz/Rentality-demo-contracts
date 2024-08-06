@@ -15,8 +15,8 @@ contract RentalityInvestment is Initializable, UUPSAccess {
     RentalityCurrencyConverter private converter;
     RentalityCarToken private carToken;
 
-    mapping(uint => Schemas.CarInvestment) public investmentIdToCarInfo;
-    mapping(uint => uint) private investmentIdToPayedInETH;
+    mapping(uint => Schemas.CarInvestment) private investmentIdToCarInfo;
+    mapping(uint => uint) public investmentIdToPayedInETH;
     mapping(uint => RentalityCarInvestmentPool) private investIdToPool;
     mapping(uint => RentalityInvestmentNft) private investIdToNft;
     mapping(uint => address) private investmentIdToCreator;
@@ -44,15 +44,14 @@ contract RentalityInvestment is Initializable, UUPSAccess {
         }
         investmentIdToPayedInETH[investId] += msg.value;
         investIdToNft[investId].mint(msg.value);
-        uint tokenId = investIdToNft[investId].tokenId();
     }
 
     function claimAndCreatePool(uint investId) public {
         require(investmentIdToCreator[investId] == tx.origin, "Only for creator");
-        require(address(investIdToPool[investId]) == address(0), "Already claimed");
+        require(address(investIdToPool[investId]) == address(0), "Claimed");
 
         Schemas.CarInvestment storage investment = investmentIdToCarInfo[investId];
-        require(!investment.inProgress, "Still in progress");
+        require(!investment.inProgress, "In progress");
         uint payedInETH = investmentIdToPayedInETH[investId];
         RentalityCarInvestmentPool newPool = new RentalityCarInvestmentPool(
             investId,
@@ -83,39 +82,31 @@ contract RentalityInvestment is Initializable, UUPSAccess {
     function getAllInvestments() public view returns (Schemas.InvestmentDTO[] memory) {
         Schemas.InvestmentDTO[] memory cars = new Schemas.InvestmentDTO[](investmentId);
         for (uint i = 1; i <= investmentId; i++) {
-            (uint payed,,)= converter.getToUsdLatest(address(0), investmentIdToPayedInETH[i]);
+            (uint payed,,) = converter.getToUsdLatest(address(0), investmentIdToPayedInETH[i]);
+            uint income = 0;
+            uint myIncomeInUsdCents = 0;
+            bool isBought = address(investIdToPool[i]) != address(0);
+            if (isBought) {
+                (income,,) = converter.getToUsdLatest(address(0), investIdToPool[i].getTotalIncome());
+                (uint[] memory tokens,) = investIdToNft[i].getAllMyTokensWithTotalPrice();
+                uint myIncome = 0;
+                for (uint j = 0; j < tokens.length; j++) {
+                    myIncome += investIdToPool[i].getIncomesByNftId(tokens[j]);
+                }
+                (myIncomeInUsdCents,,) = converter.getToUsdLatest(address(0), myIncome);
+            }
             cars[i - 1] = Schemas.InvestmentDTO(
-            investmentIdToCarInfo[i],
-            address(investIdToNft[i]),
-            i,
-            payed
+                investmentIdToCarInfo[i],
+                address(investIdToNft[i]),
+                i,
+                payed,
+                investmentIdToCreator[i],
+                isBought,
+                income,
+                myIncomeInUsdCents
             );
         }
         return cars;
-    }
-
-    function getMyInvestmentsToClaim() public view returns (Schemas.ClaimInvestmentDTO[] memory) {
-        Schemas.ClaimInvestmentDTO[] memory result;
-        uint counter = 0;
-        for (uint i = 1; i <= investmentId; i++)
-            if (investIdToNft[i].hasInvestments(tx.origin))
-                counter ++;
-
-        result = new Schemas.ClaimInvestmentDTO[](counter);
-        for (uint i = 1; i <= investmentId; i++) {
-            result[i - 1].tokenURI = investIdToNft[i].tokenURI(i);
-            result[i - 1].income = investIdToPool[i].getTotalIncome();
-            (uint[] memory tokens,) = investIdToNft[i].getAllMyTokensWithTotalPrice();
-            uint myIncome = 0;
-            for (uint j = 0; j < tokens.length; j++) {
-                myIncome += investIdToPool[i].getIncomesByNftId(tokens[j]);
-            }
-            result[i - 1].myIncome = myIncome;
-
-        }
-
-        return result;
-
     }
 
     function claimAllMy(uint investId) public {
