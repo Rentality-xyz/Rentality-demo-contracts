@@ -4,120 +4,123 @@ pragma solidity ^0.8.9;
 import '../Schemas.sol';
 import '../proxy/UUPSAccess.sol';
 import '@openzeppelin/contracts/proxy/utils/Initializable.sol';
-import "../payments/RentalityCurrencyConverter.sol";
-import "./RentalityInvestmentPool.sol";
-import "../RentalityCarToken.sol";
-import "../Schemas.sol";
+import '../payments/RentalityCurrencyConverter.sol';
+import './RentalityInvestmentPool.sol';
+import '../RentalityCarToken.sol';
+import '../Schemas.sol';
 
 /// TODO: security review, code refactoring
 contract RentalityInvestment is Initializable, UUPSAccess {
-    uint public investmentId;
-    RentalityCurrencyConverter private converter;
-    RentalityCarToken private carToken;
+  uint public investmentId;
+  RentalityCurrencyConverter private converter;
+  RentalityCarToken private carToken;
 
-    mapping(uint => Schemas.CarInvestment) private investmentIdToCarInfo;
-    mapping(uint => uint) public investmentIdToPayedInETH;
-    mapping(uint => RentalityCarInvestmentPool) private investIdToPool;
-    mapping(uint => RentalityInvestmentNft) private investIdToNft;
-    mapping(uint => address) private investmentIdToCreator;
-    mapping(uint => uint) private carIdToInvestId;
+  mapping(uint => Schemas.CarInvestment) private investmentIdToCarInfo;
+  mapping(uint => uint) public investmentIdToPayedInETH;
+  mapping(uint => RentalityCarInvestmentPool) private investIdToPool;
+  mapping(uint => RentalityInvestmentNft) private investIdToNft;
+  mapping(uint => address) private investmentIdToCreator;
+  mapping(uint => uint) private carIdToInvestId;
 
-    function createCarInvestment(Schemas.CarInvestment memory car, string memory name_, string memory symbol_) public {
-        investmentId += 1;
-        investmentIdToCarInfo[investmentId] = car;
-        RentalityInvestmentNft newNftCollection = new RentalityInvestmentNft(name_, symbol_, investmentId, car.car.tokenUri);
-        investIdToNft[investmentId] = newNftCollection;
-        investmentIdToCreator[investmentId] = tx.origin;
+  function createCarInvestment(Schemas.CarInvestment memory car, string memory name_, string memory symbol_) public {
+    investmentId += 1;
+    investmentIdToCarInfo[investmentId] = car;
+    RentalityInvestmentNft newNftCollection = new RentalityInvestmentNft(
+      name_,
+      symbol_,
+      investmentId,
+      car.car.tokenUri
+    );
+    investIdToNft[investmentId] = newNftCollection;
+    investmentIdToCreator[investmentId] = tx.origin;
+  }
+
+  function invest(uint investId) public payable {
+    uint payedInETH = investmentIdToPayedInETH[investId];
+    Schemas.CarInvestment storage investment = investmentIdToCarInfo[investId];
+
+    uint amountInUsd = converter.getToUsdWithCache(address(0), payedInETH);
+    require(investment.inProgress, 'Not available');
+
+    uint amountAfterInvestment = converter.getToUsdWithCache(address(0), payedInETH + msg.value);
+
+    if (amountAfterInvestment >= investment.priceInUsd) {
+      investment.inProgress = false;
     }
+    investmentIdToPayedInETH[investId] += msg.value;
+    investIdToNft[investId].mint(msg.value);
+  }
 
-    function invest(uint investId) public payable {
-        uint payedInETH = investmentIdToPayedInETH[investId];
-        Schemas.CarInvestment storage investment = investmentIdToCarInfo[investId];
+  function claimAndCreatePool(uint investId) public {
+    require(investmentIdToCreator[investId] == tx.origin, 'Only for creator');
+    require(address(investIdToPool[investId]) == address(0), 'Claimed');
 
-        uint amountInUsd = converter.getToUsdWithCache(address(0), payedInETH);
-        require(investment.inProgress, "Not available");
+    Schemas.CarInvestment storage investment = investmentIdToCarInfo[investId];
+    require(!investment.inProgress, 'In progress');
+    uint payedInETH = investmentIdToPayedInETH[investId];
+    RentalityCarInvestmentPool newPool = new RentalityCarInvestmentPool(
+      investId,
+      address(investIdToNft[investId]),
+      payedInETH,
+      address(userService)
+    );
+    investIdToPool[investId] = newPool;
+    uint carId = carToken.addCar(investment.car);
+    carIdToInvestId[carId] = investId;
+    (bool success, ) = payable(tx.origin).call{value: payedInETH}('');
+    require(success, 'Fail to transfer.');
+  }
 
-        uint amountAfterInvestment = converter.getToUsdWithCache(address(0), payedInETH + msg.value);
+  function isInvestorsCar(uint carId) public view returns (bool) {
+    return carIdToInvestId[carId] != 0;
+  }
 
-        if (amountAfterInvestment >= investment.priceInUsd) {
-            investment.inProgress = false;
+  function getPaymentsInfo(uint carId) public view returns (uint, RentalityCarInvestmentPool) {
+    uint investID = carIdToInvestId[carId];
+    require(investID != 0, 'Wrong car');
+
+    return (investmentIdToCarInfo[investID].creatorPercents, investIdToPool[investID]);
+  }
+
+  function getAllInvestments() public view returns (Schemas.InvestmentDTO[] memory) {
+    Schemas.InvestmentDTO[] memory cars = new Schemas.InvestmentDTO[](investmentId);
+    for (uint i = 1; i <= investmentId; i++) {
+      (uint payed, , ) = converter.getToUsdLatest(address(0), investmentIdToPayedInETH[i]);
+      uint income = 0;
+      uint myIncomeInUsdCents = 0;
+      bool isBought = address(investIdToPool[i]) != address(0);
+      if (isBought) {
+        (income, , ) = converter.getToUsdLatest(address(0), investIdToPool[i].getTotalIncome());
+        (uint[] memory tokens, ) = investIdToNft[i].getAllMyTokensWithTotalPrice();
+        uint myIncome = 0;
+        for (uint j = 0; j < tokens.length; j++) {
+          myIncome += investIdToPool[i].getIncomesByNftId(tokens[j]);
         }
-        investmentIdToPayedInETH[investId] += msg.value;
-        investIdToNft[investId].mint(msg.value);
+        (myIncomeInUsdCents, , ) = converter.getToUsdLatest(address(0), myIncome);
+      }
+      cars[i - 1] = Schemas.InvestmentDTO(
+        investmentIdToCarInfo[i],
+        address(investIdToNft[i]),
+        i,
+        payed,
+        investmentIdToCreator[i],
+        isBought,
+        income,
+        myIncomeInUsdCents
+      );
     }
+    return cars;
+  }
 
-    function claimAndCreatePool(uint investId) public {
-        require(investmentIdToCreator[investId] == tx.origin, "Only for creator");
-        require(address(investIdToPool[investId]) == address(0), "Claimed");
+  function claimAllMy(uint investId) public {
+    investIdToPool[investId].claimAllMy();
+  }
 
-        Schemas.CarInvestment storage investment = investmentIdToCarInfo[investId];
-        require(!investment.inProgress, "In progress");
-        uint payedInETH = investmentIdToPayedInETH[investId];
-        RentalityCarInvestmentPool newPool = new RentalityCarInvestmentPool(
-            investId,
-            address(investIdToNft[investId]),
-            payedInETH,
-            address(userService)
-        );
-        investIdToPool[investId] = newPool;
-        uint carId = carToken.addCar(investment.car);
-        carIdToInvestId[carId] = investId;
-        (bool success,) = payable(tx.origin).call{value: payedInETH}('');
-        require(success, 'Fail to transfer.');
+  /// @notice Initializes the contract with the specified addresses for user service and geolocation parser.
 
-    }
-
-    function isInvestorsCar(uint carId) public view returns (bool) {
-        return carIdToInvestId[carId] != 0;
-    }
-
-    function getPaymentsInfo(uint carId) public view returns (uint, RentalityCarInvestmentPool) {
-        uint investID = carIdToInvestId[carId];
-        require(investID != 0, "Wrong car");
-
-        return (investmentIdToCarInfo[investID].creatorPercents, investIdToPool[investID]);
-    }
-
-
-    function getAllInvestments() public view returns (Schemas.InvestmentDTO[] memory) {
-        Schemas.InvestmentDTO[] memory cars = new Schemas.InvestmentDTO[](investmentId);
-        for (uint i = 1; i <= investmentId; i++) {
-            (uint payed,,) = converter.getToUsdLatest(address(0), investmentIdToPayedInETH[i]);
-            uint income = 0;
-            uint myIncomeInUsdCents = 0;
-            bool isBought = address(investIdToPool[i]) != address(0);
-            if (isBought) {
-                (income,,) = converter.getToUsdLatest(address(0), investIdToPool[i].getTotalIncome());
-                (uint[] memory tokens,) = investIdToNft[i].getAllMyTokensWithTotalPrice();
-                uint myIncome = 0;
-                for (uint j = 0; j < tokens.length; j++) {
-                    myIncome += investIdToPool[i].getIncomesByNftId(tokens[j]);
-                }
-                (myIncomeInUsdCents,,) = converter.getToUsdLatest(address(0), myIncome);
-            }
-            cars[i - 1] = Schemas.InvestmentDTO(
-                investmentIdToCarInfo[i],
-                address(investIdToNft[i]),
-                i,
-                payed,
-                investmentIdToCreator[i],
-                isBought,
-                income,
-                myIncomeInUsdCents
-            );
-        }
-        return cars;
-    }
-
-    function claimAllMy(uint investId) public {
-        investIdToPool[investId].claimAllMy();
-    }
-
-    /// @notice Initializes the contract with the specified addresses for user service and geolocation parser.
-
-    function initialize(address _userService, address _currencyConverter, address _carService) public initializer {
-        userService = IRentalityAccessControl(_userService);
-        converter = RentalityCurrencyConverter(_currencyConverter);
-        carToken = RentalityCarToken(_carService);
-    }
+  function initialize(address _userService, address _currencyConverter, address _carService) public initializer {
+    userService = IRentalityAccessControl(_userService);
+    converter = RentalityCurrencyConverter(_currencyConverter);
+    carToken = RentalityCarToken(_carService);
+  }
 }

@@ -1,1 +1,591 @@
-{"abi":[{"type":"event","anonymous":false,"name":"AdminChanged","inputs":[{"type":"address","name":"previousAdmin","indexed":false},{"type":"address","name":"newAdmin","indexed":false}]},{"type":"event","anonymous":false,"name":"BeaconUpgraded","inputs":[{"type":"address","name":"beacon","indexed":true}]},{"type":"event","anonymous":false,"name":"Initialized","inputs":[{"type":"uint8","name":"version","indexed":false}]},{"type":"event","anonymous":false,"name":"OwnershipTransferred","inputs":[{"type":"address","name":"previousOwner","indexed":true},{"type":"address","name":"newOwner","indexed":true}]},{"type":"event","anonymous":false,"name":"Upgraded","inputs":[{"type":"address","name":"implementation","indexed":true}]},{"type":"function","name":"addCar","constant":false,"payable":false,"inputs":[{"type":"tuple","name":"request","components":[{"type":"string","name":"tokenUri"},{"type":"string","name":"carVinNumber"},{"type":"string","name":"brand"},{"type":"string","name":"model"},{"type":"uint32","name":"yearOfProduction"},{"type":"uint64","name":"pricePerDayInUsdCents"},{"type":"uint64","name":"securityDepositPerTripInUsdCents"},{"type":"uint64[]","name":"engineParams"},{"type":"uint8","name":"engineType"},{"type":"uint64","name":"milesIncludedPerDay"},{"type":"uint32","name":"timeBufferBetweenTripsInSec"},{"type":"string","name":"geoApiKey"},{"type":"bool","name":"insuranceIncluded"},{"type":"tuple","name":"locationInfo","components":[{"type":"tuple","name":"locationInfo","components":[{"type":"string","name":"userAddress"},{"type":"string","name":"country"},{"type":"string","name":"state"},{"type":"string","name":"city"},{"type":"string","name":"latitude"},{"type":"string","name":"longitude"},{"type":"string","name":"timeZoneId"}]},{"type":"string","name":"signature"}]}]}],"outputs":[{"type":"uint256","name":""}]},{"type":"function","name":"addUserDeliveryPrices","constant":false,"payable":false,"inputs":[{"type":"uint64","name":"underTwentyFiveMilesInUsdCents"},{"type":"uint64","name":"aboveTwentyFiveMilesInUsdCents"}],"outputs":[]},{"type":"function","name":"addUserDiscount","constant":false,"payable":false,"inputs":[{"type":"tuple","name":"data","components":[{"type":"uint32","name":"threeDaysDiscount"},{"type":"uint32","name":"sevenDaysDiscount"},{"type":"uint32","name":"thirtyDaysDiscount"},{"type":"bool","name":"initialized"}]}],"outputs":[]},{"type":"function","name":"approveTripRequest","constant":false,"payable":false,"inputs":[{"type":"uint256","name":"tripId"}],"outputs":[]},{"type":"function","name":"checkInByGuest","constant":false,"payable":false,"inputs":[{"type":"uint256","name":"tripId"},{"type":"uint64[]","name":"panelParams"}],"outputs":[]},{"type":"function","name":"checkInByHost","constant":false,"payable":false,"inputs":[{"type":"uint256","name":"tripId"},{"type":"uint64[]","name":"panelParams"},{"type":"string","name":"insuranceCompany"},{"type":"string","name":"insuranceNumber"}],"outputs":[]},{"type":"function","name":"checkOutByGuest","constant":false,"payable":false,"inputs":[{"type":"uint256","name":"tripId"},{"type":"uint64[]","name":"panelParams"}],"outputs":[]},{"type":"function","name":"checkOutByHost","constant":false,"payable":false,"inputs":[{"type":"uint256","name":"tripId"},{"type":"uint64[]","name":"panelParams"}],"outputs":[]},{"type":"function","name":"claimAllMy","constant":false,"payable":false,"inputs":[{"type":"uint256","name":"investId"}],"outputs":[]},{"type":"function","name":"claimAndCreatePool","constant":false,"payable":false,"inputs":[{"type":"uint256","name":"investId"}],"outputs":[]},{"type":"function","name":"confirmCheckOut","constant":false,"payable":false,"inputs":[{"type":"uint256","name":"tripId"}],"outputs":[]},{"type":"function","name":"createCarInvestment","constant":false,"payable":false,"inputs":[{"type":"tuple","name":"car","components":[{"type":"tuple","name":"car","components":[{"type":"string","name":"tokenUri"},{"type":"string","name":"carVinNumber"},{"type":"string","name":"brand"},{"type":"string","name":"model"},{"type":"uint32","name":"yearOfProduction"},{"type":"uint64","name":"pricePerDayInUsdCents"},{"type":"uint64","name":"securityDepositPerTripInUsdCents"},{"type":"uint64[]","name":"engineParams"},{"type":"uint8","name":"engineType"},{"type":"uint64","name":"milesIncludedPerDay"},{"type":"uint32","name":"timeBufferBetweenTripsInSec"},{"type":"string","name":"geoApiKey"},{"type":"bool","name":"insuranceIncluded"},{"type":"tuple","name":"locationInfo","components":[{"type":"tuple","name":"locationInfo","components":[{"type":"string","name":"userAddress"},{"type":"string","name":"country"},{"type":"string","name":"state"},{"type":"string","name":"city"},{"type":"string","name":"latitude"},{"type":"string","name":"longitude"},{"type":"string","name":"timeZoneId"}]},{"type":"string","name":"signature"}]}]},{"type":"uint256","name":"priceInUsd"},{"type":"bool","name":"inProgress"},{"type":"uint256","name":"creatorPercents"}]},{"type":"string","name":"name_"},{"type":"string","name":"symbol_"}],"outputs":[]},{"type":"function","name":"createClaim","constant":false,"payable":false,"inputs":[{"type":"tuple","name":"request","components":[{"type":"uint256","name":"tripId"},{"type":"uint8","name":"claimType"},{"type":"string","name":"description"},{"type":"uint64","name":"amountInUsdCents"},{"type":"string","name":"photosUrl"}]}],"outputs":[]},{"type":"function","name":"createTripRequest","constant":false,"stateMutability":"payable","payable":true,"inputs":[{"type":"tuple","name":"request","components":[{"type":"uint256","name":"carId"},{"type":"uint64","name":"startDateTime"},{"type":"uint64","name":"endDateTime"},{"type":"address","name":"currencyType"}]}],"outputs":[]},{"type":"function","name":"createTripRequestWithDelivery","constant":false,"stateMutability":"payable","payable":true,"inputs":[{"type":"tuple","name":"request","components":[{"type":"uint256","name":"carId"},{"type":"uint64","name":"startDateTime"},{"type":"uint64","name":"endDateTime"},{"type":"address","name":"currencyType"},{"type":"tuple","name":"pickUpInfo","components":[{"type":"tuple","name":"locationInfo","components":[{"type":"string","name":"userAddress"},{"type":"string","name":"country"},{"type":"string","name":"state"},{"type":"string","name":"city"},{"type":"string","name":"latitude"},{"type":"string","name":"longitude"},{"type":"string","name":"timeZoneId"}]},{"type":"string","name":"signature"}]},{"type":"tuple","name":"returnInfo","components":[{"type":"tuple","name":"locationInfo","components":[{"type":"string","name":"userAddress"},{"type":"string","name":"country"},{"type":"string","name":"state"},{"type":"string","name":"city"},{"type":"string","name":"latitude"},{"type":"string","name":"longitude"},{"type":"string","name":"timeZoneId"}]},{"type":"string","name":"signature"}]}]}],"outputs":[]},{"type":"function","name":"finishTrip","constant":false,"payable":false,"inputs":[{"type":"uint256","name":"tripId"}],"outputs":[]},{"type":"function","name":"initialize","constant":false,"payable":false,"inputs":[{"type":"address","name":"carServiceAddress"},{"type":"address","name":"currencyConverterServiceAddress"},{"type":"address","name":"tripServiceAddress"},{"type":"address","name":"userServiceAddress"},{"type":"address","name":"paymentServiceAddress"},{"type":"address","name":"claimServiceAddress"},{"type":"address","name":"carDeliveryAddress"},{"type":"address","name":"viewService"},{"type":"address","name":"investmentService"}],"outputs":[]},{"type":"function","name":"invest","constant":false,"stateMutability":"payable","payable":true,"inputs":[{"type":"uint256","name":"investId"}],"outputs":[]},{"type":"function","name":"owner","constant":true,"stateMutability":"view","payable":false,"inputs":[],"outputs":[{"type":"address","name":""}]},{"type":"function","name":"parseGeoResponse","constant":false,"payable":false,"inputs":[{"type":"uint256","name":"carId"}],"outputs":[]},{"type":"function","name":"payClaim","constant":false,"stateMutability":"payable","payable":true,"inputs":[{"type":"uint256","name":"claimId"}],"outputs":[]},{"type":"function","name":"payKycCommission","constant":false,"stateMutability":"payable","payable":true,"inputs":[{"type":"address","name":"currency"}],"outputs":[]},{"type":"function","name":"proxiableUUID","constant":true,"stateMutability":"view","payable":false,"inputs":[],"outputs":[{"type":"bytes32","name":""}]},{"type":"function","name":"rejectClaim","constant":false,"payable":false,"inputs":[{"type":"uint256","name":"claimId"}],"outputs":[]},{"type":"function","name":"rejectTripRequest","constant":false,"payable":false,"inputs":[{"type":"uint256","name":"tripId"}],"outputs":[]},{"type":"function","name":"renounceOwnership","constant":false,"payable":false,"inputs":[],"outputs":[]},{"type":"function","name":"setKYCInfo","constant":false,"payable":false,"inputs":[{"type":"string","name":"name"},{"type":"string","name":"surname"},{"type":"string","name":"mobilePhoneNumber"},{"type":"string","name":"profilePhoto"},{"type":"string","name":"licenseNumber"},{"type":"uint64","name":"expirationDate"},{"type":"bytes","name":"TCSignature"}],"outputs":[]},{"type":"function","name":"transferOwnership","constant":false,"payable":false,"inputs":[{"type":"address","name":"newOwner"}],"outputs":[]},{"type":"function","name":"updateCarInfo","constant":false,"payable":false,"inputs":[{"type":"tuple","name":"request","components":[{"type":"uint256","name":"carId"},{"type":"uint64","name":"pricePerDayInUsdCents"},{"type":"uint64","name":"securityDepositPerTripInUsdCents"},{"type":"uint64[]","name":"engineParams"},{"type":"uint64","name":"milesIncludedPerDay"},{"type":"uint32","name":"timeBufferBetweenTripsInSec"},{"type":"bool","name":"currentlyListed"}]}],"outputs":[]},{"type":"function","name":"updateCarInfoWithLocation","constant":false,"payable":false,"inputs":[{"type":"tuple","name":"request","components":[{"type":"uint256","name":"carId"},{"type":"uint64","name":"pricePerDayInUsdCents"},{"type":"uint64","name":"securityDepositPerTripInUsdCents"},{"type":"uint64[]","name":"engineParams"},{"type":"uint64","name":"milesIncludedPerDay"},{"type":"uint32","name":"timeBufferBetweenTripsInSec"},{"type":"bool","name":"currentlyListed"}]},{"type":"tuple","name":"location","components":[{"type":"tuple","name":"locationInfo","components":[{"type":"string","name":"userAddress"},{"type":"string","name":"country"},{"type":"string","name":"state"},{"type":"string","name":"city"},{"type":"string","name":"latitude"},{"type":"string","name":"longitude"},{"type":"string","name":"timeZoneId"}]},{"type":"string","name":"signature"}]},{"type":"string","name":"geoApiKey"}],"outputs":[]},{"type":"function","name":"updateClaim","constant":false,"payable":false,"inputs":[{"type":"uint256","name":"claimId"}],"outputs":[]},{"type":"function","name":"updateServiceAddresses","constant":false,"payable":false,"inputs":[{"type":"address","name":"adminService"}],"outputs":[]},{"type":"function","name":"upgradeTo","constant":false,"payable":false,"inputs":[{"type":"address","name":"newImplementation"}],"outputs":[]},{"type":"function","name":"upgradeToAndCall","constant":false,"stateMutability":"payable","payable":true,"inputs":[{"type":"address","name":"newImplementation"},{"type":"bytes","name":"data"}],"outputs":[]},{"type":"function","name":"useKycCommission","constant":false,"payable":false,"inputs":[{"type":"address","name":"user"}],"outputs":[]}]}
+{
+  "abi": [
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "AdminChanged",
+      "inputs": [
+        { "type": "address", "name": "previousAdmin", "indexed": false },
+        { "type": "address", "name": "newAdmin", "indexed": false }
+      ]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "BeaconUpgraded",
+      "inputs": [{ "type": "address", "name": "beacon", "indexed": true }]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "Initialized",
+      "inputs": [{ "type": "uint8", "name": "version", "indexed": false }]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "OwnershipTransferred",
+      "inputs": [
+        { "type": "address", "name": "previousOwner", "indexed": true },
+        { "type": "address", "name": "newOwner", "indexed": true }
+      ]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "Upgraded",
+      "inputs": [{ "type": "address", "name": "implementation", "indexed": true }]
+    },
+    {
+      "type": "function",
+      "name": "addCar",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "tuple",
+          "name": "request",
+          "components": [
+            { "type": "string", "name": "tokenUri" },
+            { "type": "string", "name": "carVinNumber" },
+            { "type": "string", "name": "brand" },
+            { "type": "string", "name": "model" },
+            { "type": "uint32", "name": "yearOfProduction" },
+            { "type": "uint64", "name": "pricePerDayInUsdCents" },
+            { "type": "uint64", "name": "securityDepositPerTripInUsdCents" },
+            { "type": "uint64[]", "name": "engineParams" },
+            { "type": "uint8", "name": "engineType" },
+            { "type": "uint64", "name": "milesIncludedPerDay" },
+            { "type": "uint32", "name": "timeBufferBetweenTripsInSec" },
+            { "type": "string", "name": "geoApiKey" },
+            { "type": "bool", "name": "insuranceIncluded" },
+            {
+              "type": "tuple",
+              "name": "locationInfo",
+              "components": [
+                {
+                  "type": "tuple",
+                  "name": "locationInfo",
+                  "components": [
+                    { "type": "string", "name": "userAddress" },
+                    { "type": "string", "name": "country" },
+                    { "type": "string", "name": "state" },
+                    { "type": "string", "name": "city" },
+                    { "type": "string", "name": "latitude" },
+                    { "type": "string", "name": "longitude" },
+                    { "type": "string", "name": "timeZoneId" }
+                  ]
+                },
+                { "type": "string", "name": "signature" }
+              ]
+            }
+          ]
+        }
+      ],
+      "outputs": [{ "type": "uint256", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "addUserDeliveryPrices",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint64", "name": "underTwentyFiveMilesInUsdCents" },
+        { "type": "uint64", "name": "aboveTwentyFiveMilesInUsdCents" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "addUserDiscount",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "tuple",
+          "name": "data",
+          "components": [
+            { "type": "uint32", "name": "threeDaysDiscount" },
+            { "type": "uint32", "name": "sevenDaysDiscount" },
+            { "type": "uint32", "name": "thirtyDaysDiscount" },
+            { "type": "bool", "name": "initialized" }
+          ]
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "approveTripRequest",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "tripId" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "checkInByGuest",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint256", "name": "tripId" },
+        { "type": "uint64[]", "name": "panelParams" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "checkInByHost",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint256", "name": "tripId" },
+        { "type": "uint64[]", "name": "panelParams" },
+        { "type": "string", "name": "insuranceCompany" },
+        { "type": "string", "name": "insuranceNumber" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "checkOutByGuest",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint256", "name": "tripId" },
+        { "type": "uint64[]", "name": "panelParams" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "checkOutByHost",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint256", "name": "tripId" },
+        { "type": "uint64[]", "name": "panelParams" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "claimAllMy",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "investId" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "claimAndCreatePool",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "investId" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "confirmCheckOut",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "tripId" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "createCarInvestment",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "tuple",
+          "name": "car",
+          "components": [
+            {
+              "type": "tuple",
+              "name": "car",
+              "components": [
+                { "type": "string", "name": "tokenUri" },
+                { "type": "string", "name": "carVinNumber" },
+                { "type": "string", "name": "brand" },
+                { "type": "string", "name": "model" },
+                { "type": "uint32", "name": "yearOfProduction" },
+                { "type": "uint64", "name": "pricePerDayInUsdCents" },
+                { "type": "uint64", "name": "securityDepositPerTripInUsdCents" },
+                { "type": "uint64[]", "name": "engineParams" },
+                { "type": "uint8", "name": "engineType" },
+                { "type": "uint64", "name": "milesIncludedPerDay" },
+                { "type": "uint32", "name": "timeBufferBetweenTripsInSec" },
+                { "type": "string", "name": "geoApiKey" },
+                { "type": "bool", "name": "insuranceIncluded" },
+                {
+                  "type": "tuple",
+                  "name": "locationInfo",
+                  "components": [
+                    {
+                      "type": "tuple",
+                      "name": "locationInfo",
+                      "components": [
+                        { "type": "string", "name": "userAddress" },
+                        { "type": "string", "name": "country" },
+                        { "type": "string", "name": "state" },
+                        { "type": "string", "name": "city" },
+                        { "type": "string", "name": "latitude" },
+                        { "type": "string", "name": "longitude" },
+                        { "type": "string", "name": "timeZoneId" }
+                      ]
+                    },
+                    { "type": "string", "name": "signature" }
+                  ]
+                }
+              ]
+            },
+            { "type": "uint256", "name": "priceInUsd" },
+            { "type": "bool", "name": "inProgress" },
+            { "type": "uint256", "name": "creatorPercents" }
+          ]
+        },
+        { "type": "string", "name": "name_" },
+        { "type": "string", "name": "symbol_" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "createClaim",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "tuple",
+          "name": "request",
+          "components": [
+            { "type": "uint256", "name": "tripId" },
+            { "type": "uint8", "name": "claimType" },
+            { "type": "string", "name": "description" },
+            { "type": "uint64", "name": "amountInUsdCents" },
+            { "type": "string", "name": "photosUrl" }
+          ]
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "createTripRequest",
+      "constant": false,
+      "stateMutability": "payable",
+      "payable": true,
+      "inputs": [
+        {
+          "type": "tuple",
+          "name": "request",
+          "components": [
+            { "type": "uint256", "name": "carId" },
+            { "type": "uint64", "name": "startDateTime" },
+            { "type": "uint64", "name": "endDateTime" },
+            { "type": "address", "name": "currencyType" }
+          ]
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "createTripRequestWithDelivery",
+      "constant": false,
+      "stateMutability": "payable",
+      "payable": true,
+      "inputs": [
+        {
+          "type": "tuple",
+          "name": "request",
+          "components": [
+            { "type": "uint256", "name": "carId" },
+            { "type": "uint64", "name": "startDateTime" },
+            { "type": "uint64", "name": "endDateTime" },
+            { "type": "address", "name": "currencyType" },
+            {
+              "type": "tuple",
+              "name": "pickUpInfo",
+              "components": [
+                {
+                  "type": "tuple",
+                  "name": "locationInfo",
+                  "components": [
+                    { "type": "string", "name": "userAddress" },
+                    { "type": "string", "name": "country" },
+                    { "type": "string", "name": "state" },
+                    { "type": "string", "name": "city" },
+                    { "type": "string", "name": "latitude" },
+                    { "type": "string", "name": "longitude" },
+                    { "type": "string", "name": "timeZoneId" }
+                  ]
+                },
+                { "type": "string", "name": "signature" }
+              ]
+            },
+            {
+              "type": "tuple",
+              "name": "returnInfo",
+              "components": [
+                {
+                  "type": "tuple",
+                  "name": "locationInfo",
+                  "components": [
+                    { "type": "string", "name": "userAddress" },
+                    { "type": "string", "name": "country" },
+                    { "type": "string", "name": "state" },
+                    { "type": "string", "name": "city" },
+                    { "type": "string", "name": "latitude" },
+                    { "type": "string", "name": "longitude" },
+                    { "type": "string", "name": "timeZoneId" }
+                  ]
+                },
+                { "type": "string", "name": "signature" }
+              ]
+            }
+          ]
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "finishTrip",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "tripId" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "initialize",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "carServiceAddress" },
+        { "type": "address", "name": "currencyConverterServiceAddress" },
+        { "type": "address", "name": "tripServiceAddress" },
+        { "type": "address", "name": "userServiceAddress" },
+        { "type": "address", "name": "paymentServiceAddress" },
+        { "type": "address", "name": "claimServiceAddress" },
+        { "type": "address", "name": "carDeliveryAddress" },
+        { "type": "address", "name": "viewService" },
+        { "type": "address", "name": "investmentService" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "invest",
+      "constant": false,
+      "stateMutability": "payable",
+      "payable": true,
+      "inputs": [{ "type": "uint256", "name": "investId" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "owner",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "parseGeoResponse",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "carId" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "payClaim",
+      "constant": false,
+      "stateMutability": "payable",
+      "payable": true,
+      "inputs": [{ "type": "uint256", "name": "claimId" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "payKycCommission",
+      "constant": false,
+      "stateMutability": "payable",
+      "payable": true,
+      "inputs": [{ "type": "address", "name": "currency" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "proxiableUUID",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "bytes32", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "rejectClaim",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "claimId" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "rejectTripRequest",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "tripId" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "renounceOwnership",
+      "constant": false,
+      "payable": false,
+      "inputs": [],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "setKYCInfo",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "string", "name": "name" },
+        { "type": "string", "name": "surname" },
+        { "type": "string", "name": "mobilePhoneNumber" },
+        { "type": "string", "name": "profilePhoto" },
+        { "type": "string", "name": "licenseNumber" },
+        { "type": "uint64", "name": "expirationDate" },
+        { "type": "bytes", "name": "TCSignature" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "transferOwnership",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "newOwner" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "updateCarInfo",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "tuple",
+          "name": "request",
+          "components": [
+            { "type": "uint256", "name": "carId" },
+            { "type": "uint64", "name": "pricePerDayInUsdCents" },
+            { "type": "uint64", "name": "securityDepositPerTripInUsdCents" },
+            { "type": "uint64[]", "name": "engineParams" },
+            { "type": "uint64", "name": "milesIncludedPerDay" },
+            { "type": "uint32", "name": "timeBufferBetweenTripsInSec" },
+            { "type": "bool", "name": "currentlyListed" }
+          ]
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "updateCarInfoWithLocation",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "tuple",
+          "name": "request",
+          "components": [
+            { "type": "uint256", "name": "carId" },
+            { "type": "uint64", "name": "pricePerDayInUsdCents" },
+            { "type": "uint64", "name": "securityDepositPerTripInUsdCents" },
+            { "type": "uint64[]", "name": "engineParams" },
+            { "type": "uint64", "name": "milesIncludedPerDay" },
+            { "type": "uint32", "name": "timeBufferBetweenTripsInSec" },
+            { "type": "bool", "name": "currentlyListed" }
+          ]
+        },
+        {
+          "type": "tuple",
+          "name": "location",
+          "components": [
+            {
+              "type": "tuple",
+              "name": "locationInfo",
+              "components": [
+                { "type": "string", "name": "userAddress" },
+                { "type": "string", "name": "country" },
+                { "type": "string", "name": "state" },
+                { "type": "string", "name": "city" },
+                { "type": "string", "name": "latitude" },
+                { "type": "string", "name": "longitude" },
+                { "type": "string", "name": "timeZoneId" }
+              ]
+            },
+            { "type": "string", "name": "signature" }
+          ]
+        },
+        { "type": "string", "name": "geoApiKey" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "updateClaim",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "claimId" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "updateServiceAddresses",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "adminService" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "upgradeTo",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "newImplementation" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "upgradeToAndCall",
+      "constant": false,
+      "stateMutability": "payable",
+      "payable": true,
+      "inputs": [
+        { "type": "address", "name": "newImplementation" },
+        { "type": "bytes", "name": "data" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "useKycCommission",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "user" }],
+      "outputs": []
+    }
+  ]
+}
