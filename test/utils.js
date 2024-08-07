@@ -84,6 +84,7 @@ const locationInfo = {
 
 function getMockCarRequestWithAddress(seed, address) {
   let locationInfo2 = { ...locationInfo, userAddress: address }
+
   return { ...getMockCarRequest(seed), locationInfo: locationInfo2 }
 }
 
@@ -128,6 +129,7 @@ function getMockCarRequest(seed) {
     geoApiKey: apiKey,
     insuranceIncluded: true,
     locationInfo: locationInfo1,
+    currentlyListed: true,
   }
 }
 
