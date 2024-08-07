@@ -16,21 +16,23 @@ describe('ERC20 payments', function () {
     owner,
     guest,
     host,
-    rentalityTripService
-  rentalityAdminGateway = beforeEach(async function () {
-    ;({
-      rentalityGateway,
-      rentalityCurrencyConverter,
-      rentalityPlatform,
-      rentalityPaymentService,
-      usdtContract,
-      owner,
-      guest,
-      host,
-      rentalityTripService,
-      rentalityAdminGateway,
-    } = await loadFixture(deployDefaultFixture))
-  })
+    rentalityTripService,
+    admin,
+    rentalityAdminGateway = beforeEach(async function () {
+      ;({
+        rentalityGateway,
+        rentalityCurrencyConverter,
+        rentalityPlatform,
+        rentalityPaymentService,
+        usdtContract,
+        owner,
+        guest,
+        host,
+        rentalityTripService,
+        admin,
+        rentalityAdminGateway,
+      } = await loadFixture(deployDefaultFixture))
+    })
   it('Should correctly сreate trip and pay deposit with usdt', async function () {
     let usdt = await usdtContract.getAddress()
     const request = getMockCarRequest(13)

@@ -62,6 +62,7 @@ interface Schemas {
     string geoApiKey;
     bool insuranceIncluded;
     SignedLocationInfo locationInfo;
+    bool currentlyListed;
   }
 
   /// @notice Struct to store input parameters for updating car information.

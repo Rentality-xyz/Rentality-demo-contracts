@@ -186,6 +186,7 @@ describe('RentalityGateway: trips', function () {
       geoApiKey: 'key',
       insuranceIncluded: true,
       locationInfo: locationInfo1,
+      currentlyListed: true,
     }
 
     await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest)).not.to.be.reverted
@@ -223,7 +224,8 @@ describe('RentalityGateway: trips', function () {
       timeBufferBetweenTripsInSec: 0,
       geoApiKey: 'key',
       insuranceIncluded: true,
-      locationInfo,
+      locationInfo: locationInfo1,
+      currentlyListed: true,
     }
     await expect(rentalityGateway.connect(host).addCar(mockPatrolCreateCarRequest)).not.to.be.reverted
     const resultPatrol = await rentalityGateway.calculatePayments(2, 1, ethToken)
