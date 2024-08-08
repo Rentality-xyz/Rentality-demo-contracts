@@ -1,6 +1,13 @@
 const { expect } = require('chai')
 
-const { getMockCarRequest, TripStatus, deployDefaultFixture, ethToken, calculatePayments } = require('../utils')
+const {
+  getMockCarRequest,
+  TripStatus,
+  deployDefaultFixture,
+  ethToken,
+  calculatePayments,
+  emptyLocationInfo,
+} = require('../utils')
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 
 describe('Rentality History Service', function () {
@@ -43,7 +50,7 @@ describe('Rentality History Service', function () {
 
     const oneDayInSeconds = 86400
 
-    const result = await rentalityGateway.calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway.calculatePayments(1, 1, ethToken, false)
     await expect(
       await rentalityPlatform.connect(guest).createTripRequest(
         {
@@ -51,6 +58,16 @@ describe('Rentality History Service', function () {
           startDateTime: Date.now(),
           endDateTime: Date.now() + oneDayInSeconds,
           currencyType: ethToken,
+          insurancePaid: false,
+          photo: '',
+          pickUpInfo: {
+            signature: guest.address,
+            locationInfo: emptyLocationInfo,
+          },
+          returnInfo: {
+            signature: guest.address,
+            locationInfo: emptyLocationInfo,
+          },
         },
         { value: result.totalPrice }
       )
@@ -92,6 +109,16 @@ describe('Rentality History Service', function () {
           startDateTime: Date.now(),
           endDateTime: Date.now() + oneDayInSeconds,
           currencyType: ethToken,
+          insurancePaid: false,
+          photo: '',
+          pickUpInfo: {
+            signature: guest.address,
+            locationInfo: emptyLocationInfo,
+          },
+          returnInfo: {
+            signature: guest.address,
+            locationInfo: emptyLocationInfo,
+          },
         },
         { value: rentPriceInEth }
       )
@@ -156,7 +183,7 @@ describe('Rentality History Service', function () {
 
     let sevenDays = 86400 * 7
 
-    const payments = await rentalityGateway.calculatePayments(1, 7, ethToken)
+    const payments = await rentalityGateway.calculatePayments(1, 7, ethToken, false)
     await expect(
       await rentalityPlatform.connect(guest).createTripRequest(
         {
@@ -164,6 +191,16 @@ describe('Rentality History Service', function () {
           startDateTime: Date.now(),
           endDateTime: Date.now() + sevenDays,
           currencyType: ethToken,
+          insurancePaid: false,
+          photo: '',
+          pickUpInfo: {
+            signature: guest.address,
+            locationInfo: emptyLocationInfo,
+          },
+          returnInfo: {
+            signature: guest.address,
+            locationInfo: emptyLocationInfo,
+          },
         },
         { value: payments.totalPrice }
       )

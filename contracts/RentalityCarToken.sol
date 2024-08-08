@@ -132,6 +132,11 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     require(request.pricePerDayInUsdCents > 0, "Make sure the price isn't negative");
     require(request.milesIncludedPerDay > 0, "Make sure the included distance isn't negative");
     require(isUniqueVinNumber(request.carVinNumber), 'Car with this VIN number already exists');
+    require(userService.isManager(msg.sender), 'For manager');
+
+    if (!userService.isHost(tx.origin)) {
+      userService.grantHostRole(tx.origin);
+    }
 
     _carIdCounter.increment();
     uint256 newCarId = _carIdCounter.current();
@@ -168,7 +173,7 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
       request.currentlyListed,
       false,
       '',
-      request.insuranceIncluded,
+      false,
       hash
     );
 
@@ -225,7 +230,6 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     idToCarInfo[request.carId].engineParams = engineParams;
     idToCarInfo[request.carId].timeBufferBetweenTripsInSec = request.timeBufferBetweenTripsInSec;
     idToCarInfo[request.carId].currentlyListed = request.currentlyListed;
-    idToCarInfo[request.carId].insuranceIncluded = request.insuranceIncluded;
 
     emit CarUpdatedSuccess(request.carId, request.pricePerDayInUsdCents, request.currentlyListed);
   }

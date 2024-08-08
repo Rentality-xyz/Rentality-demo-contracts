@@ -5,6 +5,7 @@ import './RentalityPlatform.sol';
 import './RentalityTripService.sol';
 import './RentalityUserService.sol';
 import './RentalityCarToken.sol';
+import './payments/RentalityInsurance.sol';
 import './features/RentalityClaimService.sol';
 import './payments/RentalityPaymentService.sol';
 import './payments/RentalityCurrencyConverter.sol';
@@ -19,13 +20,16 @@ error FunctionNotFound();
 /// it's completely safe for upgrade
 /// @custom:oz-upgrades-unsafe-allow external-library-linking
 contract RentalityView is UUPSUpgradeable, Initializable {
-  RentalityContract public addresses;
+  RentalityContract private addresses;
   using RentalityQuery for RentalityContract;
   using RentalityTripsQuery for RentalityContract;
 
-  function updateServiceAddresses(RentalityContract memory contracts) public {
+  RentalityInsurance private insuranceService;
+
+  function updateServiceAddresses(RentalityContract memory contracts, address insurance) public {
     require(addresses.userService.isAdmin(tx.origin), 'only Admin.');
     addresses = contracts;
+    insuranceService = RentalityInsurance(insurance);
   }
 
   fallback(bytes calldata) external returns (bytes memory) {
@@ -189,7 +193,15 @@ contract RentalityView is UUPSUpgradeable, Initializable {
   /// @param tripId The ID of the trip for which the receipt is requested.
   /// @return tripReceipt An instance of `Schemas.TripReceiptDTO` containing the trip receipt details.
   function getTripReceipt(uint tripId) public view returns (Schemas.TripReceiptDTO memory) {
-    return RentalityTripsQuery.fullFillTripReceipt(tripId, address(addresses.tripService));
+    Schemas.TripReceiptDTO memory result = RentalityTripsQuery.fullFillTripReceipt(
+      tripId,
+      address(addresses.tripService)
+    );
+    Schemas.Trip memory trip = addresses.tripService.getTrip(tripId);
+    result.insuranceFee = trip.status == Schemas.TripStatus.Canceled
+      ? 0
+      : uint64(insuranceService.getInsurancePriceByTrip(trip.tripId, trip.carId));
+    return result;
   }
 
   /// @notice Retrieves the cars owned by a specific host.
@@ -213,9 +225,11 @@ contract RentalityView is UUPSUpgradeable, Initializable {
   function calculatePayments(
     uint carId,
     uint64 daysOfTrip,
-    address currency
+    address currency,
+    bool insuranceIncluded
   ) public view returns (Schemas.CalculatePaymentsDTO memory) {
-    return RentalityUtils.calculatePayments(addresses, carId, daysOfTrip, currency, 0);
+    return
+      RentalityUtils.calculatePayments(addresses, carId, daysOfTrip, currency, 0, insuranceService, insuranceIncluded);
   }
 
   /// @dev Calculates the payments for a trip.
@@ -230,7 +244,8 @@ contract RentalityView is UUPSUpgradeable, Initializable {
     uint64 daysOfTrip,
     address currency,
     Schemas.LocationInfo memory pickUpLocation,
-    Schemas.LocationInfo memory returnLocation
+    Schemas.LocationInfo memory returnLocation,
+    bool insuranceIncluded
   ) public view returns (Schemas.CalculatePaymentsDTO memory) {
     return
       RentalityUtils.calculatePaymentsWithDelivery(
@@ -239,7 +254,9 @@ contract RentalityView is UUPSUpgradeable, Initializable {
         daysOfTrip,
         currency,
         pickUpLocation,
-        returnLocation
+        returnLocation,
+        insuranceService,
+        insuranceIncluded
       );
   }
   /// @notice Get chat information for trips hosted by the caller on the Rentality platform.
@@ -297,7 +314,8 @@ contract RentalityView is UUPSUpgradeable, Initializable {
     address userServiceAddress,
     address paymentServiceAddress,
     address claimServiceAddress,
-    address carDeliveryAddress
+    address carDeliveryAddress,
+    address insuranceAddress
   ) public initializer {
     addresses = RentalityContract(
       RentalityCarToken(carServiceAddress),
@@ -311,6 +329,7 @@ contract RentalityView is UUPSUpgradeable, Initializable {
       RentalityCarDelivery(carDeliveryAddress),
       this
     );
+    insuranceService = RentalityInsurance(insuranceAddress);
   }
 
   function _authorizeUpgrade(address /*newImplementation*/) internal view override {

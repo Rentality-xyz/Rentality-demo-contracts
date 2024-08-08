@@ -84,7 +84,8 @@ describe('RentalityGateway: car', function () {
       milesIncludedPerDay: 2,
       timeBufferBetweenTripsInSec: 2,
       currentlyListed: false,
-      insuranceIncluded: true,
+      insuranceRequired: false,
+      insurancePrice: 0,
     }
 
     await expect(rentalityGateway.connect(host).updateCarInfo(update_params)).not.to.be.reverted
@@ -104,7 +105,7 @@ describe('RentalityGateway: car', function () {
 
   it('should have cars owned by user', async function () {
     let addCarRequest = getMockCarRequest(0)
-    await expect(rentalityCarToken.connect(host).addCar(addCarRequest)).not.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(addCarRequest)).not.be.reverted
 
     let available_cars = await rentalityGateway.connect(host).getMyCars()
 
@@ -150,11 +151,13 @@ describe('RentalityGateway: car', function () {
       insuranceIncluded: true,
       locationInfo: locationInfo1,
       currentlyListed: true,
+      insuranceRequired: false,
+      insurancePriceInUsdCents: 0,
     }
     const oneDayInSec = 86400
     const totalTripDays = 7
     const searchParams = getEmptySearchCarParams()
-    await expect(rentalityCarToken.connect(host).addCar(addCarRequest)).not.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(addCarRequest)).not.be.reverted
     const resultAr = await rentalityGateway.searchAvailableCars(
       new Date().getDate(),
       new Date().getDate() + oneDayInSec * totalTripDays,
@@ -207,8 +210,10 @@ describe('RentalityGateway: car', function () {
       insuranceIncluded: true,
       locationInfo: locationInfo1,
       currentlyListed: true,
+      insuranceRequired: false,
+      insurancePriceInUsdCents: 0,
     }
-    await expect(await rentalityCarToken.connect(host).addCar(addCarRequest)).not.be.reverted
+    await expect(await rentalityGateway.connect(host).addCar(addCarRequest)).not.be.reverted
     const result = await rentalityGateway.connect(guest).getCarDetails(1)
 
     expect(result.carId).to.be.equal(1)
@@ -263,22 +268,24 @@ describe('RentalityGateway: car', function () {
         insuranceIncluded: true,
         locationInfo: locationInfo1,
         currentlyListed: true,
+        insuranceRequired: false,
+        insurancePriceInUsdCents: 0,
       }
     }
-    await expect(await rentalityCarToken.connect(host).addCar(addCar(0))).not.be.reverted
-    await expect(await rentalityCarToken.connect(host).addCar(addCar(1))).not.be.reverted
-    await expect(await rentalityCarToken.connect(host).addCar(addCar(2))).not.be.reverted
-    await expect(await rentalityCarToken.connect(host).addCar(addCar(3))).not.be.reverted
-    await expect(await rentalityCarToken.connect(host).addCar(addCar(4))).not.be.reverted
+    await expect(await rentalityGateway.connect(host).addCar(addCar(0))).not.be.reverted
+    await expect(await rentalityGateway.connect(host).addCar(addCar(1))).not.be.reverted
+    await expect(await rentalityGateway.connect(host).addCar(addCar(2))).not.be.reverted
+    await expect(await rentalityGateway.connect(host).addCar(addCar(3))).not.be.reverted
+    await expect(await rentalityGateway.connect(host).addCar(addCar(4))).not.be.reverted
 
     await rentalityCarToken.connect(host).burnCar(3)
     const hostCars = await rentalityCarToken.getCarsOfHost(host.address)
     expect(hostCars.length).to.be.eq(4)
 
-    await expect(await rentalityCarToken.connect(guest).addCar(addCar(5))).not.be.reverted
-    await expect(await rentalityCarToken.connect(guest).addCar(addCar(6))).not.be.reverted
+    await expect(await rentalityGateway.connect(guest).addCar(addCar(5))).not.be.reverted
+    await expect(await rentalityGateway.connect(guest).addCar(addCar(6))).not.be.reverted
     await rentalityCarToken.connect(guest).burnCar(6)
-    await expect(await rentalityCarToken.connect(guest).addCar(addCar(7))).not.be.reverted
+    await expect(await rentalityGateway.connect(guest).addCar(addCar(7))).not.be.reverted
 
     const guestCars = await rentalityCarToken.getCarsOfHost(guest.address)
     expect(guestCars.length).to.be.eq(2)
@@ -319,9 +326,11 @@ describe('RentalityGateway: car', function () {
         insuranceIncluded: true,
         locationInfo: locationInfo1,
         currentlyListed: true,
+        insuranceRequired: false,
+        insurancePriceInUsdCents: 0,
       }
     }
-    await expect(await rentalityCarToken.connect(host).addCar(addCar(0))).not.be.reverted
+    await expect(await rentalityGateway.connect(host).addCar(addCar(0))).not.be.reverted
 
     const tokenContract = await ethers.getContractAt(
       'ERC721URIStorageUpgradeable',

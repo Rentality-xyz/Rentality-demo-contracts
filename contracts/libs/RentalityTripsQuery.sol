@@ -159,7 +159,8 @@ library RentalityTripsQuery {
         trip.startParamLevels[0],
         trip.endParamLevels[0],
         trip.startParamLevels[1],
-        trip.endParamLevels[1]
+        trip.endParamLevels[1],
+        0
       );
   }
 

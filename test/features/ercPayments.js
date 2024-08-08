@@ -1,5 +1,5 @@
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
-const { deployDefaultFixture, getMockCarRequest, createMockClaimRequest } = require('../utils')
+const { deployDefaultFixture, getMockCarRequest, createMockClaimRequest, emptyLocationInfo } = require('../utils')
 const { expect } = require('chai')
 const { calculatePaymentsFrom } = require('../utils')
 
@@ -59,6 +59,16 @@ describe('ERC20 payments', function () {
         startDateTime: 1,
         endDateTime: 2,
         currencyType: usdt,
+        insurancePaid: false,
+        photo: '',
+        pickUpInfo: {
+          signature: guest.address,
+          locationInfo: emptyLocationInfo,
+        },
+        returnInfo: {
+          signature: guest.address,
+          locationInfo: emptyLocationInfo,
+        },
       })
     ).to.not.reverted
 
@@ -95,6 +105,16 @@ describe('ERC20 payments', function () {
         startDateTime: 1,
         endDateTime: 2,
         currencyType: usdt,
+        insurancePaid: false,
+        photo: '',
+        pickUpInfo: {
+          signature: guest.address,
+          locationInfo: emptyLocationInfo,
+        },
+        returnInfo: {
+          signature: guest.address,
+          locationInfo: emptyLocationInfo,
+        },
       })
     ).to.not.reverted
 
@@ -155,6 +175,16 @@ describe('ERC20 payments', function () {
         currencyRate: currencyRate,
         currencyDecimals: currencyDecimals,
         currencyType: await rentalityPlatform.getAddress(),
+        insurancePaid: false,
+        photo: '',
+        pickUpInfo: {
+          signature: guest.address,
+          locationInfo: emptyLocationInfo,
+        },
+        returnInfo: {
+          signature: guest.address,
+          locationInfo: emptyLocationInfo,
+        },
       })
     ).to.be.revertedWith('Token is not available.')
   })
@@ -191,6 +221,16 @@ describe('ERC20 payments', function () {
         currencyRate: currencyRate,
         currencyDecimals: currencyDecimals,
         currencyType: usdt,
+        insurancePaid: false,
+        photo: '',
+        pickUpInfo: {
+          signature: guest.address,
+          locationInfo: emptyLocationInfo,
+        },
+        returnInfo: {
+          signature: guest.address,
+          locationInfo: emptyLocationInfo,
+        },
       })
     ).to.not.reverted
 
@@ -243,6 +283,16 @@ describe('ERC20 payments', function () {
         startDateTime: 1,
         endDateTime: 2,
         currencyType: usdt,
+        insurancePaid: false,
+        photo: '',
+        pickUpInfo: {
+          signature: guest.address,
+          locationInfo: emptyLocationInfo,
+        },
+        returnInfo: {
+          signature: guest.address,
+          locationInfo: emptyLocationInfo,
+        },
       })
     ).to.not.reverted
 
