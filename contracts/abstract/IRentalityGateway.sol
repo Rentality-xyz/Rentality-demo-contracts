@@ -153,11 +153,9 @@ interface IRentalityGateway {
 
   /// @notice Create a trip request.
   /// @param request The request parameters for creating a new trip.
-  function createTripRequest(Schemas.CreateTripRequest memory request) external payable;
+  function createTripRequest(Schemas.CreateTripRequestWithDelivery memory request) external payable;
 
-  /// @notice Creates a trip request with delivery.
-  /// @param request The trip request with delivery details.
-  function createTripRequestWithDelivery(Schemas.CreateTripRequestWithDelivery memory request) external payable;
+  //    function createTripRequestWithDelivery(Schemas.CreateTripRequestWithDelivery memory request) external payable;
 
   /// @dev Retrieves delivery data for a given car.
   /// @param carId The ID of the car for which delivery data is requested.
@@ -317,7 +315,8 @@ interface IRentalityGateway {
   function calculatePayments(
     uint carId,
     uint64 daysOfTrip,
-    address currency
+    address currency,
+    bool insuranceIncluded
   ) external view returns (Schemas.CalculatePaymentsDTO memory calculatePaymentsDTO);
 
   /// @dev Calculates the payments for a trip.
@@ -330,7 +329,8 @@ interface IRentalityGateway {
     uint64 daysOfTrip,
     address currency,
     Schemas.LocationInfo memory pickUpLocation,
-    Schemas.LocationInfo memory returnLocation
+    Schemas.LocationInfo memory returnLocation,
+    bool insuranceIncluded
   ) external view returns (Schemas.CalculatePaymentsDTO memory);
 
   /// @notice Gets the discount for a specific user.

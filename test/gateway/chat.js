@@ -1,7 +1,14 @@
 const { expect } = require('chai')
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 
-const { getMockCarRequest, deployDefaultFixture, ethToken, calculatePayments, signTCMessage } = require('../utils')
+const {
+  getMockCarRequest,
+  deployDefaultFixture,
+  ethToken,
+  calculatePayments,
+  signTCMessage,
+  emptyLocationInfo,
+} = require('../utils')
 
 describe('RentalityGateway: chat', function () {
   let rentalityGateway,
@@ -60,7 +67,7 @@ describe('RentalityGateway: chat', function () {
 
     const dailyPriceInUsdCents = 1000
 
-    const result = await rentalityGateway.calculatePayments(1, 2, ethToken)
+    const result = await rentalityGateway.calculatePayments(1, 2, ethToken, false)
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
         {
@@ -68,6 +75,16 @@ describe('RentalityGateway: chat', function () {
           startDateTime: Date.now(),
           endDateTime: Date.now() + oneDayInSeconds * 2,
           currencyType: ethToken,
+          insurancePaid: false,
+          photo: '',
+          pickUpInfo: {
+            signature: guest.address,
+            locationInfo: emptyLocationInfo,
+          },
+          returnInfo: {
+            signature: guest.address,
+            locationInfo: emptyLocationInfo,
+          },
         },
         { value: result.totalPrice }
       )
@@ -169,7 +186,7 @@ describe('RentalityGateway: chat', function () {
 
     const oneDayInSeconds = 86400
 
-    const result = await rentalityGateway.calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway.calculatePayments(1, 1, ethToken, false)
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
         {
@@ -177,6 +194,16 @@ describe('RentalityGateway: chat', function () {
           startDateTime: Date.now(),
           endDateTime: Date.now() + oneDayInSeconds,
           currencyType: ethToken,
+          insurancePaid: false,
+          photo: '',
+          pickUpInfo: {
+            signature: guest.address,
+            locationInfo: emptyLocationInfo,
+          },
+          returnInfo: {
+            signature: guest.address,
+            locationInfo: emptyLocationInfo,
+          },
         },
         { value: result.totalPrice }
       )

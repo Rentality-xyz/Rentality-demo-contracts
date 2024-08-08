@@ -5,6 +5,7 @@ const {
   createMockClaimRequest,
   ethToken,
   calculatePayments,
+  emptyLocationInfo,
 } = require('../utils')
 const { expect } = require('chai')
 const { ethers } = require('hardhat')
@@ -55,7 +56,7 @@ describe('RentalityClaim', function () {
 
     const oneDayInSeconds = 86400
 
-    const result = await rentalityGateway.calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway.calculatePayments(1, 1, ethToken, false)
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
         {
@@ -63,6 +64,16 @@ describe('RentalityClaim', function () {
           startDateTime: Date.now(),
           endDateTime: Date.now() + oneDayInSeconds,
           currencyType: ethToken,
+          insurancePaid: false,
+          photo: '',
+          pickUpInfo: {
+            signature: guest.address,
+            locationInfo: emptyLocationInfo,
+          },
+          returnInfo: {
+            signature: guest.address,
+            locationInfo: emptyLocationInfo,
+          },
         },
         { value: result.totalPrice }
       )
@@ -82,7 +93,7 @@ describe('RentalityClaim', function () {
 
     const oneDayInSeconds = 86400
 
-    const result = await rentalityGateway.calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway.calculatePayments(1, 1, ethToken, false)
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
         {
@@ -90,6 +101,16 @@ describe('RentalityClaim', function () {
           startDateTime: Date.now(),
           endDateTime: Date.now() + oneDayInSeconds,
           currencyType: ethToken,
+          insurancePaid: false,
+          photo: '',
+          pickUpInfo: {
+            signature: guest.address,
+            locationInfo: emptyLocationInfo,
+          },
+          returnInfo: {
+            signature: guest.address,
+            locationInfo: emptyLocationInfo,
+          },
         },
         { value: result.totalPrice }
       )
@@ -100,15 +121,15 @@ describe('RentalityClaim', function () {
     const amountToClaimInUsdCents = 10000
     let mockClaimRequest = createMockClaimRequest(1, amountToClaimInUsdCents)
     await expect(rentalityGateway.connect(guest).createClaim(mockClaimRequest)).to.be.revertedWith(
-      'Only for trip host or guest, or wrong claim type.'
+      'For trip host or guest,or wrong claim type.'
     )
 
     await expect(rentalityGateway.connect(admin).createClaim(mockClaimRequest)).to.be.revertedWith(
-      'Only for trip host or guest, or wrong claim type.'
+      'For trip host or guest,or wrong claim type.'
     )
 
     await expect(rentalityGateway.connect(anonymous).createClaim(mockClaimRequest)).to.be.revertedWith(
-      'Only for trip host or guest, or wrong claim type.'
+      'For trip host or guest,or wrong claim type.'
     )
 
     await expect(rentalityGateway.connect(host).createClaim(mockClaimRequest)).to.not.reverted
@@ -124,7 +145,7 @@ describe('RentalityClaim', function () {
 
     const oneDayInSeconds = 86400
 
-    const result = await rentalityGateway.calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway.calculatePayments(1, 1, ethToken, false)
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
         {
@@ -132,6 +153,16 @@ describe('RentalityClaim', function () {
           startDateTime: Date.now(),
           endDateTime: Date.now() + oneDayInSeconds,
           currencyType: ethToken,
+          insurancePaid: false,
+          photo: '',
+          pickUpInfo: {
+            signature: guest.address,
+            locationInfo: emptyLocationInfo,
+          },
+          returnInfo: {
+            signature: guest.address,
+            locationInfo: emptyLocationInfo,
+          },
         },
         { value: result.totalPrice }
       )
@@ -142,7 +173,7 @@ describe('RentalityClaim', function () {
     let mockClaimRequest = createMockClaimRequest(1, amountToClaimInUsdCents)
 
     await expect(rentalityGateway.connect(host).createClaim(mockClaimRequest)).to.not.reverted
-    await expect(rentalityGateway.connect(anonymous).rejectClaim(1)).to.be.revertedWith('Only for trip guest or host.')
+    await expect(rentalityGateway.connect(anonymous).rejectClaim(1)).to.be.revertedWith('For trip guest or host.')
 
     await expect(rentalityGateway.connect(host).rejectClaim(1)).to.not.reverted
 
@@ -163,7 +194,7 @@ describe('RentalityClaim', function () {
 
     const dailyPriceInUsdCents = 1000
 
-    const result = await rentalityGateway.calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway.calculatePayments(1, 1, ethToken, false)
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
         {
@@ -171,6 +202,16 @@ describe('RentalityClaim', function () {
           startDateTime: Date.now(),
           endDateTime: Date.now() + oneDayInSeconds,
           currencyType: ethToken,
+          insurancePaid: false,
+          photo: '',
+          pickUpInfo: {
+            signature: guest.address,
+            locationInfo: emptyLocationInfo,
+          },
+          returnInfo: {
+            signature: guest.address,
+            locationInfo: emptyLocationInfo,
+          },
         },
         { value: result.totalPrice }
       )
@@ -207,7 +248,7 @@ describe('RentalityClaim', function () {
 
     const dailyPriceInUsdCents = 1000
 
-    const result = await rentalityGateway.calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway.calculatePayments(1, 1, ethToken, false)
 
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
@@ -216,6 +257,16 @@ describe('RentalityClaim', function () {
           startDateTime: Date.now(),
           endDateTime: Date.now() + oneDayInSeconds,
           currencyType: ethToken,
+          insurancePaid: false,
+          photo: '',
+          pickUpInfo: {
+            signature: guest.address,
+            locationInfo: emptyLocationInfo,
+          },
+          returnInfo: {
+            signature: guest.address,
+            locationInfo: emptyLocationInfo,
+          },
         },
         { value: result.totalPrice }
       )
@@ -250,7 +301,7 @@ describe('RentalityClaim', function () {
 
     const dailyPriceInUsdCents = 1000
 
-    const result = await rentalityGateway.calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway.calculatePayments(1, 1, ethToken, false)
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
         {
@@ -258,6 +309,16 @@ describe('RentalityClaim', function () {
           startDateTime: Date.now(),
           endDateTime: Date.now() + oneDayInSeconds,
           currencyType: ethToken,
+          insurancePaid: false,
+          photo: '',
+          pickUpInfo: {
+            signature: guest.address,
+            locationInfo: emptyLocationInfo,
+          },
+          returnInfo: {
+            signature: guest.address,
+            locationInfo: emptyLocationInfo,
+          },
         },
         { value: result.totalPrice }
       )
@@ -306,6 +367,16 @@ describe('RentalityClaim', function () {
             startDateTime: Date.now() + oneDayInSeconds * i,
             endDateTime: Date.now() + (oneDayInSeconds * i + 1),
             currencyType: ethToken,
+            insurancePaid: false,
+            photo: '',
+            pickUpInfo: {
+              signature: guest.address,
+              locationInfo: emptyLocationInfo,
+            },
+            returnInfo: {
+              signature: guest.address,
+              locationInfo: emptyLocationInfo,
+            },
           },
           { value: rentPriceInEth }
         )
@@ -343,7 +414,7 @@ describe('RentalityClaim', function () {
 
     const oneDayInSeconds = 86400
 
-    const result = await rentalityGateway.calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway.calculatePayments(1, 1, ethToken, false)
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
         {
@@ -351,6 +422,16 @@ describe('RentalityClaim', function () {
           startDateTime: Date.now(),
           endDateTime: Date.now() + oneDayInSeconds,
           currencyType: ethToken,
+          insurancePaid: false,
+          photo: '',
+          pickUpInfo: {
+            signature: guest.address,
+            locationInfo: emptyLocationInfo,
+          },
+          returnInfo: {
+            signature: guest.address,
+            locationInfo: emptyLocationInfo,
+          },
         },
         { value: result.totalPrice }
       )
@@ -361,7 +442,7 @@ describe('RentalityClaim', function () {
     let mockClaimRequest = createMockClaimRequest(1, amountToClaimInUsdCents)
 
     await expect(rentalityGateway.connect(host).createClaim(mockClaimRequest)).to.not.reverted
-    await expect(rentalityGateway.connect(anonymous).rejectClaim(1)).to.be.revertedWith('Only for trip guest or host.')
+    await expect(rentalityGateway.connect(anonymous).rejectClaim(1)).to.be.revertedWith('For trip guest or host.')
 
     await expect(rentalityGateway.connect(host).rejectClaim(1)).to.not.reverted
 
@@ -386,7 +467,7 @@ describe('RentalityClaim', function () {
 
     let sevenDays = 86400 * 7
 
-    const payments = await rentalityGateway.calculatePayments(1, 7, ethToken)
+    const payments = await rentalityGateway.calculatePayments(1, 7, ethToken, false)
     await expect(
       await rentalityPlatform.connect(guest).createTripRequest(
         {
@@ -394,6 +475,16 @@ describe('RentalityClaim', function () {
           startDateTime: Date.now(),
           endDateTime: Date.now() + sevenDays,
           currencyType: ethToken,
+          insurancePaid: false,
+          photo: '',
+          pickUpInfo: {
+            signature: guest.address,
+            locationInfo: emptyLocationInfo,
+          },
+          returnInfo: {
+            signature: guest.address,
+            locationInfo: emptyLocationInfo,
+          },
         },
         { value: payments.totalPrice }
       )
@@ -441,7 +532,7 @@ describe('RentalityClaim', function () {
 
     let sevenDays = 86400 * 7
 
-    const payments = await rentalityGateway.calculatePayments(1, 7, ethToken)
+    const payments = await rentalityGateway.calculatePayments(1, 7, ethToken, false)
     await expect(
       await rentalityPlatform.connect(guest).createTripRequest(
         {
@@ -449,6 +540,16 @@ describe('RentalityClaim', function () {
           startDateTime: Date.now(),
           endDateTime: Date.now() + sevenDays,
           currencyType: ethToken,
+          insurancePaid: false,
+          photo: '',
+          pickUpInfo: {
+            signature: guest.address,
+            locationInfo: emptyLocationInfo,
+          },
+          returnInfo: {
+            signature: guest.address,
+            locationInfo: emptyLocationInfo,
+          },
         },
         { value: payments.totalPrice }
       )
@@ -496,7 +597,7 @@ describe('RentalityClaim', function () {
 
     let sevenDays = 86400 * 7
 
-    const payments = await rentalityGateway.calculatePayments(1, 7, ethToken)
+    const payments = await rentalityGateway.calculatePayments(1, 7, ethToken, false)
     await expect(
       await rentalityPlatform.connect(guest).createTripRequest(
         {
@@ -504,6 +605,16 @@ describe('RentalityClaim', function () {
           startDateTime: Date.now(),
           endDateTime: Date.now() + sevenDays,
           currencyType: ethToken,
+          insurancePaid: false,
+          photo: '',
+          pickUpInfo: {
+            signature: guest.address,
+            locationInfo: emptyLocationInfo,
+          },
+          returnInfo: {
+            signature: guest.address,
+            locationInfo: emptyLocationInfo,
+          },
         },
         { value: payments.totalPrice }
       )

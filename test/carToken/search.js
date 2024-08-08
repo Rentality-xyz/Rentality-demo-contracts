@@ -271,7 +271,6 @@ describe('RentalityCarToken: search functions', function () {
   it('Search with pricePerDayInUsdCentsFrom should work', async function () {
     const { rentalityCarToken, rentalityTripService, guest, rentalityGateway } =
       await loadFixture(deployFixtureWith1Car)
-
     const request = getMockCarRequest(0)
     const searchCarParams1 = {
       country: '',

@@ -23,12 +23,12 @@ module.exports = {
     localhost: {
       chainId: 1337,
     },
-    ganache: {
-      url: process.env.GANACHE_LOCALHOST_URL,
-      accounts: [process.env.GANACHE_PRIVATE_KEY],
-      chainId: 1337,
-      timeout: 1_000_000,
-    },
+    // ganache: {
+    //   url: process.env.GANACHE_LOCALHOST_URL,
+    //   accounts: [process.env.GANACHE_PRIVATE_KEY],
+    //   chainId: 1337,
+    //   timeout: 1_000_000,
+    // },
     base: {
       url: process.env.BASE_URL ?? '',
       accounts: [process.env.PRIVATE_KEY],
@@ -64,5 +64,14 @@ module.exports = {
       viaIR: true,
       // evmVersion: 'cancun',
     },
+  },
+  sourcify: {
+    enabled: true,
+  },
+  etherscan: {
+    apiKey: {
+      baseSepolia: process.env.BASE_API_TOKEN,
+      base: process.env.BASE_API_TOKEN,
+    }, // command to run: npx hardhat verify --network <contract address>
   },
 }
