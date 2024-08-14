@@ -40,7 +40,7 @@ contract RentalityCarInvestmentPool {
           totalIncome += incomes[j];
         }
         toClaim += (totalIncome * part) / 100_000;
-        nftIdToLastIncomeNumber[tokens[i]] = incomes.length;
+        nftIdToLastIncomeNumber[tokens[i]] = incomes.length - 1;
       }
     }
 
@@ -49,11 +49,10 @@ contract RentalityCarInvestmentPool {
       require(successRefund, 'payment failed.');
     }
   }
-
   function getIncomesByNftId(uint id) public view returns (uint) {
     uint lastIncomeClaimed = nftIdToLastIncomeNumber[id];
     uint result = 0;
-    for (uint i = lastIncomeClaimed; i < incomes.length; i++) {
+    for (uint i = lastIncomeClaimed + 1; i < incomes.length; i++) {
       result += incomes[i];
     }
     return result;

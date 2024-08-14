@@ -171,7 +171,8 @@ contract RentalityPaymentService is UUPSOwnable {
     bool successGuest;
     if (investmentService.isInvestorsCar(trip.carId)) {
       (uint hostPercents, RentalityCarInvestmentPool pool) = investmentService.getPaymentsInfo(trip.carId);
-      uint depositToPool = valueToHost - ((valueToHost * hostPercents) / 100);
+      uint valueToPay = valueToHost - trip.paymentInfo.resolveAmountInUsdCents;
+      uint depositToPool = valueToPay - ((valueToPay * hostPercents) / 100);
       valueToHost = valueToHost - depositToPool;
       pool.deposit{value: depositToPool}();
     }
