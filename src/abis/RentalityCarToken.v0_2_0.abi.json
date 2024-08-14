@@ -587,6 +587,14 @@
     },
     {
       "type": "function",
+      "name": "setUnlisted",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "carId" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
       "name": "supportsInterface",
       "constant": true,
       "stateMutability": "view",

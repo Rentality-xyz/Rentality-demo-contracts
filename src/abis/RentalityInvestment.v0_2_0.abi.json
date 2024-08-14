@@ -242,6 +242,7 @@
       "inputs": [],
       "outputs": [{ "type": "bytes32", "name": "" }]
     },
+    { "type": "function", "name": "updatePool", "constant": false, "payable": false, "inputs": [], "outputs": [] },
     {
       "type": "function",
       "name": "upgradeTo",
