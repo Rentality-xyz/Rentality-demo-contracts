@@ -23,6 +23,7 @@ contract RentalityInvestment is Initializable, UUPSAccess {
   mapping(uint => uint) private carIdToInvestId;
 
   function createCarInvestment(Schemas.CarInvestment memory car, string memory name_, string memory symbol_) public {
+    require(carToken.isUniqueVinNumber(car.car.carVinNumber), 'Car with this VIN number already exists');
     investmentId += 1;
     investmentIdToCarInfo[investmentId] = car;
     RentalityInvestmentNft newNftCollection = new RentalityInvestmentNft(

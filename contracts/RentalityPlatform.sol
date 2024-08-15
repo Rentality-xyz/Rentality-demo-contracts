@@ -245,11 +245,11 @@ contract RentalityPlatform is UUPSOwnable {
       trip.paymentInfo.priceWithDiscount + trip.paymentInfo.pickUpFee + trip.paymentInfo.dropOfFee
     );
 
-    (uint valueToHost, uint valueToGuest, uint valueToHostInUsdCents, uint valueToGuestInUsdCents) = addresses
+    (uint valueToHost, uint valueToGuest, uint valueToHostInUsdCents, uint valueToGuestInUsdCents, uint totalIncome) = addresses
       .currencyConverterService
       .calculateTripFinsish(trip.paymentInfo, rentalityFee);
 
-    addresses.paymentService.payFinishTrip(trip, valueToHost, valueToGuest);
+    addresses.paymentService.payFinishTrip(trip, valueToHost, valueToGuest, totalIncome);
 
     addresses.tripService.saveTransactionInfo(
       tripId,
