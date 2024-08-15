@@ -165,16 +165,16 @@ contract RentalityPaymentService is UUPSOwnable {
     require(success, 'Transfer failed.');
   }
   /// TODO: add erc20 investment payments
-  function payFinishTrip(Schemas.Trip memory trip, uint valueToHost, uint valueToGuest) public payable {
+  function payFinishTrip(Schemas.Trip memory trip, uint valueToHost, uint valueToGuest, uint totalIncome) public payable {
     require(userService.isManager(msg.sender), 'Only manager');
     bool successHost;
     bool successGuest;
     if (investmentService.isInvestorsCar(trip.carId)) {
       (uint hostPercents, RentalityCarInvestmentPool pool) = investmentService.getPaymentsInfo(trip.carId);
-      uint valueToPay = valueToHost - trip.paymentInfo.resolveAmountInUsdCents;
+      uint valueToPay = totalIncome - (totalIncome * 20 / 100);
       uint depositToPool = valueToPay - ((valueToPay * hostPercents) / 100);
       valueToHost = valueToHost - depositToPool;
-      pool.deposit{value: depositToPool}();
+      pool.deposit{value: depositToPool}(totalIncome);
     }
     if (trip.paymentInfo.currencyType == address(0)) {
       (successHost, ) = payable(trip.host).call{value: valueToHost}('');

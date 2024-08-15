@@ -141,7 +141,7 @@ contract RentalityCurrencyConverter is Initializable, UUPSAccess {
   function calculateTripFinsish(
     Schemas.PaymentInfo memory paymentInfo,
     uint256 rentalityFee
-  ) public view returns (uint, uint, uint, uint) {
+  ) public view returns (uint, uint, uint, uint, uint) {
     uint256 valueToHostInUsdCents = paymentInfo.priceWithDiscount +
       paymentInfo.pickUpFee +
       paymentInfo.dropOfFee +
@@ -162,7 +162,13 @@ contract RentalityCurrencyConverter is Initializable, UUPSAccess {
       paymentInfo.currencyRate,
       paymentInfo.currencyDecimals
     );
-    return (valueToHost, valueToGuest, valueToHostInUsdCents, valueToGuestInUsdCents);
+    uint256 totalIncome = getFromUsd(
+      paymentInfo.currencyType,
+      valueToHostInUsdCents - paymentInfo.resolveAmountInUsdCents + rentalityFee,
+      paymentInfo.currencyRate,
+      paymentInfo.currencyDecimals
+    );
+    return (valueToHost, valueToGuest, valueToHostInUsdCents, valueToGuestInUsdCents, totalIncome);
   }
 
   function calculateTripReject(Schemas.PaymentInfo memory paymentInfo) public view returns (uint, uint) {
