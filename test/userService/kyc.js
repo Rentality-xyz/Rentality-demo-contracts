@@ -1,6 +1,6 @@
 const { loadFixture, time } = require('@nomicfoundation/hardhat-network-helpers')
 const { expect } = require('chai')
-const { getMockCarRequest, ethToken, calculatePayments, signTCMessage } = require('../utils')
+const { getMockCarRequest, ethToken, calculatePayments, signTCMessage, zeroHash} = require('../utils')
 const { deployFixtureWithUsers, deployDefaultFixture } = require('./deployments')
 
 describe('RentalityUserService: KYC management', function () {
@@ -18,7 +18,7 @@ describe('RentalityUserService: KYC management', function () {
     const guestSignature = await signTCMessage(guest)
     await rentalityUserService
       .connect(guest)
-      .setKYCInfo('name', 'surname', 'phoneNumber', 'profilePicture', 'licenseNumber', expirationDate, guestSignature)
+      .setKYCInfo('name', 'surname', 'phoneNumber', 'profilePicture', 'licenseNumber', expirationDate, guestSignature,zeroHash)
 
     expect(await rentalityUserService.hasValidKYC(guest.address)).to.equal(true)
   })
@@ -31,7 +31,7 @@ describe('RentalityUserService: KYC management', function () {
     const guestSignature = await signTCMessage(guest)
     await rentalityUserService
       .connect(guest)
-      .setKYCInfo('name', 'surname', 'phoneNumber', 'profilePicture', 'licenseNumber', expirationDate, guestSignature)
+      .setKYCInfo('name', 'surname', 'phoneNumber', 'profilePicture', 'licenseNumber', expirationDate, guestSignature,zeroHash)
     await time.increaseTo(expirationDate + 1)
 
     expect(await rentalityUserService.hasValidKYC(guest.address)).to.equal(false)
@@ -44,7 +44,7 @@ describe('RentalityUserService: KYC management', function () {
     const guestSignature = await signTCMessage(guest)
     await rentalityUserService
       .connect(guest)
-      .setKYCInfo('name', 'surname', 'phoneNumber', 'profilePicture', 'licenseNumber', expirationDate, guestSignature)
+      .setKYCInfo('name', 'surname', 'phoneNumber', 'profilePicture', 'licenseNumber', expirationDate, guestSignature,zeroHash)
 
     const kycInfo = await rentalityUserService.connect(guest).getMyKYCInfo()
 
@@ -64,7 +64,7 @@ describe('RentalityUserService: KYC management', function () {
     const guestSignature = await signTCMessage(guest)
     await rentalityUserService
       .connect(guest)
-      .setKYCInfo('name', 'surname', 'phoneNumber', 'profilePicture', 'licenseNumber', expirationDate, guestSignature)
+      .setKYCInfo('name', 'surname', 'phoneNumber', 'profilePicture', 'licenseNumber', expirationDate, guestSignature,zeroHash)
 
     await expect(rentalityUserService.connect(host).getKYCInfo(guest.address)).to.be.reverted
   })
@@ -77,7 +77,7 @@ describe('RentalityUserService: KYC management', function () {
     const guestSignature = await signTCMessage(guest)
     await rentalityUserService
       .connect(guest)
-      .setKYCInfo('name', 'surname', 'phoneNumber', 'profilePicture', 'licenseNumber', expirationDate, guestSignature)
+      .setKYCInfo('name', 'surname', 'phoneNumber', 'profilePicture', 'licenseNumber', expirationDate, guestSignature,zeroHash)
 
     const isManager = await rentalityUserService.isManager(manager.address)
     expect(isManager).to.equal(true)
@@ -104,7 +104,7 @@ describe('RentalityUserService: KYC management', function () {
     } = await loadFixture(deployDefaultFixture)
 
     const carRequest = getMockCarRequest(0)
-    await expect(rentalityCarToken.connect(host).addCar(carRequest)).not.to.be.reverted
+    await expect(rentalityCarToken.connect(host).addCar(carRequest,zeroHash)).not.to.be.reverted
     const availableCars = await rentalityCarToken.connect(guest).getAvailableCarsForUser(guest.address)
     expect(availableCars.length).to.equal(1)
     const rentPrice = carRequest.pricePerDayInUsdCents
@@ -174,14 +174,14 @@ describe('RentalityUserService: KYC management', function () {
 
     const signature = await signTCMessage(host)
 
-    await rentalityUserService.connect(host).setKYCInfo('name', 'surname', '13123', 'photo', 'num', 123123, signature)
+    await rentalityUserService.connect(host).setKYCInfo('name', 'surname', '13123', 'photo', 'num', 123123, signature,zeroHash)
     const hostData = await rentalityUserService.connect(owner).getKYCInfo(host.address)
 
     expect(hostData.isTCPassed).to.be.true
     expect(hostData.TCSignature).to.be.eq(signature)
 
     await expect(
-      rentalityUserService.connect(guest).setKYCInfo('name', 'surname', '13123', 'photo', 'num', 123123, signature)
+      rentalityUserService.connect(guest).setKYCInfo('name', 'surname', '13123', 'photo', 'num', 123123, signature,zeroHash)
     ).to.be.revertedWith('Wrong signature.')
   })
 })

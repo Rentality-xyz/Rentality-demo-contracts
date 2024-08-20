@@ -4,7 +4,7 @@ const {
   getMockCarRequest,
   createMockClaimRequest,
   ethToken,
-  calculatePayments,
+  calculatePayments, zeroHash,
 } = require('../utils')
 const { expect } = require('chai')
 const { ethers } = require('hardhat')
@@ -46,7 +46,7 @@ describe('RentalityClaim', function () {
   })
 
   it('Host can not create claim before approve', async function () {
-    await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0),zeroHash)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
@@ -73,7 +73,7 @@ describe('RentalityClaim', function () {
     await expect(rentalityGateway.connect(host).createClaim(mockClaimRequest)).to.be.revertedWith('Wrong trip status.')
   })
   it('Only host can create claim ', async function () {
-    await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0),zeroHash)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
@@ -115,7 +115,7 @@ describe('RentalityClaim', function () {
   })
 
   it('Only host and guest can reject claim', async function () {
-    await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0),zeroHash)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
@@ -152,7 +152,7 @@ describe('RentalityClaim', function () {
   })
   it('has correct claim Info', async function () {
     const createCarRequest = getMockCarRequest(0)
-    await expect(rentalityGateway.connect(host).addCar(createCarRequest)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(createCarRequest,zeroHash)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
@@ -196,7 +196,7 @@ describe('RentalityClaim', function () {
   })
   it('Get all trip claims', async function () {
     const createCarRequest = getMockCarRequest(0)
-    await expect(rentalityGateway.connect(host).addCar(createCarRequest)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(createCarRequest,zeroHash)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
@@ -239,7 +239,7 @@ describe('RentalityClaim', function () {
 
   it('Refund test', async function () {
     const createCarRequest = getMockCarRequest(0)
-    await expect(rentalityGateway.connect(host).addCar(createCarRequest)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(createCarRequest,zeroHash)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
@@ -287,7 +287,7 @@ describe('RentalityClaim', function () {
     for (i = 1; i <= claimsCreate; i++) {
       counter++
       const createCarRequest = getMockCarRequest(i)
-      await expect(rentalityGateway.connect(host).addCar(createCarRequest)).not.to.be.reverted
+      await expect(rentalityGateway.connect(host).addCar(createCarRequest,zeroHash)).not.to.be.reverted
       const myCars = await rentalityGateway.connect(host).getMyCars()
       expect(myCars.length).to.equal(i)
 
@@ -334,7 +334,7 @@ describe('RentalityClaim', function () {
     expect(guestClaims.length).to.be.eq(claimsCreate)
   })
   it('Only host and guest can reject claim', async function () {
-    await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0),zeroHash)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
@@ -371,7 +371,7 @@ describe('RentalityClaim', function () {
   })
   it('Host not able to create claim with guest status', async function () {
     const request = getMockCarRequest(51)
-    await expect(rentalityGateway.connect(host).addCar(request)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(request,zeroHash)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
@@ -426,7 +426,7 @@ describe('RentalityClaim', function () {
   })
   it('Guest can not create claim with host type', async function () {
     const request = getMockCarRequest(51)
-    await expect(rentalityGateway.connect(host).addCar(request)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(request,zeroHash)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
@@ -481,7 +481,7 @@ describe('RentalityClaim', function () {
   })
   it('Host can pay claim', async function () {
     const request = getMockCarRequest(51)
-    await expect(rentalityGateway.connect(host).addCar(request)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(request,zeroHash)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 

@@ -4,7 +4,7 @@ const {
   getMockCarRequest,
   ethToken,
   calculatePayments,
-  calculatePaymentsFrom,
+  calculatePaymentsFrom, zeroHash,
 } = require('../utils')
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 const { ethers } = require('hardhat')
@@ -92,7 +92,7 @@ describe('Rentality taxes & discounts', function () {
   })
   it('guest payed correct value with taxes, without discount', async function () {
     const request = getMockCarRequest(10)
-    await expect(rentalityCarToken.connect(host).addCar(request)).not.to.be.reverted
+    await expect(rentalityCarToken.connect(host).addCar(request,zeroHash)).not.to.be.reverted
     const myCars = await rentalityCarToken.connect(host).getCarsOwnedByUser(host.address)
     expect(myCars.length).to.equal(1)
 
@@ -120,7 +120,7 @@ describe('Rentality taxes & discounts', function () {
 
   it('guest payed correct value with taxes and 3 days discount', async function () {
     const request = getMockCarRequest(10)
-    await expect(rentalityCarToken.connect(host).addCar(request)).not.to.be.reverted
+    await expect(rentalityCarToken.connect(host).addCar(request,zeroHash)).not.to.be.reverted
     const myCars = await rentalityCarToken.connect(host).getCarsOwnedByUser(host.address)
     expect(myCars.length).to.equal(1)
 
@@ -146,7 +146,7 @@ describe('Rentality taxes & discounts', function () {
   })
   it('guest payed correct value with taxes and 7 days discount', async function () {
     const request = getMockCarRequest(10)
-    await expect(rentalityCarToken.connect(host).addCar(request)).not.to.be.reverted
+    await expect(rentalityCarToken.connect(host).addCar(request,zeroHash)).not.to.be.reverted
     const myCars = await rentalityCarToken.connect(host).getCarsOwnedByUser(host.address)
     expect(myCars.length).to.equal(1)
 
@@ -173,7 +173,7 @@ describe('Rentality taxes & discounts', function () {
 
   it('guest payed correct value with taxes and 30 days discount', async function () {
     const request = getMockCarRequest(10)
-    await expect(rentalityCarToken.connect(host).addCar(request)).not.to.be.reverted
+    await expect(rentalityCarToken.connect(host).addCar(request,zeroHash)).not.to.be.reverted
     const myCars = await rentalityCarToken.connect(host).getCarsOwnedByUser(host.address)
     expect(myCars.length).to.equal(1)
 
@@ -200,7 +200,7 @@ describe('Rentality taxes & discounts', function () {
   })
   it('after trip host get correct value', async function () {
     const request = getMockCarRequest(91)
-    await expect(rentalityCarToken.connect(host).addCar(request)).not.to.be.reverted
+    await expect(rentalityCarToken.connect(host).addCar(request,zeroHash)).not.to.be.reverted
     const myCars = await rentalityCarToken.connect(host).getCarsOwnedByUser(host.address)
     expect(myCars.length).to.equal(1)
 
@@ -254,7 +254,7 @@ describe('Rentality taxes & discounts', function () {
   })
 
   it('Should return user discount, if it exists', async function () {
-    await expect(rentalityCarToken.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
+    await expect(rentalityCarToken.connect(host).addCar(getMockCarRequest(0),zeroHash)).not.to.be.reverted
     const myCars = await rentalityCarToken.connect(host).getCarsOwnedByUser(host.address)
     expect(myCars.length).to.equal(1)
 
@@ -280,7 +280,7 @@ describe('Rentality taxes & discounts', function () {
 
   it('Calculate payments should return correct calculation', async function () {
     const request = getMockCarRequest(10)
-    await expect(rentalityCarToken.connect(host).addCar(request)).not.to.be.reverted
+    await expect(rentalityCarToken.connect(host).addCar(request,zeroHash)).not.to.be.reverted
 
     const tripDays = 7
 
@@ -302,7 +302,7 @@ describe('Rentality taxes & discounts', function () {
 
   it('Calculate payments: can create trip request with calculated sum', async function () {
     const request = getMockCarRequest(10)
-    await expect(rentalityCarToken.connect(host).addCar(request)).not.to.be.reverted
+    await expect(rentalityCarToken.connect(host).addCar(request,zeroHash)).not.to.be.reverted
 
     const tripDays = 31
     const oneDayInSeconds = 86400

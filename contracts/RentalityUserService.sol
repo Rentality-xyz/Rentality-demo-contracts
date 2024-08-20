@@ -49,7 +49,9 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
     uint64 expirationDate,
     bytes memory TCSignature
   ) public {
-    require(isHostOrGuest(tx.origin), 'Only for hosts or guests');
+    if (isGuest(tx.origin)) {
+      _grantRole(GUEST_ROLE, tx.origin);
+    }
 
     bool isTCPassed = ECDSA.recover(TCMessageHash, TCSignature) == tx.origin;
 

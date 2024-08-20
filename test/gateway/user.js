@@ -8,7 +8,7 @@ const {
   getEmptySearchCarParams,
   ethToken,
   calculatePayments,
-  signTCMessage,
+  signTCMessage, zeroHash,
 } = require('../utils')
 
 describe('RentalityGateway: user info', function () {
@@ -65,7 +65,7 @@ describe('RentalityGateway: user info', function () {
     await expect(
       rentalityGateway
         .connect(host)
-        .setKYCInfo(name, surname, number, photo, licenseNumber, expirationDate, hostSignature)
+        .setKYCInfo(name, surname, number, photo, licenseNumber, expirationDate, hostSignature,zeroHash)
     ).not.be.reverted
 
     const kycInfo = await rentalityGateway.connect(host).getMyKYCInfo()
@@ -89,7 +89,7 @@ describe('RentalityGateway: user info', function () {
     await expect(
       rentalityGateway
         .connect(guest)
-        .setKYCInfo(name, surname, number, photo, licenseNumber, expirationDate, guestSignature)
+        .setKYCInfo(name, surname, number, photo, licenseNumber, expirationDate, guestSignature,zeroHash)
     ).not.be.reverted
 
     const kycInfo = await rentalityGateway.connect(guest).getMyKYCInfo()
@@ -115,7 +115,7 @@ describe('RentalityGateway: user info', function () {
     await expect(
       rentalityUserService
         .connect(anonymous)
-        .setKYCInfo(name, surname, number, photo, licenseNumber, expirationDate, anonSignature)
+        .setKYCInfo(name, surname, number, photo, licenseNumber, expirationDate, anonSignature,zeroHash)
     ).to.be.reverted
   })
 
@@ -150,11 +150,11 @@ describe('RentalityGateway: user info', function () {
     await expect(
       rentalityUserService
         .connect(guest)
-        .setKYCInfo('name', 'surname', guestNumber, 'photo', 'number', 1, guestSignature)
+        .setKYCInfo('name', 'surname', guestNumber, 'photo', 'number', 1, guestSignature,zeroHash)
     ).not.be.reverted
 
     await expect(
-      rentalityUserService.connect(host).setKYCInfo('name', 'surname', hostNumber, 'photo', 'number', 1, hostSignature)
+      rentalityUserService.connect(host).setKYCInfo('name', 'surname', hostNumber, 'photo', 'number', 1, hostSignature,zeroHash)
     ).not.be.reverted
 
     let [guestPhoneNumber, hostPhoneNumber] = await rentalityGateway.connect(guest).getTripContactInfo(1)
@@ -191,11 +191,11 @@ describe('RentalityGateway: user info', function () {
     let guestNumber = '+380'
     let hostNumber = '+3801'
     await expect(
-      rentalityGateway.connect(guest).setKYCInfo('name', 'surname', guestNumber, 'photo', 'number', 1, guestSignature)
+      rentalityGateway.connect(guest).setKYCInfo('name', 'surname', guestNumber, 'photo', 'number', 1, guestSignature,zeroHash)
     ).not.be.reverted
 
     await expect(
-      rentalityGateway.connect(host).setKYCInfo('name', 'surname', hostNumber, 'photo', 'number', 1, hostSignature)
+      rentalityGateway.connect(host).setKYCInfo('name', 'surname', hostNumber, 'photo', 'number', 1, hostSignature,zeroHash)
     ).not.be.reverted
 
     let [guestPhoneNumber, hostPhoneNumber] = await rentalityGateway.connect(host).getTripContactInfo(1)
@@ -232,11 +232,11 @@ describe('RentalityGateway: user info', function () {
     let guestNumber = '+380'
     let hostNumber = '+3801'
     await expect(
-      rentalityGateway.connect(guest).setKYCInfo('name', 'surname', guestNumber, 'photo', 'number', 1, guestSignature)
+      rentalityGateway.connect(guest).setKYCInfo('name', 'surname', guestNumber, 'photo', 'number', 1, guestSignature,zeroHash)
     ).not.be.reverted
 
     await expect(
-      rentalityGateway.connect(host).setKYCInfo('name', 'surname', hostNumber, 'photo', 'number', 1, hostSignature)
+      rentalityGateway.connect(host).setKYCInfo('name', 'surname', hostNumber, 'photo', 'number', 1, hostSignature,zeroHash)
     ).not.be.reverted
 
     await expect(rentalityGateway.connect(anonymous).getTripContactInfo(1)).to.be.reverted
@@ -266,7 +266,8 @@ describe('RentalityGateway: user info', function () {
           photo + 'host',
           licenseNumber + 'host',
           expirationDate,
-          hostSignature
+          hostSignature,
+            zeroHash
         )
     ).not.be.reverted
 
