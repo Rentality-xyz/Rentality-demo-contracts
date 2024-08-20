@@ -238,13 +238,13 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
 
   /// @notice Confirms check-out for a trip.
   /// @param tripId The ID of the trip.
-  function confirmCheckOut(uint256 tripId) public {
+  function payToHost(uint256 tripId) public {
     rentalityPlatform.confirmCheckOut(tripId);
   }
 
   /// @notice Rejects a trip request. Only callable by hosts.
   /// @param tripId The ID of the trip to reject.
-  function rejectTripRequest(uint256 tripId) public {
+  function refundToGuest(uint256 tripId) public {
     return rentalityPlatform.rejectTripRequest(tripId);
   }
   /// @dev Sets the Civic verifier and gatekeeper network for identity verification.
@@ -271,6 +271,119 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
 
   function getKycCommission() public view returns (uint) {
     return userService.getKycCommission();
+  }
+
+  function getAllTrips(
+    Schemas.TripFilter memory filter,
+    uint page,
+    uint itemsPerPage
+  ) public view returns (Schemas.AllTripsDTO memory) {
+    uint totalTripsCount = tripService.totalTripCount();
+
+    uint[] memory matchedTrips = new uint[](totalTripsCount);
+
+    uint counter = 0;
+    for (uint i = 1; i <= totalTripsCount; i++) {
+      if (isTripMatch(filter, tripService.getTrip(i))) {
+        matchedTrips[counter] = i;
+        counter += 1;
+      }
+    }
+    if (counter == 0) return Schemas.AllTripsDTO(new Schemas.Trip[](0), 0);
+    uint totalPageCount = (counter + itemsPerPage - 1) / itemsPerPage;
+
+    if (page > totalPageCount) {
+      page = totalPageCount;
+    }
+
+    uint startIndex = (page - 1) * itemsPerPage;
+    uint endIndex = startIndex + itemsPerPage;
+
+    if (endIndex > counter) {
+      endIndex = counter;
+    }
+    Schemas.Trip[] memory result = new Schemas.Trip[](endIndex - startIndex);
+    for (uint i = startIndex; i < endIndex; i++) {
+      result[i - startIndex] = tripService.getTrip(matchedTrips[i]);
+    }
+
+    return Schemas.AllTripsDTO(result, totalPageCount);
+  }
+
+  function isTripMatch(Schemas.TripFilter memory filter, Schemas.Trip memory trip) internal view returns (bool) {
+    IRentalityGeoService geoService = IRentalityGeoService(carService.getGeoServiceAddress());
+    Schemas.LocationInfo memory locationInfo = geoService.getLocationInfo(
+      carService.getCarInfoById(trip.carId).locationHash
+    );
+    return ((bytes(filter.location.country).length == 0 ||
+      RentalityUtils.containWord(
+        RentalityUtils.toLower(locationInfo.country),
+        RentalityUtils.toLower(filter.location.country)
+      )) &&
+      (bytes(filter.location.state).length == 0 ||
+        RentalityUtils.containWord(
+          RentalityUtils.toLower(locationInfo.state),
+          RentalityUtils.toLower(filter.location.state)
+        )) &&
+      (bytes(filter.location.city).length == 0 ||
+        RentalityUtils.containWord(
+          RentalityUtils.toLower(locationInfo.city),
+          RentalityUtils.toLower(filter.location.city)
+        )) &&
+      (filter.startDateTime <= trip.startDateTime && filter.endDateTime >= trip.endDateTime) &&
+      (filter.paymentStatus == Schemas.PaymentStatus.Any ||
+        (filter.paymentStatus == Schemas.PaymentStatus.PaidToHost && trip.status == Schemas.TripStatus.Finished) ||
+        (filter.paymentStatus == Schemas.PaymentStatus.Prepayment &&
+          (trip.status == Schemas.TripStatus.Created ||
+            trip.status == Schemas.TripStatus.Approved ||
+            trip.status == Schemas.TripStatus.CheckedInByHost ||
+            (trip.status == Schemas.TripStatus.CheckedInByGuest && trip.tripStartedBy == trip.guest) ||
+            (trip.status == Schemas.TripStatus.CheckedOutByGuest && trip.tripFinishedBy == trip.guest) ||
+            (trip.status == Schemas.TripStatus.CheckedOutByHost && trip.tripFinishedBy == trip.guest))) ||
+        (filter.paymentStatus == Schemas.PaymentStatus.RefundToGuest && trip.status == Schemas.TripStatus.Canceled) ||
+        (filter.paymentStatus == Schemas.PaymentStatus.Unpaid &&
+          ((trip.status == Schemas.TripStatus.CheckedInByGuest && trip.tripStartedBy == trip.host) ||
+            (trip.status == Schemas.TripStatus.CheckedOutByHost && trip.tripFinishedBy == trip.host)))) &&
+      (filter.status == Schemas.AdminTripStatus.Any ||
+        (filter.status == Schemas.AdminTripStatus.Created && trip.status == Schemas.TripStatus.Created) ||
+        (filter.status == Schemas.AdminTripStatus.Approved && trip.status == Schemas.TripStatus.Approved) ||
+        (filter.status == Schemas.AdminTripStatus.CheckedInByHost &&
+          trip.status == Schemas.TripStatus.CheckedInByHost) ||
+        (filter.status == Schemas.AdminTripStatus.CheckedInByGuest &&
+          trip.status == Schemas.TripStatus.CheckedInByGuest &&
+          trip.tripStartedBy == trip.guest) ||
+        (filter.status == Schemas.AdminTripStatus.CheckedOutByGuest &&
+          trip.status == Schemas.TripStatus.CheckedOutByGuest &&
+          trip.tripFinishedBy == trip.guest) ||
+        (filter.status == Schemas.AdminTripStatus.CheckedOutByHost &&
+          trip.status == Schemas.TripStatus.CheckedOutByHost &&
+          trip.tripFinishedBy == trip.guest) ||
+        (filter.status == Schemas.AdminTripStatus.Finished && trip.status == Schemas.TripStatus.Finished) ||
+        (filter.status == Schemas.AdminTripStatus.GuestCanceledBeforeApprove &&
+          trip.status == Schemas.TripStatus.Canceled &&
+          trip.approvedDateTime == 0 &&
+          trip.rejectedBy == trip.guest) ||
+        (filter.status == Schemas.AdminTripStatus.HostCanceledBeforeApprove &&
+          trip.status == Schemas.TripStatus.Canceled &&
+          trip.approvedDateTime == 0 &&
+          trip.rejectedBy == trip.host) ||
+        (filter.status == Schemas.AdminTripStatus.GuestCanceledAfterApprove &&
+          trip.status == Schemas.TripStatus.Canceled &&
+          trip.approvedDateTime > 0 &&
+          trip.rejectedBy == trip.guest) ||
+        (filter.status == Schemas.AdminTripStatus.HostCanceledAfterApprove &&
+          trip.status == Schemas.TripStatus.Canceled &&
+          trip.approvedDateTime > 0 &&
+          trip.rejectedBy == trip.host) ||
+        (filter.status == Schemas.AdminTripStatus.CompletedWithoutGuestConfirmation &&
+          trip.status == Schemas.TripStatus.CheckedOutByHost &&
+          trip.tripFinishedBy == trip.host) ||
+        (filter.status == Schemas.AdminTripStatus.CompletedByGuest &&
+          trip.status == Schemas.TripStatus.Finished &&
+          trip.tripFinishedBy == trip.host) ||
+        (filter.status == Schemas.AdminTripStatus.CompletedByAdmin &&
+          trip.status == Schemas.TripStatus.Finished &&
+          tripService.completedByAdmin(trip.tripId))));
   }
 
   //  @dev Initializes the contract with the provided addresses for various services.
