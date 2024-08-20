@@ -62,6 +62,7 @@ interface Schemas {
     string geoApiKey;
     bool insuranceIncluded;
     SignedLocationInfo locationInfo;
+    bool currentlyListed;
   }
 
   /// @notice Struct to store input parameters for updating car information.
@@ -490,5 +491,42 @@ interface Schemas {
   struct KycCommissionData {
     uint paidTime;
     bool commissionPaid;
+  }
+
+  struct TripFilter {
+    PaymentStatus paymentStatus;
+    AdminTripStatus status;
+    LocationInfo location;
+    uint startDateTime;
+    uint endDateTime;
+  }
+  enum PaymentStatus {
+    Any,
+    PaidToHost,
+    Unpaid,
+    RefundToGuest,
+    Prepayment
+  }
+  enum AdminTripStatus {
+    Any,
+    Created,
+    Approved,
+    CheckedInByHost,
+    CheckedInByGuest,
+    CheckedOutByGuest,
+    CheckedOutByHost,
+    Finished,
+    GuestCanceledBeforeApprove,
+    HostCanceledBeforeApprove,
+    GuestCanceledAfterApprove,
+    HostCanceledAfterApprove,
+    CompletedWithoutGuestConfirmation,
+    CompletedByGuest,
+    CompletedByAdmin
+  }
+
+  struct AllTripsDTO {
+    Trip[] trips;
+    uint totalPageCount;
   }
 }
