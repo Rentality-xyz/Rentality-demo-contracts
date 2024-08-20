@@ -1,7 +1,7 @@
 const { expect } = require('chai')
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 
-const { getMockCarRequest, getMockCarRequestWithAddress, locationInfo } = require('../utils')
+const { getMockCarRequest, getMockCarRequestWithAddress, locationInfo, signTCMessage } = require('../utils')
 const { deployFixtureWith1Car } = require('./deployments')
 
 describe('RentalityCarToken: search functions', function () {
@@ -145,10 +145,11 @@ describe('RentalityCarToken: search functions', function () {
   })
 
   it('Search with country should work', async function () {
-    const { rentalityCarToken, rentalityTripService, guest, rentalityGateway } =
+    const { rentalityCarToken, rentalityTripService, guest, rentalityGateway, host } =
       await loadFixture(deployFixtureWith1Car)
 
-    const carRequest = getMockCarRequestWithAddress(2, 'Michigan Ave, Chicago, Florida, Country')
+    let carRequest = getMockCarRequestWithAddress(2, 'Michigan Ave, Chicago, Florida, Country')
+
     await rentalityCarToken.addCar(carRequest)
 
     const searchCarParams1 = {
