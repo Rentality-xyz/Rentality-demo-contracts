@@ -102,11 +102,115 @@
     },
     {
       "type": "function",
-      "name": "confirmCheckOut",
-      "constant": false,
+      "name": "getAllTrips",
+      "constant": true,
+      "stateMutability": "view",
       "payable": false,
-      "inputs": [{ "type": "uint256", "name": "tripId" }],
-      "outputs": []
+      "inputs": [
+        {
+          "type": "tuple",
+          "name": "filter",
+          "components": [
+            { "type": "uint8", "name": "paymentStatus" },
+            { "type": "uint8", "name": "status" },
+            {
+              "type": "tuple",
+              "name": "location",
+              "components": [
+                { "type": "string", "name": "userAddress" },
+                { "type": "string", "name": "country" },
+                { "type": "string", "name": "state" },
+                { "type": "string", "name": "city" },
+                { "type": "string", "name": "latitude" },
+                { "type": "string", "name": "longitude" },
+                { "type": "string", "name": "timeZoneId" }
+              ]
+            },
+            { "type": "uint256", "name": "startDateTime" },
+            { "type": "uint256", "name": "endDateTime" }
+          ]
+        },
+        { "type": "uint256", "name": "page" },
+        { "type": "uint256", "name": "itemsPerPage" }
+      ],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "",
+          "components": [
+            {
+              "type": "tuple[]",
+              "name": "trips",
+              "components": [
+                { "type": "uint256", "name": "tripId" },
+                { "type": "uint256", "name": "carId" },
+                { "type": "uint8", "name": "status" },
+                { "type": "address", "name": "guest" },
+                { "type": "address", "name": "host" },
+                { "type": "string", "name": "guestName" },
+                { "type": "string", "name": "hostName" },
+                { "type": "uint64", "name": "pricePerDayInUsdCents" },
+                { "type": "uint64", "name": "startDateTime" },
+                { "type": "uint64", "name": "endDateTime" },
+                { "type": "uint8", "name": "engineType" },
+                { "type": "uint64", "name": "milesIncludedPerDay" },
+                { "type": "uint64", "name": "fuelPrice" },
+                {
+                  "type": "tuple",
+                  "name": "paymentInfo",
+                  "components": [
+                    { "type": "uint256", "name": "tripId" },
+                    { "type": "address", "name": "from" },
+                    { "type": "address", "name": "to" },
+                    { "type": "uint64", "name": "totalDayPriceInUsdCents" },
+                    { "type": "uint64", "name": "salesTax" },
+                    { "type": "uint64", "name": "governmentTax" },
+                    { "type": "uint64", "name": "priceWithDiscount" },
+                    { "type": "uint64", "name": "depositInUsdCents" },
+                    { "type": "uint64", "name": "resolveAmountInUsdCents" },
+                    { "type": "address", "name": "currencyType" },
+                    { "type": "int256", "name": "currencyRate" },
+                    { "type": "uint8", "name": "currencyDecimals" },
+                    { "type": "uint64", "name": "resolveFuelAmountInUsdCents" },
+                    { "type": "uint64", "name": "resolveMilesAmountInUsdCents" },
+                    { "type": "uint128", "name": "pickUpFee" },
+                    { "type": "uint128", "name": "dropOfFee" }
+                  ]
+                },
+                { "type": "uint256", "name": "createdDateTime" },
+                { "type": "uint256", "name": "approvedDateTime" },
+                { "type": "uint256", "name": "rejectedDateTime" },
+                { "type": "string", "name": "guestInsuranceCompanyName" },
+                { "type": "string", "name": "guestInsurancePolicyNumber" },
+                { "type": "address", "name": "rejectedBy" },
+                { "type": "uint256", "name": "checkedInByHostDateTime" },
+                { "type": "uint64[]", "name": "startParamLevels" },
+                { "type": "uint256", "name": "checkedInByGuestDateTime" },
+                { "type": "address", "name": "tripStartedBy" },
+                { "type": "uint256", "name": "checkedOutByGuestDateTime" },
+                { "type": "address", "name": "tripFinishedBy" },
+                { "type": "uint64[]", "name": "endParamLevels" },
+                { "type": "uint256", "name": "checkedOutByHostDateTime" },
+                {
+                  "type": "tuple",
+                  "name": "transactionInfo",
+                  "components": [
+                    { "type": "uint256", "name": "rentalityFee" },
+                    { "type": "uint256", "name": "depositRefund" },
+                    { "type": "uint256", "name": "tripEarnings" },
+                    { "type": "uint256", "name": "dateTime" },
+                    { "type": "uint8", "name": "statusBeforeCancellation" }
+                  ]
+                },
+                { "type": "uint256", "name": "finishDateTime" },
+                { "type": "bytes32", "name": "pickUpHash" },
+                { "type": "bytes32", "name": "returnHash" }
+              ]
+            },
+            { "type": "uint256", "name": "totalPageCount" }
+          ]
+        }
+      ]
     },
     {
       "type": "function",
@@ -262,6 +366,14 @@
     },
     {
       "type": "function",
+      "name": "payToHost",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "tripId" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
       "name": "proxiableUUID",
       "constant": true,
       "stateMutability": "view",
@@ -271,7 +383,7 @@
     },
     {
       "type": "function",
-      "name": "rejectTripRequest",
+      "name": "refundToGuest",
       "constant": false,
       "payable": false,
       "inputs": [{ "type": "uint256", "name": "tripId" }],
