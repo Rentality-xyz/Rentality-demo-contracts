@@ -10,6 +10,51 @@ const signTCMessage = async (user) => {
   )
   return await user.signMessage(message)
 }
+const emptyLocationInfo = {
+  userAddress: '',
+  country: '',
+  state: '',
+  city: '',
+  latitude: '',
+  longitude: '',
+  timeZoneId: '',
+}
+
+const PaymentStatus = {
+  Any: 0,
+  PaidToHost: 1,
+  Unpaid: 2,
+  RefundToGuest: 3,
+  Prepayment: 4,
+}
+
+// Перечисление AdminTripStatus с числовыми значениями
+const AdminTripStatus = {
+  Any: 0,
+  Created: 1,
+  Approved: 2,
+  CheckedInByHost: 3,
+  CheckedInByGuest: 4,
+  CheckedOutByGuest: 5,
+  CheckedOutByHost: 6,
+  Finished: 7,
+  GuestCanceledBeforeApprove: 8,
+  HostCanceledBeforeApprove: 9,
+  GuestCanceledAfterApprove: 10,
+  HostCanceledAfterApprove: 11,
+  CompletedWithoutGuestConfirmation: 12,
+  CompletedByGuest: 13,
+  CompletedByAdmin: 14,
+}
+
+// Пример использования
+const filter = {
+  paymentStatus: PaymentStatus.Any,
+  status: AdminTripStatus.Any,
+  location: emptyLocationInfo,
+  startDateTime: 0,
+  endDateTime: 0,
+}
 
 const calculatePayments = async (currencyConverter, paymentService, value, tripDays, deposit, token = ethToken) => {
   let priceWithDiscount = await paymentService.calculateSumWithDiscount(
@@ -470,4 +515,8 @@ module.exports = {
   calculatePaymentsFrom,
   signTCMessage,
   locationInfo,
+  filter,
+  AdminTripStatus,
+  PaymentStatus,
+  emptyLocationInfo,
 }
