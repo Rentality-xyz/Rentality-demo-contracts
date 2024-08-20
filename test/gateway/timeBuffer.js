@@ -76,7 +76,7 @@ describe('RentalityGateway: time buffer', function () {
       locationInfo: locationInfo1,
     }
 
-    await expect(rentalityGateway.connect(host).addCar(createCarRequest)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(createCarRequest,zeroHash)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
@@ -128,7 +128,7 @@ describe('RentalityGateway: time buffer', function () {
       locationInfo: locationInfo1,
     }
 
-    await expect(rentalityGateway.connect(host).addCar(createCarRequest)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(createCarRequest,zeroHash)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
@@ -181,7 +181,7 @@ describe('RentalityGateway: time buffer', function () {
       geoApiKey: 'aasda',
     }
 
-    await expect(rentalityGateway.connect(host).addCar(createCarRequest)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(createCarRequest,zeroHash)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
@@ -238,7 +238,7 @@ describe('RentalityGateway: time buffer', function () {
       locationInfo: locationInfo1,
     }
 
-    await expect(rentalityGateway.connect(host).addCar(createCarRequest)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(createCarRequest,zeroHash)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 

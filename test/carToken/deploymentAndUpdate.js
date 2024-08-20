@@ -1,7 +1,7 @@
 const { expect } = require('chai')
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 
-const { getMockCarRequest, locationInfo } = require('../utils')
+const { getMockCarRequest, locationInfo, zeroHash} = require('../utils')
 const { deployFixtureWith1Car, deployDefaultFixture } = require('./deployments')
 
 describe('RentalityCarToken: deployment and update', function () {
@@ -27,7 +27,7 @@ it('Update car without location should work fine', async function () {
   const { rentalityCarToken } = await loadFixture(deployFixtureWith1Car)
 
   let request = getMockCarRequest(1)
-  await expect(rentalityCarToken.addCar(request)).not.be.reverted
+  await expect(rentalityCarToken.addCar(request,zeroHash)).not.be.reverted
 
   let update_params = {
     carId: 2,
@@ -52,7 +52,7 @@ it('Update car with location, but without api should revert', async function () 
   const { rentalityCarToken } = await loadFixture(deployFixtureWith1Car)
 
   let request = getMockCarRequest(1)
-  await expect(rentalityCarToken.addCar(request)).not.be.reverted
+  await expect(rentalityCarToken.addCar(request,zeroHash)).not.be.reverted
 
   let update_params = {
     carId: 2,
@@ -70,7 +70,7 @@ it('Update with location should pass locationVarification param to false', async
   const { rentalityCarToken, rentalityGeoService, geoParserMock } = await loadFixture(deployFixtureWith1Car)
 
   let request = getMockCarRequest(1)
-  await expect(rentalityCarToken.addCar(request)).not.be.reverted
+  await expect(rentalityCarToken.addCar(request,zeroHash)).not.be.reverted
 
   let update_params = {
     carId: 2,

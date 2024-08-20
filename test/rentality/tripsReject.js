@@ -1,6 +1,6 @@
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 const { expect } = require('chai')
-const { getMockCarRequest, getEmptySearchCarParams, ethToken, calculatePayments } = require('../utils')
+const { getMockCarRequest, getEmptySearchCarParams, ethToken, calculatePayments, zeroHash} = require('../utils')
 const { deployDefaultFixture } = require('./deployments')
 const { ethers } = require('hardhat')
 
@@ -16,7 +16,7 @@ describe('Rentality: reject Trip Request', function () {
       guest,
     } = await loadFixture(deployDefaultFixture)
 
-    await expect(rentalityCarToken.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
+    await expect(rentalityCarToken.connect(host).addCar(getMockCarRequest(0),zeroHash)).not.to.be.reverted
     const myCars = await rentalityCarToken.connect(host).getCarsOwnedByUser(host.address)
     expect(myCars.length).to.equal(1)
     const availableCars = await rentalityCarToken.connect(guest).getAvailableCarsForUser(guest.address)
@@ -63,7 +63,7 @@ describe('Rentality: reject Trip Request', function () {
       guest,
     } = await loadFixture(deployDefaultFixture)
 
-    await expect(rentalityCarToken.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
+    await expect(rentalityCarToken.connect(host).addCar(getMockCarRequest(0),zeroHash)).not.to.be.reverted
     const myCars = await rentalityCarToken.connect(host).getCarsOwnedByUser(host.address)
     expect(myCars.length).to.equal(1)
     const availableCars = await rentalityCarToken.connect(guest).getAvailableCarsForUser(guest.address)
@@ -109,7 +109,7 @@ describe('Rentality: reject Trip Request', function () {
       guest,
     } = await loadFixture(deployDefaultFixture)
 
-    await expect(rentalityCarToken.connect(host).addCar(getMockCarRequest(1))).not.to.be.reverted
+    await expect(rentalityCarToken.connect(host).addCar(getMockCarRequest(1),zeroHash)).not.to.be.reverted
     const myCars = await rentalityCarToken.connect(host).getCarsOwnedByUser(host.address)
     expect(myCars.length).to.equal(1)
     const availableCars = await rentalityCarToken.connect(guest).getAvailableCarsForUser(guest.address)
@@ -137,7 +137,7 @@ describe('Rentality: reject Trip Request', function () {
     const { rentalityGateway, rentalityCarToken, rentalityTripService, host, guest } =
       await loadFixture(deployDefaultFixture)
 
-    await expect(rentalityCarToken.connect(host).addCar(getMockCarRequest(1))).not.to.be.reverted
+    await expect(rentalityCarToken.connect(host).addCar(getMockCarRequest(1),zeroHash)).not.to.be.reverted
     const myCars = await rentalityCarToken.connect(host).getCarsOwnedByUser(host.address)
     expect(myCars.length).to.equal(1)
     const availableCars = await rentalityCarToken.connect(guest).getAvailableCarsForUser(guest.address)

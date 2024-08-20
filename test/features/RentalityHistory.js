@@ -1,6 +1,6 @@
 const { expect } = require('chai')
 
-const { getMockCarRequest, TripStatus, deployDefaultFixture, ethToken, calculatePayments } = require('../utils')
+const { getMockCarRequest, TripStatus, deployDefaultFixture, ethToken, calculatePayments, zeroHash} = require('../utils')
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 
 describe('Rentality History Service', function () {
@@ -34,7 +34,7 @@ describe('Rentality History Service', function () {
   })
 
   it('should create history in case of cancellation', async function () {
-    await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(1))).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(1),zeroHash)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
@@ -69,7 +69,7 @@ describe('Rentality History Service', function () {
   })
   it('Happy case has history', async function () {
     const request = getMockCarRequest(55)
-    await expect(rentalityGateway.connect(host).addCar(request)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(request,zeroHash)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
@@ -141,7 +141,7 @@ describe('Rentality History Service', function () {
 
   it('Should have receipt after trip end', async function () {
     const request = getMockCarRequest(51)
-    await expect(rentalityGateway.connect(host).addCar(request)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(request,zeroHash)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
