@@ -524,9 +524,14 @@ interface Schemas {
     CompletedByGuest,
     CompletedByAdmin
   }
+  struct AdminTripDTO {
+    Trip trip;
+    string carMetadataURI;
+    LocationInfo carLocation;
+  }
 
   struct AllTripsDTO {
-    Trip[] trips;
+    AdminTripDTO[] trips;
     uint totalPageCount;
   }
 }

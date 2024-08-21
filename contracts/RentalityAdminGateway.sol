@@ -289,7 +289,7 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
         counter += 1;
       }
     }
-    if (counter == 0) return Schemas.AllTripsDTO(new Schemas.Trip[](0), 0);
+    if (counter == 0) return Schemas.AllTripsDTO(new Schemas.AdminTripDTO[](0), 0);
     uint totalPageCount = (counter + itemsPerPage - 1) / itemsPerPage;
 
     if (page > totalPageCount) {
@@ -302,9 +302,15 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
     if (endIndex > counter) {
       endIndex = counter;
     }
-    Schemas.Trip[] memory result = new Schemas.Trip[](endIndex - startIndex);
+    Schemas.AdminTripDTO[] memory result = new Schemas.AdminTripDTO[](endIndex - startIndex);
     for (uint i = startIndex; i < endIndex; i++) {
-      result[i - startIndex] = tripService.getTrip(matchedTrips[i]);
+      Schemas.Trip memory trip = tripService.getTrip(matchedTrips[i]);
+      Schemas.CarInfo memory car = carService.getCarInfoById(trip.carId);
+      result[i - startIndex] = Schemas.AdminTripDTO(
+        trip,
+        carService.tokenURI(trip.carId),
+        IRentalityGeoService(carService.getGeoServiceAddress()).getLocationInfo(car.locationHash)
+      );
     }
 
     return Schemas.AllTripsDTO(result, totalPageCount);
