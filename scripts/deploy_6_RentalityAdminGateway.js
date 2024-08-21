@@ -51,8 +51,16 @@ async function main() {
     getContractAddress('RentalityView', 'scripts/deploy_4b_RentalityView.js', chainId),
     'RentalityView'
   )
+  const rentalityUtilsAddress = checkNotNull(
+    getContractAddress('RentalityUtils', 'scripts/deploy_1a_RentalityUtils.js', chainId),
+    'RentalityUtils'
+  )
 
-  const contractFactory = await ethers.getContractFactory(contractName)
+  const contractFactory = await ethers.getContractFactory(contractName, {
+    libraries: {
+      RentalityUtils: rentalityUtilsAddress,
+    },
+  })
 
   const contract = await upgrades.deployProxy(contractFactory, [
     rentalityCarTokenAddress,
