@@ -65,4 +65,13 @@ module.exports = {
       // evmVersion: 'cancun',
     },
   },
+  sourcify: {
+    enabled: true,
+  },
+  etherscan: {
+    apiKey: {
+      baseSepolia: process.env.BASE_API_TOKEN,
+      base: process.env.BASE_API_TOKEN,
+    }, // command to run: npx hardhat verify --network <contract address>
+  },
 }
