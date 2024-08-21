@@ -78,6 +78,7 @@ describe('Rentality Delivery', function () {
 
         timeZoneId: 'id',
       }
+
       let locationInfo2 = {
         latitude: pickUpLat,
         longitude: pickUpLon,
@@ -327,6 +328,7 @@ describe('Rentality Delivery', function () {
       geoApiKey: 'key',
       locationInfo,
       insuranceIncluded: true,
+      currentlyListed: true,
     }
     await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest)).not.to.be.reverted
 
@@ -345,6 +347,7 @@ describe('Rentality Delivery', function () {
       geoApiKey: 'key',
       locationInfo: locationInfo1,
       insuranceIncluded: true,
+      currentlyListed: true,
     }
     await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest1)).not.to.be.reverted
 
@@ -363,6 +366,7 @@ describe('Rentality Delivery', function () {
       geoApiKey: 'key',
       locationInfo: locationInfo2,
       insuranceIncluded: true,
+      currentlyListed: true,
     }
     await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest2)).not.to.be.reverted
     let loc = {
@@ -390,6 +394,7 @@ describe('Rentality Delivery', function () {
       geoApiKey: 'key',
       locationInfo: locationInfo1,
       insuranceIncluded: true,
+      currentlyListed: true,
     }
     const mockCreateCarRequest3 = {
       tokenUri: 'uri',
@@ -406,6 +411,7 @@ describe('Rentality Delivery', function () {
       geoApiKey: 'key',
       locationInfo: locationInfo,
       insuranceIncluded: true,
+      currentlyListed: true,
     }
     const mockCreateCarRequest4 = {
       tokenUri: 'uri',
@@ -422,6 +428,7 @@ describe('Rentality Delivery', function () {
       geoApiKey: 'key',
       locationInfo: locationInfo2,
       insuranceIncluded: true,
+      currentlyListed: true,
     }
     await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest4)).not.to.be.reverted
     await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest5)).not.to.be.reverted
@@ -430,7 +437,5 @@ describe('Rentality Delivery', function () {
 
     let emptySearchParams = { ...getEmptySearchCarParams(), userLocation: loc }
     let result = await rentalityGateway.searchAvailableCarsWithDelivery(0, 1, emptySearchParams, loc, loc)
-
-    console.log(result)
   })
 })
