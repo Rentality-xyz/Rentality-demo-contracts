@@ -100,7 +100,7 @@ library RentalityUtils {
   /// @notice Converts a string to lowercase.
   /// @param str The input string to convert.
   /// @return Returns the lowercase version of the input string.
-  function toLower(string memory str) internal pure returns (string memory) {
+  function toLower(string memory str) public pure returns (string memory) {
     bytes memory bStr = bytes(str);
     bytes memory bLower = new bytes(bStr.length);
     for (uint i = 0; i < bStr.length; i++) {
@@ -119,7 +119,7 @@ library RentalityUtils {
   /// @param where The string to search within.
   /// @param what The word to search for.
   /// @return found Returns true if the word is found, false otherwise.
-  function containWord(string memory where, string memory what) internal pure returns (bool found) {
+  function containWord(string memory where, string memory what) public pure returns (bool found) {
     bytes memory whatBytes = bytes(what);
     bytes memory whereBytes = bytes(where);
 
