@@ -23,7 +23,7 @@ interface Schemas {
     bool currentlyListed;
     bool geoVerified;
     string timeZoneId;
-    bool insuranceIncluded;
+    bool insuranceIncluded; // unused
     bytes32 locationHash;
   }
 
@@ -60,8 +60,10 @@ interface Schemas {
     uint64 milesIncludedPerDay;
     uint32 timeBufferBetweenTripsInSec;
     string geoApiKey;
-    bool insuranceIncluded;
     SignedLocationInfo locationInfo;
+    bool currentlyListed;
+    bool insuranceRequired;
+    uint insurancePriceInUsdCents;
   }
 
   /// @notice Struct to store input parameters for updating car information.
@@ -73,7 +75,8 @@ interface Schemas {
     uint64 milesIncludedPerDay;
     uint32 timeBufferBetweenTripsInSec;
     bool currentlyListed;
-    bool insuranceIncluded;
+    bool insuranceRequired;
+    uint insurancePrice;
   }
 
   /// @notice Struct to store search parameters for querying cars.
@@ -98,6 +101,8 @@ interface Schemas {
     uint64 startDateTime;
     uint64 endDateTime;
     address currencyType;
+    bool insurancePaid;
+    string photo;
   }
 
   struct CreateTripRequestWithDelivery {
@@ -107,6 +112,8 @@ interface Schemas {
     address currencyType;
     SignedLocationInfo pickUpInfo;
     SignedLocationInfo returnInfo;
+    bool insurancePaid;
+    string photo;
   }
 
   /// @dev Enumeration representing verious states of a trip.
@@ -349,6 +356,7 @@ interface Schemas {
     uint64 endFuelLevel;
     uint64 startOdometer;
     uint64 endOdometer;
+    uint64 insuranceFee;
   }
 
   struct CalculatePaymentsDTO {
@@ -490,5 +498,17 @@ interface Schemas {
   struct KycCommissionData {
     uint paidTime;
     bool commissionPaid;
+  }
+
+  /// Insurance Info
+  struct InsuranceCarInfo {
+    bool required;
+    uint priceInUsdCents;
+  }
+
+  struct InsuranceTripInfo {
+    bool payedByGuest;
+    string insurancePhoto;
+    uint totalPaid;
   }
 }

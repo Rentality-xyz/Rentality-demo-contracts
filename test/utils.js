@@ -81,9 +81,19 @@ const locationInfo = {
   longitude: '-122.682653',
   timeZoneId: 'id',
 }
+const emptyLocationInfo = {
+  userAddress: '',
+  country: '',
+  state: '',
+  city: '',
+  latitude: '',
+  longitude: '',
+  timeZoneId: '',
+}
 
 function getMockCarRequestWithAddress(seed, address) {
   let locationInfo2 = { ...locationInfo, userAddress: address }
+
   return { ...getMockCarRequest(seed), locationInfo: locationInfo2 }
 }
 
@@ -128,6 +138,9 @@ function getMockCarRequest(seed) {
     geoApiKey: apiKey,
     insuranceIncluded: true,
     locationInfo: locationInfo1,
+    currentlyListed: true,
+    insuranceRequired: false,
+    insurancePriceInUsdCents: 0,
   }
 }
 
@@ -325,6 +338,13 @@ async function deployDefaultFixture() {
   const claimService = await upgrades.deployProxy(RentalityClaimService, [await rentalityUserService.getAddress()])
   await claimService.waitForDeployment()
 
+  const RentalityInsurance = await ethers.getContractFactory('RentalityInsurance')
+  const insuranceService = await upgrades.deployProxy(RentalityInsurance, [
+    await rentalityUserService.getAddress(),
+    await rentalityCarToken.getAddress(),
+  ])
+  await insuranceService.waitForDeployment()
+
   const RealMath = await ethers.getContractFactory('RealMath')
   const realMath = await RealMath.deploy()
 
@@ -352,6 +372,7 @@ async function deployDefaultFixture() {
     await rentalityPaymentService.getAddress(),
     await claimService.getAddress(),
     await deliveryService.getAddress(),
+    await insuranceService.getAddress(),
   ])
   await rentalityView.waitForDeployment()
 
@@ -364,6 +385,7 @@ async function deployDefaultFixture() {
     await claimService.getAddress(),
     await deliveryService.getAddress(),
     await rentalityView.getAddress(),
+    await insuranceService.getAddress(),
   ])
   await rentalityPlatform.waitForDeployment()
 
@@ -379,12 +401,17 @@ async function deployDefaultFixture() {
     await claimService.getAddress(),
     await deliveryService.getAddress(),
     await rentalityView.getAddress(),
+    await insuranceService.getAddress(),
   ])
   await rentalityAdminGateway.waitForDeployment()
 
   await rentalityUserService.connect(owner).grantHostRole(await rentalityPlatform.getAddress())
 
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityPlatform.getAddress())
+
+  await rentalityUserService.connect(owner).grantManagerRole(await rentalityCarToken.getAddress())
+
+  await rentalityUserService.connect(owner).grantManagerRole(await rentalityUserService.getAddress())
 
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityTripService.getAddress())
 
@@ -468,4 +495,5 @@ module.exports = {
   calculatePaymentsFrom,
   signTCMessage,
   locationInfo,
+  emptyLocationInfo,
 }

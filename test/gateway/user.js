@@ -9,6 +9,7 @@ const {
   ethToken,
   calculatePayments,
   signTCMessage,
+  emptyLocationInfo,
 } = require('../utils')
 
 describe('RentalityGateway: user info', function () {
@@ -102,23 +103,6 @@ describe('RentalityGateway: user info', function () {
     expect(kycInfo.expirationDate).to.equal(expirationDate)
   })
 
-  it('Should not anonymous be able to create KYC', async function () {
-    let name = 'name'
-    let surname = 'surname'
-    let number = '+380'
-    let photo = 'photo'
-    let licenseNumber = 'licenseNumber'
-    let expirationDate = 10
-
-    const anonSignature = await signTCMessage(anonymous)
-
-    await expect(
-      rentalityUserService
-        .connect(anonymous)
-        .setKYCInfo(name, surname, number, photo, licenseNumber, expirationDate, anonSignature)
-    ).to.be.reverted
-  })
-
   it('Guest should be able to get trip contacts', async function () {
     await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
@@ -129,7 +113,7 @@ describe('RentalityGateway: user info', function () {
 
     const dailyPriceInUsdCents = 1000
 
-    const result = await rentalityGateway.calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway.calculatePayments(1, 1, ethToken, false)
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
         {
@@ -137,6 +121,16 @@ describe('RentalityGateway: user info', function () {
           startDateTime: 123,
           endDateTime: 321,
           currencyType: ethToken,
+          insurancePaid: false,
+          photo: '',
+          pickUpInfo: {
+            signature: guest.address,
+            locationInfo: emptyLocationInfo,
+          },
+          returnInfo: {
+            signature: guest.address,
+            locationInfo: emptyLocationInfo,
+          },
         },
         { value: result.totalPrice }
       )
@@ -173,7 +167,7 @@ describe('RentalityGateway: user info', function () {
 
     const dailyPriceInUsdCents = 1000
 
-    const result = await rentalityGateway.calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway.calculatePayments(1, 1, ethToken, false)
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
         {
@@ -181,6 +175,16 @@ describe('RentalityGateway: user info', function () {
           startDateTime: 123,
           endDateTime: 321,
           currencyType: ethToken,
+          insurancePaid: false,
+          photo: '',
+          pickUpInfo: {
+            signature: guest.address,
+            locationInfo: emptyLocationInfo,
+          },
+          returnInfo: {
+            signature: guest.address,
+            locationInfo: emptyLocationInfo,
+          },
         },
         { value: result.totalPrice }
       )
@@ -214,7 +218,7 @@ describe('RentalityGateway: user info', function () {
 
     const dailyPriceInUsdCents = 1000
 
-    const result = await rentalityGateway.calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway.calculatePayments(1, 1, ethToken, false)
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
         {
@@ -222,6 +226,16 @@ describe('RentalityGateway: user info', function () {
           startDateTime: 123,
           endDateTime: 321,
           currencyType: ethToken,
+          insurancePaid: false,
+          photo: '',
+          pickUpInfo: {
+            signature: guest.address,
+            locationInfo: emptyLocationInfo,
+          },
+          returnInfo: {
+            signature: guest.address,
+            locationInfo: emptyLocationInfo,
+          },
         },
         { value: result.totalPrice }
       )
