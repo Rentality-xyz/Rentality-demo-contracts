@@ -418,6 +418,7 @@ async function deployDefaultFixture() {
     signer: owner,
     libraries: {
       RentalityUtils: await utils.getAddress(),
+      RentalityQuery: await query.getAddress(),
     },
   })
 
