@@ -5,6 +5,8 @@ import './payments/RentalityPaymentService.sol';
 import './RentalityPlatform.sol';
 import './abstract/IRentalityAdminGateway.sol';
 import {RentalityContract, RentalityGateway} from './RentalityGateway.sol';
+import './Schemas.sol';
+import './Schemas.sol';
 
 /// @custom:oz-upgrades-unsafe-allow external-library-linking
 contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
@@ -391,6 +393,35 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
         (filter.status == Schemas.AdminTripStatus.CompletedByAdmin &&
           trip.status == Schemas.TripStatus.Finished &&
           tripService.completedByAdmin(trip.tripId))));
+  }
+
+  function manageRole(Schemas.Role role, address user, bool grant /*revoke if false*/) public {
+    userService.manageRole(role, user, grant);
+  }
+
+  function getAllCars(uint page, uint itemsPerPage) public view returns (Schemas.AllCarsDTO memory) {
+    uint totalCarsAmount = carService.totalSupply();
+
+    uint totalPageCount = (totalCarsAmount + itemsPerPage - 1) / itemsPerPage;
+
+    if (page > totalPageCount) {
+      page = totalPageCount;
+    }
+
+    uint startIndex = (page - 1) * itemsPerPage + 1;
+    uint endIndex = startIndex + itemsPerPage - 1;
+
+    if (endIndex > totalCarsAmount) {
+      endIndex = totalCarsAmount;
+    }
+    RentalityContract memory contracts = getRentalityContracts();
+
+    Schemas.AdminCarDTO[] memory cars = new Schemas.AdminCarDTO[](endIndex - startIndex + 1);
+    for (uint i = startIndex; i <= endIndex; i++) {
+      cars[i - startIndex].car = RentalityQuery.getCarDetails(contracts, i);
+      cars[i - startIndex].carMetadataURI = contracts.carService.tokenURI(i);
+    }
+    return Schemas.AllCarsDTO(cars, totalPageCount);
   }
 
   //  @dev Initializes the contract with the provided addresses for various services.

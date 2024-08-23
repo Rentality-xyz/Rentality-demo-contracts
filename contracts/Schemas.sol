@@ -21,7 +21,7 @@ interface Schemas {
     uint64 milesIncludedPerDay;
     uint32 timeBufferBetweenTripsInSec;
     bool currentlyListed;
-    bool geoVerified;
+    bool geoVerified; // unused
     string timeZoneId;
     bool insuranceIncluded;
     bytes32 locationHash;
@@ -485,7 +485,7 @@ interface Schemas {
 
   struct SignedLocationInfo {
     LocationInfo locationInfo;
-    string signature;
+    bytes signature;
   }
 
   struct KycCommissionData {
@@ -533,5 +533,22 @@ interface Schemas {
   struct AllTripsDTO {
     AdminTripDTO[] trips;
     uint totalPageCount;
+  }
+
+  struct AdminCarDTO {
+    CarDetails car;
+    string carMetadataURI;
+  }
+
+  struct AllCarsDTO {
+    AdminCarDTO[] cars;
+    uint totalPageCount;
+  }
+
+  enum Role {
+    Guest,
+    Host,
+    Manager,
+    Admin
   }
 }

@@ -73,9 +73,11 @@ contract RentalityPaymentService is UUPSOwnable {
   /// @return The ID of the taxes contract corresponding to the location of the car.
   function defineTaxesType(address carService, uint carId) public view returns (uint) {
     IRentalityGeoService geoService = IRentalityGeoService(RentalityCarToken(carService).getGeoServiceAddress());
-    bytes32 cityHash = keccak256(abi.encode(geoService.getCarCity(carId)));
-    bytes32 stateHash = keccak256(abi.encode(geoService.getCarState(carId)));
-    bytes32 countryHash = keccak256(abi.encode(geoService.getCarCountry(carId)));
+    bytes32 carLocationHash = RentalityCarToken(carService).getCarInfoById(carId).locationHash;
+
+    bytes32 cityHash = keccak256(abi.encode(geoService.getCarCity(carLocationHash)));
+    bytes32 stateHash = keccak256(abi.encode(geoService.getCarState(carLocationHash)));
+    bytes32 countryHash = keccak256(abi.encode(geoService.getCarCountry(carLocationHash)));
 
     for (uint i = 1; i <= taxesId; i++) {
       IRentalityTaxes taxContract = taxesIdToTaxesContract[i];

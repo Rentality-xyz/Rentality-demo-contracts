@@ -53,7 +53,7 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
 
     bool isTCPassed = ECDSA.recover(TCMessageHash, TCSignature) == tx.origin;
 
-    //    require(isTCPassed, 'Wrong signature.');
+    require(isTCPassed, 'Wrong signature.');
 
     kycInfos[tx.origin] = Schemas.KYCInfo(
       name,
@@ -63,8 +63,8 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
       licenseNumber,
       expirationDate,
       block.timestamp,
-      true,
-      //      isTCPassed,
+      //      true,
+      isTCPassed,
       TCSignature
     );
   }
@@ -209,7 +209,7 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
   /// @param message The new message for the TC.
   function setNewTCMessage(string memory message) public {
     require(isAdmin(msg.sender), 'Only admin.');
-    TCMessageHash = ECDSA.toEthSignedMessageHash(keccak256(bytes(message)));
+    TCMessageHash = ECDSA.toEthSignedMessageHash(bytes(message));
   }
 
   function setKycCommission(uint newCommission) public {
@@ -245,6 +245,19 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
     userToKYCCommission[tx.origin].push(Schemas.KycCommissionData(block.timestamp, true));
   }
 
+  function manageRole(Schemas.Role newRole, address user, bool grant) public {
+    require(isAdmin(tx.origin), 'only admin');
+    bytes32 role;
+    if (newRole == Schemas.Role.Guest) role = GUEST_ROLE;
+    else if (newRole == Schemas.Role.Host) role = HOST_ROLE;
+    else if (newRole == Schemas.Role.Manager) role = MANAGER_ROLE;
+    else if (newRole == Schemas.Role.Admin) role = DEFAULT_ADMIN_ROLE;
+    if (grant) _grantRole(role, user);
+    else {
+      _revokeRole(role, user);
+    }
+  }
+
   /// @notice Initializes the contract with the specified Civic verifier address and gatekeeper network ID, and sets the default admin role.
   /// @dev This function is called during contract deployment.
   /// @param _civicVerifier The address of the Civic verifier contract.
@@ -262,9 +275,7 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
     civicVerifier = _civicVerifier;
     civicGatekeeperNetwork = _civicGatekeeperNetwork;
     TCMessageHash = ECDSA.toEthSignedMessageHash(
-      keccak256(
-        'I have read and I agree with Terms of service, Cancellation policy, Prohibited uses and Privacy policy of Rentality.'
-      )
+      'I have read and I agree with Terms of service, Cancellation policy, Prohibited uses and Privacy policy of Rentality.'
     );
     kycCommission = 200;
   }
