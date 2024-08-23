@@ -195,7 +195,7 @@ library RentalityUtils {
       chatInfoList[i].startDateTime = trips[i].trip.startDateTime;
       chatInfoList[i].endDateTime = trips[i].trip.endDateTime;
       chatInfoList[i].timeZoneId = IRentalityGeoService(carService.getGeoServiceAddress()).getCarTimeZoneId(
-        carInfo.carId
+        carInfo.locationHash
       );
     }
 
@@ -377,11 +377,11 @@ library RentalityUtils {
       (bytes(searchCarParams.brand).length == 0 || containWord(toLower(car.brand), toLower(searchCarParams.brand))) &&
       (bytes(searchCarParams.model).length == 0 || containWord(toLower(car.model), toLower(searchCarParams.model))) &&
       (bytes(searchCarParams.country).length == 0 ||
-        containWord(toLower(geoService.getCarCountry(carId)), toLower(searchCarParams.country))) &&
+        containWord(toLower(geoService.getCarCountry(car.locationHash)), toLower(searchCarParams.country))) &&
       (bytes(searchCarParams.state).length == 0 ||
-        containWord(toLower(geoService.getCarState(carId)), toLower(searchCarParams.state))) &&
+        containWord(toLower(geoService.getCarState(car.locationHash)), toLower(searchCarParams.state))) &&
       (bytes(searchCarParams.city).length == 0 ||
-        containWord(toLower(geoService.getCarCity(carId)), toLower(searchCarParams.city))) &&
+        containWord(toLower(geoService.getCarCity(car.locationHash)), toLower(searchCarParams.city))) &&
       (searchCarParams.yearOfProductionFrom == 0 || car.yearOfProduction >= searchCarParams.yearOfProductionFrom) &&
       (searchCarParams.yearOfProductionTo == 0 || car.yearOfProduction <= searchCarParams.yearOfProductionTo) &&
       (searchCarParams.pricePerDayInUsdCentsFrom == 0 ||
@@ -409,8 +409,12 @@ library RentalityUtils {
       .calculatePriceByDeliveryDataInUsdCents(
         pickUpLocation,
         returnLocation,
-        IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getCarLocationLatitude(carId),
-        IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getCarLocationLongitude(carId),
+        IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getCarLocationLatitude(
+          addresses.carService.getCarInfoById(carId).locationHash
+        ),
+        IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getCarLocationLongitude(
+          addresses.carService.getCarInfoById(carId).locationHash
+        ),
         addresses.carService.getCarInfoById(carId).createdBy
       );
     return calculatePayments(addresses, carId, daysOfTrip, currency, deliveryFee);

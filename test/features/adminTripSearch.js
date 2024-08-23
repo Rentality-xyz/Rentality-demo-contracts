@@ -10,6 +10,7 @@ const {
   filter,
   PaymentStatus,
   AdminTripStatus,
+  signLocationInfo,
 } = require('../utils')
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 const { ethers } = require('hardhat')
@@ -35,7 +36,8 @@ describe('Admin trip searching', function () {
     host,
     guest,
     anonymous,
-    rentalityAdminGateway
+    rentalityAdminGateway,
+    rentalityLocationVerifier
 
   beforeEach(async function () {
     ;({
@@ -60,11 +62,12 @@ describe('Admin trip searching', function () {
       guest,
       anonymous,
       rentalityAdminGateway,
+      rentalityLocationVerifier,
     } = await loadFixture(deployDefaultFixture))
   })
 
   it('Search by location', async function () {
-    let request = getMockCarRequest(1)
+    let request = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
     request.locationInfo.locationInfo = {
       latitude: '',
       longitude: '',
@@ -75,6 +78,11 @@ describe('Admin trip searching', function () {
 
       timeZoneId: 'id',
     }
+    request.locationInfo.signature = signLocationInfo(
+      await rentalityLocationVerifier.getAddress(),
+      admin,
+      request.locationInfo.locationInfo
+    )
     await expect(rentalityGateway.connect(host).addCar(request)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
@@ -113,7 +121,7 @@ describe('Admin trip searching', function () {
     expect(result2.trips.length).to.be.eq(0)
   })
   it('Pagination test', async function () {
-    let request = getMockCarRequest(1)
+    let request = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
     request.locationInfo.locationInfo = {
       latitude: '',
       longitude: '',
@@ -124,6 +132,11 @@ describe('Admin trip searching', function () {
 
       timeZoneId: 'id',
     }
+    request.locationInfo.signature = signLocationInfo(
+      await rentalityLocationVerifier.getAddress(),
+      admin,
+      request.locationInfo.locationInfo
+    )
     await expect(rentalityGateway.connect(host).addCar(request)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
@@ -187,7 +200,7 @@ describe('Admin trip searching', function () {
     expect(result4.trips[0].trip.tripId).to.be.eq(10)
   })
   it('Payment status', async function () {
-    let request = getMockCarRequest(1)
+    let request = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
     request.locationInfo.locationInfo = {
       latitude: '',
       longitude: '',
@@ -198,6 +211,11 @@ describe('Admin trip searching', function () {
 
       timeZoneId: 'id',
     }
+    request.locationInfo.signature = signLocationInfo(
+      await rentalityLocationVerifier.getAddress(),
+      admin,
+      request.locationInfo.locationInfo
+    )
     await expect(rentalityGateway.connect(host).addCar(request)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
@@ -264,7 +282,7 @@ describe('Admin trip searching', function () {
     expect(result.trips[0].trip.tripId).to.be.eq(1)
   })
   it('Payment status unpaid', async function () {
-    let request = getMockCarRequest(1)
+    let request = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
     request.locationInfo.locationInfo = {
       latitude: '',
       longitude: '',
@@ -275,6 +293,11 @@ describe('Admin trip searching', function () {
 
       timeZoneId: 'id',
     }
+    request.locationInfo.signature = signLocationInfo(
+      await rentalityLocationVerifier.getAddress(),
+      admin,
+      request.locationInfo.locationInfo
+    )
     await expect(rentalityGateway.connect(host).addCar(request)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
@@ -330,10 +353,10 @@ describe('Admin trip searching', function () {
     expect(result.trips[0].trip.tripId).to.be.eq(1)
   })
   it('Payment status refund to guest', async function () {
-    let request = getMockCarRequest(1)
+    let request = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
     request.locationInfo.locationInfo = {
-      latitude: '',
-      longitude: '',
+      latitude: '1231',
+      longitude: '41241',
       userAddress: 'Miami Riverwalk, Miami, Florida, USA',
       country: 'USA',
       state: 'Florida',
@@ -341,6 +364,11 @@ describe('Admin trip searching', function () {
 
       timeZoneId: 'id',
     }
+    request.locationInfo.signature = signLocationInfo(
+      await rentalityLocationVerifier.getAddress(),
+      admin,
+      request.locationInfo.locationInfo
+    )
     await expect(rentalityGateway.connect(host).addCar(request)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
@@ -376,7 +404,7 @@ describe('Admin trip searching', function () {
     expect(result.trips[0].trip.tripId).to.be.eq(1)
   })
   it('Admin status', async function () {
-    let request = getMockCarRequest(1)
+    let request = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
     request.locationInfo.locationInfo = {
       latitude: '',
       longitude: '',
@@ -387,6 +415,11 @@ describe('Admin trip searching', function () {
 
       timeZoneId: 'id',
     }
+    request.locationInfo.signature = signLocationInfo(
+      await rentalityLocationVerifier.getAddress(),
+      admin,
+      request.locationInfo.locationInfo
+    )
     await expect(rentalityGateway.connect(host).addCar(request)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
@@ -444,5 +477,49 @@ describe('Admin trip searching', function () {
     result = await rentalityAdminGateway.getAllTrips(searchFiler, 1, 3)
     expect(result.trips.length).to.be.eq(1)
     expect(result.trips[0].trip.tripId).to.be.eq(1)
+  })
+
+  it('All cars pagination test', async function () {
+    for (let i = 0; i < 10; i++)
+      await expect(
+        rentalityGateway.connect(host).addCar(getMockCarRequest(i, await rentalityLocationVerifier.getAddress(), admin))
+      ).not.to.be.reverted
+
+    let result = await rentalityAdminGateway.getAllCars(1, 3)
+    expect(result.cars.length).to.be.eq(3)
+    expect(result.totalPageCount).to.be.eq(4)
+
+    expect(result.cars[0].car.carId).to.be.eq(1)
+    expect(result.cars[1].car.carId).to.be.eq(2)
+    expect(result.cars[2].car.carId).to.be.eq(3)
+
+    result = await rentalityAdminGateway.getAllCars(2, 3)
+    expect(result.cars.length).to.be.eq(3)
+
+    expect(result.cars[0].car.carId).to.be.eq(4)
+    expect(result.cars[1].car.carId).to.be.eq(5)
+    expect(result.cars[2].car.carId).to.be.eq(6)
+
+    result = await rentalityAdminGateway.getAllCars(3, 3)
+    expect(result.cars.length).to.be.eq(3)
+
+    expect(result.cars[0].car.carId).to.be.eq(7)
+    expect(result.cars[1].car.carId).to.be.eq(8)
+    expect(result.cars[2].car.carId).to.be.eq(9)
+
+    result = await rentalityAdminGateway.getAllCars(4, 3)
+    expect(result.cars.length).to.be.eq(1)
+
+    expect(result.cars[0].car.carId).to.be.eq(10)
+  })
+
+  it('Role manage', async function () {
+    await expect(rentalityAdminGateway.manageRole(3, anonymous.address, true)).to.not.reverted
+    expect(await rentalityUserService.isAdmin(anonymous.address)).to.be.eq(true)
+
+    await expect(rentalityAdminGateway.manageRole(3, anonymous.address, false)).to.not.reverted
+    expect(await rentalityUserService.isAdmin(anonymous.address)).to.be.eq(false)
+
+    await expect(rentalityAdminGateway.connect(host).manageRole(3, admin.address, false)).to.be.reverted
   })
 })

@@ -72,7 +72,9 @@ library RentalityQuery {
           hostPhoneNumber,
           carInfo,
           valueInEth,
-          IRentalityGeoService(contracts.carService.getGeoServiceAddress()).getCarTimeZoneId(carInfo.carId)
+          IRentalityGeoService(contracts.carService.getGeoServiceAddress()).getCarTimeZoneId(
+            carService.getCarInfoById(trip.carId).locationHash
+          )
         );
       }
     }
@@ -123,7 +125,9 @@ library RentalityQuery {
           userService.getKYCInfo(host).mobilePhoneNumber,
           carService.getCarInfoById(trip.carId),
           valueInEth,
-          IRentalityGeoService(contracts.carService.getGeoServiceAddress()).getCarTimeZoneId(trip.carId)
+          IRentalityGeoService(contracts.carService.getGeoServiceAddress()).getCarTimeZoneId(
+            carService.getCarInfoById(trip.carId).locationHash
+          )
         );
       }
     }
@@ -172,7 +176,9 @@ library RentalityQuery {
           userService.getKYCInfo(trip.host).mobilePhoneNumber,
           carService.getCarInfoById(trip.carId),
           valueInEth,
-          IRentalityGeoService(contracts.carService.getGeoServiceAddress()).getCarTimeZoneId(trip.carId)
+          IRentalityGeoService(contracts.carService.getGeoServiceAddress()).getCarTimeZoneId(
+            carService.getCarInfoById(trip.carId).locationHash
+          )
         );
       }
     }
@@ -250,8 +256,12 @@ library RentalityQuery {
         (pickUp, dropOf) = RentalityCarDelivery(deliveryServiceAddress).calculatePricesByDeliveryDataInUsdCents(
           pickUpInfo,
           returnInfo,
-          IRentalityGeoService(carService.getGeoServiceAddress()).getCarLocationLatitude(temp[i].carId),
-          IRentalityGeoService(carService.getGeoServiceAddress()).getCarLocationLongitude(temp[i].carId),
+          IRentalityGeoService(carService.getGeoServiceAddress()).getCarLocationLatitude(
+            carService.getCarInfoById(temp[i].carId).locationHash
+          ),
+          IRentalityGeoService(carService.getGeoServiceAddress()).getCarLocationLongitude(
+            carService.getCarInfoById(temp[i].carId).locationHash
+          ),
           temp[i].createdBy
         );
       }
@@ -388,7 +398,7 @@ library RentalityQuery {
         hostPhoneNumber,
         car,
         valueInCurrency,
-        IRentalityGeoService(contracts.carService.getGeoServiceAddress()).getCarTimeZoneId(trip.carId)
+        IRentalityGeoService(contracts.carService.getGeoServiceAddress()).getCarTimeZoneId(car.locationHash)
       );
   }
   // Updated function getCarDetails with RentalityContract parameter

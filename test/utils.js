@@ -3,11 +3,8 @@ const { keccak256 } = require('hardhat/internal/util/keccak')
 const ethToken = ethers.getAddress('0x0000000000000000000000000000000000000000')
 
 const signTCMessage = async (user) => {
-  const message = keccak256(
-    Buffer.from(
-      'I have read and I agree with Terms of service, Cancellation policy, Prohibited uses and Privacy policy of Rentality.'
-    )
-  )
+  const message =
+    'I have read and I agree with Terms of service, Cancellation policy, Prohibited uses and Privacy policy of Rentality.'
   return await user.signMessage(message)
 }
 const emptyLocationInfo = {
@@ -127,13 +124,36 @@ const locationInfo = {
   timeZoneId: 'id',
 }
 
-function getMockCarRequestWithAddress(seed, address) {
+function getMockCarRequestWithAddress(seed, address, contractAddress, admin) {
   let locationInfo2 = { ...locationInfo, userAddress: address }
-
-  return { ...getMockCarRequest(seed), locationInfo: locationInfo2 }
+  return getMockCarRequest(seed, contractAddress, admin, locationInfo2)
 }
 
-function getMockCarRequest(seed) {
+const signLocationInfo = (contractAddress, admin, location) => {
+  const domain = {
+    name: 'RentalityLocationVerifier',
+    version: '1',
+    chainId: 1337,
+    verifyingContract: contractAddress, // RentalityLocationVerifier address
+  }
+  const types = {
+    LocationInfo: [
+      { name: 'userAddress', type: 'string' },
+      { name: 'country', type: 'string' },
+      { name: 'state', type: 'string' },
+      { name: 'city', type: 'string' },
+      { name: 'latitude', type: 'string' },
+      { name: 'longitude', type: 'string' },
+      { name: 'timeZoneId', type: 'string' },
+    ],
+  }
+  if (location === undefined) location = locationInfo
+  return admin.signTypedData(domain, types, location)
+}
+
+function getMockCarRequest(seed, contractAddress, admin, locationI) {
+  let newLocation = locationI === undefined ? locationInfo : locationI
+
   const seedStr = seed?.toString() ?? ''
   const seedInt = Number(seed) ?? 0
 
@@ -154,9 +174,8 @@ function getMockCarRequest(seed) {
   const locationLatitude = seedStr
   const locationLongitude = seedStr
   const locationInfo1 = {
-    locationInfo: locationInfo,
-    signature:
-      '0x3a80baacf29a445c27ed3b4d280ca0803dbf0e6647d4c7c90cd11fe7528650d705029370876e1a168c97d9025e5b6c4a5f3b2cc0f6c262348bdd9313bf6ef15a1c',
+    locationInfo: newLocation,
+    signature: signLocationInfo(contractAddress, admin, newLocation),
   }
 
   return {
@@ -326,9 +345,17 @@ async function deployDefaultFixture() {
   const geoParserMock = await GeoParserMock.deploy()
   await geoParserMock.waitForDeployment()
 
+  const RentalityVerifier = await ethers.getContractFactory('RentalityLocationVerifier')
+
+  let rentalityLocationVerifier = await upgrades.deployProxy(RentalityVerifier, [
+    await rentalityUserService.getAddress(),
+    admin.address,
+  ])
+  await rentalityLocationVerifier.waitForDeployment()
+
   const rentalityGeoService = await upgrades.deployProxy(RentalityGeoService, [
     await rentalityUserService.getAddress(),
-    await geoParserMock.getAddress(),
+    await rentalityLocationVerifier.getAddress(),
   ])
   await rentalityGeoService.waitForDeployment()
   await geoParserMock.setGeoService(await rentalityGeoService.getAddress())
@@ -418,6 +445,7 @@ async function deployDefaultFixture() {
     signer: owner,
     libraries: {
       RentalityUtils: await utils.getAddress(),
+      RentalityQuery: await query.getAddress(),
     },
   })
 
@@ -505,6 +533,7 @@ async function deployDefaultFixture() {
     rentalityFloridaTaxes,
     rentalityBaseDiscount,
     rentalityGeoService,
+    rentalityLocationVerifier,
   }
 }
 
@@ -524,4 +553,5 @@ module.exports = {
   AdminTripStatus,
   PaymentStatus,
   emptyLocationInfo,
+  signLocationInfo,
 }
