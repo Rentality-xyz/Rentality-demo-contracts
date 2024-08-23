@@ -55,10 +55,15 @@ async function main() {
     getContractAddress('RentalityUtils', 'scripts/deploy_1a_RentalityUtils.js', chainId),
     'RentalityUtils'
   )
+  const rentalityQueryAddress = checkNotNull(
+    getContractAddress('RentalityQuery', 'scripts/deploy_1d_RentalityQuery.js', chainId),
+    'RentalityQuery'
+  )
 
   const contractFactory = await ethers.getContractFactory(contractName, {
     libraries: {
       RentalityUtils: rentalityUtilsAddress,
+      RentalityQuery: rentalityQueryAddress,
     },
   })
 
