@@ -534,4 +534,21 @@ interface Schemas {
     AdminTripDTO[] trips;
     uint totalPageCount;
   }
+
+  struct AdminCarDTO {
+    CarDetails car;
+    string carMetadataURI;
+  }
+
+  struct AllCarsDTO {
+    AdminCarDTO[] cars;
+    uint totalPageCount;
+  }
+
+  enum Role {
+    Guest,
+    Host,
+    Manager,
+    Admin
+  }
 }
