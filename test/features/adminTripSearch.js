@@ -14,7 +14,7 @@ const {
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 const { ethers } = require('hardhat')
 
-describe.only('Admin trip searching', function () {
+describe('Admin trip searching', function () {
   let rentalityGateway,
     rentalityMockPriceFeed,
     rentalityUserService,
@@ -107,7 +107,6 @@ describe.only('Admin trip searching', function () {
 
     let result = await rentalityAdminGateway.getAllTrips(searchFiler, 1, 10)
     expect(result.trips.length).to.be.eq(1)
-
     searchFiler.location.state = 'city'
 
     let result2 = await rentalityAdminGateway.getAllTrips(searchFiler, 1, 10)
@@ -164,28 +163,28 @@ describe.only('Admin trip searching', function () {
     expect(result.trips.length).to.be.eq(3)
     expect(result.totalPageCount).to.be.eq(4)
 
-    expect(result.trips[0].tripId).to.be.eq(1)
-    expect(result.trips[1].tripId).to.be.eq(2)
-    expect(result.trips[2].tripId).to.be.eq(3)
+    expect(result.trips[0].trip.tripId).to.be.eq(1)
+    expect(result.trips[1].trip.tripId).to.be.eq(2)
+    expect(result.trips[2].trip.tripId).to.be.eq(3)
 
     let result2 = await rentalityAdminGateway.getAllTrips(searchFiler, 2, 3)
 
     expect(result2.trips.length).to.be.eq(3)
 
-    expect(result2.trips[0].tripId).to.be.eq(4)
-    expect(result2.trips[1].tripId).to.be.eq(5)
-    expect(result2.trips[2].tripId).to.be.eq(6)
+    expect(result2.trips[0].trip.tripId).to.be.eq(4)
+    expect(result2.trips[1].trip.tripId).to.be.eq(5)
+    expect(result2.trips[2].trip.tripId).to.be.eq(6)
 
     let result3 = await rentalityAdminGateway.getAllTrips(searchFiler, 3, 3)
     expect(result3.trips.length).to.be.eq(3)
 
-    expect(result3.trips[0].tripId).to.be.eq(7)
-    expect(result3.trips[1].tripId).to.be.eq(8)
-    expect(result3.trips[2].tripId).to.be.eq(9)
+    expect(result3.trips[0].trip.tripId).to.be.eq(7)
+    expect(result3.trips[1].trip.tripId).to.be.eq(8)
+    expect(result3.trips[2].trip.tripId).to.be.eq(9)
 
     let result4 = await rentalityAdminGateway.getAllTrips(searchFiler, 4, 3)
     expect(result4.trips.length).to.be.eq(1)
-    expect(result4.trips[0].tripId).to.be.eq(10)
+    expect(result4.trips[0].trip.tripId).to.be.eq(10)
   })
   it('Payment status', async function () {
     let request = getMockCarRequest(1)
@@ -227,33 +226,33 @@ describe.only('Admin trip searching', function () {
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-resultPayments.totalPrice, resultPayments.totalPrice])
     let result = await rentalityAdminGateway.getAllTrips(searchFiler, 1, 3)
     expect(result.trips.length).to.be.eq(1)
-    expect(result.trips[0].tripId).to.be.eq(1)
+    expect(result.trips[0].trip.tripId).to.be.eq(1)
 
     await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
     result = await rentalityAdminGateway.getAllTrips(searchFiler, 1, 3)
     expect(result.trips.length).to.be.eq(1)
-    expect(result.trips[0].tripId).to.be.eq(1)
+    expect(result.trips[0].trip.tripId).to.be.eq(1)
 
     await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0], '', '')).not.to.be.reverted
     result = await rentalityAdminGateway.getAllTrips(searchFiler, 1, 3)
     expect(result.trips.length).to.be.eq(1)
 
-    expect(result.trips[0].tripId).to.be.eq(1)
+    expect(result.trips[0].trip.tripId).to.be.eq(1)
 
     await expect(rentalityGateway.connect(guest).checkInByGuest(1, [0, 0])).not.to.be.reverted
     result = await rentalityAdminGateway.getAllTrips(searchFiler, 1, 3)
     expect(result.trips.length).to.be.eq(1)
-    expect(result.trips[0].tripId).to.be.eq(1)
+    expect(result.trips[0].trip.tripId).to.be.eq(1)
 
     await expect(rentalityGateway.connect(guest).checkOutByGuest(1, [0, 0])).not.to.be.reverted
     result = await rentalityAdminGateway.getAllTrips(searchFiler, 1, 3)
     expect(result.trips.length).to.be.eq(1)
-    expect(result.trips[0].tripId).to.be.eq(1)
+    expect(result.trips[0].trip.tripId).to.be.eq(1)
 
     await expect(rentalityGateway.connect(host).checkOutByHost(1, [0, 0])).not.to.be.reverted
     result = await rentalityAdminGateway.getAllTrips(searchFiler, 1, 3)
     expect(result.trips.length).to.be.eq(1)
-    expect(result.trips[0].tripId).to.be.eq(1)
+    expect(result.trips[0].trip.tripId).to.be.eq(1)
 
     await expect(rentalityGateway.connect(host).finishTrip(1)).not.to.be.reverted
     result = await rentalityAdminGateway.getAllTrips(searchFiler, 1, 3)
@@ -262,7 +261,7 @@ describe.only('Admin trip searching', function () {
     searchFiler.paymentStatus = PaymentStatus.PaidToHost
     result = await rentalityAdminGateway.getAllTrips(searchFiler, 1, 3)
     expect(result.trips.length).to.be.eq(1)
-    expect(result.trips[0].tripId).to.be.eq(1)
+    expect(result.trips[0].trip.tripId).to.be.eq(1)
   })
   it('Payment status unpaid', async function () {
     let request = getMockCarRequest(1)
@@ -304,31 +303,31 @@ describe.only('Admin trip searching', function () {
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-resultPayments.totalPrice, resultPayments.totalPrice])
     let result = await rentalityAdminGateway.getAllTrips(searchFiler, 1, 3)
     expect(result.trips.length).to.be.eq(1)
-    expect(result.trips[0].tripId).to.be.eq(1)
+    expect(result.trips[0].trip.tripId).to.be.eq(1)
 
     await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
     result = await rentalityAdminGateway.getAllTrips(searchFiler, 1, 3)
     expect(result.trips.length).to.be.eq(1)
-    expect(result.trips[0].tripId).to.be.eq(1)
+    expect(result.trips[0].trip.tripId).to.be.eq(1)
 
     await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0], '', '')).not.to.be.reverted
     result = await rentalityAdminGateway.getAllTrips(searchFiler, 1, 3)
     expect(result.trips.length).to.be.eq(1)
 
-    expect(result.trips[0].tripId).to.be.eq(1)
+    expect(result.trips[0].trip.tripId).to.be.eq(1)
 
     await expect(rentalityGateway.connect(host).checkOutByHost(1, [0, 0])).not.to.be.reverted
     searchFiler.paymentStatus = PaymentStatus.Unpaid
     result = await rentalityAdminGateway.getAllTrips(searchFiler, 1, 3)
     expect(result.trips.length).to.be.eq(1)
-    expect(result.trips[0].tripId).to.be.eq(1)
+    expect(result.trips[0].trip.tripId).to.be.eq(1)
 
     await expect(rentalityGateway.connect(admin).confirmCheckOut(1)).not.to.be.reverted
 
     searchFiler.paymentStatus = PaymentStatus.PaidToHost
     result = await rentalityAdminGateway.getAllTrips(searchFiler, 1, 3)
     expect(result.trips.length).to.be.eq(1)
-    expect(result.trips[0].tripId).to.be.eq(1)
+    expect(result.trips[0].trip.tripId).to.be.eq(1)
   })
   it('Payment status refund to guest', async function () {
     let request = getMockCarRequest(1)
@@ -374,7 +373,7 @@ describe.only('Admin trip searching', function () {
     await expect(rentalityGateway.connect(host).rejectTripRequest(1)).not.to.be.reverted
     let result = await rentalityAdminGateway.getAllTrips(searchFiler, 1, 3)
     expect(result.trips.length).to.be.eq(1)
-    expect(result.trips[0].tripId).to.be.eq(1)
+    expect(result.trips[0].trip.tripId).to.be.eq(1)
   })
   it('Admin status', async function () {
     let request = getMockCarRequest(1)
@@ -417,26 +416,26 @@ describe.only('Admin trip searching', function () {
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-resultPayments.totalPrice, resultPayments.totalPrice])
     let result = await rentalityAdminGateway.getAllTrips(searchFiler, 1, 3)
     expect(result.trips.length).to.be.eq(1)
-    expect(result.trips[0].tripId).to.be.eq(1)
+    expect(result.trips[0].trip.tripId).to.be.eq(1)
 
     await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
     searchFiler.status = AdminTripStatus.Approved
     result = await rentalityAdminGateway.getAllTrips(searchFiler, 1, 3)
     expect(result.trips.length).to.be.eq(1)
-    expect(result.trips[0].tripId).to.be.eq(1)
+    expect(result.trips[0].trip.tripId).to.be.eq(1)
 
     searchFiler.status = AdminTripStatus.CheckedInByHost
     await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0], '', '')).not.to.be.reverted
     result = await rentalityAdminGateway.getAllTrips(searchFiler, 1, 3)
     expect(result.trips.length).to.be.eq(1)
-    expect(result.trips[0].tripId).to.be.eq(1)
+    expect(result.trips[0].trip.tripId).to.be.eq(1)
 
     searchFiler.paymentStatus = PaymentStatus.Unpaid
     searchFiler.status = AdminTripStatus.CompletedWithoutGuestConfirmation
     await expect(rentalityGateway.connect(host).checkOutByHost(1, [0, 0])).not.to.be.reverted
     result = await rentalityAdminGateway.getAllTrips(searchFiler, 1, 3)
     expect(result.trips.length).to.be.eq(1)
-    expect(result.trips[0].tripId).to.be.eq(1)
+    expect(result.trips[0].trip.tripId).to.be.eq(1)
 
     await expect(rentalityGateway.connect(admin).confirmCheckOut(1)).not.to.be.reverted
 
@@ -444,6 +443,48 @@ describe.only('Admin trip searching', function () {
     searchFiler.paymentStatus = PaymentStatus.PaidToHost
     result = await rentalityAdminGateway.getAllTrips(searchFiler, 1, 3)
     expect(result.trips.length).to.be.eq(1)
-    expect(result.trips[0].tripId).to.be.eq(1)
+    expect(result.trips[0].trip.tripId).to.be.eq(1)
+  })
+
+  it('All cars pagination test', async function () {
+    for (let i = 0; i < 10; i++)
+      await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(i))).not.to.be.reverted
+
+    let result = await rentalityAdminGateway.getAllCars(1, 3)
+    expect(result.cars.length).to.be.eq(3)
+    expect(result.totalPageCount).to.be.eq(4)
+
+    expect(result.cars[0].car.carId).to.be.eq(1)
+    expect(result.cars[1].car.carId).to.be.eq(2)
+    expect(result.cars[2].car.carId).to.be.eq(3)
+
+    result = await rentalityAdminGateway.getAllCars(2, 3)
+    expect(result.cars.length).to.be.eq(3)
+
+    expect(result.cars[0].car.carId).to.be.eq(4)
+    expect(result.cars[1].car.carId).to.be.eq(5)
+    expect(result.cars[2].car.carId).to.be.eq(6)
+
+    result = await rentalityAdminGateway.getAllCars(3, 3)
+    expect(result.cars.length).to.be.eq(3)
+
+    expect(result.cars[0].car.carId).to.be.eq(7)
+    expect(result.cars[1].car.carId).to.be.eq(8)
+    expect(result.cars[2].car.carId).to.be.eq(9)
+
+    result = await rentalityAdminGateway.getAllCars(4, 3)
+    expect(result.cars.length).to.be.eq(1)
+
+    expect(result.cars[0].car.carId).to.be.eq(10)
+  })
+
+  it('Role manage', async function () {
+    await expect(rentalityAdminGateway.manageRole(3, anonymous.address, true)).to.not.reverted
+    expect(await rentalityUserService.isAdmin(anonymous.address)).to.be.eq(true)
+
+    await expect(rentalityAdminGateway.manageRole(3, anonymous.address, false)).to.not.reverted
+    expect(await rentalityUserService.isAdmin(anonymous.address)).to.be.eq(false)
+
+    await expect(rentalityAdminGateway.connect(host).manageRole(3, admin.address, false)).to.be.reverted
   })
 })

@@ -414,7 +414,13 @@ async function deployDefaultFixture() {
   ])
   await rentalityPlatform.waitForDeployment()
 
-  const RentalityAdminGateway = await ethers.getContractFactory('RentalityAdminGateway', { signer: owner })
+  const RentalityAdminGateway = await ethers.getContractFactory('RentalityAdminGateway', {
+    signer: owner,
+    libraries: {
+      RentalityUtils: await utils.getAddress(),
+      RentalityQuery: await query.getAddress(),
+    },
+  })
 
   const rentalityAdminGateway = await upgrades.deployProxy(RentalityAdminGateway, [
     await rentalityCarToken.getAddress(),
