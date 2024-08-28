@@ -408,6 +408,9 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     return result;
   }
 
+  /// @notice Verifies the authenticity of the signed location information.
+  /// @dev This function checks the validity of the signed location information using the geoService.
+  /// @param locationInfo The signed location information that needs to be verified.
   function verifySignedLocationInfo(Schemas.SignedLocationInfo memory locationInfo) public view {
     geoService.verifySignedLocationInfo(locationInfo);
   }

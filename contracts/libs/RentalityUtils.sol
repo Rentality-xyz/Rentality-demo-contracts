@@ -511,6 +511,17 @@ library RentalityUtils {
     return false;
   }
 
+  /// @notice Creates a payment information structure for a trip based on the provided parameters.
+  /// @dev This function calculates various components of the payment including the base price, taxes, and additional fees.
+  /// It also converts the total amount to the specified currency using the current exchange rate.
+  /// @param addresses The Rentality contract instance containing service addresses.
+  /// @param carId The ID of the car being rented.
+  /// @param startDateTime The start time of the trip.
+  /// @param endDateTime The end time of the trip.
+  /// @param currencyType The type of currency in which the payment will be made (e.g., ETH, ERC20 token).
+  /// @param pickUp The pick-up fee for the car.
+  /// @param dropOf The drop-off fee for the car.
+  /// @return A tuple containing the PaymentInfo structure and the total amount to be paid in the specified currency.
   function createPaymentInfo(
     RentalityContract memory addresses,
     uint256 carId,

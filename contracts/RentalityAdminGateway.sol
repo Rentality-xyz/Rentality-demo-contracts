@@ -264,18 +264,31 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
     userService.setNewTCMessage(message);
   }
 
+  // @notice Sets the platform fee that will be charged for each transaction.
+  /// @dev This function can only be called by an admin.
+  /// @param value The new platform fee value.
   function setPlatformFee(uint value) public {
     claimService.setPlatformFee(value);
   }
 
+  // @notice Sets the commission for the KYC (Know Your Customer) process.
+  /// @dev This function can only be called by an admin.
+  /// @param value The new KYC commission value.
   function setKycCommission(uint value) public {
     userService.setKycCommission(value);
   }
 
+  // @notice Retrieves the current KYC commission value.
+  /// @return The current KYC commission as a uint.
   function getKycCommission() public view returns (uint) {
     return userService.getKycCommission();
   }
 
+  // @notice Retrieves all trips based on the provided filter and pagination.
+  /// @param filter The filter to apply to the trips.
+  /// @param page The current page number.
+  /// @param itemsPerPage The number of items per page.
+  /// @return A structure containing the filtered trips and total page count.
   function getAllTrips(
     Schemas.TripFilter memory filter,
     uint page,
@@ -293,6 +306,7 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
       }
     }
     if (counter == 0) return Schemas.AllTripsDTO(new Schemas.AdminTripDTO[](0), 0);
+
     uint totalPageCount = (counter + itemsPerPage - 1) / itemsPerPage;
 
     if (page > totalPageCount) {
@@ -305,6 +319,7 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
     if (endIndex > counter) {
       endIndex = counter;
     }
+
     Schemas.AdminTripDTO[] memory result = new Schemas.AdminTripDTO[](endIndex - startIndex);
     for (uint i = startIndex; i < endIndex; i++) {
       Schemas.Trip memory trip = tripService.getTrip(matchedTrips[i]);
@@ -319,6 +334,11 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
     return Schemas.AllTripsDTO(result, totalPageCount);
   }
 
+  // @notice Checks if a trip matches the provided filter.
+  /// @dev This function is used internally to filter trips based on the given criteria.
+  /// @param filter The filter to apply.
+  /// @param trip The trip to check against the filter.
+  /// @return Returns true if the trip matches the filter, otherwise false.
   function isTripMatch(Schemas.TripFilter memory filter, Schemas.Trip memory trip) internal view returns (bool) {
     IRentalityGeoService geoService = IRentalityGeoService(carService.getGeoServiceAddress());
     Schemas.LocationInfo memory locationInfo = geoService.getLocationInfo(
@@ -395,10 +415,19 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
           tripService.completedByAdmin(trip.tripId))));
   }
 
+  // @notice Manages user roles by granting or revoking specific roles.
+  /// @dev This function can only be called by an admin.
+  /// @param role The role to manage.
+  /// @param user The address of the user whose role is being managed.
+  /// @param grant If true, the role is granted; if false, the role is revoked.
   function manageRole(Schemas.Role role, address user, bool grant /*revoke if false*/) public {
     userService.manageRole(role, user, grant);
   }
 
+  // @notice Retrieves all cars based on the pagination parameters.
+  /// @param page The current page number.
+  /// @param itemsPerPage The number of items per page.
+  /// @return A structure containing the cars on the current page and total page count.
   function getAllCars(uint page, uint itemsPerPage) public view returns (Schemas.AllCarsDTO memory) {
     uint totalCarsAmount = carService.totalSupply();
 
