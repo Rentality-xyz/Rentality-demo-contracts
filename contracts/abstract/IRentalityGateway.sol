@@ -301,10 +301,6 @@ interface IRentalityGateway {
   /// @return An array of PublicHostCarDTO structs representing the cars owned by the host.
   function getCarsOfHost(address host) external view returns (Schemas.PublicHostCarDTO[] memory);
 
-  /// @notice Parses the geolocation response and stores parsed data.
-  /// @param carId The ID of the car for which geolocation is parsed.
-  function parseGeoResponse(uint carId) external;
-
   /// @dev Returns the owner of the contract.
   /// @return The address of the contract owner.
   function owner() external view returns (address);
