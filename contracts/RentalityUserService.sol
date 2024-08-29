@@ -53,7 +53,7 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
 
     bool isTCPassed = ECDSA.recover(TCMessageHash, TCSignature) == tx.origin;
 
-    //    require(isTCPassed, 'Wrong signature.');
+    require(isTCPassed, 'Wrong signature.');
 
     kycInfos[tx.origin] = Schemas.KYCInfo(
       name,
@@ -63,8 +63,8 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
       licenseNumber,
       expirationDate,
       block.timestamp,
-      true,
-      //      isTCPassed,
+      //      true,
+      isTCPassed,
       TCSignature
     );
   }
@@ -209,7 +209,7 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
   /// @param message The new message for the TC.
   function setNewTCMessage(string memory message) public {
     require(isAdmin(msg.sender), 'Only admin.');
-    TCMessageHash = ECDSA.toEthSignedMessageHash(keccak256(bytes(message)));
+    TCMessageHash = ECDSA.toEthSignedMessageHash(bytes(message));
   }
 
   function setKycCommission(uint newCommission) public {
@@ -275,9 +275,7 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
     civicVerifier = _civicVerifier;
     civicGatekeeperNetwork = _civicGatekeeperNetwork;
     TCMessageHash = ECDSA.toEthSignedMessageHash(
-      keccak256(
-        'I have read and I agree with Terms of service, Cancellation policy, Prohibited uses and Privacy policy of Rentality.'
-      )
+      'I have read and I agree with Terms of service, Cancellation policy, Prohibited uses and Privacy policy of Rentality.'
     );
     kycCommission = 200;
   }

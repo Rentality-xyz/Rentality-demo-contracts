@@ -195,7 +195,7 @@ library RentalityUtils {
       chatInfoList[i].startDateTime = trips[i].trip.startDateTime;
       chatInfoList[i].endDateTime = trips[i].trip.endDateTime;
       chatInfoList[i].timeZoneId = IRentalityGeoService(carService.getGeoServiceAddress()).getCarTimeZoneId(
-        carInfo.carId
+        carInfo.locationHash
       );
     }
 
@@ -377,11 +377,11 @@ library RentalityUtils {
       (bytes(searchCarParams.brand).length == 0 || containWord(toLower(car.brand), toLower(searchCarParams.brand))) &&
       (bytes(searchCarParams.model).length == 0 || containWord(toLower(car.model), toLower(searchCarParams.model))) &&
       (bytes(searchCarParams.country).length == 0 ||
-        containWord(toLower(geoService.getCarCountry(carId)), toLower(searchCarParams.country))) &&
+        containWord(toLower(geoService.getCarCountry(car.locationHash)), toLower(searchCarParams.country))) &&
       (bytes(searchCarParams.state).length == 0 ||
-        containWord(toLower(geoService.getCarState(carId)), toLower(searchCarParams.state))) &&
+        containWord(toLower(geoService.getCarState(car.locationHash)), toLower(searchCarParams.state))) &&
       (bytes(searchCarParams.city).length == 0 ||
-        containWord(toLower(geoService.getCarCity(carId)), toLower(searchCarParams.city))) &&
+        containWord(toLower(geoService.getCarCity(car.locationHash)), toLower(searchCarParams.city))) &&
       (searchCarParams.yearOfProductionFrom == 0 || car.yearOfProduction >= searchCarParams.yearOfProductionFrom) &&
       (searchCarParams.yearOfProductionTo == 0 || car.yearOfProduction <= searchCarParams.yearOfProductionTo) &&
       (searchCarParams.pricePerDayInUsdCentsFrom == 0 ||
@@ -409,8 +409,12 @@ library RentalityUtils {
       .calculatePriceByDeliveryDataInUsdCents(
         pickUpLocation,
         returnLocation,
-        IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getCarLocationLatitude(carId),
-        IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getCarLocationLongitude(carId),
+        IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getCarLocationLatitude(
+          addresses.carService.getCarInfoById(carId).locationHash
+        ),
+        IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getCarLocationLongitude(
+          addresses.carService.getCarInfoById(carId).locationHash
+        ),
         addresses.carService.getCarInfoById(carId).createdBy
       );
     return calculatePayments(addresses, carId, daysOfTrip, currency, deliveryFee);
@@ -507,6 +511,17 @@ library RentalityUtils {
     return false;
   }
 
+  /// @notice Creates a payment information structure for a trip based on the provided parameters.
+  /// @dev This function calculates various components of the payment including the base price, taxes, and additional fees.
+  /// It also converts the total amount to the specified currency using the current exchange rate.
+  /// @param addresses The Rentality contract instance containing service addresses.
+  /// @param carId The ID of the car being rented.
+  /// @param startDateTime The start time of the trip.
+  /// @param endDateTime The end time of the trip.
+  /// @param currencyType The type of currency in which the payment will be made (e.g., ETH, ERC20 token).
+  /// @param pickUp The pick-up fee for the car.
+  /// @param dropOf The drop-off fee for the car.
+  /// @return A tuple containing the PaymentInfo structure and the total amount to be paid in the specified currency.
   function createPaymentInfo(
     RentalityContract memory addresses,
     uint256 carId,

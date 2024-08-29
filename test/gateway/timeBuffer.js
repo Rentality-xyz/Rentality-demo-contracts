@@ -9,6 +9,7 @@ const {
   calculatePayments,
   locationInfo,
   signTCMessage,
+  signLocationInfo,
 } = require('../utils')
 
 describe('RentalityGateway: time buffer', function () {
@@ -29,7 +30,8 @@ describe('RentalityGateway: time buffer', function () {
     manager,
     host,
     guest,
-    anonymous
+    anonymous,
+    rentalityLocationVerifier
 
   beforeEach(async function () {
     ;({
@@ -51,13 +53,14 @@ describe('RentalityGateway: time buffer', function () {
       host,
       guest,
       anonymous,
+      rentalityLocationVerifier,
     } = await loadFixture(deployDefaultFixture))
   })
   it('should not show car, while time buffer not expired', async function () {
     const oneDayInSec = 86400
     let locationInfo1 = {
       locationInfo,
-      signature: await signTCMessage(owner),
+      signature: signLocationInfo(await rentalityLocationVerifier.getAddress(), admin),
     }
     const createCarRequest = {
       tokenUri: 'uri',
@@ -109,7 +112,7 @@ describe('RentalityGateway: time buffer', function () {
     const oneDayInSec = 86400
     let locationInfo1 = {
       locationInfo,
-      signature: await signTCMessage(owner),
+      signature: signLocationInfo(await rentalityLocationVerifier.getAddress(), admin),
     }
     const createCarRequest = {
       tokenUri: 'uri',
@@ -164,7 +167,7 @@ describe('RentalityGateway: time buffer', function () {
     const oneDayInSec = 86400
     let locationInfo1 = {
       locationInfo,
-      signature: await signTCMessage(owner),
+      signature: signLocationInfo(await rentalityLocationVerifier.getAddress(), admin),
     }
     const createCarRequest = {
       tokenUri: 'uri',
@@ -221,7 +224,7 @@ describe('RentalityGateway: time buffer', function () {
     const oneDayInSeconds = 86400
     let locationInfo1 = {
       locationInfo,
-      signature: await signTCMessage(owner),
+      signature: signLocationInfo(await rentalityLocationVerifier.getAddress(), admin),
     }
     const createCarRequest = {
       tokenUri: 'uri',

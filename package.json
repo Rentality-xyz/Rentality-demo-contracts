@@ -20,7 +20,7 @@
     "@identity.com/gateway-protocol-eth": "^0.0.4",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.8",
     "@openzeppelin/contracts": "^4.9.0",
-    "@openzeppelin/contracts-upgradeable": "^4.9.0",
+    "@openzeppelin/contracts-upgradeable": "^4.9.6",
     "chai": "^4.3.10",
     "child_process": "^1.0.2",
     "dotenv": "^16.0.4",
