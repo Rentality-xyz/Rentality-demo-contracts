@@ -18,6 +18,18 @@
     },
     {
       "type": "function",
+      "name": "containWord",
+      "constant": true,
+      "stateMutability": "pure",
+      "payable": false,
+      "inputs": [
+        { "type": "string", "name": "where" },
+        { "type": "string", "name": "what" }
+      ],
+      "outputs": [{ "type": "bool", "name": "found" }]
+    },
+    {
+      "type": "function",
       "name": "isCarAvailableForUser",
       "constant": true,
       "stateMutability": "view",
@@ -102,6 +114,15 @@
       "payable": false,
       "inputs": [{ "type": "bytes32", "name": "_data" }],
       "outputs": [{ "type": "bytes", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "toLower",
+      "constant": true,
+      "stateMutability": "pure",
+      "payable": false,
+      "inputs": [{ "type": "string", "name": "str" }],
+      "outputs": [{ "type": "string", "name": "" }]
     }
   ]
 }

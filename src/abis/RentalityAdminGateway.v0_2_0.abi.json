@@ -102,6 +102,66 @@
     },
     {
       "type": "function",
+      "name": "getAllCars",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        { "type": "uint256", "name": "page" },
+        { "type": "uint256", "name": "itemsPerPage" }
+      ],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "",
+          "components": [
+            {
+              "type": "tuple[]",
+              "name": "cars",
+              "components": [
+                {
+                  "type": "tuple",
+                  "name": "car",
+                  "components": [
+                    { "type": "uint256", "name": "carId" },
+                    { "type": "string", "name": "hostName" },
+                    { "type": "string", "name": "hostPhotoUrl" },
+                    { "type": "address", "name": "host" },
+                    { "type": "string", "name": "brand" },
+                    { "type": "string", "name": "model" },
+                    { "type": "uint32", "name": "yearOfProduction" },
+                    { "type": "uint64", "name": "pricePerDayInUsdCents" },
+                    { "type": "uint64", "name": "securityDepositPerTripInUsdCents" },
+                    { "type": "uint64", "name": "milesIncludedPerDay" },
+                    { "type": "uint8", "name": "engineType" },
+                    { "type": "uint64[]", "name": "engineParams" },
+                    { "type": "bool", "name": "geoVerified" },
+                    { "type": "bool", "name": "currentlyListed" },
+                    {
+                      "type": "tuple",
+                      "name": "locationInfo",
+                      "components": [
+                        { "type": "string", "name": "userAddress" },
+                        { "type": "string", "name": "country" },
+                        { "type": "string", "name": "state" },
+                        { "type": "string", "name": "city" },
+                        { "type": "string", "name": "latitude" },
+                        { "type": "string", "name": "longitude" },
+                        { "type": "string", "name": "timeZoneId" }
+                      ]
+                    }
+                  ]
+                },
+                { "type": "string", "name": "carMetadataURI" }
+              ]
+            },
+            { "type": "uint256", "name": "totalPageCount" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
       "name": "getAllTrips",
       "constant": true,
       "stateMutability": "view",
@@ -372,6 +432,18 @@
         { "type": "address", "name": "claimServiceAddress" },
         { "type": "address", "name": "carDeliveryAddress" },
         { "type": "address", "name": "viewServiceAddress" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "manageRole",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint8", "name": "role" },
+        { "type": "address", "name": "user" },
+        { "type": "bool", "name": "grant" }
       ],
       "outputs": []
     },
