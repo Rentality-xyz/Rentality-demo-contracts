@@ -30,6 +30,11 @@ const checkInitialization = async () => {
     throw new Error(`Addresses for RentalityChatHelper was not found`)
   }
 
+  const verifierAddress = checkNotNull(addresses['RentalityLocationVerifier'], 'verifierAddress')
+  if (!verifierAddress) {
+    throw new Error(`Addresses for RentalityLocationVerifier was not found`)
+  }
+
   const HOST_PRIVATE_KEY = testData.hostWalletPrivateKey
   if (!HOST_PRIVATE_KEY) {
     throw new Error('HOST_PRIVATE_KEY env variable is undefined')
@@ -41,6 +46,12 @@ const checkInitialization = async () => {
     throw new Error('GUEST_PRIVATE_KEY env variable is undefined')
   }
   const guest = new ethers.Wallet(GUEST_PRIVATE_KEY, ethers.provider)
+
+  const ADMIN_PRIVATE_KEY = testData.adminWalletPrivateKey
+  if (!ADMIN_PRIVATE_KEY) {
+    throw new Error('ADMIN_PRIVATE_KEY env variable is undefined')
+  }
+  const admin = new ethers.Wallet(ADMIN_PRIVATE_KEY, ethers.provider)
 
   if (chainId === 1337n) {
     const hardhatAccount = new ethers.Wallet(
@@ -69,7 +80,32 @@ const checkInitialization = async () => {
   const gateway = new ethers.Contract(rentalityGatewayAddress, RentalityGatewayJSON_ABI.abi, deployer)
   const chatService = new ethers.Contract(chatHelperAddress, RentalityChatHelperJSON_ABI.abi, deployer)
 
-  return [host, guest, gateway, chatService]
+  return [host, guest, admin, gateway, chatService, verifierAddress]
+}
+
+async function signLocationInfo(signer, verifierAddress, locationInfo) {
+  const chainId = Number((await signer.provider?.getNetwork())?.chainId)
+
+  const domain = {
+    name: 'RentalityLocationVerifier',
+    version: '1',
+    chainId: chainId,
+    verifyingContract: verifierAddress,
+  }
+
+  const types = {
+    LocationInfo: [
+      { name: 'userAddress', type: 'string' },
+      { name: 'country', type: 'string' },
+      { name: 'state', type: 'string' },
+      { name: 'city', type: 'string' },
+      { name: 'latitude', type: 'string' },
+      { name: 'longitude', type: 'string' },
+      { name: 'timeZoneId', type: 'string' },
+    ],
+  }
+
+  return signer.signTypedData(domain, types, locationInfo)
 }
 
 async function setHostKycIfNotSet(host, gateway, chatService) {
@@ -122,7 +158,7 @@ async function setGuestKycIfNotSet(guest, gateway, chatService) {
   console.log('KYC for guest was set')
 }
 
-async function setCarsForHost(host, gateway) {
+async function setCarsForHost(host, admin, verifierAddress, gateway) {
   console.log('\nListing cars for host...')
 
   let listedCars = await gateway.connect(host).getMyCars()
@@ -138,7 +174,10 @@ async function setCarsForHost(host, gateway) {
   for (let index = carCount; index < 6; index++) {
     console.log(`Listing car #${index}...`)
 
-    await gateway.connect(host).addCar(testData.carInfos[index])
+    const carData = testData.carInfos[index]
+    carData.locationInfo.signature = signLocationInfo(admin, verifierAddress, carData.locationInfo.locationInfo)
+
+    await gateway.connect(host).addCar(carData)
 
     console.log(`Car #${index} listed successfully`)
   }
@@ -286,12 +325,12 @@ async function createConfirmedAfterCompletedWithoutGuestComfirmationTrip(tripInd
 }
 
 async function main() {
-  const [host, guest, gateway, chatService] = await checkInitialization()
+  const [host, guest, admin, gateway, chatService, verifierAddress] = await checkInitialization()
 
   await setHostKycIfNotSet(host, gateway, chatService)
   await setGuestKycIfNotSet(guest, gateway, chatService)
 
-  const carIds = await setCarsForHost(host, gateway)
+  const carIds = await setCarsForHost(host, admin, verifierAddress, gateway)
   let tripCount = await getTripCount(host, gateway)
 
   if (carIds.length > 0 && tripCount < 6) {
