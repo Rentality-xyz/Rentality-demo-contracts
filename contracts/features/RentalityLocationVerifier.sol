@@ -20,6 +20,10 @@ contract RentalityLocationVerifier is EIP712Upgradeable, UUPSAccess {
     bytes32 digest = _hash(location.locationInfo);
     return ECDSA.recover(digest, location.signature);
   }
+  function verify(Schemas.SignedLocationInfo memory location) public view returns (address) {
+    bytes32 digest = _hash(location.locationInfo);
+    return ECDSA.recover(digest, location.signature);
+  }
 
   function _hash(Schemas.LocationInfo memory location) internal view returns (bytes32) {
     return
