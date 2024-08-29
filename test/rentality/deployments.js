@@ -43,9 +43,17 @@ async function deployDefaultFixture() {
   const geoParserMock = await GeoParserMock.deploy()
   await geoParserMock.waitForDeployment()
 
+  const RentalityVerifier = await ethers.getContractFactory('RentalityLocationVerifier')
+
+  let rentalityLocationVerifier = await upgrades.deployProxy(RentalityVerifier, [
+    await rentalityUserService.getAddress(),
+    admin.address,
+  ])
+  await rentalityLocationVerifier.waitForDeployment()
+
   const rentalityGeoService = await upgrades.deployProxy(RentalityGeoService, [
     await rentalityUserService.getAddress(),
-    await geoParserMock.getAddress(),
+    await rentalityLocationVerifier.getAddress(),
   ])
   await rentalityGeoService.waitForDeployment()
   await geoParserMock.setGeoService(await rentalityGeoService.getAddress())
@@ -259,6 +267,7 @@ async function deployDefaultFixture() {
     host,
     guest,
     anonymous,
+    rentalityLocationVerifier,
   }
 }
 

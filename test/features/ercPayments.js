@@ -18,24 +18,26 @@ describe('ERC20 payments', function () {
     host,
     rentalityTripService,
     admin,
-    rentalityAdminGateway = beforeEach(async function () {
-      ;({
-        rentalityGateway,
-        rentalityCurrencyConverter,
-        rentalityPlatform,
-        rentalityPaymentService,
-        usdtContract,
-        owner,
-        guest,
-        host,
-        rentalityTripService,
-        admin,
-        rentalityAdminGateway,
-      } = await loadFixture(deployDefaultFixture))
-    })
+    rentalityLocationVerifier
+  rentalityAdminGateway = beforeEach(async function () {
+    ;({
+      rentalityGateway,
+      rentalityCurrencyConverter,
+      rentalityPlatform,
+      rentalityPaymentService,
+      usdtContract,
+      owner,
+      guest,
+      host,
+      rentalityTripService,
+      admin,
+      rentalityLocationVerifier,
+      rentalityAdminGateway,
+    } = await loadFixture(deployDefaultFixture))
+  })
   it('Should correctly сreate trip and pay deposit with usdt', async function () {
     let usdt = await usdtContract.getAddress()
-    const request = getMockCarRequest(13)
+    const request = getMockCarRequest(13, await rentalityLocationVerifier.getAddress(), admin)
     await expect(rentalityGateway.connect(host).addCar(request)).not.to.be.reverted
 
     const dailyPriceInUsdCents = 1000
@@ -71,7 +73,7 @@ describe('ERC20 payments', function () {
 
   it('should correctly finish trip with usdt, and send tokens to the host', async function () {
     let usdt = await usdtContract.getAddress()
-    const request = getMockCarRequest(10)
+    const request = getMockCarRequest(10, await rentalityLocationVerifier.getAddress(), admin)
     await expect(rentalityGateway.connect(host).addCar(request)).not.to.be.reverted
 
     await mintTo(usdtContract, guest.address, 10000000)
@@ -124,7 +126,9 @@ describe('ERC20 payments', function () {
 
   it('should not be able to create trip with wrong currency type', async function () {
     let usdt = await usdtContract.getAddress()
-    await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
+    await expect(
+      rentalityGateway.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+    ).not.to.be.reverted
     const rentPriceInUsdCents = 1000
 
     const dailyPriceInUsdCents = 1000
@@ -161,7 +165,9 @@ describe('ERC20 payments', function () {
 
   it('should correctly pay claim with usdt', async function () {
     let usdt = await usdtContract.getAddress()
-    await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
+    await expect(
+      rentalityGateway.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+    ).not.to.be.reverted
 
     await mintTo(usdtContract, guest.address, 10000)
 
@@ -219,7 +225,7 @@ describe('ERC20 payments', function () {
   })
   it('should be able withdraw usdt from platform ', async function () {
     let usdt = await usdtContract.getAddress()
-    const request = getMockCarRequest(10)
+    const request = getMockCarRequest(10, await rentalityLocationVerifier.getAddress(), admin)
     await expect(rentalityGateway.connect(host).addCar(request)).not.to.be.reverted
 
     await mintTo(usdtContract, guest.address, 1000)

@@ -27,7 +27,8 @@ describe('RentalityGateway: user info', function () {
     manager,
     host,
     guest,
-    anonymous
+    anonymous,
+    rentalityLocationVerifier
 
   beforeEach(async function () {
     ;({
@@ -49,6 +50,7 @@ describe('RentalityGateway: user info', function () {
       host,
       guest,
       anonymous,
+      rentalityLocationVerifier,
     } = await loadFixture(deployDefaultFixture))
   })
 
@@ -120,7 +122,9 @@ describe('RentalityGateway: user info', function () {
   })
 
   it('Guest should be able to get trip contacts', async function () {
-    await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
+    await expect(
+      rentalityGateway.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+    ).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
@@ -164,7 +168,9 @@ describe('RentalityGateway: user info', function () {
   })
 
   it('Host should be able to get trip contacts', async function () {
-    await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
+    await expect(
+      rentalityGateway.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+    ).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
@@ -205,7 +211,9 @@ describe('RentalityGateway: user info', function () {
   })
 
   it('Only host and guest should be able to get trip contacts', async function () {
-    await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
+    await expect(
+      rentalityGateway.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+    ).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
@@ -242,7 +250,7 @@ describe('RentalityGateway: user info', function () {
     await expect(rentalityGateway.connect(anonymous).getTripContactInfo(1)).to.be.reverted
   })
   it('Should have host photoUrl and host name in available car response ', async function () {
-    let addCarRequest = getMockCarRequest(0)
+    let addCarRequest = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
     await expect(rentalityGateway.connect(host).addCar(addCarRequest)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)

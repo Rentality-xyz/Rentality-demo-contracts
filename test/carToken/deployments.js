@@ -42,10 +42,17 @@ async function deployDefaultFixture() {
   const GeoParserMock = await ethers.getContractFactory('RentalityGeoMock')
   const geoParserMock = await GeoParserMock.deploy()
   await geoParserMock.waitForDeployment()
+  let RentalityVerifier = await ethers.getContractFactory('RentalityLocationVerifier')
+
+  let rentalityLocationVerifier = await upgrades.deployProxy(RentalityVerifier, [
+    await rentalityUserService.getAddress(),
+    admin.address,
+  ])
+  await rentalityLocationVerifier.waitForDeployment()
 
   const rentalityGeoService = await upgrades.deployProxy(RentalityGeoService, [
     await rentalityUserService.getAddress(),
-    await geoParserMock.getAddress(),
+    await rentalityLocationVerifier.getAddress(),
   ])
   await rentalityGeoService.waitForDeployment()
   await geoParserMock.setGeoService(await rentalityGeoService.getAddress())
@@ -259,6 +266,7 @@ async function deployDefaultFixture() {
     guest,
     anonymous,
     geoParserMock,
+    rentalityLocationVerifier,
   }
 }
 
@@ -276,9 +284,10 @@ async function deployFixtureWith1Car() {
     guest,
     anonymous,
     geoParserMock,
+    rentalityLocationVerifier,
   } = await deployDefaultFixture()
 
-  const request = getMockCarRequest(0)
+  const request = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
 
   await rentalityGateway.connect(host).addCar(request)
 
@@ -295,6 +304,7 @@ async function deployFixtureWith1Car() {
     guest,
     anonymous,
     geoParserMock,
+    rentalityLocationVerifier,
   }
 }
 
