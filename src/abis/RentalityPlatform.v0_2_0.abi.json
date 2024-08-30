@@ -76,7 +76,7 @@
                     { "type": "string", "name": "timeZoneId" }
                   ]
                 },
-                { "type": "string", "name": "signature" }
+                { "type": "bytes", "name": "signature" }
               ]
             },
             { "type": "bool", "name": "currentlyListed" }
@@ -249,7 +249,7 @@
                     { "type": "string", "name": "timeZoneId" }
                   ]
                 },
-                { "type": "string", "name": "signature" }
+                { "type": "bytes", "name": "signature" }
               ]
             },
             {
@@ -269,7 +269,7 @@
                     { "type": "string", "name": "timeZoneId" }
                   ]
                 },
-                { "type": "string", "name": "signature" }
+                { "type": "bytes", "name": "signature" }
               ]
             }
           ]
@@ -310,14 +310,6 @@
       "payable": false,
       "inputs": [],
       "outputs": [{ "type": "address", "name": "" }]
-    },
-    {
-      "type": "function",
-      "name": "parseGeoResponse",
-      "constant": false,
-      "payable": false,
-      "inputs": [{ "type": "uint256", "name": "carId" }],
-      "outputs": []
     },
     {
       "type": "function",
@@ -454,7 +446,7 @@
                 { "type": "string", "name": "timeZoneId" }
               ]
             },
-            { "type": "string", "name": "signature" }
+            { "type": "bytes", "name": "signature" }
           ]
         },
         { "type": "string", "name": "geoApiKey" }

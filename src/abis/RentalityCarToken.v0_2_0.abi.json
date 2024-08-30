@@ -153,7 +153,7 @@
                     { "type": "string", "name": "timeZoneId" }
                   ]
                 },
-                { "type": "string", "name": "signature" }
+                { "type": "bytes", "name": "signature" }
               ]
             },
             { "type": "bool", "name": "currentlyListed" }
@@ -736,10 +736,32 @@
     },
     {
       "type": "function",
-      "name": "verifyGeo",
-      "constant": false,
+      "name": "verifySignedLocationInfo",
+      "constant": true,
+      "stateMutability": "view",
       "payable": false,
-      "inputs": [{ "type": "uint256", "name": "carId" }],
+      "inputs": [
+        {
+          "type": "tuple",
+          "name": "locationInfo",
+          "components": [
+            {
+              "type": "tuple",
+              "name": "locationInfo",
+              "components": [
+                { "type": "string", "name": "userAddress" },
+                { "type": "string", "name": "country" },
+                { "type": "string", "name": "state" },
+                { "type": "string", "name": "city" },
+                { "type": "string", "name": "latitude" },
+                { "type": "string", "name": "longitude" },
+                { "type": "string", "name": "timeZoneId" }
+              ]
+            },
+            { "type": "bytes", "name": "signature" }
+          ]
+        }
+      ],
       "outputs": []
     }
   ]
