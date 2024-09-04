@@ -198,7 +198,13 @@ contract RentalityPaymentService is UUPSOwnable {
 
     if (currencyType == address(0)) {
       // Handle payment in native currency (ETH)
-      require(msg.value == valueInCurrency, 'Not enough tokens');
+      uint diff = 0;
+      if (msg.value > valueInCurrency) {
+        diff = msg.value - valueInCurrency;
+      } else {
+        diff = valueInCurrency - msg.value;
+      }
+      require(diff <= valueInCurrency / 100, 'Not enough tokens');
     } else {
       // Handle payment in ERC20 tokens
       require(IERC20(currencyType).allowance(tx.origin, address(this)) >= valueInCurrency, 'Not enough tokens');
