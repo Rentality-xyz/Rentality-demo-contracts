@@ -40,7 +40,7 @@
                     { "type": "string", "name": "timeZoneId" }
                   ]
                 },
-                { "type": "string", "name": "signature" }
+                { "type": "bytes", "name": "signature" }
               ]
             },
             { "type": "bool", "name": "currentlyListed" }
@@ -294,7 +294,7 @@
                     { "type": "string", "name": "timeZoneId" }
                   ]
                 },
-                { "type": "string", "name": "signature" }
+                { "type": "bytes", "name": "signature" }
               ]
             },
             {
@@ -314,7 +314,7 @@
                     { "type": "string", "name": "timeZoneId" }
                   ]
                 },
-                { "type": "string", "name": "signature" }
+                { "type": "bytes", "name": "signature" }
               ]
             }
           ]
@@ -1638,7 +1638,7 @@
                 { "type": "string", "name": "timeZoneId" }
               ]
             },
-            { "type": "string", "name": "signature" }
+            { "type": "bytes", "name": "signature" }
           ]
         },
         { "type": "string", "name": "geoApiKey" }
