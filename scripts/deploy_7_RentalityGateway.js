@@ -9,16 +9,6 @@ async function main() {
 
   if (chainId < 0) throw new Error('chainId is not set')
 
-  const rentalityQueryAddress = checkNotNull(
-    getContractAddress('RentalityQuery', 'scripts/deploy_1d_RentalityQuery.js', chainId),
-    'RentalityQuery'
-  )
-
-  const rentalityUtilsAddress = checkNotNull(
-    getContractAddress('RentalityUtils', 'scripts/deploy_1a_RentalityUtils.js', chainId),
-    'RentalityUtils'
-  )
-
   const rentalityUserServiceAddress = checkNotNull(
     getContractAddress('RentalityUserService', 'scripts/deploy_1b_RentalityUserService.js', chainId),
     'RentalityUserService'
@@ -59,11 +49,17 @@ async function main() {
     'RentalityAdminGateway'
   )
 
+  const rentalityCarDelivery = checkNotNull(
+    getContractAddress('RentalityCarDelivery', 'scripts/deploy_2i_RentalityCarDelivery.js', chainId),
+    'RentalityCarDelivery'
+  )
+  const rentalityView = checkNotNull(
+    getContractAddress('RentalityView', 'scripts/deploy_4b_RentalityView.js', chainId),
+    'RentalityView'
+  )
+
   const contractFactory = await ethers.getContractFactory(contractName, {
-    libraries: {
-      RentalityUtils: rentalityUtilsAddress,
-      RentalityQuery: rentalityQueryAddress,
-    },
+    libraries: {},
   })
 
   let contract = await upgrades.deployProxy(contractFactory, [
@@ -75,6 +71,8 @@ async function main() {
     rentalityPaymentServiceAddress,
     rentalityClaimService,
     rentalityAdminGatewayAddress,
+    rentalityCarDelivery,
+    rentalityView,
   ])
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()

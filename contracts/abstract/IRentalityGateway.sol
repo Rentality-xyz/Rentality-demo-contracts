@@ -3,6 +3,7 @@ pragma solidity ^0.8.9;
 
 import '../RentalityCarToken.sol';
 import '../RentalityTripService.sol';
+import '../Schemas.sol';
 
 /// @title RentalityGateway
 /// @notice This contract defines the interface for the Rentality Gateway, which facilitates interactions between various services in the Rentality platform.
@@ -31,9 +32,7 @@ interface IRentalityGateway {
   /// @param geoApiKey the key to verify location by google geo api
   function updateCarInfoWithLocation(
     Schemas.UpdateCarInfoRequest memory request,
-    string memory location,
-    string memory locationLatitude,
-    string memory locationLongitude,
+    Schemas.SignedLocationInfo memory location,
     string memory geoApiKey
   ) external;
 
@@ -77,11 +76,22 @@ interface IRentalityGateway {
   /// @param tripId The ID of the trip to reject.
   function rejectTripRequest(uint256 tripId) external;
 
-  /// @notice Performs check-in by the host for a trip.
-  /// @param tripId The ID of the trip.
-  /// @param panelParams An array representing parameters related to fuel, odometer,
-  /// and other relevant details depends on engine.
-  function checkInByHost(uint256 tripId, uint64[] memory panelParams) external;
+  /// @notice Allows the host to perform a check-in for a specific trip.
+  /// This action typically occurs at the start of the trip and records key information
+  /// such as fuel level, odometer reading, insurance details, and any other relevant data.
+  /// @param tripId The unique identifier for the trip being checked in.
+  /// @param panelParams An array of numeric parameters representing important vehicle details.
+  ///   - panelParams[0]: Fuel level (e.g., as a percentage)
+  ///   - panelParams[1]: Odometer reading (e.g., in kilometers or miles)
+  ///   - Additional parameters can be added based on the engine and vehicle characteristics.
+  /// @param insuranceCompany The name of the insurance company covering the vehicle.
+  /// @param insuranceNumber The insurance policy number.
+  function checkInByHost(
+    uint256 tripId,
+    uint64[] memory panelParams,
+    string memory insuranceCompany,
+    string memory insuranceNumber
+  ) external;
 
   /// @notice Performs check-out by the host for a trip.
   /// @param tripId The ID of the trip.
@@ -121,7 +131,7 @@ interface IRentalityGateway {
     uint64 startDateTime,
     uint64 endDateTime,
     Schemas.SearchCarParams memory searchParams
-  ) external view returns (Schemas.SearchCar[] memory);
+  ) external view returns (Schemas.SearchCarWithDistance[] memory);
 
   /// @notice Searches for available cars for a specific user based on specified criteria.
   /// @param user The address of the user.
@@ -144,6 +154,25 @@ interface IRentalityGateway {
   /// @notice Create a trip request.
   /// @param request The request parameters for creating a new trip.
   function createTripRequest(Schemas.CreateTripRequest memory request) external payable;
+
+  /// @notice Creates a trip request with delivery.
+  /// @param request The trip request with delivery details.
+  function createTripRequestWithDelivery(Schemas.CreateTripRequestWithDelivery memory request) external payable;
+
+  /// @dev Retrieves delivery data for a given car.
+  /// @param carId The ID of the car for which delivery data is requested.
+  /// @return deliveryData The delivery data including location details and delivery prices.
+  function getDeliveryData(uint carId) external view returns (Schemas.DeliveryData memory);
+
+  /// @dev Retrieves delivery data for a given user.
+  /// @param user The user address for which delivery data is requested.
+  /// @return deliveryPrices The user prices for delivery.
+  function getUserDeliveryPrices(address user) external view returns (Schemas.DeliveryPrices memory);
+
+  /// @notice Adds user delivery prices.
+  /// @param underTwentyFiveMilesInUsdCents The delivery price in USD cents for distances under 25 miles.
+  /// @param aboveTwentyFiveMilesInUsdCents The delivery price in USD cents for distances above 25 miles.
+  function addUserDeliveryPrices(uint64 underTwentyFiveMilesInUsdCents, uint64 aboveTwentyFiveMilesInUsdCents) external;
 
   /// @notice Get information about all trips where the caller is the guest.
   /// @return An array of Trip structures containing details about trips where the caller is the guest.
@@ -272,10 +301,6 @@ interface IRentalityGateway {
   /// @return An array of PublicHostCarDTO structs representing the cars owned by the host.
   function getCarsOfHost(address host) external view returns (Schemas.PublicHostCarDTO[] memory);
 
-  /// @notice Parses the geolocation response and stores parsed data.
-  /// @param carId The ID of the car for which geolocation is parsed.
-  function parseGeoResponse(uint carId) external;
-
   /// @dev Returns the owner of the contract.
   /// @return The address of the contract owner.
   function owner() external view returns (address);
@@ -291,6 +316,19 @@ interface IRentalityGateway {
     address currency
   ) external view returns (Schemas.CalculatePaymentsDTO memory calculatePaymentsDTO);
 
+  /// @dev Calculates the payments for a trip.
+  /// @param carId The ID of the car.
+  /// @param daysOfTrip The duration of the trip in days.
+  /// @param currency The currency to use for payment calculation.
+  /// @return calculatePaymentsDTO An object containing payment details.
+  function calculatePaymentsWithDelivery(
+    uint carId,
+    uint64 daysOfTrip,
+    address currency,
+    Schemas.LocationInfo memory pickUpLocation,
+    Schemas.LocationInfo memory returnLocation
+  ) external view returns (Schemas.CalculatePaymentsDTO memory);
+
   /// @notice Gets the discount for a specific user.
   /// @param user The address of the user.
   /// @return The discount information for the user.
@@ -299,4 +337,42 @@ interface IRentalityGateway {
   /// @notice Adds a user discount.
   /// @param data The discount data.
   function addUserDiscount(Schemas.BaseDiscount memory data) external;
+
+  /// @notice Searches for available cars based on specified criteria.
+  /// @param startDateTime The start date and time of the search.
+  /// @param endDateTime The end date and time of the search.
+  /// @param searchParams Additional search parameters.
+  /// @return An array of available car information meeting the search criteria.
+  function searchAvailableCarsWithDelivery(
+    uint64 startDateTime,
+    uint64 endDateTime,
+    Schemas.SearchCarParams memory searchParams,
+    Schemas.LocationInfo memory pickUpInfo,
+    Schemas.LocationInfo memory returnInfo
+  ) external view returns (Schemas.SearchCarWithDistance[] memory);
+
+  ///  @notice Calculates the KYC commission for a given currency.
+  ///  @param currency The address of the currency to calculate the KYC commission for.
+  ///  @return The calculated KYC commission amount.
+  function calculateKycCommission(address currency) external view returns (uint);
+
+  /// @notice Retrieves the KYC commission amount.
+  /// @dev Calls the `getKycCommission` function from the `userService` contract.
+  /// @return The current KYC commission amount.
+  function getKycCommission() external view returns (uint);
+
+  /// @notice Checks if the KYC commission has been paid by a user.
+  /// @dev Calls the `isCommissionPaidForUser` function from the `userService` contract.
+  /// @param user The address of the user to check.
+  /// @return True if the KYC commission has been paid by the user, false otherwise.
+  function isKycCommissionPaid(address user) external view returns (bool);
+
+  /// @notice Pays the KYC commission.
+  /// @dev This function should be called with the appropriate amount of Ether to cover the KYC commission.
+  function payKycCommission(address currency) external payable;
+
+  ///  @notice Uses the KYC commission for a specific user.
+  ///  @param user The address of the user whose KYC commission will be used.
+  ///  @dev This function is typically called after the user has paid the KYC commission to apply it to their account.
+  function useKycCommission(address user) external;
 }

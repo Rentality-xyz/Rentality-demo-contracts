@@ -21,7 +21,8 @@ describe('RentalityGateway: chat', function () {
     manager,
     host,
     guest,
-    anonymous
+    anonymous,
+    rentalityLocationVerifier
 
   beforeEach(async function () {
     ;({
@@ -43,11 +44,12 @@ describe('RentalityGateway: chat', function () {
       host,
       guest,
       anonymous,
+      rentalityLocationVerifier,
     } = await loadFixture(deployDefaultFixture))
   })
 
   it('Should have chat history by guest', async function () {
-    let addCarRequest = getMockCarRequest(0)
+    let addCarRequest = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
 
     await expect(rentalityGateway.connect(host).addCar(addCarRequest)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
@@ -60,7 +62,7 @@ describe('RentalityGateway: chat', function () {
 
     const dailyPriceInUsdCents = 1000
 
-    const result = await rentalityPlatform.calculatePayments(1, 2, ethToken)
+    const result = await rentalityGateway.calculatePayments(1, 2, ethToken)
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
         {
@@ -71,7 +73,7 @@ describe('RentalityGateway: chat', function () {
         },
         { value: result.totalPrice }
       )
-    ).to.changeEtherBalances([guest, rentalityPlatform], [-result.totalPrice, result.totalPrice])
+    ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
 
     let name = 'name'
     let surname = 'surname'
@@ -124,7 +126,7 @@ describe('RentalityGateway: chat', function () {
     expect(chatInfo.carYearOfProduction).to.be.equal(Number(addCarRequest.yearOfProduction))
   })
   it('Should have chat history by host', async function () {
-    let addCarRequest = getMockCarRequest(0)
+    let addCarRequest = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
     await expect(rentalityGateway.connect(host).addCar(addCarRequest)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
@@ -169,7 +171,7 @@ describe('RentalityGateway: chat', function () {
 
     const oneDayInSeconds = 86400
 
-    const result = await rentalityPlatform.calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway.calculatePayments(1, 1, ethToken)
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
         {
@@ -180,7 +182,7 @@ describe('RentalityGateway: chat', function () {
         },
         { value: result.totalPrice }
       )
-    ).to.changeEtherBalances([guest, rentalityPlatform], [-result.totalPrice, result.totalPrice])
+    ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
 
     let chatInfoArray = await rentalityGateway.connect(host).getChatInfoForHost()
     expect(chatInfoArray.length).to.be.equal(1)

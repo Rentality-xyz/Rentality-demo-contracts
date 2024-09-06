@@ -52,3 +52,5 @@ package-lock.json
 .idea/
 types/
 src/Schemas.ts
+scripts/testData/testData.json
+/.project

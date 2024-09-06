@@ -21,8 +21,10 @@ interface Schemas {
     uint64 milesIncludedPerDay;
     uint32 timeBufferBetweenTripsInSec;
     bool currentlyListed;
-    bool geoVerified;
+    bool geoVerified; // unused
     string timeZoneId;
+    bool insuranceIncluded;
+    bytes32 locationHash;
   }
 
   struct PublicHostCarDTO {
@@ -57,10 +59,10 @@ interface Schemas {
     uint8 engineType;
     uint64 milesIncludedPerDay;
     uint32 timeBufferBetweenTripsInSec;
-    string locationAddress;
-    string locationLatitude;
-    string locationLongitude;
     string geoApiKey;
+    bool insuranceIncluded;
+    SignedLocationInfo locationInfo;
+    bool currentlyListed;
   }
 
   /// @notice Struct to store input parameters for updating car information.
@@ -72,6 +74,7 @@ interface Schemas {
     uint64 milesIncludedPerDay;
     uint32 timeBufferBetweenTripsInSec;
     bool currentlyListed;
+    bool insuranceIncluded;
   }
 
   /// @notice Struct to store search parameters for querying cars.
@@ -85,6 +88,7 @@ interface Schemas {
     uint32 yearOfProductionTo;
     uint64 pricePerDayInUsdCentsFrom;
     uint64 pricePerDayInUsdCentsTo;
+    LocationInfo userLocation;
   }
 
   /// Trip Service
@@ -95,6 +99,15 @@ interface Schemas {
     uint64 startDateTime;
     uint64 endDateTime;
     address currencyType;
+  }
+
+  struct CreateTripRequestWithDelivery {
+    uint256 carId;
+    uint64 startDateTime;
+    uint64 endDateTime;
+    address currencyType;
+    SignedLocationInfo pickUpInfo;
+    SignedLocationInfo returnInfo;
   }
 
   /// @dev Enumeration representing verious states of a trip.
@@ -133,14 +146,14 @@ interface Schemas {
     uint64 startDateTime;
     uint64 endDateTime;
     uint8 engineType;
-    string startLocation;
-    string endLocation;
     uint64 milesIncludedPerDay;
     uint64 fuelPrice;
     PaymentInfo paymentInfo;
     uint createdDateTime;
     uint approvedDateTime;
     uint rejectedDateTime;
+    string guestInsuranceCompanyName;
+    string guestInsurancePolicyNumber;
     address rejectedBy;
     uint checkedInByHostDateTime;
     uint64[] startParamLevels;
@@ -151,6 +164,9 @@ interface Schemas {
     uint64[] endParamLevels;
     uint checkedOutByHostDateTime;
     TransactionInfo transactionInfo;
+    uint finishDateTime;
+    bytes32 pickUpHash;
+    bytes32 returnHash;
   }
 
   struct TripDTO {
@@ -159,6 +175,17 @@ interface Schemas {
     string hostPhotoUrl;
     string metadataURI;
     string timeZoneId;
+    string hostDrivingLicenseNumber;
+    uint64 hostDrivingLicenseExpirationDate;
+    string guestDrivingLicenseNumber;
+    uint64 guestDrivingLicenseExpirationDate;
+    string model;
+    string brand;
+    uint32 yearOfProduction;
+    LocationInfo pickUpLocation;
+    LocationInfo returnLocation;
+    string guestPhoneNumber;
+    string hostPhoneNumber;
   }
 
   /// CHAT LOGIC
@@ -205,6 +232,7 @@ interface Schemas {
     string hostPhoneNumber;
     CarInfo carInfo;
     uint amountInEth;
+    string timeZoneId;
   }
 
   // Struct to represent a claim
@@ -219,6 +247,8 @@ interface Schemas {
     uint256 payDateInSec;
     address rejectedBy;
     uint256 rejectedDateInSec;
+    string photosUrl;
+    bool isHostClaims;
   }
 
   // Struct to represent a request to create a new claim
@@ -227,6 +257,7 @@ interface Schemas {
     ClaimType claimType;
     string description;
     uint64 amountInUsdCents;
+    string photosUrl;
   }
 
   // Enumeration for types of claims
@@ -234,11 +265,13 @@ interface Schemas {
     Tolls,
     Tickets,
     LateReturn,
-    Cleanliness,
     Smoking,
+    Cleanliness,
     ExteriorDamage,
     InteriorDamage,
-    Other
+    Other,
+    FaultyVehicle,
+    ListingMismatch
   }
 
   // Enumeration for claim statuses
@@ -282,7 +315,8 @@ interface Schemas {
     address from;
     address to;
     uint64 totalDayPriceInUsdCents;
-    uint64 taxPriceInUsdCents;
+    uint64 salesTax;
+    uint64 governmentTax;
     uint64 priceWithDiscount;
     uint64 depositInUsdCents;
     uint64 resolveAmountInUsdCents;
@@ -291,6 +325,8 @@ interface Schemas {
     uint8 currencyDecimals;
     uint64 resolveFuelAmountInUsdCents;
     uint64 resolveMilesAmountInUsdCents;
+    uint128 pickUpFee;
+    uint128 dropOfFee;
   }
 
   struct TripReceiptDTO {
@@ -298,7 +334,8 @@ interface Schemas {
     uint64 totalTripDays;
     uint64 tripPrice;
     uint64 discountAmount;
-    uint64 taxes;
+    uint64 salesTax;
+    uint64 governmentTax;
     uint64 depositReceived;
     uint64 reimbursement;
     uint64 depositReturned;
@@ -337,6 +374,10 @@ interface Schemas {
   }
 
   /// Query
+  struct SearchCarWithDistance {
+    SearchCar car;
+    int distance;
+  }
 
   struct SearchCar {
     uint carId;
@@ -354,13 +395,13 @@ interface Schemas {
     address host;
     string hostName;
     string hostPhotoUrl;
-    string city;
-    string country;
-    string state;
-    string locationLatitude;
-    string locationLongitude;
-    string timeZoneId;
     string metadataURI;
+    uint64 underTwentyFiveMilesInUsdCents;
+    uint64 aboveTwentyFiveMilesInUsdCents;
+    uint64 pickUp;
+    uint64 dropOf;
+    bool insuranceIncluded;
+    LocationInfo locationInfo;
   }
 
   struct GeoData {
@@ -388,12 +429,7 @@ interface Schemas {
     uint64[] engineParams;
     bool geoVerified;
     bool currentlyListed;
-    string timeZoneId;
-    string city;
-    string country;
-    string state;
-    string locationLatitude;
-    string locationLongitude;
+    LocationInfo locationInfo;
   }
 
   // Taxes
@@ -414,5 +450,105 @@ interface Schemas {
     City,
     State,
     Country
+  }
+
+  // Delivery
+  struct DeliveryPrices {
+    uint64 underTwentyFiveMilesInUsdCents;
+    uint64 aboveTwentyFiveMilesInUsdCents;
+    bool initialized;
+  }
+
+  struct DeliveryLocations {
+    string pickUpLat;
+    string pickUpLon;
+    string returnLat;
+    string returnLon;
+  }
+
+  struct DeliveryData {
+    LocationInfo locationInfo;
+    uint64 underTwentyFiveMilesInUsdCents;
+    uint64 aboveTwentyFiveMilesInUsdCents;
+    bool insuranceIncluded;
+  }
+
+  struct LocationInfo {
+    string userAddress;
+    string country;
+    string state;
+    string city;
+    string latitude;
+    string longitude;
+    string timeZoneId;
+  }
+
+  struct SignedLocationInfo {
+    LocationInfo locationInfo;
+    bytes signature;
+  }
+
+  struct KycCommissionData {
+    uint paidTime;
+    bool commissionPaid;
+  }
+
+  struct TripFilter {
+    PaymentStatus paymentStatus;
+    AdminTripStatus status;
+    LocationInfo location;
+    uint startDateTime;
+    uint endDateTime;
+  }
+  enum PaymentStatus {
+    Any,
+    PaidToHost,
+    Unpaid,
+    RefundToGuest,
+    Prepayment
+  }
+  enum AdminTripStatus {
+    Any,
+    Created,
+    Approved,
+    CheckedInByHost,
+    CheckedInByGuest,
+    CheckedOutByGuest,
+    CheckedOutByHost,
+    Finished,
+    GuestCanceledBeforeApprove,
+    HostCanceledBeforeApprove,
+    GuestCanceledAfterApprove,
+    HostCanceledAfterApprove,
+    CompletedWithoutGuestConfirmation,
+    CompletedByGuest,
+    CompletedByAdmin
+  }
+  struct AdminTripDTO {
+    Trip trip;
+    string carMetadataURI;
+    LocationInfo carLocation;
+  }
+
+  struct AllTripsDTO {
+    AdminTripDTO[] trips;
+    uint totalPageCount;
+  }
+
+  struct AdminCarDTO {
+    CarDetails car;
+    string carMetadataURI;
+  }
+
+  struct AllCarsDTO {
+    AdminCarDTO[] cars;
+    uint totalPageCount;
+  }
+
+  enum Role {
+    Guest,
+    Host,
+    Manager,
+    Admin
   }
 }

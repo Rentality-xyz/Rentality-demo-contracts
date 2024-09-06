@@ -17,9 +17,10 @@ contract RentalityBaseDiscount is IRentalityDiscount, Initializable, UUPSAccess 
   /// @return The discount data encoded as bytes.
   function getDiscount(address userAddress) public view returns (bytes memory) {
     if (userAddress == address(0)) return abi.encode(defaultDiscount);
-    else {
-      return abi.encode(userAddressToBaseDiscount[userAddress]);
-    }
+
+    Schemas.BaseDiscount memory discount = userAddressToBaseDiscount[userAddress];
+    if (discount.initialized) return abi.encode(discount);
+    else return abi.encode(defaultDiscount);
   }
 
   /// @notice Calculates the total price with discount for a trip.
@@ -79,7 +80,7 @@ contract RentalityBaseDiscount is IRentalityDiscount, Initializable, UUPSAccess 
   /// @notice Verifies the validity of discount percentages.
   /// @param value The discount percentage to verify.
   function verifyPercentagesValidity(uint value) private pure {
-    require(value > 0 && value <= 1_000_000, 'Incorrect value');
+    require(value >= 0 && value <= 1_000_000, 'Incorrect value');
   }
 
   /// @notice Initializes the RentalityBaseDiscount contract.

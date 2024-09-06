@@ -125,6 +125,63 @@ contract RentalityCurrencyConverter is Initializable, UUPSAccess {
     return address(tokenAddressToPaymentMethod[tokenAddress]) != address(0);
   }
 
+  function calculateValueWithFee(
+    address ty,
+    uint value,
+    uint commission,
+    int256 rate,
+    uint8 dec
+  ) public view returns (uint, uint) {
+    uint256 valueToPay = getFromUsd(ty, value + commission, rate, dec);
+
+    uint256 feeInCurrency = getFromUsd(ty, commission, rate, dec);
+    return (valueToPay, feeInCurrency);
+  }
+
+  function calculateTripFinsish(
+    Schemas.PaymentInfo memory paymentInfo,
+    uint256 rentalityFee
+  ) public view returns (uint, uint, uint, uint) {
+    uint256 valueToHostInUsdCents = paymentInfo.priceWithDiscount +
+      paymentInfo.pickUpFee +
+      paymentInfo.dropOfFee +
+      paymentInfo.resolveAmountInUsdCents -
+      rentalityFee;
+
+    uint256 valueToGuestInUsdCents = paymentInfo.depositInUsdCents - paymentInfo.resolveAmountInUsdCents;
+
+    uint256 valueToHost = getFromUsd(
+      paymentInfo.currencyType,
+      valueToHostInUsdCents,
+      paymentInfo.currencyRate,
+      paymentInfo.currencyDecimals
+    );
+    uint256 valueToGuest = getFromUsd(
+      paymentInfo.currencyType,
+      valueToGuestInUsdCents,
+      paymentInfo.currencyRate,
+      paymentInfo.currencyDecimals
+    );
+    return (valueToHost, valueToGuest, valueToHostInUsdCents, valueToGuestInUsdCents);
+  }
+
+  function calculateTripReject(Schemas.PaymentInfo memory paymentInfo) public view returns (uint, uint) {
+    uint64 valueToReturnInUsdCents = paymentInfo.priceWithDiscount +
+      paymentInfo.salesTax +
+      paymentInfo.governmentTax +
+      uint64(paymentInfo.pickUpFee) +
+      uint64(paymentInfo.dropOfFee) +
+      paymentInfo.depositInUsdCents;
+
+    uint256 valueToReturnInToken = getFromUsd(
+      paymentInfo.currencyType,
+      valueToReturnInUsdCents,
+      paymentInfo.currencyRate,
+      paymentInfo.currencyDecimals
+    );
+    return (valueToReturnInUsdCents, valueToReturnInToken);
+  }
+
   /// @notice Checks if the specified currency type is native
   /// @param tokenAddress The address of the currency type
   /// @return A boolean indicating if the currency type is native

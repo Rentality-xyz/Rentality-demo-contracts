@@ -93,7 +93,7 @@ describe('RentalityUserService: KYC management', function () {
   })
   it('After a trip is requested, the host or guest can get the contact numbers of the host and guest', async function () {
     const {
-      rentalityPlatform,
+      rentalityGateway,
       rentalityPaymentService,
       rentalityCurrencyConverter,
       host,
@@ -101,9 +101,11 @@ describe('RentalityUserService: KYC management', function () {
       guest,
       rentalityTripService,
       rentalityUserService,
+      rentalityLocationVerifier,
+      admin,
     } = await loadFixture(deployDefaultFixture)
 
-    const carRequest = getMockCarRequest(0)
+    const carRequest = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
     await expect(rentalityCarToken.connect(host).addCar(carRequest)).not.to.be.reverted
     const availableCars = await rentalityCarToken.connect(guest).getAvailableCarsForUser(guest.address)
     expect(availableCars.length).to.equal(1)
@@ -147,7 +149,7 @@ describe('RentalityUserService: KYC management', function () {
         hostSignature
       )
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityGateway.connect(guest).createTripRequest(
         {
           carId: 1,
           startDateTime: 123,
@@ -160,17 +162,17 @@ describe('RentalityUserService: KYC management', function () {
 
     expect((await rentalityTripService.connect(host).getTrip(1)).status).to.equal(0)
 
-    let [guestPhoneNumber, hostPhoneNumber] = await rentalityPlatform.connect(guest).getTripContactInfo(1)
+    let [guestPhoneNumber, hostPhoneNumber] = await rentalityGateway.connect(guest).getTripContactInfo(1)
 
     expect(guestPhoneNumber).to.equal('phoneNumberGuest')
-    expect(hostPhoneNumber).to.equal('phoneNumberHost')[(guestPhoneNumber, hostPhoneNumber)] = await rentalityPlatform
+    expect(hostPhoneNumber).to.equal('phoneNumberHost')[(guestPhoneNumber, hostPhoneNumber)] = await rentalityGateway
       .connect(host)
       .getTripContactInfo(1)
     expect(guestPhoneNumber).to.equal('phoneNumberGuest')
     expect(hostPhoneNumber).to.equal('phoneNumberHost')
   })
   it('TC signature verification', async function () {
-    const { host, guest, owner, rentalityUserService } = await loadFixture(deployDefaultFixture)
+    const { host, guest, owner, rentalityUserService, rentalityGateway } = await loadFixture(deployDefaultFixture)
 
     const signature = await signTCMessage(host)
 
