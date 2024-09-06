@@ -9,9 +9,9 @@ async function main() {
 
   if (chainId < 0) throw new Error('chainId is not set')
 
-  const geoParserAddress = checkNotNull(
-    getContractAddress('RentalityGeoParser', 'scripts/deploy_2_RentalityGeoParser.js', chainId),
-    'RentalityGeoParser'
+  const rentalityVerifier = checkNotNull(
+    getContractAddress('RentalityLocationVerifier', 'scripts/deploy_2_RentalityLocationVerifier.js', chainId),
+    'RentalityLocationVerifier'
   )
 
   const rentalityUserServiceAddress = checkNotNull(
@@ -21,7 +21,7 @@ async function main() {
 
   const contractFactory = await ethers.getContractFactory(contractName)
 
-  const contract = await upgrades.deployProxy(contractFactory, [rentalityUserServiceAddress, geoParserAddress])
+  const contract = await upgrades.deployProxy(contractFactory, [rentalityUserServiceAddress, rentalityVerifier])
   await contract.waitForDeployment()
 
   const contractAddress = await contract.getAddress()

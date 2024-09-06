@@ -3,30 +3,73 @@ const { keccak256 } = require('hardhat/internal/util/keccak')
 const ethToken = ethers.getAddress('0x0000000000000000000000000000000000000000')
 
 const signTCMessage = async (user) => {
-  const message = keccak256(
-    Buffer.from(
-      'I have read and I agree with Terms of service, Cancellation policy, Prohibited uses and Privacy policy of Rentality.'
-    )
-  )
+  const message =
+    'I have read and I agree with Terms of service, Cancellation policy, Prohibited uses and Privacy policy of Rentality.'
   return await user.signMessage(message)
 }
+const emptyLocationInfo = {
+  userAddress: '',
+  country: '',
+  state: '',
+  city: '',
+  latitude: '',
+  longitude: '',
+  timeZoneId: '',
+}
+
+const PaymentStatus = {
+  Any: 0,
+  PaidToHost: 1,
+  Unpaid: 2,
+  RefundToGuest: 3,
+  Prepayment: 4,
+}
+
+// Перечисление AdminTripStatus с числовыми значениями
+const AdminTripStatus = {
+  Any: 0,
+  Created: 1,
+  Approved: 2,
+  CheckedInByHost: 3,
+  CheckedInByGuest: 4,
+  CheckedOutByGuest: 5,
+  CheckedOutByHost: 6,
+  Finished: 7,
+  GuestCanceledBeforeApprove: 8,
+  HostCanceledBeforeApprove: 9,
+  GuestCanceledAfterApprove: 10,
+  HostCanceledAfterApprove: 11,
+  CompletedWithoutGuestConfirmation: 12,
+  CompletedByGuest: 13,
+  CompletedByAdmin: 14,
+}
+
+// Пример использования
+const filter = {
+  paymentStatus: PaymentStatus.Any,
+  status: AdminTripStatus.Any,
+  location: emptyLocationInfo,
+  startDateTime: 0,
+  endDateTime: 0,
+}
+
 const calculatePayments = async (currencyConverter, paymentService, value, tripDays, deposit, token = ethToken) => {
   let priceWithDiscount = await paymentService.calculateSumWithDiscount(
     '0x0000000000000000000000000000000000000000',
     tripDays,
     value
   )
-  let totalTaxes = await paymentService.calculateTaxes(1, tripDays, priceWithDiscount)
+  let [salesTaxes, govTaxes] = await paymentService.calculateTaxes(1, tripDays, priceWithDiscount)
 
   const [rate, decimals] = await currencyConverter.getCurrentRate(token)
 
   const rentPriceInEth = await currencyConverter.getFromUsd(
     token,
-    priceWithDiscount + totalTaxes + BigInt(deposit),
+    priceWithDiscount + salesTaxes + govTaxes + BigInt(deposit),
     rate,
     decimals
   )
-  const taxes = await currencyConverter.getFromUsd(token, totalTaxes, rate, decimals)
+  const taxes = await currencyConverter.getFromUsd(token, salesTaxes + govTaxes, rate, decimals)
 
   const feeInUsdCents = await paymentService.getPlatformFeeFrom(priceWithDiscount)
 
@@ -47,16 +90,16 @@ const calculatePaymentsFrom = async (currencyConverter, paymentService, value, t
     tripDays,
     value
   )
-  let totalTaxes = await paymentService.calculateTaxes(1, tripDays, priceWithDiscount)
+  let [salesTaxes, govTaxes] = await paymentService.calculateTaxes(1, tripDays, priceWithDiscount)
   const [rate, decimals] = await currencyConverter.getCurrentRate(token)
 
   const rentPriceInEth = await currencyConverter.getFromUsd(
     token,
-    priceWithDiscount + totalTaxes + BigInt(deposit),
+    priceWithDiscount + salesTaxes + govTaxes + BigInt(deposit),
     rate,
     decimals
   )
-  const taxes = await currencyConverter.getFromUsd(token, totalTaxes, rate, decimals)
+  const taxes = await currencyConverter.getFromUsd(token, salesTaxes + govTaxes, rate, decimals)
 
   const feeInUsdCents = await paymentService.getPlatformFeeFrom(priceWithDiscount)
 
@@ -71,51 +114,46 @@ const calculatePaymentsFrom = async (currencyConverter, paymentService, value, t
   }
 }
 
-function getMockCarRequest(seed) {
-  const seedStr = seed?.toString() ?? ''
-  const seedInt = Number(seed) ?? 0
+const locationInfo = {
+  userAddress: 'Miami Riverwalk, Miami, Florida, USA',
+  country: 'USA',
+  state: 'Florida',
+  city: 'Miami',
+  latitude: '45.509248',
+  longitude: '-122.682653',
+  timeZoneId: 'id',
+}
 
-  const TOKEN_URI = 'TOKEN_URI' + seedStr
-  const VIN_NUMBER = 'VIN_NUMBER' + seedStr
-  const BRAND = 'BRAND' + seedStr
-  const MODEL = 'MODEL' + seedStr
-  const YEAR = '200' + seedStr
-  const PRICE_PER_DAY = seedInt * 100 + 2
-  const DEPOSIT = seedInt * 100 + 3
-  const ENGINE_PARAMS = [seedInt * 100 + 4, seedInt * 100 + 5]
-  const ETYPE = 1
-  const DISTANCE_INCLUDED = seedInt * 100 + 6
-  const location = 'kyiv ukraine'
-  const locationCoordinates = ' ' + seedInt
-  const apiKey = process.env.GOOGLE_API_KEY || ' '
-  const timeBufferBetweenTripsInSec = 0
-  const locationLatitude = seedStr
-  const locationLongitude = seedStr
+function getMockCarRequestWithAddress(seed, address, contractAddress, admin) {
+  let locationInfo2 = { ...locationInfo, userAddress: address }
+  return getMockCarRequest(seed, contractAddress, admin, locationInfo2)
+}
 
-  return {
-    tokenUri: TOKEN_URI,
-    carVinNumber: VIN_NUMBER,
-    brand: BRAND,
-    model: MODEL,
-    yearOfProduction: YEAR,
-    pricePerDayInUsdCents: PRICE_PER_DAY,
-    securityDepositPerTripInUsdCents: DEPOSIT,
-    engineParams: ENGINE_PARAMS,
-    engineType: ETYPE,
-    milesIncludedPerDay: DISTANCE_INCLUDED,
-    timeBufferBetweenTripsInSec: timeBufferBetweenTripsInSec,
-    locationAddress: location,
-    locationLatitude,
-    locationLongitude,
-    geoApiKey: apiKey,
+const signLocationInfo = (contractAddress, admin, location) => {
+  const domain = {
+    name: 'RentalityLocationVerifier',
+    version: '1',
+    chainId: 1337,
+    verifyingContract: contractAddress, // RentalityLocationVerifier address
   }
+  const types = {
+    LocationInfo: [
+      { name: 'userAddress', type: 'string' },
+      { name: 'country', type: 'string' },
+      { name: 'state', type: 'string' },
+      { name: 'city', type: 'string' },
+      { name: 'latitude', type: 'string' },
+      { name: 'longitude', type: 'string' },
+      { name: 'timeZoneId', type: 'string' },
+    ],
+  }
+  if (location === undefined) location = locationInfo
+  return admin.signTypedData(domain, types, location)
 }
 
-function getMockCarRequestWithAddress(seed, address) {
-  return { ...getMockCarRequest(seed), locationAddress: address }
-}
+function getMockCarRequest(seed, contractAddress, admin, locationI) {
+  let newLocation = locationI === undefined ? locationInfo : locationI
 
-function getMockCarRequest(seed) {
   const seedStr = seed?.toString() ?? ''
   const seedInt = Number(seed) ?? 0
 
@@ -135,6 +173,10 @@ function getMockCarRequest(seed) {
   const timeBufferBetweenTripsInSec = 0
   const locationLatitude = seedStr
   const locationLongitude = seedStr
+  const locationInfo1 = {
+    locationInfo: newLocation,
+    signature: signLocationInfo(contractAddress, admin, newLocation),
+  }
 
   return {
     tokenUri: TOKEN_URI,
@@ -148,10 +190,10 @@ function getMockCarRequest(seed) {
     engineType: ETYPE,
     milesIncludedPerDay: DISTANCE_INCLUDED,
     timeBufferBetweenTripsInSec: timeBufferBetweenTripsInSec,
-    locationAddress: location,
-    locationLatitude,
-    locationLongitude,
     geoApiKey: apiKey,
+    insuranceIncluded: true,
+    locationInfo: locationInfo1,
+    currentlyListed: true,
   }
 }
 
@@ -161,6 +203,7 @@ function createMockClaimRequest(tripId, amountToClaim) {
     claimType: 1,
     description: 'Some des',
     amountInUsdCents: amountToClaim,
+    photosUrl: '',
   }
 }
 
@@ -186,6 +229,7 @@ function getEmptySearchCarParams(seed) {
     yearOfProductionTo: 0,
     pricePerDayInUsdCentsFrom: 0,
     pricePerDayInUsdCentsTo: 0,
+    userLocation: locationInfo,
   }
 }
 
@@ -208,10 +252,7 @@ async function deployDefaultFixture() {
   const RentalityMockPriceFeed = await ethers.getContractFactory('RentalityMockPriceFeed')
   const RentalityUserService = await ethers.getContractFactory('RentalityUserService')
   const RentalityTripService = await ethers.getContractFactory('RentalityTripService', {
-    libraries: {
-      RentalityQuery: await query.getAddress(),
-      RentalityUtils: await utils.getAddress(),
-    },
+    libraries: {},
   })
 
   const RentalityCurrencyConverter = await ethers.getContractFactory('RentalityCurrencyConverter')
@@ -221,6 +262,8 @@ async function deployDefaultFixture() {
       RentalityUtils: await utils.getAddress(),
     },
   })
+  let TripsQuery = await ethers.getContractFactory('RentalityTripsQuery')
+  let tripsQuery = await TripsQuery.deploy()
 
   const RentalityPlatform = await ethers.getContractFactory('RentalityPlatform', {
     libraries: {
@@ -231,10 +274,7 @@ async function deployDefaultFixture() {
   const RentalityGeoService = await ethers.getContractFactory('RentalityGeoService')
 
   let RentalityGateway = await ethers.getContractFactory('RentalityGateway', {
-    libraries: {
-      RentalityQuery: await query.getAddress(),
-      RentalityUtils: await utils.getAddress(),
-    },
+    libraries: {},
   })
 
   let rentalityMockPriceFeed = await RentalityMockPriceFeed.deploy(8, 200000000000)
@@ -254,7 +294,7 @@ async function deployDefaultFixture() {
   const electricEngine = await ethers.getContractFactory('RentalityElectricEngine')
   const elEngine = await electricEngine.deploy(await rentalityUserService.getAddress())
 
-  const patrolEngine = await ethers.getContractFactory('RentalityPatrolEngine')
+  const patrolEngine = await ethers.getContractFactory('RentalityPetrolEngine')
   const pEngine = await patrolEngine.deploy(await rentalityUserService.getAddress())
 
   const hybridEngine = await ethers.getContractFactory('RentalityHybridEngine')
@@ -305,9 +345,17 @@ async function deployDefaultFixture() {
   const geoParserMock = await GeoParserMock.deploy()
   await geoParserMock.waitForDeployment()
 
+  const RentalityVerifier = await ethers.getContractFactory('RentalityLocationVerifier')
+
+  let rentalityLocationVerifier = await upgrades.deployProxy(RentalityVerifier, [
+    await rentalityUserService.getAddress(),
+    admin.address,
+  ])
+  await rentalityLocationVerifier.waitForDeployment()
+
   const rentalityGeoService = await upgrades.deployProxy(RentalityGeoService, [
     await rentalityUserService.getAddress(),
-    await geoParserMock.getAddress(),
+    await rentalityLocationVerifier.getAddress(),
   ])
   await rentalityGeoService.waitForDeployment()
   await geoParserMock.setGeoService(await rentalityGeoService.getAddress())
@@ -351,6 +399,36 @@ async function deployDefaultFixture() {
   const claimService = await upgrades.deployProxy(RentalityClaimService, [await rentalityUserService.getAddress()])
   await claimService.waitForDeployment()
 
+  const RealMath = await ethers.getContractFactory('RealMath')
+  const realMath = await RealMath.deploy()
+
+  const DeliveryService = await ethers.getContractFactory('RentalityCarDelivery', {
+    libraries: {
+      RealMath: await realMath.getAddress(),
+      RentalityUtils: await utils.getAddress(),
+    },
+  })
+  const deliveryService = await upgrades.deployProxy(DeliveryService, [await rentalityUserService.getAddress()])
+
+  let RentalityView = await ethers.getContractFactory('RentalityView', {
+    libraries: {
+      RentalityUtils: await utils.getAddress(),
+      RentalityQuery: await query.getAddress(),
+      RentalityTripsQuery: await tripsQuery.getAddress(),
+    },
+  })
+
+  const rentalityView = await upgrades.deployProxy(RentalityView, [
+    await rentalityCarToken.getAddress(),
+    await rentalityCurrencyConverter.getAddress(),
+    await rentalityTripService.getAddress(),
+    await rentalityUserService.getAddress(),
+    await rentalityPaymentService.getAddress(),
+    await claimService.getAddress(),
+    await deliveryService.getAddress(),
+  ])
+  await rentalityView.waitForDeployment()
+
   const rentalityPlatform = await upgrades.deployProxy(RentalityPlatform, [
     await rentalityCarToken.getAddress(),
     await rentalityCurrencyConverter.getAddress(),
@@ -358,10 +436,19 @@ async function deployDefaultFixture() {
     await rentalityUserService.getAddress(),
     await rentalityPaymentService.getAddress(),
     await claimService.getAddress(),
+    await deliveryService.getAddress(),
+    await rentalityView.getAddress(),
   ])
   await rentalityPlatform.waitForDeployment()
 
-  const RentalityAdminGateway = await ethers.getContractFactory('RentalityAdminGateway')
+  const RentalityAdminGateway = await ethers.getContractFactory('RentalityAdminGateway', {
+    signer: owner,
+    libraries: {
+      RentalityUtils: await utils.getAddress(),
+      RentalityQuery: await query.getAddress(),
+    },
+  })
+
   const rentalityAdminGateway = await upgrades.deployProxy(RentalityAdminGateway, [
     await rentalityCarToken.getAddress(),
     await rentalityCurrencyConverter.getAddress(),
@@ -370,6 +457,8 @@ async function deployDefaultFixture() {
     await rentalityPlatform.getAddress(),
     await rentalityPaymentService.getAddress(),
     await claimService.getAddress(),
+    await deliveryService.getAddress(),
+    await rentalityView.getAddress(),
   ])
   await rentalityAdminGateway.waitForDeployment()
 
@@ -390,6 +479,8 @@ async function deployDefaultFixture() {
     await rentalityPaymentService.getAddress(),
     await claimService.getAddress(),
     await rentalityAdminGateway.getAddress(),
+    await deliveryService.getAddress(),
+    await rentalityView.getAddress(),
   ])
   await rentalityGateway.waitForDeployment()
 
@@ -402,6 +493,7 @@ async function deployDefaultFixture() {
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityCarToken.getAddress())
   await rentalityUserService.connect(owner).grantManagerRole(await engineService.getAddress())
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityPaymentService.getAddress())
+  await rentalityUserService.connect(owner).grantManagerRole(await rentalityView.getAddress())
 
   const hostSignature = await signTCMessage(host)
   const guestSignature = await signTCMessage(guest)
@@ -423,6 +515,7 @@ async function deployDefaultFixture() {
     rentalityPaymentService,
     rentalityPlatform,
     rentalityAdminGateway,
+    deliveryService,
     utils,
     query,
     engineService,
@@ -440,6 +533,7 @@ async function deployDefaultFixture() {
     rentalityFloridaTaxes,
     rentalityBaseDiscount,
     rentalityGeoService,
+    rentalityLocationVerifier,
   }
 }
 
@@ -454,4 +548,10 @@ module.exports = {
   calculatePayments,
   calculatePaymentsFrom,
   signTCMessage,
+  locationInfo,
+  filter,
+  AdminTripStatus,
+  PaymentStatus,
+  emptyLocationInfo,
+  signLocationInfo,
 }

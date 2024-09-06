@@ -1,6 +1,4 @@
-// /** @type import('hardhat/config').HardhatUserConfig */
-// require('@nomiclabs/hardhat-waffle')
-
+// npm i @nomiclabs/hardhat-ethers
 require('dotenv').config()
 require('@nomicfoundation/hardhat-toolbox')
 require('@openzeppelin/hardhat-upgrades')
@@ -26,36 +24,54 @@ module.exports = {
       chainId: 1337,
     },
     ganache: {
-      url: process.env.URL_LOCALHOST_GANACHE,
+      url: process.env.GANACHE_LOCALHOST_URL,
       accounts: [process.env.GANACHE_PRIVATE_KEY],
       chainId: 1337,
+      timeout: 1_000_000,
     },
-    goerli: {
-      url: process.env.ALCHEMY_API_URL_GOERLI,
+    base: {
+      url: process.env.BASE_URL ?? '',
       accounts: [process.env.PRIVATE_KEY],
+      chainId: 8453,
     },
-    mumbai: {
-      url: process.env.ALCHEMY_API_URL_MUMBAI,
+    base_sepolia: {
+      url: process.env.BASE_SEPOLIA_URL ?? '',
       accounts: [process.env.PRIVATE_KEY],
+      chainId: 84532,
     },
     sepolia: {
-      url: process.env.ALCHEMY_API_URL_SEPOLIA,
+      url: process.env.SEPOLIA_URL ?? '',
       accounts: [process.env.PRIVATE_KEY],
     },
     optimism_sepolia: {
-      url: process.env.OPTIMISM_SEPOLIA_URL,
+      url: process.env.OPTIMISM_SEPOLIA_URL ?? '',
       accounts: [process.env.PRIVATE_KEY],
       chainId: 11155420,
     },
+    opBNB_testnet: {
+      url: process.env.OP_BNB_TESTNET_URL ?? '',
+      accounts: [process.env.PRIVATE_KEY],
+      chainId: 5611,
+    },
   },
   solidity: {
-    version: '0.8.17',
+    version: '0.8.19',
     settings: {
       optimizer: {
         enabled: true,
         runs: 200,
       },
       viaIR: true,
+      // evmVersion: 'cancun',
     },
+  },
+  sourcify: {
+    enabled: true,
+  },
+  etherscan: {
+    apiKey: {
+      baseSepolia: process.env.BASE_API_TOKEN,
+      base: process.env.BASE_API_TOKEN,
+    }, // command to run: npx hardhat verify --network <contract address>
   },
 }

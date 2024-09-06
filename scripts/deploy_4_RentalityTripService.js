@@ -9,15 +9,6 @@ async function main() {
 
   if (chainId < 0) throw new Error('chainId is not set')
 
-  const rentalityUtilsAddress = checkNotNull(
-    getContractAddress('RentalityUtils', 'scripts/deploy_1a_RentalityUtils.js', chainId),
-    'RentalityUtils'
-  )
-  const rentalityQueryAddress = checkNotNull(
-    getContractAddress('RentalityQuery', 'scripts/deploy_1d_RentalityQuery.js', chainId),
-    'RentalityQuery'
-  )
-
   const rentalityUserServiceAddress = checkNotNull(
     getContractAddress('RentalityUserService', 'scripts/deploy_1b_RentalityUserService.js', chainId),
     'RentalityUserService'
@@ -44,10 +35,7 @@ async function main() {
   )
 
   const contractFactory = await ethers.getContractFactory(contractName, {
-    libraries: {
-      RentalityUtils: rentalityUtilsAddress,
-      RentalityQuery: rentalityQueryAddress,
-    },
+    libraries: {},
   })
 
   const contract = await upgrades.deployProxy(contractFactory, [
