@@ -1,5 +1,5 @@
 const { ethers, upgrades } = require('hardhat')
-const { ethToken, signTCMessage } = require('../utils')
+const { ethToken, signTCMessage,signKycInfo,emptyKyc } = require('../utils')
 
 // We define a fixture to reuse the same setup in every test.
 // We use loadFixture to run this setup once, snapshot that state,
@@ -200,9 +200,7 @@ async function deployDefaultFixture() {
 
   const hostSignature = await signTCMessage(host)
   const guestSignature = await signTCMessage(guest)
-  await rentalityUserService.connect(host).setKYCInfo(' ', ' ', ' ', ' ', ' ', 1, hostSignature)
-  await rentalityUserService.connect(guest).setKYCInfo(' ', ' ', ' ', ' ', ' ', 1, guestSignature)
-
+  const adminKyc = signKycInfo(await rentalityLocationVerifier.getAddress(),admin)
   let RentalityGateway = await ethers.getContractFactory('RentalityGateway', {
     libraries: {},
   })
@@ -222,6 +220,10 @@ async function deployDefaultFixture() {
   await rentalityGateway.waitForDeployment()
 
   rentalityGateway = await ethers.getContractAt('IRentalityGateway', await rentalityGateway.getAddress())
+
+  await rentalityGateway.connect(host).setKYCInfo(' ', ' ', ' ',emptyKyc, hostSignature,adminKyc)
+  await rentalityGateway.connect(guest).setKYCInfo(' ', ' ', ' ',emptyKyc, guestSignature, adminKyc)
+
 
   const RentalityAdminGateway = await ethers.getContractFactory('RentalityAdminGateway', {
     libraries: {
@@ -266,6 +268,7 @@ async function deployDefaultFixture() {
     guest,
     anonymous,
     rentalityLocationVerifier,
+    adminKyc
   }
 }
 

@@ -2,6 +2,7 @@
 pragma solidity ^0.8.9;
 
 import '../Schemas.sol';
+import '../features/RentalityLocationVerifier.sol';
 
 /// @title RentalityGeoService
 /// @notice This contract defines the interface for the Rentality Geo Service, which provides geo-verification for cars info in the Rentality platform.
@@ -79,6 +80,8 @@ interface IRentalityGeoService {
   /// @param hash of specific location info
   /// @return location data
   function getLocationInfo(bytes32 hash) external view returns (Schemas.LocationInfo memory);
+
+  function getVerifier() external view returns(RentalityLocationVerifier);
 
   /// @notice verify signed location info or revert
   /// @param signed location data
