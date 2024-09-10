@@ -373,6 +373,22 @@ interface Schemas {
     bytes TCSignature;
   }
 
+  struct KYCInfoWithSignature {
+   string name;
+    string licenseNumber;
+    uint64 expirationDate;
+    string country;
+    string email;
+  }
+  struct AdditionalKYCInfo {
+    string issueCountry;
+    string email;
+  }
+  struct FullKYCInfoDTO {
+    KYCInfo kyc;
+    AdditionalKYCInfo additionalKYC;
+  }
+
   /// Query
   struct SearchCarWithDistance {
     SearchCar car;

@@ -8,6 +8,7 @@ const {
   signTCMessage,
   locationInfo,
   signLocationInfo,
+  emptyKyc,
 } = require('../utils')
 const { ethers } = require('hardhat')
 
@@ -53,6 +54,7 @@ describe('RentalityGateway: car', function () {
       guest,
       anonymous,
       rentalityLocationVerifier,
+      adminKyc
     } = await loadFixture(deployDefaultFixture))
   })
 
@@ -140,7 +142,7 @@ describe('RentalityGateway: car', function () {
     await expect(
       rentalityGateway
         .connect(host)
-        .setKYCInfo(name, surname, number, photo, licenseNumber, expirationDate, hostSignature)
+        .setKYCInfo(name,number, photo, emptyKyc, hostSignature, adminKyc)
     ).to.not.reverted
 
     let addCarRequest = {
@@ -197,7 +199,7 @@ describe('RentalityGateway: car', function () {
     await expect(
       await rentalityGateway
         .connect(host)
-        .setKYCInfo(name, surname, number, photo, licenseNumber, expirationDate, hostSignature)
+        .setKYCInfo(name,"", photo, emptyKyc, hostSignature, adminKyc)
     ).to.not.reverted
 
     let addCarRequest = {
@@ -248,7 +250,7 @@ describe('RentalityGateway: car', function () {
     await expect(
       await rentalityGateway
         .connect(host)
-        .setKYCInfo(name, surname, number, photo, licenseNumber, expirationDate, hostSignature)
+        .setKYCInfo(name,"", photo, emptyKyc, hostSignature, adminKyc)
     ).to.not.reverted
     let locationInfo1 = {
       locationInfo,
@@ -303,7 +305,7 @@ describe('RentalityGateway: car', function () {
     await expect(
       await rentalityGateway
         .connect(host)
-        .setKYCInfo(name, surname, number, photo, licenseNumber, expirationDate, hostSignature)
+        .setKYCInfo(name,"", photo, emptyKyc, hostSignature, adminKyc)
     ).to.not.reverted
 
     let locationInfo1 = {
