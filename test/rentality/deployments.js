@@ -1,5 +1,5 @@
 const { ethers, upgrades } = require('hardhat')
-const { ethToken, signTCMessage, signKycInfo,emptyKyc } = require('../utils')
+const { ethToken, signTCMessage, signKycInfo, emptyKyc } = require('../utils')
 
 async function deployDefaultFixture() {
   const [owner, admin, manager, host, guest, anonymous] = await ethers.getSigners()
@@ -248,11 +248,11 @@ async function deployDefaultFixture() {
   const hostSignature = await signTCMessage(host)
   const guestSignature = await signTCMessage(guest)
   const deployerSignature = await signTCMessage(owner)
-  const adminKyc = signKycInfo(await rentalityLocationVerifier.getAddress(),admin)
-  await rentalityGateway.connect(host).setKYCInfo(' ', ' ', ' ',emptyKyc, hostSignature,adminKyc)
-  await rentalityGateway.connect(guest).setKYCInfo(' ', ' ', ' ',emptyKyc, guestSignature, adminKyc)
-  await rentalityGateway.setKYCInfo(' ', ' ', ' ',emptyKyc, deployerSignature, adminKyc)
-    return {
+  const adminKyc = signKycInfo(await rentalityLocationVerifier.getAddress(), admin)
+  await rentalityGateway.connect(host).setKYCInfo(' ', ' ', ' ', emptyKyc, hostSignature, adminKyc)
+  await rentalityGateway.connect(guest).setKYCInfo(' ', ' ', ' ', emptyKyc, guestSignature, adminKyc)
+  await rentalityGateway.setKYCInfo(' ', ' ', ' ', emptyKyc, deployerSignature, adminKyc)
+  return {
     rentalityMockPriceFeed,
     rentalityUserService,
     rentalityTripService,

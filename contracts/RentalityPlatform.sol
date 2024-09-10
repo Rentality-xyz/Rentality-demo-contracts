@@ -334,14 +334,14 @@ contract RentalityPlatform is UUPSOwnable {
   ) public {
     return
       addresses.userService.setKYCInfo(
-     nickName,
-      mobilePhoneNumber,
-      profilePhoto,
-      kycInfo,
-      TCSignature,
-      IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getVerifier(),
-      KYCSignature
-    );
+        nickName,
+        mobilePhoneNumber,
+        profilePhoto,
+        kycInfo,
+        TCSignature,
+        IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getVerifier(),
+        KYCSignature
+      );
   }
   /// @notice Allows the host to perform a check-in for a specific trip.
   /// This action typically occurs at the start of the trip and records key information
