@@ -374,7 +374,7 @@ interface Schemas {
   }
 
   struct KYCInfoWithSignature {
-   string name;
+    string name;
     string licenseNumber;
     uint64 expirationDate;
     string country;

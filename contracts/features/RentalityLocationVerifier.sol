@@ -45,32 +45,34 @@ contract RentalityLocationVerifier is EIP712Upgradeable, UUPSAccess {
       );
   }
 
-  function requireCorrectSignedKYCInfo(Schemas.KYCInfoWithSignature memory kyc,bytes memory signature) public view  {
-    require(verifyKYCInfo(kyc,signature) == adminAddress,"wrong signature");
+  function requireCorrectSignedKYCInfo(Schemas.KYCInfoWithSignature memory kyc, bytes memory signature) public view {
+    require(verifyKYCInfo(kyc, signature) == adminAddress, 'wrong signature');
   }
 
-  function verifyKYCInfo(Schemas.KYCInfoWithSignature memory kyc,bytes memory signature) public view returns(address) {
+  function verifyKYCInfo(
+    Schemas.KYCInfoWithSignature memory kyc,
+    bytes memory signature
+  ) public view returns (address) {
     bytes32 digest = _hashKYCInfo(kyc);
     return ECDSA.recover(digest, signature);
   }
 
-
   function _hashKYCInfo(Schemas.KYCInfoWithSignature memory kyc) internal view returns (bytes32) {
     return
       _hashTypedDataV4(
-      keccak256(
-        abi.encode(
-          keccak256(
-            'KYCInfoWithSignature(string name,string licenseNumber,uint64 expirationDate,string country,string email)'
-          ),
-          keccak256(bytes(kyc.name)),
-          keccak256(bytes(kyc.licenseNumber)),
-           kyc.expirationDate,
-          keccak256(bytes(kyc.country)),
-          keccak256(bytes(kyc.email))
+        keccak256(
+          abi.encode(
+            keccak256(
+              'KYCInfoWithSignature(string name,string licenseNumber,uint64 expirationDate,string country,string email)'
+            ),
+            keccak256(bytes(kyc.name)),
+            keccak256(bytes(kyc.licenseNumber)),
+            kyc.expirationDate,
+            keccak256(bytes(kyc.country)),
+            keccak256(bytes(kyc.email))
+          )
         )
-      )
-    );
+      );
   }
 
   function initialize(address _userService, address admin) public initializer {

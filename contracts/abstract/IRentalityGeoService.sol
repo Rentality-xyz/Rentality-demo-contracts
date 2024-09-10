@@ -81,7 +81,7 @@ interface IRentalityGeoService {
   /// @return location data
   function getLocationInfo(bytes32 hash) external view returns (Schemas.LocationInfo memory);
 
-  function getVerifier() external view returns(RentalityLocationVerifier);
+  function getVerifier() external view returns (RentalityLocationVerifier);
 
   /// @notice verify signed location info or revert
   /// @param signed location data

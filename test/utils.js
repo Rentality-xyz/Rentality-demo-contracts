@@ -151,13 +151,11 @@ const signLocationInfo = (contractAddress, admin, location) => {
   return admin.signTypedData(domain, types, location)
 }
 const emptyKyc = {
-  name:"",
-  licenseNumber:"",
-  expirationDate:0,
-  country: "",
-  email:""
-
-
+  name: '',
+  licenseNumber: '',
+  expirationDate: 0,
+  country: '',
+  email: '',
 }
 
 const signKycInfo = (contractAddress, admin, kyc) => {
@@ -167,7 +165,7 @@ const signKycInfo = (contractAddress, admin, kyc) => {
     chainId: 1337,
     verifyingContract: contractAddress, // RentalityLocationVerifier address
   }
-  
+
   const types = {
     KYCInfoWithSignature: [
       { name: 'name', type: 'string' },
@@ -175,7 +173,6 @@ const signKycInfo = (contractAddress, admin, kyc) => {
       { name: 'expirationDate', type: 'uint64' },
       { name: 'country', type: 'string' },
       { name: 'email', type: 'string' },
-    
     ],
   }
   if (kyc === undefined) kyc = emptyKyc
@@ -528,9 +525,9 @@ async function deployDefaultFixture() {
 
   const hostSignature = await signTCMessage(host)
   const guestSignature = await signTCMessage(guest)
-  const adminKyc = signKycInfo(await rentalityLocationVerifier.getAddress(),admin)
-  await rentalityGateway.connect(host).setKYCInfo(' ', ' ', ' ',emptyKyc, hostSignature,adminKyc)
-  await rentalityGateway.connect(guest).setKYCInfo(' ', ' ', ' ',emptyKyc, guestSignature, adminKyc)
+  const adminKyc = signKycInfo(await rentalityLocationVerifier.getAddress(), admin)
+  await rentalityGateway.connect(host).setKYCInfo(' ', ' ', ' ', emptyKyc, hostSignature, adminKyc)
+  await rentalityGateway.connect(guest).setKYCInfo(' ', ' ', ' ', emptyKyc, guestSignature, adminKyc)
 
   await rentalityCurrencyConverter.addCurrencyType(
     await usdtContract.getAddress(),
@@ -568,7 +565,7 @@ async function deployDefaultFixture() {
     rentalityLocationVerifier,
     adminKyc,
     guestSignature,
-    hostSignature
+    hostSignature,
   }
 }
 
@@ -590,5 +587,5 @@ module.exports = {
   emptyLocationInfo,
   signLocationInfo,
   signKycInfo,
-  emptyKyc
+  emptyKyc,
 }

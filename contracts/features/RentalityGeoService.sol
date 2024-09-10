@@ -143,7 +143,7 @@ contract RentalityGeoService is IRentalityGeoService, Initializable, UUPSAccess 
     require(userService.isAdmin(tx.origin), 'only admin');
     verifier = RentalityLocationVerifier(_verifier);
   }
-  function getVerifier() public view returns(RentalityLocationVerifier) {
+  function getVerifier() public view returns (RentalityLocationVerifier) {
     return verifier;
   }
   /// @notice Initializes the contract with the specified addresses for user service and geolocation parser.
