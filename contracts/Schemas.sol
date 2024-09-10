@@ -21,7 +21,7 @@ interface Schemas {
     uint64 milesIncludedPerDay;
     uint32 timeBufferBetweenTripsInSec;
     bool currentlyListed;
-    bool geoVerified;
+    bool geoVerified; // unused
     string timeZoneId;
     bool insuranceIncluded;
     bytes32 locationHash;
@@ -485,11 +485,70 @@ interface Schemas {
 
   struct SignedLocationInfo {
     LocationInfo locationInfo;
-    string signature;
+    bytes signature;
   }
 
   struct KycCommissionData {
     uint paidTime;
     bool commissionPaid;
+  }
+
+  struct TripFilter {
+    PaymentStatus paymentStatus;
+    AdminTripStatus status;
+    LocationInfo location;
+    uint startDateTime;
+    uint endDateTime;
+  }
+  enum PaymentStatus {
+    Any,
+    PaidToHost,
+    Unpaid,
+    RefundToGuest,
+    Prepayment
+  }
+  enum AdminTripStatus {
+    Any,
+    Created,
+    Approved,
+    CheckedInByHost,
+    CheckedInByGuest,
+    CheckedOutByGuest,
+    CheckedOutByHost,
+    Finished,
+    GuestCanceledBeforeApprove,
+    HostCanceledBeforeApprove,
+    GuestCanceledAfterApprove,
+    HostCanceledAfterApprove,
+    CompletedWithoutGuestConfirmation,
+    CompletedByGuest,
+    CompletedByAdmin
+  }
+  struct AdminTripDTO {
+    Trip trip;
+    string carMetadataURI;
+    LocationInfo carLocation;
+  }
+
+  struct AllTripsDTO {
+    AdminTripDTO[] trips;
+    uint totalPageCount;
+  }
+
+  struct AdminCarDTO {
+    CarDetails car;
+    string carMetadataURI;
+  }
+
+  struct AllCarsDTO {
+    AdminCarDTO[] cars;
+    uint totalPageCount;
+  }
+
+  enum Role {
+    Guest,
+    Host,
+    Manager,
+    Admin
   }
 }

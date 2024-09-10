@@ -58,14 +58,16 @@ contract RentalityPlatform is UUPSOwnable {
       request.startDateTime,
       request.endDateTime
     );
-
+    bytes32 locationHash = addresses.carService.getCarInfoById(request.carId).locationHash;
     (uint64 pickUp, uint64 dropOf) = addresses.deliveryService.calculatePricesByDeliveryDataInUsdCents(
       request.pickUpInfo.locationInfo,
       request.returnInfo.locationInfo,
-      IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getCarLocationLatitude(request.carId),
-      IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getCarLocationLongitude(request.carId),
+      IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getCarLocationLatitude(locationHash),
+      IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getCarLocationLongitude(locationHash),
       addresses.carService.getCarInfoById(request.carId).createdBy
     );
+    if (pickUp > 0) addresses.carService.verifySignedLocationInfo(request.pickUpInfo);
+    if (dropOf > 0) addresses.carService.verifySignedLocationInfo(request.returnInfo);
     bytes32 pickUpHash = IRentalityGeoService(addresses.carService.getGeoServiceAddress()).createLocationInfo(
       request.pickUpInfo.locationInfo
     );
@@ -85,13 +87,11 @@ contract RentalityPlatform is UUPSOwnable {
   }
 
   function payKycCommission(address currency) public payable {
-    (int rate, uint8 dec) = addresses.currencyConverterService.getCurrentRate(currency);
-    uint valueToPay = addresses.currencyConverterService.getFromUsd(
+    (uint valueToPay, , ) = addresses.currencyConverterService.getFromUsdLatest(
       currency,
-      addresses.userService.getKycCommission(),
-      rate,
-      dec
+      addresses.userService.getKycCommission()
     );
+
     addresses.paymentService.payKycCommission{value: msg.value}(valueToPay, currency);
   }
 
@@ -431,6 +431,7 @@ contract RentalityPlatform is UUPSOwnable {
   ) public {
     require(addresses.isCarEditable(request.carId), 'Car is not available for update.');
 
+    addresses.carService.verifySignedLocationInfo(location);
     return addresses.carService.updateCarInfo(request, location.locationInfo, geoApiKey);
   }
   /// @notice Adds a user discount.
@@ -441,11 +442,6 @@ contract RentalityPlatform is UUPSOwnable {
 
   function addUserDeliveryPrices(uint64 underTwentyFiveMilesInUsdCents, uint64 aboveTwentyFiveMilesInUsdCents) public {
     addresses.deliveryService.setUserDeliveryPrices(underTwentyFiveMilesInUsdCents, aboveTwentyFiveMilesInUsdCents);
-  }
-  /// @notice Parses the geolocation response and stores parsed data.
-  /// @param carId The ID of the car for which geolocation is parsed.
-  function parseGeoResponse(uint carId) public {
-    IRentalityGeoService(addresses.carService.getGeoServiceAddress()).parseGeoResponse(carId);
   }
 
   /// @notice Constructor to initialize the RentalityPlatform with service contract addresses.

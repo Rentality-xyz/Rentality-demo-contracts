@@ -94,11 +94,11 @@ interface IRentalityAdminGateway {
 
   /// @notice Confirms check-out for a trip.
   /// @param tripId The ID of the trip.
-  function confirmCheckOut(uint256 tripId) external;
+  function payToHost(uint256 tripId) external;
 
   /// @notice Rejects a trip request. Only callable by hosts.
   /// @param tripId The ID of the trip to reject.
-  function rejectTripRequest(uint256 tripId) external;
+  function refundToGuest(uint256 tripId) external;
 
   /// @dev Sets the Civic verifier and gatekeeper network for identity verification.
   /// @param _civicVerifier The address of the Civic verifier contract.

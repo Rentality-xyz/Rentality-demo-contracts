@@ -4,6 +4,10 @@ const { checkNotNull } = require('./deployHelper')
 const { getContractAddress } = require('./contractAddress')
 
 const pathToContractFolder = './contracts/'
+
+const buildLibPath = (libName) => {
+  return pathToContractFolder + 'libs/' + libName + '.sol'
+}
 const existingLibs = [
   {
     name: 'RentalityUtils',
@@ -61,10 +65,14 @@ function searchPatternInFile(filePath, pattern) {
   try {
     const fileContent = fs.readFileSync(filePath, 'utf-8')
 
-    const match = fileContent.match(new RegExp(pattern + '\\.', 'g'))
+    let match = fileContent.match(new RegExp(pattern + '\\.([a-zA-Z_$][a-zA-Z_$0-9]*)', 'g'))
 
     if (match) {
-      return pattern
+      let result = match
+        .map((value) => value.slice(pattern.length + 1, value.length))
+        .find((value) => !isFnInternal(pattern, value))
+      if (result !== undefined) return pattern
+      return null
     } else {
       return null
     }
@@ -72,6 +80,15 @@ function searchPatternInFile(filePath, pattern) {
     console.error(`Error reading file: ${error}`)
     return null
   }
+}
+
+function isFnInternal(libName, fnName) {
+  const fileContent = fs.readFileSync(buildLibPath(libName), 'utf-8')
+
+  let indexOfFunction = fileContent.search('function ' + fnName)
+  let indexOfBracket = fileContent.indexOf('{', indexOfFunction)
+
+  return fileContent.slice(indexOfFunction, indexOfBracket).includes('internal')
 }
 
 module.exports = getContractLibs

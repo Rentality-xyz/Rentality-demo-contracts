@@ -19,7 +19,8 @@ describe('Ability to update car during trip', function () {
     manager,
     host,
     guest,
-    anonymous
+    anonymous,
+    rentalityLocationVerifier
 
   beforeEach(async function () {
     ;({
@@ -40,11 +41,14 @@ describe('Ability to update car during trip', function () {
       host,
       guest,
       anonymous,
+      rentalityLocationVerifier,
     } = await loadFixture(deployDefaultFixture))
   })
 
   it('should has editable: false, if car on the trip', async function () {
-    await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
+    await expect(
+      rentalityGateway.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+    ).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
@@ -70,7 +74,9 @@ describe('Ability to update car during trip', function () {
     expect(myNotEditableCars[0].isEditable).to.be.equal(false)
   })
   it('should not be able to edit car, if it on the trip', async function () {
-    await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
+    await expect(
+      rentalityGateway.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+    ).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
@@ -112,7 +118,9 @@ describe('Ability to update car during trip', function () {
   })
 
   it('should be again editable after cancellation', async function () {
-    await expect(rentalityGateway.connect(host).addCar(getMockCarRequest(0))).not.to.be.reverted
+    await expect(
+      rentalityGateway.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+    ).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
