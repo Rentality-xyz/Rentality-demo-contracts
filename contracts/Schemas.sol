@@ -362,8 +362,8 @@ interface Schemas {
 
   // Struct to store KYC (Know Your Customer) information for each user
   struct KYCInfo {
-    string name;
-    string surname;
+    string name; //nickName
+    string surname; //fullName
     string mobilePhoneNumber;
     string profilePhoto;
     string licenseNumber;
@@ -373,11 +373,11 @@ interface Schemas {
     bytes TCSignature;
   }
 
-  struct KYCInfoWithSignature {
-    string name;
+  struct CivicKYCInfo {
+    string fullName;
     string licenseNumber;
     uint64 expirationDate;
-    string country;
+    string issueCountry;
     string email;
   }
   struct AdditionalKYCInfo {
