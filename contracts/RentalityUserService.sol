@@ -48,8 +48,6 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
     if (!isGuest(tx.origin)) {
       _grantRole(GUEST_ROLE, tx.origin);
     }
-
-    bool fullName = false;
     Schemas.KYCInfo storage kycInfo = kycInfos[tx.origin];
 
     if (KYCSignature.length != 0) {
