@@ -328,7 +328,7 @@ contract RentalityPlatform is UUPSOwnable {
     string memory nickName,
     string memory mobilePhoneNumber,
     string memory profilePhoto,
-    Schemas.KYCInfoWithSignature memory kycInfo,
+    Schemas.CivicKYCInfo memory kycInfo,
     bytes memory TCSignature,
     bytes memory KYCSignature
   ) public {

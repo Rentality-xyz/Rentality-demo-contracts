@@ -39,9 +39,9 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
     string memory nickName,
     string memory mobilePhoneNumber,
     string memory profilePhoto,
-    Schemas.KYCInfoWithSignature memory newKycInfo,
+    Schemas.CivicKYCInfo memory newKycInfo,
     bytes memory TCSignature,
-    RentalityLocationVerifier locationVerifier,
+    RentalityLocationVerifier structSignatureVerifier,
     bytes memory KYCSignature
   ) public {
     require(isManager(msg.sender), 'only Manager');
@@ -53,12 +53,12 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
     Schemas.KYCInfo storage kycInfo = kycInfos[tx.origin];
 
     if (KYCSignature.length != 0) {
-      locationVerifier.requireCorrectSignedKYCInfo(newKycInfo, KYCSignature);
-      kycInfo.surname = newKycInfo.name;
+      structSignatureVerifier.requireCorrectSignedKYCInfo(newKycInfo, KYCSignature);
+      kycInfo.surname = newKycInfo.fullName;
       kycInfo.licenseNumber = newKycInfo.licenseNumber;
       kycInfo.expirationDate = newKycInfo.expirationDate;
       additionalKycInfo[tx.origin].email = newKycInfo.email;
-      additionalKycInfo[tx.origin].issueCountry = newKycInfo.country;
+      additionalKycInfo[tx.origin].issueCountry = newKycInfo.issueCountry;
     }
     bool isTCPassed = ECDSA.recover(TCMessageHash, TCSignature) == tx.origin;
 

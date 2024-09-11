@@ -69,10 +69,10 @@ describe('RentalityGateway: user info', function () {
     const hostSignature = await signTCMessage(host)
 
     let kyc = {
-      name: surname,
+      fullName: surname,
       licenseNumber: licenseNumber,
       expirationDate: expirationDate,
-      country: '',
+      issueCountry: '',
       email: '',
     }
     const adminSignature = signKycInfo(await rentalityLocationVerifier.getAddress(), admin, kyc)
@@ -99,10 +99,10 @@ describe('RentalityGateway: user info', function () {
 
     const guestSignature = await signTCMessage(guest)
     let kyc = {
-      name: surname,
+      fullName: surname,
       licenseNumber: licenseNumber,
       expirationDate: expirationDate,
-      country: '',
+      issueCountry: '',
       email: '',
     }
     const adminSignature = signKycInfo(await rentalityLocationVerifier.getAddress(), admin, kyc)

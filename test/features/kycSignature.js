@@ -67,10 +67,10 @@ describe('Rentality Kyc signature', function () {
 
   it('should set signed kyc Info', async function () {
     let kyc = {
-      name: 'fullName',
+      fullName: 'fullName',
       licenseNumber: '123123',
       expirationDate: 123,
-      country: 'USA',
+      issueCountry: 'USA',
       email: 'USER@EMAIL.COM',
     }
     let nickName = 'nickName'
@@ -83,21 +83,21 @@ describe('Rentality Kyc signature', function () {
     let myKyc = await rentalityGateway.connect(host).getMyFullKYCInfo()
 
     expect(myKyc.kyc.name).to.be.eq(nickName)
-    expect(myKyc.kyc.surname).to.be.eq(kyc.name)
+    expect(myKyc.kyc.surname).to.be.eq(kyc.fullName)
     expect(myKyc.kyc.mobilePhoneNumber).to.be.eq(mobile)
     expect(myKyc.kyc.profilePhoto).to.be.eq(photo)
     expect(myKyc.kyc.licenseNumber).to.be.eq(kyc.licenseNumber)
     expect(myKyc.kyc.expirationDate).to.be.eq(kyc.expirationDate)
     expect(myKyc.additionalKYC.email).to.be.eq(kyc.email)
-    expect(myKyc.additionalKYC.issueCountry).to.be.eq(kyc.country)
+    expect(myKyc.additionalKYC.issueCountry).to.be.eq(kyc.issueCountry)
   })
 
   it('possible to update without civic', async function () {
     let kyc = {
-      name: 'fullName',
+      fullName: 'fullName',
       licenseNumber: '123123',
       expirationDate: 123,
-      country: 'USA',
+      issueCountry: 'USA',
       email: 'USER@EMAIL.COM',
     }
     let nickName = 'nickName'
@@ -110,13 +110,13 @@ describe('Rentality Kyc signature', function () {
     let myKyc = await rentalityGateway.connect(host).getMyFullKYCInfo()
 
     expect(myKyc.kyc.name).to.be.eq(nickName)
-    expect(myKyc.kyc.surname).to.be.eq(kyc.name)
+    expect(myKyc.kyc.surname).to.be.eq(kyc.fullName)
     expect(myKyc.kyc.mobilePhoneNumber).to.be.eq(mobile)
     expect(myKyc.kyc.profilePhoto).to.be.eq(photo)
     expect(myKyc.kyc.licenseNumber).to.be.eq(kyc.licenseNumber)
     expect(myKyc.kyc.expirationDate).to.be.eq(kyc.expirationDate)
     expect(myKyc.additionalKYC.email).to.be.eq(kyc.email)
-    expect(myKyc.additionalKYC.issueCountry).to.be.eq(kyc.country)
+    expect(myKyc.additionalKYC.issueCountry).to.be.eq(kyc.issueCountry)
 
     let newNick = 'newNIck'
     let newPhoto = 'newPhoto'
@@ -128,12 +128,12 @@ describe('Rentality Kyc signature', function () {
     myKyc = await rentalityGateway.connect(host).getMyFullKYCInfo()
 
     expect(myKyc.kyc.name).to.be.eq(newNick)
-    expect(myKyc.kyc.surname).to.be.eq(kyc.name)
+    expect(myKyc.kyc.surname).to.be.eq(kyc.fullName)
     expect(myKyc.kyc.mobilePhoneNumber).to.be.eq(newPhone)
     expect(myKyc.kyc.profilePhoto).to.be.eq(newPhoto)
     expect(myKyc.kyc.licenseNumber).to.be.eq(kyc.licenseNumber)
     expect(myKyc.kyc.expirationDate).to.be.eq(kyc.expirationDate)
     expect(myKyc.additionalKYC.email).to.be.eq(kyc.email)
-    expect(myKyc.additionalKYC.issueCountry).to.be.eq(kyc.country)
+    expect(myKyc.additionalKYC.issueCountry).to.be.eq(kyc.issueCountry)
   })
 })

@@ -19,10 +19,10 @@ describe('RentalityUserService: KYC management', function () {
     const guestSignature = await signTCMessage(guest)
 
     let kyc = {
-      name: '',
+      fullName: '',
       licenseNumber: '',
       expirationDate: expirationDate,
-      country: '',
+      issueCountry: '',
       email: '',
     }
     const adminKYCSign = signKycInfo(await rentalityLocationVerifier.getAddress(), admin, kyc)
@@ -83,10 +83,10 @@ describe('RentalityUserService: KYC management', function () {
     const ONE_YEAR_IN_SECS = 365 * 24 * 60 * 60
     const expirationDate = (await time.latest()) + ONE_YEAR_IN_SECS
     let kyc = {
-      name: 'fullName',
+      fullName: 'fullName',
       licenseNumber: 'licenseNumber',
       expirationDate: expirationDate,
-      country: '',
+      issueCountry: '',
       email: '',
     }
     let signature = signKycInfo(await rentalityLocationVerifier.getAddress(), admin, kyc)

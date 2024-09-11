@@ -151,10 +151,10 @@ const signLocationInfo = (contractAddress, admin, location) => {
   return admin.signTypedData(domain, types, location)
 }
 const emptyKyc = {
-  name: '',
+  fullName: '',
   licenseNumber: '',
   expirationDate: 0,
-  country: '',
+  issueCountry: '',
   email: '',
 }
 
@@ -167,11 +167,11 @@ const signKycInfo = (contractAddress, admin, kyc) => {
   }
 
   const types = {
-    KYCInfoWithSignature: [
-      { name: 'name', type: 'string' },
+    CivicKYCInfo: [
+      { name: 'fullName', type: 'string' },
       { name: 'licenseNumber', type: 'string' },
       { name: 'expirationDate', type: 'uint64' },
-      { name: 'country', type: 'string' },
+      { name: 'issueCountry', type: 'string' },
       { name: 'email', type: 'string' },
     ],
   }
