@@ -447,13 +447,10 @@ library RentalityUtils {
       daysOfTrip,
       sumWithDiscount + deliveryFee
     );
-    (int rate, uint8 decimals) = addresses.currencyConverterService.getCurrentRate(currency);
 
-    uint256 valueSumInCurrency = addresses.currencyConverterService.getFromUsd(
+    (uint256 valueSumInCurrency, int rate, uint8 decimals) = addresses.currencyConverterService.getFromUsdLatest(
       currency,
-      car.securityDepositPerTripInUsdCents + salesTaxes + govTax + sumWithDiscount + deliveryFee,
-      rate,
-      decimals
+      car.securityDepositPerTripInUsdCents + salesTaxes + govTax + sumWithDiscount + deliveryFee
     );
 
     return Schemas.CalculatePaymentsDTO(valueSumInCurrency, rate, decimals);
@@ -554,8 +551,11 @@ library RentalityUtils {
       carInfo.securityDepositPerTripInUsdCents +
       pickUp +
       dropOf;
-    (int rate, uint8 decimals) = addresses.currencyConverterService.getCurrentRate(currencyType);
-    uint valueSumInCurrency = addresses.currencyConverterService.getFromUsd(currencyType, valueSum, rate, decimals);
+
+    (uint valueSumInCurrency, int rate, uint8 decimals) = addresses.currencyConverterService.getFromUsdLatest(
+      currencyType,
+      valueSum
+    );
 
     Schemas.PaymentInfo memory paymentInfo = Schemas.PaymentInfo(
       0,
