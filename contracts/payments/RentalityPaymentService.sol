@@ -197,14 +197,7 @@ contract RentalityPaymentService is UUPSOwnable {
     require(!RentalityUserService(address(userService)).isCommissionPaidForUser(tx.origin), 'Commission paid');
 
     if (currencyType == address(0)) {
-      // Handle payment in native currency (ETH)
-      uint diff = 0;
-      if (msg.value > valueInCurrency) {
-        diff = msg.value - valueInCurrency;
-      } else {
-        diff = valueInCurrency - msg.value;
-      }
-      require(diff <= valueInCurrency / 100, 'Not enough tokens');
+      _checkNativeAmount(valueInCurrency);
     } else {
       // Handle payment in ERC20 tokens
       require(IERC20(currencyType).allowance(tx.origin, address(this)) >= valueInCurrency, 'Not enough tokens');
@@ -224,10 +217,7 @@ contract RentalityPaymentService is UUPSOwnable {
 
     if (currencyType == address(0)) {
       // Handle payment in native currency (ETH)
-      require(
-        msg.value == valueSumInCurrency,
-        'Rental fee must be equal to sum: price with discount + taxes + deposit + delivery'
-      );
+      _checkNativeAmount(valueSumInCurrency);
     } else {
       // Handle payment in ERC20 tokens
       require(
@@ -253,8 +243,8 @@ contract RentalityPaymentService is UUPSOwnable {
     address to = tx.origin == trip.host ? trip.guest : trip.host;
 
     if (trip.paymentInfo.currencyType == address(0)) {
-      // Handle payment in native currency (ETH)
       require(msg.value >= valueToPay, 'Insufficient funds sent.');
+
       (successHost, ) = payable(to).call{value: valueToPay - feeInCurrency}('');
 
       if (msg.value > valueToPay + feeInCurrency) {
@@ -318,6 +308,15 @@ contract RentalityPaymentService is UUPSOwnable {
     }
 
     return 0;
+  }
+  function _checkNativeAmount(uint value) internal view {
+    uint diff = 0;
+    if (msg.value > value) {
+      diff = msg.value - value;
+    } else {
+      diff = value - msg.value;
+    }
+    require(diff <= value / 1000, 'Not enough tokens');
   }
 
   receive() external payable {}
