@@ -324,34 +324,23 @@ contract RentalityPlatform is UUPSOwnable {
   }
 
   /// @notice Sets Know Your Customer (KYC) information for the caller.
-  /// @param name The name of the user.
-  /// @param surname The surname of the user.
-  /// @param mobilePhoneNumber The mobile phone number of the user.
-  /// @param profilePhoto The URL of the user's profile photo.
-  /// @param licenseNumber The user's license number.
-  /// @param expirationDate The expiration date of the user's license.
-  /// @param TCSignature The signature of the user indicating acceptance of Terms and Conditions (TC).
   function setKYCInfo(
-    string memory name,
-    string memory surname,
+    string memory nickName,
     string memory mobilePhoneNumber,
     string memory profilePhoto,
-    string memory licenseNumber,
-    uint64 expirationDate,
-    bytes memory TCSignature
+    Schemas.CivicKYCInfo memory kycInfo,
+    bytes memory TCSignature,
+    bytes memory KYCSignature
   ) public {
-    if (!addresses.userService.isGuest(tx.origin)) {
-      addresses.userService.grantGuestRole(tx.origin);
-    }
     return
       addresses.userService.setKYCInfo(
-        name,
-        surname,
+        nickName,
         mobilePhoneNumber,
         profilePhoto,
-        licenseNumber,
-        expirationDate,
-        TCSignature
+        kycInfo,
+        TCSignature,
+        IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getVerifier(),
+        KYCSignature
       );
   }
   /// @notice Allows the host to perform a check-in for a specific trip.
