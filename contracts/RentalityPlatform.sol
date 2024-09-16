@@ -152,9 +152,6 @@ contract RentalityPlatform is UUPSOwnable {
 
     addresses.paymentService.payCreateTrip{value: msg.value}(currencyType, valueSumInCurrency);
 
-    /// updating cache currency data
-    addresses.currencyConverterService.getCurrencyRateWithCache(currencyType);
-
     if (!addresses.userService.isGuest(tx.origin)) {
       addresses.userService.grantGuestRole(tx.origin);
     }
