@@ -1,7 +1,14 @@
 const { expect } = require('chai')
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 
-const { getMockCarRequest, deployDefaultFixture, ethToken, calculatePayments, signTCMessage } = require('../utils')
+const {
+  getMockCarRequest,
+  deployDefaultFixture,
+  ethToken,
+  calculatePayments,
+  signTCMessage,
+  emptyKyc,
+} = require('../utils')
 
 describe('RentalityGateway: chat', function () {
   let rentalityGateway,
@@ -22,7 +29,8 @@ describe('RentalityGateway: chat', function () {
     host,
     guest,
     anonymous,
-    rentalityLocationVerifier
+    rentalityLocationVerifier,
+    adminKyc
 
   beforeEach(async function () {
     ;({
@@ -45,6 +53,7 @@ describe('RentalityGateway: chat', function () {
       guest,
       anonymous,
       rentalityLocationVerifier,
+      adminKyc,
     } = await loadFixture(deployDefaultFixture))
   })
 
@@ -87,29 +96,13 @@ describe('RentalityGateway: chat', function () {
     await expect(
       rentalityGateway
         .connect(host)
-        .setKYCInfo(
-          name + 'host',
-          surname + 'host',
-          number + 'host',
-          photo + 'host',
-          licenseNumber + 'host',
-          expirationDate,
-          hostSignature
-        )
+        .setKYCInfo(name + 'host', number + 'host', photo + 'host', emptyKyc, hostSignature, adminKyc)
     ).not.be.reverted
 
     await expect(
       rentalityGateway
         .connect(guest)
-        .setKYCInfo(
-          name + 'guest',
-          surname + 'guest',
-          number + 'guest',
-          photo + 'guest',
-          licenseNumber + 'guest',
-          expirationDate,
-          guestSignature
-        )
+        .setKYCInfo(name + 'guest', number + 'guest', photo + 'guest', emptyKyc, guestSignature, adminKyc)
     ).not.be.reverted
 
     let chatInfoArray = await rentalityGateway.connect(guest).getChatInfoForGuest()
@@ -144,29 +137,13 @@ describe('RentalityGateway: chat', function () {
     await expect(
       rentalityGateway
         .connect(host)
-        .setKYCInfo(
-          name + 'host',
-          surname + 'host',
-          number + 'host',
-          photo + 'host',
-          licenseNumber + 'host',
-          expirationDate,
-          hostSignature
-        )
+        .setKYCInfo(name + 'host', number + 'host', photo + 'host', emptyKyc, hostSignature, adminKyc)
     ).not.be.reverted
 
     await expect(
       rentalityGateway
         .connect(guest)
-        .setKYCInfo(
-          name + 'guest',
-          surname + 'guest',
-          number + 'guest',
-          photo + 'guest',
-          licenseNumber + 'guest',
-          expirationDate,
-          guestSignature
-        )
+        .setKYCInfo(name + 'guest', number + 'guest', photo + 'guest', emptyKyc, guestSignature, adminKyc)
     ).not.be.reverted
 
     const oneDayInSeconds = 86400
