@@ -7,49 +7,62 @@ import '../Schemas.sol';
 import '../RentalityCarToken.sol';
 import '@openzeppelin/contracts/utils/math/Math.sol';
 
+/// Todo add geter to host insurance required
 contract RentalityInsurance is Initializable, UUPSAccess {
-  mapping(uint => Schemas.InsuranceCarInfo) private carIdToInsurance;
-  mapping(uint => Schemas.InsuranceTripInfo) private tripIdToInsuranceTripInfo;
+  mapping(uint => Schemas.InsuranceCarInfo) private carIdToInsuranceRequired;
+  mapping(address => Schemas.InsuranceInfo[]) private guestToInsuranceInfo;
+  mapping(uint => uint) private tripIdToInsurancePaid;
+  mapping(uint => Schemas.InsuranceInfo) private tripIdToInsuranceInfo;
   RentalityCarToken private carService;
 
-  function saveInsurance(uint carId, uint priceInUsdCents, bool required) public {
+  function saveInsuranceRequired(uint carId, uint priceInUsdCents, bool required) public {
     require(userService.isManager(msg.sender), 'Only Manager');
     require(carService.ownerOf(carId) == tx.origin, 'For car owner');
 
-    carIdToInsurance[carId] = Schemas.InsuranceCarInfo(required, priceInUsdCents);
+    carIdToInsuranceRequired[carId] = Schemas.InsuranceCarInfo(required, priceInUsdCents);
   }
 
-  function guestSaveTripInsurance(uint tripId, bool guestPay, string memory photo, uint totalPaid) public {
+  function guestSaveTripInsurance(Schemas.InsuranceInfo memory insuranceInfo) public {
     require(userService.isManager(msg.sender), 'Only Manager');
-    totalPaid = guestPay ? totalPaid : 0;
-    tripIdToInsuranceTripInfo[tripId] = Schemas.InsuranceTripInfo(guestPay, photo, totalPaid);
+    require(insuranceInfo.insuranceType != Schemas.InsuranceType.OneTime, 'Wrong Insurance type');
+    Schemas.InsuranceInfo[] storage insurances = guestToInsuranceInfo[tx.origin];
+    if (insuranceInfo.insuranceType == Schemas.InsuranceType.None) {
+      if (insurances.length > 0) insurances[insurances.length - 1].insuranceType = insuranceInfo.insuranceType;
+    }
+    insurances.push(insuranceInfo);
   }
 
-  function hostSaveTripInsurance(uint tripId, string memory photo) public {
+  function saveTripInsuranceInfo(uint tripId, Schemas.InsuranceInfo memory insuranceInfo) public {
     require(userService.isManager(msg.sender), 'Only Manager');
-    Schemas.InsuranceTripInfo storage insuranceInfo = tripIdToInsuranceTripInfo[tripId];
-    require(insuranceInfo.payedByGuest, 'Guest not payed');
-    insuranceInfo.insurancePhoto = photo;
+    require(insuranceInfo.insuranceType != Schemas.InsuranceType.None, 'Wrong insurance type');
+    tripIdToInsuranceInfo[tripId] = insuranceInfo;
   }
 
   function getInsurancePriceByCar(uint carId) public view returns (uint) {
-    Schemas.InsuranceCarInfo memory info = carIdToInsurance[carId];
+    Schemas.InsuranceCarInfo memory info = carIdToInsuranceRequired[carId];
     return info.required ? info.priceInUsdCents : 0;
+  }
+  function saveGuestinsurancePayment(uint tripId, uint totalSum) public {
+    require(userService.isManager(msg.sender), 'Only Manager');
+    tripIdToInsurancePaid[tripId] = totalSum;
   }
 
   function calculateInsuranceForTrip(uint carId, uint64 startDateTime, uint64 endDateTime) public view returns (uint) {
+    uint price = getInsurancePriceByCar(carId);
+    Schemas.InsuranceInfo[] memory insurances = guestToInsuranceInfo[tx.origin];
+    if (
+      price == 0 ||
+      insurances.length == 0 ||
+      insurances[insurances.length - 1].insuranceType == Schemas.InsuranceType.General
+    ) return 0;
+
     uint64 duration = endDateTime - startDateTime;
     uint tripInDays = Math.ceilDiv(duration, 1 days);
-    return tripInDays * carIdToInsurance[carId].priceInUsdCents;
+    return tripInDays * price;
   }
 
-  function getInsurancePriceByTrip(uint tripId, uint carId) public view returns (uint) {
-    Schemas.InsuranceCarInfo memory info = carIdToInsurance[carId];
-    if (info.required) {
-      Schemas.InsuranceTripInfo memory tripInfo = tripIdToInsuranceTripInfo[tripId];
-      return tripInfo.payedByGuest ? tripInfo.totalPaid : 0;
-    }
-    return 0;
+  function getInsurancePriceByTrip(uint tripId) public view returns (uint) {
+    return tripIdToInsurancePaid[tripId];
   }
 
   /// @notice Initializes the RentalityFloridaTaxes contract.

@@ -200,7 +200,7 @@ contract RentalityView is UUPSUpgradeable, Initializable {
     Schemas.Trip memory trip = addresses.tripService.getTrip(tripId);
     result.insuranceFee = trip.status == Schemas.TripStatus.Canceled
       ? 0
-      : uint64(insuranceService.getInsurancePriceByTrip(trip.tripId, trip.carId));
+      : uint64(insuranceService.getInsurancePriceByTrip(trip.tripId));
     return result;
   }
 
