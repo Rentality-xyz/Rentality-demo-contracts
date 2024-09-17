@@ -89,7 +89,7 @@ function main() {
             field = field.split('\n')[1].trim()
           }
           let [fieldType, fieldName] = field.split(/\s+/)
-          if (allStructNames.includes(fieldType)) {
+          if (allStructNames.includes(fieldType.replace('[]', ''))) {
             fieldType = `Contract${fieldType}`
           }
           if (fieldName === 'engineType') {

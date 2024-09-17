@@ -6,6 +6,8 @@ import './IRentalityGeoParser.sol';
 import '../proxy/UUPSAccess.sol';
 import '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 import '../abstract/IRentalityGeoService.sol';
+import '@openzeppelin/contracts/utils/cryptography/ECDSA.sol';
+import './RentalityLocationVerifier.sol';
 
 /// @title Rentality Geo Service Contract
 /// @notice This contract provides geolocation services.
@@ -13,9 +15,11 @@ import '../abstract/IRentalityGeoService.sol';
 contract RentalityGeoService is IRentalityGeoService, Initializable, UUPSAccess {
   /// @notice Mapping to store parsed geolocation data for each car ID.
   mapping(uint256 => Schemas.ParsedGeolocationData) public carIdToParsedGeolocationData;
-  IRentalityGeoParser private geoParser;
+  IRentalityGeoParser private geoParser; // unused
 
   mapping(bytes32 => Schemas.LocationInfo) public locationDictionary;
+
+  RentalityLocationVerifier private verifier;
 
   /// @notice Updates the address of the geolocation parser contract.
   /// @param _geoParser The address of the new geolocation parser contract.
@@ -74,45 +78,39 @@ contract RentalityGeoService is IRentalityGeoService, Initializable, UUPSAccess 
   }
 
   /// @notice Retrieves the city of geolocation for a car.
-  /// @param carId The ID of the car.
   /// @return city The city name.
-  function getCarCity(uint256 carId) public view returns (string memory) {
-    return carIdToParsedGeolocationData[carId].city;
+  function getCarCity(bytes32 hash) public view returns (string memory) {
+    return locationDictionary[hash].city;
   }
 
   /// @notice Retrieves the state of geolocation for a car.
-  /// @param carId The ID of the car.
   /// @return state The state name.
-  function getCarState(uint256 carId) public view returns (string memory) {
-    return carIdToParsedGeolocationData[carId].state;
+  function getCarState(bytes32 hash) public view returns (string memory) {
+    return locationDictionary[hash].state;
   }
 
   /// @notice Retrieves the country of geolocation for a car.
-  /// @param carId The ID of the car.
   /// @return country The country name.
-  function getCarCountry(uint256 carId) public view returns (string memory) {
-    return carIdToParsedGeolocationData[carId].country;
+  function getCarCountry(bytes32 hash) public view returns (string memory) {
+    return locationDictionary[hash].country;
   }
 
   /// @notice Retrieves the latitude of geolocation for a car.
-  /// @param carId The ID of the car.
   /// @return locationLat The latitude.
-  function getCarLocationLatitude(uint256 carId) external view returns (string memory) {
-    return carIdToParsedGeolocationData[carId].locationLat;
+  function getCarLocationLatitude(bytes32 hash) external view returns (string memory) {
+    return locationDictionary[hash].latitude;
   }
 
   /// @notice Retrieves the longitude of geolocation for a car.
-  /// @param carId The ID of the car.
   /// @return locationLng The longitude.
-  function getCarLocationLongitude(uint256 carId) external view returns (string memory) {
-    return carIdToParsedGeolocationData[carId].locationLng;
+  function getCarLocationLongitude(bytes32 hash) external view returns (string memory) {
+    return locationDictionary[hash].longitude;
   }
 
   /// @notice Retrieves the time zone information associated with a specific car.
-  /// @param carId The unique identifier of the car for which the time zone information is requested.
   /// @return timeZone A string representing the time zone of the specified car's geolocation data.
-  function getCarTimeZoneId(uint256 carId) public view returns (string memory) {
-    return carIdToParsedGeolocationData[carId].timeZoneId;
+  function getCarTimeZoneId(bytes32 hash) public view returns (string memory) {
+    return locationDictionary[hash].timeZoneId;
   }
 
   function createLocationInfo(Schemas.LocationInfo memory info) public returns (bytes32) {
@@ -137,11 +135,22 @@ contract RentalityGeoService is IRentalityGeoService, Initializable, UUPSAccess 
     return locationDictionary[hash];
   }
 
+  function verifySignedLocationInfo(Schemas.SignedLocationInfo memory locationInfo) public view {
+    verifier.verifySignedLocationInfo(locationInfo);
+  }
+
+  function setLocationVerifier(address _verifier) public {
+    require(userService.isAdmin(tx.origin), 'only admin');
+    verifier = RentalityLocationVerifier(_verifier);
+  }
+  function getVerifier() public view returns (RentalityLocationVerifier) {
+    return verifier;
+  }
   /// @notice Initializes the contract with the specified addresses for user service and geolocation parser.
   /// @param _userService The address of the user service contract.
-  /// @param _geoParser The address of the geolocation parser contract.
-  function initialize(address _userService, address _geoParser) public initializer {
+  function initialize(address _userService, address locationVerifier) public initializer {
     userService = IRentalityAccessControl(_userService);
-    geoParser = IRentalityGeoParser(_geoParser);
+    geoParser = IRentalityGeoParser(address(0));
+    verifier = RentalityLocationVerifier(locationVerifier);
   }
 }

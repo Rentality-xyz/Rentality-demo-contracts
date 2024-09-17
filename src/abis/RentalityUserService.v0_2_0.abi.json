@@ -308,6 +308,18 @@
       "inputs": [{ "type": "address", "name": "user" }],
       "outputs": [{ "type": "bool", "name": "" }]
     },
+    {
+      "type": "function",
+      "name": "manageRole",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint8", "name": "newRole" },
+        { "type": "address", "name": "user" },
+        { "type": "bool", "name": "grant" }
+      ],
+      "outputs": []
+    },
     { "type": "function", "name": "payCommission", "constant": false, "payable": false, "inputs": [], "outputs": [] },
     {
       "type": "function",

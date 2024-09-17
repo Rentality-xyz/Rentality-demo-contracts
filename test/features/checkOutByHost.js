@@ -30,8 +30,8 @@ describe('Check out without guest', function () {
     manager,
     host,
     guest,
-    anonymous
-
+    anonymous,
+    rentalityLocationVerifier
   beforeEach(async function () {
     ;({
       rentalityGateway,
@@ -53,11 +53,12 @@ describe('Check out without guest', function () {
       host,
       guest,
       anonymous,
+      rentalityLocationVerifier,
     } = await loadFixture(deployDefaultFixture))
   })
 
   it('Host can check out without guest', async function () {
-    let request = getMockCarRequest(1)
+    let request = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
     await expect(rentalityGateway.connect(host).addCar(request)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
@@ -103,7 +104,7 @@ describe('Check out without guest', function () {
   })
 
   it('Car is available on search after check out without guest', async function () {
-    let request = getMockCarRequest(1)
+    let request = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
     await expect(rentalityGateway.connect(host).addCar(request)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
@@ -159,7 +160,7 @@ describe('Check out without guest', function () {
   })
 
   it('Host can not check out and finish trip without confirmation', async function () {
-    let request = getMockCarRequest(1)
+    let request = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
     await expect(rentalityGateway.connect(host).addCar(request)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
@@ -205,7 +206,7 @@ describe('Check out without guest', function () {
     await expect(rentalityGateway.connect(host).finishTrip(1)).to.be.reverted
   })
   it('Happy case, with guest confirmation', async function () {
-    let request = getMockCarRequest(3)
+    let request = getMockCarRequest(3, await rentalityLocationVerifier.getAddress(), admin)
     await expect(rentalityGateway.connect(host).addCar(request)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
@@ -268,7 +269,7 @@ describe('Check out without guest', function () {
     expect(trip.status).to.be.eq(TripStatus.Finished)
   })
   it('Happy case, with admin confirmation', async function () {
-    const request = getMockCarRequest(0)
+    const request = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
     await expect(rentalityGateway.connect(host).addCar(request)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
@@ -330,7 +331,7 @@ describe('Check out without guest', function () {
   })
 
   it('Admin can reject trip, after check out without guest', async function () {
-    let request = getMockCarRequest(2)
+    let request = getMockCarRequest(2, await rentalityLocationVerifier.getAddress(), admin)
     await expect(rentalityGateway.connect(host).addCar(request)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)

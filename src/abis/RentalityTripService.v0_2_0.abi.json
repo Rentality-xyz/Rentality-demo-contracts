@@ -104,6 +104,15 @@
     },
     {
       "type": "function",
+      "name": "completedByAdmin",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "" }],
+      "outputs": [{ "type": "bool", "name": "" }]
+    },
+    {
+      "type": "function",
       "name": "createNewTrip",
       "constant": false,
       "payable": false,

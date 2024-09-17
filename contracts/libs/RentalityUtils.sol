@@ -101,7 +101,7 @@ library RentalityUtils {
   /// @notice Converts a string to lowercase.
   /// @param str The input string to convert.
   /// @return Returns the lowercase version of the input string.
-  function toLower(string memory str) internal pure returns (string memory) {
+  function toLower(string memory str) public pure returns (string memory) {
     bytes memory bStr = bytes(str);
     bytes memory bLower = new bytes(bStr.length);
     for (uint i = 0; i < bStr.length; i++) {
@@ -120,7 +120,7 @@ library RentalityUtils {
   /// @param where The string to search within.
   /// @param what The word to search for.
   /// @return found Returns true if the word is found, false otherwise.
-  function containWord(string memory where, string memory what) internal pure returns (bool found) {
+  function containWord(string memory where, string memory what) public pure returns (bool found) {
     bytes memory whatBytes = bytes(what);
     bytes memory whereBytes = bytes(where);
 
@@ -181,10 +181,10 @@ library RentalityUtils {
 
       chatInfoList[i].tripId = trips[i].trip.tripId;
       chatInfoList[i].guestAddress = trips[i].trip.guest;
-      chatInfoList[i].guestName = string(abi.encodePacked(guestInfo.name, ' ', guestInfo.surname));
+      chatInfoList[i].guestName = guestInfo.surname;
       chatInfoList[i].guestPhotoUrl = guestInfo.profilePhoto;
       chatInfoList[i].hostAddress = trips[i].trip.host;
-      chatInfoList[i].hostName = string(abi.encodePacked(hostInfo.name, ' ', hostInfo.surname));
+      chatInfoList[i].hostName = hostInfo.surname;
       chatInfoList[i].hostPhotoUrl = hostInfo.profilePhoto;
       chatInfoList[i].tripStatus = uint256(trips[i].trip.status);
 
@@ -196,7 +196,7 @@ library RentalityUtils {
       chatInfoList[i].startDateTime = trips[i].trip.startDateTime;
       chatInfoList[i].endDateTime = trips[i].trip.endDateTime;
       chatInfoList[i].timeZoneId = IRentalityGeoService(carService.getGeoServiceAddress()).getCarTimeZoneId(
-        carInfo.carId
+        carInfo.locationHash
       );
     }
 
@@ -378,11 +378,11 @@ library RentalityUtils {
       (bytes(searchCarParams.brand).length == 0 || containWord(toLower(car.brand), toLower(searchCarParams.brand))) &&
       (bytes(searchCarParams.model).length == 0 || containWord(toLower(car.model), toLower(searchCarParams.model))) &&
       (bytes(searchCarParams.country).length == 0 ||
-        containWord(toLower(geoService.getCarCountry(carId)), toLower(searchCarParams.country))) &&
+        containWord(toLower(geoService.getCarCountry(car.locationHash)), toLower(searchCarParams.country))) &&
       (bytes(searchCarParams.state).length == 0 ||
-        containWord(toLower(geoService.getCarState(carId)), toLower(searchCarParams.state))) &&
+        containWord(toLower(geoService.getCarState(car.locationHash)), toLower(searchCarParams.state))) &&
       (bytes(searchCarParams.city).length == 0 ||
-        containWord(toLower(geoService.getCarCity(carId)), toLower(searchCarParams.city))) &&
+        containWord(toLower(geoService.getCarCity(car.locationHash)), toLower(searchCarParams.city))) &&
       (searchCarParams.yearOfProductionFrom == 0 || car.yearOfProduction >= searchCarParams.yearOfProductionFrom) &&
       (searchCarParams.yearOfProductionTo == 0 || car.yearOfProduction <= searchCarParams.yearOfProductionTo) &&
       (searchCarParams.pricePerDayInUsdCentsFrom == 0 ||
@@ -412,8 +412,12 @@ library RentalityUtils {
       .calculatePriceByDeliveryDataInUsdCents(
         pickUpLocation,
         returnLocation,
-        IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getCarLocationLatitude(carId),
-        IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getCarLocationLongitude(carId),
+        IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getCarLocationLatitude(
+          addresses.carService.getCarInfoById(carId).locationHash
+        ),
+        IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getCarLocationLongitude(
+          addresses.carService.getCarInfoById(carId).locationHash
+        ),
         addresses.carService.getCarInfoById(carId).createdBy
       );
     return calculatePayments(addresses, carId, daysOfTrip, currency, deliveryFee, insuranceService, insuranceIncluded);
@@ -511,6 +515,17 @@ library RentalityUtils {
     return false;
   }
 
+  /// @notice Creates a payment information structure for a trip based on the provided parameters.
+  /// @dev This function calculates various components of the payment including the base price, taxes, and additional fees.
+  /// It also converts the total amount to the specified currency using the current exchange rate.
+  /// @param addresses The Rentality contract instance containing service addresses.
+  /// @param carId The ID of the car being rented.
+  /// @param startDateTime The start time of the trip.
+  /// @param endDateTime The end time of the trip.
+  /// @param currencyType The type of currency in which the payment will be made (e.g., ETH, ERC20 token).
+  /// @param pickUp The pick-up fee for the car.
+  /// @param dropOf The drop-off fee for the car.
+  /// @return A tuple containing the PaymentInfo structure and the total amount to be paid in the specified currency.
   function createPaymentInfo(
     RentalityContract memory addresses,
     uint256 carId,
@@ -589,4 +604,19 @@ library RentalityUtils {
         addresses.carService.getCarInfoById(carId).insuranceIncluded
       );
   }
+
+  function calculateDelivery(RentalityContract memory addresses, Schemas.CreateTripRequestWithDelivery memory request) public view returns(uint64, uint64) {
+    bytes32 locationHash = addresses.carService.getCarInfoById(request.carId).locationHash;
+    (uint64 pickUp, uint64 dropOf) = addresses.deliveryService.calculatePricesByDeliveryDataInUsdCents(
+      request.pickUpInfo.locationInfo,
+      request.returnInfo.locationInfo,
+      IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getCarLocationLatitude(locationHash),
+      IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getCarLocationLongitude(locationHash),
+      addresses.carService.getCarInfoById(request.carId).createdBy
+    );
+    if (pickUp > 0) addresses.carService.verifySignedLocationInfo(request.pickUpInfo);
+    if (dropOf > 0) addresses.carService.verifySignedLocationInfo(request.returnInfo);
+    return (pickUp, dropOf);
+  }
+
 }

@@ -7,7 +7,7 @@ const {
   ethToken,
   calculatePayments,
   signTCMessage,
-  emptyLocationInfo,
+  emptyKyc,
 } = require('../utils')
 
 describe('RentalityGateway: chat', function () {
@@ -28,7 +28,9 @@ describe('RentalityGateway: chat', function () {
     manager,
     host,
     guest,
-    anonymous
+    anonymous,
+    rentalityLocationVerifier,
+    adminKyc
 
   beforeEach(async function () {
     ;({
@@ -50,11 +52,13 @@ describe('RentalityGateway: chat', function () {
       host,
       guest,
       anonymous,
+      rentalityLocationVerifier,
+      adminKyc,
     } = await loadFixture(deployDefaultFixture))
   })
 
   it('Should have chat history by guest', async function () {
-    let addCarRequest = getMockCarRequest(0)
+    let addCarRequest = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
 
     await expect(rentalityGateway.connect(host).addCar(addCarRequest)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
@@ -75,16 +79,6 @@ describe('RentalityGateway: chat', function () {
           startDateTime: Date.now(),
           endDateTime: Date.now() + oneDayInSeconds * 2,
           currencyType: ethToken,
-          insurancePaid: false,
-          photo: '',
-          pickUpInfo: {
-            signature: guest.address,
-            locationInfo: emptyLocationInfo,
-          },
-          returnInfo: {
-            signature: guest.address,
-            locationInfo: emptyLocationInfo,
-          },
         },
         { value: result.totalPrice }
       )
@@ -102,29 +96,13 @@ describe('RentalityGateway: chat', function () {
     await expect(
       rentalityGateway
         .connect(host)
-        .setKYCInfo(
-          name + 'host',
-          surname + 'host',
-          number + 'host',
-          photo + 'host',
-          licenseNumber + 'host',
-          expirationDate,
-          hostSignature
-        )
+        .setKYCInfo(name + 'host', number + 'host', photo + 'host', emptyKyc, hostSignature, adminKyc)
     ).not.be.reverted
 
     await expect(
       rentalityGateway
         .connect(guest)
-        .setKYCInfo(
-          name + 'guest',
-          surname + 'guest',
-          number + 'guest',
-          photo + 'guest',
-          licenseNumber + 'guest',
-          expirationDate,
-          guestSignature
-        )
+        .setKYCInfo(name + 'guest', number + 'guest', photo + 'guest', emptyKyc, guestSignature, adminKyc)
     ).not.be.reverted
 
     let chatInfoArray = await rentalityGateway.connect(guest).getChatInfoForGuest()
@@ -141,7 +119,7 @@ describe('RentalityGateway: chat', function () {
     expect(chatInfo.carYearOfProduction).to.be.equal(Number(addCarRequest.yearOfProduction))
   })
   it('Should have chat history by host', async function () {
-    let addCarRequest = getMockCarRequest(0)
+    let addCarRequest = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
     await expect(rentalityGateway.connect(host).addCar(addCarRequest)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
@@ -159,29 +137,13 @@ describe('RentalityGateway: chat', function () {
     await expect(
       rentalityGateway
         .connect(host)
-        .setKYCInfo(
-          name + 'host',
-          surname + 'host',
-          number + 'host',
-          photo + 'host',
-          licenseNumber + 'host',
-          expirationDate,
-          hostSignature
-        )
+        .setKYCInfo(name + 'host', number + 'host', photo + 'host', emptyKyc, hostSignature, adminKyc)
     ).not.be.reverted
 
     await expect(
       rentalityGateway
         .connect(guest)
-        .setKYCInfo(
-          name + 'guest',
-          surname + 'guest',
-          number + 'guest',
-          photo + 'guest',
-          licenseNumber + 'guest',
-          expirationDate,
-          guestSignature
-        )
+        .setKYCInfo(name + 'guest', number + 'guest', photo + 'guest', emptyKyc, guestSignature, adminKyc)
     ).not.be.reverted
 
     const oneDayInSeconds = 86400
@@ -194,16 +156,6 @@ describe('RentalityGateway: chat', function () {
           startDateTime: Date.now(),
           endDateTime: Date.now() + oneDayInSeconds,
           currencyType: ethToken,
-          insurancePaid: false,
-          photo: '',
-          pickUpInfo: {
-            signature: guest.address,
-            locationInfo: emptyLocationInfo,
-          },
-          returnInfo: {
-            signature: guest.address,
-            locationInfo: emptyLocationInfo,
-          },
         },
         { value: result.totalPrice }
       )

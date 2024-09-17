@@ -24,9 +24,9 @@ describe('RentalityCarToken: deployment and update', function () {
   })
 })
 it('Update car without location should work fine', async function () {
-  const { rentalityCarToken } = await loadFixture(deployFixtureWith1Car)
+  const { rentalityCarToken, rentalityLocationVerifier, admin } = await loadFixture(deployFixtureWith1Car)
 
-  let request = getMockCarRequest(1)
+  let request = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
   await expect(rentalityCarToken.addCar(request)).not.be.reverted
 
   let update_params = {
@@ -51,9 +51,9 @@ it('Update car without location should work fine', async function () {
   expect(car_info.milesIncludedPerDay).to.be.equal(update_params.milesIncludedPerDay)
 })
 it('Update car with location, but without api should revert', async function () {
-  const { rentalityCarToken } = await loadFixture(deployFixtureWith1Car)
+  const { rentalityCarToken, rentalityLocationVerifier, admin } = await loadFixture(deployFixtureWith1Car)
 
-  let request = getMockCarRequest(1)
+  let request = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
   await expect(rentalityCarToken.addCar(request)).not.be.reverted
 
   let update_params = {
@@ -70,10 +70,12 @@ it('Update car with location, but without api should revert', async function () 
 
   await expect(rentalityCarToken.updateCarInfo(update_params, locationInfo, '')).to.be.reverted
 })
-it('Update with location should pass locationVarification param to false', async function () {
-  const { rentalityCarToken, rentalityGeoService, geoParserMock } = await loadFixture(deployFixtureWith1Car)
+//unused
+it.skip('Update with location should pass locationVarification param to false', async function () {
+  const { rentalityCarToken, rentalityGeoService, geoParserMock, rentalityLocationVerifier, admin } =
+    await loadFixture(deployFixtureWith1Car)
 
-  let request = getMockCarRequest(1)
+  let request = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
   await expect(rentalityCarToken.addCar(request)).not.be.reverted
 
   let update_params = {
