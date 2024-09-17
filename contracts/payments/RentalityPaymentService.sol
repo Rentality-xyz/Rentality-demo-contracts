@@ -316,7 +316,7 @@ contract RentalityPaymentService is UUPSOwnable {
     } else {
       diff = value - msg.value;
     }
-    require(diff <= value / 1000, 'Not enough tokens');
+    require(diff <= value / 100, 'Not enough tokens');
   }
 
   receive() external payable {}
