@@ -40,9 +40,10 @@
                     { "type": "string", "name": "timeZoneId" }
                   ]
                 },
-                { "type": "string", "name": "signature" }
+                { "type": "bytes", "name": "signature" }
               ]
-            }
+            },
+            { "type": "bool", "name": "currentlyListed" }
           ]
         }
       ],
@@ -293,7 +294,7 @@
                     { "type": "string", "name": "timeZoneId" }
                   ]
                 },
-                { "type": "string", "name": "signature" }
+                { "type": "bytes", "name": "signature" }
               ]
             },
             {
@@ -313,7 +314,7 @@
                     { "type": "string", "name": "timeZoneId" }
                   ]
                 },
-                { "type": "string", "name": "signature" }
+                { "type": "bytes", "name": "signature" }
               ]
             }
           ]
@@ -1593,7 +1594,8 @@
             { "type": "uint64[]", "name": "engineParams" },
             { "type": "uint64", "name": "milesIncludedPerDay" },
             { "type": "uint32", "name": "timeBufferBetweenTripsInSec" },
-            { "type": "bool", "name": "currentlyListed" }
+            { "type": "bool", "name": "currentlyListed" },
+            { "type": "bool", "name": "insuranceIncluded" }
           ]
         }
       ],
@@ -1615,7 +1617,8 @@
             { "type": "uint64[]", "name": "engineParams" },
             { "type": "uint64", "name": "milesIncludedPerDay" },
             { "type": "uint32", "name": "timeBufferBetweenTripsInSec" },
-            { "type": "bool", "name": "currentlyListed" }
+            { "type": "bool", "name": "currentlyListed" },
+            { "type": "bool", "name": "insuranceIncluded" }
           ]
         },
         {
@@ -1635,7 +1638,7 @@
                 { "type": "string", "name": "timeZoneId" }
               ]
             },
-            { "type": "string", "name": "signature" }
+            { "type": "bytes", "name": "signature" }
           ]
         },
         { "type": "string", "name": "geoApiKey" }

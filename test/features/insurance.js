@@ -11,6 +11,7 @@ const {
 } = require('../utils')
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 const { ethers } = require('hardhat')
+const { applyProviderWrappers } = require('hardhat/internal/core/providers/construction')
 
 describe('Rentality insurance', function () {
   let rentalityGateway,
@@ -32,12 +33,9 @@ describe('Rentality insurance', function () {
     manager,
     host,
     guest,
-    anonymous
-  const insurancePriceInCents = 2500
-  let mockRequestWithInsurance = getMockCarRequest(0)
-
-  mockRequestWithInsurance.insuranceRequired = true
-  mockRequestWithInsurance.pricePerDayInUsdCents = insurancePriceInCents
+    anonymous,
+    rentalityLocationVerifier,
+    mockRequestWithInsurance
 
   beforeEach(async function () {
     ;({
@@ -61,6 +59,8 @@ describe('Rentality insurance', function () {
       host,
       guest,
       anonymous,
+      rentalityLocationVerifier,
+      mockRequestWithInsurance
     } = await loadFixture(deployDefaultFixture))
   })
 

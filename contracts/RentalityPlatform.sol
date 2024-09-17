@@ -35,11 +35,11 @@ contract RentalityPlatform is UUPSOwnable {
 
   RentalityInsurance private insuranceService;
 
-  function updateServiceAddresses(RentalityAdminGateway adminService) public {
-    require(addresses.userService.isAdmin(tx.origin), 'only Admin.');
-    addresses = adminService.getRentalityContracts();
-    insuranceService = adminService.getInsuranceService();
-  }
+//  function updateServiceAddresses(RentalityAdminGateway adminService) public {
+//    require(addresses.userService.isAdmin(tx.origin), 'only Admin.');
+//    addresses = adminService.getRentalityContracts();
+//    insuranceService = adminService.getInsuranceService();
+//  }
 
   //    function withdrawAllFromPlatform(address currencyType) public {
   //        return withdrawFromPlatform(address(this).balance, currencyType);
@@ -47,29 +47,14 @@ contract RentalityPlatform is UUPSOwnable {
 
   /// @notice Creates a trip request with delivery.
   /// @param request The trip request with delivery details.
-  function createTripRequest(Schemas.CreateTripRequestWithDelivery memory request) public payable {
-    uint64 pickUp = 0;
-    uint64 dropOf = 0;
-    bytes32 pickUpHash = bytes32('');
-    bytes32 returnHash = bytes32('');
-    if (
-      bytes(request.returnInfo.locationInfo.latitude).length > 0 ||
-      bytes(request.pickUpInfo.locationInfo.latitude).length > 0
-    ) {
-      (pickUp, dropOf) = addresses.deliveryService.calculatePricesByDeliveryDataInUsdCents(
-        request.pickUpInfo.locationInfo,
-        request.returnInfo.locationInfo,
-        IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getCarLocationLatitude(request.carId),
-        IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getCarLocationLongitude(request.carId),
-        addresses.carService.getCarInfoById(request.carId).createdBy
-      );
-      pickUpHash = IRentalityGeoService(addresses.carService.getGeoServiceAddress()).createLocationInfo(
-        request.pickUpInfo.locationInfo
-      );
-      returnHash = IRentalityGeoService(addresses.carService.getGeoServiceAddress()).createLocationInfo(
-        request.returnInfo.locationInfo
-      );
-    }
+  function createTripRequestWithDelivery(Schemas.CreateTripRequestWithDelivery memory request) public payable {
+    (uint64 pickUp, uint64 dropOf) = RentalityUtils.calculateDelivery(addresses,request);
+    bytes32 pickUpHash = IRentalityGeoService(addresses.carService.getGeoServiceAddress()).createLocationInfo(
+      request.pickUpInfo.locationInfo
+    );
+    bytes32 returnHash = IRentalityGeoService(addresses.carService.getGeoServiceAddress()).createLocationInfo(
+      request.returnInfo.locationInfo
+    );
     _createTripRequest(
       request.currencyType,
       request.carId,
@@ -83,35 +68,32 @@ contract RentalityPlatform is UUPSOwnable {
   }
 
   function payKycCommission(address currency) public payable {
-    (int rate, uint8 dec) = addresses.currencyConverterService.getCurrentRate(currency);
-    uint valueToPay = addresses.currencyConverterService.getFromUsd(
+    (uint valueToPay, , ) = addresses.currencyConverterService.getFromUsdLatest(
       currency,
-      addresses.userService.getKycCommission(),
-      rate,
-      dec
+      addresses.userService.getKycCommission()
     );
+
     addresses.paymentService.payKycCommission{value: msg.value}(valueToPay, currency);
   }
 
   function useKycCommission(address user) public {
     addresses.userService.useKycCommission(user);
   }
-  //    /// @notice Create a trip request.
-  //    /// @param request The request parameters for creating a new trip.
-  //    function createTripRequest(Schemas.CreateTripRequestWithDelivery memory request) public payable {
-  //        _createTripRequest(
-  //            request.currencyType,
-  //            request.carId,
-  //            request.startDateTime,
-  //            request.endDateTime,
-  //            0,
-  //            0,
-  //            bytes32(''),
-  //            bytes32(''),
-  //            request.insurancePaid,
-  //            request.photo
-  //        );
-  //    }
+  /// @notice Create a trip request.
+  /// @param request The request parameters for creating a new trip.
+  function createTripRequest(Schemas.CreateTripRequest memory request) public payable {
+
+      _createTripRequest(
+      request.currencyType,
+      request.carId,
+      request.startDateTime,
+      request.endDateTime,
+      0,
+      0,
+      bytes32(''),
+      bytes32('')
+    );
+  }
   /// @notice Creates a trip request with specified details.
   /// @dev This function is private and should only be called internally.
   /// @param currencyType Address of the currency type contract.
@@ -309,32 +291,34 @@ contract RentalityPlatform is UUPSOwnable {
     addresses.paymentService.payClaim{value: msg.value}(trip, valueToPay, feeInCurrency, commission);
   }
 
+  /// @notice Updates the status of a specific claim based on the current timestamp.
+  /// @dev This function is typically called periodically to check and update claim status.
+  /// @param claimId ID of the claim to be updated.
+  function updateClaim(uint256 claimId) public {
+    Schemas.Claim memory claim = addresses.claimService.getClaim(claimId);
+    Schemas.Trip memory trip = addresses.tripService.getTrip(claim.tripId);
+
+    addresses.claimService.updateClaim(claimId, trip.host, trip.guest);
+  }
+
   /// @notice Sets Know Your Customer (KYC) information for the caller.
-  /// @param name The name of the user.
-  /// @param surname The surname of the user.
-  /// @param mobilePhoneNumber The mobile phone number of the user.
-  /// @param profilePhoto The URL of the user's profile photo.
-  /// @param licenseNumber The user's license number.
-  /// @param expirationDate The expiration date of the user's license.
-  /// @param TCSignature The signature of the user indicating acceptance of Terms and Conditions (TC).
   function setKYCInfo(
-    string memory name,
-    string memory surname,
+    string memory nickName,
     string memory mobilePhoneNumber,
     string memory profilePhoto,
-    string memory licenseNumber,
-    uint64 expirationDate,
-    bytes memory TCSignature
+    Schemas.CivicKYCInfo memory kycInfo,
+    bytes memory TCSignature,
+    bytes memory KYCSignature
   ) public {
     return
       addresses.userService.setKYCInfo(
-        name,
-        surname,
+        nickName,
         mobilePhoneNumber,
         profilePhoto,
-        licenseNumber,
-        expirationDate,
-        TCSignature
+        kycInfo,
+        TCSignature,
+        IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getVerifier(),
+        KYCSignature
       );
   }
   /// @notice Allows the host to perform a check-in for a specific trip.
@@ -412,9 +396,11 @@ contract RentalityPlatform is UUPSOwnable {
     Schemas.SignedLocationInfo memory location,
     string memory geoApiKey
   ) public {
-    require(addresses.isCarEditable(request.carId), 'Car not editable.');
-    addresses.carService.updateCarInfo(request, location.locationInfo, geoApiKey);
-    insuranceService.saveInsuranceRequired(request.carId, request.insurancePrice, request.insuranceRequired);
+    require(addresses.isCarEditable(request.carId), 'Car is not available for update.');
+
+    addresses.carService.verifySignedLocationInfo(location);
+      insuranceService.saveInsuranceRequired(request.carId, request.insurancePrice, request.insuranceRequired);
+    return addresses.carService.updateCarInfo(request, location.locationInfo, geoApiKey);
   }
   /// @notice Adds a user discount.
   /// @param data The discount data.

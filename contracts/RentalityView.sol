@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.9;
+
 import './Schemas.sol';
 import './RentalityGateway.sol';
 import './RentalityAdminGateway.sol';
@@ -49,11 +52,12 @@ contract RentalityView is UUPSUpgradeable, Initializable {
     return addresses.carService.tokenURI(carId);
   }
 
+  // not using
   /// @notice Retrieves information about all cars.
   /// @return An array of car information.
-  function getAllCars() public view returns (Schemas.CarInfo[] memory) {
-    return addresses.carService.getAllCars();
-  }
+//  function getAllCars() public view returns (Schemas.CarInfo[] memory) {
+//    return addresses.carService.getAllCars();
+//  }
 
   /// @notice Retrieves information about available cars for a specific user.
   /// @param user The address of the user.
@@ -189,20 +193,17 @@ contract RentalityView is UUPSUpgradeable, Initializable {
     return addresses.userService.getMyKYCInfo();
   }
 
+  // not using
   /// @notice This function provides a detailed receipt of the trip, including payment information and trip details.
   /// @param tripId The ID of the trip for which the receipt is requested.
   /// @return tripReceipt An instance of `Schemas.TripReceiptDTO` containing the trip receipt details.
-  function getTripReceipt(uint tripId) public view returns (Schemas.TripReceiptDTO memory) {
-    Schemas.TripReceiptDTO memory result = RentalityTripsQuery.fullFillTripReceipt(
-      tripId,
-      address(addresses.tripService)
-    );
-    Schemas.Trip memory trip = addresses.tripService.getTrip(tripId);
-    result.insuranceFee = trip.status == Schemas.TripStatus.Canceled
-      ? 0
-      : uint64(insuranceService.getInsurancePriceByTrip(trip.tripId));
-    return result;
-  }
+//  function getTripReceipt(uint tripId) public view returns (Schemas.TripReceiptDTO memory) {
+//    return RentalityTripsQuery.fullFillTripReceipt(
+//      tripId,
+//      address(addresses.tripService),
+//      address (insuranceService)
+//    );
+//  }
 
   /// @notice Retrieves the cars owned by a specific host.
   /// @dev This function returns an array of PublicHostCarDTO structs representing the cars owned by the host.
@@ -305,6 +306,9 @@ contract RentalityView is UUPSUpgradeable, Initializable {
   /// @return True if the KYC commission has been paid by the user, false otherwise.
   function isKycCommissionPaid(address user) public view returns (bool) {
     return addresses.userService.isCommissionPaidForUser(user);
+  }
+  function getMyFullKYCInfo() public view returns (Schemas.FullKYCInfoDTO memory) {
+    return addresses.userService.getMyFullKYCInfo();
   }
 
   function initialize(

@@ -1,5 +1,5 @@
 const { ethers, upgrades } = require('hardhat')
-const { ethToken, signTCMessage } = require('../utils')
+const { ethToken, signTCMessage, signKycInfo, emptyKyc } = require('../utils')
 
 async function deployDefaultFixture() {
   const [owner, admin, manager, host, guest, anonymous] = await ethers.getSigners()
@@ -43,9 +43,17 @@ async function deployDefaultFixture() {
   const geoParserMock = await GeoParserMock.deploy()
   await geoParserMock.waitForDeployment()
 
+  const RentalityVerifier = await ethers.getContractFactory('RentalityLocationVerifier')
+
+  let rentalityLocationVerifier = await upgrades.deployProxy(RentalityVerifier, [
+    await rentalityUserService.getAddress(),
+    admin.address,
+  ])
+  await rentalityLocationVerifier.waitForDeployment()
+
   const rentalityGeoService = await upgrades.deployProxy(RentalityGeoService, [
     await rentalityUserService.getAddress(),
-    await geoParserMock.getAddress(),
+    await rentalityLocationVerifier.getAddress(),
   ])
   await rentalityGeoService.waitForDeployment()
   await geoParserMock.setGeoService(await rentalityGeoService.getAddress())
@@ -197,7 +205,12 @@ async function deployDefaultFixture() {
   ])
   await rentalityPlatform.waitForDeployment()
 
-  const RentalityAdminGateway = await ethers.getContractFactory('RentalityAdminGateway')
+  const RentalityAdminGateway = await ethers.getContractFactory('RentalityAdminGateway', {
+    libraries: {
+      RentalityUtils: await utils.getAddress(),
+      RentalityQuery: await query.getAddress(),
+    },
+  })
   const rentalityAdminGateway = await upgrades.deployProxy(RentalityAdminGateway, [
     await rentalityCarToken.getAddress(),
     await rentalityCurrencyConverter.getAddress(),
@@ -233,8 +246,6 @@ async function deployDefaultFixture() {
 
   await rentalityUserService.connect(owner).grantHostRole(await rentalityPlatform.getAddress())
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityPlatform.getAddress())
-  await rentalityUserService.connect(owner).grantManagerRole(await rentalityCarToken.getAddress())
-  await rentalityUserService.connect(owner).grantManagerRole(await rentalityUserService.getAddress())
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityAdminGateway.getAddress())
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityGateway.getAddress())
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityTripService.getAddress())
@@ -248,10 +259,10 @@ async function deployDefaultFixture() {
   const hostSignature = await signTCMessage(host)
   const guestSignature = await signTCMessage(guest)
   const deployerSignature = await signTCMessage(owner)
-  await rentalityGateway.connect(host).setKYCInfo(' ', ' ', ' ', ' ', ' ', 1, hostSignature)
-  await rentalityGateway.connect(guest).setKYCInfo(' ', ' ', ' ', ' ', ' ', 1, guestSignature)
-  await rentalityGateway.setKYCInfo(' ', ' ', ' ', ' ', ' ', 1, deployerSignature)
-
+  const adminKyc = signKycInfo(await rentalityLocationVerifier.getAddress(), admin)
+  await rentalityGateway.connect(host).setKYCInfo(' ', ' ', ' ', emptyKyc, hostSignature, adminKyc)
+  await rentalityGateway.connect(guest).setKYCInfo(' ', ' ', ' ', emptyKyc, guestSignature, adminKyc)
+  await rentalityGateway.setKYCInfo(' ', ' ', ' ', emptyKyc, deployerSignature, adminKyc)
   return {
     rentalityMockPriceFeed,
     rentalityUserService,
@@ -267,6 +278,7 @@ async function deployDefaultFixture() {
     host,
     guest,
     anonymous,
+    rentalityLocationVerifier,
   }
 }
 
