@@ -101,8 +101,6 @@ interface Schemas {
     uint64 startDateTime;
     uint64 endDateTime;
     address currencyType;
-    bool insurancePaid;
-    string photo;
   }
 
   struct CreateTripRequestWithDelivery {
@@ -112,8 +110,6 @@ interface Schemas {
     address currencyType;
     SignedLocationInfo pickUpInfo;
     SignedLocationInfo returnInfo;
-    bool insurancePaid;
-    string photo;
   }
 
   /// @dev Enumeration representing verious states of a trip.
@@ -506,9 +502,15 @@ interface Schemas {
     uint priceInUsdCents;
   }
 
-  struct InsuranceTripInfo {
-    bool payedByGuest;
-    string insurancePhoto;
-    uint totalPaid;
+  struct InsuranceInfo {
+    string companyName;
+    string policyNumber;
+    string photo;
+    InsuranceType insuranceType;
+  }
+  enum InsuranceType {
+    None,
+    General,
+    OneTime
   }
 }
