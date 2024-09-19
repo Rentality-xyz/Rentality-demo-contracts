@@ -333,6 +333,11 @@ contract RentalityPlatform is UUPSOwnable {
     string memory insuranceCompany,
     string memory insuranceNumber
   ) public {
+    if (bytes(insuranceNumber).length > 0 || bytes(insuranceCompany).length > 0)
+      insuranceService.saveTripInsuranceInfo(
+        tripId,
+        Schemas.SaveInsuranceRequest(insuranceCompany, insuranceNumber, '', '', Schemas.InsuranceType.OneTime)
+      );
     return addresses.tripService.checkInByHost(tripId, panelParams, insuranceCompany, insuranceNumber);
   }
 
