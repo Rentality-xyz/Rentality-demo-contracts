@@ -71,7 +71,9 @@ describe('RentalityGateway: car', function () {
     ).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
-    const availableCars = await rentalityGateway.connect(host).searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
+    const availableCars = await rentalityGateway
+      .connect(host)
+      .searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
     expect(availableCars.length).to.equal(0)
   })
   it('Guest see cars as available', async function () {
@@ -80,7 +82,9 @@ describe('RentalityGateway: car', function () {
     ).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
-    const availableCars = await rentalityGateway.connect(guest).searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
+    const availableCars = await rentalityGateway
+      .connect(guest)
+      .searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
     expect(availableCars.length).to.equal(1)
   })
   it('should allow only host to update car info', async function () {

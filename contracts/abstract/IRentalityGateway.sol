@@ -155,7 +155,7 @@ interface IRentalityGateway {
   /// @param request The request parameters for creating a new trip.
   function createTripRequest(Schemas.CreateTripRequest memory request) external payable;
 
-      function createTripRequestWithDelivery(Schemas.CreateTripRequestWithDelivery memory request) external payable;
+  function createTripRequestWithDelivery(Schemas.CreateTripRequestWithDelivery memory request) external payable;
 
   /// @dev Retrieves delivery data for a given car.
   /// @param carId The ID of the car for which delivery data is requested.
@@ -368,10 +368,9 @@ interface IRentalityGateway {
 
   function getMyFullKYCInfo() external view returns (Schemas.FullKYCInfoDTO memory);
 
-
- function getInsurancesBy(bool host) external view returns(Schemas.InsuranceDTO[] memory);
+  function getInsurancesBy(bool host) external view returns (Schemas.InsuranceDTO[] memory);
 
   function saveTripInsuranceInfo(uint tripId, Schemas.SaveInsuranceRequest memory insuranceInfo) external;
-  
+
   function saveGuestInsurance(Schemas.SaveInsuranceRequest memory insuranceInfo) external;
 }
