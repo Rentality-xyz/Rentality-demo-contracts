@@ -22,6 +22,7 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
   bytes32 public constant MANAGER_ROLE = keccak256('MANAGER_ROLE');
   bytes32 public constant HOST_ROLE = keccak256('HOST_ROLE');
   bytes32 public constant GUEST_ROLE = keccak256('GUEST_ROLE');
+  bytes32 public constant KYC_COMMISSION_MANAGER_ROLE = keccak256('KYC_MANAGER_ROLE');
 
   // Mapping to store KYC information for each user address
   mapping(address => Schemas.KYCInfo) private kycInfos;
@@ -223,7 +224,7 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
   }
 
   function useKycCommission(address user) public {
-    require(isManager(tx.origin) || msg.sender == user, 'only Manager');
+    require(hasRole(KYC_COMMISSION_MANAGER_ROLE, tx.origin) || msg.sender == user, 'only Manager');
 
     Schemas.KycCommissionData[] memory commissions = userToKYCCommission[user];
     if (commissions.length == 0) {
@@ -260,6 +261,7 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
     else if (newRole == Schemas.Role.Host) role = HOST_ROLE;
     else if (newRole == Schemas.Role.Manager) role = MANAGER_ROLE;
     else if (newRole == Schemas.Role.Admin) role = DEFAULT_ADMIN_ROLE;
+    else if (newRole == Schemas.Role.KYCManager) role == KYC_COMMISSION_MANAGER_ROLE;
     if (grant) _grantRole(role, user);
     else {
       _revokeRole(role, user);

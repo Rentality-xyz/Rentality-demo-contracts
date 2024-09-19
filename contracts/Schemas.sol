@@ -565,6 +565,7 @@ interface Schemas {
     Guest,
     Host,
     Manager,
-    Admin
+    Admin,
+    KYCManager
   }
 }
