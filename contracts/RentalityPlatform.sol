@@ -166,7 +166,8 @@ contract RentalityPlatform is UUPSOwnable {
       pickUpHash,
       returnHash,
       carInfo.milesIncludedPerDay,
-      paymentInfo
+      paymentInfo,
+      msg.value
     );
   }
 
@@ -197,10 +198,12 @@ contract RentalityPlatform is UUPSOwnable {
 
     addresses.tripService.rejectTrip(tripId);
 
-    (uint valueToReturnInUsdCents, uint valueToReturnInToken) = addresses.currencyConverterService.calculateTripReject(
-      trip.paymentInfo
-    );
-    addresses.paymentService.payRejectTrip(trip, valueToReturnInToken);
+    uint valueToReturnInUsdCents = addresses.currencyConverterService.calculateTripReject(trip.paymentInfo);
+    /* you should not recalculate the value with convertor,
+     for return during rejection,
+     but instead, use: 'addresses.tripService.tripIdToEthSumInTripCreation(tripId)'*/
+
+    addresses.paymentService.payRejectTrip(trip, addresses.tripService.tripIdToEthSumInTripCreation(tripId));
 
     addresses.tripService.saveTransactionInfo(tripId, 0, statusBeforeCancellation, valueToReturnInUsdCents, 0);
   }
