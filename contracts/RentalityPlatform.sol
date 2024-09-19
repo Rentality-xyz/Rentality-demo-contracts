@@ -35,11 +35,11 @@ contract RentalityPlatform is UUPSOwnable {
 
   RentalityInsurance private insuranceService;
 
-//  function updateServiceAddresses(RentalityAdminGateway adminService) public {
-//    require(addresses.userService.isAdmin(tx.origin), 'only Admin.');
-//    addresses = adminService.getRentalityContracts();
-//    insuranceService = adminService.getInsuranceService();
-//  }
+  //  function updateServiceAddresses(RentalityAdminGateway adminService) public {
+  //    require(addresses.userService.isAdmin(tx.origin), 'only Admin.');
+  //    addresses = adminService.getRentalityContracts();
+  //    insuranceService = adminService.getInsuranceService();
+  //  }
 
   //    function withdrawAllFromPlatform(address currencyType) public {
   //        return withdrawFromPlatform(address(this).balance, currencyType);
@@ -48,7 +48,7 @@ contract RentalityPlatform is UUPSOwnable {
   /// @notice Creates a trip request with delivery.
   /// @param request The trip request with delivery details.
   function createTripRequestWithDelivery(Schemas.CreateTripRequestWithDelivery memory request) public payable {
-    (uint64 pickUp, uint64 dropOf) = RentalityUtils.calculateDelivery(addresses,request);
+    (uint64 pickUp, uint64 dropOf) = RentalityUtils.calculateDelivery(addresses, request);
     bytes32 pickUpHash = IRentalityGeoService(addresses.carService.getGeoServiceAddress()).createLocationInfo(
       request.pickUpInfo.locationInfo
     );
@@ -82,8 +82,7 @@ contract RentalityPlatform is UUPSOwnable {
   /// @notice Create a trip request.
   /// @param request The request parameters for creating a new trip.
   function createTripRequest(Schemas.CreateTripRequest memory request) public payable {
-
-      _createTripRequest(
+    _createTripRequest(
       request.currencyType,
       request.carId,
       request.startDateTime,
@@ -133,9 +132,6 @@ contract RentalityPlatform is UUPSOwnable {
     );
 
     addresses.paymentService.payCreateTrip{value: msg.value}(currencyType, valueSumInCurrency);
-
-    /// updating cache currency data
-    addresses.currencyConverterService.getCurrencyRateWithCache(currencyType);
 
     uint tripId = addresses.tripService.createNewTrip(
       carId,
@@ -399,7 +395,7 @@ contract RentalityPlatform is UUPSOwnable {
     require(addresses.isCarEditable(request.carId), 'Car is not available for update.');
 
     addresses.carService.verifySignedLocationInfo(location);
-      insuranceService.saveInsuranceRequired(request.carId, request.insurancePrice, request.insuranceRequired);
+    insuranceService.saveInsuranceRequired(request.carId, request.insurancePrice, request.insuranceRequired);
     return addresses.carService.updateCarInfo(request, location.locationInfo, geoApiKey);
   }
   /// @notice Adds a user discount.

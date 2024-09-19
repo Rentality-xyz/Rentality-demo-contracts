@@ -250,7 +250,7 @@ const TripStatus = {
 const InsuranceType = {
   None: 0,
   General: 1,
-  OneTime: 2
+  OneTime: 2,
 }
 
 function getEmptySearchCarParams(seed) {
@@ -556,7 +556,7 @@ async function deployDefaultFixture() {
   )
 
   const insurancePriceInCents = 2500
-  const mockRequestWithInsurance = getMockCarRequest(0,await rentalityLocationVerifier.getAddress(),admin)
+  const mockRequestWithInsurance = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
 
   mockRequestWithInsurance.insuranceRequired = true
   mockRequestWithInsurance.insurancePriceInUsdCents = insurancePriceInCents
@@ -594,7 +594,7 @@ async function deployDefaultFixture() {
     guestSignature,
     hostSignature,
     mockRequestWithInsurance,
-    insuranceService
+    insuranceService,
   }
 }
 
@@ -617,5 +617,5 @@ module.exports = {
   signLocationInfo,
   signKycInfo,
   emptyKyc,
-  InsuranceType
+  InsuranceType,
 }

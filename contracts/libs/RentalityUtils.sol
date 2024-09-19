@@ -450,14 +450,16 @@ library RentalityUtils {
       daysOfTrip,
       sumWithDiscount + deliveryFee
     );
-    (int rate, uint8 decimals) = addresses.currencyConverterService.getCurrentRate(currency);
-
     uint totalPrice = car.securityDepositPerTripInUsdCents + salesTaxes + govTax + sumWithDiscount + deliveryFee;
-   
-    if(!insuranceService.isGuestHasInsurance(tx.origin)) {
-    totalPrice += insuranceService.getInsurancePriceByCar(carId) * daysOfTrip;
+
+    if (!insuranceService.isGuestHasInsurance(tx.origin)) {
+      totalPrice += insuranceService.getInsurancePriceByCar(carId) * daysOfTrip;
     }
-    uint256 valueSumInCurrency = addresses.currencyConverterService.getFromUsd(currency, totalPrice, rate, decimals);
+
+    (uint256 valueSumInCurrency, int rate, uint8 decimals) = addresses.currencyConverterService.getFromUsdLatest(
+      currency,
+      totalPrice
+    );
 
     return Schemas.CalculatePaymentsDTO(valueSumInCurrency, rate, decimals);
   }
@@ -557,8 +559,11 @@ library RentalityUtils {
       carInfo.securityDepositPerTripInUsdCents +
       pickUp +
       dropOf;
-    (int rate, uint8 decimals) = addresses.currencyConverterService.getCurrentRate(currencyType);
-    uint valueSumInCurrency = addresses.currencyConverterService.getFromUsd(currencyType, valueSum, rate, decimals);
+
+    (uint valueSumInCurrency, int rate, uint8 decimals) = addresses.currencyConverterService.getFromUsdLatest(
+      currencyType,
+      valueSum
+    );
 
     Schemas.PaymentInfo memory paymentInfo = Schemas.PaymentInfo(
       0,
@@ -604,7 +609,10 @@ library RentalityUtils {
       );
   }
 
-  function calculateDelivery(RentalityContract memory addresses, Schemas.CreateTripRequestWithDelivery memory request) public view returns(uint64, uint64) {
+  function calculateDelivery(
+    RentalityContract memory addresses,
+    Schemas.CreateTripRequestWithDelivery memory request
+  ) public view returns (uint64, uint64) {
     bytes32 locationHash = addresses.carService.getCarInfoById(request.carId).locationHash;
     (uint64 pickUp, uint64 dropOf) = addresses.deliveryService.calculatePricesByDeliveryDataInUsdCents(
       request.pickUpInfo.locationInfo,
@@ -617,5 +625,4 @@ library RentalityUtils {
     if (dropOf > 0) addresses.carService.verifySignedLocationInfo(request.returnInfo);
     return (pickUp, dropOf);
   }
-
 }

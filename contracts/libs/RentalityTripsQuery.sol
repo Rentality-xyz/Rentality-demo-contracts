@@ -166,7 +166,7 @@ library RentalityTripsQuery {
 
     uint64 overmiles = allowedMiles >= totalMilesDriven ? 0 : totalMilesDriven - allowedMiles;
 
-   uint insuranceFee = trip.status == Schemas.TripStatus.Canceled
+    uint insuranceFee = trip.status == Schemas.TripStatus.Canceled
       ? 0
       : uint64(RentalityInsurance(insuranceAddress).getInsurancePriceByTrip(trip.tripId));
 
@@ -326,8 +326,12 @@ library RentalityTripsQuery {
         hostPhoneNumber
       );
   }
-  function getTripInsurancesByGuest(RentalityContract memory contracts, RentalityInsurance insuranceService, address guest) public view returns(Schemas.InsuranceDTO[] memory) {
-     RentalityTripService tripService = contracts.tripService;
+  function getTripInsurancesByGuest(
+    RentalityContract memory contracts,
+    RentalityInsurance insuranceService,
+    address guest
+  ) public view returns (Schemas.InsuranceDTO[] memory) {
+    RentalityTripService tripService = contracts.tripService;
     uint itemCount = 0;
 
     for (uint i = 1; i <= tripService.totalTripCount(); i++) {
@@ -337,31 +341,35 @@ library RentalityTripsQuery {
     }
     Schemas.InsuranceDTO[] memory insurances = new Schemas.InsuranceDTO[](itemCount);
     uint counter = 0;
-     for (uint i = 1; i <= tripService.totalTripCount(); i++) {
+    for (uint i = 1; i <= tripService.totalTripCount(); i++) {
       Schemas.Trip memory trip = tripService.getTrip(i);
       if (trip.guest == guest) {
         Schemas.InsuranceInfo[] memory tripInsurances = insuranceService.getTripInsurances(i);
-          for (uint j = 0; j < tripInsurances.length; j++) {
-            Schemas.KYCInfo memory kyc = contracts.userService.getKYCInfo(tripInsurances[j].createdBy);
+        for (uint j = 0; j < tripInsurances.length; j++) {
+          Schemas.KYCInfo memory kyc = contracts.userService.getKYCInfo(tripInsurances[j].createdBy);
 
-        Schemas.CarInfo memory car = contracts.carService.getCarInfoById(trip.carId);
-        insurances[counter].tripId = i;
-        insurances[counter].carBrand = car.brand;
-        insurances[counter].carModel = car.model;
-        insurances[counter].carYear = car.yearOfProduction;
-        insurances[counter].insuranceInfo = tripInsurances[j];
-        insurances[counter].createdByHost = tripInsurances[j].createdBy == trip.host;
-        insurances[counter].creatorPhoneNumber = kyc.mobilePhoneNumber;
-        insurances[counter].creatorFullName = kyc.surname;
-        counter += 1;
+          Schemas.CarInfo memory car = contracts.carService.getCarInfoById(trip.carId);
+          insurances[counter].tripId = i;
+          insurances[counter].carBrand = car.brand;
+          insurances[counter].carModel = car.model;
+          insurances[counter].carYear = car.yearOfProduction;
+          insurances[counter].insuranceInfo = tripInsurances[j];
+          insurances[counter].createdByHost = tripInsurances[j].createdBy == trip.host;
+          insurances[counter].creatorPhoneNumber = kyc.mobilePhoneNumber;
+          insurances[counter].creatorFullName = kyc.surname;
+          counter += 1;
         }
-}
-}
-
-return insurances;
+      }
     }
-    function getTripInsurancesByHost(RentalityContract memory contracts, RentalityInsurance insuranceService, address host) public view returns(Schemas.InsuranceDTO[] memory) {
-     RentalityTripService tripService = contracts.tripService;
+
+    return insurances;
+  }
+  function getTripInsurancesByHost(
+    RentalityContract memory contracts,
+    RentalityInsurance insuranceService,
+    address host
+  ) public view returns (Schemas.InsuranceDTO[] memory) {
+    RentalityTripService tripService = contracts.tripService;
     uint itemCount = 0;
 
     for (uint i = 1; i <= tripService.totalTripCount(); i++) {
@@ -371,27 +379,27 @@ return insurances;
     }
     Schemas.InsuranceDTO[] memory insurances = new Schemas.InsuranceDTO[](itemCount);
     uint counter = 0;
-     for (uint i = 1; i <= tripService.totalTripCount(); i++) {
+    for (uint i = 1; i <= tripService.totalTripCount(); i++) {
       Schemas.Trip memory trip = tripService.getTrip(i);
       if (trip.host == host) {
         Schemas.InsuranceInfo[] memory tripInsurances = insuranceService.getTripInsurances(i);
-          for (uint j = 0; j < tripInsurances.length; j++) {
-            Schemas.KYCInfo memory kyc = contracts.userService.getKYCInfo(tripInsurances[j].createdBy);
+        for (uint j = 0; j < tripInsurances.length; j++) {
+          Schemas.KYCInfo memory kyc = contracts.userService.getKYCInfo(tripInsurances[j].createdBy);
 
-        Schemas.CarInfo memory car = contracts.carService.getCarInfoById(trip.carId);
-        insurances[counter].tripId = i;
-        insurances[counter].carBrand = car.brand;
-        insurances[counter].carModel = car.model;
-        insurances[counter].carYear = car.yearOfProduction;
-        insurances[counter].insuranceInfo = tripInsurances[j];
-        insurances[counter].createdByHost = tripInsurances[j].createdBy == trip.host;
-        insurances[counter].creatorPhoneNumber = kyc.mobilePhoneNumber;
-        insurances[counter].creatorFullName = kyc.surname;
-        counter += 1;
+          Schemas.CarInfo memory car = contracts.carService.getCarInfoById(trip.carId);
+          insurances[counter].tripId = i;
+          insurances[counter].carBrand = car.brand;
+          insurances[counter].carModel = car.model;
+          insurances[counter].carYear = car.yearOfProduction;
+          insurances[counter].insuranceInfo = tripInsurances[j];
+          insurances[counter].createdByHost = tripInsurances[j].createdBy == trip.host;
+          insurances[counter].creatorPhoneNumber = kyc.mobilePhoneNumber;
+          insurances[counter].creatorFullName = kyc.surname;
+          counter += 1;
         }
-}
-}
-
-return insurances;
+      }
     }
+
+    return insurances;
+  }
 }

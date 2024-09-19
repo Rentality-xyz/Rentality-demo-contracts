@@ -8,7 +8,7 @@ const {
   calculatePayments,
   signTCMessage,
   emptyKyc,
-  getEmptySearchCarParams
+  getEmptySearchCarParams,
 } = require('../utils')
 
 describe('RentalityGateway: chat', function () {
@@ -65,14 +65,16 @@ describe('RentalityGateway: chat', function () {
     const myCars = await rentalityGateway.connect(host).getMyCars()
 
     expect(myCars.length).to.equal(1)
-    const availableCars = await rentalityGateway.connect(guest).searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
+    const availableCars = await rentalityGateway
+      .connect(guest)
+      .searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
     expect(availableCars.length).to.equal(1)
 
     const oneDayInSeconds = 86400
 
     const dailyPriceInUsdCents = 1000
 
-    const result = await rentalityGateway.calculatePayments(1, 2,  ethToken)
+    const result = await rentalityGateway.calculatePayments(1, 2, ethToken)
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
         {
@@ -124,7 +126,9 @@ describe('RentalityGateway: chat', function () {
     await expect(rentalityGateway.connect(host).addCar(addCarRequest)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
-    const availableCars = await rentalityGateway.connect(guest).searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
+    const availableCars = await rentalityGateway
+      .connect(guest)
+      .searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
     expect(availableCars.length).to.equal(1)
 
     let name = 'name'
@@ -149,7 +153,7 @@ describe('RentalityGateway: chat', function () {
 
     const oneDayInSeconds = 86400
 
-    const result =  await rentalityGateway.connect(guest).calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway.connect(guest).calculatePayments(1, 1, ethToken)
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
         {

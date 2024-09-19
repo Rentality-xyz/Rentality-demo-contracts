@@ -324,7 +324,6 @@ describe('Rentality taxes & discounts', function () {
       1,
       tripDays,
       '0x0000000000000000000000000000000000000000'
-  
     )
     expect(contractResult.totalPrice).to.be.eq(rentPriceInEth)
 

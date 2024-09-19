@@ -1,7 +1,7 @@
 const { expect } = require('chai')
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 
-const { getMockCarRequest,getEmptySearchCarParams } = require('../utils')
+const { getMockCarRequest, getEmptySearchCarParams } = require('../utils')
 const { deployFixtureWith1Car, deployDefaultFixture } = require('./deployments')
 
 describe('RentalityCarToken: host functions', function () {
@@ -123,12 +123,13 @@ describe('RentalityCarToken: host functions', function () {
 
   // function not using
   it.skip('getAllAvailableCars with 1 car should return data for guest', async function () {
-    const { rentalityGateway, host, guest, rentalityLocationVerifier, admin } =
-      await loadFixture(deployFixtureWith1Car)
+    const { rentalityGateway, host, guest, rentalityLocationVerifier, admin } = await loadFixture(deployFixtureWith1Car)
 
     const request = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
 
-    const availableCars = await rentalityGateway.connect(guest).searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
+    const availableCars = await rentalityGateway
+      .connect(guest)
+      .searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
 
     expect(availableCars.length).to.equal(1)
     expect(availableCars[0].carVinNumber).to.equal(request.carVinNumber)

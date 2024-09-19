@@ -498,8 +498,11 @@ library RentalityQuery {
   /// @param currency The address of the currency in which the commission should be calculated.
   /// @return The KYC commission amount in the specified currency.
   function calculateKycCommission(RentalityContract memory addresses, address currency) public view returns (uint) {
-    (int rate, uint8 dec) = addresses.currencyConverterService.getCurrentRate(currency);
-    return addresses.currencyConverterService.getFromUsd(currency, addresses.userService.getKycCommission(), rate, dec);
+    (uint result, , ) = addresses.currencyConverterService.getFromUsdLatest(
+      currency,
+      addresses.userService.getKycCommission()
+    );
+    return result;
   }
 
   //// Refactoring for getTripContactInfo with RentalityContract
