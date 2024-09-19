@@ -303,8 +303,7 @@ interface IRentalityGateway {
   function calculatePayments(
     uint carId,
     uint64 daysOfTrip,
-    address currency,
-    bool insuranceIncluded
+    address currency
   ) external view returns (Schemas.CalculatePaymentsDTO memory calculatePaymentsDTO);
 
   /// @dev Calculates the payments for a trip.
@@ -317,8 +316,7 @@ interface IRentalityGateway {
     uint64 daysOfTrip,
     address currency,
     Schemas.LocationInfo memory pickUpLocation,
-    Schemas.LocationInfo memory returnLocation,
-    bool insuranceIncluded
+    Schemas.LocationInfo memory returnLocation
   ) external view returns (Schemas.CalculatePaymentsDTO memory);
 
   /// @notice Gets the discount for a specific user.
@@ -369,4 +367,11 @@ interface IRentalityGateway {
   function useKycCommission(address user) external;
 
   function getMyFullKYCInfo() external view returns (Schemas.FullKYCInfoDTO memory);
+
+
+ function getInsurancesBy(bool host) external view returns(Schemas.InsuranceDTO[] memory);
+
+  function saveTripInsuranceInfo(uint tripId, Schemas.SaveInsuranceRequest memory insuranceInfo) external;
+  
+  function saveGuestInsurance(Schemas.SaveInsuranceRequest memory insuranceInfo) external;
 }

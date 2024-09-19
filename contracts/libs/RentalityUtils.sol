@@ -405,8 +405,7 @@ library RentalityUtils {
     address currency,
     Schemas.LocationInfo memory pickUpLocation,
     Schemas.LocationInfo memory returnLocation,
-    RentalityInsurance insuranceService,
-    bool insuranceIncluded
+    RentalityInsurance insuranceService
   ) public view returns (Schemas.CalculatePaymentsDTO memory) {
     uint64 deliveryFee = RentalityCarDelivery(addresses.adminService.getDeliveryServiceAddress())
       .calculatePriceByDeliveryDataInUsdCents(
@@ -420,7 +419,7 @@ library RentalityUtils {
         ),
         addresses.carService.getCarInfoById(carId).createdBy
       );
-    return calculatePayments(addresses, carId, daysOfTrip, currency, deliveryFee, insuranceService, insuranceIncluded);
+    return calculatePayments(addresses, carId, daysOfTrip, currency, deliveryFee, insuranceService);
   }
   /// @notice Checks if a car is available for a specific user based on search parameters.
   /// @dev Calculates the payments for a trip.
@@ -434,8 +433,7 @@ library RentalityUtils {
     uint64 daysOfTrip,
     address currency,
     uint64 deliveryFee,
-    RentalityInsurance insuranceService,
-    bool insuranceIncluded
+    RentalityInsurance insuranceService
   ) public view returns (Schemas.CalculatePaymentsDTO memory) {
     address carOwner = addresses.carService.ownerOf(carId);
     Schemas.CarInfo memory car = addresses.carService.getCarInfoById(carId);
@@ -455,8 +453,9 @@ library RentalityUtils {
     (int rate, uint8 decimals) = addresses.currencyConverterService.getCurrentRate(currency);
 
     uint totalPrice = car.securityDepositPerTripInUsdCents + salesTaxes + govTax + sumWithDiscount + deliveryFee;
-    if (insuranceIncluded) {
-      totalPrice += insuranceService.getInsurancePriceByCar(carId) * daysOfTrip;
+   
+    if(!insuranceService.isGuestHasInsurance(tx.origin)) {
+    totalPrice += insuranceService.getInsurancePriceByCar(carId) * daysOfTrip;
     }
     uint256 valueSumInCurrency = addresses.currencyConverterService.getFromUsd(currency, totalPrice, rate, decimals);
 

@@ -1,6 +1,6 @@
 const { loadFixture, time } = require('@nomicfoundation/hardhat-network-helpers')
 const { expect } = require('chai')
-const { getMockCarRequest, ethToken, calculatePayments, signTCMessage, emptyKyc, signKycInfo } = require('../utils')
+const { getMockCarRequest, ethToken, calculatePayments, signTCMessage, emptyKyc, signKycInfo,getEmptySearchCarParams } = require('../utils')
 const { deployFixtureWithUsers, deployDefaultFixture } = require('./deployments')
 
 describe('RentalityUserService: KYC management', function () {
@@ -125,7 +125,7 @@ describe('RentalityUserService: KYC management', function () {
 
     const carRequest = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
     await expect(rentalityCarToken.connect(host).addCar(carRequest)).not.to.be.reverted
-    const availableCars = await rentalityCarToken.connect(guest).getAvailableCarsForUser(guest.address)
+    const availableCars = await rentalityGateway.connect(guest).searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
     expect(availableCars.length).to.equal(1)
     const rentPrice = carRequest.pricePerDayInUsdCents
     const deposit = carRequest.securityDepositPerTripInUsdCents
