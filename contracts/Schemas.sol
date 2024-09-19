@@ -577,15 +577,36 @@ interface Schemas {
     uint priceInUsdCents;
   }
 
+  struct SaveInsuranceRequest {
+    string companyName;
+    string policyNumber;
+    string photo;
+    string comment;
+    InsuranceType insuranceType;
+  }
+
   struct InsuranceInfo {
     string companyName;
     string policyNumber;
     string photo;
+    string comment;
     InsuranceType insuranceType;
+    uint createdTime;
+    address createdBy;
   }
   enum InsuranceType {
     None,
     General,
     OneTime
+  }
+  struct InsuranceDTO {
+    uint tripId;
+    string carBrand;
+    string carModel;
+    uint32 carYear;
+    InsuranceInfo insuranceInfo;
+    bool createdByHost;
+    string creatorPhoneNumber;
+    string creatorFullName;
   }
 }

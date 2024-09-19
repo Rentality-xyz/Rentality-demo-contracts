@@ -20,10 +20,10 @@ describe('Rentality: trips', function () {
     const myCars = await rentalityCarToken.connect(host).getCarsOwnedByUser(host.address)
     expect(myCars.length).to.equal(1)
 
-    const availableCars = await rentalityCarToken.connect(guest).getAvailableCarsForUser(guest.address)
+    const availableCars = await rentalityGateway.connect(guest).searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
     expect(availableCars.length).to.equal(1)
 
-    const result = await rentalityGateway.calculatePayments(1, 1, ethToken,false)
+    const result =  await rentalityGateway.calculatePayments(1, 1, ethToken)
     await expect(
       await rentalityPlatform.connect(guest).createTripRequest(
         {
@@ -55,10 +55,10 @@ describe('Rentality: trips', function () {
     const myCars = await rentalityCarToken.connect(host).getCarsOwnedByUser(host.address)
     expect(myCars.length).to.equal(1)
 
-    const availableCars = await rentalityCarToken.connect(guest).getAvailableCarsForUser(guest.address)
+    const availableCars = await rentalityGateway.connect(guest).searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
     expect(availableCars.length).to.equal(1)
 
-    const result = await rentalityGateway.calculatePayments(1, 1, ethToken, false)
+    const result =  await rentalityGateway.connect(guest).calculatePayments(1, 1, ethToken)
     await expect(
       await rentalityPlatform.connect(guest).createTripRequest(
         {
@@ -95,10 +95,10 @@ describe('Rentality: trips', function () {
     const myCars = await rentalityCarToken.connect(host).getCarsOwnedByUser(host.address)
     expect(myCars.length).to.equal(1)
 
-    const availableCars = await rentalityCarToken.connect(guest).getAvailableCarsForUser(guest.address)
+    const availableCars = await rentalityGateway.connect(guest).searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
     expect(availableCars.length).to.equal(1)
 
-    const result = await rentalityGateway.calculatePayments(1, 1, ethToken, false)
+    const result =  await rentalityGateway.connect(guest).calculatePayments(1, 1, ethToken)
     await expect(
       await rentalityPlatform.connect(guest).createTripRequest(
         {
@@ -135,7 +135,7 @@ describe('Rentality: trips', function () {
     await expect(rentalityCarToken.connect(host).addCar(request)).not.to.be.reverted
     const myCars = await rentalityCarToken.connect(host).getCarsOwnedByUser(host.address)
     expect(myCars.length).to.equal(1)
-    const availableCars = await rentalityCarToken.connect(guest).getAvailableCarsForUser(guest.address)
+    const availableCars = await rentalityGateway.connect(guest).searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
     expect(availableCars.length).to.equal(1)
 
     const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals, rentalityFee, taxes } = await calculatePayments(
@@ -197,10 +197,10 @@ describe('Rentality: trips', function () {
     ).not.to.be.reverted
     const myCars = await rentalityCarToken.connect(host).getCarsOwnedByUser(host.address)
     expect(myCars.length).to.equal(1)
-    const availableCars = await rentalityCarToken.connect(guest).getAvailableCarsForUser(guest.address)
+    const availableCars = await rentalityGateway.connect(guest).searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
     expect(availableCars.length).to.equal(1)
 
-    const result = await rentalityGateway.calculatePayments(1, 1, ethToken, false)
+    const result =  await rentalityGateway.connect(guest).calculatePayments(1, 1, ethToken)
     await expect(
       await rentalityPlatform.connect(guest).createTripRequest(
         {
@@ -256,12 +256,12 @@ describe('Rentality: trips', function () {
     ).not.to.be.reverted
     const myCars = await rentalityCarToken.connect(host).getCarsOwnedByUser(host.address)
     expect(myCars.length).to.equal(1)
-    const availableCars = await rentalityCarToken.connect(guest).getAvailableCarsForUser(guest.address)
+    const availableCars = await rentalityGateway.connect(guest).searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
     expect(availableCars.length).to.equal(1)
 
     const dailyPriceInUsdCents = 1000
 
-    const result = await rentalityGateway.calculatePayments(1, 1, ethToken, false)
+    const result =  await rentalityGateway.connect(guest).calculatePayments(1, 1, ethToken)
     await expect(
       await rentalityPlatform.connect(guest).createTripRequest(
         {
@@ -323,7 +323,7 @@ describe('Rentality: trips', function () {
       .searchAvailableCars(timestampNow, timestampIn1Day, searchCarParams)
     expect(availableCars.length).to.equal(1)
 
-    const result = await rentalityGateway.calculatePayments(1, 1, ethToken, false)
+    const result =  await rentalityGateway.connect(guest).calculatePayments(1, 1, ethToken)
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
         {
@@ -370,7 +370,7 @@ describe('Rentality: trips', function () {
       .searchAvailableCars(timestampNow, timestampIn1Day, searchCarParams)
     expect(availableCars.length).to.equal(1)
 
-    const result = await rentalityGateway.calculatePayments(1, 1, ethToken, false)
+    const result =  await rentalityGateway.connect(guest).calculatePayments(1, 1, ethToken)
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
         {

@@ -7,6 +7,7 @@ const {
   ethToken,
   calculatePayments,
   emptyLocationInfo,
+  getEmptySearchCarParams
 } = require('../utils')
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 
@@ -49,12 +50,12 @@ describe('Rentality History Service', function () {
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
-    const availableCars = await rentalityGateway.connect(guest).getAvailableCarsForUser(guest.address)
+    const availableCars = await rentalityGateway.connect(guest).searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
     expect(availableCars.length).to.equal(1)
 
     const oneDayInSeconds = 86400
 
-    const result = await rentalityGateway.calculatePayments(1, 1, ethToken, false)
+    const result =  await rentalityGateway.connect(guest).calculatePayments(1, 1, ethToken)
     await expect(
       await rentalityPlatform.connect(guest).createTripRequest(
         {
@@ -94,7 +95,7 @@ describe('Rentality History Service', function () {
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
-    const availableCars = await rentalityGateway.connect(guest).getAvailableCarsForUser(guest.address)
+    const availableCars = await rentalityGateway.connect(guest).searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
     expect(availableCars.length).to.equal(1)
 
     const oneDayInSeconds = 86400
@@ -176,7 +177,7 @@ describe('Rentality History Service', function () {
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
-    const availableCars = await rentalityGateway.connect(guest).getAvailableCarsForUser(guest.address)
+    const availableCars = await rentalityGateway.connect(guest).searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
     expect(availableCars.length).to.equal(1)
 
     let sumToPayInUsdCents = request.pricePerDayInUsdCents
@@ -187,7 +188,7 @@ describe('Rentality History Service', function () {
 
     let sevenDays = 86400 * 7
 
-    const payments = await rentalityGateway.calculatePayments(1, 7, ethToken, false)
+    const payments = await rentalityGateway.calculatePayments(1, 7,  ethToken)
     await expect(
       await rentalityPlatform.connect(guest).createTripRequest(
         {

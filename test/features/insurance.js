@@ -8,6 +8,7 @@ const {
   getMockCarRequest,
   calculatePayments,
   emptyLocationInfo,
+  InsuranceType
 } = require('../utils')
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 const { ethers } = require('hardhat')
@@ -35,7 +36,8 @@ describe('Rentality insurance', function () {
     guest,
     anonymous,
     rentalityLocationVerifier,
-    mockRequestWithInsurance
+    mockRequestWithInsurance,
+    insuranceService
 
   beforeEach(async function () {
     ;({
@@ -60,7 +62,8 @@ describe('Rentality insurance', function () {
       guest,
       anonymous,
       rentalityLocationVerifier,
-      mockRequestWithInsurance
+      mockRequestWithInsurance,
+      insuranceService
     } = await loadFixture(deployDefaultFixture))
   })
 
@@ -69,25 +72,14 @@ describe('Rentality insurance', function () {
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
-    const result = await rentalityGateway.calculatePayments(1, 1, ethToken, true)
+    const result =  await rentalityGateway.connect(guest).calculatePayments(1, 1, ethToken)
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
         {
           carId: 1,
           startDateTime: 123,
           endDateTime: 321,
-          currencyType: ethToken,
-          insurancePaid: true,
-          photo: '',
-          pickUpInfo: {
-            signature: guest.address,
-            locationInfo: emptyLocationInfo,
-          },
-          returnInfo: {
-            signature: guest.address,
-            locationInfo: emptyLocationInfo,
-          },
-        },
+          currencyType: ethToken},
         { value: result.totalPrice }
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
@@ -97,7 +89,7 @@ describe('Rentality insurance', function () {
       const myCars = await rentalityGateway.connect(host).getMyCars()
       expect(myCars.length).to.equal(1)
 
-      const result = await rentalityGateway.calculatePayments(1, 1, ethToken, true)
+      const result =  await rentalityGateway.connect(guest).calculatePayments(1, 1, ethToken)
       await expect(
         await rentalityGateway.connect(guest).createTripRequest(
           {
@@ -130,7 +122,7 @@ describe('Rentality insurance', function () {
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
-    const result = await rentalityGateway.calculatePayments(1, 3, ethToken, true)
+    const result = await rentalityGateway.calculatePayments(1, 3, ethToken)
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
         {
@@ -163,7 +155,7 @@ describe('Rentality insurance', function () {
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
-    const result = await rentalityGateway.calculatePayments(1, 1, ethToken, true)
+    const result =  await rentalityGateway.connect(guest).calculatePayments(1, 1, ethToken)
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
         {
@@ -210,4 +202,388 @@ describe('Rentality insurance', function () {
 
     await expect(rentalityGateway.connect(host).finishTrip(1)).to.changeEtherBalances([host], [returnToHost])
   })
+  it('guest can add insurance', async function () {
+  
+    let insurance = {
+      companyName: 'myCo',
+      policyNumber: '12124-124-124',
+      photo: "url",
+      comment: "comment",
+      insuranceType:InsuranceType.General
+
+    }
+   await expect (rentalityGateway.connect(guest).saveGuestInsurance(insurance)).to.not.reverted
+
+  })
+  it('guest can not add one time insurance in profile', async function () {
+  
+    let insurance = {
+      companyName: 'myCo',
+      policyNumber: '12124-124-124',
+      photo: "url",
+      comment: "comment",
+      insuranceType:InsuranceType.OneTime
+
+    }
+   await expect (rentalityGateway.connect(guest).saveGuestInsurance(insurance)).to.be.reverted
+  })
+
+  it('guest will not pay for insurance if he have one in profile', async function () {
+    await expect(rentalityGateway.connect(host).addCar(mockRequestWithInsurance)).not.to.be.reverted
+    const myCars = await rentalityGateway.connect(host).getMyCars()
+    expect(myCars.length).to.equal(1)
+  
+    let insurance = {
+      companyName: 'myCo',
+      policyNumber: '12124-124-124',
+      photo: "url",
+      comment: "comment",
+      insuranceType:InsuranceType.General
+
+    }
+    let noneInsurance = {
+      companyName: 'myCo',
+      policyNumber: '12124-124-124',
+      photo: "url",
+      comment: "comment",
+      insuranceType:InsuranceType.None
+
+    }
+   
+   await expect (rentalityGateway.connect(guest).saveGuestInsurance(insurance)).to.not.reverted
+
+   const result1 =  await rentalityGateway.connect(guest).calculatePayments(1, 1, ethToken)
+
+   await expect (rentalityGateway.connect(guest).saveGuestInsurance(noneInsurance)).to.not.reverted
+
+   const result2 =  await rentalityGateway.connect(guest).calculatePayments(1, 1, ethToken)
+   expect(result1 < result2).to.be.eq(true)
+
+   await expect(
+     await rentalityGateway.connect(guest).createTripRequest(
+       {
+         carId: 1,
+         startDateTime: 123,
+         endDateTime: 321,
+         currencyType: ethToken},
+       { value: result2.totalPrice }
+     )
+   ).to.not.reverted
+
+   await expect(
+    rentalityGateway.connect(guest).createTripRequest(
+      {
+        carId: 1,
+        startDateTime: 123,
+        endDateTime: 321,
+        currencyType: ethToken},
+      { value: result1.totalPrice }
+    )
+  ).to.be.reverted
+
+  })
+  it('guest can add insurance to the trip', async function () {
+    await expect(rentalityGateway.connect(host).addCar(mockRequestWithInsurance)).not.to.be.reverted
+    const myCars = await rentalityGateway.connect(host).getMyCars()
+    expect(myCars.length).to.equal(1)
+  
+
+   const result =  await rentalityGateway.connect(guest).calculatePayments(1, 1, ethToken)
+
+   await expect(
+     await rentalityGateway.connect(guest).createTripRequest(
+       {
+         carId: 1,
+         startDateTime: 123,
+         endDateTime: 321,
+         currencyType: ethToken},
+       { value: result.totalPrice }
+     )
+   ).to.not.reverted
+
+await expect(
+  rentalityGateway.connect(guest).saveTripInsuranceInfo(1,
+  {
+      companyName: 'myCo',
+      policyNumber: '12124-124-124',
+      photo: "url",
+      comment: "comment",
+      insuranceType:InsuranceType.General
+
+    }
+
+  )
+).to.not.reverted
+
+let insurances = await rentalityGateway.connect(guest).getInsurancesBy(false)
+expect(insurances.length).to.be.eq(1)
+
+  })
+  it('host can add insurance to the trip', async function () {
+    await expect(rentalityGateway.connect(host).addCar(mockRequestWithInsurance)).not.to.be.reverted
+    const myCars = await rentalityGateway.connect(host).getMyCars()
+    expect(myCars.length).to.equal(1)
+  
+
+   const result =  await rentalityGateway.connect(guest).calculatePayments(1, 1, ethToken)
+
+   await expect(
+     await rentalityGateway.connect(guest).createTripRequest(
+       {
+         carId: 1,
+         startDateTime: 123,
+         endDateTime: 321,
+         currencyType: ethToken},
+       { value: result.totalPrice }
+     )
+   ).to.not.reverted
+
+await expect(
+  rentalityGateway.connect(host).saveTripInsuranceInfo(1,
+  {
+      companyName: 'myCo',
+      policyNumber: '12124-124-124',
+      photo: "url",
+      comment: "comment",
+      insuranceType:InsuranceType.General
+
+    }
+
+  )
+).to.not.reverted
+
+let insurances = await rentalityGateway.connect(host).getInsurancesBy(true)
+expect(insurances.length).to.be.eq(1)
+
+  })
+  it('host can see guest general insurance', async function () {
+    await expect(rentalityGateway.connect(host).addCar(mockRequestWithInsurance)).not.to.be.reverted
+    const myCars = await rentalityGateway.connect(host).getMyCars()
+    expect(myCars.length).to.equal(1)
+  
+    let insurance = {
+      companyName: 'myCo',
+      policyNumber: '12124-124-124',
+      photo: "url",
+      comment: "comment",
+      insuranceType:InsuranceType.General
+
+    }
+   
+   await expect (rentalityGateway.connect(guest).saveGuestInsurance(insurance)).to.not.reverted
+
+   const result =  await rentalityGateway.connect(guest).calculatePayments(1, 1, ethToken)
+
+   await expect(
+     await rentalityGateway.connect(guest).createTripRequest(
+       {
+         carId: 1,
+         startDateTime: 123,
+         endDateTime: 321,
+         currencyType: ethToken},
+       { value: result.totalPrice }
+     )
+   ).to.not.reverted
+
+
+
+
+
+let insurances = await rentalityGateway.connect(host).getInsurancesBy(true)
+expect(insurances.length).to.be.eq(1)
+
+  })
+  
+  it('host can see guest added insurances', async function () {
+    await expect(rentalityGateway.connect(host).addCar(mockRequestWithInsurance)).not.to.be.reverted
+    const myCars = await rentalityGateway.connect(host).getMyCars()
+    expect(myCars.length).to.equal(1)
+  
+    let insurance = {
+      companyName: 'myCo',
+      policyNumber: '12124-124-124',
+      photo: "url",
+      comment: "comment",
+      insuranceType:InsuranceType.General
+
+    }
+   
+   await expect (rentalityGateway.connect(guest).saveGuestInsurance(insurance)).to.not.reverted
+
+   const result =  await rentalityGateway.connect(guest).calculatePayments(1, 1, ethToken)
+
+   await expect(
+     await rentalityGateway.connect(guest).createTripRequest(
+       {
+         carId: 1,
+         startDateTime: 123,
+         endDateTime: 321,
+         currencyType: ethToken},
+       { value: result.totalPrice }
+     )
+   ).to.not.reverted
+
+   await expect(
+    rentalityGateway.connect(guest).saveTripInsuranceInfo(1,
+    {
+        companyName: 'myCo',
+        policyNumber: '12124-124-124',
+        photo: "url",
+        comment: "comment",
+        insuranceType:InsuranceType.OneTime
+  
+      }
+  
+    )
+  ).to.not.reverted
+
+
+
+let insurances = await rentalityGateway.connect(host).getInsurancesBy(true)
+expect(insurances.length).to.be.eq(2)
+
+  })
+
+  it('guest can see host added insurances', async function () {
+    await expect(rentalityGateway.connect(host).addCar(mockRequestWithInsurance)).not.to.be.reverted
+    const myCars = await rentalityGateway.connect(host).getMyCars()
+    expect(myCars.length).to.equal(1)
+
+
+   const result =  await rentalityGateway.connect(guest).calculatePayments(1, 1, ethToken)
+
+   await expect(
+     await rentalityGateway.connect(guest).createTripRequest(
+       {
+         carId: 1,
+         startDateTime: 123,
+         endDateTime: 321,
+         currencyType: ethToken},
+       { value: result.totalPrice }
+     )
+   ).to.not.reverted
+
+   await expect(
+    rentalityGateway.connect(host).saveTripInsuranceInfo(1,
+    {
+        companyName: 'myCo',
+        policyNumber: '12124-124-124',
+        photo: "url",
+        comment: "comment",
+        insuranceType:InsuranceType.OneTime
+  
+      }
+  
+    )
+  ).to.not.reverted
+
+
+
+let insurances = await rentalityGateway.connect(guest).getInsurancesBy(false)
+expect(insurances.length).to.be.eq(1)
+
+  })
+
+  
+  it('guest and host see all insurances', async function () {
+    await expect(rentalityGateway.connect(host).addCar(mockRequestWithInsurance)).not.to.be.reverted
+    const myCars = await rentalityGateway.connect(host).getMyCars()
+    expect(myCars.length).to.equal(1)
+
+     
+    let insurance = {
+      companyName: 'myCo',
+      policyNumber: '12124-124-124',
+      photo: "url",
+      comment: "comment",
+      insuranceType:InsuranceType.General
+
+    }
+   
+   await expect (rentalityGateway.connect(guest).saveGuestInsurance(insurance)).to.not.reverted
+
+
+   const result =  await rentalityGateway.connect(guest).calculatePayments(1, 1, ethToken)
+
+   await expect(
+     await rentalityGateway.connect(guest).createTripRequest(
+       {
+         carId: 1,
+         startDateTime: 123,
+         endDateTime: 321,
+         currencyType: ethToken},
+       { value: result.totalPrice }
+     )
+   ).to.not.reverted
+
+   await expect(
+    rentalityGateway.connect(host).saveTripInsuranceInfo(1,
+    {
+        companyName: 'myCo',
+        policyNumber: '12124-124-124',
+        photo: "url",
+        comment: "comment",
+        insuranceType:InsuranceType.OneTime
+  
+      }
+  
+    )
+  ).to.not.reverted
+
+
+
+let insurances = await rentalityGateway.connect(guest).getInsurancesBy(false)
+expect(insurances.length).to.be.eq(2)
+let res= await insuranceService.getTripInsurances(1)
+expect(insurances[0].tripId).to.be.eq(1)
+expect(insurances[1].tripId).to.be.eq(1)
+expect(insurances[1].carBrand).to.be.eq(mockRequestWithInsurance.brand)
+expect(insurances[0].carBrand).to.be.eq(mockRequestWithInsurance.brand)
+expect(insurances[1].carModel).to.be.eq(mockRequestWithInsurance.model)
+expect(insurances[0].createdByHost).to.be.eq(false)
+expect(insurances[1].createdByHost).to.be.eq(true)
+
+
+await expect(
+  await rentalityGateway.connect(guest).createTripRequest(
+    {
+      carId: 1,
+      startDateTime: 123,
+      endDateTime: 321,
+      currencyType: ethToken},
+    { value: result.totalPrice }
+  )
+).to.not.reverted
+
+let insurance2 = {
+
+    companyName: 'myCo2',
+    policyNumber: '12124-124-1242',
+    photo: "url",
+    comment: "comment2",
+    insuranceType:InsuranceType.OneTime
+
+  }
+
+await expect(
+ rentalityGateway.connect(host).saveTripInsuranceInfo(2,insurance2)
+).to.not.reverted
+ insurances = await rentalityGateway.connect(host).getInsurancesBy(true)
+expect(insurances.length).to.be.eq(4)
+expect(insurances[2].tripId).to.be.eq(2)
+expect(insurances[3].tripId).to.be.eq(2)
+expect(insurances[2].carBrand).to.be.eq(mockRequestWithInsurance.brand)
+expect(insurances[3].carBrand).to.be.eq(mockRequestWithInsurance.brand)
+expect(insurances[2].carModel).to.be.eq(mockRequestWithInsurance.model)
+expect(insurances[2].createdByHost).to.be.eq(false)
+expect(insurances[3].createdByHost).to.be.eq(true)
+expect(insurances[3].insuranceInfo.companyName).to.be.eq(insurance2.companyName)
+expect(insurances[3].insuranceInfo.policyNumber).to.be.eq(insurance2.policyNumber)
+
+
+
+  })
+  
+  
+
 })

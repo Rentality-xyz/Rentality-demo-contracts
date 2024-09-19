@@ -149,7 +149,7 @@ contract RentalityPlatform is UUPSOwnable {
       carInfo.milesIncludedPerDay,
       paymentInfo
     );
-    insuranceService.saveGuestinsurancePayment(tripId, insurance);
+    insuranceService.saveGuestinsurancePayment(tripId, carId, insurance);
   }
 
   /// @notice Approve a trip request on the Rentality platform.
@@ -412,10 +412,13 @@ contract RentalityPlatform is UUPSOwnable {
     addresses.deliveryService.setUserDeliveryPrices(underTwentyFiveMilesInUsdCents, aboveTwentyFiveMilesInUsdCents);
   }
 
-  function saveTripInsuranceInfo(uint tripId, Schemas.InsuranceInfo memory insuranceInfo) public {
+  function saveTripInsuranceInfo(uint tripId, Schemas.SaveInsuranceRequest memory insuranceInfo) public {
     Schemas.Trip memory trip = addresses.tripService.getTrip(tripId);
     require(trip.host == tx.origin || trip.guest == tx.origin, 'For trip host or guest');
     insuranceService.saveTripInsuranceInfo(tripId, insuranceInfo);
+  }
+  function saveGuestInsurance(Schemas.SaveInsuranceRequest memory insuranceInfo) public {
+    insuranceService.saveGuestInsurance(insuranceInfo);
   }
 
   /// @notice Constructor to initialize the RentalityPlatform with service contract addresses.
