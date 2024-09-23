@@ -6,6 +6,7 @@ import '@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol';
 import {AccessControlUpgradeable} from '@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol';
 import './Schemas.sol';
 import '@openzeppelin/contracts/utils/cryptography/ECDSA.sol';
+import {RentalityLocationVerifier} from './features/RentalityLocationVerifier.sol';
 
 /// @title RentalityUserService Contract
 /// @notice
@@ -30,44 +31,44 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
   bytes32 private TCMessageHash;
   uint private kycCommission;
   mapping(address => Schemas.KycCommissionData[]) private userToKYCCommission;
+  mapping(address => Schemas.AdditionalKYCInfo) private additionalKycInfo;
 
   /// @notice Sets KYC information for the caller (host or guest).
-  /// @param name The user's name.
-  /// @param surname The user's surname.
-  /// @param mobilePhoneNumber The user's mobile phone number.
-  /// @param profilePhoto The URL or identifier of the user's profile photo.
-  /// @param licenseNumber The user's license number.
-  /// @param expirationDate The expiration date of the user's license.
-  /// @param TCSignature The signature of the user indicating acceptance of Terms and Conditions (TC).
   /// Requirements:
   /// - Caller must be a host or guest.
   function setKYCInfo(
-    string memory name,
-    string memory surname,
+    string memory nickName,
     string memory mobilePhoneNumber,
     string memory profilePhoto,
-    string memory licenseNumber,
-    uint64 expirationDate,
-    bytes memory TCSignature
+    Schemas.CivicKYCInfo memory newKycInfo,
+    bytes memory TCSignature,
+    RentalityLocationVerifier structSignatureVerifier,
+    bytes memory KYCSignature
   ) public {
-    require(isHostOrGuest(tx.origin), 'Only for hosts or guests');
+    require(isManager(msg.sender), 'only Manager');
+    if (!isGuest(tx.origin)) {
+      _grantRole(GUEST_ROLE, tx.origin);
+    }
+    Schemas.KYCInfo storage kycInfo = kycInfos[tx.origin];
 
+    if (KYCSignature.length != 0) {
+      structSignatureVerifier.requireCorrectSignedKYCInfo(newKycInfo, KYCSignature);
+      kycInfo.surname = newKycInfo.fullName;
+      kycInfo.licenseNumber = newKycInfo.licenseNumber;
+      kycInfo.expirationDate = newKycInfo.expirationDate;
+      additionalKycInfo[tx.origin].email = newKycInfo.email;
+      additionalKycInfo[tx.origin].issueCountry = newKycInfo.issueCountry;
+    }
     bool isTCPassed = ECDSA.recover(TCMessageHash, TCSignature) == tx.origin;
 
     require(isTCPassed, 'Wrong signature.');
 
-    kycInfos[tx.origin] = Schemas.KYCInfo(
-      name,
-      surname,
-      mobilePhoneNumber,
-      profilePhoto,
-      licenseNumber,
-      expirationDate,
-      block.timestamp,
-      //      true,
-      isTCPassed,
-      TCSignature
-    );
+    kycInfo.name = nickName;
+    kycInfo.mobilePhoneNumber = mobilePhoneNumber;
+    kycInfo.profilePhoto = profilePhoto;
+    kycInfo.createDate = block.timestamp;
+    kycInfo.isTCPassed = isTCPassed;
+    kycInfo.TCSignature = TCSignature;
   }
   /// @notice Retrieves KYC information for a specified user.
   /// @param user The address of the user for whom to retrieve KYC information.
@@ -244,6 +245,13 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
   function payCommission() public {
     require(isManager(msg.sender), 'only manager.');
     userToKYCCommission[tx.origin].push(Schemas.KycCommissionData(block.timestamp, true));
+  }
+
+  function getMyFullKYCInfo() public view returns (Schemas.FullKYCInfoDTO memory) {
+    return Schemas.FullKYCInfoDTO(kycInfos[tx.origin], additionalKycInfo[tx.origin]);
+  }
+  function getFullKYCInfo(address user) public view returns (Schemas.FullKYCInfoDTO memory) {
+    return Schemas.FullKYCInfoDTO(kycInfos[tx.origin], additionalKycInfo[tx.origin]);
   }
 
   function manageRole(Schemas.Role newRole, address user, bool grant) public {

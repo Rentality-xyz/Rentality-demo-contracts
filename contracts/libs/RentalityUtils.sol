@@ -180,10 +180,10 @@ library RentalityUtils {
 
       chatInfoList[i].tripId = trips[i].trip.tripId;
       chatInfoList[i].guestAddress = trips[i].trip.guest;
-      chatInfoList[i].guestName = string(abi.encodePacked(guestInfo.name, ' ', guestInfo.surname));
+      chatInfoList[i].guestName = guestInfo.surname;
       chatInfoList[i].guestPhotoUrl = guestInfo.profilePhoto;
       chatInfoList[i].hostAddress = trips[i].trip.host;
-      chatInfoList[i].hostName = string(abi.encodePacked(hostInfo.name, ' ', hostInfo.surname));
+      chatInfoList[i].hostName = hostInfo.surname;
       chatInfoList[i].hostPhotoUrl = hostInfo.profilePhoto;
       chatInfoList[i].tripStatus = uint256(trips[i].trip.status);
 
