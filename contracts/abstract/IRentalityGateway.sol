@@ -261,22 +261,14 @@ interface IRentalityGateway {
   ) external view returns (string memory guestPhoneNumber, string memory hostPhoneNumber);
 
   /// @notice Set KYC (Know Your Customer) information for the caller.
-  /// @param name The name of the caller.
-  /// @param surname The surname of the caller.
-  /// @param mobilePhoneNumber The mobile phone number of the caller.
-  /// @param profilePhoto The URL of the caller's profile photo.
-  /// @param licenseNumber The driver's license number of the caller.
-  /// @param expirationDate The expiration date of the caller's driver's license.
-  /// @param TCSignature The signature of the user indicating acceptance of Terms and Conditions (TC).
   function setKYCInfo(
-    string memory name,
-    string memory surname,
+    string memory nickName,
     string memory mobilePhoneNumber,
     string memory profilePhoto,
-    string memory licenseNumber,
-    uint64 expirationDate,
     bytes memory TCSignature
   ) external;
+
+  function setCivicKYCInfo(address user, Schemas.CivicKYCInfo memory civicKycInfo) external;
 
   /// @notice Get KYC (Know Your Customer) information for a specific user.
   /// @param user The address of the user.
@@ -375,4 +367,6 @@ interface IRentalityGateway {
   ///  @param user The address of the user whose KYC commission will be used.
   ///  @dev This function is typically called after the user has paid the KYC commission to apply it to their account.
   function useKycCommission(address user) external;
+
+  function getMyFullKYCInfo() external view returns (Schemas.FullKYCInfoDTO memory);
 }
