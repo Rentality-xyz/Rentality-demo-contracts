@@ -120,13 +120,12 @@ async function setHostKycIfNotSet(host, gateway, chatService) {
   await gateway
     .connect(host)
     .setKYCInfo(
-      data.name,
-      data.surname,
+      data.nickname,
       data.mobilePhoneNumber,
       data.profilePhoto,
-      data.licenseNumber,
-      data.expirationDate,
-      data.tcSignature
+      data.kycInfo,
+      data.tcSignature,
+      data.kycSignature
     )
   await chatService.connect(host).setMyChatPublicKey(data.privateKey, data.publicKey)
 
@@ -145,13 +144,12 @@ async function setGuestKycIfNotSet(guest, gateway, chatService) {
   await gateway
     .connect(guest)
     .setKYCInfo(
-      data.name,
-      data.surname,
+      data.nickname,
       data.mobilePhoneNumber,
       data.profilePhoto,
-      data.licenseNumber,
-      data.expirationDate,
-      data.tcSignature
+      data.kycInfo,
+      data.tcSignature,
+      data.kycSignature
     )
   await chatService.connect(guest).setMyChatPublicKey(data.privateKey, data.publicKey)
 
