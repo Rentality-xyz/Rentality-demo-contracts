@@ -117,16 +117,7 @@ async function setHostKycIfNotSet(host, gateway, chatService) {
   }
 
   const data = testData.hostProfileInfo
-  await gateway
-    .connect(host)
-    .setKYCInfo(
-      data.nickname,
-      data.mobilePhoneNumber,
-      data.profilePhoto,
-      data.kycInfo,
-      data.tcSignature,
-      data.kycSignature
-    )
+  await gateway.connect(host).setKYCInfo(data.nickname, data.mobilePhoneNumber, data.profilePhoto, data.tcSignature)
   await chatService.connect(host).setMyChatPublicKey(data.privateKey, data.publicKey)
 
   console.log('KYC for host was set')
@@ -141,16 +132,7 @@ async function setGuestKycIfNotSet(guest, gateway, chatService) {
   }
 
   const data = testData.guestProfileInfo
-  await gateway
-    .connect(guest)
-    .setKYCInfo(
-      data.nickname,
-      data.mobilePhoneNumber,
-      data.profilePhoto,
-      data.kycInfo,
-      data.tcSignature,
-      data.kycSignature
-    )
+  await gateway.connect(guest).setKYCInfo(data.nickname, data.mobilePhoneNumber, data.profilePhoto, data.tcSignature)
   await chatService.connect(guest).setMyChatPublicKey(data.privateKey, data.publicKey)
 
   console.log('KYC for guest was set')
