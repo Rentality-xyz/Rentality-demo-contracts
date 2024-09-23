@@ -165,7 +165,7 @@ contract RentalityCurrencyConverter is Initializable, UUPSAccess {
     return (valueToHost, valueToGuest, valueToHostInUsdCents, valueToGuestInUsdCents);
   }
 
-  function calculateTripReject(Schemas.PaymentInfo memory paymentInfo) public view returns (uint, uint) {
+  function calculateTripReject(Schemas.PaymentInfo memory paymentInfo) public view returns (uint) {
     uint64 valueToReturnInUsdCents = paymentInfo.priceWithDiscount +
       paymentInfo.salesTax +
       paymentInfo.governmentTax +
@@ -173,13 +173,7 @@ contract RentalityCurrencyConverter is Initializable, UUPSAccess {
       uint64(paymentInfo.dropOfFee) +
       paymentInfo.depositInUsdCents;
 
-    uint256 valueToReturnInToken = getFromUsd(
-      paymentInfo.currencyType,
-      valueToReturnInUsdCents,
-      paymentInfo.currencyRate,
-      paymentInfo.currencyDecimals
-    );
-    return (valueToReturnInUsdCents, valueToReturnInToken);
+    return valueToReturnInUsdCents;
   }
 
   /// @notice Checks if the specified currency type is native
