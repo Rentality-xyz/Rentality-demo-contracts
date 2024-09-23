@@ -375,4 +375,6 @@ interface IRentalityGateway {
   ///  @param user The address of the user whose KYC commission will be used.
   ///  @dev This function is typically called after the user has paid the KYC commission to apply it to their account.
   function useKycCommission(address user) external;
+
+  function calculateClaimValue(uint) external view returns (uint);
 }

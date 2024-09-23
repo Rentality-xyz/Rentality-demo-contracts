@@ -298,15 +298,11 @@ contract RentalityPlatform is UUPSOwnable {
     );
     uint commission = addresses.claimService.getPlatformFeeFrom(claim.amountInUsdCents);
 
-    (uint valueToPay, uint feeInCurrency) = addresses.currencyConverterService.calculateValueWithFee(
-      trip.paymentInfo.currencyType,
-      claim.amountInUsdCents,
-      commission,
-      trip.paymentInfo.currencyRate,
-      trip.paymentInfo.currencyDecimals
-    );
+    (uint valueToPay, uint feeInCurrency, int rate, uint8 dec) = addresses
+      .currencyConverterService
+      .calculateLatestValueWithFee(trip.paymentInfo.currencyType, claim.amountInUsdCents, commission);
 
-    addresses.claimService.payClaim(claimId, trip.host, trip.guest);
+    addresses.claimService.payClaim(claimId, trip.host, trip.guest, rate, dec);
     addresses.paymentService.payClaim{value: msg.value}(trip, valueToPay, feeInCurrency, commission);
   }
 

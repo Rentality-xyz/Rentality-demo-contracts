@@ -125,17 +125,15 @@ contract RentalityCurrencyConverter is Initializable, UUPSAccess {
     return address(tokenAddressToPaymentMethod[tokenAddress]) != address(0);
   }
 
-  function calculateValueWithFee(
-    address ty,
+  function calculateLatestValueWithFee(
+    address tokenAddress,
     uint value,
-    uint commission,
-    int256 rate,
-    uint8 dec
-  ) public view returns (uint, uint) {
-    uint256 valueToPay = getFromUsd(ty, value + commission, rate, dec);
+    uint commission
+  ) public view returns (uint, uint, int, uint8) {
+    (uint256 valueToPay, int256 rate, uint8 dec) = getFromUsdLatest(tokenAddress, value + commission);
 
-    uint256 feeInCurrency = getFromUsd(ty, commission, rate, dec);
-    return (valueToPay, feeInCurrency);
+    uint256 feeInCurrency = getFromUsd(tokenAddress, commission, rate, dec);
+    return (valueToPay, feeInCurrency, rate, dec);
   }
 
   function calculateTripFinsish(
