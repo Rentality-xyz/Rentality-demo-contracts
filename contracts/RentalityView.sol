@@ -292,6 +292,9 @@ contract RentalityView is UUPSUpgradeable, Initializable {
   function isKycCommissionPaid(address user) public view returns (bool) {
     return addresses.userService.isCommissionPaidForUser(user);
   }
+  function getMyFullKYCInfo() public view returns (Schemas.FullKYCInfoDTO memory) {
+    return addresses.userService.getMyFullKYCInfo();
+  }
 
   function initialize(
     address carServiceAddress,

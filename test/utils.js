@@ -150,6 +150,34 @@ const signLocationInfo = (contractAddress, admin, location) => {
   if (location === undefined) location = locationInfo
   return admin.signTypedData(domain, types, location)
 }
+const emptyKyc = {
+  fullName: '',
+  licenseNumber: '',
+  expirationDate: 0,
+  issueCountry: '',
+  email: '',
+}
+
+const signKycInfo = (contractAddress, admin, kyc) => {
+  const domain = {
+    name: 'RentalityLocationVerifier',
+    version: '1',
+    chainId: 1337,
+    verifyingContract: contractAddress, // RentalityLocationVerifier address
+  }
+
+  const types = {
+    CivicKYCInfo: [
+      { name: 'fullName', type: 'string' },
+      { name: 'licenseNumber', type: 'string' },
+      { name: 'expirationDate', type: 'uint64' },
+      { name: 'issueCountry', type: 'string' },
+      { name: 'email', type: 'string' },
+    ],
+  }
+  if (kyc === undefined) kyc = emptyKyc
+  return admin.signTypedData(domain, types, kyc)
+}
 
 function getMockCarRequest(seed, contractAddress, admin, locationI) {
   let newLocation = locationI === undefined ? locationInfo : locationI
@@ -497,8 +525,9 @@ async function deployDefaultFixture() {
 
   const hostSignature = await signTCMessage(host)
   const guestSignature = await signTCMessage(guest)
-  await rentalityGateway.connect(host).setKYCInfo(' ', ' ', ' ', ' ', ' ', 1, hostSignature)
-  await rentalityGateway.connect(guest).setKYCInfo(' ', ' ', ' ', ' ', ' ', 1, guestSignature)
+  const adminKyc = signKycInfo(await rentalityLocationVerifier.getAddress(), admin)
+  await rentalityGateway.connect(host).setKYCInfo(' ', ' ', ' ', emptyKyc, hostSignature, adminKyc)
+  await rentalityGateway.connect(guest).setKYCInfo(' ', ' ', ' ', emptyKyc, guestSignature, adminKyc)
 
   await rentalityCurrencyConverter.addCurrencyType(
     await usdtContract.getAddress(),
@@ -534,6 +563,9 @@ async function deployDefaultFixture() {
     rentalityBaseDiscount,
     rentalityGeoService,
     rentalityLocationVerifier,
+    adminKyc,
+    guestSignature,
+    hostSignature,
   }
 }
 
@@ -554,4 +586,6 @@ module.exports = {
   PaymentStatus,
   emptyLocationInfo,
   signLocationInfo,
+  signKycInfo,
+  emptyKyc,
 }
