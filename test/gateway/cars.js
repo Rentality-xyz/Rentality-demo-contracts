@@ -139,8 +139,7 @@ describe('RentalityGateway: car', function () {
       locationInfo,
       signature: signLocationInfo(await rentalityLocationVerifier.getAddress(), admin),
     }
-    await expect(rentalityGateway.connect(host).setKYCInfo(name, number, photo, emptyKyc, hostSignature, adminKyc)).to
-      .not.reverted
+    await expect(rentalityGateway.connect(host).setKYCInfo(name, number, photo, hostSignature)).to.not.reverted
 
     let addCarRequest = {
       tokenUri: 'uri',
@@ -193,8 +192,7 @@ describe('RentalityGateway: car', function () {
       locationInfo,
       signature: signLocationInfo(await rentalityLocationVerifier.getAddress(), admin),
     }
-    await expect(await rentalityGateway.connect(host).setKYCInfo(name, '', photo, emptyKyc, hostSignature, adminKyc)).to
-      .not.reverted
+    await expect(await rentalityGateway.connect(host).setKYCInfo(name, '', photo, hostSignature)).to.not.reverted
 
     let addCarRequest = {
       tokenUri: 'uri',
@@ -241,8 +239,7 @@ describe('RentalityGateway: car', function () {
     let expirationDate = 10
 
     const hostSignature = await signTCMessage(host)
-    await expect(await rentalityGateway.connect(host).setKYCInfo(name, '', photo, emptyKyc, hostSignature, adminKyc)).to
-      .not.reverted
+    await expect(await rentalityGateway.connect(host).setKYCInfo(name, '', photo, hostSignature)).to.not.reverted
     let locationInfo1 = {
       locationInfo,
       signature: signLocationInfo(await rentalityLocationVerifier.getAddress(), admin),
@@ -293,8 +290,7 @@ describe('RentalityGateway: car', function () {
     let expirationDate = 10
 
     const hostSignature = await signTCMessage(host)
-    await expect(await rentalityGateway.connect(host).setKYCInfo(name, '', photo, emptyKyc, hostSignature, adminKyc)).to
-      .not.reverted
+    await expect(await rentalityGateway.connect(host).setKYCInfo(name, '', photo, hostSignature)).to.not.reverted
 
     let locationInfo1 = {
       locationInfo,
