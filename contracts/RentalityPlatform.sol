@@ -302,20 +302,13 @@ contract RentalityPlatform is UUPSOwnable {
     string memory nickName,
     string memory mobilePhoneNumber,
     string memory profilePhoto,
-    Schemas.CivicKYCInfo memory kycInfo,
-    bytes memory TCSignature,
-    bytes memory KYCSignature
+    bytes memory TCSignature
   ) public {
-    return
-      addresses.userService.setKYCInfo(
-        nickName,
-        mobilePhoneNumber,
-        profilePhoto,
-        kycInfo,
-        TCSignature,
-        IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getVerifier(),
-        KYCSignature
-      );
+    return addresses.userService.setKYCInfo(nickName, mobilePhoneNumber, profilePhoto, TCSignature);
+  }
+
+  function setCivicKYCInfo(address user, Schemas.CivicKYCInfo memory civicKycInfo) public {
+    addresses.userService.setCivicKYCInfo(user, civicKycInfo);
   }
   /// @notice Allows the host to perform a check-in for a specific trip.
   /// This action typically occurs at the start of the trip and records key information
