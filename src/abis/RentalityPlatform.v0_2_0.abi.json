@@ -364,16 +364,14 @@
     },
     {
       "type": "function",
-      "name": "setKYCInfo",
+      "name": "setCivicKYCInfo",
       "constant": false,
       "payable": false,
       "inputs": [
-        { "type": "string", "name": "nickName" },
-        { "type": "string", "name": "mobilePhoneNumber" },
-        { "type": "string", "name": "profilePhoto" },
+        { "type": "address", "name": "user" },
         {
           "type": "tuple",
-          "name": "kycInfo",
+          "name": "civicKycInfo",
           "components": [
             { "type": "string", "name": "fullName" },
             { "type": "string", "name": "licenseNumber" },
@@ -381,9 +379,20 @@
             { "type": "string", "name": "issueCountry" },
             { "type": "string", "name": "email" }
           ]
-        },
-        { "type": "bytes", "name": "TCSignature" },
-        { "type": "bytes", "name": "KYCSignature" }
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "setKYCInfo",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "string", "name": "nickName" },
+        { "type": "string", "name": "mobilePhoneNumber" },
+        { "type": "string", "name": "profilePhoto" },
+        { "type": "bytes", "name": "TCSignature" }
       ],
       "outputs": []
     },
