@@ -14,6 +14,7 @@ import {IRentalityGeoService} from '../abstract/IRentalityGeoService.sol';
 import {RentalityCarDelivery} from '../features/RentalityCarDelivery.sol';
 import '../Schemas.sol';
 import {RentalityTripsQuery} from './RentalityTripsQuery.sol';
+import {CurrencyRate as ClaimCurrencyRate} from '../features/RentalityClaimService.sol';
 
 library RentalityQuery {
   /// @notice Checks if a car intersects with a trip's scheduled time.
@@ -70,11 +71,13 @@ library RentalityQuery {
         string memory guestPhoneNumber = userService.getKYCInfo(trip.guest).mobilePhoneNumber;
         string memory hostPhoneNumber = userService.getKYCInfo(trip.host).mobilePhoneNumber;
 
-        uint valueInEth = currencyConverterService.getFromUsd(
+        uint valueInEth = _getClaimValueInCurrency(
           trip.paymentInfo.currencyType,
           claim.amountInUsdCents,
-          trip.paymentInfo.currencyRate,
-          trip.paymentInfo.currencyDecimals
+          claim,
+          tripService,
+          claimService,
+          currencyConverterService
         );
 
         claimInfos[counter++] = Schemas.FullClaimInfo(
@@ -129,11 +132,13 @@ library RentalityQuery {
       Schemas.Trip memory trip = tripService.getTrip(claim.tripId);
 
       if (trip.host == host) {
-        uint valueInEth = currencyConverterService.getFromUsd(
+        uint valueInEth = _getClaimValueInCurrency(
           trip.paymentInfo.currencyType,
           claim.amountInUsdCents,
-          trip.paymentInfo.currencyRate,
-          trip.paymentInfo.currencyDecimals
+          claim,
+          tripService,
+          claimService,
+          currencyConverterService
         );
         claimInfos[counter++] = Schemas.FullClaimInfo(
           claim,
@@ -185,12 +190,15 @@ library RentalityQuery {
       Schemas.Claim memory claim = claimService.getClaim(i);
       Schemas.Trip memory trip = tripService.getTrip(claim.tripId);
       if (trip.guest == guest) {
-        uint valueInEth = currencyConverterService.getFromUsd(
+        uint valueInEth = _getClaimValueInCurrency(
           trip.paymentInfo.currencyType,
           claim.amountInUsdCents,
-          trip.paymentInfo.currencyRate,
-          trip.paymentInfo.currencyDecimals
+          claim,
+          tripService,
+          claimService,
+          currencyConverterService
         );
+
         claimInfos[counter++] = Schemas.FullClaimInfo(
           claim,
           trip.host,
@@ -207,6 +215,23 @@ library RentalityQuery {
     }
 
     return claimInfos;
+  }
+
+  function _getClaimValueInCurrency(
+    address currency,
+    uint amount,
+    Schemas.Claim memory claim,
+    RentalityTripService tripService,
+    RentalityClaimService claimService,
+    RentalityCurrencyConverter currencyConverterService
+  ) private view returns (uint) {
+    uint valueInEth = 0;
+    if (claim.status == Schemas.ClaimStatus.Paid) {
+      (int rate, uint8 dec) = claimService.claimIdToCurrencyRate(claim.claimId);
+      if (rate > 0) valueInEth = currencyConverterService.getFromUsd(currency, amount, rate, dec);
+    }
+    (valueInEth, , ) = currencyConverterService.getFromUsdLatest(currency, amount);
+    return valueInEth;
   }
 
   /// @notice Searches for available cars for a user based on specified search parameters.
@@ -502,6 +527,20 @@ library RentalityQuery {
       currency,
       addresses.userService.getKycCommission()
     );
+
+    return result;
+  }
+
+  function calculateClaimValue(RentalityContract memory addresses, uint claimId) public view returns (uint) {
+    Schemas.Claim memory claim = addresses.claimService.getClaim(claimId);
+    if (claim.status == Schemas.ClaimStatus.Paid || claim.status == Schemas.ClaimStatus.Cancel) return 0;
+
+    uint commission = addresses.claimService.getPlatformFeeFrom(claim.amountInUsdCents);
+    (uint result, , ) = addresses.currencyConverterService.getFromUsdLatest(
+      addresses.tripService.getTrip(claim.tripId).paymentInfo.currencyType,
+      claim.amountInUsdCents + commission
+    );
+
     return result;
   }
 

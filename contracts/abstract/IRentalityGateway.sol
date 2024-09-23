@@ -369,4 +369,6 @@ interface IRentalityGateway {
   function useKycCommission(address user) external;
 
   function getMyFullKYCInfo() external view returns (Schemas.FullKYCInfoDTO memory);
+
+  function calculateClaimValue(uint) external view returns (uint);
 }
