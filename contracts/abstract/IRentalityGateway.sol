@@ -265,10 +265,10 @@ interface IRentalityGateway {
     string memory nickName,
     string memory mobilePhoneNumber,
     string memory profilePhoto,
-    Schemas.CivicKYCInfo memory kycInfo,
-    bytes memory TCSignature,
-    bytes memory KYCSignature
+    bytes memory TCSignature
   ) external;
+
+  function setCivicKYCInfo(address user, Schemas.CivicKYCInfo memory civicKycInfo) external;
 
   /// @notice Get KYC (Know Your Customer) information for a specific user.
   /// @param user The address of the user.

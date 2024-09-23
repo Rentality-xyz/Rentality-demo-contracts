@@ -6,7 +6,6 @@ import '@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol';
 import {AccessControlUpgradeable} from '@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol';
 import './Schemas.sol';
 import '@openzeppelin/contracts/utils/cryptography/ECDSA.sol';
-import {RentalityLocationVerifier} from './features/RentalityLocationVerifier.sol';
 
 /// @title RentalityUserService Contract
 /// @notice
@@ -40,28 +39,15 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
     string memory nickName,
     string memory mobilePhoneNumber,
     string memory profilePhoto,
-    Schemas.CivicKYCInfo memory newKycInfo,
-    bytes memory TCSignature,
-    RentalityLocationVerifier structSignatureVerifier,
-    bytes memory KYCSignature
+    bytes memory TCSignature
   ) public {
-    require(isManager(msg.sender), 'only Manager');
     if (!isGuest(tx.origin)) {
       _grantRole(GUEST_ROLE, tx.origin);
-    }
-    Schemas.KYCInfo storage kycInfo = kycInfos[tx.origin];
-
-    if (KYCSignature.length != 0) {
-      structSignatureVerifier.requireCorrectSignedKYCInfo(newKycInfo, KYCSignature);
-      kycInfo.surname = newKycInfo.fullName;
-      kycInfo.licenseNumber = newKycInfo.licenseNumber;
-      kycInfo.expirationDate = newKycInfo.expirationDate;
-      additionalKycInfo[tx.origin].email = newKycInfo.email;
-      additionalKycInfo[tx.origin].issueCountry = newKycInfo.issueCountry;
     }
     bool isTCPassed = ECDSA.recover(TCMessageHash, TCSignature) == tx.origin;
 
     require(isTCPassed, 'Wrong signature.');
+    Schemas.KYCInfo storage kycInfo = kycInfos[tx.origin];
 
     kycInfo.name = nickName;
     kycInfo.mobilePhoneNumber = mobilePhoneNumber;
@@ -69,6 +55,17 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
     kycInfo.createDate = block.timestamp;
     kycInfo.isTCPassed = isTCPassed;
     kycInfo.TCSignature = TCSignature;
+  }
+
+  function setCivicKYCInfo(address user, Schemas.CivicKYCInfo memory civicKycInfo) public {
+    require(hasRole(KYC_COMMISSION_MANAGER_ROLE, tx.origin), 'Only KYC manager');
+    Schemas.KYCInfo storage kycInfo = kycInfos[user];
+
+    kycInfo.surname = civicKycInfo.fullName;
+    kycInfo.licenseNumber = civicKycInfo.licenseNumber;
+    kycInfo.expirationDate = civicKycInfo.expirationDate;
+    additionalKycInfo[user].email = civicKycInfo.email;
+    additionalKycInfo[user].issueCountry = civicKycInfo.issueCountry;
   }
   /// @notice Retrieves KYC information for a specified user.
   /// @param user The address of the user for whom to retrieve KYC information.
@@ -83,6 +80,10 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
   /// @return kycInfo KYCInfo structure containing caller's KYC information.
   function getMyKYCInfo() external view returns (Schemas.KYCInfo memory kycInfo) {
     return kycInfos[tx.origin];
+  }
+
+  function getMyFullKYCInfo() public view returns (Schemas.FullKYCInfoDTO memory) {
+    return Schemas.FullKYCInfoDTO(kycInfos[tx.origin], additionalKycInfo[tx.origin]);
   }
   /// @notice Checks if the KYC information for a specified user is valid.
   /// @param user The address of the user to check for valid KYC.
@@ -247,13 +248,6 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
     userToKYCCommission[tx.origin].push(Schemas.KycCommissionData(block.timestamp, true));
   }
 
-  function getMyFullKYCInfo() public view returns (Schemas.FullKYCInfoDTO memory) {
-    return Schemas.FullKYCInfoDTO(kycInfos[tx.origin], additionalKycInfo[tx.origin]);
-  }
-  function getFullKYCInfo(address user) public view returns (Schemas.FullKYCInfoDTO memory) {
-    return Schemas.FullKYCInfoDTO(kycInfos[tx.origin], additionalKycInfo[tx.origin]);
-  }
-
   function manageRole(Schemas.Role newRole, address user, bool grant) public {
     require(isAdmin(tx.origin), 'only admin');
     bytes32 role;
@@ -261,7 +255,7 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
     else if (newRole == Schemas.Role.Host) role = HOST_ROLE;
     else if (newRole == Schemas.Role.Manager) role = MANAGER_ROLE;
     else if (newRole == Schemas.Role.Admin) role = DEFAULT_ADMIN_ROLE;
-    else if (newRole == Schemas.Role.KYCManager) role == KYC_COMMISSION_MANAGER_ROLE;
+    else if (newRole == Schemas.Role.KYCManager) role = KYC_COMMISSION_MANAGER_ROLE;
     if (grant) _grantRole(role, user);
     else {
       _revokeRole(role, user);
