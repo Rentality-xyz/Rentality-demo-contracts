@@ -1,6 +1,13 @@
 const { ethers, upgrades } = require('hardhat')
 const { keccak256 } = require('hardhat/internal/util/keccak')
 const ethToken = ethers.getAddress('0x0000000000000000000000000000000000000000')
+const UserRole = {
+  Guest: 0,
+  Host: 1,
+  Manager: 2,
+  Admin: 3,
+  KYCManager: 4,
+}
 
 const signTCMessage = async (user) => {
   const message =
@@ -547,8 +554,8 @@ async function deployDefaultFixture() {
   const hostSignature = await signTCMessage(host)
   const guestSignature = await signTCMessage(guest)
   const adminKyc = signKycInfo(await rentalityLocationVerifier.getAddress(), admin)
-  await rentalityGateway.connect(host).setKYCInfo(' ', ' ', ' ', emptyKyc, hostSignature, adminKyc)
-  await rentalityGateway.connect(guest).setKYCInfo(' ', ' ', ' ', emptyKyc, guestSignature, adminKyc)
+  await rentalityGateway.connect(host).setKYCInfo(' ', ' ', ' ', hostSignature)
+  await rentalityGateway.connect(guest).setKYCInfo(' ', ' ', ' ', guestSignature)
 
   await rentalityCurrencyConverter.addCurrencyType(
     await usdtContract.getAddress(),
@@ -618,4 +625,5 @@ module.exports = {
   signKycInfo,
   emptyKyc,
   InsuranceType,
+  UserRole,
 }
