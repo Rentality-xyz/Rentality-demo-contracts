@@ -368,13 +368,22 @@
       "constant": false,
       "payable": false,
       "inputs": [
-        { "type": "string", "name": "name" },
-        { "type": "string", "name": "surname" },
+        { "type": "string", "name": "nickName" },
         { "type": "string", "name": "mobilePhoneNumber" },
         { "type": "string", "name": "profilePhoto" },
-        { "type": "string", "name": "licenseNumber" },
-        { "type": "uint64", "name": "expirationDate" },
-        { "type": "bytes", "name": "TCSignature" }
+        {
+          "type": "tuple",
+          "name": "kycInfo",
+          "components": [
+            { "type": "string", "name": "fullName" },
+            { "type": "string", "name": "licenseNumber" },
+            { "type": "uint64", "name": "expirationDate" },
+            { "type": "string", "name": "issueCountry" },
+            { "type": "string", "name": "email" }
+          ]
+        },
+        { "type": "bytes", "name": "TCSignature" },
+        { "type": "bytes", "name": "KYCSignature" }
       ],
       "outputs": []
     },
