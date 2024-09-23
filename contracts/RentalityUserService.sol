@@ -21,6 +21,7 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
   bytes32 public constant MANAGER_ROLE = keccak256('MANAGER_ROLE');
   bytes32 public constant HOST_ROLE = keccak256('HOST_ROLE');
   bytes32 public constant GUEST_ROLE = keccak256('GUEST_ROLE');
+  bytes32 public constant KYC_COMMISSION_MANAGER_ROLE = keccak256('KYC_MANAGER_ROLE');
 
   // Mapping to store KYC information for each user address
   mapping(address => Schemas.KYCInfo) private kycInfos;
@@ -29,44 +30,42 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
   bytes32 private TCMessageHash;
   uint private kycCommission;
   mapping(address => Schemas.KycCommissionData[]) private userToKYCCommission;
+  mapping(address => Schemas.AdditionalKYCInfo) private additionalKycInfo;
 
   /// @notice Sets KYC information for the caller (host or guest).
-  /// @param name The user's name.
-  /// @param surname The user's surname.
-  /// @param mobilePhoneNumber The user's mobile phone number.
-  /// @param profilePhoto The URL or identifier of the user's profile photo.
-  /// @param licenseNumber The user's license number.
-  /// @param expirationDate The expiration date of the user's license.
-  /// @param TCSignature The signature of the user indicating acceptance of Terms and Conditions (TC).
   /// Requirements:
   /// - Caller must be a host or guest.
   function setKYCInfo(
-    string memory name,
-    string memory surname,
+    string memory nickName,
     string memory mobilePhoneNumber,
     string memory profilePhoto,
-    string memory licenseNumber,
-    uint64 expirationDate,
     bytes memory TCSignature
   ) public {
-    require(isHostOrGuest(tx.origin), 'Only for hosts or guests');
-
+    if (!isGuest(tx.origin)) {
+      _grantRole(GUEST_ROLE, tx.origin);
+    }
     bool isTCPassed = ECDSA.recover(TCMessageHash, TCSignature) == tx.origin;
 
     require(isTCPassed, 'Wrong signature.');
+    Schemas.KYCInfo storage kycInfo = kycInfos[tx.origin];
 
-    kycInfos[tx.origin] = Schemas.KYCInfo(
-      name,
-      surname,
-      mobilePhoneNumber,
-      profilePhoto,
-      licenseNumber,
-      expirationDate,
-      block.timestamp,
-      //      true,
-      isTCPassed,
-      TCSignature
-    );
+    kycInfo.name = nickName;
+    kycInfo.mobilePhoneNumber = mobilePhoneNumber;
+    kycInfo.profilePhoto = profilePhoto;
+    kycInfo.createDate = block.timestamp;
+    kycInfo.isTCPassed = isTCPassed;
+    kycInfo.TCSignature = TCSignature;
+  }
+
+  function setCivicKYCInfo(address user, Schemas.CivicKYCInfo memory civicKycInfo) public {
+    require(hasRole(KYC_COMMISSION_MANAGER_ROLE, tx.origin), 'Only KYC manager');
+    Schemas.KYCInfo storage kycInfo = kycInfos[user];
+
+    kycInfo.surname = civicKycInfo.fullName;
+    kycInfo.licenseNumber = civicKycInfo.licenseNumber;
+    kycInfo.expirationDate = civicKycInfo.expirationDate;
+    additionalKycInfo[user].email = civicKycInfo.email;
+    additionalKycInfo[user].issueCountry = civicKycInfo.issueCountry;
   }
   /// @notice Retrieves KYC information for a specified user.
   /// @param user The address of the user for whom to retrieve KYC information.
@@ -81,6 +80,10 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
   /// @return kycInfo KYCInfo structure containing caller's KYC information.
   function getMyKYCInfo() external view returns (Schemas.KYCInfo memory kycInfo) {
     return kycInfos[tx.origin];
+  }
+
+  function getMyFullKYCInfo() public view returns (Schemas.FullKYCInfoDTO memory) {
+    return Schemas.FullKYCInfoDTO(kycInfos[tx.origin], additionalKycInfo[tx.origin]);
   }
   /// @notice Checks if the KYC information for a specified user is valid.
   /// @param user The address of the user to check for valid KYC.
@@ -222,7 +225,7 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
   }
 
   function useKycCommission(address user) public {
-    require(isManager(tx.origin) || msg.sender == user, 'only Manager');
+    require(hasRole(KYC_COMMISSION_MANAGER_ROLE, tx.origin) || msg.sender == user, 'only Manager');
 
     Schemas.KycCommissionData[] memory commissions = userToKYCCommission[user];
     if (commissions.length == 0) {
@@ -252,6 +255,7 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
     else if (newRole == Schemas.Role.Host) role = HOST_ROLE;
     else if (newRole == Schemas.Role.Manager) role = MANAGER_ROLE;
     else if (newRole == Schemas.Role.Admin) role = DEFAULT_ADMIN_ROLE;
+    else if (newRole == Schemas.Role.KYCManager) role = KYC_COMMISSION_MANAGER_ROLE;
     if (grant) _grantRole(role, user);
     else {
       _revokeRole(role, user);

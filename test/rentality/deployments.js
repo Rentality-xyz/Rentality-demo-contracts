@@ -1,5 +1,5 @@
 const { ethers, upgrades } = require('hardhat')
-const { ethToken, signTCMessage } = require('../utils')
+const { ethToken, signTCMessage, signKycInfo, emptyKyc } = require('../utils')
 
 async function deployDefaultFixture() {
   const [owner, admin, manager, host, guest, anonymous] = await ethers.getSigners()
@@ -248,10 +248,10 @@ async function deployDefaultFixture() {
   const hostSignature = await signTCMessage(host)
   const guestSignature = await signTCMessage(guest)
   const deployerSignature = await signTCMessage(owner)
-  await rentalityUserService.connect(host).setKYCInfo(' ', ' ', ' ', ' ', ' ', 1, hostSignature)
-  await rentalityUserService.connect(guest).setKYCInfo(' ', ' ', ' ', ' ', ' ', 1, guestSignature)
-  await rentalityUserService.setKYCInfo(' ', ' ', ' ', ' ', ' ', 1, deployerSignature)
-
+  const adminKyc = signKycInfo(await rentalityLocationVerifier.getAddress(), admin)
+  await rentalityGateway.connect(host).setKYCInfo(' ', ' ', ' ', hostSignature)
+  await rentalityGateway.connect(guest).setKYCInfo(' ', ' ', ' ', guestSignature)
+  await rentalityGateway.setKYCInfo(' ', ' ', ' ', deployerSignature)
   return {
     rentalityMockPriceFeed,
     rentalityUserService,
