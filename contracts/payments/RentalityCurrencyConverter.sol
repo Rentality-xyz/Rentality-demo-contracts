@@ -163,7 +163,7 @@ contract RentalityCurrencyConverter is Initializable, UUPSAccess {
     return (valueToHost, valueToGuest, valueToHostInUsdCents, valueToGuestInUsdCents);
   }
 
-  function calculateTripReject(Schemas.PaymentInfo memory paymentInfo) public view returns (uint) {
+  function calculateTripReject(Schemas.PaymentInfo memory paymentInfo) public pure returns (uint) {
     uint64 valueToReturnInUsdCents = paymentInfo.priceWithDiscount +
       paymentInfo.salesTax +
       paymentInfo.governmentTax +

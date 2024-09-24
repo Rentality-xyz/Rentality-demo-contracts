@@ -168,7 +168,7 @@ contract RentalityCarDelivery is Initializable, UUPSAccess {
   function sortCarsByDistance(
     Schemas.SearchCar[] memory cars,
     Schemas.LocationInfo memory pickUpLocation
-  ) public view returns (Schemas.SearchCarWithDistance[] memory result) {
+  ) public pure returns (Schemas.SearchCarWithDistance[] memory result) {
     int max = 0;
 
     result = new Schemas.SearchCarWithDistance[](cars.length);
