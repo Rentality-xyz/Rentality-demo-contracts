@@ -625,8 +625,7 @@
     {
       "type": "function",
       "name": "transferFrom",
-      "constant": true,
-      "stateMutability": "pure",
+      "constant": false,
       "payable": false,
       "inputs": [
         { "type": "address", "name": "" },
