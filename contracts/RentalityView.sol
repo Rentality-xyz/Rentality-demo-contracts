@@ -296,6 +296,10 @@ contract RentalityView is UUPSUpgradeable, Initializable {
     return addresses.userService.getMyFullKYCInfo();
   }
 
+  function calculateClaimValue(uint claimdId) public view returns (uint) {
+    return RentalityQuery.calculateClaimValue(addresses, claimdId);
+  }
+
   function initialize(
     address carServiceAddress,
     address currencyConverterServiceAddress,

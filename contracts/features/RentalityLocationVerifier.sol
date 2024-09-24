@@ -45,33 +45,6 @@ contract RentalityLocationVerifier is EIP712Upgradeable, UUPSAccess {
       );
   }
 
-  function requireCorrectSignedKYCInfo(Schemas.CivicKYCInfo memory kyc, bytes memory signature) public view {
-    require(verifyKYCInfo(kyc, signature) == adminAddress, 'wrong signature');
-  }
-
-  function verifyKYCInfo(Schemas.CivicKYCInfo memory kyc, bytes memory signature) public view returns (address) {
-    bytes32 digest = _hashKYCInfo(kyc);
-    return ECDSA.recover(digest, signature);
-  }
-
-  function _hashKYCInfo(Schemas.CivicKYCInfo memory kyc) internal view returns (bytes32) {
-    return
-      _hashTypedDataV4(
-        keccak256(
-          abi.encode(
-            keccak256(
-              'CivicKYCInfo(string fullName,string licenseNumber,uint64 expirationDate,string issueCountry,string email)'
-            ),
-            keccak256(bytes(kyc.fullName)),
-            keccak256(bytes(kyc.licenseNumber)),
-            kyc.expirationDate,
-            keccak256(bytes(kyc.issueCountry)),
-            keccak256(bytes(kyc.email))
-          )
-        )
-      );
-  }
-
   function initialize(address _userService, address admin) public initializer {
     userService = IRentalityAccessControl(_userService);
     adminAddress = admin;
