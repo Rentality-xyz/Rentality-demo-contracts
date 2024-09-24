@@ -152,9 +152,6 @@ contract RentalityPlatform is UUPSOwnable {
 
     addresses.paymentService.payCreateTrip{value: msg.value}(currencyType, valueSumInCurrency);
 
-    /// updating cache currency data
-    addresses.currencyConverterService.getCurrencyRateWithCache(currencyType);
-
     if (!addresses.userService.isGuest(tx.origin)) {
       addresses.userService.grantGuestRole(tx.origin);
     }
@@ -169,7 +166,8 @@ contract RentalityPlatform is UUPSOwnable {
       pickUpHash,
       returnHash,
       carInfo.milesIncludedPerDay,
-      paymentInfo
+      paymentInfo,
+      msg.value
     );
   }
 
@@ -200,10 +198,12 @@ contract RentalityPlatform is UUPSOwnable {
 
     addresses.tripService.rejectTrip(tripId);
 
-    (uint valueToReturnInUsdCents, uint valueToReturnInToken) = addresses.currencyConverterService.calculateTripReject(
-      trip.paymentInfo
-    );
-    addresses.paymentService.payRejectTrip(trip, valueToReturnInToken);
+    uint valueToReturnInUsdCents = addresses.currencyConverterService.calculateTripReject(trip.paymentInfo);
+    /* you should not recalculate the value with convertor,
+     for return during rejection,
+     but instead, use: 'addresses.tripService.tripIdToEthSumInTripCreation(tripId)'*/
+
+    addresses.paymentService.payRejectTrip(trip, addresses.tripService.tripIdToEthSumInTripCreation(tripId));
 
     addresses.tripService.saveTransactionInfo(tripId, 0, statusBeforeCancellation, valueToReturnInUsdCents, 0);
   }
@@ -301,15 +301,11 @@ contract RentalityPlatform is UUPSOwnable {
     );
     uint commission = addresses.claimService.getPlatformFeeFrom(claim.amountInUsdCents);
 
-    (uint valueToPay, uint feeInCurrency) = addresses.currencyConverterService.calculateValueWithFee(
-      trip.paymentInfo.currencyType,
-      claim.amountInUsdCents,
-      commission,
-      trip.paymentInfo.currencyRate,
-      trip.paymentInfo.currencyDecimals
-    );
+    (uint valueToPay, uint feeInCurrency, int rate, uint8 dec) = addresses
+      .currencyConverterService
+      .calculateLatestValueWithFee(trip.paymentInfo.currencyType, claim.amountInUsdCents, commission);
 
-    addresses.claimService.payClaim(claimId, trip.host, trip.guest);
+    addresses.claimService.payClaim(claimId, trip.host, trip.guest, rate, dec);
     addresses.paymentService.payClaim{value: msg.value}(trip, valueToPay, feeInCurrency, commission);
   }
 
@@ -328,20 +324,13 @@ contract RentalityPlatform is UUPSOwnable {
     string memory nickName,
     string memory mobilePhoneNumber,
     string memory profilePhoto,
-    Schemas.CivicKYCInfo memory kycInfo,
-    bytes memory TCSignature,
-    bytes memory KYCSignature
+    bytes memory TCSignature
   ) public {
-    return
-      addresses.userService.setKYCInfo(
-        nickName,
-        mobilePhoneNumber,
-        profilePhoto,
-        kycInfo,
-        TCSignature,
-        IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getVerifier(),
-        KYCSignature
-      );
+    return addresses.userService.setKYCInfo(nickName, mobilePhoneNumber, profilePhoto, TCSignature);
+  }
+
+  function setCivicKYCInfo(address user, Schemas.CivicKYCInfo memory civicKycInfo) public {
+    addresses.userService.setCivicKYCInfo(user, civicKycInfo);
   }
   /// @notice Allows the host to perform a check-in for a specific trip.
   /// This action typically occurs at the start of the trip and records key information
