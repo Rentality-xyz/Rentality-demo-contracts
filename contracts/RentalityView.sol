@@ -48,11 +48,12 @@ contract RentalityView is UUPSUpgradeable, Initializable {
     return addresses.carService.tokenURI(carId);
   }
 
+  // not using
   /// @notice Retrieves information about all cars.
   /// @return An array of car information.
-  function getAllCars() public view returns (Schemas.CarInfo[] memory) {
-    return addresses.carService.getAllCars();
-  }
+  // function getAllCars() public view returns (Schemas.CarInfo[] memory) {
+  //   return addresses.carService.getAllCars();
+  // }
 
   /// @notice Retrieves information about available cars for a specific user.
   /// @param user The address of the user.
@@ -162,13 +163,14 @@ contract RentalityView is UUPSUpgradeable, Initializable {
     return addresses.getClaimsByGuest(tx.origin);
   }
 
+  /// not using
   /// @notice Gets detailed information about a specific claim.
   /// @dev Returns a structure containing information about the claim, associated trip, and car details.
   /// @param claimId ID of the claim.
   /// @return Full information about the claim.
-  function getClaim(uint256 claimId) public view returns (Schemas.FullClaimInfo memory) {
-    return addresses.getClaim(claimId);
-  }
+  // function getClaim(uint256 claimId) public view returns (Schemas.FullClaimInfo memory) {
+  //   return addresses.getClaim(claimId);
+  // }
 
   /// @notice Get contact information for a specific trip on the Rentality platform.
   /// @param tripId The ID of the trip to retrieve contact information for.

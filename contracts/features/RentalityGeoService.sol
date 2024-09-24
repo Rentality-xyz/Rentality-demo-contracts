@@ -120,7 +120,7 @@ contract RentalityGeoService is IRentalityGeoService, Initializable, UUPSAccess 
     return hash;
   }
 
-  function hashLocationInfo(Schemas.LocationInfo memory info) public view returns (bytes32) {
+  function hashLocationInfo(Schemas.LocationInfo memory info) public pure returns (bytes32) {
     if (bytes(info.longitude).length == 0) {
       return bytes32('');
     }
