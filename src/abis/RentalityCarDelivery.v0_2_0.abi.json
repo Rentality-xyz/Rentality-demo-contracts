@@ -184,7 +184,7 @@
       "type": "function",
       "name": "sortCarsByDistance",
       "constant": true,
-      "stateMutability": "pure",
+      "stateMutability": "view",
       "payable": false,
       "inputs": [
         {
