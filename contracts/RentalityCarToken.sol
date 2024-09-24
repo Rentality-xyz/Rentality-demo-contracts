@@ -236,7 +236,7 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     emit CarRemovedSuccess(carId, idToCarInfo[carId].carVinNumber, tx.origin);
   }
   /// @notice temporary disable transfer function
-  function transferFrom(address, address, uint256) public override(ERC721Upgradeable, IERC721Upgradeable) {
+  function transferFrom(address, address, uint256) public pure override(ERC721Upgradeable, IERC721Upgradeable) {
     require(false, 'Not implemented.');
   }
   /// @notice temporary disable transfer function
