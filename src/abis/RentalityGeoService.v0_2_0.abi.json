@@ -191,9 +191,18 @@
     },
     {
       "type": "function",
-      "name": "hashLocationInfo",
+      "name": "getVerifier",
       "constant": true,
       "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "hashLocationInfo",
+      "constant": true,
+      "stateMutability": "pure",
       "payable": false,
       "inputs": [
         {

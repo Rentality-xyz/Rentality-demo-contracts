@@ -143,7 +143,8 @@ contract RentalityPlatform is UUPSOwnable {
       pickUpHash,
       returnHash,
       carInfo.milesIncludedPerDay,
-      paymentInfo
+      paymentInfo,
+      msg.value
     );
     insuranceService.saveGuestinsurancePayment(tripId, carId, insurance);
   }
@@ -176,11 +177,15 @@ contract RentalityPlatform is UUPSOwnable {
     addresses.tripService.rejectTrip(tripId);
 
     uint insurance = insuranceService.getInsurancePriceByTrip(tripId);
-    (uint valueToReturnInUsdCents, uint valueToReturnInToken) = addresses.currencyConverterService.calculateTripReject(
+    uint valueToReturnInUsdCents = addresses.currencyConverterService.calculateTripReject(
       trip.paymentInfo,
       insurance
     );
-    addresses.paymentService.payRejectTrip(trip, valueToReturnInToken);
+    /* you should not recalculate the value with convertor,
+     for return during rejection,
+     but instead, use: 'addresses.tripService.tripIdToEthSumInTripCreation(tripId)'*/
+
+    addresses.paymentService.payRejectTrip(trip, addresses.tripService.tripIdToEthSumInTripCreation(tripId));
 
     addresses.tripService.saveTransactionInfo(tripId, 0, statusBeforeCancellation, valueToReturnInUsdCents, 0);
   }
@@ -275,15 +280,11 @@ contract RentalityPlatform is UUPSOwnable {
     require(claim.status != Schemas.ClaimStatus.Paid && claim.status != Schemas.ClaimStatus.Cancel, 'Wrong Status.');
     uint commission = addresses.claimService.getPlatformFeeFrom(claim.amountInUsdCents);
 
-    (uint valueToPay, uint feeInCurrency) = addresses.currencyConverterService.calculateValueWithFee(
-      trip.paymentInfo.currencyType,
-      claim.amountInUsdCents,
-      commission,
-      trip.paymentInfo.currencyRate,
-      trip.paymentInfo.currencyDecimals
-    );
+    (uint valueToPay, uint feeInCurrency, int rate, uint8 dec) = addresses
+      .currencyConverterService
+      .calculateLatestValueWithFee(trip.paymentInfo.currencyType, claim.amountInUsdCents, commission);
 
-    addresses.claimService.payClaim(claimId, trip.host, trip.guest);
+    addresses.claimService.payClaim(claimId, trip.host, trip.guest, rate, dec);
     addresses.paymentService.payClaim{value: msg.value}(trip, valueToPay, feeInCurrency, commission);
   }
 
@@ -413,6 +414,11 @@ contract RentalityPlatform is UUPSOwnable {
   }
   function saveGuestInsurance(Schemas.SaveInsuranceRequest memory insuranceInfo) public {
     insuranceService.saveGuestInsurance(insuranceInfo);
+  }
+
+
+  function updateCarTokenUri(uint256 carId, string memory tokenUri) public {
+  addresses.carService.updateCarTokenUri(carId,tokenUri);
   }
 
   /// @notice Constructor to initialize the RentalityPlatform with service contract addresses.

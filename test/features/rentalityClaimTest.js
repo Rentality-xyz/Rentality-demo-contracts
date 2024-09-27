@@ -357,10 +357,11 @@ describe('RentalityClaim', function () {
 
     const claimInEth = ethers.parseEther(claimPriceInEth.toString())
     const total = claimInEth / BigInt(1e18)
+    let value = await rentalityGateway.calculateClaimValue(1)
 
-    await expect(rentalityGateway.connect(guest).payClaim(1, { value: total })).to.changeEtherBalances(
+    await expect(rentalityGateway.connect(guest).payClaim(1, { value })).to.changeEtherBalances(
       [guest, host],
-      [BigInt(-total), claimPriceInEth]
+      [BigInt(-value), claimPriceInEth]
     )
   })
   it('Should return all my claims ', async function () {
@@ -676,6 +677,8 @@ describe('RentalityClaim', function () {
     await expect(rentalityGateway.connect(guest).createClaim(claim2)).to.be.reverted
     await expect(rentalityGateway.connect(guest).createClaim(claim3)).to.not.be.reverted
 
-    await expect(rentalityGateway.connect(host).payClaim(1, { value: payments.totalPrice })).to.not.reverted
+    let value = await rentalityGateway.calculateClaimValue(1)
+
+    await expect(rentalityGateway.connect(host).payClaim(1, { value })).to.not.reverted
   })
 })

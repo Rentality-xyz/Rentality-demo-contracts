@@ -316,6 +316,10 @@ contract RentalityView is UUPSUpgradeable, Initializable {
         : RentalityTripsQuery.getTripInsurancesByGuest(addresses, insuranceService, tx.origin);
   }
 
+  function calculateClaimValue(uint claimdId) public view returns (uint) {
+    return RentalityQuery.calculateClaimValue(addresses, claimdId);
+  }
+
   function initialize(
     address carServiceAddress,
     address currencyConverterServiceAddress,

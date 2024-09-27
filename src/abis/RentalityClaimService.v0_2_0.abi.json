@@ -46,6 +46,18 @@
     },
     {
       "type": "function",
+      "name": "claimIdToCurrencyRate",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "" }],
+      "outputs": [
+        { "type": "int256", "name": "rate" },
+        { "type": "uint8", "name": "decimals" }
+      ]
+    },
+    {
+      "type": "function",
       "name": "createClaim",
       "constant": false,
       "payable": false,
@@ -146,7 +158,9 @@
       "inputs": [
         { "type": "uint256", "name": "_claimId" },
         { "type": "address", "name": "host" },
-        { "type": "address", "name": "guest" }
+        { "type": "address", "name": "guest" },
+        { "type": "int256", "name": "rate" },
+        { "type": "uint8", "name": "dec" }
       ],
       "outputs": []
     },

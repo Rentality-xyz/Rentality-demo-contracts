@@ -243,11 +243,11 @@ contract RentalityPaymentService is UUPSOwnable {
     address to = tx.origin == trip.host ? trip.guest : trip.host;
 
     if (trip.paymentInfo.currencyType == address(0)) {
-      require(msg.value >= valueToPay, 'Insufficient funds sent.');
+      _checkNativeAmount(valueToPay);
 
       (successHost, ) = payable(to).call{value: valueToPay - feeInCurrency}('');
 
-      if (msg.value > valueToPay + feeInCurrency) {
+      if (msg.value > valueToPay) {
         uint256 excessValue = msg.value - valueToPay;
         (bool successRefund, ) = payable(tx.origin).call{value: excessValue}('');
         require(successRefund, 'Refund to guest failed.');
