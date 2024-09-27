@@ -373,4 +373,8 @@ interface IRentalityGateway {
   function saveTripInsuranceInfo(uint tripId, Schemas.SaveInsuranceRequest memory insuranceInfo) external;
 
   function saveGuestInsurance(Schemas.SaveInsuranceRequest memory insuranceInfo) external;
+
+  function calculateClaimValue(uint) external view returns (uint);
+
+    function updateCarTokenUri(uint256 carId, string memory tokenUri) external;
 }

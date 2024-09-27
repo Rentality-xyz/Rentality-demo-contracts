@@ -47,6 +47,8 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
   RentalityEnginesService private engineService;
   mapping(uint => bool) public completedByAdmin;
 
+  mapping(uint => uint) public tripIdToEthSumInTripCreation;
+
   /// @dev Updates the address of the RentalityEnginesService contract.
   /// @param _engineService The address of the new RentalityEnginesService contract.
   function updateEngineServiceAddress(address _engineService) public {
@@ -81,8 +83,9 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     bytes32 startLocation,
     bytes32 endLocation,
     uint64 milesIncludedPerDay,
-    Schemas.PaymentInfo memory paymentInfo
-  ) public returns (uint) {
+    Schemas.PaymentInfo memory paymentInfo,
+    uint msgValue
+  ) public returns(uint){
     require(addresses.userService.isManager(msg.sender), 'Only from manager contract.');
     _tripIdCounter.increment();
     uint256 newTripId = _tripIdCounter.current();
@@ -129,6 +132,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
       startLocation == bytes32('') ? carInfo.locationHash : startLocation,
       endLocation == bytes32('') ? carInfo.locationHash : endLocation
     );
+    tripIdToEthSumInTripCreation[newTripId] = msgValue;
 
     emit TripCreated(newTripId, host, guest);
 

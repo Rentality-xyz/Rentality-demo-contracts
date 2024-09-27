@@ -6,6 +6,10 @@ import '../proxy/UUPSAccess.sol';
 import '../RentalityCarToken.sol';
 import '../Schemas.sol';
 
+struct CurrencyRate {
+  int rate;
+  uint8 decimals;
+}
 /// @title RentalityClaimService - Manages claims and related operations.
 /// @dev This contract allows users with manager roles to create, reject, and pay claims.
 contract RentalityClaimService is Initializable, UUPSAccess {
@@ -16,6 +20,7 @@ contract RentalityClaimService is Initializable, UUPSAccess {
   // Mapping to store claims using claimId as the key
   mapping(uint256 => Schemas.Claim) private claimIdToClaim;
 
+  mapping(uint => CurrencyRate) public claimIdToCurrencyRate;
   event ClaimStatusChanged(
     uint256 claimId,
     Schemas.ClaimStatus claimStatus,
@@ -94,13 +99,14 @@ contract RentalityClaimService is Initializable, UUPSAccess {
 
   /// @dev Pays a claim, only callable by managers contracts.
   /// @param _claimId ID of the claim to be paid.
-  function payClaim(uint256 _claimId, address host, address guest) public onlyManager {
+  function payClaim(uint256 _claimId, address host, address guest, int rate, uint8 dec) public onlyManager {
     Schemas.Claim storage claim = claimIdToClaim[_claimId];
 
     uint256 time = block.timestamp;
 
     claim.payDateInSec = time;
     claim.status = Schemas.ClaimStatus.Paid;
+    claimIdToCurrencyRate[_claimId] = CurrencyRate(rate, dec);
 
     emit ClaimStatusChanged(_claimId, Schemas.ClaimStatus.Paid, host, guest);
   }
