@@ -40,6 +40,24 @@
     },
     {
       "type": "function",
+      "name": "calculateLatestValueWithFee",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "tokenAddress" },
+        { "type": "uint256", "name": "value" },
+        { "type": "uint256", "name": "commission" }
+      ],
+      "outputs": [
+        { "type": "uint256", "name": "" },
+        { "type": "uint256", "name": "" },
+        { "type": "int256", "name": "" },
+        { "type": "uint8", "name": "" }
+      ]
+    },
+    {
+      "type": "function",
       "name": "calculateTripFinsish",
       "constant": true,
       "stateMutability": "view",
@@ -80,7 +98,7 @@
       "type": "function",
       "name": "calculateTripReject",
       "constant": true,
-      "stateMutability": "view",
+      "stateMutability": "pure",
       "payable": false,
       "inputs": [
         {
@@ -106,28 +124,7 @@
           ]
         }
       ],
-      "outputs": [
-        { "type": "uint256", "name": "" },
-        { "type": "uint256", "name": "" }
-      ]
-    },
-    {
-      "type": "function",
-      "name": "calculateValueWithFee",
-      "constant": true,
-      "stateMutability": "view",
-      "payable": false,
-      "inputs": [
-        { "type": "address", "name": "ty" },
-        { "type": "uint256", "name": "value" },
-        { "type": "uint256", "name": "commission" },
-        { "type": "int256", "name": "rate" },
-        { "type": "uint8", "name": "dec" }
-      ],
-      "outputs": [
-        { "type": "uint256", "name": "" },
-        { "type": "uint256", "name": "" }
-      ]
+      "outputs": [{ "type": "uint256", "name": "" }]
     },
     {
       "type": "function",
