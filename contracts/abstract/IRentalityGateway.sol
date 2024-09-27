@@ -371,4 +371,6 @@ interface IRentalityGateway {
   function getMyFullKYCInfo() external view returns (Schemas.FullKYCInfoDTO memory);
 
   function calculateClaimValue(uint) external view returns (uint);
+
+    function updateCarTokenUri(uint256 carId, string memory tokenUri) external;
 }

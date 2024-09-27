@@ -422,6 +422,11 @@ contract RentalityPlatform is UUPSOwnable {
     addresses.deliveryService.setUserDeliveryPrices(underTwentyFiveMilesInUsdCents, aboveTwentyFiveMilesInUsdCents);
   }
 
+
+  function updateCarTokenUri(uint256 carId, string memory tokenUri) public {
+  addresses.carService.updateCarTokenUri(carId,tokenUri);
+  }
+
   /// @notice Constructor to initialize the RentalityPlatform with service contract addresses.
   /// @param carServiceAddress The address of the RentalityCarToken contract.
   /// @param currencyConverterServiceAddress The address of the RentalityCurrencyConverter contract.
