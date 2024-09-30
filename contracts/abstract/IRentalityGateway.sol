@@ -49,7 +49,7 @@ interface IRentalityGateway {
   /// @notice Get information about a specific car by ID.
   /// @param carId The ID of the car.
   /// @return CarInfo structure containing details about the specified car.
-  function getCarInfoById(uint256 carId) external view returns (Schemas.CarInfo memory);
+  function getCarInfoById(uint256 carId) external view returns (Schemas.CarInfoWithInsurance memory);
 
   /// @notice Get information about all cars owned by the caller.
   /// @return An array of CarInfo structures containing details about the caller's cars.
