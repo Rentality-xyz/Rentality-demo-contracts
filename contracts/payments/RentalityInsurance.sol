@@ -98,6 +98,9 @@ contract RentalityInsurance is Initializable, UUPSAccess {
   function getTripInsurances(uint tripId) public view returns (Schemas.InsuranceInfo[] memory) {
     return tripIdToInsuranceInfo[tripId];
   }
+  function getCarInsuranceInfo(uint carId) public view returns(Schemas.InsuranceCarInfo memory) {
+    return carIdToInsuranceRequired[carId];
+  }
   function isGuestHasInsurance(address guest) public view returns (bool) {
     Schemas.InsuranceInfo[] memory insurances = guestToInsuranceInfo[guest];
     return insurances.length > 0 && insurances[insurances.length - 1].insuranceType == Schemas.InsuranceType.General;

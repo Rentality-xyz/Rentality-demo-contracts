@@ -379,7 +379,7 @@ contract RentalityPlatform is UUPSOwnable {
       IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getLocationInfo(bytes32('')),
       string('')
     );
-    insuranceService.saveInsuranceRequired(request.carId, request.insurancePrice, request.insuranceRequired);
+    insuranceService.saveInsuranceRequired(request.carId, request.insurancePriceInUsdCents, request.insuranceRequired);
   }
 
   /// @notice Updates the information of a car, including location details. Only callable by hosts.
@@ -394,7 +394,7 @@ contract RentalityPlatform is UUPSOwnable {
     require(addresses.isCarEditable(request.carId), 'Car is not available for update.');
 
     addresses.carService.verifySignedLocationInfo(location);
-    insuranceService.saveInsuranceRequired(request.carId, request.insurancePrice, request.insuranceRequired);
+    insuranceService.saveInsuranceRequired(request.carId, request.insurancePriceInUsdCents, request.insuranceRequired);
     return addresses.carService.updateCarInfo(request, location.locationInfo, geoApiKey);
   }
   /// @notice Adds a user discount.
