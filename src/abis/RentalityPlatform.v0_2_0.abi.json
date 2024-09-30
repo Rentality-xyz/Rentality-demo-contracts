@@ -76,9 +76,10 @@
                     { "type": "string", "name": "timeZoneId" }
                   ]
                 },
-                { "type": "string", "name": "signature" }
+                { "type": "bytes", "name": "signature" }
               ]
-            }
+            },
+            { "type": "bool", "name": "currentlyListed" }
           ]
         }
       ],
@@ -248,7 +249,7 @@
                     { "type": "string", "name": "timeZoneId" }
                   ]
                 },
-                { "type": "string", "name": "signature" }
+                { "type": "bytes", "name": "signature" }
               ]
             },
             {
@@ -268,7 +269,7 @@
                     { "type": "string", "name": "timeZoneId" }
                   ]
                 },
-                { "type": "string", "name": "signature" }
+                { "type": "bytes", "name": "signature" }
               ]
             }
           ]
@@ -309,14 +310,6 @@
       "payable": false,
       "inputs": [],
       "outputs": [{ "type": "address", "name": "" }]
-    },
-    {
-      "type": "function",
-      "name": "parseGeoResponse",
-      "constant": false,
-      "payable": false,
-      "inputs": [{ "type": "uint256", "name": "carId" }],
-      "outputs": []
     },
     {
       "type": "function",
@@ -371,16 +364,34 @@
     },
     {
       "type": "function",
+      "name": "setCivicKYCInfo",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "user" },
+        {
+          "type": "tuple",
+          "name": "civicKycInfo",
+          "components": [
+            { "type": "string", "name": "fullName" },
+            { "type": "string", "name": "licenseNumber" },
+            { "type": "uint64", "name": "expirationDate" },
+            { "type": "string", "name": "issueCountry" },
+            { "type": "string", "name": "email" }
+          ]
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
       "name": "setKYCInfo",
       "constant": false,
       "payable": false,
       "inputs": [
-        { "type": "string", "name": "name" },
-        { "type": "string", "name": "surname" },
+        { "type": "string", "name": "nickName" },
         { "type": "string", "name": "mobilePhoneNumber" },
         { "type": "string", "name": "profilePhoto" },
-        { "type": "string", "name": "licenseNumber" },
-        { "type": "uint64", "name": "expirationDate" },
         { "type": "bytes", "name": "TCSignature" }
       ],
       "outputs": []
@@ -409,7 +420,8 @@
             { "type": "uint64[]", "name": "engineParams" },
             { "type": "uint64", "name": "milesIncludedPerDay" },
             { "type": "uint32", "name": "timeBufferBetweenTripsInSec" },
-            { "type": "bool", "name": "currentlyListed" }
+            { "type": "bool", "name": "currentlyListed" },
+            { "type": "bool", "name": "insuranceIncluded" }
           ]
         }
       ],
@@ -431,7 +443,8 @@
             { "type": "uint64[]", "name": "engineParams" },
             { "type": "uint64", "name": "milesIncludedPerDay" },
             { "type": "uint32", "name": "timeBufferBetweenTripsInSec" },
-            { "type": "bool", "name": "currentlyListed" }
+            { "type": "bool", "name": "currentlyListed" },
+            { "type": "bool", "name": "insuranceIncluded" }
           ]
         },
         {
@@ -451,7 +464,7 @@
                 { "type": "string", "name": "timeZoneId" }
               ]
             },
-            { "type": "string", "name": "signature" }
+            { "type": "bytes", "name": "signature" }
           ]
         },
         { "type": "string", "name": "geoApiKey" }

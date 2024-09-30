@@ -153,9 +153,9 @@ interface IRentalityGateway {
 
   /// @notice Create a trip request.
   /// @param request The request parameters for creating a new trip.
-  function createTripRequest(Schemas.CreateTripRequestWithDelivery memory request) external payable;
+  function createTripRequest(Schemas.CreateTripRequest memory request) external payable;
 
-  //    function createTripRequestWithDelivery(Schemas.CreateTripRequestWithDelivery memory request) external payable;
+  function createTripRequestWithDelivery(Schemas.CreateTripRequestWithDelivery memory request) external payable;
 
   /// @dev Retrieves delivery data for a given car.
   /// @param carId The ID of the car for which delivery data is requested.
@@ -259,22 +259,14 @@ interface IRentalityGateway {
   ) external view returns (string memory guestPhoneNumber, string memory hostPhoneNumber);
 
   /// @notice Set KYC (Know Your Customer) information for the caller.
-  /// @param name The name of the caller.
-  /// @param surname The surname of the caller.
-  /// @param mobilePhoneNumber The mobile phone number of the caller.
-  /// @param profilePhoto The URL of the caller's profile photo.
-  /// @param licenseNumber The driver's license number of the caller.
-  /// @param expirationDate The expiration date of the caller's driver's license.
-  /// @param TCSignature The signature of the user indicating acceptance of Terms and Conditions (TC).
   function setKYCInfo(
-    string memory name,
-    string memory surname,
+    string memory nickName,
     string memory mobilePhoneNumber,
     string memory profilePhoto,
-    string memory licenseNumber,
-    uint64 expirationDate,
     bytes memory TCSignature
   ) external;
+
+  function setCivicKYCInfo(address user, Schemas.CivicKYCInfo memory civicKycInfo) external;
 
   /// @notice Get KYC (Know Your Customer) information for a specific user.
   /// @param user The address of the user.
@@ -299,10 +291,6 @@ interface IRentalityGateway {
   /// @return An array of PublicHostCarDTO structs representing the cars owned by the host.
   function getCarsOfHost(address host) external view returns (Schemas.PublicHostCarDTO[] memory);
 
-  /// @notice Parses the geolocation response and stores parsed data.
-  /// @param carId The ID of the car for which geolocation is parsed.
-  function parseGeoResponse(uint carId) external;
-
   /// @dev Returns the owner of the contract.
   /// @return The address of the contract owner.
   function owner() external view returns (address);
@@ -315,8 +303,7 @@ interface IRentalityGateway {
   function calculatePayments(
     uint carId,
     uint64 daysOfTrip,
-    address currency,
-    bool insuranceIncluded
+    address currency
   ) external view returns (Schemas.CalculatePaymentsDTO memory calculatePaymentsDTO);
 
   /// @dev Calculates the payments for a trip.
@@ -329,8 +316,7 @@ interface IRentalityGateway {
     uint64 daysOfTrip,
     address currency,
     Schemas.LocationInfo memory pickUpLocation,
-    Schemas.LocationInfo memory returnLocation,
-    bool insuranceIncluded
+    Schemas.LocationInfo memory returnLocation
   ) external view returns (Schemas.CalculatePaymentsDTO memory);
 
   /// @notice Gets the discount for a specific user.
@@ -379,4 +365,16 @@ interface IRentalityGateway {
   ///  @param user The address of the user whose KYC commission will be used.
   ///  @dev This function is typically called after the user has paid the KYC commission to apply it to their account.
   function useKycCommission(address user) external;
+
+  function getMyFullKYCInfo() external view returns (Schemas.FullKYCInfoDTO memory);
+
+  function getInsurancesBy(bool host) external view returns (Schemas.InsuranceDTO[] memory);
+
+  function saveTripInsuranceInfo(uint tripId, Schemas.SaveInsuranceRequest memory insuranceInfo) external;
+
+  function saveGuestInsurance(Schemas.SaveInsuranceRequest memory insuranceInfo) external;
+
+  function calculateClaimValue(uint) external view returns (uint);
+
+    function updateCarTokenUri(uint256 carId, string memory tokenUri) external;
 }

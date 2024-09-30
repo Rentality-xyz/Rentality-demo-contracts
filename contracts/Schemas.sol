@@ -21,7 +21,7 @@ interface Schemas {
     uint64 milesIncludedPerDay;
     uint32 timeBufferBetweenTripsInSec;
     bool currentlyListed;
-    bool geoVerified;
+    bool geoVerified; // unused
     string timeZoneId;
     bool insuranceIncluded; // unused
     bytes32 locationHash;
@@ -101,8 +101,6 @@ interface Schemas {
     uint64 startDateTime;
     uint64 endDateTime;
     address currencyType;
-    bool insurancePaid;
-    string photo;
   }
 
   struct CreateTripRequestWithDelivery {
@@ -112,8 +110,6 @@ interface Schemas {
     address currencyType;
     SignedLocationInfo pickUpInfo;
     SignedLocationInfo returnInfo;
-    bool insurancePaid;
-    string photo;
   }
 
   /// @dev Enumeration representing verious states of a trip.
@@ -356,7 +352,7 @@ interface Schemas {
     uint64 endFuelLevel;
     uint64 startOdometer;
     uint64 endOdometer;
-    uint64 insuranceFee;
+    uint insuranceFee;
   }
 
   struct CalculatePaymentsDTO {
@@ -369,8 +365,8 @@ interface Schemas {
 
   // Struct to store KYC (Know Your Customer) information for each user
   struct KYCInfo {
-    string name;
-    string surname;
+    string name; //nickName
+    string surname; //fullName
     string mobilePhoneNumber;
     string profilePhoto;
     string licenseNumber;
@@ -378,6 +374,22 @@ interface Schemas {
     uint createDate;
     bool isTCPassed;
     bytes TCSignature;
+  }
+
+  struct CivicKYCInfo {
+    string fullName;
+    string licenseNumber;
+    uint64 expirationDate;
+    string issueCountry;
+    string email;
+  }
+  struct AdditionalKYCInfo {
+    string issueCountry;
+    string email;
+  }
+  struct FullKYCInfoDTO {
+    KYCInfo kyc;
+    AdditionalKYCInfo additionalKYC;
   }
 
   /// Query
@@ -492,12 +504,72 @@ interface Schemas {
 
   struct SignedLocationInfo {
     LocationInfo locationInfo;
-    string signature;
+    bytes signature;
   }
 
   struct KycCommissionData {
     uint paidTime;
     bool commissionPaid;
+  }
+
+  struct TripFilter {
+    PaymentStatus paymentStatus;
+    AdminTripStatus status;
+    LocationInfo location;
+    uint startDateTime;
+    uint endDateTime;
+  }
+  enum PaymentStatus {
+    Any,
+    PaidToHost,
+    Unpaid,
+    RefundToGuest,
+    Prepayment
+  }
+  enum AdminTripStatus {
+    Any,
+    Created,
+    Approved,
+    CheckedInByHost,
+    CheckedInByGuest,
+    CheckedOutByGuest,
+    CheckedOutByHost,
+    Finished,
+    GuestCanceledBeforeApprove,
+    HostCanceledBeforeApprove,
+    GuestCanceledAfterApprove,
+    HostCanceledAfterApprove,
+    CompletedWithoutGuestConfirmation,
+    CompletedByGuest,
+    CompletedByAdmin
+  }
+  struct AdminTripDTO {
+    Trip trip;
+    string carMetadataURI;
+    LocationInfo carLocation;
+  }
+
+  struct AllTripsDTO {
+    AdminTripDTO[] trips;
+    uint totalPageCount;
+  }
+
+  struct AdminCarDTO {
+    CarDetails car;
+    string carMetadataURI;
+  }
+
+  struct AllCarsDTO {
+    AdminCarDTO[] cars;
+    uint totalPageCount;
+  }
+
+  enum Role {
+    Guest,
+    Host,
+    Manager,
+    Admin,
+    KYCManager
   }
 
   /// Insurance Info
@@ -506,9 +578,36 @@ interface Schemas {
     uint priceInUsdCents;
   }
 
-  struct InsuranceTripInfo {
-    bool payedByGuest;
-    string insurancePhoto;
-    uint totalPaid;
+  struct SaveInsuranceRequest {
+    string companyName;
+    string policyNumber;
+    string photo;
+    string comment;
+    InsuranceType insuranceType;
+  }
+
+  struct InsuranceInfo {
+    string companyName;
+    string policyNumber;
+    string photo;
+    string comment;
+    InsuranceType insuranceType;
+    uint createdTime;
+    address createdBy;
+  }
+  enum InsuranceType {
+    None,
+    General,
+    OneTime
+  }
+  struct InsuranceDTO {
+    uint tripId;
+    string carBrand;
+    string carModel;
+    uint32 carYear;
+    InsuranceInfo insuranceInfo;
+    bool createdByHost;
+    string creatorPhoneNumber;
+    string creatorFullName;
   }
 }

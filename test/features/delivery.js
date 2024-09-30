@@ -1,5 +1,12 @@
 const { expect } = require('chai')
-const { deployDefaultFixture, ethToken, locationInfo, getEmptySearchCarParams, signTCMessage } = require('../utils')
+const {
+  deployDefaultFixture,
+  ethToken,
+  locationInfo,
+  getEmptySearchCarParams,
+  signTCMessage,
+  signLocationInfo,
+} = require('../utils')
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 const { ethers } = require('hardhat')
 
@@ -23,7 +30,8 @@ describe('Rentality Delivery', function () {
     manager,
     host,
     guest,
-    anonymous
+    anonymous,
+    rentalityLocationVerifier
 
   beforeEach(async function () {
     ;({
@@ -47,6 +55,7 @@ describe('Rentality Delivery', function () {
       host,
       guest,
       anonymous,
+      rentalityLocationVerifier,
     } = await loadFixture(deployDefaultFixture))
   })
 
@@ -190,7 +199,7 @@ describe('Rentality Delivery', function () {
 
     let locationInfo1 = {
       locationInfo,
-      signature: await signTCMessage(owner),
+      signature: signLocationInfo(await rentalityLocationVerifier.getAddress(), admin, locationInfo),
     }
     const mockCreateCarRequest = {
       tokenUri: 'uri',
@@ -215,7 +224,9 @@ describe('Rentality Delivery', function () {
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
-    const availableCars = await rentalityGateway.connect(guest).getAvailableCarsForUser(guest.address)
+    const availableCars = await rentalityGateway
+      .connect(guest)
+      .searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
     expect(availableCars.length).to.equal(1)
 
     let locationInfo2 = {
@@ -228,30 +239,21 @@ describe('Rentality Delivery', function () {
 
       timeZoneId: 'id',
     }
-    let result = await rentalityGateway.calculatePaymentsWithDelivery(
-      1,
-      1,
-      ethToken,
-      locationInfo,
-      locationInfo2,
-      false
-    )
+    let result = await rentalityGateway.calculatePaymentsWithDelivery(1, 1, ethToken, locationInfo, locationInfo2)
 
     await expect(
-      await rentalityGateway.connect(guest).createTripRequest(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: 123,
           endDateTime: 321,
           currencyType: ethToken,
-          insurancePaid: false,
-          photo: '',
           pickUpInfo: {
-            signature: guest.address,
+            signature: signLocationInfo(await rentalityLocationVerifier.getAddress(), admin, locationInfo),
             locationInfo,
           },
           returnInfo: {
-            signature: guest.address,
+            signature: signLocationInfo(await rentalityLocationVerifier.getAddress(), admin, locationInfo2),
             locationInfo: locationInfo2,
           },
         },
@@ -295,8 +297,12 @@ describe('Rentality Delivery', function () {
 
         timeZoneId: 'id',
       },
-      signature: signature,
     }
+    locationInfo.signature = signLocationInfo(
+      await rentalityLocationVerifier.getAddress(),
+      admin,
+      locationInfo.locationInfo
+    )
     let locationInfo1 = {
       locationInfo: {
         latitude: '33.829662',
@@ -308,22 +314,29 @@ describe('Rentality Delivery', function () {
 
         timeZoneId: 'id',
       },
-      signature: signature,
     }
+    ;(locationInfo1.signature = signLocationInfo(
+      await rentalityLocationVerifier.getAddress(),
+      admin,
+      locationInfo1.locationInfo
+    )),
+      (locationInfo2 = {
+        locationInfo: {
+          latitude: '25.771325',
+          longitude: '-80.185969',
+          userAddress: 'Miami Riverwalk, Miami, Florida, USA',
+          country: 'USA',
+          state: 'Florida',
+          city: 'Miami',
 
-    let locationInfo2 = {
-      locationInfo: {
-        latitude: '25.771325',
-        longitude: '-80.185969',
-        userAddress: 'Miami Riverwalk, Miami, Florida, USA',
-        country: 'USA',
-        state: 'Florida',
-        city: 'Miami',
-
-        timeZoneId: 'id',
-      },
-      signature: signature,
-    }
+          timeZoneId: 'id',
+        },
+      })
+    locationInfo2.signature = signLocationInfo(
+      await rentalityLocationVerifier.getAddress(),
+      admin,
+      locationInfo2.locationInfo
+    )
     const mockCreateCarRequest = {
       tokenUri: 'uri',
       carVinNumber: 'VIN_NфвUMBER',

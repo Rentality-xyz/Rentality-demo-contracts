@@ -104,6 +104,15 @@
     },
     {
       "type": "function",
+      "name": "completedByAdmin",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "" }],
+      "outputs": [{ "type": "bool", "name": "" }]
+    },
+    {
+      "type": "function",
       "name": "createNewTrip",
       "constant": false,
       "payable": false,
@@ -138,7 +147,8 @@
             { "type": "uint128", "name": "pickUpFee" },
             { "type": "uint128", "name": "dropOfFee" }
           ]
-        }
+        },
+        { "type": "uint256", "name": "msgValue" }
       ],
       "outputs": []
     },
@@ -377,6 +387,15 @@
       "stateMutability": "view",
       "payable": false,
       "inputs": [],
+      "outputs": [{ "type": "uint256", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "tripIdToEthSumInTripCreation",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "" }],
       "outputs": [{ "type": "uint256", "name": "" }]
     },
     {

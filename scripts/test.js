@@ -2,6 +2,7 @@ const saveJsonAbi = require('./utils/abiSaver')
 const { ethers } = require('hardhat')
 const addressSaver = require('./utils/addressSaver')
 const { startDeploy } = require('./utils/deployHelper')
+const { emptyLocationInfo, getEmptySearchCarParams } = require('../test/utils')
 
 async function main() {
   let contract = await ethers.getContractAt('')
