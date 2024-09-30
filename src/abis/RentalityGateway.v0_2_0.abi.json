@@ -1705,6 +1705,17 @@
     },
     {
       "type": "function",
+      "name": "updateCarTokenUri",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint256", "name": "carId" },
+        { "type": "string", "name": "tokenUri" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
       "name": "updateServiceAddresses",
       "constant": false,
       "payable": false,
