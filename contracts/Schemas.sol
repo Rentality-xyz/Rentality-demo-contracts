@@ -76,7 +76,7 @@ interface Schemas {
     uint32 timeBufferBetweenTripsInSec;
     bool currentlyListed;
     bool insuranceRequired;
-    uint insurancePrice;
+    uint insurancePriceInUsdCents;
   }
 
   /// @notice Struct to store search parameters for querying cars.
@@ -609,5 +609,9 @@ interface Schemas {
     bool createdByHost;
     string creatorPhoneNumber;
     string creatorFullName;
+  }
+  struct CarInfoWithInsurance {
+    CarInfo carInfo;
+    InsuranceCarInfo insuranceInfo;
   }
 }
