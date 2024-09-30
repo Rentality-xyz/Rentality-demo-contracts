@@ -8,7 +8,8 @@ describe('Rentality geoMock tests', function () {
   beforeEach(async function () {
     ;({ rentalityGeoService } = await loadFixture(deployDefaultFixture))
   })
-  it('Should correctly parse address arguments', async function () {
+  // unused
+  it.skip('Should correctly parse address arguments', async function () {
     await rentalityGeoService.executeRequest('Michigan Ave, Chicago, IL, USA', ' ', ' ', ' ', 1)
 
     const city = await rentalityGeoService.getCarCity(1)

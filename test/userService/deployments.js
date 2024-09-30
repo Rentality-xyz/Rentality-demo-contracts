@@ -1,5 +1,5 @@
 const { ethers, upgrades } = require('hardhat')
-const { ethToken, signTCMessage } = require('../utils')
+const { ethToken, signTCMessage, signKycInfo, emptyKyc } = require('../utils')
 
 // We define a fixture to reuse the same setup in every test.
 // We use loadFixture to run this setup once, snapshot that state,
@@ -96,9 +96,17 @@ async function deployDefaultFixture() {
   const geoParserMock = await GeoParserMock.deploy()
   await geoParserMock.waitForDeployment()
 
+  const RentalityVerifier = await ethers.getContractFactory('RentalityLocationVerifier')
+
+  let rentalityLocationVerifier = await upgrades.deployProxy(RentalityVerifier, [
+    await rentalityUserService.getAddress(),
+    admin.address,
+  ])
+  await rentalityLocationVerifier.waitForDeployment()
+
   const rentalityGeoService = await upgrades.deployProxy(RentalityGeoService, [
     await rentalityUserService.getAddress(),
-    await geoParserMock.getAddress(),
+    await rentalityLocationVerifier.getAddress(),
   ])
   await rentalityGeoService.waitForDeployment()
   await geoParserMock.setGeoService(await rentalityGeoService.getAddress())
@@ -202,9 +210,7 @@ async function deployDefaultFixture() {
 
   const hostSignature = await signTCMessage(host)
   const guestSignature = await signTCMessage(guest)
-  await rentalityPlatform.connect(host).setKYCInfo(' ', ' ', ' ', ' ', ' ', 1, hostSignature)
-  await rentalityPlatform.connect(guest).setKYCInfo(' ', ' ', ' ', ' ', ' ', 1, guestSignature)
-
+  const adminKyc = signKycInfo(await rentalityLocationVerifier.getAddress(), admin)
   let RentalityGateway = await ethers.getContractFactory('RentalityGateway', {
     libraries: {},
   })
@@ -225,7 +231,15 @@ async function deployDefaultFixture() {
 
   rentalityGateway = await ethers.getContractAt('IRentalityGateway', await rentalityGateway.getAddress())
 
-  const RentalityAdminGateway = await ethers.getContractFactory('RentalityAdminGateway')
+  await rentalityGateway.connect(host).setKYCInfo(' ', ' ', ' ', hostSignature)
+  await rentalityGateway.connect(guest).setKYCInfo(' ', ' ', ' ', guestSignature)
+
+  const RentalityAdminGateway = await ethers.getContractFactory('RentalityAdminGateway', {
+    libraries: {
+      RentalityQuery: await query.getAddress(),
+      RentalityUtils: await utils.getAddress(),
+    },
+  })
   const rentalityAdminGateway = await upgrades.deployProxy(RentalityAdminGateway, [
     await rentalityCarToken.getAddress(),
     await rentalityCurrencyConverter.getAddress(),
@@ -263,6 +277,8 @@ async function deployDefaultFixture() {
     host,
     guest,
     anonymous,
+    rentalityLocationVerifier,
+    adminKyc,
   }
 }
 

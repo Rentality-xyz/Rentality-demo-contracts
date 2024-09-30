@@ -132,11 +132,7 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     require(request.pricePerDayInUsdCents > 0, "Make sure the price isn't negative");
     require(request.milesIncludedPerDay > 0, "Make sure the included distance isn't negative");
     require(isUniqueVinNumber(request.carVinNumber), 'Car with this VIN number already exists');
-    require(userService.isManager(msg.sender), 'For manager');
-
-    if (!userService.isHost(tx.origin)) {
-      userService.grantHostRole(tx.origin);
-    }
+    geoService.verifySignedLocationInfo(request.locationInfo);
 
     _carIdCounter.increment();
     uint256 newCarId = _carIdCounter.current();
@@ -147,14 +143,6 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     _setTokenURI(newCarId, request.tokenUri);
 
     bytes32 hash = geoService.createLocationInfo(request.locationInfo.locationInfo);
-
-    geoService.executeRequest(
-      request.locationInfo.locationInfo.userAddress,
-      request.locationInfo.locationInfo.latitude,
-      request.locationInfo.locationInfo.longitude,
-      request.geoApiKey,
-      newCarId
-    );
 
     idToCarInfo[newCarId] = Schemas.CarInfo(
       newCarId,
@@ -171,8 +159,8 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
       request.milesIncludedPerDay,
       request.timeBufferBetweenTripsInSec,
       request.currentlyListed,
-      false,
-      '',
+      true,
+      request.locationInfo.locationInfo.timeZoneId,
       false,
       hash
     );
@@ -183,15 +171,6 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     emit CarAddedSuccess(newCarId, request.carVinNumber, tx.origin, request.pricePerDayInUsdCents, true);
 
     return newCarId;
-  }
-
-  /// @notice Verifies the geographic coordinates for a given car.
-  /// @param carId The ID of the car to verify.
-  function verifyGeo(uint256 carId) public {
-    bool geoStatus = geoService.getCarCoordinateValidity(carId);
-    Schemas.CarInfo storage carInfo = idToCarInfo[carId];
-    carInfo.geoVerified = geoStatus;
-    carInfo.timeZoneId = geoService.getCarTimeZoneId(carId);
   }
 
   /// @notice Updates the information for a specific car.
@@ -213,10 +192,10 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
 
     if (bytes(location.userAddress).length > 0) {
       require(bytes(geoApiKey).length > 0, 'Provide a valid geo API key');
-      geoService.executeRequest(location.userAddress, location.latitude, location.longitude, geoApiKey, request.carId);
-      idToCarInfo[request.carId].geoVerified = false;
+      idToCarInfo[request.carId].geoVerified = true;
       bytes32 hash = geoService.createLocationInfo(location);
       idToCarInfo[request.carId].locationHash = hash;
+      idToCarInfo[request.carId].timeZoneId = location.timeZoneId;
     }
 
     uint64[] memory engineParams = engineService.verifyUpdateParams(
@@ -256,7 +235,7 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     emit CarRemovedSuccess(carId, idToCarInfo[carId].carVinNumber, tx.origin);
   }
   /// @notice temporary disable transfer function
-  function transferFrom(address, address, uint256) public override(ERC721Upgradeable, IERC721Upgradeable) {
+  function transferFrom(address, address, uint256) public pure override(ERC721Upgradeable, IERC721Upgradeable) {
     require(false, 'Not implemented.');
   }
   /// @notice temporary disable transfer function
@@ -426,6 +405,13 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     }
 
     return result;
+  }
+
+  /// @notice Verifies the authenticity of the signed location information.
+  /// @dev This function checks the validity of the signed location information using the geoService.
+  /// @param locationInfo The signed location information that needs to be verified.
+  function verifySignedLocationInfo(Schemas.SignedLocationInfo memory locationInfo) public view {
+    geoService.verifySignedLocationInfo(locationInfo);
   }
 
   /// @notice Constructor to initialize the RentalityCarToken contract.

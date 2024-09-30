@@ -45,6 +45,9 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
 
   using RentalityQuery for RentalityContract;
   RentalityEnginesService private engineService;
+  mapping(uint => bool) public completedByAdmin;
+
+  mapping(uint => uint) public tripIdToEthSumInTripCreation;
 
   /// @dev Updates the address of the RentalityEnginesService contract.
   /// @param _engineService The address of the new RentalityEnginesService contract.
@@ -80,8 +83,9 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     bytes32 startLocation,
     bytes32 endLocation,
     uint64 milesIncludedPerDay,
-    Schemas.PaymentInfo memory paymentInfo
-  ) public returns (uint) {
+    Schemas.PaymentInfo memory paymentInfo,
+    uint msgValue
+  ) public returns(uint){
     require(addresses.userService.isManager(msg.sender), 'Only from manager contract.');
     _tripIdCounter.increment();
     uint256 newTripId = _tripIdCounter.current();
@@ -128,6 +132,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
       startLocation == bytes32('') ? carInfo.locationHash : startLocation,
       endLocation == bytes32('') ? carInfo.locationHash : endLocation
     );
+    tripIdToEthSumInTripCreation[newTripId] = msgValue;
 
     emit TripCreated(newTripId, host, guest);
 
@@ -361,10 +366,15 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
   function finishTrip(uint256 tripId) public {
     //require(idToTripInfo[tripId].status != TripStatus.CheckedOutByHost,"The trip is not in status CheckedOutByHost");
     require(addresses.userService.isManager(msg.sender), 'Only from manager contract.');
+    Schemas.Trip storage trip = idToTripInfo[tripId];
 
-    idToTripInfo[tripId].status = Schemas.TripStatus.Finished;
+    trip.status = Schemas.TripStatus.Finished;
 
-    idToTripInfo[tripId].finishDateTime = block.timestamp;
+    trip.finishDateTime = block.timestamp;
+    completedByAdmin[tripId] =
+      addresses.userService.isAdmin(tx.origin) &&
+      trip.host != tx.origin &&
+      trip.guest != tx.origin;
 
     emit TripStatusChanged(tripId, Schemas.TripStatus.Finished, idToTripInfo[tripId].host, idToTripInfo[tripId].guest);
   }

@@ -86,6 +86,15 @@
     },
     {
       "type": "function",
+      "name": "KYC_COMMISSION_MANAGER_ROLE",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "bytes32", "name": "" }]
+    },
+    {
+      "type": "function",
       "name": "MANAGER_ROLE",
       "constant": true,
       "stateMutability": "view",
@@ -126,6 +135,45 @@
       "payable": false,
       "inputs": [],
       "outputs": [{ "type": "uint256", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getMyFullKYCInfo",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "",
+          "components": [
+            {
+              "type": "tuple",
+              "name": "kyc",
+              "components": [
+                { "type": "string", "name": "name" },
+                { "type": "string", "name": "surname" },
+                { "type": "string", "name": "mobilePhoneNumber" },
+                { "type": "string", "name": "profilePhoto" },
+                { "type": "string", "name": "licenseNumber" },
+                { "type": "uint64", "name": "expirationDate" },
+                { "type": "uint256", "name": "createDate" },
+                { "type": "bool", "name": "isTCPassed" },
+                { "type": "bytes", "name": "TCSignature" }
+              ]
+            },
+            {
+              "type": "tuple",
+              "name": "additionalKYC",
+              "components": [
+                { "type": "string", "name": "issueCountry" },
+                { "type": "string", "name": "email" }
+              ]
+            }
+          ]
+        }
+      ]
     },
     {
       "type": "function",
@@ -308,6 +356,18 @@
       "inputs": [{ "type": "address", "name": "user" }],
       "outputs": [{ "type": "bool", "name": "" }]
     },
+    {
+      "type": "function",
+      "name": "manageRole",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint8", "name": "newRole" },
+        { "type": "address", "name": "user" },
+        { "type": "bool", "name": "grant" }
+      ],
+      "outputs": []
+    },
     { "type": "function", "name": "payCommission", "constant": false, "payable": false, "inputs": [], "outputs": [] },
     {
       "type": "function",
@@ -385,16 +445,34 @@
     },
     {
       "type": "function",
+      "name": "setCivicKYCInfo",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "user" },
+        {
+          "type": "tuple",
+          "name": "civicKycInfo",
+          "components": [
+            { "type": "string", "name": "fullName" },
+            { "type": "string", "name": "licenseNumber" },
+            { "type": "uint64", "name": "expirationDate" },
+            { "type": "string", "name": "issueCountry" },
+            { "type": "string", "name": "email" }
+          ]
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
       "name": "setKYCInfo",
       "constant": false,
       "payable": false,
       "inputs": [
-        { "type": "string", "name": "name" },
-        { "type": "string", "name": "surname" },
+        { "type": "string", "name": "nickName" },
         { "type": "string", "name": "mobilePhoneNumber" },
         { "type": "string", "name": "profilePhoto" },
-        { "type": "string", "name": "licenseNumber" },
-        { "type": "uint64", "name": "expirationDate" },
         { "type": "bytes", "name": "TCSignature" }
       ],
       "outputs": []
