@@ -8,6 +8,7 @@ import './RentalityPlatform.sol';
 import './RentalityTripService.sol';
 import './RentalityUserService.sol';
 import './RentalityCarToken.sol';
+import './payments/RentalityInsurance.sol';
 import './features/RentalityClaimService.sol';
 import './payments/RentalityPaymentService.sol';
 import './payments/RentalityCurrencyConverter.sol';
@@ -22,13 +23,16 @@ error FunctionNotFound();
 /// it's completely safe for upgrade
 /// @custom:oz-upgrades-unsafe-allow external-library-linking
 contract RentalityView is UUPSUpgradeable, Initializable {
-  RentalityContract public addresses;
+  RentalityContract private addresses;
   using RentalityQuery for RentalityContract;
   using RentalityTripsQuery for RentalityContract;
 
-  function updateServiceAddresses(RentalityContract memory contracts) public {
+  RentalityInsurance private insuranceService;
+
+  function updateServiceAddresses(RentalityContract memory contracts, address insurance) public {
     require(addresses.userService.isAdmin(tx.origin), 'only Admin.');
     addresses = contracts;
+    insuranceService = RentalityInsurance(insurance);
   }
 
   fallback(bytes calldata) external returns (bytes memory) {
@@ -51,16 +55,17 @@ contract RentalityView is UUPSUpgradeable, Initializable {
   // not using
   /// @notice Retrieves information about all cars.
   /// @return An array of car information.
-  // function getAllCars() public view returns (Schemas.CarInfo[] memory) {
-  //   return addresses.carService.getAllCars();
-  // }
+  //  function getAllCars() public view returns (Schemas.CarInfo[] memory) {
+  //    return addresses.carService.getAllCars();
+  //  }
 
+  // not using
   /// @notice Retrieves information about available cars for a specific user.
   /// @param user The address of the user.
   /// @return An array of available car information for the specified user.
-  function getAvailableCarsForUser(address user) public view returns (Schemas.CarInfo[] memory) {
-    return addresses.carService.getAvailableCarsForUser(user);
-  }
+  // function getAvailableCarsForUser(address user) public view returns (Schemas.CarInfo[] memory) {
+  //   return addresses.carService.getAvailableCarsForUser(user);
+  // }
 
   /// @notice Searches for available cars based on specified criteria.
   /// @param startDateTime The start date and time of the search.
@@ -142,12 +147,13 @@ contract RentalityView is UUPSUpgradeable, Initializable {
     return RentalityTripsQuery.getTripsByHost(addresses, tx.origin);
   }
 
+  // not using
   /// @notice Retrieves information about trips for a specific car.
   /// @param carId The ID of the car.
   /// @return An array of trip information for the specified car.
-  function getTripsByCar(uint256 carId) public view returns (Schemas.Trip[] memory) {
-    return addresses.getTripsByCar(carId);
-  }
+  // function getTripsByCar(uint256 carId) public view returns (Schemas.Trip[] memory) {
+  // return addresses.getTripsByCar(carId);
+  // }
 
   /// @notice Retrieves all claims where the caller is the host.
   /// @dev The caller is assumed to be the host of the claims.
@@ -163,13 +169,13 @@ contract RentalityView is UUPSUpgradeable, Initializable {
     return addresses.getClaimsByGuest(tx.origin);
   }
 
-  /// not using
+  // not using
   /// @notice Gets detailed information about a specific claim.
   /// @dev Returns a structure containing information about the claim, associated trip, and car details.
   /// @param claimId ID of the claim.
   /// @return Full information about the claim.
   // function getClaim(uint256 claimId) public view returns (Schemas.FullClaimInfo memory) {
-  //   return addresses.getClaim(claimId);
+  // return addresses.getClaim(claimId);
   // }
 
   /// @notice Get contact information for a specific trip on the Rentality platform.
@@ -190,12 +196,17 @@ contract RentalityView is UUPSUpgradeable, Initializable {
     return addresses.userService.getMyKYCInfo();
   }
 
+  // not using
   /// @notice This function provides a detailed receipt of the trip, including payment information and trip details.
   /// @param tripId The ID of the trip for which the receipt is requested.
   /// @return tripReceipt An instance of `Schemas.TripReceiptDTO` containing the trip receipt details.
-  function getTripReceipt(uint tripId) public view returns (Schemas.TripReceiptDTO memory) {
-    return RentalityTripsQuery.fullFillTripReceipt(tripId, address(addresses.tripService));
-  }
+  //  function getTripReceipt(uint tripId) public view returns (Schemas.TripReceiptDTO memory) {
+  //    return RentalityTripsQuery.fullFillTripReceipt(
+  //      tripId,
+  //      address(addresses.tripService),
+  //      address (insuranceService)
+  //    );
+  //  }
 
   /// @notice Retrieves the cars owned by a specific host.
   /// @dev This function returns an array of PublicHostCarDTO structs representing the cars owned by the host.
@@ -220,7 +231,7 @@ contract RentalityView is UUPSUpgradeable, Initializable {
     uint64 daysOfTrip,
     address currency
   ) public view returns (Schemas.CalculatePaymentsDTO memory) {
-    return RentalityUtils.calculatePayments(addresses, carId, daysOfTrip, currency, 0);
+    return RentalityUtils.calculatePayments(addresses, carId, daysOfTrip, currency, 0, insuranceService);
   }
 
   /// @dev Calculates the payments for a trip.
@@ -244,7 +255,8 @@ contract RentalityView is UUPSUpgradeable, Initializable {
         daysOfTrip,
         currency,
         pickUpLocation,
-        returnLocation
+        returnLocation,
+        insuranceService
       );
   }
   /// @notice Get chat information for trips hosted by the caller on the Rentality platform.
@@ -297,6 +309,12 @@ contract RentalityView is UUPSUpgradeable, Initializable {
   function getMyFullKYCInfo() public view returns (Schemas.FullKYCInfoDTO memory) {
     return addresses.userService.getMyFullKYCInfo();
   }
+  function getInsurancesBy(bool host) public view returns (Schemas.InsuranceDTO[] memory) {
+    return
+      host
+        ? RentalityTripsQuery.getTripInsurancesByHost(addresses, insuranceService, tx.origin)
+        : RentalityTripsQuery.getTripInsurancesByGuest(addresses, insuranceService, tx.origin);
+  }
 
   function calculateClaimValue(uint claimdId) public view returns (uint) {
     return RentalityQuery.calculateClaimValue(addresses, claimdId);
@@ -309,7 +327,8 @@ contract RentalityView is UUPSUpgradeable, Initializable {
     address userServiceAddress,
     address paymentServiceAddress,
     address claimServiceAddress,
-    address carDeliveryAddress
+    address carDeliveryAddress,
+    address insuranceAddress
   ) public initializer {
     addresses = RentalityContract(
       RentalityCarToken(carServiceAddress),
@@ -323,6 +342,7 @@ contract RentalityView is UUPSUpgradeable, Initializable {
       RentalityCarDelivery(carDeliveryAddress),
       this
     );
+    insuranceService = RentalityInsurance(insuranceAddress);
   }
 
   function _authorizeUpgrade(address /*newImplementation*/) internal view override {

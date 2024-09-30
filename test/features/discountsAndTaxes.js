@@ -5,6 +5,7 @@ const {
   ethToken,
   calculatePayments,
   calculatePaymentsFrom,
+  emptyLocationInfo,
 } = require('../utils')
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 const { ethers } = require('hardhat')

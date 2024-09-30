@@ -85,7 +85,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     uint64 milesIncludedPerDay,
     Schemas.PaymentInfo memory paymentInfo,
     uint msgValue
-  ) public {
+  ) public returns(uint){
     require(addresses.userService.isManager(msg.sender), 'Only from manager contract.');
     _tripIdCounter.increment();
     uint256 newTripId = _tripIdCounter.current();
@@ -135,6 +135,8 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     tripIdToEthSumInTripCreation[newTripId] = msgValue;
 
     emit TripCreated(newTripId, host, guest);
+
+    return newTripId;
   }
 
   /// @notice Approves a trip by changing its status to Approved.

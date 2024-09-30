@@ -9,6 +9,7 @@ import '../abstract/IRentalityGeoService.sol';
 import '../RentalityTripService.sol';
 import '../payments/RentalityCurrencyConverter.sol';
 import '../payments/RentalityPaymentService.sol';
+import '../payments/RentalityInsurance.sol';
 import {RentalityContract} from '../RentalityGateway.sol';
 import {RentalityCarDelivery} from '../features/RentalityCarDelivery.sol';
 /// @title RentalityUtils Library
@@ -403,7 +404,8 @@ library RentalityUtils {
     uint64 daysOfTrip,
     address currency,
     Schemas.LocationInfo memory pickUpLocation,
-    Schemas.LocationInfo memory returnLocation
+    Schemas.LocationInfo memory returnLocation,
+    RentalityInsurance insuranceService
   ) public view returns (Schemas.CalculatePaymentsDTO memory) {
     uint64 deliveryFee = RentalityCarDelivery(addresses.adminService.getDeliveryServiceAddress())
       .calculatePriceByDeliveryDataInUsdCents(
@@ -417,7 +419,7 @@ library RentalityUtils {
         ),
         addresses.carService.getCarInfoById(carId).createdBy
       );
-    return calculatePayments(addresses, carId, daysOfTrip, currency, deliveryFee);
+    return calculatePayments(addresses, carId, daysOfTrip, currency, deliveryFee, insuranceService);
   }
   /// @notice Checks if a car is available for a specific user based on search parameters.
   /// @dev Calculates the payments for a trip.
@@ -430,7 +432,8 @@ library RentalityUtils {
     uint carId,
     uint64 daysOfTrip,
     address currency,
-    uint64 deliveryFee
+    uint64 deliveryFee,
+    RentalityInsurance insuranceService
   ) public view returns (Schemas.CalculatePaymentsDTO memory) {
     address carOwner = addresses.carService.ownerOf(carId);
     Schemas.CarInfo memory car = addresses.carService.getCarInfoById(carId);
@@ -447,10 +450,15 @@ library RentalityUtils {
       daysOfTrip,
       sumWithDiscount + deliveryFee
     );
+    uint totalPrice = car.securityDepositPerTripInUsdCents + salesTaxes + govTax + sumWithDiscount + deliveryFee;
+
+    if (!insuranceService.isGuestHasInsurance(tx.origin)) {
+      totalPrice += insuranceService.getInsurancePriceByCar(carId) * daysOfTrip;
+    }
 
     (uint256 valueSumInCurrency, int rate, uint8 decimals) = addresses.currencyConverterService.getFromUsdLatest(
       currency,
-      car.securityDepositPerTripInUsdCents + salesTaxes + govTax + sumWithDiscount + deliveryFee
+      totalPrice
     );
 
     return Schemas.CalculatePaymentsDTO(valueSumInCurrency, rate, decimals);
@@ -599,5 +607,22 @@ library RentalityUtils {
         deliveryPrices.aboveTwentyFiveMilesInUsdCents,
         addresses.carService.getCarInfoById(carId).insuranceIncluded
       );
+  }
+
+  function calculateDelivery(
+    RentalityContract memory addresses,
+    Schemas.CreateTripRequestWithDelivery memory request
+  ) public view returns (uint64, uint64) {
+    bytes32 locationHash = addresses.carService.getCarInfoById(request.carId).locationHash;
+    (uint64 pickUp, uint64 dropOf) = addresses.deliveryService.calculatePricesByDeliveryDataInUsdCents(
+      request.pickUpInfo.locationInfo,
+      request.returnInfo.locationInfo,
+      IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getCarLocationLatitude(locationHash),
+      IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getCarLocationLongitude(locationHash),
+      addresses.carService.getCarInfoById(request.carId).createdBy
+    );
+    if (pickUp > 0) addresses.carService.verifySignedLocationInfo(request.pickUpInfo);
+    if (dropOf > 0) addresses.carService.verifySignedLocationInfo(request.returnInfo);
+    return (pickUp, dropOf);
   }
 }

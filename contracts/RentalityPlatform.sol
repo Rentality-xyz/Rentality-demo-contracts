@@ -15,6 +15,7 @@ import {RentalityCarDelivery} from './features/RentalityCarDelivery.sol';
 import {UUPSOwnable} from './proxy/UUPSOwnable.sol';
 import {RentalityUtils} from './libs/RentalityUtils.sol';
 import './RentalityView.sol';
+import './payments/RentalityInsurance.sol';
 
 /// @title Rentality Platform Contract
 /// @notice This contract manages various services related to the Rentality platform, including cars, trips, users, and payments.
@@ -31,18 +32,14 @@ contract RentalityPlatform is UUPSOwnable {
   using RentalityQuery for RentalityContract;
   using RentalityTripsQuery for RentalityContract;
   /// @dev Modifier to restrict access to admin users only.
-  modifier onlyAdmin() {
-    require(
-      addresses.userService.isAdmin(msg.sender) || addresses.userService.isAdmin(tx.origin) || (tx.origin == owner()),
-      'User is n ot an admin'
-    );
-    _;
-  }
 
-  function updateServiceAddresses(RentalityAdminGateway adminService) public {
-    require(addresses.userService.isAdmin(tx.origin), 'only Admin.');
-    addresses = adminService.getRentalityContracts();
-  }
+  RentalityInsurance private insuranceService;
+
+  //  function updateServiceAddresses(RentalityAdminGateway adminService) public {
+  //    require(addresses.userService.isAdmin(tx.origin), 'only Admin.');
+  //    addresses = adminService.getRentalityContracts();
+  //    insuranceService = adminService.getInsuranceService();
+  //  }
 
   //    function withdrawAllFromPlatform(address currencyType) public {
   //        return withdrawFromPlatform(address(this).balance, currencyType);
@@ -51,23 +48,7 @@ contract RentalityPlatform is UUPSOwnable {
   /// @notice Creates a trip request with delivery.
   /// @param request The trip request with delivery details.
   function createTripRequestWithDelivery(Schemas.CreateTripRequestWithDelivery memory request) public payable {
-    RentalityUtils.validateTripRequest(
-      addresses,
-      request.currencyType,
-      request.carId,
-      request.startDateTime,
-      request.endDateTime
-    );
-    bytes32 locationHash = addresses.carService.getCarInfoById(request.carId).locationHash;
-    (uint64 pickUp, uint64 dropOf) = addresses.deliveryService.calculatePricesByDeliveryDataInUsdCents(
-      request.pickUpInfo.locationInfo,
-      request.returnInfo.locationInfo,
-      IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getCarLocationLatitude(locationHash),
-      IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getCarLocationLongitude(locationHash),
-      addresses.carService.getCarInfoById(request.carId).createdBy
-    );
-    if (pickUp > 0) addresses.carService.verifySignedLocationInfo(request.pickUpInfo);
-    if (dropOf > 0) addresses.carService.verifySignedLocationInfo(request.returnInfo);
+    (uint64 pickUp, uint64 dropOf) = RentalityUtils.calculateDelivery(addresses, request);
     bytes32 pickUpHash = IRentalityGeoService(addresses.carService.getGeoServiceAddress()).createLocationInfo(
       request.pickUpInfo.locationInfo
     );
@@ -101,14 +82,6 @@ contract RentalityPlatform is UUPSOwnable {
   /// @notice Create a trip request.
   /// @param request The request parameters for creating a new trip.
   function createTripRequest(Schemas.CreateTripRequest memory request) public payable {
-    RentalityUtils.validateTripRequest(
-      addresses,
-      request.currencyType,
-      request.carId,
-      request.startDateTime,
-      request.endDateTime
-    );
-
     _createTripRequest(
       request.currencyType,
       request.carId,
@@ -138,6 +111,7 @@ contract RentalityPlatform is UUPSOwnable {
     bytes32 pickUpHash,
     bytes32 returnHash
   ) private {
+    RentalityUtils.validateTripRequest(addresses, currencyType, carId, startDateTime, endDateTime);
     Schemas.CarInfo memory carInfo = addresses.carService.getCarInfoById(carId);
 
     (Schemas.PaymentInfo memory paymentInfo, uint valueSumInCurrency) = RentalityUtils.createPaymentInfo(
@@ -149,14 +123,17 @@ contract RentalityPlatform is UUPSOwnable {
       pickUp,
       dropOf
     );
+    uint insurance = insuranceService.calculateInsuranceForTrip(carId, startDateTime, endDateTime);
+    valueSumInCurrency += addresses.currencyConverterService.getFromUsd(
+      currencyType,
+      insurance,
+      paymentInfo.currencyRate,
+      paymentInfo.currencyDecimals
+    );
 
     addresses.paymentService.payCreateTrip{value: msg.value}(currencyType, valueSumInCurrency);
 
-    if (!addresses.userService.isGuest(tx.origin)) {
-      addresses.userService.grantGuestRole(tx.origin);
-    }
-
-    addresses.tripService.createNewTrip(
+    uint tripId = addresses.tripService.createNewTrip(
       carId,
       tx.origin,
       addresses.carService.ownerOf(carId),
@@ -169,6 +146,7 @@ contract RentalityPlatform is UUPSOwnable {
       paymentInfo,
       msg.value
     );
+    insuranceService.saveGuestinsurancePayment(tripId, carId, insurance);
   }
 
   /// @notice Approve a trip request on the Rentality platform.
@@ -198,7 +176,11 @@ contract RentalityPlatform is UUPSOwnable {
 
     addresses.tripService.rejectTrip(tripId);
 
-    uint valueToReturnInUsdCents = addresses.currencyConverterService.calculateTripReject(trip.paymentInfo);
+    uint insurance = insuranceService.getInsurancePriceByTrip(tripId);
+    uint valueToReturnInUsdCents = addresses.currencyConverterService.calculateTripReject(
+      trip.paymentInfo,
+      insurance
+    );
     /* you should not recalculate the value with convertor,
      for return during rejection,
      but instead, use: 'addresses.tripService.tripIdToEthSumInTripCreation(tripId)'*/
@@ -213,9 +195,9 @@ contract RentalityPlatform is UUPSOwnable {
   function confirmCheckOut(uint256 tripId) public {
     Schemas.Trip memory trip = addresses.tripService.getTrip(tripId);
 
-    require(trip.guest == tx.origin || addresses.userService.isAdmin(tx.origin), 'For trip guest or admin only');
+    require(trip.guest == tx.origin || addresses.userService.isAdmin(tx.origin), 'For trip guest or admin');
     require(trip.host == trip.tripFinishedBy, 'No needs to confirm.');
-    require(trip.status == Schemas.TripStatus.CheckedOutByHost, 'The trip is not in status CheckedOutByHost');
+    require(trip.status == Schemas.TripStatus.CheckedOutByHost, 'The trip is not CheckedOutByHost');
     _finishTrip(tripId);
   }
 
@@ -225,7 +207,7 @@ contract RentalityPlatform is UUPSOwnable {
     Schemas.Trip memory trip = addresses.tripService.getTrip(tripId);
     require(
       trip.status == Schemas.TripStatus.CheckedOutByHost && trip.tripFinishedBy == trip.guest,
-      'The trip is not in status CheckedOutByHost'
+      'The trip is not CheckedOutByHost'
     );
     _finishTrip(tripId);
   }
@@ -242,7 +224,7 @@ contract RentalityPlatform is UUPSOwnable {
 
     (uint valueToHost, uint valueToGuest, uint valueToHostInUsdCents, uint valueToGuestInUsdCents) = addresses
       .currencyConverterService
-      .calculateTripFinsish(trip.paymentInfo, rentalityFee);
+      .calculateTripFinsish(trip.paymentInfo, rentalityFee, insuranceService.getInsurancePriceByTrip(tripId));
 
     addresses.paymentService.payFinishTrip(trip, valueToHost, valueToGuest);
 
@@ -264,7 +246,7 @@ contract RentalityPlatform is UUPSOwnable {
     require(
       (trip.host == tx.origin && uint8(request.claimType) <= 7) ||
         (trip.guest == tx.origin && ((uint8(request.claimType) <= 9) && (uint8(request.claimType) >= 3))),
-      'Only for trip host or guest, or wrong claim type.'
+      'For trip host or guest,or wrong claim type.'
     );
 
     require(
@@ -282,7 +264,7 @@ contract RentalityPlatform is UUPSOwnable {
     Schemas.Claim memory claim = addresses.claimService.getClaim(claimId);
     Schemas.Trip memory trip = addresses.tripService.getTrip(claim.tripId);
 
-    require(trip.host == tx.origin || trip.guest == tx.origin, 'Only for trip guest or host.');
+    require(trip.host == tx.origin || trip.guest == tx.origin, 'For trip guest or host.');
 
     addresses.claimService.rejectClaim(claimId, tx.origin, trip.host, trip.guest);
   }
@@ -294,11 +276,8 @@ contract RentalityPlatform is UUPSOwnable {
     Schemas.Claim memory claim = addresses.claimService.getClaim(claimId);
     Schemas.Trip memory trip = addresses.tripService.getTrip(claim.tripId);
 
-    require((claim.isHostClaims && tx.origin == trip.guest) || tx.origin == trip.host, 'Only guest or host.');
-    require(
-      claim.status != Schemas.ClaimStatus.Paid && claim.status != Schemas.ClaimStatus.Cancel,
-      'Wrong claim Status.'
-    );
+    require((claim.isHostClaims && tx.origin == trip.guest) || tx.origin == trip.host, 'Guest or host.');
+    require(claim.status != Schemas.ClaimStatus.Paid && claim.status != Schemas.ClaimStatus.Cancel, 'Wrong Status.');
     uint commission = addresses.claimService.getPlatformFeeFrom(claim.amountInUsdCents);
 
     (uint valueToPay, uint feeInCurrency, int rate, uint8 dec) = addresses
@@ -348,6 +327,11 @@ contract RentalityPlatform is UUPSOwnable {
     string memory insuranceCompany,
     string memory insuranceNumber
   ) public {
+    if (bytes(insuranceNumber).length > 0 || bytes(insuranceCompany).length > 0)
+      insuranceService.saveTripInsuranceInfo(
+        tripId,
+        Schemas.SaveInsuranceRequest(insuranceCompany, insuranceNumber, '', '', Schemas.InsuranceType.OneTime)
+      );
     return addresses.tripService.checkInByHost(tripId, panelParams, insuranceCompany, insuranceNumber);
   }
 
@@ -378,24 +362,24 @@ contract RentalityPlatform is UUPSOwnable {
   /// @param request The request containing car information.
   /// @return The ID of the newly added car.
   function addCar(Schemas.CreateCarRequest memory request) public returns (uint) {
-    if (!addresses.userService.isHost(tx.origin)) {
-      addresses.userService.grantHostRole(tx.origin);
-    }
     require(addresses.paymentService.taxExist(request.locationInfo.locationInfo) != 0, 'Tax not exist.');
-    return addresses.carService.addCar(request);
+    uint carId = addresses.carService.addCar(request);
+
+    insuranceService.saveInsuranceRequired(carId, request.insurancePriceInUsdCents, request.insuranceRequired);
+
+    return carId;
   }
 
   /// @notice Updates the information of a car. Only callable by hosts.
   /// @param request The request containing updated car information.
   function updateCarInfo(Schemas.UpdateCarInfoRequest memory request) public {
     require(addresses.isCarEditable(request.carId), 'Car is not available for update.');
-
-    return
-      addresses.carService.updateCarInfo(
-        request,
-        IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getLocationInfo(bytes32('')),
-        string('')
-      );
+    addresses.carService.updateCarInfo(
+      request,
+      IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getLocationInfo(bytes32('')),
+      string('')
+    );
+    insuranceService.saveInsuranceRequired(request.carId, request.insurancePrice, request.insuranceRequired);
   }
 
   /// @notice Updates the information of a car, including location details. Only callable by hosts.
@@ -410,6 +394,7 @@ contract RentalityPlatform is UUPSOwnable {
     require(addresses.isCarEditable(request.carId), 'Car is not available for update.');
 
     addresses.carService.verifySignedLocationInfo(location);
+    insuranceService.saveInsuranceRequired(request.carId, request.insurancePrice, request.insuranceRequired);
     return addresses.carService.updateCarInfo(request, location.locationInfo, geoApiKey);
   }
   /// @notice Adds a user discount.
@@ -420,6 +405,20 @@ contract RentalityPlatform is UUPSOwnable {
 
   function addUserDeliveryPrices(uint64 underTwentyFiveMilesInUsdCents, uint64 aboveTwentyFiveMilesInUsdCents) public {
     addresses.deliveryService.setUserDeliveryPrices(underTwentyFiveMilesInUsdCents, aboveTwentyFiveMilesInUsdCents);
+  }
+
+  function saveTripInsuranceInfo(uint tripId, Schemas.SaveInsuranceRequest memory insuranceInfo) public {
+    Schemas.Trip memory trip = addresses.tripService.getTrip(tripId);
+    require(trip.host == tx.origin || trip.guest == tx.origin, 'For trip host or guest');
+    insuranceService.saveTripInsuranceInfo(tripId, insuranceInfo);
+  }
+  function saveGuestInsurance(Schemas.SaveInsuranceRequest memory insuranceInfo) public {
+    insuranceService.saveGuestInsurance(insuranceInfo);
+  }
+
+
+  function updateCarTokenUri(uint256 carId, string memory tokenUri) public {
+  addresses.carService.updateCarTokenUri(carId,tokenUri);
   }
 
   /// @notice Constructor to initialize the RentalityPlatform with service contract addresses.
@@ -436,7 +435,8 @@ contract RentalityPlatform is UUPSOwnable {
     address paymentServiceAddress,
     address claimServiceAddress,
     address carDeliveryAddress,
-    address viewService
+    address viewService,
+    address insuranceServiceAddress
   ) public initializer {
     addresses = RentalityContract(
       RentalityCarToken(carServiceAddress),
@@ -450,7 +450,7 @@ contract RentalityPlatform is UUPSOwnable {
       RentalityCarDelivery(carDeliveryAddress),
       RentalityView(viewService)
     );
-
+    insuranceService = RentalityInsurance(insuranceServiceAddress);
     __Ownable_init();
   }
 }
