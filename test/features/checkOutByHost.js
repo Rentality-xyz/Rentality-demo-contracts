@@ -6,6 +6,7 @@ const {
   calculatePayments,
   getEmptySearchCarParams,
   TripStatus,
+  emptyLocationInfo,
 } = require('../utils')
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 const { ethers } = require('hardhat')
@@ -62,7 +63,9 @@ describe('Check out without guest', function () {
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
-    const availableCars = await rentalityGateway.connect(guest).getAvailableCarsForUser(guest.address)
+    const availableCars = await rentalityGateway
+      .connect(guest)
+      .searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
     expect(availableCars.length).to.equal(1)
 
     const oneDayInSeconds = 86400
@@ -82,6 +85,16 @@ describe('Check out without guest', function () {
           startDateTime: Date.now(),
           endDateTime: Date.now() + oneDayInSeconds,
           currencyType: ethToken,
+          insurancePaid: false,
+          photo: '',
+          pickUpInfo: {
+            signature: guest.address,
+            locationInfo: emptyLocationInfo,
+          },
+          returnInfo: {
+            signature: guest.address,
+            locationInfo: emptyLocationInfo,
+          },
         },
         { value: rentPriceInEth }
       )
@@ -98,7 +111,9 @@ describe('Check out without guest', function () {
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
-    const availableCars = await rentalityGateway.connect(guest).getAvailableCarsForUser(guest.address)
+    const availableCars = await rentalityGateway
+      .connect(guest)
+      .searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
     expect(availableCars.length).to.equal(1)
 
     const oneDayInSeconds = 86400
@@ -118,6 +133,16 @@ describe('Check out without guest', function () {
           startDateTime: Date.now(),
           endDateTime: Date.now() + oneDayInSeconds,
           currencyType: ethToken,
+          insurancePaid: false,
+          photo: '',
+          pickUpInfo: {
+            signature: guest.address,
+            locationInfo: emptyLocationInfo,
+          },
+          returnInfo: {
+            signature: guest.address,
+            locationInfo: emptyLocationInfo,
+          },
         },
         { value: rentPriceInEth }
       )
@@ -144,7 +169,9 @@ describe('Check out without guest', function () {
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
-    const availableCars = await rentalityGateway.connect(guest).getAvailableCarsForUser(guest.address)
+    const availableCars = await rentalityGateway
+      .connect(guest)
+      .searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
     expect(availableCars.length).to.equal(1)
 
     const oneDayInSeconds = 86400
@@ -164,6 +191,16 @@ describe('Check out without guest', function () {
           startDateTime: Date.now(),
           endDateTime: Date.now() + oneDayInSeconds,
           currencyType: ethToken,
+          insurancePaid: false,
+          photo: '',
+          pickUpInfo: {
+            signature: guest.address,
+            locationInfo: emptyLocationInfo,
+          },
+          returnInfo: {
+            signature: guest.address,
+            locationInfo: emptyLocationInfo,
+          },
         },
         { value: rentPriceInEth }
       )
@@ -180,7 +217,9 @@ describe('Check out without guest', function () {
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
-    const availableCars = await rentalityGateway.connect(guest).getAvailableCarsForUser(guest.address)
+    const availableCars = await rentalityGateway
+      .connect(guest)
+      .searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
     expect(availableCars.length).to.equal(1)
     let oneDayInSeconds = 86400
     let dayInTrip = 31
@@ -200,6 +239,16 @@ describe('Check out without guest', function () {
           startDateTime: Date.now(),
           endDateTime: Date.now() + oneDayInSeconds * dayInTrip,
           currencyType: ethToken,
+          insurancePaid: false,
+          photo: '',
+          pickUpInfo: {
+            signature: guest.address,
+            locationInfo: emptyLocationInfo,
+          },
+          returnInfo: {
+            signature: guest.address,
+            locationInfo: emptyLocationInfo,
+          },
         },
         { value: rentPriceInEth }
       )
@@ -233,7 +282,9 @@ describe('Check out without guest', function () {
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
-    const availableCars = await rentalityGateway.connect(guest).getAvailableCarsForUser(guest.address)
+    const availableCars = await rentalityGateway
+      .connect(guest)
+      .searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
     expect(availableCars.length).to.equal(1)
     const oneDayInSeconds = 86400
 
@@ -252,6 +303,16 @@ describe('Check out without guest', function () {
           startDateTime: Date.now(),
           endDateTime: Date.now() + oneDayInSeconds,
           currencyType: ethToken,
+          insurancePaid: false,
+          photo: '',
+          pickUpInfo: {
+            signature: guest.address,
+            locationInfo: emptyLocationInfo,
+          },
+          returnInfo: {
+            signature: guest.address,
+            locationInfo: emptyLocationInfo,
+          },
         },
         { value: rentPriceInEth }
       )
@@ -285,7 +346,9 @@ describe('Check out without guest', function () {
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
-    const availableCars = await rentalityGateway.connect(guest).getAvailableCarsForUser(guest.address)
+    const availableCars = await rentalityGateway
+      .connect(guest)
+      .searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
     expect(availableCars.length).to.equal(1)
     let dayInTrip = 31
 
@@ -306,6 +369,16 @@ describe('Check out without guest', function () {
           startDateTime: Date.now(),
           endDateTime: Date.now() + oneDayInSeconds * dayInTrip,
           currencyType: ethToken,
+          insurancePaid: false,
+          photo: '',
+          pickUpInfo: {
+            signature: guest.address,
+            locationInfo: emptyLocationInfo,
+          },
+          returnInfo: {
+            signature: guest.address,
+            locationInfo: emptyLocationInfo,
+          },
         },
         { value: rentPriceInEth }
       )

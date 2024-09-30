@@ -23,7 +23,7 @@ interface Schemas {
     bool currentlyListed;
     bool geoVerified; // unused
     string timeZoneId;
-    bool insuranceIncluded;
+    bool insuranceIncluded; // unused
     bytes32 locationHash;
   }
 
@@ -60,9 +60,10 @@ interface Schemas {
     uint64 milesIncludedPerDay;
     uint32 timeBufferBetweenTripsInSec;
     string geoApiKey;
-    bool insuranceIncluded;
     SignedLocationInfo locationInfo;
     bool currentlyListed;
+    bool insuranceRequired;
+    uint insurancePriceInUsdCents;
   }
 
   /// @notice Struct to store input parameters for updating car information.
@@ -74,7 +75,8 @@ interface Schemas {
     uint64 milesIncludedPerDay;
     uint32 timeBufferBetweenTripsInSec;
     bool currentlyListed;
-    bool insuranceIncluded;
+    bool insuranceRequired;
+    uint insurancePrice;
   }
 
   /// @notice Struct to store search parameters for querying cars.
@@ -350,6 +352,7 @@ interface Schemas {
     uint64 endFuelLevel;
     uint64 startOdometer;
     uint64 endOdometer;
+    uint insuranceFee;
   }
 
   struct CalculatePaymentsDTO {
@@ -567,5 +570,44 @@ interface Schemas {
     Manager,
     Admin,
     KYCManager
+  }
+
+  /// Insurance Info
+  struct InsuranceCarInfo {
+    bool required;
+    uint priceInUsdCents;
+  }
+
+  struct SaveInsuranceRequest {
+    string companyName;
+    string policyNumber;
+    string photo;
+    string comment;
+    InsuranceType insuranceType;
+  }
+
+  struct InsuranceInfo {
+    string companyName;
+    string policyNumber;
+    string photo;
+    string comment;
+    InsuranceType insuranceType;
+    uint createdTime;
+    address createdBy;
+  }
+  enum InsuranceType {
+    None,
+    General,
+    OneTime
+  }
+  struct InsuranceDTO {
+    uint tripId;
+    string carBrand;
+    string carModel;
+    uint32 carYear;
+    InsuranceInfo insuranceInfo;
+    bool createdByHost;
+    string creatorPhoneNumber;
+    string creatorFullName;
   }
 }

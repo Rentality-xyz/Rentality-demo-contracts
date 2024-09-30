@@ -10,6 +10,7 @@ const {
   locationInfo,
   signTCMessage,
   signLocationInfo,
+  emptyLocationInfo,
 } = require('../utils')
 
 describe('RentalityGateway: time buffer', function () {
@@ -78,6 +79,8 @@ describe('RentalityGateway: time buffer', function () {
       insuranceIncluded: true,
       locationInfo: locationInfo1,
       currentlyListed: true,
+      insuranceRequired: false,
+      insurancePriceInUsdCents: 0,
     }
 
     await expect(rentalityGateway.connect(host).addCar(createCarRequest)).not.to.be.reverted
@@ -131,6 +134,8 @@ describe('RentalityGateway: time buffer', function () {
       insuranceIncluded: true,
       locationInfo: locationInfo1,
       currentlyListed: true,
+      insuranceRequired: false,
+      insurancePriceInUsdCents: 0,
     }
 
     await expect(rentalityGateway.connect(host).addCar(createCarRequest)).not.to.be.reverted
@@ -185,6 +190,8 @@ describe('RentalityGateway: time buffer', function () {
       locationInfo: locationInfo1,
       geoApiKey: 'aasda',
       currentlyListed: true,
+      insuranceRequired: false,
+      insurancePriceInUsdCents: 0,
     }
 
     await expect(rentalityGateway.connect(host).addCar(createCarRequest)).not.to.be.reverted
@@ -193,7 +200,7 @@ describe('RentalityGateway: time buffer', function () {
 
     const dailyPriceInUsdCents = 1000
 
-    const result = await rentalityGateway.calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway.connect(guest).calculatePayments(1, 1, ethToken)
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
         {
@@ -243,6 +250,8 @@ describe('RentalityGateway: time buffer', function () {
       insuranceIncluded: true,
       locationInfo: locationInfo1,
       currentlyListed: true,
+      insuranceRequired: false,
+      insurancePriceInUsdCents: 0,
     }
 
     await expect(rentalityGateway.connect(host).addCar(createCarRequest)).not.to.be.reverted
@@ -251,7 +260,7 @@ describe('RentalityGateway: time buffer', function () {
 
     const dailyPriceInUsdCents = 1000
 
-    const result = await rentalityGateway.calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway.connect(guest).calculatePayments(1, 1, ethToken)
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
         {

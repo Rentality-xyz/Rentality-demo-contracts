@@ -215,15 +215,18 @@ describe('Rentality Delivery', function () {
       timeBufferBetweenTripsInSec: 0,
       geoApiKey: 'key',
       locationInfo: locationInfo1,
-      insuranceIncluded: true,
       currentlyListed: true,
+      insuranceRequired: false,
+      insurancePriceInUsdCents: 0,
     }
 
     await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
-    const availableCars = await rentalityGateway.connect(guest).getAvailableCarsForUser(guest.address)
+    const availableCars = await rentalityGateway
+      .connect(guest)
+      .searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
     expect(availableCars.length).to.equal(1)
 
     let locationInfo2 = {
@@ -350,6 +353,8 @@ describe('Rentality Delivery', function () {
       locationInfo,
       insuranceIncluded: true,
       currentlyListed: true,
+      insuranceRequired: false,
+      insurancePriceInUsdCents: 0,
     }
     await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest)).not.to.be.reverted
 
@@ -369,6 +374,8 @@ describe('Rentality Delivery', function () {
       locationInfo: locationInfo1,
       insuranceIncluded: true,
       currentlyListed: true,
+      insuranceRequired: false,
+      insurancePriceInUsdCents: 0,
     }
     await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest1)).not.to.be.reverted
 
@@ -388,6 +395,8 @@ describe('Rentality Delivery', function () {
       locationInfo: locationInfo2,
       insuranceIncluded: true,
       currentlyListed: true,
+      insuranceRequired: false,
+      insurancePriceInUsdCents: 0,
     }
     await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest2)).not.to.be.reverted
     let loc = {
@@ -416,6 +425,8 @@ describe('Rentality Delivery', function () {
       locationInfo: locationInfo1,
       insuranceIncluded: true,
       currentlyListed: true,
+      insuranceRequired: false,
+      insurancePriceInUsdCents: 0,
     }
     const mockCreateCarRequest3 = {
       tokenUri: 'uri',
@@ -433,6 +444,8 @@ describe('Rentality Delivery', function () {
       locationInfo: locationInfo,
       insuranceIncluded: true,
       currentlyListed: true,
+      insuranceRequired: false,
+      insurancePriceInUsdCents: 0,
     }
     const mockCreateCarRequest4 = {
       tokenUri: 'uri',
@@ -450,6 +463,8 @@ describe('Rentality Delivery', function () {
       locationInfo: locationInfo2,
       insuranceIncluded: true,
       currentlyListed: true,
+      insuranceRequired: false,
+      insurancePriceInUsdCents: 0,
     }
     await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest4)).not.to.be.reverted
     await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest5)).not.to.be.reverted

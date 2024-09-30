@@ -124,6 +124,12 @@ async function deployDefaultFixture() {
   const rentalityFloridaTaxes = await upgrades.deployProxy(RentalityFloridaTaxes, [
     await rentalityUserService.getAddress(),
   ])
+  const RentalityInsurance = await ethers.getContractFactory('RentalityInsurance')
+  const insuranceService = await upgrades.deployProxy(RentalityInsurance, [
+    await rentalityUserService.getAddress(),
+    await rentalityCarToken.getAddress(),
+  ])
+  await insuranceService.waitForDeployment()
 
   const RentalityBaseDiscount = await ethers.getContractFactory('RentalityBaseDiscount')
 
@@ -176,6 +182,7 @@ async function deployDefaultFixture() {
     await rentalityPaymentService.getAddress(),
     await claimService.getAddress(),
     await deliveryService.getAddress(),
+    await insuranceService.getAddress(),
   ])
   await rentalityView.waitForDeployment()
 
@@ -188,12 +195,15 @@ async function deployDefaultFixture() {
     await claimService.getAddress(),
     await deliveryService.getAddress(),
     await rentalityView.getAddress(),
+    await insuranceService.getAddress(),
   ])
 
   await rentalityPlatform.waitForDeployment()
 
   await rentalityUserService.connect(owner).grantHostRole(await rentalityPlatform.getAddress())
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityPlatform.getAddress())
+  await rentalityUserService.connect(owner).grantManagerRole(await rentalityCarToken.getAddress())
+  await rentalityUserService.connect(owner).grantManagerRole(await rentalityUserService.getAddress())
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityTripService.getAddress())
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityCarToken.getAddress())
   await rentalityUserService.connect(owner).grantManagerRole(await engineService.getAddress())
@@ -240,6 +250,7 @@ async function deployDefaultFixture() {
     await claimService.getAddress(),
     await deliveryService.getAddress(),
     await rentalityView.getAddress(),
+    await insuranceService.getAddress(),
   ])
   await rentalityAdminGateway.waitForDeployment()
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityView.getAddress())
@@ -272,7 +283,7 @@ async function deployDefaultFixture() {
 }
 
 async function deployFixtureWithUsers() {
-  const [owner, admin, manager, host, guest, anonymous] = await ethers.getSigners()
+  const [owner, admin, manager, host, guest, anonymous, rentalityPlatform] = await ethers.getSigners()
   const RentalityUserService = await ethers.getContractFactory('RentalityUserService')
 
   const MockCivic = await ethers.getContractFactory('CivicMockVerifier')

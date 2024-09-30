@@ -87,12 +87,14 @@ describe('Admin trip searching', function () {
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
-    const availableCars = await rentalityGateway.connect(guest).getAvailableCarsForUser(guest.address)
+    const availableCars = await rentalityGateway
+      .connect(guest)
+      .searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
     expect(availableCars.length).to.equal(1)
 
     const oneDayInSeconds = 86400
 
-    const resultPayments = await rentalityGateway.calculatePayments(1, 1, ethToken)
+    const resultPayments = await rentalityGateway.connect(guest).calculatePayments(1, 1, ethToken)
     let startDateTime = Date.now() - 10
     let endDateTime = Date.now() + oneDayInSeconds + 10
     await expect(
@@ -141,7 +143,9 @@ describe('Admin trip searching', function () {
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
-    const availableCars = await rentalityGateway.connect(guest).getAvailableCarsForUser(guest.address)
+    const availableCars = await rentalityGateway
+      .connect(guest)
+      .searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
     expect(availableCars.length).to.equal(1)
 
     const oneDayInSeconds = 86400
@@ -220,7 +224,9 @@ describe('Admin trip searching', function () {
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
-    const availableCars = await rentalityGateway.connect(guest).getAvailableCarsForUser(guest.address)
+    const availableCars = await rentalityGateway
+      .connect(guest)
+      .searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
     expect(availableCars.length).to.equal(1)
 
     const oneDayInSeconds = 86400
@@ -302,7 +308,9 @@ describe('Admin trip searching', function () {
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
-    const availableCars = await rentalityGateway.connect(guest).getAvailableCarsForUser(guest.address)
+    const availableCars = await rentalityGateway
+      .connect(guest)
+      .searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
     expect(availableCars.length).to.equal(1)
 
     const oneDayInSeconds = 86400
@@ -373,7 +381,9 @@ describe('Admin trip searching', function () {
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
-    const availableCars = await rentalityGateway.connect(guest).getAvailableCarsForUser(guest.address)
+    const availableCars = await rentalityGateway
+      .connect(guest)
+      .searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
     expect(availableCars.length).to.equal(1)
 
     const oneDayInSeconds = 86400
@@ -424,7 +434,9 @@ describe('Admin trip searching', function () {
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
-    const availableCars = await rentalityGateway.connect(guest).getAvailableCarsForUser(guest.address)
+    const availableCars = await rentalityGateway
+      .connect(guest)
+      .searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
     expect(availableCars.length).to.equal(1)
 
     const oneDayInSeconds = 86400
