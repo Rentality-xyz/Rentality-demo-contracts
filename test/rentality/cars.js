@@ -1,6 +1,6 @@
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 const { expect } = require('chai')
-const { getMockCarRequest, getEmptySearchCarParams } = require('../utils')
+const { getMockCarRequest, getEmptySearchCarParams, emptyLocationInfo } = require('../utils')
 const { deployDefaultFixture } = require('./deployments')
 describe('Rentality: cars', function () {
   it('Host can add car to rentality', async function () {
@@ -35,7 +35,13 @@ describe('Rentality: cars', function () {
     expect(myCars.length).to.equal(1)
     const availableCars = await rentalityGateway
       .connect(guest)
-      .searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
+      .searchAvailableCarsWithDelivery(
+        0,
+        new Date().getSeconds() + 86400,
+        getEmptySearchCarParams(1),
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
     expect(availableCars.length).to.equal(1)
   })
 })
