@@ -177,10 +177,7 @@ contract RentalityPlatform is UUPSOwnable {
     addresses.tripService.rejectTrip(tripId);
 
     uint insurance = insuranceService.getInsurancePriceByTrip(tripId);
-    uint valueToReturnInUsdCents = addresses.currencyConverterService.calculateTripReject(
-      trip.paymentInfo,
-      insurance
-    );
+    uint valueToReturnInUsdCents = addresses.currencyConverterService.calculateTripReject(trip.paymentInfo, insurance);
     /* you should not recalculate the value with convertor,
      for return during rejection,
      but instead, use: 'addresses.tripService.tripIdToEthSumInTripCreation(tripId)'*/
@@ -416,9 +413,8 @@ contract RentalityPlatform is UUPSOwnable {
     insuranceService.saveGuestInsurance(insuranceInfo);
   }
 
-
   function updateCarTokenUri(uint256 carId, string memory tokenUri) public {
-  addresses.carService.updateCarTokenUri(carId,tokenUri);
+    addresses.carService.updateCarTokenUri(carId, tokenUri);
   }
 
   /// @notice Constructor to initialize the RentalityPlatform with service contract addresses.

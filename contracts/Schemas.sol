@@ -188,6 +188,8 @@ interface Schemas {
     LocationInfo returnLocation;
     string guestPhoneNumber;
     string hostPhoneNumber;
+    InsuranceInfo[] insurancesInfo;
+    uint paidForInsuranceInUsdCents;
   }
 
   /// CHAT LOGIC
@@ -421,6 +423,7 @@ interface Schemas {
     uint64 dropOf;
     bool insuranceIncluded;
     LocationInfo locationInfo;
+    InsuranceCarInfo insuranceInfo;
   }
 
   struct GeoData {

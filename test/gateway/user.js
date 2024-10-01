@@ -73,8 +73,8 @@ describe('RentalityGateway: user info', function () {
 
     await expect(rentalityGateway.connect(host).setKYCInfo(name, number, photo, hostSignature)).not.be.reverted
 
-    const kycInfo = await rentalityGateway.connect(host).getMyKYCInfo()
-
+    const fullKycInfo = await rentalityGateway.connect(host).getMyFullKYCInfo()
+    let kycInfo = fullKycInfo.kyc
     expect(kycInfo.name).to.equal(name)
 
     expect(kycInfo.mobilePhoneNumber).to.equal(number)
@@ -99,8 +99,8 @@ describe('RentalityGateway: user info', function () {
     const adminSignature = signKycInfo(await rentalityLocationVerifier.getAddress(), admin, kyc)
     await expect(rentalityGateway.connect(guest).setKYCInfo(name, number, photo, guestSignature)).not.be.reverted
 
-    const kycInfo = await rentalityGateway.connect(guest).getMyKYCInfo()
-
+    const fullKycInfo = await rentalityGateway.connect(guest).getMyFullKYCInfo()
+    let kycInfo = fullKycInfo.kyc
     expect(kycInfo.name).to.equal(name)
 
     expect(kycInfo.mobilePhoneNumber).to.equal(number)
@@ -116,7 +116,13 @@ describe('RentalityGateway: user info', function () {
 
     const availableCars = await rentalityGateway
       .connect(guest)
-      .searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
+      .searchAvailableCarsWithDelivery(
+        0,
+        new Date().getSeconds() + 86400,
+        getEmptySearchCarParams(1),
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
     expect(availableCars.length).to.equal(1)
 
     const dailyPriceInUsdCents = 1000
@@ -159,7 +165,13 @@ describe('RentalityGateway: user info', function () {
 
     const availableCars = await rentalityGateway
       .connect(guest)
-      .searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
+      .searchAvailableCarsWithDelivery(
+        0,
+        new Date().getSeconds() + 86400,
+        getEmptySearchCarParams(1),
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
     expect(availableCars.length).to.equal(1)
 
     const dailyPriceInUsdCents = 1000
@@ -201,7 +213,13 @@ describe('RentalityGateway: user info', function () {
 
     const availableCars = await rentalityGateway
       .connect(guest)
-      .searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
+      .searchAvailableCarsWithDelivery(
+        0,
+        new Date().getSeconds() + 86400,
+        getEmptySearchCarParams(1),
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
     expect(availableCars.length).to.equal(1)
 
     const dailyPriceInUsdCents = 1000
@@ -250,7 +268,9 @@ describe('RentalityGateway: user info', function () {
       rentalityGateway.connect(host).setKYCInfo(name + 'host', number + 'host', photo + 'host', hostSignature)
     ).not.be.reverted
 
-    const availableCars = await rentalityGateway.connect(guest).searchAvailableCars(0, 1, getEmptySearchCarParams(0))
+    const availableCars = await rentalityGateway
+      .connect(guest)
+      .searchAvailableCarsWithDelivery(0, 1, getEmptySearchCarParams(0), emptyLocationInfo, emptyLocationInfo)
     expect(availableCars.length).to.equal(1)
     expect(availableCars[0].car.hostPhotoUrl).to.be.eq(photo + 'host')
     expect(availableCars[0].car.hostName).to.be.eq(name + 'host')
