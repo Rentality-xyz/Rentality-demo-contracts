@@ -80,7 +80,7 @@ contract RentalityBaseDiscount is IRentalityDiscount, Initializable, UUPSAccess 
   /// @notice Verifies the validity of discount percentages.
   /// @param value The discount percentage to verify.
   function verifyPercentagesValidity(uint value) private pure {
-    require(value >= 0 && value <= 1_000_000, 'Incorrect value');
+    require(value <= 1_000_000, 'Incorrect value');
   }
 
   /// @notice Initializes the RentalityBaseDiscount contract.

@@ -230,6 +230,7 @@ library RentalityQuery {
       (int rate, uint8 dec) = claimService.claimIdToCurrencyRate(claim.claimId);
       if (rate > 0) valueInEth = currencyConverterService.getFromUsd(currency, amount, rate, dec);
     }
+    else 
     (valueInEth, , ) = currencyConverterService.getFromUsdLatest(currency, amount);
     return valueInEth;
   }
