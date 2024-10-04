@@ -48,7 +48,7 @@ contract RentalityEnginesService is Initializable, UUPSAccess {
   }
 
   /// @notice Retrieves the address of an engine contract based on its engine type.
-  /// @param eType The engine type for which to retrieve the addresshttps://ackee.xyz/wake/docs/4.11.1/static-analysis/detectors/reentrancy.
+  /// @param eType The engine type for which to retrieve the address
   /// @return The address of the specified engine contract.
   function getEngineAddressById(uint8 eType) public view returns (address) {
     return address(engineTypeToEngineContract[eType]);
