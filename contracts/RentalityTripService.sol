@@ -85,7 +85,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     uint64 milesIncludedPerDay,
     Schemas.PaymentInfo memory paymentInfo,
     uint msgValue
-  ) public returns(uint){
+  ) public returns (uint) {
     require(addresses.userService.isManager(msg.sender), 'Only from manager contract.');
     _tripIdCounter.increment();
     uint256 newTripId = _tripIdCounter.current();
