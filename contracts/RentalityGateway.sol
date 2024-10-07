@@ -43,11 +43,12 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
   using RentalityQuery for RentalityContract;
 
   fallback(bytes calldata data) external payable returns (bytes memory) {
+    require(msg.sender == tx.origin, "Smart wallets not allowed now");
     (bool ok_view, bytes memory res_view) = address(addresses.viewService).call(data);
     bytes4 errorSign = 0x403e7fa6;
 
     if (!ok_view && bytes4(res_view) == errorSign) {
-      (bool ok, bytes memory res) = address(addresses.rentalityPlatform).call{value: msg.value}(data);
+    (bool ok, bytes memory res) = address(addresses.rentalityPlatform).call{value: msg.value}(data);
       return _parseResult(ok, res);
     }
     return _parseResult(ok_view, res_view);
