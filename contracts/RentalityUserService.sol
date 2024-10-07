@@ -6,6 +6,7 @@ import '@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol';
 import {AccessControlUpgradeable} from '@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol';
 import './Schemas.sol';
 import '@openzeppelin/contracts/utils/cryptography/ECDSA.sol';
+import {IRentalityAccessControl} from './abstract/IRentalityAccessControl.sol';
 
 /// @title RentalityUserService Contract
 /// @notice
@@ -16,7 +17,7 @@ import '@openzeppelin/contracts/utils/cryptography/ECDSA.sol';
 ///
 /// The contract includes functions to set and retrieve KYC information, check for valid KYC,
 /// grant and revoke roles, and check user roles
-contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
+contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRentalityAccessControl {
   // Role identifiers for access control
   bytes32 public constant MANAGER_ROLE = keccak256('MANAGER_ROLE');
   bytes32 public constant HOST_ROLE = keccak256('HOST_ROLE');
