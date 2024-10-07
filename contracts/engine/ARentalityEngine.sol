@@ -86,13 +86,13 @@ abstract contract ARentalityEngine {
 
   /// @notice Verifies the correctness of start parameters.
   function verifyStartParams(uint64[] memory params) public virtual {
-    isCorrectArgs(params.length == getParamsAmount() && (params[0] >= 0 && params[0] <= 100));
+    isCorrectArgs(params.length == getParamsAmount() && params[0] <= 100);
   }
 
   /// @notice Verifies the correctness of end parameters.
   function verifyEndParams(uint64[] memory startParams, uint64[] memory endParams) public virtual {
     isCorrectArgs(startParams.length == getParamsAmount() && endParams.length == getParamsAmount());
-    isCorrectArgs(endParams[0] >= 0 && endParams[0] <= 100);
+    isCorrectArgs(endParams[0] <= 100);
 
     uint64 startOdometr = startParams[1];
     uint64 endOdometr = endParams[1];
