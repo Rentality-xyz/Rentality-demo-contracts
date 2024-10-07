@@ -9,6 +9,7 @@ const {
   locationInfo,
   signLocationInfo,
   emptyKyc,
+  emptyLocationInfo,
 } = require('../utils')
 const { ethers } = require('hardhat')
 
@@ -73,7 +74,13 @@ describe('RentalityGateway: car', function () {
     expect(myCars.length).to.equal(1)
     const availableCars = await rentalityGateway
       .connect(host)
-      .searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
+      .searchAvailableCarsWithDelivery(
+        0,
+        new Date().getSeconds() + 86400,
+        getEmptySearchCarParams(1),
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
     expect(availableCars.length).to.equal(0)
   })
   it('Guest see cars as available', async function () {
@@ -84,7 +91,13 @@ describe('RentalityGateway: car', function () {
     expect(myCars.length).to.equal(1)
     const availableCars = await rentalityGateway
       .connect(guest)
-      .searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
+      .searchAvailableCarsWithDelivery(
+        0,
+        new Date().getSeconds() + 86400,
+        getEmptySearchCarParams(1),
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
     expect(availableCars.length).to.equal(1)
   })
   it('should allow only host to update car info', async function () {
@@ -100,7 +113,7 @@ describe('RentalityGateway: car', function () {
       timeBufferBetweenTripsInSec: 2,
       currentlyListed: false,
       insuranceRequired: false,
-      insurancePrice: 0,
+      insurancePriceInUsdCents: 0,
     }
 
     await expect(rentalityGateway.connect(host).updateCarInfo(update_params)).not.to.be.reverted
@@ -111,11 +124,11 @@ describe('RentalityGateway: car', function () {
 
     let carInfo = await rentalityGateway.getCarInfoById(update_params.carId)
 
-    expect(carInfo.currentlyListed).to.be.equal(false)
-    expect(carInfo.pricePerDayInUsdCents).to.be.equal(update_params.pricePerDayInUsdCents)
-    expect(carInfo.milesIncludedPerDay).to.be.equal(update_params.milesIncludedPerDay)
-    expect(carInfo.engineParams[1]).to.be.equal(update_params.engineParams[0])
-    expect(carInfo.securityDepositPerTripInUsdCents).to.be.equal(update_params.securityDepositPerTripInUsdCents)
+    expect(carInfo.carInfo.currentlyListed).to.be.equal(false)
+    expect(carInfo.carInfo.pricePerDayInUsdCents).to.be.equal(update_params.pricePerDayInUsdCents)
+    expect(carInfo.carInfo.milesIncludedPerDay).to.be.equal(update_params.milesIncludedPerDay)
+    expect(carInfo.carInfo.engineParams[1]).to.be.equal(update_params.engineParams[0])
+    expect(carInfo.carInfo.securityDepositPerTripInUsdCents).to.be.equal(update_params.securityDepositPerTripInUsdCents)
   })
 
   it('should have cars owned by user', async function () {
@@ -169,10 +182,12 @@ describe('RentalityGateway: car', function () {
     const totalTripDays = 7
     const searchParams = getEmptySearchCarParams()
     await expect(rentalityGateway.connect(host).addCar(addCarRequest)).not.be.reverted
-    const resultAr = await rentalityGateway.searchAvailableCars(
+    const resultAr = await rentalityGateway.searchAvailableCarsWithDelivery(
       new Date().getDate(),
       new Date().getDate() + oneDayInSec * totalTripDays,
-      searchParams
+      searchParams,
+      emptyLocationInfo,
+      emptyLocationInfo
     )
     const result = resultAr[0].car
 

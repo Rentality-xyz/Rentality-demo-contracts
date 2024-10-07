@@ -42,6 +42,10 @@ contract RentalityInsurance is Initializable, UUPSAccess {
       )
     );
   }
+  function getMyInsurancesAsGuest(address user) public view returns (Schemas.InsuranceInfo[] memory) {
+    require(userService.isManager(tx.origin), 'only Manager');
+    return guestToInsuranceInfo[user];
+  }
 
   function saveTripInsuranceInfo(uint tripId, Schemas.SaveInsuranceRequest memory insuranceInfo) public {
     require(userService.isManager(msg.sender), 'Only Manager');
@@ -98,7 +102,7 @@ contract RentalityInsurance is Initializable, UUPSAccess {
   function getTripInsurances(uint tripId) public view returns (Schemas.InsuranceInfo[] memory) {
     return tripIdToInsuranceInfo[tripId];
   }
-  function getCarInsuranceInfo(uint carId) public view returns(Schemas.InsuranceCarInfo memory) {
+  function getCarInsuranceInfo(uint carId) public view returns (Schemas.InsuranceCarInfo memory) {
     return carIdToInsuranceRequired[carId];
   }
   function isGuestHasInsurance(address guest) public view returns (bool) {

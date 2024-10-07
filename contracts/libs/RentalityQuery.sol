@@ -15,6 +15,7 @@ import {RentalityCarDelivery} from '../features/RentalityCarDelivery.sol';
 import '../Schemas.sol';
 import {RentalityTripsQuery} from './RentalityTripsQuery.sol';
 import {CurrencyRate as ClaimCurrencyRate} from '../features/RentalityClaimService.sol';
+import {RentalityInsurance} from '../payments/RentalityInsurance.sol';
 
 library RentalityQuery {
   /// @notice Checks if a car intersects with a trip's scheduled time.
@@ -98,6 +99,14 @@ library RentalityQuery {
     return claimInfos;
   }
 
+  function getClaimsBy(
+    RentalityContract memory contracts,
+    bool host,
+    address user
+  ) public view returns (Schemas.FullClaimInfo[] memory) {
+    return host ? getClaimsByHost(contracts, user) : getClaimsByGuest(contracts, user);
+  }
+
   /// @notice Retrieves all claims associated with a specific host.
   /// @dev This function fetches detailed claim information for a given host address.
   /// @param contracts The Rentality contract instance containing service addresses.
@@ -106,7 +115,7 @@ library RentalityQuery {
   function getClaimsByHost(
     RentalityContract memory contracts,
     address host
-  ) public view returns (Schemas.FullClaimInfo[] memory) {
+  ) private view returns (Schemas.FullClaimInfo[] memory) {
     RentalityClaimService claimService = contracts.claimService;
     RentalityTripService tripService = contracts.tripService;
     RentalityCarToken carService = contracts.carService;
@@ -166,7 +175,7 @@ library RentalityQuery {
   function getClaimsByGuest(
     RentalityContract memory contracts,
     address guest
-  ) public view returns (Schemas.FullClaimInfo[] memory) {
+  ) private view returns (Schemas.FullClaimInfo[] memory) {
     RentalityClaimService claimService = contracts.claimService;
     RentalityTripService tripService = contracts.tripService;
     RentalityCarToken carService = contracts.carService;
@@ -253,8 +262,10 @@ library RentalityQuery {
     Schemas.SearchCarParams memory searchParams,
     Schemas.LocationInfo memory pickUpInfo,
     Schemas.LocationInfo memory returnInfo,
-    address deliveryServiceAddress
+    address deliveryServiceAddress,
+    address insuranceServiceAddress
   ) public view returns (Schemas.SearchCar[] memory result) {
+    RentalityInsurance insuranceService = RentalityInsurance(insuranceServiceAddress);
     RentalityCarToken carService = contracts.carService;
     Schemas.CarInfo[] memory availableCars = carService.fetchAvailableCarsForUser(user, searchParams);
     if (availableCars.length == 0) return new Schemas.SearchCar[](0);
@@ -353,7 +364,8 @@ library RentalityQuery {
         pickUp,
         dropOf,
         temp[i].insuranceIncluded,
-        IRentalityGeoService(carService.getGeoServiceAddress()).getLocationInfo(temp[i].locationHash)
+        IRentalityGeoService(carService.getGeoServiceAddress()).getLocationInfo(temp[i].locationHash),
+        insuranceService.getCarInsuranceInfo(temp[i].carId)
       );
     }
     return result;
@@ -378,7 +390,8 @@ library RentalityQuery {
     Schemas.SearchCarParams memory searchParams,
     Schemas.LocationInfo memory pickUpInfo,
     Schemas.LocationInfo memory returnInfo,
-    address deliveryServiceAddress
+    address deliveryServiceAddress,
+    address insuranceService
   ) public view returns (Schemas.SearchCarWithDistance[] memory) {
     return
       RentalityCarDelivery(deliveryServiceAddress).sortCarsByDistance(
@@ -390,7 +403,8 @@ library RentalityQuery {
           searchParams,
           pickUpInfo,
           returnInfo,
-          deliveryServiceAddress
+          deliveryServiceAddress,
+          insuranceService
         ),
         searchParams.userLocation
       );
