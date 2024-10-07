@@ -61,7 +61,7 @@ interface IRentalityGateway {
 
   /// @notice Get information about all trips where the caller is the host.
   /// @return An array of Trip structures containing details about trips where the caller is the host.
-  function getTripsAsHost() external view returns (Schemas.TripDTO[] memory);
+  function getTripsAs(bool host) external view returns (Schemas.TripDTO[] memory);
 
   /// @notice This function provides a detailed receipt of the trip, including payment information and trip details.
   /// @param tripId The ID of the trip for which the receipt is requested.
@@ -127,11 +127,11 @@ interface IRentalityGateway {
   /// @param endDateTime The end date and time of the trip.
   /// @param searchParams Additional parameters for searching available cars.
   /// @return An array of CarInfo structures containing details about available cars matching the criteria.
-  function searchAvailableCars(
-    uint64 startDateTime,
-    uint64 endDateTime,
-    Schemas.SearchCarParams memory searchParams
-  ) external view returns (Schemas.SearchCarWithDistance[] memory);
+  // function searchAvailableCars(
+  //   uint64 startDateTime,
+  //   uint64 endDateTime,
+  //   Schemas.SearchCarParams memory searchParams
+  // ) external view returns (Schemas.SearchCarWithDistance[] memory);
 
   /// @notice Searches for available cars for a specific user based on specified criteria.
   /// @param user The address of the user.
@@ -174,7 +174,7 @@ interface IRentalityGateway {
 
   /// @notice Get information about all trips where the caller is the guest.
   /// @return An array of Trip structures containing details about trips where the caller is the guest.
-  function getTripsAsGuest() external view returns (Schemas.TripDTO[] memory);
+  // function getTripsAsGuest() external view returns (Schemas.TripDTO[] memory);
 
   /// @notice Performs check-in by the guest for a trip.
   /// @param tripId The ID of the trip.
@@ -243,12 +243,12 @@ interface IRentalityGateway {
   /// @notice Retrieves all claims where the caller is the host.
   /// @dev The caller is assumed to be the host of the claims.
   /// @return An array of FullClaimInfo containing information about each claim.
-  function getMyClaimsAsHost() external view returns (Schemas.FullClaimInfo[] memory);
+  function getMyClaimsAs(bool host) external view returns (Schemas.FullClaimInfo[] memory);
 
   ///  @notice Retrieves all claims where the caller is the guest.
   ///  @dev The caller is assumed to be the guest of the claims.
   ///  @return An array of FullClaimInfo containing information about each claim.
-  function getMyClaimsAsGuest() external view returns (Schemas.FullClaimInfo[] memory);
+  // function getMyClaimsAsGuest() external view returns (Schemas.FullClaimInfo[] memory);
 
   /// @notice Get contact information for a trip.
   /// @param tripId The ID of the trip.
@@ -275,14 +275,12 @@ interface IRentalityGateway {
 
   /// @notice Get KYC (Know Your Customer) information for the caller.
   /// @return KYCInfo structure containing details about the KYC information of the caller.
-  function getMyKYCInfo() external view returns (Schemas.KYCInfo memory);
+  // function getMyKYCInfo() external view returns (Schemas.KYCInfo memory);
 
   /// @notice Retrieves chat information for the caller acting as a host.
   /// @return An array of chat information.
   function getChatInfoForHost() external view returns (Schemas.ChatInfo[] memory);
 
-  /// @notice Retrieves chat information for the caller acting as a guest.
-  /// @return An array of chat information.
   function getChatInfoForGuest() external view returns (Schemas.ChatInfo[] memory);
 
   /// @notice Retrieves the cars owned by a specific host.
@@ -376,5 +374,7 @@ interface IRentalityGateway {
 
   function calculateClaimValue(uint) external view returns (uint);
 
-    function updateCarTokenUri(uint256 carId, string memory tokenUri) external;
+  function updateCarTokenUri(uint256 carId, string memory tokenUri) external;
+
+  function getMyInsurancesAsGuest() external view returns (Schemas.InsuranceInfo[] memory);
 }

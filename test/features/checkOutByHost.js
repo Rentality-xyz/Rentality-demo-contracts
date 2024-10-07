@@ -65,7 +65,13 @@ describe('Check out without guest', function () {
 
     const availableCars = await rentalityGateway
       .connect(guest)
-      .searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
+      .searchAvailableCarsWithDelivery(
+        0,
+        new Date().getSeconds() + 86400,
+        getEmptySearchCarParams(1),
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
     expect(availableCars.length).to.equal(1)
 
     const oneDayInSeconds = 86400
@@ -113,7 +119,13 @@ describe('Check out without guest', function () {
 
     const availableCars = await rentalityGateway
       .connect(guest)
-      .searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
+      .searchAvailableCarsWithDelivery(
+        0,
+        new Date().getSeconds() + 86400,
+        getEmptySearchCarParams(1),
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
     expect(availableCars.length).to.equal(1)
 
     const oneDayInSeconds = 86400
@@ -153,10 +165,12 @@ describe('Check out without guest', function () {
     await expect(rentalityGateway.connect(host).checkOutByHost(1, [0, 0])).not.to.be.reverted
 
     const searchParams = getEmptySearchCarParams()
-    const resultAr = await rentalityGateway.searchAvailableCars(
+    const resultAr = await rentalityGateway.searchAvailableCarsWithDelivery(
       new Date().getDate(),
       new Date().getDate() + 100,
-      searchParams
+      searchParams,
+      emptyLocationInfo,
+      emptyLocationInfo
     )
     const carId = resultAr[0].car.carId
 
@@ -171,7 +185,13 @@ describe('Check out without guest', function () {
 
     const availableCars = await rentalityGateway
       .connect(guest)
-      .searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
+      .searchAvailableCarsWithDelivery(
+        0,
+        new Date().getSeconds() + 86400,
+        getEmptySearchCarParams(1),
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
     expect(availableCars.length).to.equal(1)
 
     const oneDayInSeconds = 86400
@@ -219,7 +239,13 @@ describe('Check out without guest', function () {
 
     const availableCars = await rentalityGateway
       .connect(guest)
-      .searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
+      .searchAvailableCarsWithDelivery(
+        0,
+        new Date().getSeconds() + 86400,
+        getEmptySearchCarParams(1),
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
     expect(availableCars.length).to.equal(1)
     let oneDayInSeconds = 86400
     let dayInTrip = 31
@@ -284,7 +310,13 @@ describe('Check out without guest', function () {
 
     const availableCars = await rentalityGateway
       .connect(guest)
-      .searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
+      .searchAvailableCarsWithDelivery(
+        0,
+        new Date().getSeconds() + 86400,
+        getEmptySearchCarParams(1),
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
     expect(availableCars.length).to.equal(1)
     const oneDayInSeconds = 86400
 
@@ -348,7 +380,13 @@ describe('Check out without guest', function () {
 
     const availableCars = await rentalityGateway
       .connect(guest)
-      .searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
+      .searchAvailableCarsWithDelivery(
+        0,
+        new Date().getSeconds() + 86400,
+        getEmptySearchCarParams(1),
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
     expect(availableCars.length).to.equal(1)
     let dayInTrip = 31
 

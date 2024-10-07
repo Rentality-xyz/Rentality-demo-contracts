@@ -58,7 +58,13 @@ describe('RentalityClaim', function () {
 
     const availableCars = await rentalityGateway
       .connect(guest)
-      .searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
+      .searchAvailableCarsWithDelivery(
+        0,
+        new Date().getSeconds() + 86400,
+        getEmptySearchCarParams(1),
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
     expect(availableCars.length).to.equal(1)
 
     const oneDayInSeconds = 86400
@@ -99,7 +105,13 @@ describe('RentalityClaim', function () {
 
     const availableCars = await rentalityGateway
       .connect(guest)
-      .searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
+      .searchAvailableCarsWithDelivery(
+        0,
+        new Date().getSeconds() + 86400,
+        getEmptySearchCarParams(1),
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
     expect(availableCars.length).to.equal(1)
 
     const oneDayInSeconds = 86400
@@ -155,7 +167,13 @@ describe('RentalityClaim', function () {
 
     const availableCars = await rentalityGateway
       .connect(guest)
-      .searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
+      .searchAvailableCarsWithDelivery(
+        0,
+        new Date().getSeconds() + 86400,
+        getEmptySearchCarParams(1),
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
     expect(availableCars.length).to.equal(1)
 
     const oneDayInSeconds = 86400
@@ -204,7 +222,13 @@ describe('RentalityClaim', function () {
 
     const availableCars = await rentalityGateway
       .connect(guest)
-      .searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
+      .searchAvailableCarsWithDelivery(
+        0,
+        new Date().getSeconds() + 86400,
+        getEmptySearchCarParams(1),
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
     expect(availableCars.length).to.equal(1)
 
     const oneDayInSeconds = 86400
@@ -240,7 +264,7 @@ describe('RentalityClaim', function () {
 
     await expect(rentalityGateway.connect(host).createClaim(mockClaimRequest)).to.not.reverted
 
-    const claimInfo = (await rentalityGateway.connect(host).getMyClaimsAsHost())[0]
+    const claimInfo = (await rentalityGateway.connect(host).getMyClaimsAs(true))[0]
 
     expect(claimInfo.carInfo.model).to.be.eq(createCarRequest.model)
     expect(claimInfo.carInfo.brand).to.be.eq(createCarRequest.brand)
@@ -260,7 +284,13 @@ describe('RentalityClaim', function () {
 
     const availableCars = await rentalityGateway
       .connect(guest)
-      .searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
+      .searchAvailableCarsWithDelivery(
+        0,
+        new Date().getSeconds() + 86400,
+        getEmptySearchCarParams(1),
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
     expect(availableCars.length).to.equal(1)
 
     const oneDayInSeconds = 86400
@@ -299,7 +329,7 @@ describe('RentalityClaim', function () {
     await expect(rentalityGateway.connect(host).createClaim(mockClaimRequest)).to.not.reverted
     await expect(rentalityGateway.connect(host).createClaim(mockClaimRequest)).to.not.reverted
 
-    const claimInfos = await rentalityGateway.connect(host).getMyClaimsAsHost()
+    const claimInfos = await rentalityGateway.connect(host).getMyClaimsAs(true)
 
     expect(claimInfos.length).to.be.eq(3)
     expect(claimInfos[0].claim.claimId).to.be.eq(1)
@@ -315,7 +345,13 @@ describe('RentalityClaim', function () {
 
     const availableCars = await rentalityGateway
       .connect(guest)
-      .searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
+      .searchAvailableCarsWithDelivery(
+        0,
+        new Date().getSeconds() + 86400,
+        getEmptySearchCarParams(1),
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
     expect(availableCars.length).to.equal(1)
 
     const oneDayInSeconds = 86400
@@ -412,17 +448,17 @@ describe('RentalityClaim', function () {
       await expect(rentalityGateway.connect(host).createClaim(mockClaimRequest)).to.not.reverted
     }
     // Owner should not have claims
-    const ownerClaims = await rentalityGateway.getMyClaimsAsHost()
-    const ownerClaims2 = await rentalityGateway.getMyClaimsAsGuest()
+    const ownerClaims = await rentalityGateway.getMyClaimsAs(true)
+    const ownerClaims2 = await rentalityGateway.getMyClaimsAs(false)
 
     expect(ownerClaims.length).to.be.eq(0)
     expect(ownerClaims2.length).to.be.eq(0)
 
-    const hostClaims = await rentalityGateway.connect(host).getMyClaimsAsHost()
+    const hostClaims = await rentalityGateway.connect(host).getMyClaimsAs(true)
 
     expect(hostClaims.length).to.be.eq(claimsCreate)
 
-    const guestClaims = await rentalityGateway.connect(guest).getMyClaimsAsGuest()
+    const guestClaims = await rentalityGateway.connect(guest).getMyClaimsAs(false)
 
     expect(guestClaims.length).to.be.eq(claimsCreate)
   })
@@ -435,7 +471,13 @@ describe('RentalityClaim', function () {
 
     const availableCars = await rentalityGateway
       .connect(guest)
-      .searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
+      .searchAvailableCarsWithDelivery(
+        0,
+        new Date().getSeconds() + 86400,
+        getEmptySearchCarParams(1),
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
     expect(availableCars.length).to.equal(1)
 
     const oneDayInSeconds = 86400
@@ -484,7 +526,13 @@ describe('RentalityClaim', function () {
 
     const availableCars = await rentalityGateway
       .connect(guest)
-      .searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
+      .searchAvailableCarsWithDelivery(
+        0,
+        new Date().getSeconds() + 86400,
+        getEmptySearchCarParams(1),
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
     expect(availableCars.length).to.equal(1)
 
     let sumToPayInUsdCents = request.pricePerDayInUsdCents
@@ -551,7 +599,13 @@ describe('RentalityClaim', function () {
 
     const availableCars = await rentalityGateway
       .connect(guest)
-      .searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
+      .searchAvailableCarsWithDelivery(
+        0,
+        new Date().getSeconds() + 86400,
+        getEmptySearchCarParams(1),
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
     expect(availableCars.length).to.equal(1)
 
     let sumToPayInUsdCents = request.pricePerDayInUsdCents
@@ -618,7 +672,13 @@ describe('RentalityClaim', function () {
 
     const availableCars = await rentalityGateway
       .connect(guest)
-      .searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
+      .searchAvailableCarsWithDelivery(
+        0,
+        new Date().getSeconds() + 86400,
+        getEmptySearchCarParams(1),
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
     expect(availableCars.length).to.equal(1)
 
     let sumToPayInUsdCents = request.pricePerDayInUsdCents
