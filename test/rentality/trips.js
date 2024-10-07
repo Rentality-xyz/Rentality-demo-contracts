@@ -22,7 +22,13 @@ describe('Rentality: trips', function () {
 
     const availableCars = await rentalityGateway
       .connect(guest)
-      .searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
+      .searchAvailableCarsWithDelivery(
+        0,
+        new Date().getSeconds() + 86400,
+        getEmptySearchCarParams(1),
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
     expect(availableCars.length).to.equal(1)
 
     const result = await rentalityGateway.calculatePayments(1, 1, ethToken)
@@ -59,7 +65,13 @@ describe('Rentality: trips', function () {
 
     const availableCars = await rentalityGateway
       .connect(guest)
-      .searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
+      .searchAvailableCarsWithDelivery(
+        0,
+        new Date().getSeconds() + 86400,
+        getEmptySearchCarParams(1),
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
     expect(availableCars.length).to.equal(1)
 
     const result = await rentalityGateway.connect(guest).calculatePayments(1, 1, ethToken)
@@ -101,7 +113,13 @@ describe('Rentality: trips', function () {
 
     const availableCars = await rentalityGateway
       .connect(guest)
-      .searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
+      .searchAvailableCarsWithDelivery(
+        0,
+        new Date().getSeconds() + 86400,
+        getEmptySearchCarParams(1),
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
     expect(availableCars.length).to.equal(1)
 
     const result = await rentalityGateway.connect(guest).calculatePayments(1, 1, ethToken)
@@ -143,7 +161,13 @@ describe('Rentality: trips', function () {
     expect(myCars.length).to.equal(1)
     const availableCars = await rentalityGateway
       .connect(guest)
-      .searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
+      .searchAvailableCarsWithDelivery(
+        0,
+        new Date().getSeconds() + 86400,
+        getEmptySearchCarParams(1),
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
     expect(availableCars.length).to.equal(1)
 
     const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals, rentalityFee, taxes } = await calculatePayments(
@@ -207,7 +231,13 @@ describe('Rentality: trips', function () {
     expect(myCars.length).to.equal(1)
     const availableCars = await rentalityGateway
       .connect(guest)
-      .searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
+      .searchAvailableCarsWithDelivery(
+        0,
+        new Date().getSeconds() + 86400,
+        getEmptySearchCarParams(1),
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
     expect(availableCars.length).to.equal(1)
 
     const result = await rentalityGateway.connect(guest).calculatePayments(1, 1, ethToken)
@@ -268,7 +298,13 @@ describe('Rentality: trips', function () {
     expect(myCars.length).to.equal(1)
     const availableCars = await rentalityGateway
       .connect(guest)
-      .searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
+      .searchAvailableCarsWithDelivery(
+        0,
+        new Date().getSeconds() + 86400,
+        getEmptySearchCarParams(1),
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
     expect(availableCars.length).to.equal(1)
 
     const dailyPriceInUsdCents = 1000
@@ -309,7 +345,7 @@ describe('Rentality: trips', function () {
     expect(trip2.status).to.equal(0)
   })
 
-  it('searchAvailableCars should return cars with Intersect trip in status Created', async function () {
+  it('searchAvailableCarsWithDelivery should return cars with Intersect trip in status Created', async function () {
     const {
       rentalityPlatform,
       rentalityGateway,
@@ -332,7 +368,13 @@ describe('Rentality: trips', function () {
     const searchCarParams = getEmptySearchCarParams()
     const availableCars = await rentalityGateway
       .connect(guest)
-      .searchAvailableCars(timestampNow, timestampIn1Day, searchCarParams)
+      .searchAvailableCarsWithDelivery(
+        timestampNow,
+        timestampIn1Day,
+        searchCarParams,
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
     expect(availableCars.length).to.equal(1)
 
     const result = await rentalityGateway.connect(guest).calculatePayments(1, 1, ethToken)
@@ -352,11 +394,17 @@ describe('Rentality: trips', function () {
 
     const availableCars2 = await rentalityGateway
       .connect(guest)
-      .searchAvailableCars(timestampNow, timestampIn1Day, searchCarParams)
+      .searchAvailableCarsWithDelivery(
+        timestampNow,
+        timestampIn1Day,
+        searchCarParams,
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
     expect(availableCars2.length).to.equal(1)
   })
 
-  it("searchAvailableCars shouldn't return cars with Intersect trip in status approved", async function () {
+  it("searchAvailableCarsWithDelivery shouldn't return cars with Intersect trip in status approved", async function () {
     const {
       rentalityPlatform,
       rentalityGateway,
@@ -379,7 +427,13 @@ describe('Rentality: trips', function () {
     const searchCarParams = getEmptySearchCarParams()
     const availableCars = await rentalityGateway
       .connect(guest)
-      .searchAvailableCars(timestampNow, timestampIn1Day, searchCarParams)
+      .searchAvailableCarsWithDelivery(
+        timestampNow,
+        timestampIn1Day,
+        searchCarParams,
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
     expect(availableCars.length).to.equal(1)
 
     const result = await rentalityGateway.connect(guest).calculatePayments(1, 1, ethToken)
@@ -403,7 +457,13 @@ describe('Rentality: trips', function () {
     expect(trip1.status).to.equal(1)
     const availableCars2 = await rentalityGateway
       .connect(guest)
-      .searchAvailableCars(timestampNow, timestampIn1Day, searchCarParams)
+      .searchAvailableCarsWithDelivery(
+        timestampNow,
+        timestampIn1Day,
+        searchCarParams,
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
     expect(availableCars2.length).to.equal(0)
   })
 })

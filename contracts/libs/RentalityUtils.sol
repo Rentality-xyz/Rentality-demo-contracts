@@ -162,13 +162,12 @@ library RentalityUtils {
 
   /// @notice Populates an array of chat information using data from trips, user service, and car service.
   /// @return chatInfoList Array of IRentalityGateway.ChatInfo structures.
+
   function populateChatInfo(
     bool byGuest,
     RentalityContract memory addresses
   ) public view returns (Schemas.ChatInfo[] memory) {
-    Schemas.TripDTO[] memory trips = byGuest
-      ? addresses.viewService.getTripsAsGuest()
-      : addresses.viewService.getTripsAsHost();
+    Schemas.TripDTO[] memory trips = addresses.viewService.getTripsAs(!byGuest);
 
     RentalityUserService userService = addresses.userService;
     RentalityCarToken carService = addresses.carService;
