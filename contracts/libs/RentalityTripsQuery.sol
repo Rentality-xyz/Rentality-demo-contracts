@@ -348,12 +348,12 @@ library RentalityTripsQuery {
     bool host,
     RentalityContract memory contracts,
     RentalityInsurance insuranceService,
-    address guest
+    address user
   ) public view returns (Schemas.InsuranceDTO[] memory) {
     return
       host
-        ? getTripInsurancesByHost(contracts, insuranceService, tx.origin)
-        : getTripInsurancesByGuest(contracts, insuranceService, tx.origin);
+        ? getTripInsurancesByHost(contracts, insuranceService, user)
+        : getTripInsurancesByGuest(contracts, insuranceService, user);
   }
 
   function getTripInsurancesByGuest(
