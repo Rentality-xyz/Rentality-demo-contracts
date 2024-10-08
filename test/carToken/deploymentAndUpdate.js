@@ -33,11 +33,13 @@ it('Update car without location should work fine', async function () {
     carId: 2,
     pricePerDayInUsdCents: 2,
     securityDepositPerTripInUsdCents: 2,
-    engineParams: [2],
+    engineParams: [2,2],
     milesIncludedPerDay: 2,
     timeBufferBetweenTripsInSec: 0,
     currentlyListed: false,
     insuranceIncluded: true,
+    tokenUri: 'uri',
+    engineType: 1
   }
 
   await expect(rentalityCarToken.updateCarInfo(update_params, locationInfo, 'das')).not.be.reverted
@@ -59,11 +61,13 @@ it('Update car with location, but without api should revert', async function () 
     carId: 2,
     pricePerDayInUsdCents: 2,
     securityDepositPerTripInUsdCents: 2,
-    engineParams: [2],
+    engineParams: [2,2],
     milesIncludedPerDay: 2,
     timeBufferBetweenTripsInSec: 0,
     currentlyListed: false,
     insuranceIncluded: true,
+    engineType: 1,
+    tokenUri: 'uri'
   }
 
   await expect(rentalityCarToken.updateCarInfo(update_params, locationInfo, '')).to.be.reverted
