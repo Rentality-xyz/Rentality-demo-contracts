@@ -91,11 +91,13 @@ describe('RentalityGateway: car', function () {
       carId: 1,
       pricePerDayInUsdCents: 2,
       securityDepositPerTripInUsdCents: 2,
-      engineParams: [2],
+      engineParams: [2,2],
       milesIncludedPerDay: 2,
       timeBufferBetweenTripsInSec: 2,
       currentlyListed: false,
       insuranceIncluded: true,
+      engineType: 1,
+      tokenUri: "uri"
     }
 
     await expect(rentalityGateway.connect(host).updateCarInfo(update_params)).not.to.be.reverted
