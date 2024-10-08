@@ -109,13 +109,26 @@ function main() {
 
       tsCode += `export type ${enumName} = bigint;\n`
       tsCode += `export const ${enumName} = {\n`
-      enumContent.split(',').forEach((value) => {
-        value = value.trim()
-        if (value && !value.includes('//')) {
-          tsCode += `  ${value}: BigInt(${i}),\n`
-          i++
-        }
-      })
+      if (enumName !== 'TripStatus') {
+        enumContent.split(',').forEach((value) => {
+          value = value.trim()
+          if (value && !value.includes('//')) {
+            tsCode += `  ${value}: BigInt(${i}),\n`
+            i++
+          }
+        })
+      } else {
+        tsCode += `  Pending: BigInt(0), // Created\n`
+        tsCode += `  Confirmed: BigInt(1), // Approved\n`
+        tsCode += `  CheckedInByHost: BigInt(2), // CheckedInByHost\n`
+        tsCode += `  Started: BigInt(3), // CheckedInByGuest\n`
+        tsCode += `  CheckedOutByGuest: BigInt(4), //CheckedOutByGuest\n`
+        tsCode += `  Finished: BigInt(5), //CheckedOutByHost\n`
+        tsCode += `  Closed: BigInt(6), //Finished\n`
+        tsCode += `  Rejected: BigInt(7), //Canceled\n`
+        tsCode += `\n  CompletedWithoutGuestComfirmation: BigInt(100), //Finished\n`
+      }
+
       tsCode += '};\n\n'
     }
     tsCode += `export type EngineType = bigint;\n`

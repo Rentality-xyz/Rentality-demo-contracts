@@ -202,42 +202,43 @@ library RentalityUtils {
     return chatInfoList;
   }
 
+/// not using
   /// @notice Parses a response string containing geolocation data.
   /// @param response The response string to parse.
   /// @return result Parsed geolocation data in RentalityGeoService.ParsedGeolocationData structure.
-  function parseResponse(string memory response) public pure returns (Schemas.ParsedGeolocationData memory) {
-    Schemas.ParsedGeolocationData memory result;
+  // function parseResponse(string memory response) public pure returns (Schemas.ParsedGeolocationData memory) {
+  //   Schemas.ParsedGeolocationData memory result;
 
-    string[] memory pairs = splitString(response, bytes('|'));
-    for (uint256 i = 0; i < pairs.length; i++) {
-      string[] memory keyValue = splitKeyValue(pairs[i]);
-      string memory key = keyValue[0];
-      string memory value = keyValue[1];
-      if (compareStrings(key, 'status')) {
-        result.status = value;
-      } else if (compareStrings(key, 'locationLat')) {
-        result.locationLat = value;
-      } else if (compareStrings(key, 'locationLng')) {
-        result.locationLng = value;
-      } else if (compareStrings(key, 'northeastLat')) {
-        result.northeastLat = value;
-      } else if (compareStrings(key, 'northeastLng')) {
-        result.northeastLng = value;
-      } else if (compareStrings(key, 'southwestLat')) {
-        result.southwestLat = value;
-      } else if (compareStrings(key, 'southwestLng')) {
-        result.southwestLng = value;
-      } else if (compareStrings(key, 'locality')) {
-        result.city = value;
-      } else if (compareStrings(key, 'adminAreaLvl1')) {
-        result.state = value;
-      } else if (compareStrings(key, 'country')) {
-        result.country = value;
-      }
-    }
+  //   string[] memory pairs = splitString(response, bytes('|'));
+  //   for (uint256 i = 0; i < pairs.length; i++) {
+  //     string[] memory keyValue = splitKeyValue(pairs[i]);
+  //     string memory key = keyValue[0];
+  //     string memory value = keyValue[1];
+  //     if (compareStrings(key, 'status')) {
+  //       result.status = value;
+  //     } else if (compareStrings(key, 'locationLat')) {
+  //       result.locationLat = value;
+  //     } else if (compareStrings(key, 'locationLng')) {
+  //       result.locationLng = value;
+  //     } else if (compareStrings(key, 'northeastLat')) {
+  //       result.northeastLat = value;
+  //     } else if (compareStrings(key, 'northeastLng')) {
+  //       result.northeastLng = value;
+  //     } else if (compareStrings(key, 'southwestLat')) {
+  //       result.southwestLat = value;
+  //     } else if (compareStrings(key, 'southwestLng')) {
+  //       result.southwestLng = value;
+  //     } else if (compareStrings(key, 'locality')) {
+  //       result.city = value;
+  //     } else if (compareStrings(key, 'adminAreaLvl1')) {
+  //       result.state = value;
+  //     } else if (compareStrings(key, 'country')) {
+  //       result.country = value;
+  //     }
+  //   }
 
-    return result;
-  }
+  //   return result;
+  // }
 
   /// @notice Splits a string into an array of substrings based on a delimiter.
   /// @param input The input string to split.
