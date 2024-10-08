@@ -324,7 +324,7 @@ contract RentalityView is UUPSUpgradeable, Initializable {
   }
 
   function getMyInsurancesAsGuest() public view returns (Schemas.InsuranceInfo[] memory) {
-    insuranceService.getMyInsurancesAsGuest(tx.origin);
+    return insuranceService.getMyInsurancesAsGuest(tx.origin);
   }
 
   function initialize(
