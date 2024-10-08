@@ -63,7 +63,7 @@ describe('Rentality History Service', function () {
 
     const oneDayInSeconds = 86400
 
-    const result = await rentalityGateway.connect(guest).calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway.connect(guest).calculatePaymentsWithDelivery(1, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
     await expect(
       await rentalityPlatform.connect(guest).createTripRequest(
         {
