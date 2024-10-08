@@ -232,7 +232,7 @@ interface IRentalityGateway {
   /// @dev This function retrieves the claim information using the Rentality platform contract.
   /// @param claimId ID of the claim.
   /// @return Full information about the claim.
-  //  function getClaim(uint256 claimId) external view returns (Schemas.FullClaimInfo memory);
+   function getClaim(uint256 claimId) external view returns (Schemas.FullClaimInfo memory);
 
   /// @notice Gets an array of claims associated with a specific trip through the Rentality platform.
   /// @dev This function retrieves an array of detailed claim information for the given trip using the Rentality platform contract.
