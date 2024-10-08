@@ -75,6 +75,8 @@ interface Schemas {
     uint32 timeBufferBetweenTripsInSec;
     bool currentlyListed;
     bool insuranceIncluded;
+    uint8 engineType;
+    string tokenUri;
   }
 
   /// @notice Struct to store search parameters for querying cars.

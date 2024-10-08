@@ -198,15 +198,15 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
       idToCarInfo[request.carId].timeZoneId = location.timeZoneId;
     }
 
-    uint64[] memory engineParams = engineService.verifyUpdateParams(
-      idToCarInfo[request.carId].engineType,
-      request.engineParams,
-      idToCarInfo[request.carId].engineParams
-    );
+    engineService.verifyCreateParams(request.engineType, request.engineParams);
+    if(bytes(request.tokenUri).length > 0)
+    _setTokenURI(request.carId,request.tokenUri);
+  
     idToCarInfo[request.carId].pricePerDayInUsdCents = request.pricePerDayInUsdCents;
     idToCarInfo[request.carId].securityDepositPerTripInUsdCents = request.securityDepositPerTripInUsdCents;
     idToCarInfo[request.carId].milesIncludedPerDay = request.milesIncludedPerDay;
-    idToCarInfo[request.carId].engineParams = engineParams;
+    idToCarInfo[request.carId].engineParams = request.engineParams;
+    idToCarInfo[request.carId].engineType = request.engineType;
     idToCarInfo[request.carId].timeBufferBetweenTripsInSec = request.timeBufferBetweenTripsInSec;
     idToCarInfo[request.carId].currentlyListed = request.currentlyListed;
     idToCarInfo[request.carId].insuranceIncluded = request.insuranceIncluded;
