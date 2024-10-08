@@ -111,7 +111,7 @@ async function signLocationInfo(signer, verifierAddress, locationInfo) {
 async function setHostKycIfNotSet(host, gateway, chatService) {
   console.log('\nSetting KYC for host...')
 
-  if ((await gateway.connect(host).getMyKYCInfo()).name) {
+  if ((await gateway.connect(host).getMyFullKYCInfo()).name) {
     console.log('KYC for host has already set')
     return
   }
@@ -126,7 +126,7 @@ async function setHostKycIfNotSet(host, gateway, chatService) {
 async function setGuestKycIfNotSet(guest, gateway, chatService) {
   console.log('\nSetting KYC for guest...')
 
-  if ((await gateway.connect(guest).getMyKYCInfo()).name) {
+  if ((await gateway.connect(guest).getMyFullKYCInfo()).name) {
     console.log('KYC for guest has already set')
     return
   }
@@ -170,12 +170,23 @@ async function setCarsForHost(host, admin, verifierAddress, gateway) {
 }
 
 async function getTripCount(host, gateway) {
-  return (await gateway.connect(host).getTripsAsHost()).length
+  return (await gateway.connect(host).getTripsAs(true)).length
 }
 
 async function createPendingTrip(tripIndex, carId, host, guest, gateway) {
   const ethAddress = ethers.getAddress('0x0000000000000000000000000000000000000000')
-  const paymentsNeeded = await gateway.connect(guest).calculatePayments(carId, 1, ethAddress)
+  const emptyContractLocationInfo = {
+    userAddress: '',
+    country: '',
+    state: '',
+    city: '',
+    latitude: '',
+    longitude: '',
+    timeZoneId: '',
+  }
+  const paymentsNeeded = await gateway
+    .connect(guest)
+    .calculatePaymentsWithDelivery(carId, 1, ethAddress, emptyContractLocationInfo, emptyContractLocationInfo)
   const request = {
     carId: carId,
     startDateTime: Math.ceil(new Date().getTime() / 1000 + tripIndex * 3),
@@ -186,7 +197,7 @@ async function createPendingTrip(tripIndex, carId, host, guest, gateway) {
     value: paymentsNeeded.totalPrice,
   })
 
-  const trips = await gateway.connect(guest).getTripsAsGuest()
+  const trips = await gateway.connect(guest).getTripsAs(false)
   const tripId = trips[trips.length - 1]?.trip?.tripId ?? -1
   console.log(`\nTrip #${tripIndex} was created with id ${tripId} and status 'Pending'`)
   return tripId

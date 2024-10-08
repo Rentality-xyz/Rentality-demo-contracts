@@ -85,7 +85,8 @@
             { "type": "uint128", "name": "dropOfFee" }
           ]
         },
-        { "type": "uint256", "name": "rentalityFee" }
+        { "type": "uint256", "name": "rentalityFee" },
+        { "type": "uint256", "name": "insurancePriceInUsdCents" }
       ],
       "outputs": [
         { "type": "uint256", "name": "" },
@@ -122,7 +123,8 @@
             { "type": "uint128", "name": "pickUpFee" },
             { "type": "uint128", "name": "dropOfFee" }
           ]
-        }
+        },
+        { "type": "uint256", "name": "insurance" }
       ],
       "outputs": [{ "type": "uint256", "name": "" }]
     },
