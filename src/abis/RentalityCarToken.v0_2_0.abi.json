@@ -135,7 +135,6 @@
             { "type": "uint64", "name": "milesIncludedPerDay" },
             { "type": "uint32", "name": "timeBufferBetweenTripsInSec" },
             { "type": "string", "name": "geoApiKey" },
-            { "type": "bool", "name": "insuranceIncluded" },
             {
               "type": "tuple",
               "name": "locationInfo",
@@ -156,7 +155,9 @@
                 { "type": "bytes", "name": "signature" }
               ]
             },
-            { "type": "bool", "name": "currentlyListed" }
+            { "type": "bool", "name": "currentlyListed" },
+            { "type": "bool", "name": "insuranceRequired" },
+            { "type": "uint256", "name": "insurancePriceInUsdCents" }
           ]
         }
       ],
@@ -660,7 +661,8 @@
             { "type": "uint64", "name": "milesIncludedPerDay" },
             { "type": "uint32", "name": "timeBufferBetweenTripsInSec" },
             { "type": "bool", "name": "currentlyListed" },
-            { "type": "bool", "name": "insuranceIncluded" }
+            { "type": "bool", "name": "insuranceRequired" },
+            { "type": "uint256", "name": "insurancePriceInUsdCents" }
           ]
         },
         {
