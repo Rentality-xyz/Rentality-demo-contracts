@@ -81,7 +81,7 @@ describe('RentalityGateway: chat', function () {
 
     const dailyPriceInUsdCents = 1000
 
-    const result = await rentalityGateway.calculatePayments(1, 2, ethToken)
+    const result = await rentalityGateway.calculatePaymentsWithDelivery(1, 2, ethToken,emptyLocationInfo,emptyLocationInfo)
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
         {
@@ -111,7 +111,7 @@ describe('RentalityGateway: chat', function () {
       rentalityGateway.connect(guest).setKYCInfo(name + 'guest', number + 'guest', photo + 'guest', guestSignature)
     ).not.be.reverted
 
-    let chatInfoArray = await rentalityGateway.connect(guest).getChatInfoForGuest()
+    let chatInfoArray = await rentalityGateway.connect(guest).getChatInfoFor(false)
     expect(chatInfoArray.length).to.be.equal(1)
     let chatInfo = chatInfoArray[0]
 
@@ -158,7 +158,7 @@ describe('RentalityGateway: chat', function () {
 
     const oneDayInSeconds = 86400
 
-    const result = await rentalityGateway.connect(guest).calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway.connect(guest).calculatePaymentsWithDelivery(1, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
         {
@@ -171,7 +171,7 @@ describe('RentalityGateway: chat', function () {
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
 
-    let chatInfoArray = await rentalityGateway.connect(host).getChatInfoForHost()
+    let chatInfoArray = await rentalityGateway.connect(host).getChatInfoFor(true)
     expect(chatInfoArray.length).to.be.equal(1)
     let chatInfo = chatInfoArray[0]
 

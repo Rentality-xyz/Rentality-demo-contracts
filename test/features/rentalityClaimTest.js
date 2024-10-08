@@ -69,7 +69,7 @@ describe('RentalityClaim', function () {
 
     const oneDayInSeconds = 86400
 
-    const result = await rentalityGateway.connect(guest).calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway.connect(guest).calculatePaymentsWithDelivery(1, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
         {
@@ -116,7 +116,7 @@ describe('RentalityClaim', function () {
 
     const oneDayInSeconds = 86400
 
-    const result = await rentalityGateway.connect(guest).calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway.connect(guest).calculatePaymentsWithDelivery(1, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
         {
@@ -178,7 +178,7 @@ describe('RentalityClaim', function () {
 
     const oneDayInSeconds = 86400
 
-    const result = await rentalityGateway.connect(guest).calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway.connect(guest).calculatePaymentsWithDelivery(1, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
         {
@@ -235,7 +235,7 @@ describe('RentalityClaim', function () {
 
     const dailyPriceInUsdCents = 1000
 
-    const result = await rentalityGateway.connect(guest).calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway.connect(guest).calculatePaymentsWithDelivery(1, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
         {
@@ -297,7 +297,7 @@ describe('RentalityClaim', function () {
 
     const dailyPriceInUsdCents = 1000
 
-    const result = await rentalityGateway.connect(guest).calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway.connect(guest).calculatePaymentsWithDelivery(1, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
 
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
@@ -358,7 +358,7 @@ describe('RentalityClaim', function () {
 
     const dailyPriceInUsdCents = 1000
 
-    const result = await rentalityGateway.connect(guest).calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway.connect(guest).calculatePaymentsWithDelivery(1, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
         {
@@ -482,7 +482,7 @@ describe('RentalityClaim', function () {
 
     const oneDayInSeconds = 86400
 
-    const result = await rentalityGateway.connect(guest).calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway.connect(guest).calculatePaymentsWithDelivery(1, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
         {
@@ -543,7 +543,7 @@ describe('RentalityClaim', function () {
 
     let sevenDays = 86400 * 7
 
-    const payments = await rentalityGateway.calculatePayments(1, 7, ethToken)
+    const payments = await rentalityGateway.calculatePaymentsWithDelivery(1, 7, ethToken,emptyLocationInfo,emptyLocationInfo)
     await expect(
       await rentalityPlatform.connect(guest).createTripRequest(
         {
@@ -616,7 +616,7 @@ describe('RentalityClaim', function () {
 
     let sevenDays = 86400 * 7
 
-    const payments = await rentalityGateway.calculatePayments(1, 7, ethToken)
+    const payments = await rentalityGateway.calculatePaymentsWithDelivery(1, 7, ethToken,emptyLocationInfo,emptyLocationInfo)
     await expect(
       await rentalityPlatform.connect(guest).createTripRequest(
         {
@@ -689,7 +689,7 @@ describe('RentalityClaim', function () {
 
     let sevenDays = 86400 * 7
 
-    const payments = await rentalityGateway.calculatePayments(1, 7, ethToken)
+    const payments = await rentalityGateway.calculatePaymentsWithDelivery(1, 7, ethToken,emptyLocationInfo,emptyLocationInfo)
     await expect(
       await rentalityPlatform.connect(guest).createTripRequest(
         {
