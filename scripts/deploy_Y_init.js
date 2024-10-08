@@ -175,7 +175,18 @@ async function getTripCount(host, gateway) {
 
 async function createPendingTrip(tripIndex, carId, host, guest, gateway) {
   const ethAddress = ethers.getAddress('0x0000000000000000000000000000000000000000')
-  const paymentsNeeded = await gateway.connect(guest).calculatePayments(carId, 1, ethAddress)
+  const emptyContractLocationInfo = {
+    userAddress: '',
+    country: '',
+    state: '',
+    city: '',
+    latitude: '',
+    longitude: '',
+    timeZoneId: '',
+  }
+  const paymentsNeeded = await gateway
+    .connect(guest)
+    .calculatePaymentsWithDelivery(carId, 1, ethAddress, emptyContractLocationInfo, emptyContractLocationInfo)
   const request = {
     carId: carId,
     startDateTime: Math.ceil(new Date().getTime() / 1000 + tripIndex * 3),
