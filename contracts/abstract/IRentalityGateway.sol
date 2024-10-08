@@ -232,7 +232,7 @@ interface IRentalityGateway {
   /// @dev This function retrieves the claim information using the Rentality platform contract.
   /// @param claimId ID of the claim.
   /// @return Full information about the claim.
-  //  function getClaim(uint256 claimId) external view returns (Schemas.FullClaimInfo memory);
+   function getClaim(uint256 claimId) external view returns (Schemas.FullClaimInfo memory);
 
   /// @notice Gets an array of claims associated with a specific trip through the Rentality platform.
   /// @dev This function retrieves an array of detailed claim information for the given trip using the Rentality platform contract.
@@ -279,9 +279,9 @@ interface IRentalityGateway {
 
   /// @notice Retrieves chat information for the caller acting as a host.
   /// @return An array of chat information.
-  function getChatInfoForHost() external view returns (Schemas.ChatInfo[] memory);
+  function getChatInfoFor(bool host) external view returns (Schemas.ChatInfo[] memory);
 
-  function getChatInfoForGuest() external view returns (Schemas.ChatInfo[] memory);
+  // function getChatInfoForGuest() external view returns (Schemas.ChatInfo[] memory);
 
   /// @notice Retrieves the cars owned by a specific host.
   /// @dev This function returns an array of PublicHostCarDTO structs representing the cars owned by the host.
@@ -297,12 +297,12 @@ interface IRentalityGateway {
   /// @param carId The ID of the car.
   /// @param daysOfTrip The duration of the trip in days.
   /// @param currency The currency to use for payment calculation.
-  /// @return calculatePaymentsDTO An object containing payment details.
-  function calculatePayments(
-    uint carId,
-    uint64 daysOfTrip,
-    address currency
-  ) external view returns (Schemas.CalculatePaymentsDTO memory calculatePaymentsDTO);
+  // /// @return calculatePaymentsDTO An object containing payment details.
+  // function calculatePayments(
+  //   uint carId,
+  //   uint64 daysOfTrip,
+  //   address currency
+  // ) external view returns (Schemas.CalculatePaymentsDTO memory calculatePaymentsDTO);
 
   /// @dev Calculates the payments for a trip.
   /// @param carId The ID of the car.

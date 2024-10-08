@@ -72,7 +72,7 @@ describe('Rentality insurance', function () {
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
-    const result = await rentalityGateway.connect(guest).calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway.connect(guest).calculatePaymentsWithDelivery(1, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
         {
@@ -90,7 +90,7 @@ describe('Rentality insurance', function () {
       const myCars = await rentalityGateway.connect(host).getMyCars()
       expect(myCars.length).to.equal(1)
 
-      const result = await rentalityGateway.connect(guest).calculatePayments(1, 1, ethToken)
+      const result = await rentalityGateway.connect(guest).calculatePaymentsWithDelivery(1, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
       await expect(
         await rentalityGateway.connect(guest).createTripRequest(
           {
@@ -123,7 +123,7 @@ describe('Rentality insurance', function () {
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
-    const result = await rentalityGateway.calculatePayments(1, 3, ethToken)
+    const result = await rentalityGateway.calculatePaymentsWithDelivery(1, 3, ethToken,emptyLocationInfo,emptyLocationInfo)
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
         {
@@ -156,7 +156,7 @@ describe('Rentality insurance', function () {
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
-    const result = await rentalityGateway.connect(guest).calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway.connect(guest).calculatePaymentsWithDelivery(1, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
         {
@@ -246,11 +246,11 @@ describe('Rentality insurance', function () {
 
     await expect(rentalityGateway.connect(guest).saveGuestInsurance(insurance)).to.not.reverted
 
-    const result1 = await rentalityGateway.connect(guest).calculatePayments(1, 1, ethToken)
+    const result1 = await rentalityGateway.connect(guest).calculatePaymentsWithDelivery(1, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
 
     await expect(rentalityGateway.connect(guest).saveGuestInsurance(noneInsurance)).to.not.reverted
 
-    const result2 = await rentalityGateway.connect(guest).calculatePayments(1, 1, ethToken)
+    const result2 = await rentalityGateway.connect(guest).calculatePaymentsWithDelivery(1, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
     expect(result1 < result2).to.be.eq(true)
 
     await expect(
@@ -282,7 +282,7 @@ describe('Rentality insurance', function () {
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
-    const result = await rentalityGateway.connect(guest).calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway.connect(guest).calculatePaymentsWithDelivery(1, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
 
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
@@ -314,7 +314,7 @@ describe('Rentality insurance', function () {
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
-    const result = await rentalityGateway.connect(guest).calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway.connect(guest).calculatePaymentsWithDelivery(1, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
 
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
@@ -356,7 +356,7 @@ describe('Rentality insurance', function () {
 
     await expect(rentalityGateway.connect(guest).saveGuestInsurance(insurance)).to.not.reverted
 
-    const result = await rentalityGateway.connect(guest).calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway.connect(guest).calculatePaymentsWithDelivery(1, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
 
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
@@ -389,7 +389,7 @@ describe('Rentality insurance', function () {
 
     await expect(rentalityGateway.connect(guest).saveGuestInsurance(insurance)).to.not.reverted
 
-    const result = await rentalityGateway.connect(guest).calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway.connect(guest).calculatePaymentsWithDelivery(1, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
 
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
@@ -422,7 +422,7 @@ describe('Rentality insurance', function () {
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
-    const result = await rentalityGateway.connect(guest).calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway.connect(guest).calculatePaymentsWithDelivery(1, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
 
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
@@ -465,7 +465,7 @@ describe('Rentality insurance', function () {
 
     await expect(rentalityGateway.connect(guest).saveGuestInsurance(insurance)).to.not.reverted
 
-    const result = await rentalityGateway.connect(guest).calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway.connect(guest).calculatePaymentsWithDelivery(1, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
 
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
@@ -546,7 +546,7 @@ describe('Rentality insurance', function () {
       insuranceType: InsuranceType.General,
     }
 
-    const result = await rentalityGateway.connect(guest).calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway.connect(guest).calculatePaymentsWithDelivery(1, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
 
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
