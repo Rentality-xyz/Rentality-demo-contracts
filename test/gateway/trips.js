@@ -78,7 +78,7 @@ describe('RentalityGateway: trips', function () {
       )
     expect(availableCars.length).to.equal(1)
 
-    const result = await rentalityGateway.calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway.calculatePaymentsWithDelivery(1, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
         {
@@ -110,7 +110,7 @@ describe('RentalityGateway: trips', function () {
       )
     expect(availableCars.length).to.equal(1)
 
-    const result = await rentalityGateway.calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway.calculatePaymentsWithDelivery(1, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
         {
@@ -218,7 +218,7 @@ describe('RentalityGateway: trips', function () {
 
     const dailyPriceInUsdCents = 1000
 
-    const result = await rentalityGateway.calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway.calculatePaymentsWithDelivery(1, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
         {
@@ -255,7 +255,7 @@ describe('RentalityGateway: trips', function () {
       insurancePriceInUsdCents: 0,
     }
     await expect(rentalityGateway.connect(host).addCar(mockPatrolCreateCarRequest)).not.to.be.reverted
-    const resultPatrol = await rentalityGateway.calculatePayments(2, 1, ethToken)
+    const resultPatrol = await rentalityGateway.calculatePaymentsWithDelivery(2, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
         {
@@ -342,7 +342,7 @@ describe('RentalityGateway: trips', function () {
 
     expect(availableCars.length).to.equal(1)
 
-    const result = await rentalityGateway.calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway.calculatePaymentsWithDelivery(1, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
         {
@@ -379,7 +379,7 @@ describe('RentalityGateway: trips', function () {
       )
     expect(availableCars.length).to.equal(1)
 
-    const result = await rentalityGateway.calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway.calculatePaymentsWithDelivery(1, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
         {
@@ -416,7 +416,7 @@ describe('RentalityGateway: trips', function () {
       )
     expect(availableCars.length).to.equal(1)
 
-    const result = await rentalityGateway.calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway.calculatePaymentsWithDelivery(1, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
         {
@@ -458,7 +458,7 @@ describe('RentalityGateway: trips', function () {
       )
     expect(availableCars.length).to.equal(1)
 
-    const result = await rentalityGateway.calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway.calculatePaymentsWithDelivery(1, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
         {
@@ -508,7 +508,7 @@ describe('RentalityGateway: trips', function () {
       )
     expect(availableCars.length).to.equal(1)
 
-    const result = await rentalityGateway.calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway.calculatePaymentsWithDelivery(1, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
         {
@@ -550,7 +550,7 @@ describe('RentalityGateway: trips', function () {
       )
     expect(availableCars.length).to.equal(1)
 
-    const result = await rentalityGateway.calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway.calculatePaymentsWithDelivery(1, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
         {
@@ -602,7 +602,7 @@ describe('RentalityGateway: trips', function () {
       )
     expect(availableCars.length).to.equal(1)
 
-    const result = await rentalityGateway.calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway.calculatePaymentsWithDelivery(1, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
         {
@@ -656,7 +656,7 @@ describe('RentalityGateway: trips', function () {
       )
     expect(availableCars.length).to.equal(1)
 
-    const result = await rentalityGateway.calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway.calculatePaymentsWithDelivery(1, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
         {
@@ -709,7 +709,7 @@ describe('RentalityGateway: trips', function () {
       )
     expect(availableCars.length).to.equal(1)
 
-    const result = await rentalityGateway.calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway.calculatePaymentsWithDelivery(1, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
         {
@@ -815,7 +815,7 @@ describe('RentalityGateway: trips', function () {
 
     const oneDayInSeconds = 86400
 
-    const result = await rentalityGateway.calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway.calculatePaymentsWithDelivery(1, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
         {
@@ -830,7 +830,7 @@ describe('RentalityGateway: trips', function () {
 
     await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
 
-    const result2Days = await rentalityGateway.calculatePayments(1, 2, ethToken)
+    const result2Days = await rentalityGateway.calculatePaymentsWithDelivery(1, 2, ethToken,emptyLocationInfo,emptyLocationInfo)
     await expect(
       rentalityGateway.connect(guest).createTripRequest(
         {
@@ -877,7 +877,7 @@ describe('RentalityGateway: trips', function () {
     const oneDayInSeconds = 86400
     const dailyPriceInUsdCents = 1000
 
-    const result = await rentalityGateway.calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway.calculatePaymentsWithDelivery(1, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
         {
@@ -931,7 +931,7 @@ describe('RentalityGateway: trips', function () {
 
     let dayInSeconds = 86400
     let tripDays = 4
-    const result = await rentalityGateway.calculatePayments(1, tripDays, ethToken)
+    const result = await rentalityGateway.calculatePaymentsWithDelivery(1, tripDays, ethToken,emptyLocationInfo,emptyLocationInfo)
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
         {
@@ -970,7 +970,7 @@ describe('RentalityGateway: trips', function () {
     const oneDayInSeconds = 86400
     const dailyPriceInUsdCents = 1000
 
-    const result = await rentalityGateway.calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway.calculatePaymentsWithDelivery(1, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
     let value = result.totalPrice - result.totalPrice / BigInt(100)
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(

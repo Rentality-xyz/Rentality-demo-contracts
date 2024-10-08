@@ -89,7 +89,7 @@ describe('RentalityGateway: time buffer', function () {
 
     const oneDayInSeconds = 86400
 
-    const result = await rentalityGateway.connect(host).calculatePayments(1, 2, ethToken)
+    const result = await rentalityGateway.connect(host).calculatePaymentsWithDelivery(1, 2, ethToken,emptyLocationInfo,emptyLocationInfo)
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
         {
@@ -152,7 +152,7 @@ describe('RentalityGateway: time buffer', function () {
 
     const dailyPriceInUsdCents = 1000
 
-    const result = await rentalityGateway.connect(host).calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway.connect(host).calculatePaymentsWithDelivery(1, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
         {
@@ -212,7 +212,7 @@ describe('RentalityGateway: time buffer', function () {
 
     const dailyPriceInUsdCents = 1000
 
-    const result = await rentalityGateway.connect(guest).calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway.connect(guest).calculatePaymentsWithDelivery(1, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
         {
@@ -272,7 +272,7 @@ describe('RentalityGateway: time buffer', function () {
 
     const dailyPriceInUsdCents = 1000
 
-    const result = await rentalityGateway.connect(guest).calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway.connect(guest).calculatePaymentsWithDelivery(1, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
         {
@@ -285,7 +285,7 @@ describe('RentalityGateway: time buffer', function () {
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
 
-    const resultTwoDays = await rentalityGateway.calculatePayments(1, 2, ethToken)
+    const resultTwoDays = await rentalityGateway.calculatePaymentsWithDelivery(1, 2, ethToken,emptyLocationInfo,emptyLocationInfo)
     await expect(
       await rentalityGateway.connect(guest).createTripRequest(
         {

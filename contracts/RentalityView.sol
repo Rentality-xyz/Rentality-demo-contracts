@@ -180,9 +180,9 @@ contract RentalityView is UUPSUpgradeable, Initializable {
   /// @dev Returns a structure containing information about the claim, associated trip, and car details.
   /// @param claimId ID of the claim.
   /// @return Full information about the claim.
-  // function getClaim(uint256 claimId) public view returns (Schemas.FullClaimInfo memory) {
-  // return addresses.getClaim(claimId);
-  // }
+  function getClaim(uint256 claimId) public view returns (Schemas.FullClaimInfo memory) {
+  return addresses.getClaim(claimId);
+  }
 
   /// @notice Get contact information for a specific trip on the Rentality platform.
   /// @param tripId The ID of the trip to retrieve contact information for.
@@ -232,13 +232,13 @@ contract RentalityView is UUPSUpgradeable, Initializable {
   /// @param daysOfTrip The duration of the trip in days.
   /// @param currency The currency to use for payment calculation.
   /// @return calculatePaymentsDTO An object containing payment details.
-  function calculatePayments(
-    uint carId,
-    uint64 daysOfTrip,
-    address currency
-  ) public view returns (Schemas.CalculatePaymentsDTO memory) {
-    return RentalityUtils.calculatePayments(addresses, carId, daysOfTrip, currency, 0, insuranceService);
-  }
+  // function calculatePayments(
+  //   uint carId,
+  //   uint64 daysOfTrip,
+  //   address currency
+  // ) public view returns (Schemas.CalculatePaymentsDTO memory) {
+  //   return RentalityUtils.calculatePayments(addresses, carId, daysOfTrip, currency, 0, insuranceService);
+  // }
 
   /// @dev Calculates the payments for a trip.
   /// @param carId The ID of the car.
@@ -267,15 +267,15 @@ contract RentalityView is UUPSUpgradeable, Initializable {
   }
   /// @notice Get chat information for trips hosted by the caller on the Rentality platform.
   /// @return chatInfo An array of chat information for trips hosted by the caller.
-  function getChatInfoForHost() public view returns (Schemas.ChatInfo[] memory) {
-    return RentalityUtils.populateChatInfo(false, addresses);
+  function getChatInfoFor(bool host) public view returns (Schemas.ChatInfo[] memory) {
+    return RentalityUtils.populateChatInfo(!host, addresses);
   }
 
   /// @notice Get chat information for trips attended by the caller on the Rentality platform.
   /// @return chatInfo An array of chat information for trips attended by the caller.
-  function getChatInfoForGuest() public view returns (Schemas.ChatInfo[] memory) {
-    return RentalityUtils.populateChatInfo(true, addresses);
-  }
+  // function getChatInfoForGuest() public view returns (Schemas.ChatInfo[] memory) {
+  //   return RentalityUtils.populateChatInfo(true, addresses);
+  // }
 
   /// @dev Retrieves delivery data for a given car.
   /// @param carId The ID of the car for which delivery data is requested.
