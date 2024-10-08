@@ -71,7 +71,7 @@ describe('Ability to update car during trip', function () {
     expect(availableCars.length).to.equal(1)
     let dailyPriceInUsdCents = 1000
 
-    const result = await rentalityGateway.connect(guest).calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway.connect(guest).calculatePaymentsWithDelivery(1, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
     await expect(
       await rentalityPlatform.connect(guest).createTripRequest(
         {
@@ -117,7 +117,7 @@ describe('Ability to update car during trip', function () {
     expect(availableCars.length).to.equal(1)
     let dailyPriceInUsdCents = 1000
 
-    const result = await rentalityGateway.connect(guest).calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway.connect(guest).calculatePaymentsWithDelivery(1, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
     await expect(
       await rentalityPlatform.connect(guest).createTripRequest(
         {
@@ -181,7 +181,7 @@ describe('Ability to update car during trip', function () {
 
     const rentPriceInUsdCents = 1000
 
-    const result = await rentalityGateway.connect(guest).calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway.connect(guest).calculatePaymentsWithDelivery(1, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
     await expect(
       await rentalityPlatform.connect(guest).createTripRequest(
         {

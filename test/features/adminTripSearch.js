@@ -101,7 +101,7 @@ describe('Admin trip searching', function () {
 
     const oneDayInSeconds = 86400
 
-    const resultPayments = await rentalityGateway.connect(guest).calculatePayments(1, 1, ethToken)
+    const resultPayments = await rentalityGateway.connect(guest).calculatePaymentsWithDelivery(1, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
     let startDateTime = Date.now() - 10
     let endDateTime = Date.now() + oneDayInSeconds + 10
     await expect(
@@ -163,7 +163,7 @@ describe('Admin trip searching', function () {
 
     const oneDayInSeconds = 86400
 
-    const resultPayments = await rentalityGateway.calculatePayments(1, 2, ethToken)
+    const resultPayments = await rentalityGateway.calculatePaymentsWithDelivery(1, 2, ethToken,emptyLocationInfo,emptyLocationInfo)
     let startDateTime = Date.now() - 10
     let endDateTime = Date.now() + oneDayInSeconds * 2
     for (let i = 0; i < 10; i++) {
@@ -250,7 +250,7 @@ describe('Admin trip searching', function () {
 
     const oneDayInSeconds = 86400
 
-    const resultPayments = await rentalityGateway.calculatePayments(1, 2, ethToken)
+    const resultPayments = await rentalityGateway.calculatePaymentsWithDelivery(1, 2, ethToken,emptyLocationInfo,emptyLocationInfo)
     let startDateTime = Date.now() - 10
     let endDateTime = Date.now() + oneDayInSeconds * 2
     let searchFiler = filter
@@ -340,7 +340,7 @@ describe('Admin trip searching', function () {
 
     const oneDayInSeconds = 86400
 
-    const resultPayments = await rentalityGateway.calculatePayments(1, 2, ethToken)
+    const resultPayments = await rentalityGateway.calculatePaymentsWithDelivery(1, 2, ethToken,emptyLocationInfo,emptyLocationInfo)
     let startDateTime = Date.now() - 10
     let endDateTime = Date.now() + oneDayInSeconds * 2
     let searchFiler = filter
@@ -419,7 +419,7 @@ describe('Admin trip searching', function () {
 
     const oneDayInSeconds = 86400
 
-    const resultPayments = await rentalityGateway.calculatePayments(1, 2, ethToken)
+    const resultPayments = await rentalityGateway.calculatePaymentsWithDelivery(1, 2, ethToken,emptyLocationInfo,emptyLocationInfo)
     let startDateTime = Date.now() - 10
     let endDateTime = Date.now() + oneDayInSeconds * 2
     let searchFiler = filter
@@ -478,7 +478,7 @@ describe('Admin trip searching', function () {
 
     const oneDayInSeconds = 86400
 
-    const resultPayments = await rentalityGateway.calculatePayments(1, 2, ethToken)
+    const resultPayments = await rentalityGateway.calculatePaymentsWithDelivery(1, 2, ethToken,emptyLocationInfo,emptyLocationInfo)
     let startDateTime = Date.now() - 10
     let endDateTime = Date.now() + oneDayInSeconds * 2
     let searchFiler = filter
