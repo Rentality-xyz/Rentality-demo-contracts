@@ -212,6 +212,12 @@ describe('Rentality insurance', function () {
       insuranceType: InsuranceType.General,
     }
     await expect(rentalityGateway.connect(guest).saveGuestInsurance(insurance)).to.not.reverted
+
+    let insurances = await rentalityGateway.connect(guest).getMyInsurancesAsGuest()
+    expect(insurances[0].companyName).to.be.eq(insurance.companyName)
+    expect(insurances[0].photo).to.be.eq(insurance.photo)
+    expect(insurances[0].policyNumber).to.be.eq(insurance.policyNumber)
+
   })
   it('guest can not add one time insurance in profile', async function () {
     let insurance = {
