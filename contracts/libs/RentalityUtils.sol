@@ -202,7 +202,7 @@ library RentalityUtils {
     return chatInfoList;
   }
 
-/// not using
+  /// not using
   /// @notice Parses a response string containing geolocation data.
   /// @param response The response string to parse.
   /// @return result Parsed geolocation data in RentalityGeoService.ParsedGeolocationData structure.

@@ -181,7 +181,7 @@ contract RentalityView is UUPSUpgradeable, Initializable {
   /// @param claimId ID of the claim.
   /// @return Full information about the claim.
   function getClaim(uint256 claimId) public view returns (Schemas.FullClaimInfo memory) {
-  return addresses.getClaim(claimId);
+    return addresses.getClaim(claimId);
   }
 
   /// @notice Get contact information for a specific trip on the Rentality platform.

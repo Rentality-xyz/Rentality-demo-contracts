@@ -35,25 +35,21 @@ contract RentalityPlatform is UUPSOwnable {
 
   RentalityInsurance private insuranceService;
 
-  //  function updateServiceAddresses(RentalityAdminGateway adminService) public {
-  //    require(addresses.userService.isAdmin(tx.origin), 'only Admin.');
-  //    addresses = adminService.getRentalityContracts();
-  //    insuranceService = adminService.getInsuranceService();
-  //  }
-
-  //    function withdrawAllFromPlatform(address currencyType) public {
-  //        return withdrawFromPlatform(address(this).balance, currencyType);
-  //    }
+  function updateServiceAddresses(RentalityAdminGateway adminService) public {
+    require(addresses.userService.isAdmin(tx.origin), 'only Admin.');
+    addresses = adminService.getRentalityContracts();
+    insuranceService = adminService.getInsuranceService();
+  }
 
   /// @notice Creates a trip request with delivery.
   /// @param request The trip request with delivery details.
   function createTripRequestWithDelivery(Schemas.CreateTripRequestWithDelivery memory request) public payable {
     (uint64 pickUp, uint64 dropOf) = RentalityUtils.calculateDelivery(addresses, request);
-    bytes32 pickUpHash = IRentalityGeoService(addresses.carService.getGeoServiceAddress()).createLocationInfo(
-      request.pickUpInfo.locationInfo
+    bytes32 pickUpHash = IRentalityGeoService(addresses.carService.getGeoServiceAddress()).createSignedLocationInfo(
+      request.pickUpInfo
     );
-    bytes32 returnHash = IRentalityGeoService(addresses.carService.getGeoServiceAddress()).createLocationInfo(
-      request.returnInfo.locationInfo
+    bytes32 returnHash = IRentalityGeoService(addresses.carService.getGeoServiceAddress()).createSignedLocationInfo(
+      request.returnInfo
     );
     _createTripRequest(
       request.currencyType,
@@ -78,20 +74,6 @@ contract RentalityPlatform is UUPSOwnable {
 
   function useKycCommission(address user) public {
     addresses.userService.useKycCommission(user);
-  }
-  /// @notice Create a trip request.
-  /// @param request The request parameters for creating a new trip.
-  function createTripRequest(Schemas.CreateTripRequest memory request) public payable {
-    _createTripRequest(
-      request.currencyType,
-      request.carId,
-      request.startDateTime,
-      request.endDateTime,
-      0,
-      0,
-      bytes32(''),
-      bytes32('')
-    );
   }
   /// @notice Creates a trip request with specified details.
   /// @dev This function is private and should only be called internally.
@@ -178,10 +160,10 @@ contract RentalityPlatform is UUPSOwnable {
 
     uint insurance = insuranceService.getInsurancePriceByTrip(tripId);
     uint valueToReturnInUsdCents = addresses.currencyConverterService.calculateTripReject(trip.paymentInfo, insurance);
+
     /* you should not recalculate the value with convertor,
      for return during rejection,
      but instead, use: 'addresses.tripService.tripIdToEthSumInTripCreation(tripId)'*/
-
     addresses.paymentService.payRejectTrip(trip, addresses.tripService.tripIdToEthSumInTripCreation(tripId));
 
     addresses.tripService.saveTransactionInfo(tripId, 0, statusBeforeCancellation, valueToReturnInUsdCents, 0);

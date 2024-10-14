@@ -237,10 +237,6 @@ interface IRentalityGateway {
 
   /// @notice Create a trip request.
   /// @param request The request parameters for creating a new trip.
-  function createTripRequest(Schemas.CreateTripRequest memory request) external payable;
-
-  /// @notice Create a trip request.
-  /// @param request The request parameters for creating a new trip.
   function createTripRequestWithDelivery(Schemas.CreateTripRequestWithDelivery memory request) external payable;
 
   /// @notice Performs check-in by the guest for a trip.
@@ -307,23 +303,23 @@ interface IRentalityGateway {
   /// INSURANCE functions
   /// ------------------------------
 
-/// @notice Retrieves insurance info
-/// @param host A boolean indicating whether to retrieve insurance for hosts (true) or guests (false)
-/// @return An array of insurance options available for the specified host status
-function getInsurancesBy(bool host) external view returns (Schemas.InsuranceDTO[] memory);
+  /// @notice Retrieves insurance info
+  /// @param host A boolean indicating whether to retrieve insurance for hosts (true) or guests (false)
+  /// @return An array of insurance options available for the specified host status
+  function getInsurancesBy(bool host) external view returns (Schemas.InsuranceDTO[] memory);
 
-/// @notice Retrieves insurance information for the guest
-/// @return An array of insurance information specific to the guest
-function getMyInsurancesAsGuest() external view returns (Schemas.InsuranceInfo[] memory);
+  /// @notice Retrieves insurance information for the guest
+  /// @return An array of insurance information specific to the guest
+  function getMyInsurancesAsGuest() external view returns (Schemas.InsuranceInfo[] memory);
 
-/// @notice Saves insurance information related to a specific trip
-/// @param tripId The ID of the trip for which the insurance information is being saved
-/// @param insuranceInfo A struct containing the details of the insurance to be saved
-function saveTripInsuranceInfo(uint tripId, Schemas.SaveInsuranceRequest memory insuranceInfo) external;
+  /// @notice Saves insurance information related to a specific trip
+  /// @param tripId The ID of the trip for which the insurance information is being saved
+  /// @param insuranceInfo A struct containing the details of the insurance to be saved
+  function saveTripInsuranceInfo(uint tripId, Schemas.SaveInsuranceRequest memory insuranceInfo) external;
 
-/// @notice Saves insurance information for a guest
-/// @param insuranceInfo A struct containing the details of the insurance requested by the guest
-function saveGuestInsurance(Schemas.SaveInsuranceRequest memory insuranceInfo) external;
+  /// @notice Saves insurance information for a guest
+  /// @param insuranceInfo A struct containing the details of the insurance requested by the guest
+  function saveGuestInsurance(Schemas.SaveInsuranceRequest memory insuranceInfo) external;
 
   /// ------------------------------
   /// GENERAL functions
