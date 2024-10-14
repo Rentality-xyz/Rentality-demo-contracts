@@ -71,6 +71,8 @@ interface IRentalityGeoService {
   /// @return hash of locationInfo struct
   function createLocationInfo(Schemas.LocationInfo memory info) external returns (bytes32);
 
+  function createSignedLocationInfo(Schemas.SignedLocationInfo memory info) external returns (bytes32);
+
   /// @notice create hash of locationInfo
   /// @param info struct of location data
   /// @return hash of locationInfo struct

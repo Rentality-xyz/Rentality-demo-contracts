@@ -12,6 +12,7 @@ const {
   AdminTripStatus,
   signLocationInfo,
   emptyLocationInfo,
+  emptySignedLocationInfo,
 } = require('../utils')
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 const { ethers } = require('hardhat')
@@ -101,16 +102,20 @@ describe('Admin trip searching', function () {
 
     const oneDayInSeconds = 86400
 
-    const resultPayments = await rentalityGateway.connect(guest).calculatePaymentsWithDelivery(1, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
+    const resultPayments = await rentalityGateway
+      .connect(guest)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo)
     let startDateTime = Date.now() - 10
     let endDateTime = Date.now() + oneDayInSeconds + 10
     await expect(
-      await rentalityGateway.connect(guest).createTripRequest(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Date.now(),
           endDateTime: Date.now() + oneDayInSeconds,
           currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
         { value: resultPayments.totalPrice }
       )
@@ -163,17 +168,25 @@ describe('Admin trip searching', function () {
 
     const oneDayInSeconds = 86400
 
-    const resultPayments = await rentalityGateway.calculatePaymentsWithDelivery(1, 2, ethToken,emptyLocationInfo,emptyLocationInfo)
+    const resultPayments = await rentalityGateway.calculatePaymentsWithDelivery(
+      1,
+      2,
+      ethToken,
+      emptyLocationInfo,
+      emptyLocationInfo
+    )
     let startDateTime = Date.now() - 10
     let endDateTime = Date.now() + oneDayInSeconds * 2
     for (let i = 0; i < 10; i++) {
       await expect(
-        await rentalityGateway.connect(guest).createTripRequest(
+        await rentalityGateway.connect(guest).createTripRequestWithDelivery(
           {
             carId: 1,
             startDateTime: Date.now(),
             endDateTime: Date.now() + oneDayInSeconds + 10,
             currencyType: ethToken,
+            pickUpInfo: emptySignedLocationInfo,
+            returnInfo: emptySignedLocationInfo,
           },
           { value: resultPayments.totalPrice }
         )
@@ -250,19 +263,27 @@ describe('Admin trip searching', function () {
 
     const oneDayInSeconds = 86400
 
-    const resultPayments = await rentalityGateway.calculatePaymentsWithDelivery(1, 2, ethToken,emptyLocationInfo,emptyLocationInfo)
+    const resultPayments = await rentalityGateway.calculatePaymentsWithDelivery(
+      1,
+      2,
+      ethToken,
+      emptyLocationInfo,
+      emptyLocationInfo
+    )
     let startDateTime = Date.now() - 10
     let endDateTime = Date.now() + oneDayInSeconds * 2
     let searchFiler = filter
     searchFiler.paymentStatus = PaymentStatus.Prepayment
 
     await expect(
-      await rentalityGateway.connect(guest).createTripRequest(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Date.now(),
           endDateTime: Date.now() + oneDayInSeconds + 10,
           currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
         { value: resultPayments.totalPrice }
       )
@@ -340,19 +361,27 @@ describe('Admin trip searching', function () {
 
     const oneDayInSeconds = 86400
 
-    const resultPayments = await rentalityGateway.calculatePaymentsWithDelivery(1, 2, ethToken,emptyLocationInfo,emptyLocationInfo)
+    const resultPayments = await rentalityGateway.calculatePaymentsWithDelivery(
+      1,
+      2,
+      ethToken,
+      emptyLocationInfo,
+      emptyLocationInfo
+    )
     let startDateTime = Date.now() - 10
     let endDateTime = Date.now() + oneDayInSeconds * 2
     let searchFiler = filter
     searchFiler.paymentStatus = PaymentStatus.Prepayment
 
     await expect(
-      await rentalityGateway.connect(guest).createTripRequest(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Date.now(),
           endDateTime: Date.now() + oneDayInSeconds + 10,
           currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
         { value: resultPayments.totalPrice }
       )
@@ -419,19 +448,27 @@ describe('Admin trip searching', function () {
 
     const oneDayInSeconds = 86400
 
-    const resultPayments = await rentalityGateway.calculatePaymentsWithDelivery(1, 2, ethToken,emptyLocationInfo,emptyLocationInfo)
+    const resultPayments = await rentalityGateway.calculatePaymentsWithDelivery(
+      1,
+      2,
+      ethToken,
+      emptyLocationInfo,
+      emptyLocationInfo
+    )
     let startDateTime = Date.now() - 10
     let endDateTime = Date.now() + oneDayInSeconds * 2
     let searchFiler = filter
     searchFiler.paymentStatus = PaymentStatus.Prepayment
 
     await expect(
-      await rentalityGateway.connect(guest).createTripRequest(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Date.now(),
           endDateTime: Date.now() + oneDayInSeconds + 10,
           currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
         { value: resultPayments.totalPrice }
       )
@@ -478,7 +515,13 @@ describe('Admin trip searching', function () {
 
     const oneDayInSeconds = 86400
 
-    const resultPayments = await rentalityGateway.calculatePaymentsWithDelivery(1, 2, ethToken,emptyLocationInfo,emptyLocationInfo)
+    const resultPayments = await rentalityGateway.calculatePaymentsWithDelivery(
+      1,
+      2,
+      ethToken,
+      emptyLocationInfo,
+      emptyLocationInfo
+    )
     let startDateTime = Date.now() - 10
     let endDateTime = Date.now() + oneDayInSeconds * 2
     let searchFiler = filter
@@ -486,12 +529,14 @@ describe('Admin trip searching', function () {
     searchFiler.status = AdminTripStatus.Created
 
     await expect(
-      await rentalityGateway.connect(guest).createTripRequest(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Date.now(),
           endDateTime: Date.now() + oneDayInSeconds + 10,
           currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
         { value: resultPayments.totalPrice }
       )

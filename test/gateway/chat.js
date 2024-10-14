@@ -10,6 +10,7 @@ const {
   emptyKyc,
   getEmptySearchCarParams,
   emptyLocationInfo,
+  emptySignedLocationInfo,
 } = require('../utils')
 
 describe('RentalityGateway: chat', function () {
@@ -81,14 +82,22 @@ describe('RentalityGateway: chat', function () {
 
     const dailyPriceInUsdCents = 1000
 
-    const result = await rentalityGateway.calculatePaymentsWithDelivery(1, 2, ethToken,emptyLocationInfo,emptyLocationInfo)
+    const result = await rentalityGateway.calculatePaymentsWithDelivery(
+      1,
+      2,
+      ethToken,
+      emptyLocationInfo,
+      emptyLocationInfo
+    )
     await expect(
-      await rentalityGateway.connect(guest).createTripRequest(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Date.now(),
           endDateTime: Date.now() + oneDayInSeconds * 2,
           currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
         { value: result.totalPrice }
       )
@@ -158,14 +167,18 @@ describe('RentalityGateway: chat', function () {
 
     const oneDayInSeconds = 86400
 
-    const result = await rentalityGateway.connect(guest).calculatePaymentsWithDelivery(1, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
+    const result = await rentalityGateway
+      .connect(guest)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo)
     await expect(
-      await rentalityGateway.connect(guest).createTripRequest(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Date.now(),
           endDateTime: Date.now() + oneDayInSeconds,
           currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
         { value: result.totalPrice }
       )

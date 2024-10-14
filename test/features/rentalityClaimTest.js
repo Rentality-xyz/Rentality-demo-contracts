@@ -7,6 +7,7 @@ const {
   calculatePayments,
   emptyLocationInfo,
   getEmptySearchCarParams,
+  emptySignedLocationInfo,
 } = require('../utils')
 const { expect } = require('chai')
 const { ethers } = require('hardhat')
@@ -69,9 +70,11 @@ describe('RentalityClaim', function () {
 
     const oneDayInSeconds = 86400
 
-    const result = await rentalityGateway.connect(guest).calculatePaymentsWithDelivery(1, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
+    const result = await rentalityGateway
+      .connect(guest)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo)
     await expect(
-      await rentalityGateway.connect(guest).createTripRequest(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Date.now(),
@@ -79,14 +82,8 @@ describe('RentalityClaim', function () {
           currencyType: ethToken,
           insurancePaid: false,
           photo: '',
-          pickUpInfo: {
-            signature: guest.address,
-            locationInfo: emptyLocationInfo,
-          },
-          returnInfo: {
-            signature: guest.address,
-            locationInfo: emptyLocationInfo,
-          },
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
         { value: result.totalPrice }
       )
@@ -116,9 +113,11 @@ describe('RentalityClaim', function () {
 
     const oneDayInSeconds = 86400
 
-    const result = await rentalityGateway.connect(guest).calculatePaymentsWithDelivery(1, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
+    const result = await rentalityGateway
+      .connect(guest)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo)
     await expect(
-      await rentalityGateway.connect(guest).createTripRequest(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Date.now(),
@@ -126,14 +125,8 @@ describe('RentalityClaim', function () {
           currencyType: ethToken,
           insurancePaid: false,
           photo: '',
-          pickUpInfo: {
-            signature: guest.address,
-            locationInfo: emptyLocationInfo,
-          },
-          returnInfo: {
-            signature: guest.address,
-            locationInfo: emptyLocationInfo,
-          },
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
         { value: result.totalPrice }
       )
@@ -178,9 +171,11 @@ describe('RentalityClaim', function () {
 
     const oneDayInSeconds = 86400
 
-    const result = await rentalityGateway.connect(guest).calculatePaymentsWithDelivery(1, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
+    const result = await rentalityGateway
+      .connect(guest)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo)
     await expect(
-      await rentalityGateway.connect(guest).createTripRequest(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Date.now(),
@@ -188,14 +183,8 @@ describe('RentalityClaim', function () {
           currencyType: ethToken,
           insurancePaid: false,
           photo: '',
-          pickUpInfo: {
-            signature: guest.address,
-            locationInfo: emptyLocationInfo,
-          },
-          returnInfo: {
-            signature: guest.address,
-            locationInfo: emptyLocationInfo,
-          },
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
         { value: result.totalPrice }
       )
@@ -235,9 +224,11 @@ describe('RentalityClaim', function () {
 
     const dailyPriceInUsdCents = 1000
 
-    const result = await rentalityGateway.connect(guest).calculatePaymentsWithDelivery(1, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
+    const result = await rentalityGateway
+      .connect(guest)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo)
     await expect(
-      await rentalityGateway.connect(guest).createTripRequest(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Date.now(),
@@ -245,14 +236,8 @@ describe('RentalityClaim', function () {
           currencyType: ethToken,
           insurancePaid: false,
           photo: '',
-          pickUpInfo: {
-            signature: guest.address,
-            locationInfo: emptyLocationInfo,
-          },
-          returnInfo: {
-            signature: guest.address,
-            locationInfo: emptyLocationInfo,
-          },
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
         { value: result.totalPrice }
       )
@@ -297,10 +282,12 @@ describe('RentalityClaim', function () {
 
     const dailyPriceInUsdCents = 1000
 
-    const result = await rentalityGateway.connect(guest).calculatePaymentsWithDelivery(1, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
+    const result = await rentalityGateway
+      .connect(guest)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo)
 
     await expect(
-      await rentalityGateway.connect(guest).createTripRequest(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Date.now(),
@@ -308,14 +295,8 @@ describe('RentalityClaim', function () {
           currencyType: ethToken,
           insurancePaid: false,
           photo: '',
-          pickUpInfo: {
-            signature: guest.address,
-            locationInfo: emptyLocationInfo,
-          },
-          returnInfo: {
-            signature: guest.address,
-            locationInfo: emptyLocationInfo,
-          },
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
         { value: result.totalPrice }
       )
@@ -358,9 +339,11 @@ describe('RentalityClaim', function () {
 
     const dailyPriceInUsdCents = 1000
 
-    const result = await rentalityGateway.connect(guest).calculatePaymentsWithDelivery(1, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
+    const result = await rentalityGateway
+      .connect(guest)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo)
     await expect(
-      await rentalityGateway.connect(guest).createTripRequest(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Date.now(),
@@ -368,14 +351,8 @@ describe('RentalityClaim', function () {
           currencyType: ethToken,
           insurancePaid: false,
           photo: '',
-          pickUpInfo: {
-            signature: guest.address,
-            locationInfo: emptyLocationInfo,
-          },
-          returnInfo: {
-            signature: guest.address,
-            locationInfo: emptyLocationInfo,
-          },
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
         { value: result.totalPrice }
       )
@@ -419,7 +396,7 @@ describe('RentalityClaim', function () {
         createCarRequest.securityDepositPerTripInUsdCents
       )
       await expect(
-        await rentalityGateway.connect(guest).createTripRequest(
+        await rentalityGateway.connect(guest).createTripRequestWithDelivery(
           {
             carId: i,
             startDateTime: Date.now() + oneDayInSeconds * i,
@@ -427,14 +404,8 @@ describe('RentalityClaim', function () {
             currencyType: ethToken,
             insurancePaid: false,
             photo: '',
-            pickUpInfo: {
-              signature: guest.address,
-              locationInfo: emptyLocationInfo,
-            },
-            returnInfo: {
-              signature: guest.address,
-              locationInfo: emptyLocationInfo,
-            },
+            pickUpInfo: emptySignedLocationInfo,
+            returnInfo: emptySignedLocationInfo,
           },
           { value: rentPriceInEth }
         )
@@ -482,9 +453,11 @@ describe('RentalityClaim', function () {
 
     const oneDayInSeconds = 86400
 
-    const result = await rentalityGateway.connect(guest).calculatePaymentsWithDelivery(1, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
+    const result = await rentalityGateway
+      .connect(guest)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo)
     await expect(
-      await rentalityGateway.connect(guest).createTripRequest(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Date.now(),
@@ -492,14 +465,8 @@ describe('RentalityClaim', function () {
           currencyType: ethToken,
           insurancePaid: false,
           photo: '',
-          pickUpInfo: {
-            signature: guest.address,
-            locationInfo: emptyLocationInfo,
-          },
-          returnInfo: {
-            signature: guest.address,
-            locationInfo: emptyLocationInfo,
-          },
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
         { value: result.totalPrice }
       )
@@ -543,9 +510,15 @@ describe('RentalityClaim', function () {
 
     let sevenDays = 86400 * 7
 
-    const payments = await rentalityGateway.calculatePaymentsWithDelivery(1, 7, ethToken,emptyLocationInfo,emptyLocationInfo)
+    const payments = await rentalityGateway.calculatePaymentsWithDelivery(
+      1,
+      7,
+      ethToken,
+      emptyLocationInfo,
+      emptyLocationInfo
+    )
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Date.now(),
@@ -553,14 +526,8 @@ describe('RentalityClaim', function () {
           currencyType: ethToken,
           insurancePaid: false,
           photo: '',
-          pickUpInfo: {
-            signature: guest.address,
-            locationInfo: emptyLocationInfo,
-          },
-          returnInfo: {
-            signature: guest.address,
-            locationInfo: emptyLocationInfo,
-          },
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
         { value: payments.totalPrice }
       )
@@ -616,9 +583,15 @@ describe('RentalityClaim', function () {
 
     let sevenDays = 86400 * 7
 
-    const payments = await rentalityGateway.calculatePaymentsWithDelivery(1, 7, ethToken,emptyLocationInfo,emptyLocationInfo)
+    const payments = await rentalityGateway.calculatePaymentsWithDelivery(
+      1,
+      7,
+      ethToken,
+      emptyLocationInfo,
+      emptyLocationInfo
+    )
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Date.now(),
@@ -626,14 +599,8 @@ describe('RentalityClaim', function () {
           currencyType: ethToken,
           insurancePaid: false,
           photo: '',
-          pickUpInfo: {
-            signature: guest.address,
-            locationInfo: emptyLocationInfo,
-          },
-          returnInfo: {
-            signature: guest.address,
-            locationInfo: emptyLocationInfo,
-          },
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
         { value: payments.totalPrice }
       )
@@ -689,9 +656,15 @@ describe('RentalityClaim', function () {
 
     let sevenDays = 86400 * 7
 
-    const payments = await rentalityGateway.calculatePaymentsWithDelivery(1, 7, ethToken,emptyLocationInfo,emptyLocationInfo)
+    const payments = await rentalityGateway.calculatePaymentsWithDelivery(
+      1,
+      7,
+      ethToken,
+      emptyLocationInfo,
+      emptyLocationInfo
+    )
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Date.now(),
@@ -699,14 +672,8 @@ describe('RentalityClaim', function () {
           currencyType: ethToken,
           insurancePaid: false,
           photo: '',
-          pickUpInfo: {
-            signature: guest.address,
-            locationInfo: emptyLocationInfo,
-          },
-          returnInfo: {
-            signature: guest.address,
-            locationInfo: emptyLocationInfo,
-          },
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
         { value: payments.totalPrice }
       )

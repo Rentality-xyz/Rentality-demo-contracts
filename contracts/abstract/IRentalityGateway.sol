@@ -13,9 +13,15 @@ interface IRentalityGateway {
   /// USER PROFILE functions
   /// ------------------------------
 
+  /// @notice returns KYC(Know Your Customer) with additional info
   function getMyFullKYCInfo() external view returns (Schemas.FullKYCInfoDTO memory);
 
-  /// @notice Set KYC (Know Your Customer) information for the caller.
+  /// @notice Set KYC (Know Your Customer) information for the caller
+  /// @param nickName The nickname of the user
+  /// @param mobilePhoneNumber The mobile phone number of the user
+  /// @param profilePhoto The profile photo URL of the user
+  /// @param TCSignature The signature of the Terms and Conditions
+  /// @dev This function allows the caller to set their own KYC information
   function setKYCInfo(
     string memory nickName,
     string memory mobilePhoneNumber,
@@ -23,6 +29,10 @@ interface IRentalityGateway {
     bytes memory TCSignature
   ) external;
 
+  /// @notice Set KYC information for a specific user based on Civic identity
+  /// @param user The address of the user whose Civic KYC information is being set
+  /// @param civicKycInfo The Civic KYC information structure containing the user's data
+  /// @dev This function is used to set verified KYC information from the Civic platform
   function setCivicKYCInfo(address user, Schemas.CivicKYCInfo memory civicKycInfo) external;
 
   /// @notice Retrieves the KYC commission amount.
@@ -74,10 +84,14 @@ interface IRentalityGateway {
     string memory geoApiKey
   ) external;
 
+  /// @notice Updates the token URI for a specific car
+  /// @param carId The ID of the car whose token URI is being updated
+  /// @param tokenUri The new token URI to be associated with the car
+  /// @dev This function allows updating the metadata URI of a car token
   function updateCarTokenUri(uint256 carId, string memory tokenUri) external;
 
-  /// @notice Get information about all cars owned by the caller.
-  /// @return An array of CarInfo structures containing details about the caller's cars.
+  /// @notice Get information about all cars owned by the caller
+  /// @return An array of CarInfo structures containing details about the caller's cars
   function getMyCars() external view returns (Schemas.CarInfoDTO[] memory);
 
   /// @notice Retrieves the cars owned by a specific host.
@@ -191,11 +205,14 @@ interface IRentalityGateway {
   ///     GUEST
   /// ------------------------------
 
-  /// @notice Searches for available cars based on specified criteria.
-  /// @param startDateTime The start date and time of the search.
-  /// @param endDateTime The end date and time of the search.
-  /// @param searchParams Additional search parameters.
-  /// @return An array of available car information meeting the search criteria.
+  /// @notice Searches for available cars with delivery based on specified criteria
+  /// @dev use an empty fields for latitude and longitude to skip location part
+  /// @param startDateTime The start date and time for the car rental
+  /// @param endDateTime The end date and time for the car rental
+  /// @param searchParams Additional parameters used to filter the search (e.g., brand, model).
+  /// @param pickUpInfo The location information for picking up the car
+  /// @param returnInfo The location information for returning the car
+  /// @return An array of car information, including distance from the specified location, that meets the search criteria
   function searchAvailableCarsWithDelivery(
     uint64 startDateTime,
     uint64 endDateTime,
@@ -204,11 +221,12 @@ interface IRentalityGateway {
     Schemas.LocationInfo memory returnInfo
   ) external view returns (Schemas.SearchCarWithDistance[] memory);
 
-  /// @dev Calculates the payments for a trip.
-  /// @param carId The ID of the car.
-  /// @param daysOfTrip The duration of the trip in days.
-  /// @param currency The currency to use for payment calculation.
-  /// @return calculatePaymentsDTO An object containing payment details.
+  /// @notice Calculates the total payment for a car rental with delivery service
+  /// @dev use an empty fields for latitude and longitude to skip location part
+  /// @param carId The ID of the car being rented
+  /// @param daysOfTrip The number of days for the rental period
+  /// @param currency The address of the currency used for payment (e.g., Ether or ERC20)
+  /// @param pickUpLocation The location where the car will be picked up
   function calculatePaymentsWithDelivery(
     uint carId,
     uint64 daysOfTrip,
@@ -216,10 +234,6 @@ interface IRentalityGateway {
     Schemas.LocationInfo memory pickUpLocation,
     Schemas.LocationInfo memory returnLocation
   ) external view returns (Schemas.CalculatePaymentsDTO memory);
-
-  /// @notice Create a trip request.
-  /// @param request The request parameters for creating a new trip.
-  function createTripRequest(Schemas.CreateTripRequest memory request) external payable;
 
   /// @notice Create a trip request.
   /// @param request The request parameters for creating a new trip.
@@ -261,7 +275,10 @@ interface IRentalityGateway {
   /// @param request Details of the claim to be created.
   function createClaim(Schemas.CreateClaimRequest memory request) external;
 
-  function calculateClaimValue(uint) external view returns (uint);
+  /// @notice Calculates the claim value for a specified insurance claim
+  /// @param claimId The ID of the insurance claim for which the value is being calculated
+  /// @return The calculated claim value in the specified currency
+  function calculateClaimValue(uint claimId) external view returns (uint);
 
   /// @notice Pays a specific claim through the Rentality platform, transferring funds and handling excess.
   /// @dev This function delegates the claim payment to the Rentality platform contract.
@@ -278,6 +295,7 @@ interface IRentalityGateway {
   /// ------------------------------
 
   /// @notice Retrieves chat information for the caller acting as a host/guest.
+  /// @param host A boolean indicating whether to retrieve insurance for hosts (true) or guests (false)
   /// @return An array of chat information.
   function getChatInfoFor(bool host) external view returns (Schemas.ChatInfo[] memory);
 
@@ -285,12 +303,22 @@ interface IRentalityGateway {
   /// INSURANCE functions
   /// ------------------------------
 
+  /// @notice Retrieves insurance info
+  /// @param host A boolean indicating whether to retrieve insurance for hosts (true) or guests (false)
+  /// @return An array of insurance options available for the specified host status
   function getInsurancesBy(bool host) external view returns (Schemas.InsuranceDTO[] memory);
 
+  /// @notice Retrieves insurance information for the guest
+  /// @return An array of insurance information specific to the guest
   function getMyInsurancesAsGuest() external view returns (Schemas.InsuranceInfo[] memory);
 
+  /// @notice Saves insurance information related to a specific trip
+  /// @param tripId The ID of the trip for which the insurance information is being saved
+  /// @param insuranceInfo A struct containing the details of the insurance to be saved
   function saveTripInsuranceInfo(uint tripId, Schemas.SaveInsuranceRequest memory insuranceInfo) external;
 
+  /// @notice Saves insurance information for a guest
+  /// @param insuranceInfo A struct containing the details of the insurance requested by the guest
   function saveGuestInsurance(Schemas.SaveInsuranceRequest memory insuranceInfo) external;
 
   /// ------------------------------
@@ -325,96 +353,4 @@ interface IRentalityGateway {
   /// @param user The address of the user.
   /// @return An array of available car information for the specified user.
   function getAvailableCarsForUser(address user) external view returns (Schemas.CarInfo[] memory);
-
-  /// @notice Updates the token URI of a car. Only callable by hosts.
-  /// @param carId The ID of the car to update.
-  /// @param tokenUri The new token URI.
-  //  function updateCarTokenUri(uint256 carId, string memory tokenUri) external;
-
-  /// @notice Burns (disables) a car. Only callable by hosts.
-  /// @param carId The ID of the car to burn.
-  //  function burnCar(uint256 carId) external;
-
-  /// @guest functions
-
-  /// @notice Search for available cars based on specified criteria.
-  /// @param startDateTime The start date and time of the trip.
-  /// @param endDateTime The end date and time of the trip.
-  /// @param searchParams Additional parameters for searching available cars.
-  /// @return An array of CarInfo structures containing details about available cars matching the criteria.
-  // function searchAvailableCars(
-  //   uint64 startDateTime,
-  //   uint64 endDateTime,
-  //   Schemas.SearchCarParams memory searchParams
-  // ) external view returns (Schemas.SearchCarWithDistance[] memory);
-
-  /// @notice Searches for available cars for a specific user based on specified criteria.
-  /// @param user The address of the user.
-  /// @param startDateTime The start date and time of the search.
-  /// @param endDateTime The end date and time of the search.
-  /// @param searchParams Additional search parameters.
-  /// @return An array of available car information meeting the search criteria for the specified user.
-  //  function searchAvailableCarsForUser(
-  //    address user,
-  //    uint64 startDateTime,
-  //    uint64 endDateTime,
-  //    Schemas.SearchCarParams memory searchParams
-  //  ) external view returns (Schemas.SearchCar[] memory);
-
-  /// @notice Get information about all trips where the caller is the guest.
-  /// @return An array of Trip structures containing details about trips where the caller is the guest.
-  // function getTripsAsGuest() external view returns (Schemas.TripDTO[] memory);
-
-  /// @notice Retrieves information about trips where the specified user is the guest.
-  /// @param guest The address of the guest.
-  /// @return An array of trip information for the specified guest.
-  //  function getTripsByGuest(address guest) external view returns (Schemas.TripDTO[] memory);
-
-  /// @notice Retrieves information about trips where the specified user is the host.
-  /// @param host The address of the host.
-  /// @return An array of trip information for the specified host.
-  //  function getTripsByHost(address host) external view returns (Schemas.TripDTO[] memory);
-
-  /// @notice Retrieves information about trips for a specific car.
-  /// @param carId The ID of the car.
-  /// @return An array of trip information for the specified car.
-  //  function getTripsByCar(uint256 carId) external view returns (Schemas.Trip[] memory);
-
-  /// @notice Updates the status of a specific claim through the Rentality platform.
-  /// @dev This function delegates the claim update to the Rentality platform contract.
-  /// @param claimId ID of the claim to be updated.
-  //  function updateClaim(uint256 claimId) external;
-
-  /// @notice Gets an array of claims associated with a specific trip through the Rentality platform.
-  /// @dev This function retrieves an array of detailed claim information for the given trip using the Rentality platform contract.
-  /// @param tripId ID of the trip.
-  /// @return Array of detailed claim information.
-  //  function getClaimsByTrip(uint256 tripId) external view returns (Schemas.FullClaimInfo[] memory);
-
-  ///  @notice Retrieves all claims where the caller is the guest.
-  ///  @dev The caller is assumed to be the guest of the claims.
-  ///  @return An array of FullClaimInfo containing information about each claim.
-  // function getMyClaimsAsGuest() external view returns (Schemas.FullClaimInfo[] memory);
-
-  /// @notice Get KYC (Know Your Customer) information for a specific user.
-  /// @param user The address of the user.
-  /// @return KYCInfo structure containing details about the KYC information of the specified user.
-  //  function getKYCInfo(address user) external view returns (Schemas.KYCInfo memory);
-
-  /// @notice Get KYC (Know Your Customer) information for the caller.
-  /// @return KYCInfo structure containing details about the KYC information of the caller.
-  // function getMyKYCInfo() external view returns (Schemas.KYCInfo memory);
-
-  // function getChatInfoForGuest() external view returns (Schemas.ChatInfo[] memory);
-
-  /// @dev Calculates the payments for a trip.
-  /// @param carId The ID of the car.
-  /// @param daysOfTrip The duration of the trip in days.
-  /// @param currency The currency to use for payment calculation.
-  // /// @return calculatePaymentsDTO An object containing payment details.
-  // function calculatePayments(
-  //   uint carId,
-  //   uint64 daysOfTrip,
-  //   address currency
-  // ) external view returns (Schemas.CalculatePaymentsDTO memory calculatePaymentsDTO);
 }
