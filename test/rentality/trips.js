@@ -6,6 +6,7 @@ const {
   ethToken,
   calculatePayments,
   emptyLocationInfo,
+  emptySignedLocationInfo,
 } = require('../utils')
 const { deployDefaultFixture } = require('./deployments')
 
@@ -31,14 +32,22 @@ describe('Rentality: trips', function () {
       )
     expect(availableCars.length).to.equal(1)
 
-    const result = await rentalityGateway.calculatePaymentsWithDelivery(1, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
+    const result = await rentalityGateway.calculatePaymentsWithDelivery(
+      1,
+      1,
+      ethToken,
+      emptyLocationInfo,
+      emptyLocationInfo
+    )
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: 123,
           endDateTime: 321,
           currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
         { value: result.totalPrice }
       )
@@ -74,14 +83,18 @@ describe('Rentality: trips', function () {
       )
     expect(availableCars.length).to.equal(1)
 
-    const result = await rentalityGateway.connect(guest).calculatePaymentsWithDelivery(1, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
+    const result = await rentalityGateway
+      .connect(guest)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo)
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: 123,
           endDateTime: 321,
           currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
         { value: result.totalPrice }
       )
@@ -122,14 +135,18 @@ describe('Rentality: trips', function () {
       )
     expect(availableCars.length).to.equal(1)
 
-    const result = await rentalityGateway.connect(guest).calculatePaymentsWithDelivery(1, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
+    const result = await rentalityGateway
+      .connect(guest)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo)
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: 123,
           endDateTime: 321,
           currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
         { value: result.totalPrice }
       )
@@ -178,12 +195,14 @@ describe('Rentality: trips', function () {
       request.securityDepositPerTripInUsdCents
     )
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: 123,
           endDateTime: 321,
           currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
         { value: rentPriceInEth }
       )
@@ -240,26 +259,32 @@ describe('Rentality: trips', function () {
       )
     expect(availableCars.length).to.equal(1)
 
-    const result = await rentalityGateway.connect(guest).calculatePaymentsWithDelivery(1, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
+    const result = await rentalityGateway
+      .connect(guest)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo)
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: 123,
           endDateTime: 321,
           currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
         { value: result.totalPrice }
       )
     ).not.to.be.reverted
 
     await expect(
-      rentalityPlatform.connect(guest).createTripRequest(
+      rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: 234,
           endDateTime: 456,
           currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
         { value: result.totalPrice }
       )
@@ -309,26 +334,32 @@ describe('Rentality: trips', function () {
 
     const dailyPriceInUsdCents = 1000
 
-    const result = await rentalityGateway.connect(guest).calculatePaymentsWithDelivery(1, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
+    const result = await rentalityGateway
+      .connect(guest)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo)
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: 123,
           endDateTime: 321,
           currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
         { value: result.totalPrice }
       )
     ).not.to.be.reverted
 
     await expect(
-      rentalityPlatform.connect(guest).createTripRequest(
+      rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: 456,
           endDateTime: 789,
           currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
         { value: result.totalPrice }
       )
@@ -377,14 +408,18 @@ describe('Rentality: trips', function () {
       )
     expect(availableCars.length).to.equal(1)
 
-    const result = await rentalityGateway.connect(guest).calculatePaymentsWithDelivery(1, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
+    const result = await rentalityGateway
+      .connect(guest)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo)
     await expect(
-      await rentalityGateway.connect(guest).createTripRequest(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: 123,
           endDateTime: 321,
           currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
         { value: result.totalPrice }
       )
@@ -436,14 +471,18 @@ describe('Rentality: trips', function () {
       )
     expect(availableCars.length).to.equal(1)
 
-    const result = await rentalityGateway.connect(guest).calculatePaymentsWithDelivery(1, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
+    const result = await rentalityGateway
+      .connect(guest)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo)
     await expect(
-      await rentalityGateway.connect(guest).createTripRequest(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: timestampNow,
           endDateTime: timestampIn1Day,
           currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
         { value: result.totalPrice }
       )
