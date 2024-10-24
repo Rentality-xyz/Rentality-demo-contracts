@@ -54,7 +54,7 @@ async function main() {
     'RentalityCarDelivery'
   )
   const rentalityView = checkNotNull(
-    getContractAddress('RentalityView', 'scripts/deploy_4b_RentalityView.js', chainId),
+    getContractAddress('RentalityView', 'scripts/deploy_4c_RentalityView.js', chainId),
     'RentalityView'
   )
 

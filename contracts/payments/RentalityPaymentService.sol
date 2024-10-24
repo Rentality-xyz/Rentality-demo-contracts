@@ -25,6 +25,10 @@ contract RentalityPaymentService is UUPSOwnable {
     require(userService.isAdmin(tx.origin), 'Only admin.');
     _;
   }
+  function getBaseDiscount() public view returns (RentalityBaseDiscount) {
+    address discountAddress = address(discountAddressToDiscountContract[currentDiscount]);
+    return RentalityBaseDiscount(discountAddress);
+  }
 
   /// @notice Get the current platform fee in parts per million (PPM).
   /// @return The current platform fee in PPM.

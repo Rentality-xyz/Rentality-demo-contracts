@@ -425,6 +425,36 @@ interface Schemas {
     LocationInfo locationInfo;
     InsuranceCarInfo insuranceInfo;
   }
+  struct AvailableCarDTO {
+    uint carId;
+    string brand;
+    string model;
+    uint32 yearOfProduction;
+    uint64 pricePerDayInUsdCents;
+    uint64 pricePerDayWithDiscount;
+    uint64 tripDays;
+    uint64 totalPriceWithDiscount;
+    uint64 taxes;
+    uint64 securityDepositPerTripInUsdCents;
+    uint8 engineType;
+    uint64 milesIncludedPerDay;
+    address host;
+    string hostName;
+    string hostPhotoUrl;
+    string metadataURI;
+    uint64 underTwentyFiveMilesInUsdCents;
+    uint64 aboveTwentyFiveMilesInUsdCents;
+    uint64 pickUp;
+    uint64 dropOf;
+    bool insuranceIncluded;
+    LocationInfo locationInfo;
+    InsuranceCarInfo insuranceInfo;
+    uint fuelPrice;
+    BaseDiscount carDiscounts;
+    uint64 salesTax;
+    uint64 governmentTax;
+    bool isGuestHasInsurance;
+  }
 
   struct GeoData {
     string city;

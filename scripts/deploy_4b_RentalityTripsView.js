@@ -5,7 +5,7 @@ const addressSaver = require('./utils/addressSaver')
 const { checkNotNull, startDeploy } = require('./utils/deployHelper')
 
 async function main() {
-  const { contractName, chainId } = await startDeploy('RentalityView')
+  const { contractName, chainId } = await startDeploy('RentalityTripsView')
 
   if (chainId < 0) throw new Error('chainId is not set')
 
@@ -63,8 +63,6 @@ async function main() {
   )
   const contractFactory = await ethers.getContractFactory(contractName, {
     libraries: {
-      RentalityUtils: rentalityUtilsAddress,
-      RentalityQuery: rentalityQueryAddress,
       RentalityTripsQuery: rentalityTripsQueryAddress,
     },
   })
