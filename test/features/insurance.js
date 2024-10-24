@@ -608,4 +608,32 @@ describe('Rentality insurance', function () {
     expect(insurances[0].insuranceInfo.companyName).to.be.eq(insurance.companyName)
     expect(insurances[0].insuranceInfo.policyNumber).to.be.eq(insurance.policyNumber)
   })
+  it('check Available car return correct data', async function () {
+    await expect(rentalityGateway.connect(host).addCar(mockRequestWithInsurance)).not.to.be.reverted
+    const myCars = await rentalityGateway.connect(host).getMyCars()
+    expect(myCars.length).to.equal(1)
+
+    let searchParams = {
+      country: 'Ukraine',
+      state: '',
+      city: '',
+      brand: '',
+      model: '',
+      yearOfProductionFrom: 0,
+      yearOfProductionTo: 0,
+      pricePerDayInUsdCentsFrom: 0,
+      pricePerDayInUsdCentsTo: 0,
+      userLocation: emptyLocationInfo,
+    }
+
+    let result2 = await rentalityGateway.checkCarAvailabilityWithDelivery(
+      1,
+      0,
+      0,
+      searchParams,
+      emptyLocationInfo,
+      emptyLocationInfo
+    )
+    expect(result2.carId).to.be.eq(0)
+  })
 })

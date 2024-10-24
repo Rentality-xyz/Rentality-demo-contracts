@@ -22,6 +22,13 @@ contract RentalityBaseDiscount is IRentalityDiscount, Initializable, UUPSAccess 
     if (discount.initialized) return abi.encode(discount);
     else return abi.encode(defaultDiscount);
   }
+  function getParsedDiscount(address userAddress) public view returns (Schemas.BaseDiscount memory) {
+    if (userAddress == address(0)) return defaultDiscount;
+
+    Schemas.BaseDiscount memory discount = userAddressToBaseDiscount[userAddress];
+    if (discount.initialized) return discount;
+    else return defaultDiscount;
+  }
 
   /// @notice Calculates the total price with discount for a trip.
   /// @param daysOfTrip The duration of the trip in days.

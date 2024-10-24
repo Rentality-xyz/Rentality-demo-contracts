@@ -12,6 +12,7 @@ import '../payments/RentalityPaymentService.sol';
 import '../payments/RentalityInsurance.sol';
 import {RentalityContract} from '../RentalityGateway.sol';
 import {RentalityCarDelivery} from '../features/RentalityCarDelivery.sol';
+import {RentalityClaimService} from '../features/RentalityClaimService.sol';
 /// @title RentalityUtils Library
 /// @notice
 /// This library provides utility functions for handling coordinates, string manipulation,
@@ -158,48 +159,6 @@ library RentalityUtils {
   function getCeilDays(uint64 startDateTime, uint64 endDateTime) internal pure returns (uint64) {
     uint64 duration = endDateTime - startDateTime;
     return uint64(Math.ceilDiv(duration, 1 days));
-  }
-
-  /// @notice Populates an array of chat information using data from trips, user service, and car service.
-  /// @return chatInfoList Array of IRentalityGateway.ChatInfo structures.
-
-  function populateChatInfo(
-    bool byGuest,
-    RentalityContract memory addresses
-  ) public view returns (Schemas.ChatInfo[] memory) {
-    Schemas.TripDTO[] memory trips = addresses.viewService.getTripsAs(!byGuest);
-
-    RentalityUserService userService = addresses.userService;
-    RentalityCarToken carService = addresses.carService;
-
-    Schemas.ChatInfo[] memory chatInfoList = new Schemas.ChatInfo[](trips.length);
-
-    for (uint i = 0; i < trips.length; i++) {
-      Schemas.KYCInfo memory guestInfo = userService.getKYCInfo(trips[i].trip.guest);
-      Schemas.KYCInfo memory hostInfo = userService.getKYCInfo(trips[i].trip.host);
-
-      chatInfoList[i].tripId = trips[i].trip.tripId;
-      chatInfoList[i].guestAddress = trips[i].trip.guest;
-      chatInfoList[i].guestName = guestInfo.surname;
-      chatInfoList[i].guestPhotoUrl = guestInfo.profilePhoto;
-      chatInfoList[i].hostAddress = trips[i].trip.host;
-      chatInfoList[i].hostName = hostInfo.surname;
-      chatInfoList[i].hostPhotoUrl = hostInfo.profilePhoto;
-      chatInfoList[i].tripStatus = uint256(trips[i].trip.status);
-
-      Schemas.CarInfo memory carInfo = carService.getCarInfoById(trips[i].trip.carId);
-      chatInfoList[i].carBrand = carInfo.brand;
-      chatInfoList[i].carModel = carInfo.model;
-      chatInfoList[i].carYearOfProduction = carInfo.yearOfProduction;
-      chatInfoList[i].carMetadataUrl = carService.tokenURI(trips[i].trip.carId);
-      chatInfoList[i].startDateTime = trips[i].trip.startDateTime;
-      chatInfoList[i].endDateTime = trips[i].trip.endDateTime;
-      chatInfoList[i].timeZoneId = IRentalityGeoService(carService.getGeoServiceAddress()).getCarTimeZoneId(
-        carInfo.locationHash
-      );
-    }
-
-    return chatInfoList;
   }
 
   /// not using
@@ -624,5 +583,120 @@ library RentalityUtils {
     if (pickUp > 0) addresses.carService.verifySignedLocationInfo(request.pickUpInfo);
     if (dropOf > 0) addresses.carService.verifySignedLocationInfo(request.returnInfo);
     return (pickUp, dropOf);
+  }
+
+  /// @notice Retrieves detailed claim information for a specific claim ID.
+  /// @dev This function fetches all relevant data for a claim including trip, car, and user information.
+  /// @param contracts The Rentality contract instance containing service addresses.
+  /// @param claimId The ID of the claim to retrieve.
+  /// @return A FullClaimInfo structure containing all relevant information about the claim.
+  function getClaim(
+    RentalityContract memory contracts,
+    uint256 claimId
+  ) public view returns (Schemas.FullClaimInfo memory) {
+    RentalityClaimService claimService = contracts.claimService;
+    RentalityTripService tripService = contracts.tripService;
+    RentalityCarToken carService = contracts.carService;
+    RentalityUserService userService = contracts.userService;
+    RentalityCurrencyConverter currencyConverterService = contracts.currencyConverterService;
+
+    Schemas.Claim memory claim = claimService.getClaim(claimId);
+    Schemas.Trip memory trip = tripService.getTrip(claim.tripId);
+    Schemas.CarInfo memory car = carService.getCarInfoById(trip.carId);
+
+    string memory guestPhoneNumber = userService.getKYCInfo(trip.guest).mobilePhoneNumber;
+    string memory hostPhoneNumber = userService.getKYCInfo(trip.host).mobilePhoneNumber;
+
+    uint valueInCurrency = currencyConverterService.getFromUsd(
+      trip.paymentInfo.currencyType,
+      claim.amountInUsdCents,
+      trip.paymentInfo.currencyRate,
+      trip.paymentInfo.currencyDecimals
+    );
+
+    return
+      Schemas.FullClaimInfo(
+        claim,
+        trip.host,
+        trip.guest,
+        guestPhoneNumber,
+        hostPhoneNumber,
+        car,
+        valueInCurrency,
+        IRentalityGeoService(contracts.carService.getGeoServiceAddress()).getCarTimeZoneId(car.locationHash)
+      );
+  }
+
+  /// @notice Retrieves detailed information about a specific car.
+  /// @dev This function fetches all relevant data for a car including geo-location and user information.
+  /// @param contracts The Rentality contract instance containing service addresses.
+  /// @param carId The ID of the car to retrieve.
+  /// @return details A CarDetails structure containing all relevant information about the car.
+  function getCarDetails(
+    RentalityContract memory contracts,
+    uint carId
+  ) public view returns (Schemas.CarDetails memory details) {
+    RentalityCarToken carService = contracts.carService;
+    IRentalityGeoService geo = IRentalityGeoService(carService.getGeoServiceAddress());
+    RentalityUserService userService = contracts.userService;
+
+    Schemas.CarInfo memory car = carService.getCarInfoById(carId);
+
+    details = Schemas.CarDetails(
+      carId,
+      userService.getKYCInfo(car.createdBy).name,
+      userService.getKYCInfo(car.createdBy).profilePhoto,
+      car.createdBy,
+      car.brand,
+      car.model,
+      car.yearOfProduction,
+      car.pricePerDayInUsdCents,
+      car.securityDepositPerTripInUsdCents,
+      car.milesIncludedPerDay,
+      car.engineType,
+      car.engineParams,
+      geo.getCarCoordinateValidity(carId),
+      car.currentlyListed,
+      geo.getLocationInfo(car.locationHash)
+    );
+  }
+  function getCarsOwnedByUserWithEditability(
+    RentalityContract memory contracts
+  ) public view returns (Schemas.CarInfoDTO[] memory) {
+    RentalityCarToken carService = contracts.carService;
+
+    Schemas.CarInfo[] memory carInfoes = carService.getCarsOwnedByUser(tx.origin);
+
+    Schemas.CarInfoDTO[] memory result = new Schemas.CarInfoDTO[](carInfoes.length);
+    for (uint i = 0; i < carInfoes.length; i++) {
+      result[i].carInfo = carInfoes[i];
+      result[i].metadataURI = carService.tokenURI(carInfoes[i].carId);
+      result[i].isEditable = isCarEditable(contracts, carInfoes[i].carId);
+    }
+
+    return result;
+  }
+  /// @notice Checks if a car is editable based on its associated trips.
+  /// @dev This function checks the status of trips associated with the car to determine if it can be edited.
+  /// @param contracts The Rentality contract instance containing service addresses.
+  /// @param carId The ID of the car to check for editability.
+  /// @return Returns true if the car is editable, otherwise false.
+  function isCarEditable(RentalityContract memory contracts, uint carId) internal view returns (bool) {
+    RentalityTripService tripService = contracts.tripService;
+
+    for (uint i = 1; i <= tripService.totalTripCount(); i++) {
+      Schemas.Trip memory tripInfo = tripService.getTrip(i);
+
+      if (
+        tripInfo.carId == carId &&
+        (tripInfo.status != Schemas.TripStatus.Finished &&
+          tripInfo.status != Schemas.TripStatus.Canceled &&
+          (tripInfo.status != Schemas.TripStatus.CheckedOutByHost && tripInfo.host != tripInfo.tripFinishedBy))
+      ) {
+        return false;
+      }
+    }
+
+    return true;
   }
 }
