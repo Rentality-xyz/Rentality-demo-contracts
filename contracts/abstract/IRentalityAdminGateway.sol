@@ -76,10 +76,6 @@ interface IRentalityAdminGateway {
   /// @param newGeoServiceAddress The new address of the GeoService contract.
   function updateGeoServiceAddress(address newGeoServiceAddress) external;
 
-  /// @notice Updates the address of the GeoParser contract.
-  /// @param newGeoParserAddress The new address of the GeoParser contract.
-  function updateGeoParserAddress(address newGeoParserAddress) external;
-
   /// @dev Sets the waiting time, only callable by administrators.
   /// @param timeInSec, set old value to this
   function setClaimsWaitingTime(uint timeInSec) external;

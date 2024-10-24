@@ -167,6 +167,24 @@ async function deployDefaultFixture() {
   })
   const deliveryService = await upgrades.deployProxy(DeliveryService, [await rentalityUserService.getAddress()])
 
+  let RentalityTripsView = await ethers.getContractFactory('RentalityTripsView', {
+    libraries: {
+      RentalityTripsQuery: await tripsQuery.getAddress(),
+    },
+  })
+
+  const rentalityTripsView = await upgrades.deployProxy(RentalityTripsView, [
+    await rentalityCarToken.getAddress(),
+    await rentalityCurrencyConverter.getAddress(),
+    await rentalityTripService.getAddress(),
+    await rentalityUserService.getAddress(),
+    await rentalityPaymentService.getAddress(),
+    await claimService.getAddress(),
+    await deliveryService.getAddress(),
+    await insuranceService.getAddress(),
+  ])
+  await rentalityTripsView.waitForDeployment()
+
   let RentalityView = await ethers.getContractFactory('RentalityView', {
     libraries: {
       RentalityUtils: await utils.getAddress(),
@@ -183,6 +201,7 @@ async function deployDefaultFixture() {
     await claimService.getAddress(),
     await deliveryService.getAddress(),
     await insuranceService.getAddress(),
+    await rentalityTripsView.getAddress(),
   ])
   await rentalityView.waitForDeployment()
 
@@ -236,7 +255,6 @@ async function deployDefaultFixture() {
 
   const RentalityAdminGateway = await ethers.getContractFactory('RentalityAdminGateway', {
     libraries: {
-      RentalityQuery: await query.getAddress(),
       RentalityUtils: await utils.getAddress(),
     },
   })
@@ -251,6 +269,7 @@ async function deployDefaultFixture() {
     await deliveryService.getAddress(),
     await rentalityView.getAddress(),
     await insuranceService.getAddress(),
+    await rentalityTripsView.getAddress(),
   ])
   await rentalityAdminGateway.waitForDeployment()
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityView.getAddress())
@@ -261,7 +280,7 @@ async function deployDefaultFixture() {
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityCarToken.getAddress())
   await rentalityUserService.connect(owner).grantManagerRole(await engineService.getAddress())
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityPaymentService.getAddress())
-
+  await rentalityUserService.connect(owner).grantManagerRole(await rentalityTripsView.getAddress())
   return {
     rentalityMockPriceFeed,
     rentalityUserService,
