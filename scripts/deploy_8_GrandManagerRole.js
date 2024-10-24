@@ -33,6 +33,7 @@ async function main() {
     'rentalityPaymentServiceAddress'
   )
   const rentalityView = checkNotNull(addresses['RentalityView'], 'RentalityViewAddress')
+  const rentalityTripsView = checkNotNull(addresses['RentalityTripsView'], 'RentalityTripsViewAddress')
   const rentalityCarDelivery = checkNotNull(addresses['RentalityCarDelivery'], 'RentalityCarDelivery')
 
   let rentalityUserServiceContract = new ethers.Contract(
@@ -50,6 +51,7 @@ async function main() {
     await rentalityUserServiceContract.grantManagerRole(rentalityEngineAddress)
     await rentalityUserServiceContract.grantManagerRole(rentalityPaymentServiceAddress)
     await rentalityUserServiceContract.grantManagerRole(rentalityCarDelivery)
+    await rentalityUserServiceContract.grantManagerRole(rentalityTripsView)
     console.log('manager role granded')
   } catch (e) {
     console.log('grand manager role error:', e)

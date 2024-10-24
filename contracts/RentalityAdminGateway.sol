@@ -140,12 +140,6 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
     carService.updateGeoServiceAddress(newGeoServiceAddress);
   }
 
-  /// @notice Updates the address of the GeoParser contract.
-  /// @param newGeoParserAddress The new address of the GeoParser contract.
-  function updateGeoParserAddress(address newGeoParserAddress) public onlyAdmin {
-    carService.updateGeoParsesAddress(newGeoParserAddress);
-  }
-
   /// @notice Retrieves the address of the RentalityCarDelivery contract.
   /// @return The address of the RentalityCarDelivery contract.
   function getDeliveryServiceAddress() public view returns (address) {
@@ -455,7 +449,7 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
 
     Schemas.AdminCarDTO[] memory cars = new Schemas.AdminCarDTO[](endIndex - startIndex + 1);
     for (uint i = startIndex; i <= endIndex; i++) {
-      cars[i - startIndex].car = RentalityQuery.getCarDetails(contracts, i);
+      cars[i - startIndex].car = RentalityUtils.getCarDetails(contracts, i);
       cars[i - startIndex].carMetadataURI = contracts.carService.tokenURI(i);
     }
     return Schemas.AllCarsDTO(cars, totalPageCount);
@@ -480,7 +474,8 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
     address claimServiceAddress,
     address carDeliveryAddress,
     address viewServiceAddress,
-    address insuranceServiceAddress
+    address insuranceServiceAddress,
+    address rentalityTripsViewAddress
   ) public initializer {
     carService = RentalityCarToken(carServiceAddress);
     currencyConverterService = RentalityCurrencyConverter(currencyConverterServiceAddress);
@@ -492,7 +487,7 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
     deliveryService = RentalityCarDelivery(carDeliveryAddress);
     viewService = RentalityView(viewServiceAddress);
 
-    viewService.updateServiceAddresses(getRentalityContracts(), insuranceServiceAddress);
+    viewService.updateServiceAddresses(getRentalityContracts(), insuranceServiceAddress, rentalityTripsViewAddress);
     __Ownable_init();
   }
 }

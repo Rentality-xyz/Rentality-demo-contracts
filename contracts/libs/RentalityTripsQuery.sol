@@ -17,6 +17,8 @@ import './RentalityUtils.sol';
 import './RentalityQuery.sol';
 import '@openzeppelin/contracts/utils/math/Math.sol';
 import {RentalityInsurance} from '../payments/RentalityInsurance.sol';
+import '../engine/RentalityEnginesService.sol';
+import '../payments/RentalityBaseDiscount.sol';
 
 library RentalityTripsQuery {
   /// @notice Checks if a trip intersects with the specified time interval.
@@ -59,7 +61,7 @@ library RentalityTripsQuery {
 
     for (uint i = 0; i < tripService.totalTripCount(); i++) {
       uint currentId = i + 1;
-      if (RentalityQuery.isCarThatIntersect(contracts, currentId, carId, startDateTime, endDateTime + timeBuffer)) {
+      if (isCarThatIntersect(contracts, currentId, carId, startDateTime, endDateTime + timeBuffer)) {
         itemCount += 1;
       }
     }
@@ -69,7 +71,7 @@ library RentalityTripsQuery {
 
     for (uint i = 0; i < tripService.totalTripCount(); i++) {
       uint currentId = i + 1;
-      if (RentalityQuery.isCarThatIntersect(contracts, currentId, carId, startDateTime, endDateTime + timeBuffer)) {
+      if (isCarThatIntersect(contracts, currentId, carId, startDateTime, endDateTime + timeBuffer)) {
         result[currentIndex] = tripService.getTrip(currentId);
         currentIndex += 1;
       }
@@ -431,5 +433,86 @@ library RentalityTripsQuery {
     }
 
     return insurances;
+  }
+
+  /// @notice Populates an array of chat information using data from trips, user service, and car service.
+  /// @return chatInfoList Array of IRentalityGateway.ChatInfo structures.
+
+  function populateChatInfo(
+    RentalityContract memory addresses,
+    RentalityInsurance insuranceService,
+    address user,
+    bool host
+  ) public view returns (Schemas.ChatInfo[] memory) {
+    Schemas.TripDTO[] memory trips = getTripsAs(addresses, insuranceService, user, host);
+
+    RentalityUserService userService = addresses.userService;
+    RentalityCarToken carService = addresses.carService;
+
+    Schemas.ChatInfo[] memory chatInfoList = new Schemas.ChatInfo[](trips.length);
+
+    for (uint i = 0; i < trips.length; i++) {
+      Schemas.KYCInfo memory guestInfo = userService.getKYCInfo(trips[i].trip.guest);
+      Schemas.KYCInfo memory hostInfo = userService.getKYCInfo(trips[i].trip.host);
+
+      chatInfoList[i].tripId = trips[i].trip.tripId;
+      chatInfoList[i].guestAddress = trips[i].trip.guest;
+      chatInfoList[i].guestName = guestInfo.surname;
+      chatInfoList[i].guestPhotoUrl = guestInfo.profilePhoto;
+      chatInfoList[i].hostAddress = trips[i].trip.host;
+      chatInfoList[i].hostName = hostInfo.surname;
+      chatInfoList[i].hostPhotoUrl = hostInfo.profilePhoto;
+      chatInfoList[i].tripStatus = uint256(trips[i].trip.status);
+
+      Schemas.CarInfo memory carInfo = carService.getCarInfoById(trips[i].trip.carId);
+      chatInfoList[i].carBrand = carInfo.brand;
+      chatInfoList[i].carModel = carInfo.model;
+      chatInfoList[i].carYearOfProduction = carInfo.yearOfProduction;
+      chatInfoList[i].carMetadataUrl = carService.tokenURI(trips[i].trip.carId);
+      chatInfoList[i].startDateTime = trips[i].trip.startDateTime;
+      chatInfoList[i].endDateTime = trips[i].trip.endDateTime;
+      chatInfoList[i].timeZoneId = IRentalityGeoService(carService.getGeoServiceAddress()).getCarTimeZoneId(
+        carInfo.locationHash
+      );
+    }
+
+    return chatInfoList;
+  }
+
+  /// @notice Calculates the KYC commission in a specific currency based on the current exchange rate.
+  /// @dev This function uses the currency converter service to calculate the commission in the specified currency.
+  /// @param addresses The Rentality contract instance containing service addresses.
+  /// @param currency The address of the currency in which the commission should be calculated.
+  /// @return The KYC commission amount in the specified currency.
+  function calculateKycCommission(RentalityContract memory addresses, address currency) public view returns (uint) {
+    (uint result, , ) = addresses.currencyConverterService.getFromUsdLatest(
+      currency,
+      addresses.userService.getKycCommission()
+    );
+
+    return result;
+  }
+
+  function calculateClaimValue(RentalityContract memory addresses, uint claimId) public view returns (uint) {
+    Schemas.Claim memory claim = addresses.claimService.getClaim(claimId);
+    if (claim.status == Schemas.ClaimStatus.Paid || claim.status == Schemas.ClaimStatus.Cancel) return 0;
+
+    uint commission = addresses.claimService.getPlatformFeeFrom(claim.amountInUsdCents);
+    (uint result, , ) = addresses.currencyConverterService.getFromUsdLatest(
+      addresses.tripService.getTrip(claim.tripId).paymentInfo.currencyType,
+      claim.amountInUsdCents + commission
+    );
+
+    return result;
+  }
+  function isCarThatIntersect(
+    RentalityContract memory contracts,
+    uint256 tripId,
+    uint256 carId,
+    uint64 startDateTime,
+    uint64 endDateTime
+  ) internal view returns (bool) {
+    Schemas.Trip memory trip = contracts.tripService.getTrip(tripId);
+    return (trip.carId == carId) && (trip.endDateTime > startDateTime) && (trip.startDateTime < endDateTime);
   }
 }
