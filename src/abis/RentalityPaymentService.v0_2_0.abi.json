@@ -143,6 +143,15 @@
     },
     {
       "type": "function",
+      "name": "getBaseDiscount",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
       "name": "getPlatformFeeFrom",
       "constant": true,
       "stateMutability": "view",

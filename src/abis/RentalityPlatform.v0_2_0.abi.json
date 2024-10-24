@@ -200,26 +200,6 @@
     },
     {
       "type": "function",
-      "name": "createTripRequest",
-      "constant": false,
-      "stateMutability": "payable",
-      "payable": true,
-      "inputs": [
-        {
-          "type": "tuple",
-          "name": "request",
-          "components": [
-            { "type": "uint256", "name": "carId" },
-            { "type": "uint64", "name": "startDateTime" },
-            { "type": "uint64", "name": "endDateTime" },
-            { "type": "address", "name": "currencyType" }
-          ]
-        }
-      ],
-      "outputs": []
-    },
-    {
-      "type": "function",
       "name": "createTripRequestWithDelivery",
       "constant": false,
       "stateMutability": "payable",
@@ -533,6 +513,14 @@
       "constant": false,
       "payable": false,
       "inputs": [{ "type": "uint256", "name": "claimId" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "updateServiceAddresses",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "adminService" }],
       "outputs": []
     },
     {
