@@ -427,6 +427,15 @@
     },
     {
       "type": "function",
+      "name": "getEngineService",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
       "name": "getGeoServiceAddress",
       "constant": true,
       "stateMutability": "view",
@@ -699,14 +708,6 @@
       "constant": false,
       "payable": false,
       "inputs": [{ "type": "address", "name": "_engineService" }],
-      "outputs": []
-    },
-    {
-      "type": "function",
-      "name": "updateGeoParsesAddress",
-      "constant": false,
-      "payable": false,
-      "inputs": [{ "type": "address", "name": "newGeoParserAddress" }],
       "outputs": []
     },
     {
