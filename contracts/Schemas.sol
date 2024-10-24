@@ -642,6 +642,8 @@ interface Schemas {
     bool createdByHost;
     string creatorPhoneNumber;
     string creatorFullName;
+    uint64 startDateTime;
+    uint64 endDateTime;
   }
   struct CarInfoWithInsurance {
     CarInfo carInfo;
