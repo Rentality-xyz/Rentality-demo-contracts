@@ -353,4 +353,13 @@ interface IRentalityGateway {
   /// @param user The address of the user.
   /// @return An array of available car information for the specified user.
   function getAvailableCarsForUser(address user) external view returns (Schemas.CarInfo[] memory);
+
+  function checkCarAvailabilityWithDelivery(
+    uint carId,
+    uint64 startDateTime,
+    uint64 endDateTime,
+    Schemas.SearchCarParams memory searchParams,
+    Schemas.LocationInfo memory pickUpInfo,
+    Schemas.LocationInfo memory returnInfo
+  ) external view returns (Schemas.AvailableCarDTO memory);
 }

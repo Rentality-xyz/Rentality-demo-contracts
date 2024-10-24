@@ -64,12 +64,9 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     geoService = IRentalityGeoService(_geoService);
   }
 
-  /// @notice Updates the address of the GeoParser contract.
-  /// @param newGeoParserAddress The new address of the GeoParser contract.
-  function updateGeoParsesAddress(address newGeoParserAddress) public onlyAdmin {
-    geoService.updateParserAddress(newGeoParserAddress);
+  function getEngineService() public view returns (RentalityEnginesService) {
+    return engineService;
   }
-
   /// @notice Returns the total supply of cars.
   /// @return The total number of cars in the system.
   function totalSupply() public view returns (uint) {
