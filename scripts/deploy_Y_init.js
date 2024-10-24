@@ -226,8 +226,16 @@ async function createPendingTrip(tripIndex, carId, host, guest, gateway) {
     startDateTime: Math.ceil(new Date().getTime() / 1000 + tripIndex * 3),
     endDateTime: Math.ceil(new Date().getTime() / 1000 + tripIndex * 3 + 1),
     currencyType: ethAddress,
+    pickUpInfo: {
+      locationInfo: emptyContractLocationInfo,
+      signature: '0x',
+    },
+    returnInfo: {
+      locationInfo: emptyContractLocationInfo,
+      signature: '0x',
+    },
   }
-  await gateway.connect(guest).createTripRequest(request, {
+  await gateway.connect(guest).createTripRequestWithDelivery(request, {
     value: paymentsNeeded.totalPrice,
   })
 
