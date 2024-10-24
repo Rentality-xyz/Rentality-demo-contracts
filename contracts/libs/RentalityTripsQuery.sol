@@ -389,6 +389,8 @@ library RentalityTripsQuery {
           insurances[counter].createdByHost = tripInsurances[j].createdBy == trip.host;
           insurances[counter].creatorPhoneNumber = kyc.mobilePhoneNumber;
           insurances[counter].creatorFullName = kyc.surname;
+          insurances[counter].startDateTime = trip.startDateTime;
+          insurances[counter].endDateTime = trip.endDateTime;
           counter += 1;
         }
       }
@@ -427,6 +429,8 @@ library RentalityTripsQuery {
           insurances[counter].createdByHost = tripInsurances[j].createdBy == trip.host;
           insurances[counter].creatorPhoneNumber = kyc.mobilePhoneNumber;
           insurances[counter].creatorFullName = kyc.surname;
+          insurances[counter].startDateTime = trip.startDateTime;
+          insurances[counter].endDateTime = trip.endDateTime;
           counter += 1;
         }
       }
