@@ -379,6 +379,14 @@ library RentalityQuery {
     Schemas.DeliveryPrices memory deliveryPrices = RentalityCarDelivery(deliveryServiceAddress).getUserDeliveryPrices(
       temp.createdBy
     );
+    Schemas.LocationInfo memory location = IRentalityGeoService(carService.getGeoServiceAddress())
+    .getLocationInfo(temp.locationHash);
+    int128 distance =  RentalityCarDelivery(deliveryServiceAddress).calculateDistance(
+        location.latitude,
+        location.longitude,
+        pickUpInfo.latitude,
+        pickUpInfo.longitude
+      );
     uint64 priceWithDiscount = contracts.paymentService.calculateSumWithDiscount(
       carService.ownerOf(carId),
       totalTripDays,
@@ -435,6 +443,7 @@ library RentalityQuery {
         discountService.getParsedDiscount(contracts.carService.ownerOf(carId)),
         salesTaxes,
         govTax,
+        distance,
         insuranceService.isGuestHasInsurance(user)
       );
   }
