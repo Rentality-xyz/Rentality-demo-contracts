@@ -453,6 +453,7 @@ interface Schemas {
     BaseDiscount carDiscounts;
     uint64 salesTax;
     uint64 governmentTax;
+    int128 distance;
     bool isGuestHasInsurance;
   }
 
