@@ -26,10 +26,10 @@ contract RentalityView is UUPSUpgradeable, Initializable {
   using RentalityQuery for RentalityContract;
   using RentalityTripsQuery for RentalityContract;
 
-  function updateServiceAddresses(RentalityContract memory contracts) public {
-    require(addresses.userService.isAdmin(tx.origin), 'only Admin.');
-    addresses = contracts;
-  }
+  // function updateServiceAddresses(RentalityContract memory contracts) public {
+  //   require(addresses.userService.isAdmin(tx.origin), 'only Admin.');
+  //   addresses = contracts;
+  // }
 
   fallback(bytes calldata) external returns (bytes memory) {
     revert FunctionNotFound();
@@ -292,6 +292,11 @@ contract RentalityView is UUPSUpgradeable, Initializable {
   function isKycCommissionPaid(address user) public view returns (bool) {
     return addresses.userService.isCommissionPaidForUser(user);
   }
+
+   function getFilterInfo(uint64 duration) public view returns (Schemas.FilterInfoDTO memory) {
+    return RentalityTripsQuery.getFilterInfo(addresses, duration);
+  }
+
 
   function initialize(
     address carServiceAddress,
