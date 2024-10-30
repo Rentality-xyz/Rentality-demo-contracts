@@ -551,4 +551,8 @@ interface Schemas {
     Manager,
     Admin
   }
+   struct FilterInfoDTO {
+    uint64 maxCarPrice;
+    uint minCarYearOfProduction;
+  }
 }

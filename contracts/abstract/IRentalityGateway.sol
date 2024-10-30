@@ -375,4 +375,9 @@ interface IRentalityGateway {
   ///  @param user The address of the user whose KYC commission will be used.
   ///  @dev This function is typically called after the user has paid the KYC commission to apply it to their account.
   function useKycCommission(address user) external;
+
+    /// @notice Retrieves additional filter information based on the duration of the trip
+  /// @param duration The total number of days for the car rental
+  /// @return Schemas.FilterInfoDTO A data structure containing additional filter information, optimized for the specified rental duration
+  function getFilterInfo(uint64 duration) external view returns (Schemas.FilterInfoDTO memory);
 }
