@@ -280,6 +280,7 @@
             },
             { "type": "uint64", "name": "salesTax" },
             { "type": "uint64", "name": "governmentTax" },
+            { "type": "int128", "name": "distance" },
             { "type": "bool", "name": "isGuestHasInsurance" }
           ]
         }
