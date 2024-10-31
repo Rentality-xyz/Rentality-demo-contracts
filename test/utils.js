@@ -9,6 +9,7 @@ const UserRole = {
   KYCManager: 4,
 }
 
+
 const signTCMessage = async (user) => {
   const message =
     'I have read and I agree with Terms of service, Cancellation policy, Prohibited uses and Privacy policy of Rentality.'
@@ -22,6 +23,10 @@ const emptyLocationInfo = {
   latitude: '',
   longitude: '',
   timeZoneId: '',
+}
+const emptySignedLocationInfo = {
+  signature: '0x',
+  locationInfo: emptyLocationInfo,
 }
 
 const PaymentStatus = {
@@ -533,8 +538,8 @@ async function deployDefaultFixture() {
   const hostSignature = await signTCMessage(host)
   const guestSignature = await signTCMessage(guest)
   const adminKyc = signKycInfo(await rentalityLocationVerifier.getAddress(), admin)
-  await rentalityGateway.connect(host).setKYCInfo(' ', ' ', ' ', hostSignature)
-  await rentalityGateway.connect(guest).setKYCInfo(' ', ' ', ' ', guestSignature)
+  await rentalityPlatform.connect(host).setKYCInfo(' ', ' ', ' ', hostSignature)
+  await rentalityPlatform.connect(guest).setKYCInfo(' ', ' ', ' ', guestSignature)
 
   await rentalityCurrencyConverter.addCurrencyType(
     await usdtContract.getAddress(),
@@ -573,6 +578,7 @@ async function deployDefaultFixture() {
     adminKyc,
     guestSignature,
     hostSignature,
+    rentalityView
   }
 }
 
@@ -596,4 +602,5 @@ module.exports = {
   signKycInfo,
   emptyKyc,
   UserRole,
+  emptySignedLocationInfo
 }

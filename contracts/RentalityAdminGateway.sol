@@ -132,12 +132,6 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
     carService.updateGeoServiceAddress(newGeoServiceAddress);
   }
 
-  /// @notice Updates the address of the GeoParser contract.
-  /// @param newGeoParserAddress The new address of the GeoParser contract.
-  function updateGeoParserAddress(address newGeoParserAddress) public onlyAdmin {
-    carService.updateGeoParsesAddress(newGeoParserAddress);
-  }
-
   /// @notice Retrieves the address of the RentalityCarDelivery contract.
   /// @return The address of the RentalityCarDelivery contract.
   function getDeliveryServiceAddress() public view returns (address) {

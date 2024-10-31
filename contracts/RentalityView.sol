@@ -74,7 +74,7 @@ contract RentalityView is UUPSUpgradeable, Initializable {
   ) public view returns (Schemas.SearchCarWithDistance[] memory) {
     return
       addresses.searchSortedCars(
-        tx.origin,
+        msg.sender,
         startDateTime,
         endDateTime,
         searchParams,
@@ -100,7 +100,7 @@ contract RentalityView is UUPSUpgradeable, Initializable {
   ) public view returns (Schemas.SearchCarWithDistance[] memory) {
     return
       addresses.searchSortedCars(
-        tx.origin,
+        msg.sender,
         startDateTime,
         endDateTime,
         searchParams,
@@ -113,7 +113,7 @@ contract RentalityView is UUPSUpgradeable, Initializable {
   /// @notice Retrieves information about cars owned by the caller.
   /// @return An array of car information owned by the caller.
   function getMyCars() public view returns (Schemas.CarInfoDTO[] memory) {
-    return addresses.getCarsOwnedByUserWithEditability();
+    return addresses.getCarsOwnedByUserWithEditability(msg.sender);
   }
 
   /// @notice Retrieves detailed information about a car.
@@ -127,19 +127,19 @@ contract RentalityView is UUPSUpgradeable, Initializable {
   /// @param tripId The ID of the trip.
   /// @return Trip information.
   function getTrip(uint256 tripId) public view returns (Schemas.TripDTO memory) {
-    return RentalityTripsQuery.getTripDTO(addresses, tripId);
+    return RentalityTripsQuery.getTripDTO(addresses, tripId, msg.sender);
   }
 
   /// @notice Retrieves information about trips where the caller is the guest.
   /// @return An array of trip information.
   function getTripsAsGuest() public view returns (Schemas.TripDTO[] memory) {
-    return RentalityTripsQuery.getTripsByGuest(addresses, tx.origin);
+    return RentalityTripsQuery.getTripsByGuest(addresses, msg.sender);
   }
 
   /// @notice Retrieves information about trips where the caller is the host.
   /// @return An array of trip information.
   function getTripsAsHost() public view returns (Schemas.TripDTO[] memory) {
-    return RentalityTripsQuery.getTripsByHost(addresses, tx.origin);
+    return RentalityTripsQuery.getTripsByHost(addresses, msg.sender);
   }
 
   /// @notice Retrieves information about trips for a specific car.
@@ -153,14 +153,14 @@ contract RentalityView is UUPSUpgradeable, Initializable {
   /// @dev The caller is assumed to be the host of the claims.
   /// @return An array of FullClaimInfo containing information about each claim.
   function getMyClaimsAsHost() public view returns (Schemas.FullClaimInfo[] memory) {
-    return addresses.getClaimsByHost(tx.origin);
+    return addresses.getClaimsByHost(msg.sender);
   }
 
   ///  @notice Retrieves all claims where the caller is the guest.
   ///  @dev The caller is assumed to be the guest of the claims.
   ///  @return An array of FullClaimInfo containing information about each claim.
   function getMyClaimsAsGuest() public view returns (Schemas.FullClaimInfo[] memory) {
-    return addresses.getClaimsByGuest(tx.origin);
+    return addresses.getClaimsByGuest(msg.sender);
   }
 
   /// not using
@@ -181,13 +181,13 @@ contract RentalityView is UUPSUpgradeable, Initializable {
     uint256 tripId
   ) public view returns (string memory guestPhoneNumber, string memory hostPhoneNumber) {
     return
-      RentalityTripsQuery.getTripContactInfo(tripId, address(addresses.tripService), address(addresses.userService));
+      RentalityTripsQuery.getTripContactInfo(tripId, address(addresses.tripService), address(addresses.userService),msg.sender);
   }
 
   /// @notice Retrieves KYC information for the caller.
   /// @return KYC information for the caller.
   function getMyKYCInfo() external view returns (Schemas.KYCInfo memory) {
-    return addresses.userService.getMyKYCInfo();
+    return addresses.userService.getMyKYCInfo(msg.sender);
   }
 
   /// @notice This function provides a detailed receipt of the trip, including payment information and trip details.
@@ -295,7 +295,7 @@ contract RentalityView is UUPSUpgradeable, Initializable {
     return addresses.userService.isCommissionPaidForUser(user);
   }
   function getMyFullKYCInfo() public view returns (Schemas.FullKYCInfoDTO memory) {
-    return addresses.userService.getMyFullKYCInfo();
+    return addresses.userService.getMyFullKYCInfo(msg.sender);
   }
 
   function calculateClaimValue(uint claimdId) public view returns (uint) {

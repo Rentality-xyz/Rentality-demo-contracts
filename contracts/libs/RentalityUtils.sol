@@ -461,11 +461,12 @@ library RentalityUtils {
     address currencyType,
     uint carId,
     uint64 startDateTime,
-    uint64 endDateTime
+    uint64 endDateTime,
+    address user
   ) public view {
-    require(addresses.userService.hasPassedKYCAndTC(tx.origin), 'KYC or TC not passed.');
+    require(addresses.userService.hasPassedKYCAndTC(user), 'KYC or TC not passed.');
     require(addresses.currencyConverterService.currencyTypeIsAvailable(currencyType), 'Token is not available.');
-    require(addresses.carService.ownerOf(carId) != tx.origin, 'Car is not available for creator');
+    require(addresses.carService.ownerOf(carId) != user, 'Car is not available for creator');
     require(!isCarUnavailable(addresses, carId, startDateTime, endDateTime), 'Unavailable for current date.');
   }
 

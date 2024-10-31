@@ -39,15 +39,17 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
     string memory nickName,
     string memory mobilePhoneNumber,
     string memory profilePhoto,
-    bytes memory TCSignature
+    bytes memory TCSignature,
+    address user
   ) public {
-    if (!isGuest(tx.origin)) {
-      _grantRole(GUEST_ROLE, tx.origin);
+    require(isManager(msg.sender),'only Manager');
+    if (!isGuest(user)) {
+      _grantRole(GUEST_ROLE, user);
     }
-    bool isTCPassed = ECDSA.recover(TCMessageHash, TCSignature) == tx.origin;
+    bool isTCPassed = ECDSA.recover(TCMessageHash, TCSignature) == user;
 
     require(isTCPassed, 'Wrong signature.');
-    Schemas.KYCInfo storage kycInfo = kycInfos[tx.origin];
+    Schemas.KYCInfo storage kycInfo = kycInfos[user];
 
     kycInfo.name = nickName;
     kycInfo.mobilePhoneNumber = mobilePhoneNumber;
@@ -78,12 +80,12 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
   }
   /// @notice Retrieves KYC information for the caller.
   /// @return kycInfo KYCInfo structure containing caller's KYC information.
-  function getMyKYCInfo() external view returns (Schemas.KYCInfo memory kycInfo) {
-    return kycInfos[tx.origin];
+  function getMyKYCInfo(address user) external view returns (Schemas.KYCInfo memory kycInfo) {
+    return kycInfos[user];
   }
 
-  function getMyFullKYCInfo() public view returns (Schemas.FullKYCInfoDTO memory) {
-    return Schemas.FullKYCInfoDTO(kycInfos[tx.origin], additionalKycInfo[tx.origin]);
+  function getMyFullKYCInfo(address user) public view returns (Schemas.FullKYCInfoDTO memory) {
+    return Schemas.FullKYCInfoDTO(kycInfos[user], additionalKycInfo[user]);
   }
   /// @notice Checks if the KYC information for a specified user is valid.
   /// @param user The address of the user to check for valid KYC.
@@ -243,9 +245,9 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
     return commissions[commissions.length - 1].commissionPaid;
   }
 
-  function payCommission() public {
+  function payCommission(address user) public {
     require(isManager(msg.sender), 'only manager.');
-    userToKYCCommission[tx.origin].push(Schemas.KycCommissionData(block.timestamp, true));
+    userToKYCCommission[user].push(Schemas.KycCommissionData(block.timestamp, true));
   }
 
   function manageRole(Schemas.Role newRole, address user, bool grant) public {

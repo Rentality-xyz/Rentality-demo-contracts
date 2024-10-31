@@ -29,11 +29,9 @@ interface IRentalityGateway {
   /// @notice This sets geo verification status to false.
   /// @param request the Update car parameters
   /// @param location Single string that contains the car location
-  /// @param geoApiKey the key to verify location by google geo api
   function updateCarInfoWithLocation(
     Schemas.UpdateCarInfoRequest memory request,
-    Schemas.SignedLocationInfo memory location,
-    string memory geoApiKey
+    Schemas.SignedLocationInfo memory location
   ) external;
 
   /// @notice Updates the token URI of a car. Only callable by hosts.
