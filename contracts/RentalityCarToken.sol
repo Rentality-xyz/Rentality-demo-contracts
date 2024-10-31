@@ -64,12 +64,6 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     geoService = IRentalityGeoService(_geoService);
   }
 
-  /// @notice Updates the address of the GeoParser contract.
-  /// @param newGeoParserAddress The new address of the GeoParser contract.
-  function updateGeoParsesAddress(address newGeoParserAddress) public onlyAdmin {
-    geoService.updateParserAddress(newGeoParserAddress);
-  }
-
   /// @notice Returns the total supply of cars.
   /// @return The total number of cars in the system.
   function totalSupply() public view returns (uint) {
@@ -127,8 +121,9 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
   /// @notice Adds a new car to the system with the provided information.
   /// @param request The input parameters for creating the new car.
   /// @return The ID of the newly added car.
-  function addCar(Schemas.CreateCarRequest memory request) public returns (uint) {
-    require(userService.hasPassedKYCAndTC(tx.origin), 'KYC or TC has not passed.');
+  function addCar(Schemas.CreateCarRequest memory request, address user) public returns (uint) {
+    require(userService.isManager(msg.sender), 'only Manager');
+    require(userService.hasPassedKYCAndTC(user), 'KYC or TC has not passed.');
     require(request.pricePerDayInUsdCents > 0, "Make sure the price isn't negative");
     require(request.milesIncludedPerDay > 0, "Make sure the included distance isn't negative");
     require(isUniqueVinNumber(request.carVinNumber), 'Car with this VIN number already exists');
@@ -139,7 +134,7 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
 
     engineService.verifyCreateParams(request.engineType, request.engineParams);
 
-    _safeMint(tx.origin, newCarId);
+    _safeMint(user, newCarId);
     _setTokenURI(newCarId, request.tokenUri);
 
     bytes32 hash = geoService.createLocationInfo(request.locationInfo.locationInfo);
@@ -148,7 +143,7 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
       newCarId,
       request.carVinNumber,
       keccak256(abi.encodePacked(request.carVinNumber)),
-      tx.origin,
+      user,
       request.brand,
       request.model,
       request.yearOfProduction,
@@ -168,7 +163,7 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     _approve(address(this), newCarId);
     //_transfer(msg.sender, address(this), carId);
 
-    emit CarAddedSuccess(newCarId, request.carVinNumber, tx.origin, request.pricePerDayInUsdCents, true);
+    emit CarAddedSuccess(newCarId, request.carVinNumber, user, request.pricePerDayInUsdCents, true);
 
     return newCarId;
   }
@@ -177,21 +172,19 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
   /// @param request The input parameters for updating the car.
   /// @param location The location for verifying geographic coordinates.
   ///  can be empty, for left old location information.
-  /// @param geoApiKey The API key for the geographic verification service.
   /// can be empty, if location param is empty.
   function updateCarInfo(
     Schemas.UpdateCarInfoRequest memory request,
     Schemas.LocationInfo memory location,
-    string memory geoApiKey
+    address user
   ) public {
     require(userService.isManager(msg.sender), 'Only from manager contract.');
     require(_exists(request.carId), 'Token does not exist');
-    require(ownerOf(request.carId) == tx.origin, 'Only the owner of the car can update car info');
+    require(ownerOf(request.carId) == user, 'Only the owner of the car can update car info');
     require(request.pricePerDayInUsdCents > 0, "Make sure the price isn't negative");
     require(request.milesIncludedPerDay > 0, "Make sure the included distance isn't negative");
 
     if (bytes(location.userAddress).length > 0) {
-      require(bytes(geoApiKey).length > 0, 'Provide a valid geo API key');
       idToCarInfo[request.carId].geoVerified = true;
       bytes32 hash = geoService.createLocationInfo(location);
       idToCarInfo[request.carId].locationHash = hash;
@@ -217,9 +210,9 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
   /// @notice Updates the token URI associated with a specific car.
   /// @param carId The ID of the car.
   /// @param tokenUri The new token URI.
-  function updateCarTokenUri(uint256 carId, string memory tokenUri) public {
+  function updateCarTokenUri(uint256 carId, string memory tokenUri, address user) public {
     require(_exists(carId), 'Token does not exist');
-    require(ownerOf(carId) == tx.origin, 'Only the owner of the car can update the token URI');
+    require(ownerOf(carId) == user, 'Only the owner of the car can update the token URI');
 
     _setTokenURI(carId, tokenUri);
   }
@@ -228,12 +221,12 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
   /// @param carId The ID of the car to be burned.
   function burnCar(uint256 carId) public {
     require(_exists(carId), 'Token does not exist');
-    require(ownerOf(carId) == tx.origin, 'Only the owner of the car can burn the token');
+    require(ownerOf(carId) == msg.sender, 'Only the owner of the car can burn the token');
 
     _burn(carId);
     delete idToCarInfo[carId];
 
-    emit CarRemovedSuccess(carId, idToCarInfo[carId].carVinNumber, tx.origin);
+    emit CarRemovedSuccess(carId, idToCarInfo[carId].carVinNumber, msg.sender);
   }
   /// @notice temporary disable transfer function
   function transferFrom(address, address, uint256) public pure override(ERC721Upgradeable, IERC721Upgradeable) {

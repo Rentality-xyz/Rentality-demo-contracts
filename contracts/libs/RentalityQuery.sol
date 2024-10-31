@@ -401,11 +401,12 @@ library RentalityQuery {
   /// @param contracts The Rentality contract instance containing service addresses.
   /// @return An array of CarInfoDTO structures containing information about the user's cars and whether they are editable.
   function getCarsOwnedByUserWithEditability(
-    RentalityContract memory contracts
+    RentalityContract memory contracts,
+    address user
   ) public view returns (Schemas.CarInfoDTO[] memory) {
     RentalityCarToken carService = contracts.carService;
 
-    Schemas.CarInfo[] memory carInfoes = carService.getCarsOwnedByUser(tx.origin);
+    Schemas.CarInfo[] memory carInfoes = carService.getCarsOwnedByUser(user);
 
     Schemas.CarInfoDTO[] memory result = new Schemas.CarInfoDTO[](carInfoes.length);
     for (uint i = 0; i < carInfoes.length; i++) {

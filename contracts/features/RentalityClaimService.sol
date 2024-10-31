@@ -53,7 +53,7 @@ contract RentalityClaimService is Initializable, UUPSAccess {
 
   /// @dev Creates a new claim, only callable by managers contracts.
   /// @param request Details of the claim to be created.
-  function createClaim(Schemas.CreateClaimRequest memory request, address host, address guest) public onlyManager {
+  function createClaim(Schemas.CreateClaimRequest memory request, address host, address guest, address user) public onlyManager {
     require(request.amountInUsdCents > 0, 'Amount can not be null.');
 
     claimId += 1;
@@ -73,7 +73,7 @@ contract RentalityClaimService is Initializable, UUPSAccess {
       address(0),
       0,
       request.photosUrl,
-      tx.origin == host ? true : false
+      user == host ? true : false
     );
     claimIdToClaim[newClaimId] = newClaim;
 

@@ -30,7 +30,8 @@ describe('RentalityGateway: chat', function () {
     guest,
     anonymous,
     rentalityLocationVerifier,
-    adminKyc
+    adminKyc,
+    rentalityView
 
   beforeEach(async function () {
     ;({
@@ -54,26 +55,27 @@ describe('RentalityGateway: chat', function () {
       anonymous,
       rentalityLocationVerifier,
       adminKyc,
+      rentalityView
     } = await loadFixture(deployDefaultFixture))
   })
 
   it('Should have chat history by guest', async function () {
     let addCarRequest = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
 
-    await expect(rentalityGateway.connect(host).addCar(addCarRequest)).not.to.be.reverted
-    const myCars = await rentalityGateway.connect(host).getMyCars()
+    await expect(rentalityPlatform.connect(host).addCar(addCarRequest)).not.to.be.reverted
+    const myCars = await rentalityView.connect(host).getMyCars()
 
     expect(myCars.length).to.equal(1)
-    const availableCars = await rentalityGateway.connect(guest).getAvailableCarsForUser(guest.address)
+    const availableCars = await rentalityView.connect(guest).getAvailableCarsForUser(guest.address)
     expect(availableCars.length).to.equal(1)
 
     const oneDayInSeconds = 86400
 
     const dailyPriceInUsdCents = 1000
 
-    const result = await rentalityGateway.calculatePayments(1, 2, ethToken)
+    const result = await  rentalityView.calculatePayments(1, 2, ethToken)
     await expect(
-      await rentalityGateway.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequest(
         {
           carId: 1,
           startDateTime: Date.now(),
@@ -94,11 +96,11 @@ describe('RentalityGateway: chat', function () {
     const hostSignature = await signTCMessage(host)
     const guestSignature = await signTCMessage(guest)
     await expect(
-      rentalityGateway.connect(host).setKYCInfo(name + 'host', number + 'host', photo + 'host', hostSignature)
+      rentalityPlatform.connect(host).setKYCInfo(name + 'host', number + 'host', photo + 'host', hostSignature)
     ).not.be.reverted
 
     await expect(
-      rentalityGateway.connect(guest).setKYCInfo(name + 'guest', number + 'guest', photo + 'guest', guestSignature)
+      rentalityPlatform.connect(guest).setKYCInfo(name + 'guest', number + 'guest', photo + 'guest', guestSignature)
     ).not.be.reverted
 
     let chatInfoArray = await rentalityGateway.connect(guest).getChatInfoForGuest()
@@ -116,10 +118,10 @@ describe('RentalityGateway: chat', function () {
   })
   it('Should have chat history by host', async function () {
     let addCarRequest = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
-    await expect(rentalityGateway.connect(host).addCar(addCarRequest)).not.to.be.reverted
-    const myCars = await rentalityGateway.connect(host).getMyCars()
+    await expect(rentalityPlatform.connect(host).addCar(addCarRequest)).not.to.be.reverted
+    const myCars = await rentalityView.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
-    const availableCars = await rentalityGateway.connect(guest).getAvailableCarsForUser(guest.address)
+    const availableCars = await rentalityView.connect(guest).getAvailableCarsForUser(guest.address)
     expect(availableCars.length).to.equal(1)
 
     let name = 'name'
@@ -131,18 +133,18 @@ describe('RentalityGateway: chat', function () {
     const hostSignature = await signTCMessage(host)
     const guestSignature = await signTCMessage(guest)
     await expect(
-      rentalityGateway.connect(host).setKYCInfo(name + 'host', number + 'host', photo + 'host', hostSignature)
+      rentalityPlatform.connect(host).setKYCInfo(name + 'host', number + 'host', photo + 'host', hostSignature)
     ).not.be.reverted
 
     await expect(
-      rentalityGateway.connect(guest).setKYCInfo(name + 'guest', number + 'guest', photo + 'guest', guestSignature)
+      rentalityPlatform.connect(guest).setKYCInfo(name + 'guest', number + 'guest', photo + 'guest', guestSignature)
     ).not.be.reverted
 
     const oneDayInSeconds = 86400
 
-    const result = await rentalityGateway.calculatePayments(1, 1, ethToken)
+    const result = await  rentalityView.calculatePayments(1, 1, ethToken)
     await expect(
-      await rentalityGateway.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequest(
         {
           carId: 1,
           startDateTime: Date.now(),
@@ -153,7 +155,7 @@ describe('RentalityGateway: chat', function () {
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
 
-    let chatInfoArray = await rentalityGateway.connect(host).getChatInfoForHost()
+    let chatInfoArray = await rentalityView.connect(host).getChatInfoForHost()
     expect(chatInfoArray.length).to.be.equal(1)
     let chatInfo = chatInfoArray[0]
 

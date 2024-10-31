@@ -199,9 +199,10 @@ library RentalityTripsQuery {
   function getTripContactInfo(
     uint256 tripId,
     address tripService,
-    address userService
+    address userService,
+    address user
   ) public view returns (string memory guestPhoneNumber, string memory hostPhoneNumber) {
-    require(RentalityUserService(userService).isHostOrGuest(tx.origin), 'User is not a host or guest');
+    require(RentalityUserService(userService).isHostOrGuest(user), 'User is not a host or guest');
 
     Schemas.Trip memory trip = RentalityTripService(tripService).getTrip(tripId);
 
@@ -234,7 +235,7 @@ library RentalityTripsQuery {
 
     for (uint i = 1; i <= tripService.totalTripCount(); i++) {
       if (tripService.getTrip(i).guest == guest) {
-        result[currentIndex] = getTripDTO(contracts, i);
+        result[currentIndex] = getTripDTO(contracts, i,guest);
         currentIndex += 1;
       }
     }
@@ -265,7 +266,7 @@ library RentalityTripsQuery {
 
     for (uint i = 1; i <= tripService.totalTripCount(); i++) {
       if (tripService.getTrip(i).host == host) {
-        result[currentIndex] = getTripDTO(contracts, i);
+        result[currentIndex] = getTripDTO(contracts, i,host);
         currentIndex += 1;
       }
     }
@@ -278,7 +279,7 @@ library RentalityTripsQuery {
   /// @param contracts The Rentality contract instance containing service addresses.
   /// @param tripId The ID of the trip to retrieve.
   /// @return An instance of TripDTO containing all relevant information about the trip.
-  function getTripDTO(RentalityContract memory contracts, uint tripId) public view returns (Schemas.TripDTO memory) {
+  function getTripDTO(RentalityContract memory contracts, uint tripId, address user) public view returns (Schemas.TripDTO memory) {
     RentalityTripService tripService = contracts.tripService;
     RentalityCarToken carService = contracts.carService;
     RentalityUserService userService = contracts.userService;
@@ -293,7 +294,8 @@ library RentalityTripsQuery {
     (string memory guestPhoneNumber, string memory hostPhoneNumber) = getTripContactInfo(
       tripId,
       address(tripService),
-      address(userService)
+      address(userService),
+      user
     );
     return
       Schemas.TripDTO(

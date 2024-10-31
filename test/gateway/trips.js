@@ -10,6 +10,9 @@ const {
   locationInfo,
   signTCMessage,
   signLocationInfo,
+  emptyLocationInfo,
+  getEmptySearchCarParams,
+  emptySignedLocationInfo,
 } = require('../utils')
 const { ethers } = require('hardhat')
 
@@ -32,7 +35,8 @@ describe('RentalityGateway: trips', function () {
     host,
     guest,
     anonymous,
-    rentalityLocationVerifier
+    rentalityLocationVerifier,
+    rentalityView
 
   beforeEach(async function () {
     ;({
@@ -55,27 +59,42 @@ describe('RentalityGateway: trips', function () {
       guest,
       anonymous,
       rentalityLocationVerifier,
+      rentalityView
     } = await loadFixture(deployDefaultFixture))
   })
 
   it('createTripRequest', async function () {
     await expect(
-      rentalityGateway.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+      rentalityPlatform.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
     ).not.to.be.reverted
-    const myCars = await rentalityGateway.connect(host).getMyCars()
+    const myCars = await rentalityView.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
-
-    const availableCars = await rentalityGateway.connect(guest).getAvailableCarsForUser(guest.address)
+    const availableCars = await rentalityView
+      .connect(guest)
+      .searchAvailableCarsWithDelivery(
+        0,
+        new Date().getSeconds() + 86400,
+        getEmptySearchCarParams(1),
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
     expect(availableCars.length).to.equal(1)
-
-    const result = await rentalityGateway.calculatePayments(1, 1, ethToken)
+    const result = await rentalityView.calculatePaymentsWithDelivery(
+      1,
+      1,
+      ethToken,
+      emptyLocationInfo,
+      emptyLocationInfo
+    )
     await expect(
-      await rentalityGateway.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: 123,
           endDateTime: 321,
           currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
         { value: result.totalPrice }
       )
@@ -84,28 +103,44 @@ describe('RentalityGateway: trips', function () {
 
   it('Return valid trip data', async function () {
     const mockCreateCarRequest = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
-    await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest)).not.to.be.reverted
-    const myCars = await rentalityGateway.connect(host).getMyCars()
+    await expect(rentalityPlatform.connect(host).addCar(mockCreateCarRequest)).not.to.be.reverted
+    const myCars = await rentalityView.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
     let tax = (mockCreateCarRequest.pricePerDayInUsdCents * 7) / 100
-    const availableCars = await rentalityGateway.connect(guest).getAvailableCarsForUser(guest.address)
+    const availableCars = await rentalityView
+      .connect(guest)
+      .searchAvailableCarsWithDelivery(
+        0,
+        new Date().getSeconds() + 86400,
+        getEmptySearchCarParams(1),
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
     expect(availableCars.length).to.equal(1)
 
-    const result = await rentalityGateway.calculatePayments(1, 1, ethToken)
+    const result = await rentalityView.calculatePaymentsWithDelivery(
+      1,
+      1,
+      ethToken,
+      emptyLocationInfo,
+      emptyLocationInfo
+    )
     await expect(
-      await rentalityGateway.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: 123,
           endDateTime: 321,
           currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
         { value: result.totalPrice }
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
 
-    let trip = (await rentalityGateway.getTrip(1)).trip
+    let trip = (await rentalityView.getTrip(1)).trip
     const carLocation = await rentalityGeoService.hashLocationInfo(locationInfo)
 
     expect(trip.tripId).to.be.equal(1, 'trip.tripId)')
@@ -192,26 +227,36 @@ describe('RentalityGateway: trips', function () {
       insuranceIncluded: true,
       locationInfo: locationInfo1,
       currentlyListed: true,
+      insuranceRequired: false,
+      insurancePriceInUsdCents: 0,
     }
 
-    await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest)).not.to.be.reverted
+    await expect(rentalityPlatform.connect(host).addCar(mockCreateCarRequest)).not.to.be.reverted
 
     const dailyPriceInUsdCents = 1000
 
-    const result = await rentalityGateway.calculatePayments(1, 1, ethToken)
+    const result = await rentalityView.calculatePaymentsWithDelivery(
+      1,
+      1,
+      ethToken,
+      emptyLocationInfo,
+      emptyLocationInfo
+    )
     await expect(
-      await rentalityGateway.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: 123,
           endDateTime: 321,
           currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
         { value: result.totalPrice }
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
 
-    let trip = (await rentalityGateway.getTrip(1)).trip
+    let trip = (await rentalityView.getTrip(1)).trip
 
     expect(trip.fuelPrice).to.deep.equal(mockCreateCarRequest.engineParams[0])
 
@@ -231,34 +276,52 @@ describe('RentalityGateway: trips', function () {
       insuranceIncluded: true,
       locationInfo: locationInfo1,
       currentlyListed: true,
+      insuranceRequired: false,
+      insurancePriceInUsdCents: 0,
     }
-    await expect(rentalityGateway.connect(host).addCar(mockPatrolCreateCarRequest)).not.to.be.reverted
-    const resultPatrol = await rentalityGateway.calculatePayments(2, 1, ethToken)
+    await expect(rentalityPlatform.connect(host).addCar(mockPatrolCreateCarRequest)).not.to.be.reverted
+    const resultPatrol = await rentalityView.calculatePaymentsWithDelivery(
+      2,
+      1,
+      ethToken,
+      emptyLocationInfo,
+      emptyLocationInfo
+    )
     await expect(
-      await rentalityGateway.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
           carId: 2,
           startDateTime: 123,
           endDateTime: 321,
           currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
         { value: resultPatrol.totalPrice }
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-resultPatrol.totalPrice, resultPatrol.totalPrice])
 
-    let tripWithPatrol = (await rentalityGateway.getTrip(2)).trip
+    let tripWithPatrol = (await rentalityView.getTrip(2)).trip
 
     expect(tripWithPatrol.fuelPrice).to.equal(mockPatrolCreateCarRequest.engineParams[1])
   })
 
   it('Host can not create trip request for own car ', async function () {
     await expect(
-      rentalityGateway.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+      rentalityPlatform.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
     ).not.to.be.reverted
-    const myCars = await rentalityGateway.connect(host).getMyCars()
+    const myCars = await rentalityView.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
-    const availableCars = await rentalityGateway.connect(guest).getAvailableCarsForUser(guest.address)
+    const availableCars = await rentalityView
+      .connect(guest)
+      .searchAvailableCarsWithDelivery(
+        0,
+        new Date().getSeconds() + 86400,
+        getEmptySearchCarParams(1),
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
     expect(availableCars.length).to.equal(1)
 
     const oneDayInSeconds = 86400
@@ -274,7 +337,7 @@ describe('RentalityGateway: trips', function () {
     )
 
     await expect(
-      rentalityGateway.connect(host).createTripRequest(
+      rentalityPlatform.connect(host).createTripRequestWithDelivery(
         {
           carId: 1,
           host: host.address,
@@ -287,6 +350,8 @@ describe('RentalityGateway: trips', function () {
           currencyRate: ethToCurrencyRate,
           currencyDecimals: ethToCurrencyDecimals,
           currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
         { value: rentPriceInEth }
       )
@@ -295,29 +360,45 @@ describe('RentalityGateway: trips', function () {
 
   it('host can reject created trip', async function () {
     await expect(
-      rentalityGateway.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+      rentalityPlatform.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
     ).not.to.be.reverted
-    const myCars = await rentalityGateway.connect(host).getMyCars()
+    const myCars = await rentalityView.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
-    const availableCars = await rentalityGateway.connect(guest).getAvailableCarsForUser(guest.address)
+    const availableCars = await rentalityView
+      .connect(guest)
+      .searchAvailableCarsWithDelivery(
+        0,
+        new Date().getSeconds() + 86400,
+        getEmptySearchCarParams(1),
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
 
     expect(availableCars.length).to.equal(1)
 
-    const result = await rentalityGateway.calculatePayments(1, 1, ethToken)
+    const result = await rentalityView.calculatePaymentsWithDelivery(
+      1,
+      1,
+      ethToken,
+      emptyLocationInfo,
+      emptyLocationInfo
+    )
     await expect(
-      await rentalityGateway.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: 123,
           endDateTime: 321,
           currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
         { value: result.totalPrice }
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
 
-    await expect(rentalityGateway.connect(host).rejectTripRequest(1)).to.changeEtherBalances(
+    await expect(rentalityPlatform.connect(host).rejectTripRequest(1)).to.changeEtherBalances(
       [guest, rentalityPaymentService],
       [result.totalPrice, -result.totalPrice]
     )
@@ -325,28 +406,44 @@ describe('RentalityGateway: trips', function () {
 
   it('guest can reject created trip', async function () {
     await expect(
-      rentalityGateway.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+      rentalityPlatform.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
     ).not.to.be.reverted
-    const myCars = await rentalityGateway.connect(host).getMyCars()
+    const myCars = await rentalityView.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
-    const availableCars = await rentalityGateway.connect(guest).getAvailableCarsForUser(guest.address)
+    const availableCars = await rentalityView
+      .connect(guest)
+      .searchAvailableCarsWithDelivery(
+        0,
+        new Date().getSeconds() + 86400,
+        getEmptySearchCarParams(1),
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
     expect(availableCars.length).to.equal(1)
 
-    const result = await rentalityGateway.calculatePayments(1, 1, ethToken)
+    const result = await rentalityView.calculatePaymentsWithDelivery(
+      1,
+      1,
+      ethToken,
+      emptyLocationInfo,
+      emptyLocationInfo
+    )
     await expect(
-      await rentalityGateway.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: 123,
           endDateTime: 321,
           currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
         { value: result.totalPrice }
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
 
-    await expect(rentalityGateway.connect(guest).rejectTripRequest(1)).to.changeEtherBalances(
+    await expect(rentalityPlatform.connect(host).rejectTripRequest(1)).to.changeEtherBalances(
       [guest, rentalityPaymentService],
       [result.totalPrice, -result.totalPrice]
     )
@@ -354,305 +451,425 @@ describe('RentalityGateway: trips', function () {
 
   it('Only host or guest can reject trip', async function () {
     await expect(
-      rentalityGateway.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+      rentalityPlatform.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
     ).not.to.be.reverted
-    const myCars = await rentalityGateway.connect(host).getMyCars()
+    const myCars = await rentalityView.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
-    const availableCars = await rentalityGateway.connect(guest).getAvailableCarsForUser(guest.address)
+    const availableCars = await rentalityView
+      .connect(guest)
+      .searchAvailableCarsWithDelivery(
+        0,
+        new Date().getSeconds() + 86400,
+        getEmptySearchCarParams(1),
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
     expect(availableCars.length).to.equal(1)
 
-    const result = await rentalityGateway.calculatePayments(1, 1, ethToken)
+    const result = await rentalityView.calculatePaymentsWithDelivery(
+      1,
+      1,
+      ethToken,
+      emptyLocationInfo,
+      emptyLocationInfo
+    )
     await expect(
-      await rentalityGateway.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: 123,
           endDateTime: 321,
           currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
         { value: result.totalPrice }
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
 
-    await expect(rentalityGateway.connect(anonymous).rejectTripRequest(1)).to.be.reverted
+    await expect(rentalityPlatform.connect(anonymous).rejectTripRequest(1)).to.be.reverted
 
-    await expect(rentalityGateway.connect(admin).rejectTripRequest(1)).to.be.reverted
+    await expect(rentalityPlatform.connect(admin).rejectTripRequest(1)).to.be.reverted
 
-    await expect(rentalityGateway.connect(owner).rejectTripRequest(1)).to.be.reverted
+    await expect(rentalityPlatform.connect(owner).rejectTripRequest(1)).to.be.reverted
 
-    let trip = (await rentalityGateway.getTrip(1)).trip
+    let trip = (await rentalityView.getTrip(1)).trip
 
     expect(trip.status).to.be.equal(TripStatus.Created)
   })
 
   it('Only host can approve the trip', async function () {
     await expect(
-      rentalityGateway.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+      rentalityPlatform.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
     ).not.to.be.reverted
-    const myCars = await rentalityGateway.connect(host).getMyCars()
+    const myCars = await rentalityView.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
-    const availableCars = await rentalityGateway.connect(guest).getAvailableCarsForUser(guest.address)
+    const availableCars = await rentalityView
+      .connect(guest)
+      .searchAvailableCarsWithDelivery(
+        0,
+        new Date().getSeconds() + 86400,
+        getEmptySearchCarParams(1),
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
     expect(availableCars.length).to.equal(1)
 
-    const result = await rentalityGateway.calculatePayments(1, 1, ethToken)
+    const result = await rentalityView.calculatePaymentsWithDelivery(
+      1,
+      1,
+      ethToken,
+      emptyLocationInfo,
+      emptyLocationInfo
+    )
     await expect(
-      await rentalityGateway.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: 123,
           endDateTime: 321,
           currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
         { value: result.totalPrice }
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
 
-    await expect(rentalityGateway.connect(anonymous).approveTripRequest(1)).to.be.reverted
+    await expect(rentalityPlatform.connect(anonymous).approveTripRequest(1)).to.be.reverted
 
-    await expect(rentalityGateway.connect(guest).approveTripRequest(1)).to.be.reverted
+    await expect(rentalityPlatform.connect(guest).approveTripRequest(1)).to.be.reverted
 
-    await expect(rentalityGateway.connect(admin).approveTripRequest(1)).to.be.reverted
+    await expect(rentalityPlatform.connect(admin).approveTripRequest(1)).to.be.reverted
 
-    await expect(rentalityGateway.connect(owner).approveTripRequest(1)).to.be.reverted
+    await expect(rentalityPlatform.connect(owner).approveTripRequest(1)).to.be.reverted
 
-    let trip = (await rentalityGateway.getTrip(1)).trip
+    let trip = (await rentalityView.getTrip(1)).trip
 
     expect(trip.status).to.be.equal(TripStatus.Created)
 
-    await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.be.reverted
+    await expect(rentalityPlatform.connect(host).approveTripRequest(1)).not.be.reverted
 
-    let trip_approved = (await rentalityGateway.getTrip(1)).trip
+    let trip_approved = (await rentalityView.getTrip(1)).trip
 
     expect(trip_approved.status).to.be.equal(1)
   })
 
   it('Host can not cheng status before approve', async function () {
     await expect(
-      rentalityGateway.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+      rentalityPlatform.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
     ).not.to.be.reverted
-    const myCars = await rentalityGateway.connect(host).getMyCars()
+    const myCars = await rentalityView.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
-    const availableCars = await rentalityGateway.connect(guest).getAvailableCarsForUser(guest.address)
+    const availableCars = await rentalityView
+      .connect(guest)
+      .searchAvailableCarsWithDelivery(
+        0,
+        new Date().getSeconds() + 86400,
+        getEmptySearchCarParams(1),
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
     expect(availableCars.length).to.equal(1)
 
-    const result = await rentalityGateway.calculatePayments(1, 1, ethToken)
+    const result = await rentalityView.calculatePaymentsWithDelivery(
+      1,
+      1,
+      ethToken,
+      emptyLocationInfo,
+      emptyLocationInfo
+    )
     await expect(
-      await rentalityGateway.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: 123,
           endDateTime: 321,
           currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
         { value: result.totalPrice }
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
 
-    await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0], '', '')).to.be.reverted
+    await expect(rentalityPlatform.connect(host).checkInByHost(1, [0, 0], '', '')).to.be.reverted
 
-    await expect(rentalityGateway.connect(host).checkOutByHost(1, [0, 0])).to.be.reverted
+    await expect(rentalityPlatform.connect(host).checkOutByHost(1, [0, 0])).to.be.reverted
 
-    await expect(rentalityGateway.connect(host).finishTrip(1)).to.be.reverted
+    await expect(rentalityPlatform.connect(host).finishTrip(1)).to.be.reverted
 
-    let trip = (await rentalityGateway.getTrip(1)).trip
+    let trip = (await rentalityView.getTrip(1)).trip
 
     expect(trip.status).to.be.equal(TripStatus.Created)
   })
 
   it('Only host can checkin after approve', async function () {
     await expect(
-      rentalityGateway.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+      rentalityPlatform.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
     ).not.to.be.reverted
-    const myCars = await rentalityGateway.connect(host).getMyCars()
+    const myCars = await rentalityView.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
-    const availableCars = await rentalityGateway.connect(guest).getAvailableCarsForUser(guest.address)
+    const availableCars = await rentalityView
+      .connect(guest)
+      .searchAvailableCarsWithDelivery(
+        0,
+        new Date().getSeconds() + 86400,
+        getEmptySearchCarParams(1),
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
     expect(availableCars.length).to.equal(1)
 
-    const result = await rentalityGateway.calculatePayments(1, 1, ethToken)
+    const result = await rentalityView.calculatePaymentsWithDelivery(
+      1,
+      1,
+      ethToken,
+      emptyLocationInfo,
+      emptyLocationInfo
+    )
     await expect(
-      await rentalityGateway.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: 123,
           endDateTime: 321,
           currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
         { value: result.totalPrice }
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
 
-    expect(await rentalityGateway.connect(host).approveTripRequest(1)).not.be.reverted
+    expect(await rentalityPlatform.connect(host).approveTripRequest(1)).not.be.reverted
 
-    await expect(rentalityGateway.connect(guest).checkInByHost(1, [0, 0], '', '')).to.be.reverted
+    await expect(rentalityPlatform.connect(guest).checkInByHost(1, [0, 0], '', '')).to.be.reverted
 
-    await expect(rentalityGateway.connect(anonymous).checkInByHost(1, [0, 0], '', '')).to.be.reverted
+    await expect(rentalityPlatform.connect(anonymous).checkInByHost(1, [0, 0], '', '')).to.be.reverted
 
-    await expect(rentalityGateway.connect(admin).checkInByHost(1, [0, 0], '', '')).to.be.reverted
+    await expect(rentalityPlatform.connect(admin).checkInByHost(1, [0, 0], '', '')).to.be.reverted
 
-    await expect(rentalityGateway.connect(owner).checkInByHost(1, [0, 0], '', '')).to.be.reverted
+    await expect(rentalityPlatform.connect(owner).checkInByHost(1, [0, 0], '', '')).to.be.reverted
 
-    let trip = (await rentalityGateway.getTrip(1)).trip
+    let trip = (await rentalityView.getTrip(1)).trip
 
     expect(trip.status).to.be.equal(TripStatus.Approved)
 
-    await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0], '', '')).not.be.reverted
+    await expect(rentalityPlatform.connect(host).checkInByHost(1, [0, 0], '', '')).not.be.reverted
 
-    let trip_checkin = (await rentalityGateway.getTrip(1)).trip
+    let trip_checkin = (await rentalityView.getTrip(1)).trip
 
     expect(trip_checkin.status).to.be.equal(2)
   })
 
   it('Only guest can checkin after host', async function () {
     await expect(
-      rentalityGateway.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+      rentalityPlatform.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
     ).not.to.be.reverted
-    const myCars = await rentalityGateway.connect(host).getMyCars()
+    const myCars = await rentalityView.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
-    const availableCars = await rentalityGateway.connect(guest).getAvailableCarsForUser(guest.address)
+    const availableCars = await rentalityView
+      .connect(guest)
+      .searchAvailableCarsWithDelivery(
+        0,
+        new Date().getSeconds() + 86400,
+        getEmptySearchCarParams(1),
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
     expect(availableCars.length).to.equal(1)
 
-    const result = await rentalityGateway.calculatePayments(1, 1, ethToken)
+    const result = await rentalityView.calculatePaymentsWithDelivery(
+      1,
+      1,
+      ethToken,
+      emptyLocationInfo,
+      emptyLocationInfo
+    )
     await expect(
-      await rentalityGateway.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: 123,
           endDateTime: 321,
           currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
         { value: result.totalPrice }
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
 
-    expect(await rentalityGateway.connect(host).approveTripRequest(1)).not.be.reverted
+    expect(await rentalityPlatform.connect(host).approveTripRequest(1)).not.be.reverted
 
-    await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0], '', '')).not.be.reverted
+    await expect(rentalityPlatform.connect(host).checkInByHost(1, [0, 0], '', '')).not.be.reverted
 
-    await expect(rentalityGateway.connect(anonymous).checkInByGuest(1, [0, 0])).to.be.reverted
+    await expect(rentalityPlatform.connect(anonymous).checkInByGuest(1, [0, 0])).to.be.reverted
 
-    await expect(rentalityGateway.connect(host).checkInByGuest(1, [0, 0])).to.be.reverted
+    await expect(rentalityPlatform.connect(host).checkInByGuest(1, [0, 0])).to.be.reverted
 
-    await expect(rentalityGateway.connect(admin).checkInByGuest(1, [0, 0])).to.be.reverted
+    await expect(rentalityPlatform.connect(admin).checkInByGuest(1, [0, 0])).to.be.reverted
 
-    await expect(rentalityGateway.connect(owner).checkInByGuest(1, [0, 0])).to.be.reverted
+    await expect(rentalityPlatform.connect(owner).checkInByGuest(1, [0, 0])).to.be.reverted
 
-    let trip = (await rentalityGateway.getTrip(1)).trip
+    let trip = (await rentalityView.getTrip(1)).trip
 
     expect(trip.status).to.be.equal(TripStatus.CheckedInByHost)
 
-    await expect(rentalityGateway.connect(guest).checkInByGuest(1, [0, 0])).not.be.reverted
+    await expect(rentalityPlatform.connect(guest).checkInByGuest(1, [0, 0])).not.be.reverted
 
-    let trip_checkin = (await rentalityGateway.connect(guest).getTrip(1)).trip
+    let trip_checkin = (await rentalityView.connect(guest).getTrip(1)).trip
 
     expect(trip_checkin.status).to.be.equal(TripStatus.CheckedInByGuest)
   })
 
   it('Only guest can checkout after checkin', async function () {
     await expect(
-      rentalityGateway.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+      rentalityPlatform.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
     ).not.to.be.reverted
-    const myCars = await rentalityGateway.connect(host).getMyCars()
+    const myCars = await rentalityView.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
-    const availableCars = await rentalityGateway.connect(guest).getAvailableCarsForUser(guest.address)
+    const availableCars = await rentalityView
+      .connect(guest)
+      .searchAvailableCarsWithDelivery(
+        0,
+        new Date().getSeconds() + 86400,
+        getEmptySearchCarParams(1),
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
     expect(availableCars.length).to.equal(1)
 
-    const result = await rentalityGateway.calculatePayments(1, 1, ethToken)
+    const result = await rentalityView.calculatePaymentsWithDelivery(
+      1,
+      1,
+      ethToken,
+      emptyLocationInfo,
+      emptyLocationInfo
+    )
     await expect(
-      await rentalityGateway.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: 123,
           endDateTime: 321,
           currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
         { value: result.totalPrice }
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
-    expect(await rentalityGateway.connect(host).approveTripRequest(1)).not.be.reverted
+    expect(await rentalityPlatform.connect(host).approveTripRequest(1)).not.be.reverted
 
-    await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0], '', '')).not.be.reverted
+    await expect(rentalityPlatform.connect(host).checkInByHost(1, [0, 0], '', '')).not.be.reverted
 
-    await expect(rentalityGateway.connect(guest).checkInByGuest(1, [0, 0])).not.be.reverted
+    await expect(rentalityPlatform.connect(guest).checkInByGuest(1, [0, 0])).not.be.reverted
 
-    await expect(rentalityGateway.connect(anonymous).checkOutByGuest(1, [0, 0])).to.be.reverted
+    await expect(rentalityPlatform.connect(anonymous).checkOutByGuest(1, [0, 0])).to.be.reverted
 
-    await expect(rentalityGateway.connect(admin).checkOutByGuest(1, [0, 0])).to.be.reverted
+    await expect(rentalityPlatform.connect(admin).checkOutByGuest(1, [0, 0])).to.be.reverted
 
-    await expect(rentalityGateway.connect(owner).checkOutByGuest(1, [0, 0])).to.be.reverted
+    await expect(rentalityPlatform.connect(owner).checkOutByGuest(1, [0, 0])).to.be.reverted
 
-    let trip = (await rentalityGateway.getTrip(1)).trip
+    let trip = (await rentalityView.getTrip(1)).trip
 
     expect(trip.status).to.be.equal(TripStatus.CheckedInByGuest)
 
-    await expect(rentalityGateway.connect(guest).checkOutByGuest(1, [0, 0])).not.be.reverted
+    await expect(rentalityPlatform.connect(guest).checkOutByGuest(1, [0, 0])).not.be.reverted
 
-    let trip_checkout = (await rentalityGateway.connect(guest).getTrip(1)).trip
+    let trip_checkout = (await rentalityView.connect(guest).getTrip(1)).trip
 
     expect(trip_checkout.status).to.be.equal(TripStatus.CheckedOutByGuest)
   })
 
   it('Only host can checkout after guest checkout', async function () {
     await expect(
-      rentalityGateway.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+      rentalityPlatform.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
     ).not.to.be.reverted
-    const myCars = await rentalityGateway.connect(host).getMyCars()
+    const myCars = await rentalityView.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
-    const availableCars = await rentalityGateway.connect(guest).getAvailableCarsForUser(guest.address)
+    const availableCars = await rentalityView
+      .connect(guest)
+      .searchAvailableCarsWithDelivery(
+        0,
+        new Date().getSeconds() + 86400,
+        getEmptySearchCarParams(1),
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
     expect(availableCars.length).to.equal(1)
 
-    const result = await rentalityGateway.calculatePayments(1, 1, ethToken)
+    const result = await rentalityView.calculatePaymentsWithDelivery(
+      1,
+      1,
+      ethToken,
+      emptyLocationInfo,
+      emptyLocationInfo
+    )
     await expect(
-      await rentalityGateway.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: 123,
           endDateTime: 321,
           currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
         { value: result.totalPrice }
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
 
-    expect(await rentalityGateway.connect(host).approveTripRequest(1)).not.be.reverted
+    expect(await rentalityPlatform.connect(host).approveTripRequest(1)).not.be.reverted
 
-    await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0], '', '')).not.be.reverted
+    await expect(rentalityPlatform.connect(host).checkInByHost(1, [0, 0], '', '')).not.be.reverted
 
-    await expect(rentalityGateway.connect(guest).checkInByGuest(1, [0, 0])).not.be.reverted
+    await expect(rentalityPlatform.connect(guest).checkInByGuest(1, [0, 0])).not.be.reverted
 
-    await expect(rentalityGateway.connect(guest).checkOutByGuest(1, [0, 0])).not.be.reverted
+    await expect(rentalityPlatform.connect(guest).checkOutByGuest(1, [0, 0])).not.be.reverted
 
-    await expect(rentalityGateway.connect(anonymous).checkOutByHost(1, [0, 0])).to.be.reverted
+    await expect(rentalityPlatform.connect(anonymous).checkOutByHost(1, [0, 0])).to.be.reverted
 
-    await expect(rentalityGateway.connect(guest).checkOutByHost(1, [0, 0])).to.be.reverted
+    await expect(rentalityPlatform.connect(guest).checkOutByHost(1, [0, 0])).to.be.reverted
 
-    await expect(rentalityGateway.connect(admin).checkOutByHost(1, [0, 0])).to.be.reverted
+    await expect(rentalityPlatform.connect(admin).checkOutByHost(1, [0, 0])).to.be.reverted
 
-    await expect(rentalityGateway.connect(owner).checkOutByHost(1, [0, 0])).to.be.reverted
+    await expect(rentalityPlatform.connect(owner).checkOutByHost(1, [0, 0])).to.be.reverted
 
-    let trip = (await rentalityGateway.getTrip(1)).trip
+    let trip = (await rentalityView.getTrip(1)).trip
 
     expect(trip.status).to.be.equal(TripStatus.CheckedOutByGuest)
 
-    await expect(rentalityGateway.connect(host).checkOutByHost(1, [0, 0])).not.be.reverted
+    await expect(rentalityPlatform.connect(host).checkOutByHost(1, [0, 0])).not.be.reverted
 
-    let trip_checkout = (await rentalityGateway.connect(guest).getTrip(1)).trip
+    let trip_checkout = (await rentalityView.connect(guest).getTrip(1)).trip
 
     expect(trip_checkout.status).to.be.equal(TripStatus.CheckedOutByHost)
   })
   it('Happy case', async function () {
     const request = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
-    await expect(rentalityGateway.connect(host).addCar(request)).not.to.be.reverted
-    const myCars = await rentalityGateway.connect(host).getMyCars()
+    await expect(rentalityPlatform.connect(host).addCar(request)).not.to.be.reverted
+    const myCars = await rentalityView.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
-    const availableCars = await rentalityGateway.connect(guest).getAvailableCarsForUser(guest.address)
+    const availableCars = await rentalityView
+      .connect(guest)
+      .searchAvailableCarsWithDelivery(
+        0,
+        new Date().getSeconds() + 86400,
+        getEmptySearchCarParams(1),
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
     expect(availableCars.length).to.equal(1)
 
     const oneDayInSeconds = 86400
@@ -664,24 +881,25 @@ describe('RentalityGateway: trips', function () {
       1,
       request.securityDepositPerTripInUsdCents
     )
-
     await expect(
-      await rentalityGateway.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Date.now(),
           endDateTime: Date.now() + oneDayInSeconds,
           currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
         { value: rentPriceInEth }
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-rentPriceInEth, rentPriceInEth])
 
-    await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
-    await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0], '', '')).not.to.be.reverted
-    await expect(rentalityGateway.connect(guest).checkInByGuest(1, [0, 0])).not.to.be.reverted
-    await expect(rentalityGateway.connect(guest).checkOutByGuest(1, [0, 0])).not.to.be.reverted
-    await expect(rentalityGateway.connect(host).checkOutByHost(1, [0, 0])).not.to.be.reverted
+    await expect(rentalityPlatform.connect(host).approveTripRequest(1)).not.to.be.reverted
+    await expect(rentalityPlatform.connect(host).checkInByHost(1, [0, 0], '', '')).not.to.be.reverted
+    await expect(rentalityPlatform.connect(guest).checkInByGuest(1, [0, 0])).not.to.be.reverted
+    await expect(rentalityPlatform.connect(guest).checkOutByGuest(1, [0, 0])).not.to.be.reverted
+    await expect(rentalityPlatform.connect(host).checkOutByHost(1, [0, 0])).not.to.be.reverted
 
     const depositValue = await rentalityCurrencyConverter.getFromUsd(
       ethToken,
@@ -692,7 +910,7 @@ describe('RentalityGateway: trips', function () {
 
     const returnToHost = rentPriceInEth - depositValue - rentalityFee - taxes
 
-    await expect(rentalityGateway.connect(host).finishTrip(1)).to.changeEtherBalances(
+    await expect(rentalityPlatform.connect(host).finishTrip(1)).to.changeEtherBalances(
       [host, rentalityPaymentService],
       [returnToHost, -(rentPriceInEth - rentalityFee - taxes)]
     )
@@ -700,47 +918,65 @@ describe('RentalityGateway: trips', function () {
 
   it('Should not be able to create trip request after approve on the same time', async function () {
     let addCarRequest = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
-    await expect(rentalityGateway.connect(host).addCar(addCarRequest)).not.to.be.reverted
-    const myCars = await rentalityGateway.connect(host).getMyCars()
+    await expect(rentalityPlatform.connect(host).addCar(addCarRequest)).not.to.be.reverted
+    const myCars = await rentalityView.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
     const oneDayInSeconds = 86400
 
-    const result = await rentalityGateway.calculatePayments(1, 1, ethToken)
+    const result = await rentalityView.calculatePaymentsWithDelivery(
+      1,
+      1,
+      ethToken,
+      emptyLocationInfo,
+      emptyLocationInfo
+    )
     await expect(
-      await rentalityGateway.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Date.now(),
           endDateTime: Date.now() + oneDayInSeconds,
           currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
         { value: result.totalPrice }
       )
     ).not.to.be.reverted
 
-    await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
+    await expect(rentalityPlatform.connect(host).approveTripRequest(1)).not.to.be.reverted
 
-    const result2Days = await rentalityGateway.calculatePayments(1, 2, ethToken)
+    const result2Days = await rentalityView.calculatePaymentsWithDelivery(
+      1,
+      2,
+      ethToken,
+      emptyLocationInfo,
+      emptyLocationInfo
+    )
     await expect(
-      rentalityGateway.connect(guest).createTripRequest(
+      rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Date.now(),
           endDateTime: Date.now() + oneDayInSeconds * 2,
           currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
         { value: result2Days.totalPrice }
       )
     ).to.be.revertedWith('Unavailable for current date.')
 
     await expect(
-      rentalityGateway.connect(guest).createTripRequest(
+      rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Date.now() + oneDayInSeconds * 3,
           endDateTime: Date.now() + oneDayInSeconds * 4,
           currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
         { value: result.totalPrice }
       )
@@ -749,109 +985,159 @@ describe('RentalityGateway: trips', function () {
 
   it('Can not checkInBy host while car on the trip', async function () {
     await expect(
-      rentalityGateway.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+      rentalityPlatform.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
     ).not.to.be.reverted
-    const myCars = await rentalityGateway.connect(host).getMyCars()
+    const myCars = await rentalityView.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
-    const availableCars = await rentalityGateway.connect(guest).getAvailableCarsForUser(guest.address)
+    const availableCars = await rentalityView
+      .connect(guest)
+      .searchAvailableCarsWithDelivery(
+        0,
+        new Date().getSeconds() + 86400,
+        getEmptySearchCarParams(1),
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
     expect(availableCars.length).to.equal(1)
 
     const oneDayInSeconds = 86400
     const dailyPriceInUsdCents = 1000
 
-    const result = await rentalityGateway.calculatePayments(1, 1, ethToken)
+    const result = await rentalityView.calculatePaymentsWithDelivery(
+      1,
+      1,
+      ethToken,
+      emptyLocationInfo,
+      emptyLocationInfo
+    )
     await expect(
-      await rentalityGateway.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: 123,
           endDateTime: 321,
           currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
         { value: result.totalPrice }
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
 
-    await expect(rentalityGateway.connect(host).approveTripRequest(1)).to.not.reverted
+    await expect(rentalityPlatform.connect(host).approveTripRequest(1)).to.not.reverted
 
-    await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0], '', '')).to.not.reverted
+    await expect(rentalityPlatform.connect(host).checkInByHost(1, [0, 0], '', '')).to.not.reverted
 
-    await expect(rentalityGateway.connect(guest).checkInByGuest(1, [0, 0])).to.not.reverted
+    await expect(rentalityPlatform.connect(guest).checkInByGuest(1, [0, 0])).to.not.reverted
 
     await expect(
-      rentalityGateway.connect(guest).createTripRequest(
+      rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Date.now() + oneDayInSeconds * 3,
           endDateTime: Date.now() + oneDayInSeconds * 4,
           currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
         { value: result.totalPrice }
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
 
-    await expect(rentalityGateway.connect(host).approveTripRequest(2)).not.be.reverted
+    await expect(rentalityPlatform.connect(host).approveTripRequest(2)).not.be.reverted
 
-    await expect(rentalityGateway.connect(host).checkInByHost(2, [0, 0], '', '')).to.be.revertedWith('Car on the trip.')
+    await expect(rentalityPlatform.connect(host).checkInByHost(2, [0, 0], '', '')).to.be.revertedWith('Car on the trip.')
   })
   it('Return correct total trip price', async function () {
     const mockCreateCarRequest = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
-    await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest)).not.to.be.reverted
-    const myCars = await rentalityGateway.connect(host).getMyCars()
+    await expect(rentalityPlatform.connect(host).addCar(mockCreateCarRequest)).not.to.be.reverted
+    const myCars = await rentalityView.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
-    const availableCars = await rentalityGateway.connect(guest).getAvailableCarsForUser(guest.address)
+    const availableCars = await rentalityView
+      .connect(guest)
+      .searchAvailableCarsWithDelivery(
+        0,
+        new Date().getSeconds() + 86400,
+        getEmptySearchCarParams(1),
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
     expect(availableCars.length).to.equal(1)
 
     let dayInSeconds = 86400
     let tripDays = 4
-    const result = await rentalityGateway.calculatePayments(1, tripDays, ethToken)
+    const result = await rentalityView.calculatePaymentsWithDelivery(
+      1,
+      tripDays,
+      ethToken,
+      emptyLocationInfo,
+      emptyLocationInfo
+    )
     await expect(
-      await rentalityGateway.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Date.now(),
           endDateTime: Date.now() + dayInSeconds * tripDays,
           currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
         { value: result.totalPrice }
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
 
-    let paymentInfo = (await rentalityGateway.getTrip(1)).trip.paymentInfo
+    let paymentInfo = (await rentalityView.getTrip(1)).trip.paymentInfo
 
     expect(paymentInfo.totalDayPriceInUsdCents).to.be.eq(mockCreateCarRequest.pricePerDayInUsdCents * tripDays)
   })
 
   it('Return in reject same value as in trip start', async function () {
     await expect(
-      rentalityGateway.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+      rentalityPlatform.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
     ).not.to.be.reverted
-    const myCars = await rentalityGateway.connect(host).getMyCars()
+    const myCars = await rentalityView.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
-    const availableCars = await rentalityGateway.connect(guest).getAvailableCarsForUser(guest.address)
+    const availableCars = await rentalityView
+      .connect(guest)
+      .searchAvailableCarsWithDelivery(
+        0,
+        new Date().getSeconds() + 86400,
+        getEmptySearchCarParams(1),
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
     expect(availableCars.length).to.equal(1)
 
     const oneDayInSeconds = 86400
     const dailyPriceInUsdCents = 1000
 
-    const result = await rentalityGateway.calculatePayments(1, 1, ethToken)
+    const result = await rentalityView.calculatePaymentsWithDelivery(
+      1,
+      1,
+      ethToken,
+      emptyLocationInfo,
+      emptyLocationInfo
+    )
     let value = result.totalPrice - result.totalPrice / BigInt(100)
     await expect(
-      await rentalityGateway.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: 123,
           endDateTime: 321,
           currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
         { value: value }
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-value, value])
 
-    await expect(await rentalityGateway.connect(guest).rejectTripRequest(1)).to.changeEtherBalances(
+    await expect(await rentalityPlatform.connect(host).rejectTripRequest(1)).to.changeEtherBalances(
       [guest, rentalityPaymentService],
       [value, -value]
     )

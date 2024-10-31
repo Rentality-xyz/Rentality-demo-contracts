@@ -221,8 +221,8 @@ async function deployDefaultFixture() {
 
   rentalityGateway = await ethers.getContractAt('IRentalityGateway', await rentalityGateway.getAddress())
 
-  await rentalityGateway.connect(host).setKYCInfo(' ', ' ', ' ', hostSignature)
-  await rentalityGateway.connect(guest).setKYCInfo(' ', ' ', ' ', guestSignature)
+  await rentalityPlatform.connect(host).setKYCInfo(' ', ' ', ' ', hostSignature)
+  await rentalityPlatform.connect(guest).setKYCInfo(' ', ' ', ' ', guestSignature)
 
   const RentalityAdminGateway = await ethers.getContractFactory('RentalityAdminGateway', {
     libraries: {

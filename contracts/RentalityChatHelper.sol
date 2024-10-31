@@ -18,13 +18,13 @@ contract RentalityChatHelper is Initializable, UUPSAccess {
   /// @param chatPrivateKey The private chat key of the user
   /// @param chatPublicKey The public chat key of the user
   function setMyChatPublicKey(string memory chatPrivateKey, string memory chatPublicKey) public {
-    addressToChatKeyPair[tx.origin] = Schemas.ChatKeyPair(chatPrivateKey, chatPublicKey);
+    addressToChatKeyPair[msg.sender] = Schemas.ChatKeyPair(chatPrivateKey, chatPublicKey);
   }
 
   /// @notice Get the chat key pair of the calling user
   /// @return The private and public chat keys of the calling user
   function getMyChatKeys() public view returns (string memory, string memory) {
-    return (addressToChatKeyPair[tx.origin].privateKey, addressToChatKeyPair[tx.origin].publicKey);
+    return (addressToChatKeyPair[msg.sender].privateKey, addressToChatKeyPair[msg.sender].publicKey);
   }
 
   /// @notice Get the public chat keys associated with specified addresses

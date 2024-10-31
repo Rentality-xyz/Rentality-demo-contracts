@@ -10,7 +10,7 @@ describe('RentalityCarToken: host functions', function () {
 
     const request = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
 
-    await expect(rentalityCarToken.connect(host).addCar(request))
+    await expect(rentalityPlatform.connect(host).addCar(request))
       .to.emit(rentalityCarToken, 'CarAddedSuccess')
       .withArgs(1, request.carVinNumber, host.address, request.pricePerDayInUsdCents, true)
   })
@@ -24,8 +24,8 @@ describe('RentalityCarToken: host functions', function () {
       carVinNumber: request1.carVinNumber,
     }
 
-    await expect(rentalityCarToken.connect(host).addCar(request1)).not.be.reverted
-    await expect(rentalityCarToken.connect(host).addCar(request2)).to.be.reverted
+    await expect(rentalityPlatform.connect(host).addCar(request1)).not.be.reverted
+    await expect(rentalityPlatform.connect(host).addCar(request2)).to.be.reverted
   })
 
   it('Adding car with the different VIN number should not be reverted', async function () {
@@ -34,8 +34,8 @@ describe('RentalityCarToken: host functions', function () {
     const request1 = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
     const request2 = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
 
-    await expect(rentalityCarToken.connect(host).addCar(request1)).not.be.reverted
-    await expect(rentalityCarToken.connect(host).addCar(request2)).not.be.reverted
+    await expect(rentalityPlatform.connect(host).addCar(request1)).not.be.reverted
+    await expect(rentalityPlatform.connect(host).addCar(request2)).not.be.reverted
   })
 
   it('Only owner of the car can burn token', async function () {

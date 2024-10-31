@@ -104,7 +104,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
       Schemas.TripStatus.Created,
       guest,
       host,
-      addresses.userService.getKYCInfo(tx.origin).name,
+      addresses.userService.getKYCInfo(guest).name,
       addresses.userService.getKYCInfo(host).name,
       pricePerDayInUsdCents,
       startDateTime,
@@ -142,9 +142,9 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
   ///   - Only the host of the trip can approve it.
   ///   - The trip must be in status Created.
   ///  @param tripId The ID of the trip to be approved.
-  function approveTrip(uint256 tripId) public {
+  function approveTrip(uint256 tripId, address user) public {
     require(addresses.userService.isManager(msg.sender), 'Only from manager contract.');
-    require(idToTripInfo[tripId].host == tx.origin, 'Only host of the trip can approve it');
+    require(idToTripInfo[tripId].host == user, 'Only host of the trip can approve it');
     require(idToTripInfo[tripId].status == Schemas.TripStatus.Created, 'The trip is not in status Created');
 
     idToTripInfo[tripId].status = Schemas.TripStatus.Approved;
@@ -158,14 +158,14 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
   ///   - Only the host or guest of the trip can reject it.
   ///   - The trip must be in status Created, Approved, or CheckedInByHost.
   ///  @param tripId The ID of the trip to be Rejected
-  function rejectTrip(uint256 tripId) public {
+  function rejectTrip(uint256 tripId, address user) public {
     require(addresses.userService.isManager(msg.sender), 'Only from manager contract.');
 
-    bool controversialSituation = addresses.userService.isAdmin(tx.origin) &&
+    bool controversialSituation = addresses.userService.isAdmin(user) &&
       idToTripInfo[tripId].status == Schemas.TripStatus.CheckedOutByHost;
 
     require(
-      idToTripInfo[tripId].host == tx.origin || idToTripInfo[tripId].guest == tx.origin || controversialSituation,
+      idToTripInfo[tripId].host == user || idToTripInfo[tripId].guest == user || controversialSituation,
       'Only host or guest of the trip can reject it'
     );
 
@@ -179,7 +179,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
 
     idToTripInfo[tripId].status = Schemas.TripStatus.Canceled;
     idToTripInfo[tripId].rejectedDateTime = block.timestamp;
-    idToTripInfo[tripId].rejectedBy = tx.origin;
+    idToTripInfo[tripId].rejectedBy = user;
 
     emit TripStatusChanged(tripId, Schemas.TripStatus.Canceled, idToTripInfo[tripId].host, idToTripInfo[tripId].guest);
   }
@@ -198,10 +198,12 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     uint256 tripId,
     uint64[] memory panelParams,
     string memory insuranceCompany,
-    string memory insuranceNumber
+    string memory insuranceNumber,
+    address user
   ) public {
+    require(addresses.userService.isManager(msg.sender),'only Manager');
     Schemas.Trip memory trip = getTrip(tripId);
-    require(trip.host == tx.origin, 'For host only');
+    require(trip.host == user, 'For host only');
 
     for (uint i = 1; i <= totalTripCount(); i++) {
       Schemas.Trip memory check_trip = getTrip(i);
@@ -243,10 +245,11 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
   /// @param tripId The ID of the trip to be checked in by the guest.
   /// @param panelParams An array representing parameters related to fuel, odometer,
   /// and other relevant details depends on engine.
-  function checkInByGuest(uint256 tripId, uint64[] memory panelParams) public {
+  function checkInByGuest(uint256 tripId, uint64[] memory panelParams, address user) public {
+       require(addresses.userService.isManager(msg.sender),'only Manager');
     Schemas.Trip memory trip = getTrip(tripId);
 
-    require(trip.guest == tx.origin, 'Only for guest');
+    require(trip.guest == user, 'Only for guest');
 
     Schemas.CarInfo memory carInfo = addresses.carService.getCarInfoById(trip.carId);
 
@@ -255,7 +258,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
       'The trip is not in status CheckedInByHost'
     );
     engineService.compareParams(panelParams, trip.startParamLevels, carInfo.engineType);
-    idToTripInfo[tripId].tripStartedBy = tx.origin;
+    idToTripInfo[tripId].tripStartedBy = user;
     idToTripInfo[tripId].status = Schemas.TripStatus.CheckedInByGuest;
     idToTripInfo[tripId].checkedInByGuestDateTime = block.timestamp;
 
@@ -270,10 +273,11 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
   ///  @param tripId The ID of the trip to be checked out by the guest.
   /// @param panelParams An array representing parameters related to fuel, odometer,
   /// and other relevant details depends on engine.
-  function checkOutByGuest(uint256 tripId, uint64[] memory panelParams) public {
+  function checkOutByGuest(uint256 tripId, uint64[] memory panelParams, address user) public {
+          require(addresses.userService.isManager(msg.sender),'only Manager');
     Schemas.Trip memory trip = getTrip(tripId);
 
-    require(trip.guest == tx.origin, 'For trip guest only');
+    require(trip.guest == user, 'For trip guest only');
     Schemas.CarInfo memory carInfo = addresses.carService.getCarInfoById(trip.carId);
 
     require(
@@ -283,7 +287,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     Schemas.CarInfo memory car = addresses.carService.getCarInfoById(idToTripInfo[tripId].carId);
     engineService.verifyEndParams(trip.startParamLevels, panelParams, carInfo.engineType);
     idToTripInfo[tripId].endParamLevels = panelParams;
-    idToTripInfo[tripId].tripFinishedBy = tx.origin;
+    idToTripInfo[tripId].tripFinishedBy = user;
 
     idToTripInfo[tripId].status = Schemas.TripStatus.CheckedOutByGuest;
     (uint64 resolveMilesAmountInUsdCents, uint64 resolveFuelAmountInUsdCents) = getResolveAmountInUsdCents(
@@ -313,9 +317,10 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
   ///  @param tripId The ID of the trip to be checked out by the host.
   /// @param panelParams An array representing parameters related to fuel, odometer,
   /// and other relevant details depends on engine.
-  function checkOutByHost(uint256 tripId, uint64[] memory panelParams) public {
+  function checkOutByHost(uint256 tripId, uint64[] memory panelParams, address user) public {
+    require(addresses.userService.isManager(msg.sender),'only Manager');
     Schemas.Trip memory trip = getTrip(tripId);
-    require(trip.host == tx.origin, 'For trip host only');
+    require(trip.host == user, 'For trip host only');
 
     require(
       idToTripInfo[tripId].status == Schemas.TripStatus.CheckedOutByGuest ||
@@ -346,7 +351,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
         resolveAmountInUsdCents = idToTripInfo[tripId].paymentInfo.depositInUsdCents;
       }
       idToTripInfo[tripId].paymentInfo.resolveAmountInUsdCents = resolveAmountInUsdCents;
-      idToTripInfo[tripId].tripFinishedBy = tx.origin;
+      idToTripInfo[tripId].tripFinishedBy = user;
     } else {
       engineService.compareParams(trip.endParamLevels, panelParams, carInfo.engineType);
     }
@@ -361,7 +366,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
   ///    - The trip must be in status CheckedOutByHost.
   /// @param tripId The ID of the trip to be finished.
   /// Emits a `TripStatusChanged` event with the new status Finished.
-  function finishTrip(uint256 tripId) public {
+  function finishTrip(uint256 tripId, address user) public {
     //require(idToTripInfo[tripId].status != TripStatus.CheckedOutByHost,"The trip is not in status CheckedOutByHost");
     require(addresses.userService.isManager(msg.sender), 'Only from manager contract.');
     Schemas.Trip storage trip = idToTripInfo[tripId];
@@ -370,9 +375,9 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
 
     trip.finishDateTime = block.timestamp;
     completedByAdmin[tripId] =
-      addresses.userService.isAdmin(tx.origin) &&
-      trip.host != tx.origin &&
-      trip.guest != tx.origin;
+      addresses.userService.isAdmin(user) &&
+      trip.host != user &&
+      trip.guest != user;
 
     emit TripStatusChanged(tripId, Schemas.TripStatus.Finished, idToTripInfo[tripId].host, idToTripInfo[tripId].guest);
   }

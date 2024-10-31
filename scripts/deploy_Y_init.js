@@ -126,7 +126,7 @@ async function setHostKycIfNotSet(host, gateway, chatService) {
 async function setGuestKycIfNotSet(guest, gateway, chatService) {
   console.log('\nSetting KYC for guest...')
 
-  if ((await gateway.connect(guest).getMyKYCInfo()).name) {
+  if ((await gateway.connect(guest).getMyKYCInfo(guest.address)).name) {
     console.log('KYC for guest has already set')
     return
   }
