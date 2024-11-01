@@ -20,7 +20,8 @@ describe('Ability to update car during trip', function () {
     host,
     guest,
     anonymous,
-    rentalityLocationVerifier
+    rentalityLocationVerifier,
+    rentalityView
 
   beforeEach(async function () {
     ;({
@@ -42,6 +43,7 @@ describe('Ability to update car during trip', function () {
       guest,
       anonymous,
       rentalityLocationVerifier,
+      rentalityView,
     } = await loadFixture(deployDefaultFixture))
   })
 
@@ -56,7 +58,7 @@ describe('Ability to update car during trip', function () {
     expect(availableCars.length).to.equal(1)
     let dailyPriceInUsdCents = 1000
 
-    const result = await  rentalityView.calculatePayments(1, 1, ethToken)
+    const result = await rentalityView.calculatePayments(1, 1, ethToken)
     await expect(
       await rentalityPlatform.connect(guest).createTripRequest(
         {
@@ -84,7 +86,7 @@ describe('Ability to update car during trip', function () {
     expect(availableCars.length).to.equal(1)
     let dailyPriceInUsdCents = 1000
 
-    const result = await  rentalityView.calculatePayments(1, 1, ethToken)
+    const result = await rentalityView.calculatePayments(1, 1, ethToken)
     await expect(
       await rentalityPlatform.connect(guest).createTripRequest(
         {
@@ -129,7 +131,7 @@ describe('Ability to update car during trip', function () {
 
     const rentPriceInUsdCents = 1000
 
-    const result = await  rentalityView.calculatePayments(1, 1, ethToken)
+    const result = await rentalityView.calculatePayments(1, 1, ethToken)
     await expect(
       await rentalityPlatform.connect(guest).createTripRequest(
         {
@@ -146,7 +148,7 @@ describe('Ability to update car during trip', function () {
 
     expect(myNotEditableCars[0].isEditable).to.be.equal(false)
 
-    await rentalityGateway.connect(guest).rejectTripRequest(1)
+    await rentalityPlatform.connect(guest).rejectTripRequest(1)
 
     const myNotEditableCars2 = await rentalityView.connect(host).getMyCars()
 

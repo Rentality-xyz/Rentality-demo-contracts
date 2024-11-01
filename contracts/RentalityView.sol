@@ -181,7 +181,12 @@ contract RentalityView is UUPSUpgradeable, Initializable {
     uint256 tripId
   ) public view returns (string memory guestPhoneNumber, string memory hostPhoneNumber) {
     return
-      RentalityTripsQuery.getTripContactInfo(tripId, address(addresses.tripService), address(addresses.userService),msg.sender);
+      RentalityTripsQuery.getTripContactInfo(
+        tripId,
+        address(addresses.tripService),
+        address(addresses.userService),
+        msg.sender
+      );
   }
 
   /// @notice Retrieves KYC information for the caller.
@@ -250,13 +255,13 @@ contract RentalityView is UUPSUpgradeable, Initializable {
   /// @notice Get chat information for trips hosted by the caller on the Rentality platform.
   /// @return chatInfo An array of chat information for trips hosted by the caller.
   function getChatInfoForHost() public view returns (Schemas.ChatInfo[] memory) {
-    return RentalityUtils.populateChatInfo(false, addresses);
+    return RentalityTripsQuery.populateChatInfo(false, addresses, msg.sender);
   }
 
   /// @notice Get chat information for trips attended by the caller on the Rentality platform.
   /// @return chatInfo An array of chat information for trips attended by the caller.
   function getChatInfoForGuest() public view returns (Schemas.ChatInfo[] memory) {
-    return RentalityUtils.populateChatInfo(true, addresses);
+    return RentalityTripsQuery.populateChatInfo(true, addresses, msg.sender);
   }
 
   /// @dev Retrieves delivery data for a given car.

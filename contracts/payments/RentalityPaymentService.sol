@@ -236,7 +236,13 @@ contract RentalityPaymentService is UUPSOwnable {
   /// @param valueToPay The amount to be paid.
   /// @param feeInCurrency The fee amount to be deducted from the payment.
   /// @param commission The commission amount to be transferred, if applicable.
-  function payClaim(Schemas.Trip memory trip, uint valueToPay, uint feeInCurrency, uint commission, address user) public payable {
+  function payClaim(
+    Schemas.Trip memory trip,
+    uint valueToPay,
+    uint feeInCurrency,
+    uint commission,
+    address user
+  ) public payable {
     require(userService.isManager(msg.sender), 'Only manager');
 
     bool successHost;
@@ -270,7 +276,7 @@ contract RentalityPaymentService is UUPSOwnable {
   /// @param trip The trip data structure containing details about the trip.
   /// @param valueToReturnInToken The amount to be returned to the guest.
   function payRejectTrip(Schemas.Trip memory trip, uint valueToReturnInToken) public {
-    require(userService.isManager(msg.sender),"only Manager");
+    require(userService.isManager(msg.sender), 'only Manager');
     bool successGuest;
 
     if (trip.paymentInfo.currencyType == address(0)) {

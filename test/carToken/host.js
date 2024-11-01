@@ -6,7 +6,8 @@ const { deployFixtureWith1Car, deployDefaultFixture } = require('./deployments')
 
 describe('RentalityCarToken: host functions', function () {
   it('Adding car should emit CarAddedSuccess event', async function () {
-    const { rentalityCarToken, host, rentalityLocationVerifier, admin } = await loadFixture(deployDefaultFixture)
+    const { rentalityCarToken, host, rentalityLocationVerifier, admin, rentalityPlatform } =
+      await loadFixture(deployDefaultFixture)
 
     const request = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
 
@@ -16,7 +17,7 @@ describe('RentalityCarToken: host functions', function () {
   })
 
   it('Adding car with the same VIN number should be reverted', async function () {
-    const { rentalityCarToken, host, rentalityLocationVerifier, admin } = await loadFixture(deployDefaultFixture)
+    const { rentalityPlatform, host, rentalityLocationVerifier, admin } = await loadFixture(deployDefaultFixture)
 
     const request1 = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
     const request2 = {
@@ -29,7 +30,7 @@ describe('RentalityCarToken: host functions', function () {
   })
 
   it('Adding car with the different VIN number should not be reverted', async function () {
-    const { rentalityCarToken, host, rentalityLocationVerifier, admin } = await loadFixture(deployDefaultFixture)
+    const { rentalityPlatform, host, rentalityLocationVerifier, admin } = await loadFixture(deployDefaultFixture)
 
     const request1 = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
     const request2 = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)

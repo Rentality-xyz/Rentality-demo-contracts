@@ -21,7 +21,11 @@ contract RentalityCarDelivery is Initializable, UUPSAccess {
   /// @notice Sets delivery prices for a user
   /// @param underTwentyFiveMilesInUsdCents Price in USD cents for distances under 25 miles
   /// @param aboveTwentyFiveMilesInUsdCents Price in USD cents for distances above 25 miles
-  function setUserDeliveryPrices(uint64 underTwentyFiveMilesInUsdCents, uint64 aboveTwentyFiveMilesInUsdCents, address user) public {
+  function setUserDeliveryPrices(
+    uint64 underTwentyFiveMilesInUsdCents,
+    uint64 aboveTwentyFiveMilesInUsdCents,
+    address user
+  ) public {
     require(userService.isManager(msg.sender), 'only Manager');
     if (!userService.isHost(user)) {
       RentalityUserService(address(userService)).grantHostRole(user);

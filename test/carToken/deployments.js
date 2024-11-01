@@ -268,6 +268,8 @@ async function deployDefaultFixture() {
     anonymous,
     geoParserMock,
     rentalityLocationVerifier,
+    rentalityPlatform,
+    rentalityView,
   }
 }
 
@@ -286,6 +288,8 @@ async function deployFixtureWith1Car() {
     anonymous,
     geoParserMock,
     rentalityLocationVerifier,
+    rentalityPlatform,
+    rentalityView,
   } = await deployDefaultFixture()
 
   const request = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
@@ -306,6 +310,8 @@ async function deployFixtureWith1Car() {
     anonymous,
     geoParserMock,
     rentalityLocationVerifier,
+    rentalityPlatform,
+    rentalityView,
   }
 }
 

@@ -8,8 +8,6 @@ import '../features/RentalityLocationVerifier.sol';
 /// @notice This contract defines the interface for the Rentality Geo Service, which provides geo-verification for cars info in the Rentality platform.
 /// @dev All functions in this interface are meant to be implemented by the Rentality Geo Service contract.
 interface IRentalityGeoService {
-
-
   /// @notice Execute a request to verify geo-related information.
   /// @param addr The address for the geo-related request.
   /// @param key The key for the geo-related request.

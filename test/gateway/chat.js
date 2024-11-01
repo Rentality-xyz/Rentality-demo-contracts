@@ -55,7 +55,7 @@ describe('RentalityGateway: chat', function () {
       anonymous,
       rentalityLocationVerifier,
       adminKyc,
-      rentalityView
+      rentalityView,
     } = await loadFixture(deployDefaultFixture))
   })
 
@@ -73,7 +73,7 @@ describe('RentalityGateway: chat', function () {
 
     const dailyPriceInUsdCents = 1000
 
-    const result = await  rentalityView.calculatePayments(1, 2, ethToken)
+    const result = await rentalityView.calculatePayments(1, 2, ethToken)
     await expect(
       await rentalityPlatform.connect(guest).createTripRequest(
         {
@@ -103,7 +103,7 @@ describe('RentalityGateway: chat', function () {
       rentalityPlatform.connect(guest).setKYCInfo(name + 'guest', number + 'guest', photo + 'guest', guestSignature)
     ).not.be.reverted
 
-    let chatInfoArray = await rentalityGateway.connect(guest).getChatInfoForGuest()
+    let chatInfoArray = await rentalityView.connect(guest).getChatInfoForGuest()
     expect(chatInfoArray.length).to.be.equal(1)
     let chatInfo = chatInfoArray[0]
 
@@ -142,7 +142,7 @@ describe('RentalityGateway: chat', function () {
 
     const oneDayInSeconds = 86400
 
-    const result = await  rentalityView.calculatePayments(1, 1, ethToken)
+    const result = await rentalityView.calculatePayments(1, 1, ethToken)
     await expect(
       await rentalityPlatform.connect(guest).createTripRequest(
         {

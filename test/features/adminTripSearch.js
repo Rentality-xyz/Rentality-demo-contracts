@@ -37,7 +37,8 @@ describe('Admin trip searching', function () {
     guest,
     anonymous,
     rentalityAdminGateway,
-    rentalityLocationVerifier
+    rentalityLocationVerifier,
+    rentalityView
 
   beforeEach(async function () {
     ;({
@@ -63,6 +64,7 @@ describe('Admin trip searching', function () {
       anonymous,
       rentalityAdminGateway,
       rentalityLocationVerifier,
+      rentalityView,
     } = await loadFixture(deployDefaultFixture))
   })
 
@@ -92,7 +94,7 @@ describe('Admin trip searching', function () {
 
     const oneDayInSeconds = 86400
 
-    const resultPayments = await  rentalityView.calculatePayments(1, 1, ethToken)
+    const resultPayments = await rentalityView.calculatePayments(1, 1, ethToken)
     let startDateTime = Date.now() - 10
     let endDateTime = Date.now() + oneDayInSeconds + 10
     await expect(
@@ -146,7 +148,7 @@ describe('Admin trip searching', function () {
 
     const oneDayInSeconds = 86400
 
-    const resultPayments = await  rentalityView.calculatePayments(1, 2, ethToken)
+    const resultPayments = await rentalityView.calculatePayments(1, 2, ethToken)
     let startDateTime = Date.now() - 10
     let endDateTime = Date.now() + oneDayInSeconds * 2
     for (let i = 0; i < 10; i++) {
@@ -225,7 +227,7 @@ describe('Admin trip searching', function () {
 
     const oneDayInSeconds = 86400
 
-    const resultPayments = await  rentalityView.calculatePayments(1, 2, ethToken)
+    const resultPayments = await rentalityView.calculatePayments(1, 2, ethToken)
     let startDateTime = Date.now() - 10
     let endDateTime = Date.now() + oneDayInSeconds * 2
     let searchFiler = filter
@@ -307,7 +309,7 @@ describe('Admin trip searching', function () {
 
     const oneDayInSeconds = 86400
 
-    const resultPayments = await  rentalityView.calculatePayments(1, 2, ethToken)
+    const resultPayments = await rentalityView.calculatePayments(1, 2, ethToken)
     let startDateTime = Date.now() - 10
     let endDateTime = Date.now() + oneDayInSeconds * 2
     let searchFiler = filter
@@ -378,7 +380,7 @@ describe('Admin trip searching', function () {
 
     const oneDayInSeconds = 86400
 
-    const resultPayments = await  rentalityView.calculatePayments(1, 2, ethToken)
+    const resultPayments = await rentalityView.calculatePayments(1, 2, ethToken)
     let startDateTime = Date.now() - 10
     let endDateTime = Date.now() + oneDayInSeconds * 2
     let searchFiler = filter
@@ -398,7 +400,7 @@ describe('Admin trip searching', function () {
 
     searchFiler.paymentStatus = PaymentStatus.RefundToGuest
 
-    await expect(rentalityGateway.connect(host).rejectTripRequest(1)).not.to.be.reverted
+    await expect(rentalityPlatform.connect(host).rejectTripRequest(1)).not.to.be.reverted
     let result = await rentalityAdminGateway.getAllTrips(searchFiler, 1, 3)
     expect(result.trips.length).to.be.eq(1)
     expect(result.trips[0].trip.tripId).to.be.eq(1)
@@ -429,7 +431,7 @@ describe('Admin trip searching', function () {
 
     const oneDayInSeconds = 86400
 
-    const resultPayments = await  rentalityView.calculatePayments(1, 2, ethToken)
+    const resultPayments = await rentalityView.calculatePayments(1, 2, ethToken)
     let startDateTime = Date.now() - 10
     let endDateTime = Date.now() + oneDayInSeconds * 2
     let searchFiler = filter
@@ -482,7 +484,9 @@ describe('Admin trip searching', function () {
   it('All cars pagination test', async function () {
     for (let i = 0; i < 10; i++)
       await expect(
-        rentalityPlatform.connect(host).addCar(getMockCarRequest(i, await rentalityLocationVerifier.getAddress(), admin))
+        rentalityPlatform
+          .connect(host)
+          .addCar(getMockCarRequest(i, await rentalityLocationVerifier.getAddress(), admin))
       ).not.to.be.reverted
 
     let result = await rentalityAdminGateway.getAllCars(1, 3)

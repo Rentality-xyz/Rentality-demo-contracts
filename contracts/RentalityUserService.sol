@@ -42,7 +42,7 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
     bytes memory TCSignature,
     address user
   ) public {
-    require(isManager(msg.sender),'only Manager');
+    require(isManager(msg.sender), 'only Manager');
     if (!isGuest(user)) {
       _grantRole(GUEST_ROLE, user);
     }

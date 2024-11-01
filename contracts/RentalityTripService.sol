@@ -201,7 +201,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     string memory insuranceNumber,
     address user
   ) public {
-    require(addresses.userService.isManager(msg.sender),'only Manager');
+    require(addresses.userService.isManager(msg.sender), 'only Manager');
     Schemas.Trip memory trip = getTrip(tripId);
     require(trip.host == user, 'For host only');
 
@@ -246,7 +246,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
   /// @param panelParams An array representing parameters related to fuel, odometer,
   /// and other relevant details depends on engine.
   function checkInByGuest(uint256 tripId, uint64[] memory panelParams, address user) public {
-       require(addresses.userService.isManager(msg.sender),'only Manager');
+    require(addresses.userService.isManager(msg.sender), 'only Manager');
     Schemas.Trip memory trip = getTrip(tripId);
 
     require(trip.guest == user, 'Only for guest');
@@ -274,7 +274,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
   /// @param panelParams An array representing parameters related to fuel, odometer,
   /// and other relevant details depends on engine.
   function checkOutByGuest(uint256 tripId, uint64[] memory panelParams, address user) public {
-          require(addresses.userService.isManager(msg.sender),'only Manager');
+    require(addresses.userService.isManager(msg.sender), 'only Manager');
     Schemas.Trip memory trip = getTrip(tripId);
 
     require(trip.guest == user, 'For trip guest only');
@@ -318,7 +318,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
   /// @param panelParams An array representing parameters related to fuel, odometer,
   /// and other relevant details depends on engine.
   function checkOutByHost(uint256 tripId, uint64[] memory panelParams, address user) public {
-    require(addresses.userService.isManager(msg.sender),'only Manager');
+    require(addresses.userService.isManager(msg.sender), 'only Manager');
     Schemas.Trip memory trip = getTrip(tripId);
     require(trip.host == user, 'For trip host only');
 
@@ -374,10 +374,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     trip.status = Schemas.TripStatus.Finished;
 
     trip.finishDateTime = block.timestamp;
-    completedByAdmin[tripId] =
-      addresses.userService.isAdmin(user) &&
-      trip.host != user &&
-      trip.guest != user;
+    completedByAdmin[tripId] = addresses.userService.isAdmin(user) && trip.host != user && trip.guest != user;
 
     emit TripStatusChanged(tripId, Schemas.TripStatus.Finished, idToTripInfo[tripId].host, idToTripInfo[tripId].guest);
   }

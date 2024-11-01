@@ -9,7 +9,6 @@ const UserRole = {
   KYCManager: 4,
 }
 
-
 const signTCMessage = async (user) => {
   const message =
     'I have read and I agree with Terms of service, Cancellation policy, Prohibited uses and Privacy policy of Rentality.'
@@ -578,7 +577,7 @@ async function deployDefaultFixture() {
     adminKyc,
     guestSignature,
     hostSignature,
-    rentalityView
+    rentalityView,
   }
 }
 
@@ -602,5 +601,5 @@ module.exports = {
   signKycInfo,
   emptyKyc,
   UserRole,
-  emptySignedLocationInfo
+  emptySignedLocationInfo,
 }

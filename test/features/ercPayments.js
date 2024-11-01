@@ -18,7 +18,8 @@ describe('ERC20 payments', function () {
     host,
     rentalityTripService,
     admin,
-    rentalityLocationVerifier
+    rentalityLocationVerifier,
+    rentalityView
   rentalityAdminGateway = beforeEach(async function () {
     ;({
       rentalityGateway,
@@ -33,6 +34,7 @@ describe('ERC20 payments', function () {
       admin,
       rentalityLocationVerifier,
       rentalityAdminGateway,
+      rentalityView,
     } = await loadFixture(deployDefaultFixture))
   })
   it('Should correctly сreate trip and pay deposit with usdt', async function () {
@@ -210,12 +212,12 @@ describe('ERC20 payments', function () {
     )
 
     await usdtContract.connect(guest).approve(await rentalityPaymentService.getAddress(), claimPriceInUsdt)
-    await expect(rentalityGateway.connect(host).createClaim(createMockClaimRequest(1, amountToPayForClaim))).not.to.be
+    await expect(rentalityPlatform.connect(host).createClaim(createMockClaimRequest(1, amountToPayForClaim))).not.to.be
       .reverted
     const hostBalanceBeforeClaim = await usdtContract.balanceOf(host.address)
     const guestBalanceBeforeClaim = await usdtContract.balanceOf(guest.address)
 
-    await expect(rentalityGateway.connect(guest).payClaim(1)).to.not.reverted
+    await expect(rentalityPlatform.connect(guest).payClaim(1)).to.not.reverted
 
     const hostBalanceAfterClaim = await usdtContract.balanceOf(host.address)
     const guestBalanceAfterClaim = await usdtContract.balanceOf(guest.address)

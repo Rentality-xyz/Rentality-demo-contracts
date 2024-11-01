@@ -21,7 +21,6 @@ contract RentalityGeoService is IRentalityGeoService, Initializable, UUPSAccess 
 
   RentalityLocationVerifier private verifier;
 
-  
   /// @notice Retrieves the address of the current geolocation parser contract.
   /// @return The address of the current geolocation parser contract.
   function getGeoParserAddress() public view returns (address) {
