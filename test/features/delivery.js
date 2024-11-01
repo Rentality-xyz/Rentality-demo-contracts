@@ -31,8 +31,8 @@ describe('Rentality Delivery', function () {
     host,
     guest,
     anonymous,
-    rentalityLocationVerifier
-
+    rentalityLocationVerifier,
+    rentalityView
   beforeEach(async function () {
     ;({
       rentalityGateway,
@@ -56,6 +56,7 @@ describe('Rentality Delivery', function () {
       guest,
       anonymous,
       rentalityLocationVerifier,
+      rentalityView,
     } = await loadFixture(deployDefaultFixture))
   })
 
@@ -236,7 +237,7 @@ describe('Rentality Delivery', function () {
 
       timeZoneId: 'id',
     }
-    let result = await  rentalityView.calculatePaymentsWithDelivery(1, 1, ethToken, locationInfo, locationInfo2)
+    let result = await rentalityView.calculatePaymentsWithDelivery(1, 1, ethToken, locationInfo, locationInfo2)
 
     await expect(
       await rentalityPlatform.connect(guest).createTripRequestWithDelivery(

@@ -129,7 +129,7 @@ describe('RentalityUserService: KYC management', function () {
       rentalityLocationVerifier,
       admin,
       adminKyc,
-      rentalityView
+      rentalityView,
     } = await loadFixture(deployDefaultFixture)
 
     const carRequest = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)

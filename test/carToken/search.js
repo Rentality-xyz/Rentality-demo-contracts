@@ -145,7 +145,7 @@ describe('RentalityCarToken: search functions', function () {
   })
 
   it('Search with country should work', async function () {
-    const { rentalityCarToken, rentalityTripService, guest, rentalityGateway, host, rentalityLocationVerifier, admin } =
+    const { rentalityCarToken, rentalityPlatform, guest, rentalityGateway, host, rentalityLocationVerifier, admin } =
       await loadFixture(deployFixtureWith1Car)
 
     let location = {
@@ -160,7 +160,7 @@ describe('RentalityCarToken: search functions', function () {
     location.country = 'Country'
     let carRequest = getMockCarRequest(2, await rentalityLocationVerifier.getAddress(), admin, location)
 
-    await rentalityCarToken.addCar(carRequest)
+    await rentalityPlatform.addCar(carRequest)
 
     const searchCarParams1 = {
       country: 'Country',
@@ -202,27 +202,28 @@ describe('RentalityCarToken: search functions', function () {
       rentalityTripService,
       guest,
       geoParserMock,
-      rentalityGateway,
+      rentalityView,
       rentalityLocationVerifier,
       admin,
+      rentalityPlatform,
     } = await loadFixture(deployFixtureWith1Car)
 
     let location = {
       userAddress: 'Miami Riverwalk, Miami, Florida, USA',
       country: 'USA',
-      state: 'Florida',
+      state: 'None',
       city: 'Miami',
       latitude: '45.509248',
       longitude: '-122.682653',
       timeZoneId: 'id',
     }
-    location.state = 'MYSTATE'
+    location.state = 'Florida'
     let carRequest = getMockCarRequest(2, await rentalityLocationVerifier.getAddress(), admin, location)
-    await rentalityCarToken.addCar(carRequest)
+    await rentalityPlatform.addCar(carRequest)
 
     const searchCarParams1 = {
       country: '',
-      state: 'MYSTATE',
+      state: 'Florida',
       city: '',
       brand: '',
       model: '',
@@ -245,11 +246,11 @@ describe('RentalityCarToken: search functions', function () {
       userLocation: locationInfo,
     }
 
-    const availableCars1 = await rentalityGateway.connect(guest).searchAvailableCars(0, 0, searchCarParams1)
+    const availableCars1 = await rentalityView.connect(guest).searchAvailableCars(0, 0, searchCarParams1)
 
-    expect(availableCars1.length).to.equal(1)
+    expect(availableCars1.length).to.equal(2)
 
-    const availableCars2 = await rentalityGateway.connect(guest).searchAvailableCars(0, 0, searchCarParams2)
+    const availableCars2 = await rentalityView.connect(guest).searchAvailableCars(0, 0, searchCarParams2)
 
     expect(availableCars2.length).to.equal(0)
   })
@@ -263,6 +264,7 @@ describe('RentalityCarToken: search functions', function () {
       rentalityGateway,
       rentalityLocationVerifier,
       admin,
+      rentalityPlatform,
     } = await loadFixture(deployFixtureWith1Car)
 
     let location = {
@@ -276,7 +278,7 @@ describe('RentalityCarToken: search functions', function () {
     }
     location.city = 'City'
     let carRequest = getMockCarRequest(2, await rentalityLocationVerifier.getAddress(), admin, location)
-    await rentalityCarToken.addCar(carRequest)
+    await rentalityPlatform.addCar(carRequest)
 
     const searchCarParams1 = {
       country: '',

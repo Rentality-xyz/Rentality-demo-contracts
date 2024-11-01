@@ -51,7 +51,7 @@ describe('RentalityGateway: user info', function () {
       rentalityLocationVerifier,
       adminKyc,
       rentalityPlatform,
-      rentalityView
+      rentalityView,
     } = await loadFixture(deployDefaultFixture))
   })
 
@@ -76,7 +76,7 @@ describe('RentalityGateway: user info', function () {
 
     await expect(rentalityPlatform.connect(host).setKYCInfo(name, number, photo, hostSignature)).not.be.reverted
 
-    const kycInfo = await rentalityGateway.connect(host).getMyKYCInfo()
+    const kycInfo = await rentalityView.connect(host).getMyKYCInfo()
 
     expect(kycInfo.name).to.equal(name)
 
@@ -102,7 +102,7 @@ describe('RentalityGateway: user info', function () {
     const adminSignature = signKycInfo(await rentalityLocationVerifier.getAddress(), admin, kyc)
     await expect(rentalityPlatform.connect(guest).setKYCInfo(name, number, photo, guestSignature)).not.be.reverted
 
-    const kycInfo = await rentalityGateway.connect(guest).getMyKYCInfo(guest.address)
+    const kycInfo = await rentalityView.connect(guest).getMyKYCInfo()
 
     expect(kycInfo.name).to.equal(name)
 
@@ -122,7 +122,7 @@ describe('RentalityGateway: user info', function () {
 
     const dailyPriceInUsdCents = 1000
 
-    const result = await  rentalityView.calculatePayments(1, 1, ethToken)
+    const result = await rentalityView.calculatePayments(1, 1, ethToken)
     await expect(
       await rentalityPlatform.connect(guest).createTripRequest(
         {
@@ -163,7 +163,7 @@ describe('RentalityGateway: user info', function () {
 
     const dailyPriceInUsdCents = 1000
 
-    const result = await  rentalityView.calculatePayments(1, 1, ethToken)
+    const result = await rentalityView.calculatePayments(1, 1, ethToken)
     await expect(
       await rentalityPlatform.connect(guest).createTripRequest(
         {
@@ -185,7 +185,7 @@ describe('RentalityGateway: user info', function () {
 
     await expect(rentalityPlatform.connect(host).setKYCInfo('name', hostNumber, 'photo', hostSignature)).not.be.reverted
 
-    let [guestPhoneNumber, hostPhoneNumber] = await rentalityGateway.connect(host).getTripContactInfo(1)
+    let [guestPhoneNumber, hostPhoneNumber] = await rentalityView.connect(host).getTripContactInfo(1)
 
     expect(guestPhoneNumber).to.be.equal(guestNumber)
     expect(hostPhoneNumber).to.be.equal(hostNumber)
@@ -203,7 +203,7 @@ describe('RentalityGateway: user info', function () {
 
     const dailyPriceInUsdCents = 1000
 
-    const result = await  rentalityView.calculatePayments(1, 1, ethToken)
+    const result = await rentalityView.calculatePayments(1, 1, ethToken)
     await expect(
       await rentalityPlatform.connect(guest).createTripRequest(
         {
@@ -281,7 +281,7 @@ describe('RentalityGateway: user info', function () {
     ).to.not.reverted
 
     await expect(rentalityPlatform.connect(anonymous).setCivicKYCInfo(host.address, kyc)).to.not.reverted
-    const kycInfo = await rentalityGateway.connect(host).getMyFullKYCInfo()
+    const kycInfo = await rentalityView.connect(host).getMyFullKYCInfo()
 
     expect(kycInfo.kyc.name).to.equal(name)
     expect(kycInfo.kyc.surname).to.equal(surname)

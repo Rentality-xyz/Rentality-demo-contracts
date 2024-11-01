@@ -268,6 +268,7 @@ async function deployDefaultFixture() {
     guest,
     anonymous,
     rentalityLocationVerifier,
+    rentalityView,
   }
 }
 

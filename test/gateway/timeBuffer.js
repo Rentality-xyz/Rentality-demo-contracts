@@ -55,7 +55,7 @@ describe('RentalityGateway: time buffer', function () {
       guest,
       anonymous,
       rentalityLocationVerifier,
-      rentalityView
+      rentalityView,
     } = await loadFixture(deployDefaultFixture))
   })
   it('should not show car, while time buffer not expired', async function () {
@@ -195,7 +195,7 @@ describe('RentalityGateway: time buffer', function () {
 
     const dailyPriceInUsdCents = 1000
 
-    const result = await  rentalityView.calculatePayments(1, 1, ethToken)
+    const result = await rentalityView.calculatePayments(1, 1, ethToken)
     await expect(
       await rentalityPlatform.connect(guest).createTripRequest(
         {
@@ -253,7 +253,7 @@ describe('RentalityGateway: time buffer', function () {
 
     const dailyPriceInUsdCents = 1000
 
-    const result = await  rentalityView.calculatePayments(1, 1, ethToken)
+    const result = await rentalityView.calculatePayments(1, 1, ethToken)
     await expect(
       await rentalityPlatform.connect(guest).createTripRequest(
         {
@@ -266,7 +266,7 @@ describe('RentalityGateway: time buffer', function () {
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
 
-    const resultTwoDays = await  rentalityView.calculatePayments(1, 2, ethToken)
+    const resultTwoDays = await rentalityView.calculatePayments(1, 2, ethToken)
     await expect(
       await rentalityPlatform.connect(guest).createTripRequest(
         {

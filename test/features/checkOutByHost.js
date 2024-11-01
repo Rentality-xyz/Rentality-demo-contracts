@@ -30,7 +30,8 @@ describe('Check out without guest', function () {
     host,
     guest,
     anonymous,
-    rentalityLocationVerifier
+    rentalityLocationVerifier,
+    rentalityView
   beforeEach(async function () {
     ;({
       rentalityGateway,
@@ -53,6 +54,7 @@ describe('Check out without guest', function () {
       guest,
       anonymous,
       rentalityLocationVerifier,
+      rentalityView,
     } = await loadFixture(deployDefaultFixture))
   })
 
@@ -208,7 +210,7 @@ describe('Check out without guest', function () {
     await expect(rentalityPlatform.connect(host).approveTripRequest(1)).not.to.be.reverted
     await expect(rentalityPlatform.connect(host).checkInByHost(1, [0, 0], '', '')).not.to.be.reverted
     await expect(rentalityPlatform.connect(host).checkOutByHost(1, [0, 0])).not.to.be.reverted
-    await expect(rentalityGateway.connect(host).confirmCheckOut(1)).to.be.reverted
+    await expect(rentalityPlatform.connect(host).confirmCheckOut(1)).to.be.reverted
 
     const depositValue = await rentalityCurrencyConverter.getFromUsd(
       ethToken,
@@ -315,8 +317,8 @@ describe('Check out without guest', function () {
     await expect(rentalityPlatform.connect(host).checkInByHost(1, [0, 0], '', '')).not.to.be.reverted
     await expect(rentalityPlatform.connect(host).checkOutByHost(1, [0, 0])).not.to.be.reverted
 
-    await expect(rentalityGateway.connect(guest).rejectTripRequest(1)).to.be.reverted
-    await expect(rentalityGateway.connect(host).rejectTripRequest(1)).to.be.reverted
+    await expect(rentalityPlatform.connect(guest).rejectTripRequest(1)).to.be.reverted
+    await expect(rentalityPlatform.connect(host).rejectTripRequest(1)).to.be.reverted
 
     await expect(rentalityGateway.connect(admin).rejectTripRequest(1)).to.changeEtherBalances(
       [guest, rentalityPaymentService],

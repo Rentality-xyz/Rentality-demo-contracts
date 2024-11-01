@@ -56,7 +56,7 @@ describe('RentalityGateway: car', function () {
       anonymous,
       rentalityLocationVerifier,
       adminKyc,
-      rentalityView
+      rentalityView,
     } = await loadFixture(deployDefaultFixture))
   })
 
@@ -106,7 +106,7 @@ describe('RentalityGateway: car', function () {
       'Only the owner of the car can update car info'
     )
 
-    let carInfo = await rentalityPlatform.getCarInfoById(update_params.carId)
+    let carInfo = await rentalityView.getCarInfoById(update_params.carId)
 
     expect(carInfo.currentlyListed).to.be.equal(false)
     expect(carInfo.pricePerDayInUsdCents).to.be.equal(update_params.pricePerDayInUsdCents)

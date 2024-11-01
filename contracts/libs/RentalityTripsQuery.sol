@@ -212,6 +212,48 @@ library RentalityTripsQuery {
     return (guestInfo.mobilePhoneNumber, hostInfo.mobilePhoneNumber);
   }
 
+  /// @notice Populates an array of chat information using data from trips, user service, and car service.
+  /// @return chatInfoList Array of IRentalityGateway.ChatInfo structures.
+  function populateChatInfo(
+    bool byGuest,
+    RentalityContract memory addresses,
+    address user
+  ) public view returns (Schemas.ChatInfo[] memory) {
+    Schemas.TripDTO[] memory trips = byGuest ? getTripsByGuest(addresses, user) : getTripsByHost(addresses, user);
+
+    RentalityUserService userService = addresses.userService;
+    RentalityCarToken carService = addresses.carService;
+
+    Schemas.ChatInfo[] memory chatInfoList = new Schemas.ChatInfo[](trips.length);
+
+    for (uint i = 0; i < trips.length; i++) {
+      Schemas.KYCInfo memory guestInfo = userService.getKYCInfo(trips[i].trip.guest);
+      Schemas.KYCInfo memory hostInfo = userService.getKYCInfo(trips[i].trip.host);
+
+      chatInfoList[i].tripId = trips[i].trip.tripId;
+      chatInfoList[i].guestAddress = trips[i].trip.guest;
+      chatInfoList[i].guestName = guestInfo.surname;
+      chatInfoList[i].guestPhotoUrl = guestInfo.profilePhoto;
+      chatInfoList[i].hostAddress = trips[i].trip.host;
+      chatInfoList[i].hostName = hostInfo.surname;
+      chatInfoList[i].hostPhotoUrl = hostInfo.profilePhoto;
+      chatInfoList[i].tripStatus = uint256(trips[i].trip.status);
+
+      Schemas.CarInfo memory carInfo = carService.getCarInfoById(trips[i].trip.carId);
+      chatInfoList[i].carBrand = carInfo.brand;
+      chatInfoList[i].carModel = carInfo.model;
+      chatInfoList[i].carYearOfProduction = carInfo.yearOfProduction;
+      chatInfoList[i].carMetadataUrl = carService.tokenURI(trips[i].trip.carId);
+      chatInfoList[i].startDateTime = trips[i].trip.startDateTime;
+      chatInfoList[i].endDateTime = trips[i].trip.endDateTime;
+      chatInfoList[i].timeZoneId = IRentalityGeoService(carService.getGeoServiceAddress()).getCarTimeZoneId(
+        carInfo.locationHash
+      );
+    }
+
+    return chatInfoList;
+  }
+
   /// @notice Retrieves all trips associated with a specific guest.
   /// @dev This function fetches all trips where the specified guest is involved.
   /// @param contracts The Rentality contract instance containing service addresses.
@@ -235,7 +277,7 @@ library RentalityTripsQuery {
 
     for (uint i = 1; i <= tripService.totalTripCount(); i++) {
       if (tripService.getTrip(i).guest == guest) {
-        result[currentIndex] = getTripDTO(contracts, i,guest);
+        result[currentIndex] = getTripDTO(contracts, i, guest);
         currentIndex += 1;
       }
     }
@@ -266,7 +308,7 @@ library RentalityTripsQuery {
 
     for (uint i = 1; i <= tripService.totalTripCount(); i++) {
       if (tripService.getTrip(i).host == host) {
-        result[currentIndex] = getTripDTO(contracts, i,host);
+        result[currentIndex] = getTripDTO(contracts, i, host);
         currentIndex += 1;
       }
     }
@@ -279,7 +321,11 @@ library RentalityTripsQuery {
   /// @param contracts The Rentality contract instance containing service addresses.
   /// @param tripId The ID of the trip to retrieve.
   /// @return An instance of TripDTO containing all relevant information about the trip.
-  function getTripDTO(RentalityContract memory contracts, uint tripId, address user) public view returns (Schemas.TripDTO memory) {
+  function getTripDTO(
+    RentalityContract memory contracts,
+    uint tripId,
+    address user
+  ) public view returns (Schemas.TripDTO memory) {
     RentalityTripService tripService = contracts.tripService;
     RentalityCarToken carService = contracts.carService;
     RentalityUserService userService = contracts.userService;

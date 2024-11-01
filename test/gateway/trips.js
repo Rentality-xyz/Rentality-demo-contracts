@@ -59,7 +59,7 @@ describe('RentalityGateway: trips', function () {
       guest,
       anonymous,
       rentalityLocationVerifier,
-      rentalityView
+      rentalityView,
     } = await loadFixture(deployDefaultFixture))
   })
 
@@ -1047,7 +1047,9 @@ describe('RentalityGateway: trips', function () {
 
     await expect(rentalityPlatform.connect(host).approveTripRequest(2)).not.be.reverted
 
-    await expect(rentalityPlatform.connect(host).checkInByHost(2, [0, 0], '', '')).to.be.revertedWith('Car on the trip.')
+    await expect(rentalityPlatform.connect(host).checkInByHost(2, [0, 0], '', '')).to.be.revertedWith(
+      'Car on the trip.'
+    )
   })
   it('Return correct total trip price', async function () {
     const mockCreateCarRequest = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)

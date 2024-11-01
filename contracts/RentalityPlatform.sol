@@ -93,7 +93,7 @@ contract RentalityPlatform is UUPSOwnable {
       addresses.userService.getKycCommission()
     );
 
-    addresses.paymentService.payKycCommission{value: msg.value}(valueToPay, currency,msg.sender);
+    addresses.paymentService.payKycCommission{value: msg.value}(valueToPay, currency, msg.sender);
   }
 
   function useKycCommission(address user) public {
@@ -201,10 +201,10 @@ contract RentalityPlatform is UUPSOwnable {
     addresses.tripService.rejectTrip(tripId, msg.sender);
 
     uint valueToReturnInUsdCents = addresses.currencyConverterService.calculateTripReject(trip.paymentInfo);
- 
+
     addresses.tripService.saveTransactionInfo(tripId, 0, statusBeforeCancellation, valueToReturnInUsdCents, 0);
 
-       /* you should not recalculate the value with convertor,
+    /* you should not recalculate the value with convertor,
      for return during rejection,
      but instead, use: 'addresses.tripService.tripIdToEthSumInTripCreation(tripId)'*/
 
@@ -236,7 +236,7 @@ contract RentalityPlatform is UUPSOwnable {
   /// @notice Finish a trip on the Rentality platform.
   /// @param tripId The ID of the trip to finish.
   function _finishTrip(uint256 tripId) internal {
-    addresses.tripService.finishTrip(tripId,msg.sender);
+    addresses.tripService.finishTrip(tripId, msg.sender);
     Schemas.Trip memory trip = addresses.tripService.getTrip(tripId);
 
     uint256 rentalityFee = addresses.paymentService.getPlatformFeeFrom(
@@ -254,7 +254,7 @@ contract RentalityPlatform is UUPSOwnable {
       valueToGuestInUsdCents,
       valueToHostInUsdCents - trip.paymentInfo.resolveAmountInUsdCents
     );
-    
+
     addresses.paymentService.payFinishTrip(trip, valueToHost, valueToGuest);
   }
 
@@ -420,12 +420,15 @@ contract RentalityPlatform is UUPSOwnable {
   }
 
   function addUserDeliveryPrices(uint64 underTwentyFiveMilesInUsdCents, uint64 aboveTwentyFiveMilesInUsdCents) public {
-    addresses.deliveryService.setUserDeliveryPrices(underTwentyFiveMilesInUsdCents, aboveTwentyFiveMilesInUsdCents, msg.sender);
+    addresses.deliveryService.setUserDeliveryPrices(
+      underTwentyFiveMilesInUsdCents,
+      aboveTwentyFiveMilesInUsdCents,
+      msg.sender
+    );
   }
 
-
   function updateCarTokenUri(uint256 carId, string memory tokenUri) public {
-  addresses.carService.updateCarTokenUri(carId,tokenUri, msg.sender);
+    addresses.carService.updateCarTokenUri(carId, tokenUri, msg.sender);
   }
 
   /// @notice Constructor to initialize the RentalityPlatform with service contract addresses.
