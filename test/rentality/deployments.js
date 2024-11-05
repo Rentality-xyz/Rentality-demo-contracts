@@ -121,10 +121,18 @@ async function deployDefaultFixture() {
   ])
   await engineService.waitForDeployment()
 
+  const RentalityNotificationService = await ethers.getContractFactory('RentalityNotificationService')
+
+  const rentalityNotificationService = await upgrades.deployProxy(RentalityNotificationService, [
+    await rentalityUserService.getAddress(),
+  ])
+  await rentalityNotificationService.waitForDeployment()
+
   const rentalityCarToken = await upgrades.deployProxy(RentalityCarToken, [
     await rentalityGeoService.getAddress(),
     await engineService.getAddress(),
     await rentalityUserService.getAddress(),
+    await rentalityNotificationService.getAddress(),
   ])
 
   await rentalityCarToken.waitForDeployment()
@@ -139,12 +147,16 @@ async function deployDefaultFixture() {
     await rentalityPaymentService.getAddress(),
     await rentalityUserService.getAddress(),
     await engineService.getAddress(),
+    await rentalityNotificationService.getAddress(),
   ])
 
   await rentalityTripService.waitForDeployment()
 
   const RentalityClaimService = await ethers.getContractFactory('RentalityClaimService')
-  const claimService = await upgrades.deployProxy(RentalityClaimService, [await rentalityUserService.getAddress()])
+  const claimService = await upgrades.deployProxy(RentalityClaimService, [
+    await rentalityUserService.getAddress(),
+    await rentalityNotificationService.getAddress(),
+  ])
   await claimService.waitForDeployment()
 
   const RealMath = await ethers.getContractFactory('RealMath')
