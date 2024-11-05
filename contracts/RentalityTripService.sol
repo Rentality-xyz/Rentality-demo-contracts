@@ -19,6 +19,7 @@ import './payments/RentalityPaymentService.sol';
 import './Schemas.sol';
 import './RentalityAdminGateway.sol';
 import './features/RentalityCarDelivery.sol';
+import './features/RentalityNotificationService.sol';
 
 /// @title RentalityTripService
 /// @dev Manages the lifecycle of rental trips, including creation, approval, and completion.
@@ -32,15 +33,6 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
 
   mapping(uint256 => Schemas.Trip) private idToTripInfo;
 
-  /// @dev Event emitted when a new trip is created.
-  /// @param tripId The ID of the newly created trip.
-  event TripCreated(uint256 tripId, address indexed host, address indexed guest);
-
-  /// @dev Event emitted when the status of a trip is changed.
-  /// @param tripId The ID of the trip whose status changed.
-  /// @param newStatus The new status of the trip.
-  event TripStatusChanged(uint256 tripId, Schemas.TripStatus newStatus, address indexed host, address indexed guest);
-
   RentalityContract private addresses;
 
   using RentalityQuery for RentalityContract;
@@ -48,7 +40,14 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
   mapping(uint => bool) public completedByAdmin;
 
   mapping(uint => uint) public tripIdToEthSumInTripCreation;
+  RentalityNotificationService private eventManager;
 
+  /// @dev Updates the address of the RentalityEventManager contract.
+  /// @param _eventManager The address of the new RentalityEventManager contract.
+  function updateEventServiceAddress(address _eventManager) public {
+    require(addresses.userService.isAdmin(msg.sender), 'Only admin.');
+    eventManager = RentalityNotificationService(_eventManager);
+  }
   /// @dev Updates the address of the RentalityEnginesService contract.
   /// @param _engineService The address of the new RentalityEnginesService contract.
   function updateEngineServiceAddress(address _engineService) public {
@@ -134,7 +133,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     );
     tripIdToEthSumInTripCreation[newTripId] = msgValue;
 
-    emit TripCreated(newTripId, host, guest);
+    eventManager.emitEvent(Schemas.EventType.Trip, newTripId, uint8(Schemas.TripStatus.Created), guest, host);
   }
 
   /// @notice Approves a trip by changing its status to Approved.
@@ -144,13 +143,20 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
   ///  @param tripId The ID of the trip to be approved.
   function approveTrip(uint256 tripId, address user) public {
     require(addresses.userService.isManager(msg.sender), 'Only from manager contract.');
-    require(idToTripInfo[tripId].host == user, 'Only host of the trip can approve it');
+    address host = idToTripInfo[tripId].host;
+    require(host == user, 'Only host of the trip can approve it');
     require(idToTripInfo[tripId].status == Schemas.TripStatus.Created, 'The trip is not in status Created');
 
     idToTripInfo[tripId].status = Schemas.TripStatus.Approved;
     idToTripInfo[tripId].approvedDateTime = block.timestamp;
 
-    emit TripStatusChanged(tripId, Schemas.TripStatus.Approved, idToTripInfo[tripId].host, idToTripInfo[tripId].guest);
+    eventManager.emitEvent(
+      Schemas.EventType.Trip,
+      tripId,
+      uint8(Schemas.TripStatus.Approved),
+      host,
+      idToTripInfo[tripId].guest
+    );
   }
 
   /// @notice Reject a trip by changing its status to Canceled.
@@ -161,13 +167,12 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
   function rejectTrip(uint256 tripId, address user) public {
     require(addresses.userService.isManager(msg.sender), 'Only from manager contract.');
 
+    address host = idToTripInfo[tripId].host;
+    address guest = idToTripInfo[tripId].guest;
     bool controversialSituation = addresses.userService.isAdmin(user) &&
       idToTripInfo[tripId].status == Schemas.TripStatus.CheckedOutByHost;
 
-    require(
-      idToTripInfo[tripId].host == user || idToTripInfo[tripId].guest == user || controversialSituation,
-      'Only host or guest of the trip can reject it'
-    );
+    require(host == user || guest == user || controversialSituation, 'Only host or guest of the trip can reject it');
 
     require(
       idToTripInfo[tripId].status == Schemas.TripStatus.Created ||
@@ -181,7 +186,13 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     idToTripInfo[tripId].rejectedDateTime = block.timestamp;
     idToTripInfo[tripId].rejectedBy = user;
 
-    emit TripStatusChanged(tripId, Schemas.TripStatus.Canceled, idToTripInfo[tripId].host, idToTripInfo[tripId].guest);
+    eventManager.emitEvent(
+      Schemas.EventType.Trip,
+      tripId,
+      uint8(Schemas.TripStatus.Canceled),
+      user,
+      user == guest ? guest : host
+    );
   }
 
   /// @notice Allows the host to perform a check-in for a specific trip.
@@ -229,11 +240,13 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     idToTripInfo[tripId].startParamLevels = panelParams;
     idToTripInfo[tripId].guestInsuranceCompanyName = insuranceCompany;
     idToTripInfo[tripId].guestInsurancePolicyNumber = insuranceNumber;
-    emit TripStatusChanged(
+
+    eventManager.emitEvent(
+      Schemas.EventType.Trip,
       tripId,
-      Schemas.TripStatus.CheckedInByHost,
-      idToTripInfo[tripId].host,
-      idToTripInfo[tripId].guest
+      uint8(Schemas.TripStatus.CheckedInByHost),
+      trip.host,
+      trip.guest
     );
   }
 
@@ -262,7 +275,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     idToTripInfo[tripId].status = Schemas.TripStatus.CheckedInByGuest;
     idToTripInfo[tripId].checkedInByGuestDateTime = block.timestamp;
 
-    emit TripStatusChanged(tripId, Schemas.TripStatus.CheckedInByGuest, trip.host, trip.guest);
+    eventManager.emitEvent(Schemas.EventType.Trip, tripId, uint8(Schemas.TripStatus.CheckedInByGuest), user, trip.host);
   }
 
   ///  @dev Initiates the check-out process by the guest, updating trip status, and recording end details.
@@ -306,7 +319,13 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     idToTripInfo[tripId].paymentInfo.resolveAmountInUsdCents = resolveAmountInUsdCents;
     idToTripInfo[tripId].checkedOutByGuestDateTime = block.timestamp;
 
-    emit TripStatusChanged(tripId, Schemas.TripStatus.CheckedOutByGuest, trip.host, trip.guest);
+    eventManager.emitEvent(
+      Schemas.EventType.Trip,
+      tripId,
+      uint8(Schemas.TripStatus.CheckedOutByGuest),
+      user,
+      trip.host
+    );
   }
 
   ///  @dev Initiates the check-out process by the host, updating trip status, and validating end details.
@@ -358,7 +377,13 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     idToTripInfo[tripId].status = Schemas.TripStatus.CheckedOutByHost;
     idToTripInfo[tripId].checkedOutByHostDateTime = block.timestamp;
 
-    emit TripStatusChanged(tripId, Schemas.TripStatus.CheckedOutByHost, trip.host, trip.guest);
+    eventManager.emitEvent(
+      Schemas.EventType.Trip,
+      tripId,
+      uint8(Schemas.TripStatus.CheckedOutByHost),
+      trip.host,
+      trip.guest
+    );
   }
 
   /// @dev Finalizes a trip, updating its status to Finished and calculating resolution amounts.
@@ -376,7 +401,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     trip.finishDateTime = block.timestamp;
     completedByAdmin[tripId] = addresses.userService.isAdmin(user) && trip.host != user && trip.guest != user;
 
-    emit TripStatusChanged(tripId, Schemas.TripStatus.Finished, idToTripInfo[tripId].host, idToTripInfo[tripId].guest);
+    eventManager.emitEvent(Schemas.EventType.Trip, tripId, uint8(Schemas.TripStatus.Finished), trip.host, trip.guest);
   }
 
   ///  @dev Calculates the resolved amount in USD cents for a trip.
@@ -450,7 +475,8 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     address carServiceAddress,
     address paymentServiceAddress,
     address userServiceAddress,
-    address engineServiceAddress
+    address engineServiceAddress,
+    address eventManagerAddress
   ) public initializer {
     addresses = RentalityContract(
       RentalityCarToken(carServiceAddress),
@@ -465,6 +491,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
       RentalityView(address(0))
     );
     engineService = RentalityEnginesService(engineServiceAddress);
+    eventManager = RentalityNotificationService(eventManagerAddress);
   }
 
   function _authorizeUpgrade(address /*newImplementation*/) internal view override {

@@ -152,8 +152,6 @@ contract RentalityPlatform is UUPSOwnable {
       dropOf
     );
 
-    addresses.paymentService.payCreateTrip{value: msg.value}(currencyType, valueSumInCurrency, msg.sender);
-
     if (!addresses.userService.isGuest(msg.sender)) {
       addresses.userService.grantGuestRole(msg.sender);
     }
@@ -171,6 +169,8 @@ contract RentalityPlatform is UUPSOwnable {
       paymentInfo,
       msg.value
     );
+
+    addresses.paymentService.payCreateTrip{value: msg.value}(currencyType, valueSumInCurrency, msg.sender);
   }
 
   /// @notice Approve a trip request on the Rentality platform.

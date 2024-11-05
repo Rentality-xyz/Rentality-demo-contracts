@@ -75,7 +75,6 @@ library RentalityQuery {
           trip.paymentInfo.currencyType,
           claim.amountInUsdCents,
           claim,
-          tripService,
           claimService,
           currencyConverterService
         );
@@ -136,7 +135,6 @@ library RentalityQuery {
           trip.paymentInfo.currencyType,
           claim.amountInUsdCents,
           claim,
-          tripService,
           claimService,
           currencyConverterService
         );
@@ -194,7 +192,6 @@ library RentalityQuery {
           trip.paymentInfo.currencyType,
           claim.amountInUsdCents,
           claim,
-          tripService,
           claimService,
           currencyConverterService
         );
@@ -221,7 +218,6 @@ library RentalityQuery {
     address currency,
     uint amount,
     Schemas.Claim memory claim,
-    RentalityTripService tripService,
     RentalityClaimService claimService,
     RentalityCurrencyConverter currencyConverterService
   ) private view returns (uint) {

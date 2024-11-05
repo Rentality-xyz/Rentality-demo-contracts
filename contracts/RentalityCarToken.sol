@@ -10,6 +10,7 @@ import './engine/RentalityEnginesService.sol';
 import './Schemas.sol';
 import './RentalityUserService.sol';
 import './libs/RentalityUtils.sol';
+import './features/RentalityNotificationService.sol';
 
 /// @title RentalityCarToken
 /// @notice ERC-721 token for representing cars in the Rentality platform.
@@ -25,6 +26,7 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
   IRentalityGeoService private geoService;
   RentalityEnginesService private engineService;
   RentalityUserService private userService;
+  RentalityNotificationService private eventManager;
 
   mapping(uint256 => Schemas.CarInfo) private idToCarInfo;
 
@@ -33,20 +35,11 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     _;
   }
 
-  /// @notice Event emitted when a new car is successfully added.
-  event CarAddedSuccess(
-    uint256 CarId,
-    string carVinNumber,
-    address createdBy,
-    uint64 pricePerDayInUsdCents,
-    bool currentlyListed
-  );
-
-  /// @notice Event emitted when a car's information is successfully updated.
-  event CarUpdatedSuccess(uint256 carId, uint64 pricePerDayInUsdCents, bool currentlyListed);
-
-  /// @notice Event emitted when a car is successfully removed.
-  event CarRemovedSuccess(uint256 carId, string CarVinNumber, address removedBy);
+  /// @dev Updates the address of the RentalityEventManager contract.
+  /// @param _eventManager The address of the new RentalityEventManager contract.
+  function updateEventServiceAddress(address _eventManager) public onlyAdmin {
+    eventManager = RentalityNotificationService(_eventManager);
+  }
 
   /// @dev Updates the address of the RentalityEnginesService contract.
   /// @param _engineService The address of the new RentalityEnginesService contract.
@@ -163,7 +156,7 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     _approve(address(this), newCarId);
     //_transfer(msg.sender, address(this), carId);
 
-    emit CarAddedSuccess(newCarId, request.carVinNumber, user, request.pricePerDayInUsdCents, true);
+    eventManager.emitEvent(Schemas.EventType.Car, newCarId, uint8(Schemas.CarUpdateStatus.Add), user, user);
 
     return newCarId;
   }
@@ -204,7 +197,7 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     idToCarInfo[request.carId].currentlyListed = request.currentlyListed;
     idToCarInfo[request.carId].insuranceIncluded = request.insuranceIncluded;
 
-    emit CarUpdatedSuccess(request.carId, request.pricePerDayInUsdCents, request.currentlyListed);
+    eventManager.emitEvent(Schemas.EventType.Car, request.carId, uint8(Schemas.CarUpdateStatus.Update), user, user);
   }
 
   /// @notice Updates the token URI associated with a specific car.
@@ -226,7 +219,7 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     _burn(carId);
     delete idToCarInfo[carId];
 
-    emit CarRemovedSuccess(carId, idToCarInfo[carId].carVinNumber, msg.sender);
+    eventManager.emitEvent(Schemas.EventType.Car, carId, uint8(Schemas.CarUpdateStatus.Burn), msg.sender, msg.sender);
   }
   /// @notice temporary disable transfer function
   function transferFrom(address, address, uint256) public pure override(ERC721Upgradeable, IERC721Upgradeable) {
@@ -415,12 +408,15 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
   function initialize(
     address geoServiceAddress,
     address engineServiceAddress,
-    address userServiceAddress
+    address userServiceAddress,
+    address rentalityEventManager
   ) public initializer {
     engineService = RentalityEnginesService(engineServiceAddress);
     geoService = IRentalityGeoService(geoServiceAddress);
     userService = RentalityUserService(userServiceAddress);
     __ERC721_init('RentalityCarToken Test', 'RTCT');
     __Ownable_init();
+
+    eventManager = RentalityNotificationService(rentalityEventManager);
   }
 }
