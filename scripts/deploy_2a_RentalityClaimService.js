@@ -13,9 +13,13 @@ async function main() {
     getContractAddress('RentalityUserService', 'scripts/deploy_1b_RentalityUserService.js', chainId),
     'RentalityUserService'
   )
+  const notificationService = checkNotNull(
+    getContractAddress('RentalityNotificationService', 'scripts/deploy_2_RentalityNotificationService.js', chainId),
+    'RentalityUserServRentalityNotificationServiceice'
+  )
 
   const contractFactory = await ethers.getContractFactory(contractName)
-  const contract = await upgrades.deployProxy(contractFactory, [userService])
+  const contract = await upgrades.deployProxy(contractFactory, [userService, notificationService])
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()
 
