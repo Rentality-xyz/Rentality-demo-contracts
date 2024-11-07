@@ -21,7 +21,8 @@ describe('RentalityGateway: update fields', function () {
     manager,
     host,
     guest,
-    anonymous
+    anonymous,
+    rentalityView
 
   beforeEach(async function () {
     ;({
@@ -43,6 +44,7 @@ describe('RentalityGateway: update fields', function () {
       host,
       guest,
       anonymous,
+      rentalityView,
     } = await loadFixture(deployDefaultFixture))
   })
 

@@ -40,9 +40,10 @@
                     { "type": "string", "name": "timeZoneId" }
                   ]
                 },
-                { "type": "string", "name": "signature" }
+                { "type": "bytes", "name": "signature" }
               ]
-            }
+            },
+            { "type": "bool", "name": "currentlyListed" }
           ]
         }
       ],
@@ -85,6 +86,15 @@
       "payable": false,
       "inputs": [{ "type": "uint256", "name": "tripId" }],
       "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "calculateClaimValue",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "" }],
+      "outputs": [{ "type": "uint256", "name": "" }]
     },
     {
       "type": "function",
@@ -215,85 +225,10 @@
     },
     {
       "type": "function",
-      "name": "claimAllMy",
-      "constant": false,
-      "payable": false,
-      "inputs": [{ "type": "uint256", "name": "investId" }],
-      "outputs": []
-    },
-    {
-      "type": "function",
-      "name": "claimAndCreatePool",
-      "constant": false,
-      "payable": false,
-      "inputs": [{ "type": "uint256", "name": "investId" }],
-      "outputs": []
-    },
-    {
-      "type": "function",
       "name": "confirmCheckOut",
       "constant": false,
       "payable": false,
       "inputs": [{ "type": "uint256", "name": "tripId" }],
-      "outputs": []
-    },
-    {
-      "type": "function",
-      "name": "createCarInvestment",
-      "constant": false,
-      "payable": false,
-      "inputs": [
-        {
-          "type": "tuple",
-          "name": "car",
-          "components": [
-            {
-              "type": "tuple",
-              "name": "car",
-              "components": [
-                { "type": "string", "name": "tokenUri" },
-                { "type": "string", "name": "carVinNumber" },
-                { "type": "string", "name": "brand" },
-                { "type": "string", "name": "model" },
-                { "type": "uint32", "name": "yearOfProduction" },
-                { "type": "uint64", "name": "pricePerDayInUsdCents" },
-                { "type": "uint64", "name": "securityDepositPerTripInUsdCents" },
-                { "type": "uint64[]", "name": "engineParams" },
-                { "type": "uint8", "name": "engineType" },
-                { "type": "uint64", "name": "milesIncludedPerDay" },
-                { "type": "uint32", "name": "timeBufferBetweenTripsInSec" },
-                { "type": "string", "name": "geoApiKey" },
-                { "type": "bool", "name": "insuranceIncluded" },
-                {
-                  "type": "tuple",
-                  "name": "locationInfo",
-                  "components": [
-                    {
-                      "type": "tuple",
-                      "name": "locationInfo",
-                      "components": [
-                        { "type": "string", "name": "userAddress" },
-                        { "type": "string", "name": "country" },
-                        { "type": "string", "name": "state" },
-                        { "type": "string", "name": "city" },
-                        { "type": "string", "name": "latitude" },
-                        { "type": "string", "name": "longitude" },
-                        { "type": "string", "name": "timeZoneId" }
-                      ]
-                    },
-                    { "type": "string", "name": "signature" }
-                  ]
-                }
-              ]
-            },
-            { "type": "uint256", "name": "priceInUsd" },
-            { "type": "bool", "name": "inProgress" },
-            { "type": "uint256", "name": "creatorPercents" }
-          ]
-        },
-        { "type": "string", "name": "name_" },
-        { "type": "string", "name": "symbol_" }
-      ],
       "outputs": []
     },
     {
@@ -368,7 +303,7 @@
                     { "type": "string", "name": "timeZoneId" }
                   ]
                 },
-                { "type": "string", "name": "signature" }
+                { "type": "bytes", "name": "signature" }
               ]
             },
             {
@@ -388,7 +323,7 @@
                     { "type": "string", "name": "timeZoneId" }
                   ]
                 },
-                { "type": "string", "name": "signature" }
+                { "type": "bytes", "name": "signature" }
               ]
             }
           ]
@@ -434,71 +369,6 @@
             { "type": "string", "name": "timeZoneId" },
             { "type": "bool", "name": "insuranceIncluded" },
             { "type": "bytes32", "name": "locationHash" }
-          ]
-        }
-      ]
-    },
-    {
-      "type": "function",
-      "name": "getAllInvestments",
-      "constant": true,
-      "stateMutability": "view",
-      "payable": false,
-      "inputs": [],
-      "outputs": [
-        {
-          "type": "tuple[]",
-          "name": "",
-          "components": [
-            {
-              "type": "tuple",
-              "name": "investment",
-              "components": [
-                {
-                  "type": "tuple",
-                  "name": "car",
-                  "components": [
-                    { "type": "string", "name": "tokenUri" },
-                    { "type": "string", "name": "carVinNumber" },
-                    { "type": "string", "name": "brand" },
-                    { "type": "string", "name": "model" },
-                    { "type": "uint32", "name": "yearOfProduction" },
-                    { "type": "uint64", "name": "pricePerDayInUsdCents" },
-                    { "type": "uint64", "name": "securityDepositPerTripInUsdCents" },
-                    { "type": "uint64[]", "name": "engineParams" },
-                    { "type": "uint8", "name": "engineType" },
-                    { "type": "uint64", "name": "milesIncludedPerDay" },
-                    { "type": "uint32", "name": "timeBufferBetweenTripsInSec" },
-                    { "type": "string", "name": "geoApiKey" },
-                    { "type": "bool", "name": "insuranceIncluded" },
-                    {
-                      "type": "tuple",
-                      "name": "locationInfo",
-                      "components": [
-                        {
-                          "type": "tuple",
-                          "name": "locationInfo",
-                          "components": [
-                            { "type": "string", "name": "userAddress" },
-                            { "type": "string", "name": "country" },
-                            { "type": "string", "name": "state" },
-                            { "type": "string", "name": "city" },
-                            { "type": "string", "name": "latitude" },
-                            { "type": "string", "name": "longitude" },
-                            { "type": "string", "name": "timeZoneId" }
-                          ]
-                        },
-                        { "type": "string", "name": "signature" }
-                      ]
-                    }
-                  ]
-                },
-                { "type": "uint256", "name": "priceInUsd" },
-                { "type": "bool", "name": "inProgress" },
-                { "type": "uint256", "name": "creatorPercents" }
-              ]
-            },
-            { "type": "address", "name": "nft" }
           ]
         }
       ]
@@ -977,19 +847,39 @@
     },
     {
       "type": "function",
-      "name": "getMyInvestmentsToClaim",
+      "name": "getMyFullKYCInfo",
       "constant": true,
       "stateMutability": "view",
       "payable": false,
       "inputs": [],
       "outputs": [
         {
-          "type": "tuple[]",
+          "type": "tuple",
           "name": "",
           "components": [
-            { "type": "string", "name": "tokenURI" },
-            { "type": "uint256", "name": "income" },
-            { "type": "uint256", "name": "myIncome" }
+            {
+              "type": "tuple",
+              "name": "kyc",
+              "components": [
+                { "type": "string", "name": "name" },
+                { "type": "string", "name": "surname" },
+                { "type": "string", "name": "mobilePhoneNumber" },
+                { "type": "string", "name": "profilePhoto" },
+                { "type": "string", "name": "licenseNumber" },
+                { "type": "uint64", "name": "expirationDate" },
+                { "type": "uint256", "name": "createDate" },
+                { "type": "bool", "name": "isTCPassed" },
+                { "type": "bytes", "name": "TCSignature" }
+              ]
+            },
+            {
+              "type": "tuple",
+              "name": "additionalKYC",
+              "components": [
+                { "type": "string", "name": "issueCountry" },
+                { "type": "string", "name": "email" }
+              ]
+            }
           ]
         }
       ]
@@ -1460,15 +1350,6 @@
     },
     {
       "type": "function",
-      "name": "invest",
-      "constant": false,
-      "stateMutability": "payable",
-      "payable": true,
-      "inputs": [{ "type": "uint256", "name": "investId" }],
-      "outputs": []
-    },
-    {
-      "type": "function",
       "name": "isKycCommissionPaid",
       "constant": true,
       "stateMutability": "view",
@@ -1484,14 +1365,6 @@
       "payable": false,
       "inputs": [],
       "outputs": [{ "type": "address", "name": "" }]
-    },
-    {
-      "type": "function",
-      "name": "parseGeoResponse",
-      "constant": false,
-      "payable": false,
-      "inputs": [{ "type": "uint256", "name": "carId" }],
-      "outputs": []
     },
     {
       "type": "function",
@@ -1731,16 +1604,34 @@
     },
     {
       "type": "function",
+      "name": "setCivicKYCInfo",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "user" },
+        {
+          "type": "tuple",
+          "name": "civicKycInfo",
+          "components": [
+            { "type": "string", "name": "fullName" },
+            { "type": "string", "name": "licenseNumber" },
+            { "type": "uint64", "name": "expirationDate" },
+            { "type": "string", "name": "issueCountry" },
+            { "type": "string", "name": "email" }
+          ]
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
       "name": "setKYCInfo",
       "constant": false,
       "payable": false,
       "inputs": [
-        { "type": "string", "name": "name" },
-        { "type": "string", "name": "surname" },
+        { "type": "string", "name": "nickName" },
         { "type": "string", "name": "mobilePhoneNumber" },
         { "type": "string", "name": "profilePhoto" },
-        { "type": "string", "name": "licenseNumber" },
-        { "type": "uint64", "name": "expirationDate" },
         { "type": "bytes", "name": "TCSignature" }
       ],
       "outputs": []
@@ -1761,7 +1652,8 @@
             { "type": "uint64[]", "name": "engineParams" },
             { "type": "uint64", "name": "milesIncludedPerDay" },
             { "type": "uint32", "name": "timeBufferBetweenTripsInSec" },
-            { "type": "bool", "name": "currentlyListed" }
+            { "type": "bool", "name": "currentlyListed" },
+            { "type": "bool", "name": "insuranceIncluded" }
           ]
         }
       ],
@@ -1783,7 +1675,8 @@
             { "type": "uint64[]", "name": "engineParams" },
             { "type": "uint64", "name": "milesIncludedPerDay" },
             { "type": "uint32", "name": "timeBufferBetweenTripsInSec" },
-            { "type": "bool", "name": "currentlyListed" }
+            { "type": "bool", "name": "currentlyListed" },
+            { "type": "bool", "name": "insuranceIncluded" }
           ]
         },
         {
@@ -1803,10 +1696,21 @@
                 { "type": "string", "name": "timeZoneId" }
               ]
             },
-            { "type": "string", "name": "signature" }
+            { "type": "bytes", "name": "signature" }
           ]
         },
         { "type": "string", "name": "geoApiKey" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "updateCarTokenUri",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint256", "name": "carId" },
+        { "type": "string", "name": "tokenUri" }
       ],
       "outputs": []
     },

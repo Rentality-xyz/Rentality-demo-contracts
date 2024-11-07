@@ -10,6 +10,7 @@ import './engine/RentalityEnginesService.sol';
 import './Schemas.sol';
 import './RentalityUserService.sol';
 import './libs/RentalityUtils.sol';
+import './features/RentalityNotificationService.sol';
 
 /// @title RentalityCarToken
 /// @notice ERC-721 token for representing cars in the Rentality platform.
@@ -25,6 +26,7 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
   IRentalityGeoService private geoService;
   RentalityEnginesService private engineService;
   RentalityUserService private userService;
+  RentalityNotificationService private eventManager;
 
   mapping(uint256 => Schemas.CarInfo) private idToCarInfo;
 
@@ -33,20 +35,11 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     _;
   }
 
-  /// @notice Event emitted when a new car is successfully added.
-  event CarAddedSuccess(
-    uint256 CarId,
-    string carVinNumber,
-    address createdBy,
-    uint64 pricePerDayInUsdCents,
-    bool currentlyListed
-  );
-
-  /// @notice Event emitted when a car's information is successfully updated.
-  event CarUpdatedSuccess(uint256 carId, uint64 pricePerDayInUsdCents, bool currentlyListed);
-
-  /// @notice Event emitted when a car is successfully removed.
-  event CarRemovedSuccess(uint256 carId, string CarVinNumber, address removedBy);
+  /// @dev Updates the address of the RentalityEventManager contract.
+  /// @param _eventManager The address of the new RentalityEventManager contract.
+  function updateEventServiceAddress(address _eventManager) public onlyAdmin {
+    eventManager = RentalityNotificationService(_eventManager);
+  }
 
   /// @dev Updates the address of the RentalityEnginesService contract.
   /// @param _engineService The address of the new RentalityEnginesService contract.
@@ -62,12 +55,6 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
   /// @param _geoService address of service
   function updateGeoServiceAddress(address _geoService) public onlyAdmin {
     geoService = IRentalityGeoService(_geoService);
-  }
-
-  /// @notice Updates the address of the GeoParser contract.
-  /// @param newGeoParserAddress The new address of the GeoParser contract.
-  function updateGeoParsesAddress(address newGeoParserAddress) public onlyAdmin {
-    geoService.updateParserAddress(newGeoParserAddress);
   }
 
   /// @notice Returns the total supply of cars.
@@ -127,35 +114,29 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
   /// @notice Adds a new car to the system with the provided information.
   /// @param request The input parameters for creating the new car.
   /// @return The ID of the newly added car.
-  function addCar(Schemas.CreateCarRequest memory request) public returns (uint) {
-    require(userService.hasPassedKYCAndTC(tx.origin), 'KYC or TC has not passed.');
+  function addCar(Schemas.CreateCarRequest memory request, address user) public returns (uint) {
+    require(userService.isManager(msg.sender), 'only Manager');
+    require(userService.hasPassedKYCAndTC(user), 'KYC or TC has not passed.');
     require(request.pricePerDayInUsdCents > 0, "Make sure the price isn't negative");
     require(request.milesIncludedPerDay > 0, "Make sure the included distance isn't negative");
     require(isUniqueVinNumber(request.carVinNumber), 'Car with this VIN number already exists');
+    geoService.verifySignedLocationInfo(request.locationInfo);
 
     _carIdCounter.increment();
     uint256 newCarId = _carIdCounter.current();
 
     engineService.verifyCreateParams(request.engineType, request.engineParams);
 
-    _safeMint(tx.origin, newCarId);
+    _safeMint(user, newCarId);
     _setTokenURI(newCarId, request.tokenUri);
 
     bytes32 hash = geoService.createLocationInfo(request.locationInfo.locationInfo);
-
-    geoService.executeRequest(
-      request.locationInfo.locationInfo.userAddress,
-      request.locationInfo.locationInfo.latitude,
-      request.locationInfo.locationInfo.longitude,
-      request.geoApiKey,
-      newCarId
-    );
 
     idToCarInfo[newCarId] = Schemas.CarInfo(
       newCarId,
       request.carVinNumber,
       keccak256(abi.encodePacked(request.carVinNumber)),
-      tx.origin,
+      user,
       request.brand,
       request.model,
       request.yearOfProduction,
@@ -165,9 +146,9 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
       request.engineParams,
       request.milesIncludedPerDay,
       request.timeBufferBetweenTripsInSec,
+      request.currentlyListed,
       true,
-      false,
-      '',
+      request.locationInfo.locationInfo.timeZoneId,
       request.insuranceIncluded,
       hash
     );
@@ -175,43 +156,32 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     _approve(address(this), newCarId);
     //_transfer(msg.sender, address(this), carId);
 
-    emit CarAddedSuccess(newCarId, request.carVinNumber, tx.origin, request.pricePerDayInUsdCents, true);
+    eventManager.emitEvent(Schemas.EventType.Car, newCarId, uint8(Schemas.CarUpdateStatus.Add), user, user);
 
     return newCarId;
-  }
-
-  /// @notice Verifies the geographic coordinates for a given car.
-  /// @param carId The ID of the car to verify.
-  function verifyGeo(uint256 carId) public {
-    bool geoStatus = geoService.getCarCoordinateValidity(carId);
-    Schemas.CarInfo storage carInfo = idToCarInfo[carId];
-    carInfo.geoVerified = geoStatus;
-    carInfo.timeZoneId = geoService.getCarTimeZoneId(carId);
   }
 
   /// @notice Updates the information for a specific car.
   /// @param request The input parameters for updating the car.
   /// @param location The location for verifying geographic coordinates.
   ///  can be empty, for left old location information.
-  /// @param geoApiKey The API key for the geographic verification service.
   /// can be empty, if location param is empty.
   function updateCarInfo(
     Schemas.UpdateCarInfoRequest memory request,
     Schemas.LocationInfo memory location,
-    string memory geoApiKey
+    address user
   ) public {
     require(userService.isManager(msg.sender), 'Only from manager contract.');
     require(_exists(request.carId), 'Token does not exist');
-    require(ownerOf(request.carId) == tx.origin, 'Only the owner of the car can update car info');
+    require(ownerOf(request.carId) == user, 'Only the owner of the car can update car info');
     require(request.pricePerDayInUsdCents > 0, "Make sure the price isn't negative");
     require(request.milesIncludedPerDay > 0, "Make sure the included distance isn't negative");
 
     if (bytes(location.userAddress).length > 0) {
-      require(bytes(geoApiKey).length > 0, 'Provide a valid geo API key');
-      geoService.executeRequest(location.userAddress, location.latitude, location.longitude, geoApiKey, request.carId);
-      idToCarInfo[request.carId].geoVerified = false;
+      idToCarInfo[request.carId].geoVerified = true;
       bytes32 hash = geoService.createLocationInfo(location);
       idToCarInfo[request.carId].locationHash = hash;
+      idToCarInfo[request.carId].timeZoneId = location.timeZoneId;
     }
 
     uint64[] memory engineParams = engineService.verifyUpdateParams(
@@ -225,16 +195,17 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     idToCarInfo[request.carId].engineParams = engineParams;
     idToCarInfo[request.carId].timeBufferBetweenTripsInSec = request.timeBufferBetweenTripsInSec;
     idToCarInfo[request.carId].currentlyListed = request.currentlyListed;
+    idToCarInfo[request.carId].insuranceIncluded = request.insuranceIncluded;
 
-    emit CarUpdatedSuccess(request.carId, request.pricePerDayInUsdCents, request.currentlyListed);
+    eventManager.emitEvent(Schemas.EventType.Car, request.carId, uint8(Schemas.CarUpdateStatus.Update), user, user);
   }
 
   /// @notice Updates the token URI associated with a specific car.
   /// @param carId The ID of the car.
   /// @param tokenUri The new token URI.
-  function updateCarTokenUri(uint256 carId, string memory tokenUri) public {
+  function updateCarTokenUri(uint256 carId, string memory tokenUri, address user) public {
     require(_exists(carId), 'Token does not exist');
-    require(ownerOf(carId) == tx.origin, 'Only the owner of the car can update the token URI');
+    require(ownerOf(carId) == user, 'Only the owner of the car can update the token URI');
 
     _setTokenURI(carId, tokenUri);
   }
@@ -243,15 +214,15 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
   /// @param carId The ID of the car to be burned.
   function burnCar(uint256 carId) public {
     require(_exists(carId), 'Token does not exist');
-    require(ownerOf(carId) == tx.origin, 'Only the owner of the car can burn the token');
+    require(ownerOf(carId) == msg.sender, 'Only the owner of the car can burn the token');
 
     _burn(carId);
     delete idToCarInfo[carId];
 
-    emit CarRemovedSuccess(carId, idToCarInfo[carId].carVinNumber, tx.origin);
+    eventManager.emitEvent(Schemas.EventType.Car, carId, uint8(Schemas.CarUpdateStatus.Burn), msg.sender, msg.sender);
   }
   /// @notice temporary disable transfer function
-  function transferFrom(address, address, uint256) public override(ERC721Upgradeable, IERC721Upgradeable) {
+  function transferFrom(address, address, uint256) public pure override(ERC721Upgradeable, IERC721Upgradeable) {
     require(false, 'Not implemented.');
   }
   /// @notice temporary disable transfer function
@@ -423,6 +394,13 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     return result;
   }
 
+  /// @notice Verifies the authenticity of the signed location information.
+  /// @dev This function checks the validity of the signed location information using the geoService.
+  /// @param locationInfo The signed location information that needs to be verified.
+  function verifySignedLocationInfo(Schemas.SignedLocationInfo memory locationInfo) public view {
+    geoService.verifySignedLocationInfo(locationInfo);
+  }
+
   /// @notice Constructor to initialize the RentalityCarToken contract.
   /// @param geoServiceAddress The address of the RentalityGeoService contract.
   /// @param engineServiceAddress The address of the RentalityGeoService contract.
@@ -430,12 +408,15 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
   function initialize(
     address geoServiceAddress,
     address engineServiceAddress,
-    address userServiceAddress
+    address userServiceAddress,
+    address rentalityEventManager
   ) public initializer {
     engineService = RentalityEnginesService(engineServiceAddress);
     geoService = IRentalityGeoService(geoServiceAddress);
     userService = RentalityUserService(userServiceAddress);
     __ERC721_init('RentalityCarToken Test', 'RTCT');
     __Ownable_init();
+
+    eventManager = RentalityNotificationService(rentalityEventManager);
   }
 }

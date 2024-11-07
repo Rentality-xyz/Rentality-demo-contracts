@@ -76,10 +76,6 @@ interface IRentalityAdminGateway {
   /// @param newGeoServiceAddress The new address of the GeoService contract.
   function updateGeoServiceAddress(address newGeoServiceAddress) external;
 
-  /// @notice Updates the address of the GeoParser contract.
-  /// @param newGeoParserAddress The new address of the GeoParser contract.
-  function updateGeoParserAddress(address newGeoParserAddress) external;
-
   /// @dev Sets the waiting time, only callable by administrators.
   /// @param timeInSec, set old value to this
   function setClaimsWaitingTime(uint timeInSec) external;
@@ -94,11 +90,11 @@ interface IRentalityAdminGateway {
 
   /// @notice Confirms check-out for a trip.
   /// @param tripId The ID of the trip.
-  function confirmCheckOut(uint256 tripId) external;
+  function payToHost(uint256 tripId) external;
 
   /// @notice Rejects a trip request. Only callable by hosts.
   /// @param tripId The ID of the trip to reject.
-  function rejectTripRequest(uint256 tripId) external;
+  function refundToGuest(uint256 tripId) external;
 
   /// @dev Sets the Civic verifier and gatekeeper network for identity verification.
   /// @param _civicVerifier The address of the Civic verifier contract.

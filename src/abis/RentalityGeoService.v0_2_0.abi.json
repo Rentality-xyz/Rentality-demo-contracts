@@ -91,7 +91,7 @@
       "constant": true,
       "stateMutability": "view",
       "payable": false,
-      "inputs": [{ "type": "uint256", "name": "carId" }],
+      "inputs": [{ "type": "bytes32", "name": "hash" }],
       "outputs": [{ "type": "string", "name": "" }]
     },
     {
@@ -109,7 +109,7 @@
       "constant": true,
       "stateMutability": "view",
       "payable": false,
-      "inputs": [{ "type": "uint256", "name": "carId" }],
+      "inputs": [{ "type": "bytes32", "name": "hash" }],
       "outputs": [{ "type": "string", "name": "" }]
     },
     {
@@ -118,7 +118,7 @@
       "constant": true,
       "stateMutability": "view",
       "payable": false,
-      "inputs": [{ "type": "uint256", "name": "carId" }],
+      "inputs": [{ "type": "bytes32", "name": "hash" }],
       "outputs": [{ "type": "string", "name": "" }]
     },
     {
@@ -127,7 +127,7 @@
       "constant": true,
       "stateMutability": "view",
       "payable": false,
-      "inputs": [{ "type": "uint256", "name": "carId" }],
+      "inputs": [{ "type": "bytes32", "name": "hash" }],
       "outputs": [{ "type": "string", "name": "" }]
     },
     {
@@ -136,7 +136,7 @@
       "constant": true,
       "stateMutability": "view",
       "payable": false,
-      "inputs": [{ "type": "uint256", "name": "carId" }],
+      "inputs": [{ "type": "bytes32", "name": "hash" }],
       "outputs": [{ "type": "string", "name": "" }]
     },
     {
@@ -145,7 +145,7 @@
       "constant": true,
       "stateMutability": "view",
       "payable": false,
-      "inputs": [{ "type": "uint256", "name": "carId" }],
+      "inputs": [{ "type": "bytes32", "name": "hash" }],
       "outputs": [{ "type": "string", "name": "" }]
     },
     {
@@ -191,9 +191,18 @@
     },
     {
       "type": "function",
-      "name": "hashLocationInfo",
+      "name": "getVerifier",
       "constant": true,
       "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "hashLocationInfo",
+      "constant": true,
+      "stateMutability": "pure",
       "payable": false,
       "inputs": [
         {
@@ -219,7 +228,7 @@
       "payable": false,
       "inputs": [
         { "type": "address", "name": "_userService" },
-        { "type": "address", "name": "_geoParser" }
+        { "type": "address", "name": "locationVerifier" }
       ],
       "outputs": []
     },
@@ -259,6 +268,14 @@
     },
     {
       "type": "function",
+      "name": "setLocationVerifier",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "_verifier" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
       "name": "updateParserAddress",
       "constant": false,
       "payable": false,
@@ -290,6 +307,36 @@
       "inputs": [
         { "type": "address", "name": "newImplementation" },
         { "type": "bytes", "name": "data" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "verifySignedLocationInfo",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        {
+          "type": "tuple",
+          "name": "locationInfo",
+          "components": [
+            {
+              "type": "tuple",
+              "name": "locationInfo",
+              "components": [
+                { "type": "string", "name": "userAddress" },
+                { "type": "string", "name": "country" },
+                { "type": "string", "name": "state" },
+                { "type": "string", "name": "city" },
+                { "type": "string", "name": "latitude" },
+                { "type": "string", "name": "longitude" },
+                { "type": "string", "name": "timeZoneId" }
+              ]
+            },
+            { "type": "bytes", "name": "signature" }
+          ]
+        }
       ],
       "outputs": []
     }

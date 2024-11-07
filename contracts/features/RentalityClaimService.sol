@@ -5,7 +5,12 @@ import '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 import '../proxy/UUPSAccess.sol';
 import '../RentalityCarToken.sol';
 import '../Schemas.sol';
+import './RentalityNotificationService.sol';
 
+struct CurrencyRate {
+  int rate;
+  uint8 decimals;
+}
 /// @title RentalityClaimService - Manages claims and related operations.
 /// @dev This contract allows users with manager roles to create, reject, and pay claims.
 contract RentalityClaimService is Initializable, UUPSAccess {
@@ -16,6 +21,7 @@ contract RentalityClaimService is Initializable, UUPSAccess {
   // Mapping to store claims using claimId as the key
   mapping(uint256 => Schemas.Claim) private claimIdToClaim;
 
+  mapping(uint => CurrencyRate) public claimIdToCurrencyRate;
   event ClaimStatusChanged(
     uint256 claimId,
     Schemas.ClaimStatus claimStatus,
@@ -25,6 +31,7 @@ contract RentalityClaimService is Initializable, UUPSAccess {
 
   event WaitingTimeChanged(uint256 newWaitingTime);
 
+  RentalityNotificationService private eventManager;
   // Modifier to restrict access to only managers contracts
   modifier onlyManager() {
     require(userService.isManager(msg.sender), 'Only manager.');
@@ -45,10 +52,21 @@ contract RentalityClaimService is Initializable, UUPSAccess {
   function getWaitingTime() public view returns (uint) {
     return waitingTimeForApproveInSec;
   }
+  /// @dev Updates the address of the RentalityEventManager contract.
+  /// @param _eventManager The address of the new RentalityEventManager contract.
+  function updateEventServiceAddress(address _eventManager) public {
+    require(userService.isAdmin(msg.sender), 'Only admin.');
+    eventManager = RentalityNotificationService(_eventManager);
+  }
 
   /// @dev Creates a new claim, only callable by managers contracts.
   /// @param request Details of the claim to be created.
-  function createClaim(Schemas.CreateClaimRequest memory request, address host, address guest) public onlyManager {
+  function createClaim(
+    Schemas.CreateClaimRequest memory request,
+    address host,
+    address guest,
+    address user
+  ) public onlyManager {
     require(request.amountInUsdCents > 0, 'Amount can not be null.');
 
     claimId += 1;
@@ -68,11 +86,17 @@ contract RentalityClaimService is Initializable, UUPSAccess {
       address(0),
       0,
       request.photosUrl,
-      tx.origin == host ? true : false
+      user == host ? true : false
     );
     claimIdToClaim[newClaimId] = newClaim;
 
-    emit ClaimStatusChanged(newClaimId, Schemas.ClaimStatus.NotPaid, host, guest);
+    eventManager.emitEvent(
+      Schemas.EventType.Claim,
+      newClaimId,
+      uint8(Schemas.ClaimStatus.NotPaid),
+      user,
+      host == user ? host : guest
+    );
   }
 
   /// @dev Rejects a claim, only callable by managers contracts.
@@ -89,20 +113,27 @@ contract RentalityClaimService is Initializable, UUPSAccess {
     claim.rejectedBy = rejectedBy;
     claim.rejectedDateInSec = block.timestamp;
 
-    emit ClaimStatusChanged(_claimId, Schemas.ClaimStatus.Cancel, host, guest);
+    eventManager.emitEvent(
+      Schemas.EventType.Claim,
+      _claimId,
+      uint8(Schemas.ClaimStatus.Cancel),
+      rejectedBy,
+      host == rejectedBy ? host : guest
+    );
   }
 
   /// @dev Pays a claim, only callable by managers contracts.
   /// @param _claimId ID of the claim to be paid.
-  function payClaim(uint256 _claimId, address host, address guest) public onlyManager {
+  function payClaim(uint256 _claimId, address host, address guest, int rate, uint8 dec) public onlyManager {
     Schemas.Claim storage claim = claimIdToClaim[_claimId];
 
     uint256 time = block.timestamp;
 
     claim.payDateInSec = time;
     claim.status = Schemas.ClaimStatus.Paid;
+    claimIdToCurrencyRate[_claimId] = CurrencyRate(rate, dec);
 
-    emit ClaimStatusChanged(_claimId, Schemas.ClaimStatus.Paid, host, guest);
+    eventManager.emitEvent(Schemas.EventType.Claim, _claimId, uint8(Schemas.ClaimStatus.Paid), guest, host);
   }
 
   /// @dev Updates the status of a claim based on the current timestamp.
@@ -114,7 +145,7 @@ contract RentalityClaimService is Initializable, UUPSAccess {
 
     if (time >= claim.deadlineDateInSec) {
       claim.status = Schemas.ClaimStatus.Overdue;
-      emit ClaimStatusChanged(_claimId, Schemas.ClaimStatus.Overdue, host, guest);
+      eventManager.emitEvent(Schemas.EventType.Claim, _claimId, uint8(Schemas.ClaimStatus.Overdue), host, guest);
     }
   }
 
@@ -149,8 +180,9 @@ contract RentalityClaimService is Initializable, UUPSAccess {
 
   /// @dev constructor to initialize proxy contract
   /// @param _userService, contract for access control
-  function initialize(address _userService) public initializer {
+  function initialize(address _userService, address _eventManager) public initializer {
     userService = IRentalityAccessControl(_userService);
+    eventManager = RentalityNotificationService(_eventManager);
     waitingTimeForApproveInSec = 259_200;
     platformFeeInPPM = 0;
   }
