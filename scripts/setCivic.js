@@ -14,7 +14,7 @@ async function main() {
   const userServiceContract = await ethers.getContractAt('RentalityUserService', userService)
   const result = await userServiceContract.setCivicData(
     '0xF65b6396dF6B7e2D8a6270E3AB6c7BB08BAEF22E',
-    process.env.CIVIC_GATEKEEPER_NETWORK
+    process.env.CIVIC_GATEKEEPER_NETWORK || 10
   )
   console.log(result)
 }

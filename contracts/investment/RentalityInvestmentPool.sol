@@ -28,12 +28,14 @@ contract RentalityCarInvestmentPool {
         userService = IRentalityAccessControl(_userService);
     }
     function deposit(uint totalProfit) public payable {
+       require(userService.isManager(msg.sender),"only Manager"); 
         incomes.push(Income(msg.value, totalProfit));
     }
 
-    function claimAllMy() public {
+    function claimAllMy(address user) public {
+        require(userService.isManager(msg.sender),"only Manager");
         require(incomes.length > 0, 'no incomes');
-        uint[] memory tokens = nft.getMyTokens();
+        uint[] memory tokens = nft.getMyTokens(user);
         uint toClaim = 0;
         for (uint i = 0; i < tokens.length; i++) {
             uint lastIncomeClaimed = nftIdToLastIncomeNumber[tokens[i]];
@@ -50,13 +52,12 @@ contract RentalityCarInvestmentPool {
         }
 
         if (toClaim > 0) {
-            (bool successRefund,) = payable(tx.origin).call{value: toClaim}('');
+            (bool successRefund,) = payable(user).call{value: toClaim}('');
             require(successRefund, 'payment failed.');
         }
     }
 
-    // 0
-    // [10, 1]
+
     function getIncomesByNftId(uint id) public view returns (uint) {
         uint lastIncomeClaimed = nftIdToLastIncomeNumber[id];
         uint tokenPrice = nft.tokenIdToPriceInEth(id);

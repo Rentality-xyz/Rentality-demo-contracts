@@ -100,7 +100,7 @@ library RentalityUtils {
   /// @notice Converts a string to lowercase.
   /// @param str The input string to convert.
   /// @return Returns the lowercase version of the input string.
-  function toLower(string memory str) internal pure returns (string memory) {
+  function toLower(string memory str) public pure returns (string memory) {
     bytes memory bStr = bytes(str);
     bytes memory bLower = new bytes(bStr.length);
     for (uint i = 0; i < bStr.length; i++) {
@@ -119,7 +119,7 @@ library RentalityUtils {
   /// @param where The string to search within.
   /// @param what The word to search for.
   /// @return found Returns true if the word is found, false otherwise.
-  function containWord(string memory where, string memory what) internal pure returns (bool found) {
+  function containWord(string memory where, string memory what) public pure returns (bool found) {
     bytes memory whatBytes = bytes(what);
     bytes memory whereBytes = bytes(where);
 
@@ -157,49 +157,6 @@ library RentalityUtils {
   function getCeilDays(uint64 startDateTime, uint64 endDateTime) internal pure returns (uint64) {
     uint64 duration = endDateTime - startDateTime;
     return uint64(Math.ceilDiv(duration, 1 days));
-  }
-
-  /// @notice Populates an array of chat information using data from trips, user service, and car service.
-  /// @return chatInfoList Array of IRentalityGateway.ChatInfo structures.
-  function populateChatInfo(
-    bool byGuest,
-    RentalityContract memory addresses
-  ) public view returns (Schemas.ChatInfo[] memory) {
-    Schemas.TripDTO[] memory trips = byGuest
-      ? addresses.viewService.getTripsAsGuest()
-      : addresses.viewService.getTripsAsHost();
-
-    RentalityUserService userService = addresses.userService;
-    RentalityCarToken carService = addresses.carService;
-
-    Schemas.ChatInfo[] memory chatInfoList = new Schemas.ChatInfo[](trips.length);
-
-    for (uint i = 0; i < trips.length; i++) {
-      Schemas.KYCInfo memory guestInfo = userService.getKYCInfo(trips[i].trip.guest);
-      Schemas.KYCInfo memory hostInfo = userService.getKYCInfo(trips[i].trip.host);
-
-      chatInfoList[i].tripId = trips[i].trip.tripId;
-      chatInfoList[i].guestAddress = trips[i].trip.guest;
-      chatInfoList[i].guestName = string(abi.encodePacked(guestInfo.name, ' ', guestInfo.surname));
-      chatInfoList[i].guestPhotoUrl = guestInfo.profilePhoto;
-      chatInfoList[i].hostAddress = trips[i].trip.host;
-      chatInfoList[i].hostName = string(abi.encodePacked(hostInfo.name, ' ', hostInfo.surname));
-      chatInfoList[i].hostPhotoUrl = hostInfo.profilePhoto;
-      chatInfoList[i].tripStatus = uint256(trips[i].trip.status);
-
-      Schemas.CarInfo memory carInfo = carService.getCarInfoById(trips[i].trip.carId);
-      chatInfoList[i].carBrand = carInfo.brand;
-      chatInfoList[i].carModel = carInfo.model;
-      chatInfoList[i].carYearOfProduction = carInfo.yearOfProduction;
-      chatInfoList[i].carMetadataUrl = carService.tokenURI(trips[i].trip.carId);
-      chatInfoList[i].startDateTime = trips[i].trip.startDateTime;
-      chatInfoList[i].endDateTime = trips[i].trip.endDateTime;
-      chatInfoList[i].timeZoneId = IRentalityGeoService(carService.getGeoServiceAddress()).getCarTimeZoneId(
-        carInfo.carId
-      );
-    }
-
-    return chatInfoList;
   }
 
   /// @notice Parses a response string containing geolocation data.
@@ -377,11 +334,11 @@ library RentalityUtils {
       (bytes(searchCarParams.brand).length == 0 || containWord(toLower(car.brand), toLower(searchCarParams.brand))) &&
       (bytes(searchCarParams.model).length == 0 || containWord(toLower(car.model), toLower(searchCarParams.model))) &&
       (bytes(searchCarParams.country).length == 0 ||
-        containWord(toLower(geoService.getCarCountry(carId)), toLower(searchCarParams.country))) &&
+        containWord(toLower(geoService.getCarCountry(car.locationHash)), toLower(searchCarParams.country))) &&
       (bytes(searchCarParams.state).length == 0 ||
-        containWord(toLower(geoService.getCarState(carId)), toLower(searchCarParams.state))) &&
+        containWord(toLower(geoService.getCarState(car.locationHash)), toLower(searchCarParams.state))) &&
       (bytes(searchCarParams.city).length == 0 ||
-        containWord(toLower(geoService.getCarCity(carId)), toLower(searchCarParams.city))) &&
+        containWord(toLower(geoService.getCarCity(car.locationHash)), toLower(searchCarParams.city))) &&
       (searchCarParams.yearOfProductionFrom == 0 || car.yearOfProduction >= searchCarParams.yearOfProductionFrom) &&
       (searchCarParams.yearOfProductionTo == 0 || car.yearOfProduction <= searchCarParams.yearOfProductionTo) &&
       (searchCarParams.pricePerDayInUsdCentsFrom == 0 ||
@@ -409,8 +366,12 @@ library RentalityUtils {
       .calculatePriceByDeliveryDataInUsdCents(
         pickUpLocation,
         returnLocation,
-        IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getCarLocationLatitude(carId),
-        IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getCarLocationLongitude(carId),
+        IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getCarLocationLatitude(
+          addresses.carService.getCarInfoById(carId).locationHash
+        ),
+        IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getCarLocationLongitude(
+          addresses.carService.getCarInfoById(carId).locationHash
+        ),
         addresses.carService.getCarInfoById(carId).createdBy
       );
     return calculatePayments(addresses, carId, daysOfTrip, currency, deliveryFee);
@@ -443,13 +404,10 @@ library RentalityUtils {
       daysOfTrip,
       sumWithDiscount + deliveryFee
     );
-    (int rate, uint8 decimals) = addresses.currencyConverterService.getCurrentRate(currency);
 
-    uint256 valueSumInCurrency = addresses.currencyConverterService.getFromUsd(
+    (uint256 valueSumInCurrency, int rate, uint8 decimals) = addresses.currencyConverterService.getFromUsdLatest(
       currency,
-      car.securityDepositPerTripInUsdCents + salesTaxes + govTax + sumWithDiscount + deliveryFee,
-      rate,
-      decimals
+      car.securityDepositPerTripInUsdCents + salesTaxes + govTax + sumWithDiscount + deliveryFee
     );
 
     return Schemas.CalculatePaymentsDTO(valueSumInCurrency, rate, decimals);
@@ -460,11 +418,12 @@ library RentalityUtils {
     address currencyType,
     uint carId,
     uint64 startDateTime,
-    uint64 endDateTime
+    uint64 endDateTime,
+    address user
   ) public view {
-    require(addresses.userService.hasPassedKYCAndTC(tx.origin), 'KYC or TC not passed.');
+    require(addresses.userService.hasPassedKYCAndTC(user), 'KYC or TC not passed.');
     require(addresses.currencyConverterService.currencyTypeIsAvailable(currencyType), 'Token is not available.');
-    require(addresses.carService.ownerOf(carId) != tx.origin, 'Car is not available for creator');
+    require(addresses.carService.ownerOf(carId) != user, 'Car is not available for creator');
     require(!isCarUnavailable(addresses, carId, startDateTime, endDateTime), 'Unavailable for current date.');
   }
 
@@ -507,6 +466,17 @@ library RentalityUtils {
     return false;
   }
 
+  /// @notice Creates a payment information structure for a trip based on the provided parameters.
+  /// @dev This function calculates various components of the payment including the base price, taxes, and additional fees.
+  /// It also converts the total amount to the specified currency using the current exchange rate.
+  /// @param addresses The Rentality contract instance containing service addresses.
+  /// @param carId The ID of the car being rented.
+  /// @param startDateTime The start time of the trip.
+  /// @param endDateTime The end time of the trip.
+  /// @param currencyType The type of currency in which the payment will be made (e.g., ETH, ERC20 token).
+  /// @param pickUp The pick-up fee for the car.
+  /// @param dropOf The drop-off fee for the car.
+  /// @return A tuple containing the PaymentInfo structure and the total amount to be paid in the specified currency.
   function createPaymentInfo(
     RentalityContract memory addresses,
     uint256 carId,
@@ -539,8 +509,11 @@ library RentalityUtils {
       carInfo.securityDepositPerTripInUsdCents +
       pickUp +
       dropOf;
-    (int rate, uint8 decimals) = addresses.currencyConverterService.getCurrentRate(currencyType);
-    uint valueSumInCurrency = addresses.currencyConverterService.getFromUsd(currencyType, valueSum, rate, decimals);
+
+    (uint valueSumInCurrency, int rate, uint8 decimals) = addresses.currencyConverterService.getFromUsdLatest(
+      currencyType,
+      valueSum
+    );
 
     Schemas.PaymentInfo memory paymentInfo = Schemas.PaymentInfo(
       0,

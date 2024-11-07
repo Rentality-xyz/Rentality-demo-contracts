@@ -9,7 +9,6 @@ import './RentalityInvestmentPool.sol';
 import '../RentalityCarToken.sol';
 import '../Schemas.sol';
 
-/// TODO: security review, code refactoring
 contract RentalityInvestment is Initializable, UUPSAccess {
   uint public investmentId;
   RentalityCurrencyConverter private converter;
@@ -33,7 +32,7 @@ contract RentalityInvestment is Initializable, UUPSAccess {
       car.car.tokenUri
     );
     investIdToNft[investmentId] = newNftCollection;
-    investmentIdToCreator[investmentId] = tx.origin;
+    investmentIdToCreator[investmentId] = msg.sender;
   }
 
   function invest(uint investId) public payable {
@@ -53,7 +52,7 @@ contract RentalityInvestment is Initializable, UUPSAccess {
   }
 
   function claimAndCreatePool(uint investId) public {
-    require(investmentIdToCreator[investId] == tx.origin, 'Only for creator');
+    require(investmentIdToCreator[investId] == msg.sender, 'Only for creator');
     require(address(investIdToPool[investId]) == address(0), 'Claimed');
 
     Schemas.CarInvestment storage investment = investmentIdToCarInfo[investId];
@@ -66,9 +65,9 @@ contract RentalityInvestment is Initializable, UUPSAccess {
       address(userService)
     );
     investIdToPool[investId] = newPool;
-    uint carId = carToken.addCar(investment.car);
+    uint carId = carToken.addCar(investment.car, msg.sender);
     carIdToInvestId[carId] = investId;
-    (bool success, ) = payable(tx.origin).call{value: payedInETH}('');
+    (bool success, ) = payable(msg.sender).call{value: payedInETH}('');
     require(success, 'Fail to transfer.');
   }
 
@@ -92,7 +91,7 @@ contract RentalityInvestment is Initializable, UUPSAccess {
       bool isBought = address(investIdToPool[i]) != address(0);
       if (isBought) {
         (income, , ) = converter.getToUsdLatest(address(0), investIdToPool[i].getTotalIncome());
-        (uint[] memory tokens, ) = investIdToNft[i].getAllMyTokensWithTotalPrice();
+        (uint[] memory tokens, ) = investIdToNft[i].getAllMyTokensWithTotalPrice(msg.sender);
         uint myIncome = 0;
         for (uint j = 0; j < tokens.length; j++) {
           myIncome += investIdToPool[i].getIncomesByNftId(tokens[j]);
@@ -114,7 +113,7 @@ contract RentalityInvestment is Initializable, UUPSAccess {
   }
 
   function claimAllMy(uint investId) public {
-    investIdToPool[investId].claimAllMy();
+    investIdToPool[investId].claimAllMy(msg.sender);
   }
 
   /// @notice Initializes the contract with the specified addresses for user service and geolocation parser.

@@ -8,6 +8,7 @@ import './abstract/IRentalityDiscount.sol';
 import './abstract/IRentalityTaxes.sol';
 import '../investment/RentalityInvestment.sol';
 
+
 /// @title Rentality Payment Service Contract
 /// @notice This contract manages platform fees and allows the adjustment of the platform fee by the manager.
 /// @dev It is connected to RentalityUserService to check if the caller is an admin.
@@ -22,7 +23,7 @@ contract RentalityPaymentService is UUPSOwnable {
   uint private taxesId;
   uint private defaultTax;
 
-  RentalityInvestment private investmentService;
+RentalityInvestment private investmentService;
 
   modifier onlyAdmin() {
     require(userService.isAdmin(tx.origin), 'Only admin.');
@@ -76,9 +77,11 @@ contract RentalityPaymentService is UUPSOwnable {
   /// @return The ID of the taxes contract corresponding to the location of the car.
   function defineTaxesType(address carService, uint carId) public view returns (uint) {
     IRentalityGeoService geoService = IRentalityGeoService(RentalityCarToken(carService).getGeoServiceAddress());
-    bytes32 cityHash = keccak256(abi.encode(geoService.getCarCity(carId)));
-    bytes32 stateHash = keccak256(abi.encode(geoService.getCarState(carId)));
-    bytes32 countryHash = keccak256(abi.encode(geoService.getCarCountry(carId)));
+    bytes32 carLocationHash = RentalityCarToken(carService).getCarInfoById(carId).locationHash;
+
+    bytes32 cityHash = keccak256(abi.encode(geoService.getCarCity(carLocationHash)));
+    bytes32 stateHash = keccak256(abi.encode(geoService.getCarState(carLocationHash)));
+    bytes32 countryHash = keccak256(abi.encode(geoService.getCarCountry(carLocationHash)));
 
     for (uint i = 1; i <= taxesId; i++) {
       IRentalityTaxes taxContract = taxesIdToTaxesContract[i];
@@ -164,7 +167,13 @@ contract RentalityPaymentService is UUPSOwnable {
     }
     require(success, 'Transfer failed.');
   }
-  /// TODO: add erc20 investment payments
+
+  /// @notice Handles the payment and finalization of a trip, distributing funds to the host and guest.
+  /// @dev This function can only be called by a manager. It handles both native currency (ETH) and ERC20 tokens.
+  /// @param trip The trip data structure containing details about the trip.
+  /// @param valueToHost The amount to be transferred to the host.
+  /// @param valueToGuest The amount to be transferred to the guest.
+   /// TODO: add erc20 investment payments
   function payFinishTrip(Schemas.Trip memory trip, uint valueToHost, uint valueToGuest, uint totalIncome) public payable {
     require(userService.isManager(msg.sender), 'Only manager');
     bool successHost;
@@ -186,73 +195,113 @@ contract RentalityPaymentService is UUPSOwnable {
     require(successHost && successGuest, 'Transfer failed.');
   }
 
-  function payKycCommission(uint valueInCurrency, address currencyType) public payable {
+
+  /// @notice Handles the payment of the KYC commission by the user.
+  /// @dev This function can only be called by a manager. The function handles both native currency (ETH) and ERC20 tokens.
+  /// @param valueInCurrency The amount to be paid as the KYC commission.
+  /// @param currencyType The type of currency used for payment (address of the ERC20 token or address(0) for ETH).
+  function payKycCommission(uint valueInCurrency, address currencyType, address user) public payable {
     require(userService.isManager(msg.sender), 'Only manager');
-    require(!RentalityUserService(address(userService)).isCommissionPaidForUser(tx.origin), 'Commission paid');
+    require(!RentalityUserService(address(userService)).isCommissionPaidForUser(user), 'Commission paid');
+
     if (currencyType == address(0)) {
-      require(msg.value == valueInCurrency, 'Not enough tokens');
+      _checkNativeAmount(valueInCurrency);
     } else {
-      require(IERC20(currencyType).allowance(tx.origin, address(this)) >= valueInCurrency, 'Not enough tokens');
-      bool success = IERC20(currencyType).transferFrom(tx.origin, address(this), valueInCurrency);
+      // Handle payment in ERC20 tokens
+      require(IERC20(currencyType).allowance(user, address(this)) >= valueInCurrency, 'Not enough tokens');
+      bool success = IERC20(currencyType).transferFrom(user, address(this), valueInCurrency);
       require(success, 'Fail to pay');
     }
 
-    RentalityUserService(address(userService)).payCommission();
+    RentalityUserService(address(userService)).payCommission(user);
   }
 
-  function payCreateTrip(address currencyType, uint valueSumInCurrency) public payable {
+  /// @notice Handles the payment required to create a trip.
+  /// @dev This function can only be called by a manager. The function handles both native currency (ETH) and ERC20 tokens.
+  /// @param currencyType The type of currency used for payment (address of the ERC20 token or address(0) for ETH).
+  /// @param valueSumInCurrency The total amount to be paid, which includes price, discount, taxes, deposit, and delivery fees.
+  function payCreateTrip(address currencyType, uint valueSumInCurrency, address user) public payable {
     require(userService.isManager(msg.sender), 'only manager');
+
     if (currencyType == address(0)) {
-      require(
-        msg.value == valueSumInCurrency,
-        'Rental fee must be equal to sum: price with discount + taxes + deposit + delivery'
-      );
+      // Handle payment in native currency (ETH)
+      _checkNativeAmount(valueSumInCurrency);
     } else {
+      // Handle payment in ERC20 tokens
       require(
-        IERC20(currencyType).allowance(tx.origin, address(this)) >= valueSumInCurrency,
+        IERC20(currencyType).allowance(user, address(this)) >= valueSumInCurrency,
         'Rental fee must be equal to sum: price with discount + taxes + deposit + delivery'
       );
 
-      bool success = IERC20(currencyType).transferFrom(tx.origin, address(this), valueSumInCurrency);
+      bool success = IERC20(currencyType).transferFrom(user, address(this), valueSumInCurrency);
       require(success, 'Transfer failed.');
     }
   }
 
-  function payClaim(Schemas.Trip memory trip, uint valueToPay, uint feeInCurrency, uint commission) public payable {
+  /// @notice Handles the payment of claims related to a trip, including transfers to the host or guest and fees.
+  /// @dev This function can only be called by a manager. The function handles both native currency (ETH) and ERC20 tokens.
+  /// @param trip The trip data structure containing details about the trip.
+  /// @param valueToPay The amount to be paid.
+  /// @param feeInCurrency The fee amount to be deducted from the payment.
+  /// @param commission The commission amount to be transferred, if applicable.
+  function payClaim(
+    Schemas.Trip memory trip,
+    uint valueToPay,
+    uint feeInCurrency,
+    uint commission,
+    address user
+  ) public payable {
     require(userService.isManager(msg.sender), 'Only manager');
+
     bool successHost;
-    address to = tx.origin == trip.host ? trip.guest : trip.host;
+    address to = user == trip.host ? trip.guest : trip.host;
 
     if (trip.paymentInfo.currencyType == address(0)) {
-      require(msg.value >= valueToPay, 'Insufficient funds sent.');
+      _checkNativeAmount(valueToPay);
+
       (successHost, ) = payable(to).call{value: valueToPay - feeInCurrency}('');
 
-      if (msg.value > valueToPay + feeInCurrency) {
+      if (msg.value > valueToPay) {
         uint256 excessValue = msg.value - valueToPay;
-        (bool successRefund, ) = payable(tx.origin).call{value: excessValue}('');
+        (bool successRefund, ) = payable(user).call{value: excessValue}('');
         require(successRefund, 'Refund to guest failed.');
       }
     } else {
-      require(IERC20(trip.paymentInfo.currencyType).allowance(tx.origin, address(this)) >= valueToPay);
-      successHost = IERC20(trip.paymentInfo.currencyType).transferFrom(tx.origin, to, valueToPay - feeInCurrency);
+      // Handle payment in ERC20 tokens
+      require(IERC20(trip.paymentInfo.currencyType).allowance(user, address(this)) >= valueToPay);
+      successHost = IERC20(trip.paymentInfo.currencyType).transferFrom(user, to, valueToPay - feeInCurrency);
       if (commission != 0) {
-        bool successPlatform = IERC20(trip.paymentInfo.currencyType).transferFrom(tx.origin, to, feeInCurrency);
+        bool successPlatform = IERC20(trip.paymentInfo.currencyType).transferFrom(user, to, feeInCurrency);
         require(successPlatform, 'Fail to transfer fee.');
       }
     }
+
     require(successHost, 'Transfer to host failed.');
   }
 
+  /// @notice Handles the refund process when a trip is rejected, returning the appropriate amount to the guest.
+  /// @dev This function handles both native currency (ETH) and ERC20 tokens.
+  /// @param trip The trip data structure containing details about the trip.
+  /// @param valueToReturnInToken The amount to be returned to the guest.
   function payRejectTrip(Schemas.Trip memory trip, uint valueToReturnInToken) public {
+    require(userService.isManager(msg.sender), 'only Manager');
     bool successGuest;
-    if ((trip.paymentInfo.currencyType == address(0))) {
+
+    if (trip.paymentInfo.currencyType == address(0)) {
+      // Handle refund in native currency (ETH)
       (successGuest, ) = payable(trip.guest).call{value: valueToReturnInToken}('');
     } else {
+      // Handle refund in ERC20 tokens
       successGuest = IERC20(trip.paymentInfo.currencyType).transfer(trip.guest, valueToReturnInToken);
     }
+
     require(successGuest, 'Transfer to guest failed.');
   }
 
+  /// @notice Checks if there are any applicable taxes for a given location based on the provided location information.
+  /// @dev The function compares the hashes of the city, state, and country to the stored tax data.
+  /// @param locationInfo The location information that includes city, state, and country.
+  /// @return The tax ID if a matching tax exists, otherwise returns 0.
   function taxExist(Schemas.LocationInfo memory locationInfo) public view returns (uint) {
     bytes32 cityHash = keccak256(abi.encode(locationInfo.city));
     bytes32 stateHash = keccak256(abi.encode(locationInfo.state));
@@ -275,19 +324,21 @@ contract RentalityPaymentService is UUPSOwnable {
 
     return 0;
   }
+  function _checkNativeAmount(uint value) internal view {
+    uint diff = 0;
+    if (msg.value > value) {
+      diff = msg.value - value;
+    } else {
+      diff = value - msg.value;
+    }
+    require(diff <= value / 100, 'Not enough tokens');
+  }
 
   receive() external payable {}
   /// @notice Constructor to initialize the RentalityPaymentService.
   /// @param _userService The address of the RentalityUserService contract
-  function initialize(
-    address _userService,
-    address _floridaTaxes,
-    address _baseDiscount,
-    address _investorService
-  ) public initializer {
+  function initialize(address _userService, address _floridaTaxes, address _baseDiscount,address _investorService) public initializer {
     userService = IRentalityAccessControl(_userService);
-    investmentService = RentalityInvestment(_investorService);
-
     platformFeeInPPM = 200_000;
 
     currentDiscount = _baseDiscount;
@@ -297,6 +348,7 @@ contract RentalityPaymentService is UUPSOwnable {
     defaultTax = 1;
     taxesIdToTaxesContract[taxesId] = IRentalityTaxes(_floridaTaxes);
 
+  investmentService = RentalityInvestment(_investorService);
     __Ownable_init();
   }
 }

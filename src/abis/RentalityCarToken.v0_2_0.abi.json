@@ -153,9 +153,10 @@
                     { "type": "string", "name": "timeZoneId" }
                   ]
                 },
-                { "type": "string", "name": "signature" }
+                { "type": "bytes", "name": "signature" }
               ]
-            }
+            },
+            { "type": "bool", "name": "currentlyListed" }
           ]
         }
       ],
@@ -587,14 +588,6 @@
     },
     {
       "type": "function",
-      "name": "setUnlisted",
-      "constant": false,
-      "payable": false,
-      "inputs": [{ "type": "uint256", "name": "carId" }],
-      "outputs": []
-    },
-    {
-      "type": "function",
       "name": "supportsInterface",
       "constant": true,
       "stateMutability": "view",
@@ -632,7 +625,8 @@
     {
       "type": "function",
       "name": "transferFrom",
-      "constant": false,
+      "constant": true,
+      "stateMutability": "pure",
       "payable": false,
       "inputs": [
         { "type": "address", "name": "" },
@@ -665,7 +659,8 @@
             { "type": "uint64[]", "name": "engineParams" },
             { "type": "uint64", "name": "milesIncludedPerDay" },
             { "type": "uint32", "name": "timeBufferBetweenTripsInSec" },
-            { "type": "bool", "name": "currentlyListed" }
+            { "type": "bool", "name": "currentlyListed" },
+            { "type": "bool", "name": "insuranceIncluded" }
           ]
         },
         {
@@ -742,10 +737,32 @@
     },
     {
       "type": "function",
-      "name": "verifyGeo",
-      "constant": false,
+      "name": "verifySignedLocationInfo",
+      "constant": true,
+      "stateMutability": "view",
       "payable": false,
-      "inputs": [{ "type": "uint256", "name": "carId" }],
+      "inputs": [
+        {
+          "type": "tuple",
+          "name": "locationInfo",
+          "components": [
+            {
+              "type": "tuple",
+              "name": "locationInfo",
+              "components": [
+                { "type": "string", "name": "userAddress" },
+                { "type": "string", "name": "country" },
+                { "type": "string", "name": "state" },
+                { "type": "string", "name": "city" },
+                { "type": "string", "name": "latitude" },
+                { "type": "string", "name": "longitude" },
+                { "type": "string", "name": "timeZoneId" }
+              ]
+            },
+            { "type": "bytes", "name": "signature" }
+          ]
+        }
+      ],
       "outputs": []
     }
   ]

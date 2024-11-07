@@ -5,7 +5,9 @@ import './payments/RentalityPaymentService.sol';
 import './RentalityPlatform.sol';
 import './abstract/IRentalityAdminGateway.sol';
 import {RentalityContract, RentalityGateway} from './RentalityGateway.sol';
-
+import './Schemas.sol';
+import {RentalityInvestment} from './investment/RentalityInvestment.sol';
+/// @custom:oz-upgrades-unsafe-allow external-library-linking
 contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
   RentalityCarToken private carService;
   RentalityCurrencyConverter private currencyConverterService;
@@ -137,12 +139,6 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
     carService.updateGeoServiceAddress(newGeoServiceAddress);
   }
 
-  /// @notice Updates the address of the GeoParser contract.
-  /// @param newGeoParserAddress The new address of the GeoParser contract.
-  function updateGeoParserAddress(address newGeoParserAddress) public onlyAdmin {
-    carService.updateGeoParsesAddress(newGeoParserAddress);
-  }
-
   /// @notice Retrieves the address of the RentalityCarDelivery contract.
   /// @return The address of the RentalityCarDelivery contract.
   function getDeliveryServiceAddress() public view returns (address) {
@@ -246,13 +242,13 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
 
   /// @notice Confirms check-out for a trip.
   /// @param tripId The ID of the trip.
-  function confirmCheckOut(uint256 tripId) public {
+  function payToHost(uint256 tripId) public {
     rentalityPlatform.confirmCheckOut(tripId);
   }
 
   /// @notice Rejects a trip request. Only callable by hosts.
   /// @param tripId The ID of the trip to reject.
-  function rejectTripRequest(uint256 tripId) public {
+  function refundToGuest(uint256 tripId) public {
     return rentalityPlatform.rejectTripRequest(tripId);
   }
   /// @dev Sets the Civic verifier and gatekeeper network for identity verification.
@@ -269,16 +265,193 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
     userService.setNewTCMessage(message);
   }
 
+  // @notice Sets the platform fee that will be charged for each transaction.
+  /// @dev This function can only be called by an admin.
+  /// @param value The new platform fee value.
   function setPlatformFee(uint value) public {
     claimService.setPlatformFee(value);
   }
 
+  // @notice Sets the commission for the KYC (Know Your Customer) process.
+  /// @dev This function can only be called by an admin.
+  /// @param value The new KYC commission value.
   function setKycCommission(uint value) public {
     userService.setKycCommission(value);
   }
 
+  // @notice Retrieves the current KYC commission value.
+  /// @return The current KYC commission as a uint.
   function getKycCommission() public view returns (uint) {
     return userService.getKycCommission();
+  }
+
+  // @notice Retrieves all trips based on the provided filter and pagination.
+  /// @param filter The filter to apply to the trips.
+  /// @param page The current page number.
+  /// @param itemsPerPage The number of items per page.
+  /// @return A structure containing the filtered trips and total page count.
+  function getAllTrips(
+    Schemas.TripFilter memory filter,
+    uint page,
+    uint itemsPerPage
+  ) public view returns (Schemas.AllTripsDTO memory) {
+    uint totalTripsCount = tripService.totalTripCount();
+
+    uint[] memory matchedTrips = new uint[](totalTripsCount);
+
+    uint counter = 0;
+    for (uint i = 1; i <= totalTripsCount; i++) {
+      if (isTripMatch(filter, tripService.getTrip(i))) {
+        matchedTrips[counter] = i;
+        counter += 1;
+      }
+    }
+    if (counter == 0) return Schemas.AllTripsDTO(new Schemas.AdminTripDTO[](0), 0);
+
+    uint totalPageCount = (counter + itemsPerPage - 1) / itemsPerPage;
+
+    if (page > totalPageCount) {
+      page = totalPageCount;
+    }
+
+    uint startIndex = (page - 1) * itemsPerPage;
+    uint endIndex = startIndex + itemsPerPage;
+
+    if (endIndex > counter) {
+      endIndex = counter;
+    }
+
+    Schemas.AdminTripDTO[] memory result = new Schemas.AdminTripDTO[](endIndex - startIndex);
+    for (uint i = startIndex; i < endIndex; i++) {
+      Schemas.Trip memory trip = tripService.getTrip(matchedTrips[i]);
+      Schemas.CarInfo memory car = carService.getCarInfoById(trip.carId);
+      result[i - startIndex] = Schemas.AdminTripDTO(
+        trip,
+        carService.tokenURI(trip.carId),
+        IRentalityGeoService(carService.getGeoServiceAddress()).getLocationInfo(car.locationHash)
+      );
+    }
+
+    return Schemas.AllTripsDTO(result, totalPageCount);
+  }
+
+  // @notice Checks if a trip matches the provided filter.
+  /// @dev This function is used internally to filter trips based on the given criteria.
+  /// @param filter The filter to apply.
+  /// @param trip The trip to check against the filter.
+  /// @return Returns true if the trip matches the filter, otherwise false.
+  function isTripMatch(Schemas.TripFilter memory filter, Schemas.Trip memory trip) internal view returns (bool) {
+    IRentalityGeoService geoService = IRentalityGeoService(carService.getGeoServiceAddress());
+    Schemas.LocationInfo memory locationInfo = geoService.getLocationInfo(
+      carService.getCarInfoById(trip.carId).locationHash
+    );
+    return ((bytes(filter.location.country).length == 0 ||
+      RentalityUtils.containWord(
+        RentalityUtils.toLower(locationInfo.country),
+        RentalityUtils.toLower(filter.location.country)
+      )) &&
+      (bytes(filter.location.state).length == 0 ||
+        RentalityUtils.containWord(
+          RentalityUtils.toLower(locationInfo.state),
+          RentalityUtils.toLower(filter.location.state)
+        )) &&
+      (bytes(filter.location.city).length == 0 ||
+        RentalityUtils.containWord(
+          RentalityUtils.toLower(locationInfo.city),
+          RentalityUtils.toLower(filter.location.city)
+        )) &&
+      (filter.startDateTime <= trip.startDateTime && filter.endDateTime >= trip.endDateTime) &&
+      (filter.paymentStatus == Schemas.PaymentStatus.Any ||
+        (filter.paymentStatus == Schemas.PaymentStatus.PaidToHost && trip.status == Schemas.TripStatus.Finished) ||
+        (filter.paymentStatus == Schemas.PaymentStatus.Prepayment &&
+          (trip.status == Schemas.TripStatus.Created ||
+            trip.status == Schemas.TripStatus.Approved ||
+            trip.status == Schemas.TripStatus.CheckedInByHost ||
+            (trip.status == Schemas.TripStatus.CheckedInByGuest && trip.tripStartedBy == trip.guest) ||
+            (trip.status == Schemas.TripStatus.CheckedOutByGuest && trip.tripFinishedBy == trip.guest) ||
+            (trip.status == Schemas.TripStatus.CheckedOutByHost && trip.tripFinishedBy == trip.guest))) ||
+        (filter.paymentStatus == Schemas.PaymentStatus.RefundToGuest && trip.status == Schemas.TripStatus.Canceled) ||
+        (filter.paymentStatus == Schemas.PaymentStatus.Unpaid &&
+          ((trip.status == Schemas.TripStatus.CheckedInByGuest && trip.tripStartedBy == trip.host) ||
+            (trip.status == Schemas.TripStatus.CheckedOutByHost && trip.tripFinishedBy == trip.host)))) &&
+      (filter.status == Schemas.AdminTripStatus.Any ||
+        (filter.status == Schemas.AdminTripStatus.Created && trip.status == Schemas.TripStatus.Created) ||
+        (filter.status == Schemas.AdminTripStatus.Approved && trip.status == Schemas.TripStatus.Approved) ||
+        (filter.status == Schemas.AdminTripStatus.CheckedInByHost &&
+          trip.status == Schemas.TripStatus.CheckedInByHost) ||
+        (filter.status == Schemas.AdminTripStatus.CheckedInByGuest &&
+          trip.status == Schemas.TripStatus.CheckedInByGuest &&
+          trip.tripStartedBy == trip.guest) ||
+        (filter.status == Schemas.AdminTripStatus.CheckedOutByGuest &&
+          trip.status == Schemas.TripStatus.CheckedOutByGuest &&
+          trip.tripFinishedBy == trip.guest) ||
+        (filter.status == Schemas.AdminTripStatus.CheckedOutByHost &&
+          trip.status == Schemas.TripStatus.CheckedOutByHost &&
+          trip.tripFinishedBy == trip.guest) ||
+        (filter.status == Schemas.AdminTripStatus.Finished && trip.status == Schemas.TripStatus.Finished) ||
+        (filter.status == Schemas.AdminTripStatus.GuestCanceledBeforeApprove &&
+          trip.status == Schemas.TripStatus.Canceled &&
+          trip.approvedDateTime == 0 &&
+          trip.rejectedBy == trip.guest) ||
+        (filter.status == Schemas.AdminTripStatus.HostCanceledBeforeApprove &&
+          trip.status == Schemas.TripStatus.Canceled &&
+          trip.approvedDateTime == 0 &&
+          trip.rejectedBy == trip.host) ||
+        (filter.status == Schemas.AdminTripStatus.GuestCanceledAfterApprove &&
+          trip.status == Schemas.TripStatus.Canceled &&
+          trip.approvedDateTime > 0 &&
+          trip.rejectedBy == trip.guest) ||
+        (filter.status == Schemas.AdminTripStatus.HostCanceledAfterApprove &&
+          trip.status == Schemas.TripStatus.Canceled &&
+          trip.approvedDateTime > 0 &&
+          trip.rejectedBy == trip.host) ||
+        (filter.status == Schemas.AdminTripStatus.CompletedWithoutGuestConfirmation &&
+          trip.status == Schemas.TripStatus.CheckedOutByHost &&
+          trip.tripFinishedBy == trip.host) ||
+        (filter.status == Schemas.AdminTripStatus.CompletedByGuest &&
+          trip.status == Schemas.TripStatus.Finished &&
+          trip.tripFinishedBy == trip.host) ||
+        (filter.status == Schemas.AdminTripStatus.CompletedByAdmin &&
+          trip.status == Schemas.TripStatus.Finished &&
+          tripService.completedByAdmin(trip.tripId))));
+  }
+
+  // @notice Manages user roles by granting or revoking specific roles.
+  /// @dev This function can only be called by an admin.
+  /// @param role The role to manage.
+  /// @param user The address of the user whose role is being managed.
+  /// @param grant If true, the role is granted; if false, the role is revoked.
+  function manageRole(Schemas.Role role, address user, bool grant /*revoke if false*/) public {
+    userService.manageRole(role, user, grant);
+  }
+
+  // @notice Retrieves all cars based on the pagination parameters.
+  /// @param page The current page number.
+  /// @param itemsPerPage The number of items per page.
+  /// @return A structure containing the cars on the current page and total page count.
+  function getAllCars(uint page, uint itemsPerPage) public view returns (Schemas.AllCarsDTO memory) {
+    uint totalCarsAmount = carService.totalSupply();
+
+    uint totalPageCount = (totalCarsAmount + itemsPerPage - 1) / itemsPerPage;
+
+    if (page > totalPageCount) {
+      page = totalPageCount;
+    }
+
+    uint startIndex = (page - 1) * itemsPerPage + 1;
+    uint endIndex = startIndex + itemsPerPage - 1;
+
+    if (endIndex > totalCarsAmount) {
+      endIndex = totalCarsAmount;
+    }
+    RentalityContract memory contracts = getRentalityContracts();
+
+    Schemas.AdminCarDTO[] memory cars = new Schemas.AdminCarDTO[](endIndex - startIndex + 1);
+    for (uint i = startIndex; i <= endIndex; i++) {
+      cars[i - startIndex].car = RentalityQuery.getCarDetails(contracts, i);
+      cars[i - startIndex].carMetadataURI = contracts.carService.tokenURI(i);
+    }
+    return Schemas.AllCarsDTO(cars, totalPageCount);
   }
 
   //  @dev Initializes the contract with the provided addresses for various services.

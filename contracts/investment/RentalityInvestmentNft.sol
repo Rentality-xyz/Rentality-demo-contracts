@@ -20,6 +20,8 @@ contract RentalityInvestmentNft is ERC721, Ownable {
     tokenId = 0;
     investId = investId_;
     _tokenUri = tokenUri_;
+    
+   _transferOwnership(msg.sender);
   }
   function mint(uint priceInEth) public onlyOwner {
     tokenId += 1;
@@ -32,12 +34,12 @@ contract RentalityInvestmentNft is ERC721, Ownable {
     return _tokenUri;
   }
 
-  function getAllMyTokensWithTotalPrice() public view returns (uint[] memory, uint) {
-    uint[] memory result = new uint[](balanceOf(tx.origin));
+  function getAllMyTokensWithTotalPrice(address user) public view returns (uint[] memory, uint) {
+    uint[] memory result = new uint[](balanceOf(user));
     uint counter = 0;
     uint totalPrice = 0;
     for (uint i = 1; i <= result.length; i++)
-      if (_ownerOf(i) == tx.origin) {
+      if (_ownerOf(i) == user) {
         result[counter] = i;
         counter += 1;
         totalPrice += tokenIdToPriceInEth[i];
@@ -45,11 +47,11 @@ contract RentalityInvestmentNft is ERC721, Ownable {
     return (result, totalPrice);
   }
 
-  function getMyTokens() public view returns (uint[] memory) {
-    uint[] memory result = new uint[](balanceOf(tx.origin));
+  function getMyTokens(address user) public view returns (uint[] memory) {
+    uint[] memory result = new uint[](balanceOf(user));
     uint counter = 0;
     for (uint i = 1; i <= tokenId; i++)
-      if (_ownerOf(i) == tx.origin) {
+      if (_ownerOf(i) == user) {
         result[counter] = i;
         counter++;
       }
