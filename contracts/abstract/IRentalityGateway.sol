@@ -372,5 +372,5 @@ interface IRentalityGateway {
 
   function calculateClaimValue(uint) external view returns (uint);
 
-    // function updateCarTokenUri(uint256 carId, string memory tokenUri) external;
+  // function updateCarTokenUri(uint256 carId, string memory tokenUri) external;
 }
