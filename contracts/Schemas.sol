@@ -570,4 +570,14 @@ interface Schemas {
     Admin,
     KYCManager
   }
+  enum CarUpdateStatus {
+    Add,
+    Update,
+    Burn
+  }
+  enum EventType {
+    Car,
+    Claim,
+    Trip
+  }
 }

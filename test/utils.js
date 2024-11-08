@@ -326,6 +326,13 @@ async function deployDefaultFixture() {
 
   await rentalityUserService.waitForDeployment()
 
+  const RentalityNotificationService = await ethers.getContractFactory('RentalityNotificationService')
+
+  const rentalityNotificationService = await upgrades.deployProxy(RentalityNotificationService, [
+    await rentalityUserService.getAddress(),
+  ])
+  await rentalityNotificationService.waitForDeployment()
+
   const electricEngine = await ethers.getContractFactory('RentalityElectricEngine')
   const elEngine = await electricEngine.deploy(await rentalityUserService.getAddress())
 
@@ -399,6 +406,7 @@ async function deployDefaultFixture() {
     await rentalityGeoService.getAddress(),
     await engineService.getAddress(),
     await rentalityUserService.getAddress(),
+    await rentalityNotificationService.getAddress(),
   ])
   await rentalityCarToken.waitForDeployment()
 
@@ -427,11 +435,15 @@ async function deployDefaultFixture() {
     await rentalityPaymentService.getAddress(),
     await rentalityUserService.getAddress(),
     await engineService.getAddress(),
+    await rentalityNotificationService.getAddress(),
   ])
   await rentalityTripService.waitForDeployment()
 
   const RentalityClaimService = await ethers.getContractFactory('RentalityClaimService')
-  const claimService = await upgrades.deployProxy(RentalityClaimService, [await rentalityUserService.getAddress()])
+  const claimService = await upgrades.deployProxy(RentalityClaimService, [
+    await rentalityUserService.getAddress(),
+    await rentalityNotificationService.getAddress(),
+  ])
   await claimService.waitForDeployment()
 
   const RealMath = await ethers.getContractFactory('RealMath')
@@ -504,6 +516,8 @@ async function deployDefaultFixture() {
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityTripService.getAddress())
 
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityPlatform.getAddress())
+
+  await rentalityUserService.connect(owner).grantManagerRole(await claimService.getAddress())
 
   let rentalityGateway = await upgrades.deployProxy(RentalityGateway.connect(owner), [
     await rentalityCarToken.getAddress(),

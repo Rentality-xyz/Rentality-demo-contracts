@@ -270,6 +270,7 @@ contract RentalityPaymentService is UUPSOwnable {
   /// @param trip The trip data structure containing details about the trip.
   /// @param valueToReturnInToken The amount to be returned to the guest.
   function payRejectTrip(Schemas.Trip memory trip, uint valueToReturnInToken) public {
+    require(userService.isManager(msg.sender), 'only Manager');
     bool successGuest;
 
     if (trip.paymentInfo.currencyType == address(0)) {

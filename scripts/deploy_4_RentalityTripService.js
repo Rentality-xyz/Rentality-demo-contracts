@@ -33,6 +33,10 @@ async function main() {
     getContractAddress('RentalityCarToken', 'scripts/deploy_3_RentalityCarToken.js', chainId),
     'RentalityCarToken'
   )
+  const notificationService = checkNotNull(
+    getContractAddress('RentalityNotificationService', 'scripts/deploy_2_RentalityNotificationService.js', chainId),
+    'RentalityUserServRentalityNotificationServiceice'
+  )
 
   const contractFactory = await ethers.getContractFactory(contractName, {
     libraries: {},
@@ -44,6 +48,7 @@ async function main() {
     rentalityPaymentServiceAddress,
     rentalityUserServiceAddress,
     engineAddress,
+    notificationService,
   ])
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()
