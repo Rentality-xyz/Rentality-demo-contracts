@@ -319,4 +319,26 @@ library RentalityTripsQuery {
         hostPhoneNumber
       );
   }
+
+   function getFilterInfo(
+    RentalityContract memory contracts,
+    uint64 duration
+  ) public view returns (Schemas.FilterInfoDTO memory) {
+    uint64 maxCarPrice = 0;
+    RentalityCarToken carService = contracts.carService;
+    uint minCarYearOfProduction = carService.getCarInfoById(1).yearOfProduction;
+
+    for (uint i = 2; i <= carService.totalSupply(); i++) {
+      Schemas.CarInfo memory car = carService.getCarInfoById(i);
+
+      uint64 sumWithDiscount = contracts.paymentService.calculateSumWithDiscount(
+        carService.ownerOf(i),
+        duration,
+        car.pricePerDayInUsdCents
+      );
+      if (sumWithDiscount > maxCarPrice) maxCarPrice = sumWithDiscount;
+      if (car.yearOfProduction < minCarYearOfProduction) minCarYearOfProduction = car.yearOfProduction;
+    }
+    return Schemas.FilterInfoDTO(maxCarPrice, minCarYearOfProduction);
+  }
 }

@@ -580,4 +580,8 @@ interface Schemas {
     Claim,
     Trip
   }
+   struct FilterInfoDTO {
+    uint64 maxCarPrice;
+    uint minCarYearOfProduction;
+  }
 }
