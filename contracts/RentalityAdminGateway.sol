@@ -483,7 +483,7 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
     deliveryService = RentalityCarDelivery(carDeliveryAddress);
     viewService = RentalityView(viewServiceAddress);
 
-    viewService.updateServiceAddresses(getRentalityContracts());
+    // viewService.updateServiceAddresses(getRentalityContracts());
     __Ownable_init();
   }
 }
