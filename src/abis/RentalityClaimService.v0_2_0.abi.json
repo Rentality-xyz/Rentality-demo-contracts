@@ -18,17 +18,6 @@
     {
       "type": "event",
       "anonymous": false,
-      "name": "ClaimStatusChanged",
-      "inputs": [
-        { "type": "uint256", "name": "claimId", "indexed": false },
-        { "type": "uint8", "name": "claimStatus", "indexed": false },
-        { "type": "address", "name": "host", "indexed": true },
-        { "type": "address", "name": "guest", "indexed": true }
-      ]
-    },
-    {
-      "type": "event",
-      "anonymous": false,
       "name": "Initialized",
       "inputs": [{ "type": "uint8", "name": "version", "indexed": false }]
     },
@@ -147,7 +136,10 @@
       "name": "initialize",
       "constant": false,
       "payable": false,
-      "inputs": [{ "type": "address", "name": "_userService" }],
+      "inputs": [
+        { "type": "address", "name": "_userService" },
+        { "type": "address", "name": "_eventManager" }
+      ],
       "outputs": []
     },
     {
@@ -212,6 +204,14 @@
         { "type": "address", "name": "host" },
         { "type": "address", "name": "guest" }
       ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "updateEventServiceAddress",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "_eventManager" }],
       "outputs": []
     },
     {

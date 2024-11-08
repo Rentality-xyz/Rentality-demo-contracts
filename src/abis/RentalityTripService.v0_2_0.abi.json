@@ -24,27 +24,6 @@
     {
       "type": "event",
       "anonymous": false,
-      "name": "TripCreated",
-      "inputs": [
-        { "type": "uint256", "name": "tripId", "indexed": false },
-        { "type": "address", "name": "host", "indexed": true },
-        { "type": "address", "name": "guest", "indexed": true }
-      ]
-    },
-    {
-      "type": "event",
-      "anonymous": false,
-      "name": "TripStatusChanged",
-      "inputs": [
-        { "type": "uint256", "name": "tripId", "indexed": false },
-        { "type": "uint8", "name": "newStatus", "indexed": false },
-        { "type": "address", "name": "host", "indexed": true },
-        { "type": "address", "name": "guest", "indexed": true }
-      ]
-    },
-    {
-      "type": "event",
-      "anonymous": false,
       "name": "Upgraded",
       "inputs": [{ "type": "address", "name": "implementation", "indexed": true }]
     },
@@ -345,7 +324,8 @@
         { "type": "address", "name": "carServiceAddress" },
         { "type": "address", "name": "paymentServiceAddress" },
         { "type": "address", "name": "userServiceAddress" },
-        { "type": "address", "name": "engineServiceAddress" }
+        { "type": "address", "name": "engineServiceAddress" },
+        { "type": "address", "name": "eventManagerAddress" }
       ],
       "outputs": []
     },
@@ -404,6 +384,14 @@
       "constant": false,
       "payable": false,
       "inputs": [{ "type": "address", "name": "_engineService" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "updateEventServiceAddress",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "_eventManager" }],
       "outputs": []
     },
     {
