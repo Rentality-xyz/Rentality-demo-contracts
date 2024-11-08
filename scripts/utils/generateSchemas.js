@@ -1,5 +1,4 @@
 const fs = require('fs')
-const { Type } = require('hardhat/internal/hardhat-network/provider/filter')
 
 const INPUT_SOLIDITY_FILE = './contracts/Schemas.sol'
 const OUTPUT_TYPESCRIPT_FILE = 'src/Schemas.ts'
