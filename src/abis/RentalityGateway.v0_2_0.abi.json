@@ -668,6 +668,24 @@
     },
     {
       "type": "function",
+      "name": "getFilterInfo",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "uint64", "name": "duration" }],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "",
+          "components": [
+            { "type": "uint64", "name": "maxCarPrice" },
+            { "type": "uint256", "name": "minCarYearOfProduction" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
       "name": "getKycCommission",
       "constant": true,
       "stateMutability": "view",

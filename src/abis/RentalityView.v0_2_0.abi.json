@@ -400,6 +400,24 @@
     },
     {
       "type": "function",
+      "name": "getFilterInfo",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "uint64", "name": "duration" }],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "",
+          "components": [
+            { "type": "uint64", "name": "maxCarPrice" },
+            { "type": "uint256", "name": "minCarYearOfProduction" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
       "name": "getKycCommission",
       "constant": true,
       "stateMutability": "view",
@@ -1394,31 +1412,6 @@
           ]
         }
       ]
-    },
-    {
-      "type": "function",
-      "name": "updateServiceAddresses",
-      "constant": false,
-      "payable": false,
-      "inputs": [
-        {
-          "type": "tuple",
-          "name": "contracts",
-          "components": [
-            { "type": "address", "name": "carService" },
-            { "type": "address", "name": "currencyConverterService" },
-            { "type": "address", "name": "tripService" },
-            { "type": "address", "name": "userService" },
-            { "type": "address", "name": "rentalityPlatform" },
-            { "type": "address", "name": "paymentService" },
-            { "type": "address", "name": "claimService" },
-            { "type": "address", "name": "adminService" },
-            { "type": "address", "name": "deliveryService" },
-            { "type": "address", "name": "viewService" }
-          ]
-        }
-      ],
-      "outputs": []
     },
     {
       "type": "function",
