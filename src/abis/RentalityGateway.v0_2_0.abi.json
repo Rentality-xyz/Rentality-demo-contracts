@@ -479,7 +479,8 @@
                 { "type": "string", "name": "longitude" },
                 { "type": "string", "name": "timeZoneId" }
               ]
-            }
+            },
+            { "type": "string", "name": "carVinNumber" }
           ]
         }
       ]
