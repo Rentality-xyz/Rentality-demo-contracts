@@ -14,7 +14,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "deploy": "npx hardhat run scripts/deploy_x_Rentality_full.js",
     "update": "npx hardhat run scripts/update_RentalityProxy.js",
-    "local_ganache": "node scripts/utils/generateSchemas.js && npx hardhat run --network ganache scripts/deploy_x_Rentality_full.js && npx prettier --write ./src && npx hardhat run --network ganache scripts/deploy_Y_init.js"
+    "local_ganache": "node scripts/utils/generateSchemas.js && npx hardhat run --network ganache scripts/deploy_x_Rentality_full.js && npx hardhat run --network ganache scripts/deploy_Y_init.js"
   },
   "dependencies": {
     "@chainlink/contracts": "^0.8.0",

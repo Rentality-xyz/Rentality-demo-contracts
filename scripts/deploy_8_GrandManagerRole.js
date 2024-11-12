@@ -41,27 +41,23 @@ async function main() {
     RentalityUserServiceJSON_ABI.abi,
     deployer
   )
-  try {
-    await rentalityUserServiceContract.grantManagerRole(rentalityView)
-    await rentalityUserServiceContract.grantManagerRole(rentalityGatewayAddress)
-    await rentalityUserServiceContract.grantManagerRole(rentalityTripServiceAddress)
-    await rentalityUserServiceContract.grantManagerRole(rentalityPlatformAddress)
-    await rentalityUserServiceContract.grantManagerRole(rentalityCarTokenAddress)
-    await rentalityUserServiceContract.grantManagerRole(rentalityAdminGatewayAddress)
-    await rentalityUserServiceContract.grantManagerRole(rentalityEngineAddress)
-    await rentalityUserServiceContract.grantManagerRole(rentalityPaymentServiceAddress)
-    await rentalityUserServiceContract.grantManagerRole(rentalityCarDelivery)
-    await rentalityUserServiceContract.grantManagerRole(rentalityClaimService)
-    console.log('manager role granded')
-  } catch (e) {
-    console.log('grand manager role error:', e)
-  }
-  //await rentalityUserServiceContract.connect(deployer).grantManagerRole(contract.address);
+
+  await rentalityUserServiceContract.grantManagerRole(rentalityView)
+  await rentalityUserServiceContract.grantManagerRole(rentalityGatewayAddress)
+  await rentalityUserServiceContract.grantManagerRole(rentalityTripServiceAddress)
+  await rentalityUserServiceContract.grantManagerRole(rentalityPlatformAddress)
+  await rentalityUserServiceContract.grantManagerRole(rentalityCarTokenAddress)
+  await rentalityUserServiceContract.grantManagerRole(rentalityAdminGatewayAddress)
+  await rentalityUserServiceContract.grantManagerRole(rentalityEngineAddress)
+  await rentalityUserServiceContract.grantManagerRole(rentalityPaymentServiceAddress)
+  await rentalityUserServiceContract.grantManagerRole(rentalityCarDelivery)
+  await rentalityUserServiceContract.grantManagerRole(rentalityClaimService)
+  console.log('manager role was granded')
 }
 
 main()
   .then(() => process.exit(0))
   .catch((error) => {
-    console.error(error)
+    console.error('deploy_8_GrandManagerRole error:', error)
     process.exit(1)
   })
