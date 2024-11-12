@@ -513,7 +513,8 @@ library RentalityQuery {
       car.engineParams,
       geo.getCarCoordinateValidity(carId),
       car.currentlyListed,
-      geo.getLocationInfo(car.locationHash)
+      geo.getLocationInfo(car.locationHash),
+      car.carVinNumber
     );
   }
 

@@ -448,6 +448,7 @@ interface Schemas {
     bool geoVerified;
     bool currentlyListed;
     LocationInfo locationInfo;
+    string carVinNumber;
   }
 
   // Taxes
