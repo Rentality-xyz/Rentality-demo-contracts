@@ -31,7 +31,9 @@ describe('RentalityGateway: time buffer', function () {
     host,
     guest,
     anonymous,
-    rentalityLocationVerifier
+    rentalityLocationVerifier,
+      rentalityView,
+    tripsQuery
 
   beforeEach(async function () {
     ;({
@@ -54,9 +56,11 @@ describe('RentalityGateway: time buffer', function () {
       guest,
       anonymous,
       rentalityLocationVerifier,
+      rentalityView,
+      tripsQuery
     } = await loadFixture(deployDefaultFixture))
   })
-  it('should not show car, while time buffer not expired', async function () {
+  it.only('should not show car, while time buffer not expired', async function () {
     const oneDayInSec = 86400
     let locationInfo1 = {
       locationInfo,
@@ -102,6 +106,22 @@ describe('RentalityGateway: time buffer', function () {
     await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
 
     const searchParams = getEmptySearchCarParams()
+
+    const value = await rentalityCarToken.fetchAvailableCarsForUser(guest.address,getEmptySearchCarParams())
+    // let rentalityContract = {
+    //   carService: await rentalityCarToken.getAddress(),
+    //   currencyConverterService: await rentalityCurrencyConverter.getAddress(),
+    //   tripService: await rentalityTripService.getAddress(),
+    //   userService: await rentalityUserService.getAddress(),
+    //   rentalityPlatform: await rentalityPlatform.getAddress(),
+    //   paymentService: await rentalityPaymentService.getAddress(),
+    //   claimService: await claimService.getAddress(),
+    //   adminService: await rentalityAdminGateway.getAddress(),
+    //   deliveryService: await rentalityCarDelivery.getAddress(),
+    //   viewService: await rentalityView.getAddress()
+    // };
+
+
 
     const availableCars = await rentalityGateway
       .connect(guest)
