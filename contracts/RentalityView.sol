@@ -44,9 +44,9 @@ contract RentalityView is UUPSUpgradeable, Initializable {
   /// @notice Retrieves the metadata URI of a car by its ID.
   /// @param carId The ID of the car.
   /// @return The metadata URI of the car.
-  function getCarMetadataURI(uint256 carId) public view returns (string memory) {
-    return addresses.carService.tokenURI(carId);
-  }
+  // function getCarMetadataURI(uint256 carId) public view returns (string memory) {
+    // return addresses.carService.tokenURI(carId);
+  // }
 
   // not using
   /// @notice Retrieves information about all cars.
@@ -58,9 +58,9 @@ contract RentalityView is UUPSUpgradeable, Initializable {
   /// @notice Retrieves information about available cars for a specific user.
   /// @param user The address of the user.
   /// @return An array of available car information for the specified user.
-  function getAvailableCarsForUser(address user) public view returns (Schemas.CarInfo[] memory) {
-    return addresses.carService.getAvailableCarsForUser(user);
-  }
+  // function getAvailableCarsForUser(address user) public view returns (Schemas.CarInfo[] memory) {
+    // return addresses.carService.getAvailableCarsForUser(user);
+  // }
 
   /// @notice Searches for available cars based on specified criteria.
   /// @param startDateTime The start date and time of the search.
@@ -152,16 +152,16 @@ contract RentalityView is UUPSUpgradeable, Initializable {
   /// @notice Retrieves all claims where the caller is the host.
   /// @dev The caller is assumed to be the host of the claims.
   /// @return An array of FullClaimInfo containing information about each claim.
-  function getMyClaimsAsHost() public view returns (Schemas.FullClaimInfo[] memory) {
-    return addresses.getClaimsByHost(tx.origin);
-  }
+  // function getMyClaimsAsHost() public view returns (Schemas.FullClaimInfo[] memory) {
+  //   return addresses.getClaimsByHost(tx.origin);
+  // }
 
-  ///  @notice Retrieves all claims where the caller is the guest.
-  ///  @dev The caller is assumed to be the guest of the claims.
-  ///  @return An array of FullClaimInfo containing information about each claim.
-  function getMyClaimsAsGuest() public view returns (Schemas.FullClaimInfo[] memory) {
-    return addresses.getClaimsByGuest(tx.origin);
-  }
+  // ///  @notice Retrieves all claims where the caller is the guest.
+  // ///  @dev The caller is assumed to be the guest of the claims.
+  // ///  @return An array of FullClaimInfo containing information about each claim.
+  // function getMyClaimsAsGuest() public view returns (Schemas.FullClaimInfo[] memory) {
+  //   return addresses.getClaimsByGuest(tx.origin);
+  // }
 
   /// not using
   /// @notice Gets detailed information about a specific claim.

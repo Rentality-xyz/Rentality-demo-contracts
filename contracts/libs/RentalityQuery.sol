@@ -15,6 +15,7 @@ import {RentalityCarDelivery} from '../features/RentalityCarDelivery.sol';
 import '../Schemas.sol';
 import {RentalityTripsQuery} from './RentalityTripsQuery.sol';
 import {CurrencyRate as ClaimCurrencyRate} from '../features/RentalityClaimService.sol';
+import "hardhat/console.sol";
 
 library RentalityQuery {
   /// @notice Checks if a car intersects with a trip's scheduled time.
@@ -256,6 +257,7 @@ library RentalityQuery {
     address deliveryServiceAddress
   ) public view returns (Schemas.SearchCar[] memory result) {
     RentalityCarToken carService = contracts.carService;
+    
     Schemas.CarInfo[] memory availableCars = carService.fetchAvailableCarsForUser(user, searchParams);
     if (availableCars.length == 0) return new Schemas.SearchCar[](0);
 
@@ -345,9 +347,9 @@ library RentalityQuery {
         temp[i].engineType,
         temp[i].milesIncludedPerDay,
         temp[i].createdBy,
-        contracts.userService.getKYCInfo(temp[i].createdBy).name,
-        contracts.userService.getKYCInfo(temp[i].createdBy).profilePhoto,
-        carService.tokenURI(temp[i].carId),
+       "",
+      "",
+       "",
         deliveryPrices.underTwentyFiveMilesInUsdCents,
         deliveryPrices.aboveTwentyFiveMilesInUsdCents,
         pickUp,
@@ -424,9 +426,9 @@ library RentalityQuery {
   /// @return Returns true if the car is editable, otherwise false.
   function isCarEditable(RentalityContract memory contracts, uint carId) public view returns (bool) {
     RentalityTripService tripService = contracts.tripService;
-
-    for (uint i = 1; i <= tripService.totalTripCount(); i++) {
-      Schemas.Trip memory tripInfo = tripService.getTrip(i);
+    uint[] memory trips = tripService.getActiveTrips(carId);
+    for (uint i = 0; i < trips.length; i++) {
+      Schemas.Trip memory tripInfo = tripService.getTrip(trips[i]);
 
       if (
         tripInfo.carId == carId &&
