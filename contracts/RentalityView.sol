@@ -26,10 +26,10 @@ contract RentalityView is UUPSUpgradeable, Initializable {
   using RentalityQuery for RentalityContract;
   using RentalityTripsQuery for RentalityContract;
 
-  // function updateServiceAddresses(RentalityContract memory contracts) public {
-  //   require(addresses.userService.isAdmin(tx.origin), 'only Admin.');
-  //   addresses = contracts;
-  // }
+  function updateServiceAddresses(RentalityContract memory contracts) public {
+    require(addresses.userService.isAdmin(tx.origin), 'only Admin.');
+    addresses = contracts;
+  }
 
   fallback(bytes calldata) external returns (bytes memory) {
     revert FunctionNotFound();
@@ -55,12 +55,12 @@ contract RentalityView is UUPSUpgradeable, Initializable {
   //   return addresses.carService.getAllCars();
   // }
 
-  /// @notice Retrieves information about available cars for a specific user.
-  /// @param user The address of the user.
-  /// @return An array of available car information for the specified user.
-  // function getAvailableCarsForUser(address user) public view returns (Schemas.CarInfo[] memory) {
-    // return addresses.carService.getAvailableCarsForUser(user);
-  // }
+  // / @notice Retrieves information about available cars for a specific user.
+  // / @param user The address of the user.
+  // / @return An array of available car information for the specified user.
+  function getAvailableCarsForUser(address user) public view returns (Schemas.CarInfo[] memory) {
+    return addresses.carService.getAvailableCarsForUser(user);
+  }
 
   /// @notice Searches for available cars based on specified criteria.
   /// @param startDateTime The start date and time of the search.
@@ -73,15 +73,15 @@ contract RentalityView is UUPSUpgradeable, Initializable {
     Schemas.SearchCarParams memory searchParams
   ) public view returns (Schemas.SearchCarWithDistance[] memory) {
     return
-      addresses.searchSortedCars(
+      RentalityQuery.searchSortedCars(
+          addresses,
         tx.origin,
         startDateTime,
         endDateTime,
         searchParams,
         IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getLocationInfo(bytes32('')),
         IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getLocationInfo(bytes32('')),
-        RentalityAdminGateway(addresses.adminService).getDeliveryServiceAddress()
-      );
+        RentalityAdminGateway(addresses.adminService).getDeliveryServiceAddress());
   }
 
   /// @notice Searches for available cars based on specified criteria.
@@ -152,25 +152,25 @@ contract RentalityView is UUPSUpgradeable, Initializable {
   /// @notice Retrieves all claims where the caller is the host.
   /// @dev The caller is assumed to be the host of the claims.
   /// @return An array of FullClaimInfo containing information about each claim.
-  // function getMyClaimsAsHost() public view returns (Schemas.FullClaimInfo[] memory) {
-  //   return addresses.getClaimsByHost(tx.origin);
-  // }
+  function getMyClaimsAsHost() public view returns (Schemas.FullClaimInfo[] memory) {
+    return addresses.getClaimsByHost(tx.origin);
+  }
 
-  // ///  @notice Retrieves all claims where the caller is the guest.
-  // ///  @dev The caller is assumed to be the guest of the claims.
-  // ///  @return An array of FullClaimInfo containing information about each claim.
-  // function getMyClaimsAsGuest() public view returns (Schemas.FullClaimInfo[] memory) {
-  //   return addresses.getClaimsByGuest(tx.origin);
-  // }
+  ///  @notice Retrieves all claims where the caller is the guest.
+  ///  @dev The caller is assumed to be the guest of the claims.
+  ///  @return An array of FullClaimInfo containing information about each claim.
+  function getMyClaimsAsGuest() public view returns (Schemas.FullClaimInfo[] memory) {
+    return addresses.getClaimsByGuest(tx.origin);
+  }
 
   /// not using
   /// @notice Gets detailed information about a specific claim.
   /// @dev Returns a structure containing information about the claim, associated trip, and car details.
   /// @param claimId ID of the claim.
   /// @return Full information about the claim.
-  // function getClaim(uint256 claimId) public view returns (Schemas.FullClaimInfo memory) {
-  //   return addresses.getClaim(claimId);
-  // }
+  function getClaim(uint256 claimId) public view returns (Schemas.FullClaimInfo memory) {
+    return addresses.getClaim(claimId);
+  }
 
   /// @notice Get contact information for a specific trip on the Rentality platform.
   /// @param tripId The ID of the trip to retrieve contact information for.

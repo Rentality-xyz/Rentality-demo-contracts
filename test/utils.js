@@ -476,6 +476,7 @@ async function deployDefaultFixture() {
   ])
   await rentalityView.waitForDeployment()
 
+
   const rentalityPlatform = await upgrades.deployProxy(RentalityPlatform, [
     await rentalityCarToken.getAddress(),
     await rentalityCurrencyConverter.getAddress(),

@@ -60,7 +60,7 @@ describe('RentalityGateway: time buffer', function () {
       tripsQuery
     } = await loadFixture(deployDefaultFixture))
   })
-  it.only('should not show car, while time buffer not expired', async function () {
+  it('should not show car, while time buffer not expired', async function () {
     const oneDayInSec = 86400
     let locationInfo1 = {
       locationInfo,
@@ -123,7 +123,7 @@ describe('RentalityGateway: time buffer', function () {
 
 
 
-    const availableCars = await rentalityGateway
+    const availableCars = await rentalityView
       .connect(guest)
       .searchAvailableCars(Date.now() + oneDayInSec * 3, Date.now() + oneDayInSec * 4, searchParams)
     expect(availableCars.length).to.be.eq(0)
