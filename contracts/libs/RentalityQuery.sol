@@ -257,7 +257,6 @@ library RentalityQuery {
     address deliveryServiceAddress
   ) public view returns (Schemas.SearchCar[] memory result) {
     RentalityCarToken carService = contracts.carService;
-    
     Schemas.CarInfo[] memory availableCars = carService.fetchAvailableCarsForUser(user, searchParams);
     if (availableCars.length == 0) return new Schemas.SearchCar[](0);
 
@@ -347,9 +346,9 @@ library RentalityQuery {
         temp[i].engineType,
         temp[i].milesIncludedPerDay,
         temp[i].createdBy,
-       "",
-      "",
-       "",
+        contracts.userService.getKYCInfo(temp[i].createdBy).name,
+        contracts.userService.getKYCInfo(temp[i].createdBy).profilePhoto,
+        carService.tokenURI(temp[i].carId),
         deliveryPrices.underTwentyFiveMilesInUsdCents,
         deliveryPrices.aboveTwentyFiveMilesInUsdCents,
         pickUp,
@@ -360,7 +359,6 @@ library RentalityQuery {
     }
     return result;
   }
-
   /// @notice Searches for available cars and sorts them by distance from the user.
   /// @dev This function first searches for available cars and then sorts the results by distance.
   /// @param contracts The Rentality contract instance containing service addresses.
@@ -371,7 +369,6 @@ library RentalityQuery {
   /// @param pickUpInfo The location info for car pick-up.
   /// @param returnInfo The location info for car return.
   /// @param deliveryServiceAddress The address of the delivery service contract.
-  /// @return An array of SearchCarWithDistance structures containing available cars sorted by distance.
   function searchSortedCars(
     RentalityContract memory contracts,
     address user,
@@ -381,7 +378,7 @@ library RentalityQuery {
     Schemas.LocationInfo memory pickUpInfo,
     Schemas.LocationInfo memory returnInfo,
     address deliveryServiceAddress
-  ) public view returns (Schemas.SearchCarWithDistance[] memory) {
+  ) public view returns (Schemas.SearchCarWithDistance[] memory result) {
     return
       RentalityCarDelivery(deliveryServiceAddress).sortCarsByDistance(
         searchAvailableCarsForUser(

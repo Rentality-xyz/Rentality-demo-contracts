@@ -109,39 +109,43 @@ library RentalityTripsQuery {
   /// @param startDateTime The start time of the interval to check for intersection.
   /// @param endDateTime The end time of the interval to check for intersection.
   /// @return An array of Trip structures representing trips that intersect with the specified time interval.
-  function getTripsThatIntersect(
+function getTripsThatIntersect(
     RentalityContract memory contracts,
     uint64 startDateTime,
     uint64 endDateTime
-  ) internal view returns (Schemas.Trip[] memory) {
-  uint itemCount = 0;
+) internal view returns (Schemas.Trip[] memory) {
+    uint itemCount = 0;
 
-    for (uint carId = 0; carId < contracts.carService.totalSupply(); carId++) {
+    for (uint carId = 1; carId <= contracts.carService.totalSupply(); carId++) {
         uint[] memory activeTrips = contracts.tripService.getActiveTrips(carId);
         
-        for (uint i = 0; i < activeTrips.length; i++) {
-            uint tripId = activeTrips[i];
+        if (activeTrips.length > 0) {
+            for (uint i = 0; i < activeTrips.length; i++) {
+                uint tripId = activeTrips[i];
 
-            if (isTripThatIntersect(contracts, tripId, startDateTime, endDateTime)) {
-                itemCount += 1;
+                if (isTripThatIntersect(contracts, tripId, startDateTime, endDateTime)) {
+                    itemCount += 1;
+                }
             }
         }
     }
-    if (itemCount == 0) 
-        return new Schemas.Trip[](0);  
 
+    if (itemCount == 0) 
+        return new Schemas.Trip[](0);
     Schemas.Trip[] memory result = new Schemas.Trip[](itemCount);
     uint currentIndex = 0;
 
-    for (uint carId = 0; carId < contracts.carService.totalSupply(); carId++) {
+    for (uint carId = 1; carId <= contracts.carService.totalSupply(); carId++) {
         uint[] memory activeTrips = contracts.tripService.getActiveTrips(carId);
         
-        for (uint i = 0; i < activeTrips.length; i++) {
-            uint tripId = activeTrips[i];
+        if (activeTrips.length > 0) {
+            for (uint i = 0; i < activeTrips.length; i++) {
+                uint tripId = activeTrips[i];
 
-            if (isTripThatIntersect(contracts, tripId, startDateTime, endDateTime)) {
-                result[currentIndex] = contracts.tripService.getTrip(tripId);
-                currentIndex += 1;
+                if (isTripThatIntersect(contracts, tripId, startDateTime, endDateTime)) {
+                    result[currentIndex] = contracts.tripService.getTrip(tripId);
+                    currentIndex += 1;
+                }
             }
         }
     }
