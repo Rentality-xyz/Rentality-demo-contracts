@@ -240,6 +240,10 @@ contract RentalityView is UUPSUpgradeable, Initializable {
     return insuranceService.getMyInsurancesAsGuest(tx.origin);
   }
 
+  function getFilterInfo(uint64 duration) public view returns (Schemas.FilterInfoDTO memory) {
+    return RentalityTripsQuery.getFilterInfo(addresses, duration);
+  }
+
   function initialize(
     address carServiceAddress,
     address currencyConverterServiceAddress,

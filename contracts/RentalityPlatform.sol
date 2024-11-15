@@ -394,10 +394,9 @@ contract RentalityPlatform is UUPSOwnable {
   function saveGuestInsurance(Schemas.SaveInsuranceRequest memory insuranceInfo) public {
     insuranceService.saveGuestInsurance(insuranceInfo);
   }
-
-  function updateCarTokenUri(uint256 carId, string memory tokenUri) public {
-    addresses.carService.updateCarTokenUri(carId, tokenUri);
-  }
+  // function updateCarTokenUri(uint256 carId, string memory tokenUri) public {
+  // addresses.carService.updateCarTokenUri(carId,tokenUri);
+  // }
 
   /// @notice Constructor to initialize the RentalityPlatform with service contract addresses.
   /// @param carServiceAddress The address of the RentalityCarToken contract.
