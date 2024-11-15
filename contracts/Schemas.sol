@@ -77,6 +77,8 @@ interface Schemas {
     bool currentlyListed;
     bool insuranceRequired;
     uint insurancePriceInUsdCents;
+    uint8 engineType;
+    string tokenUri;
   }
 
   /// @notice Struct to store search parameters for querying cars.
@@ -483,6 +485,7 @@ interface Schemas {
     bool geoVerified;
     bool currentlyListed;
     LocationInfo locationInfo;
+    string carVinNumber;
   }
 
   // Taxes
@@ -604,6 +607,20 @@ interface Schemas {
     Manager,
     Admin,
     KYCManager
+  }
+  enum CarUpdateStatus {
+    Add,
+    Update,
+    Burn
+  }
+  enum EventType {
+    Car,
+    Claim,
+    Trip
+  }
+  struct FilterInfoDTO {
+    uint64 maxCarPrice;
+    uint minCarYearOfProduction;
   }
 
   /// Insurance Info
