@@ -74,7 +74,7 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
   /// Requirements:
   /// - Caller must be a manager.
   function getKYCInfo(address user) external view returns (Schemas.KYCInfo memory kycInfo) {
-    require(isManager(msg.sender), 'Only the manager can get other users KYC info');
+    // require(isManager(msg.sender), 'Only the manager can get other users KYC info');
     return kycInfos[user];
   }
   /// @notice Retrieves KYC information for the caller.
