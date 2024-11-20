@@ -103,7 +103,6 @@
             { "type": "uint64", "name": "milesIncludedPerDay" },
             { "type": "uint32", "name": "timeBufferBetweenTripsInSec" },
             { "type": "string", "name": "geoApiKey" },
-            { "type": "bool", "name": "insuranceIncluded" },
             {
               "type": "tuple",
               "name": "locationInfo",
@@ -124,7 +123,9 @@
                 { "type": "bytes", "name": "signature" }
               ]
             },
-            { "type": "bool", "name": "currentlyListed" }
+            { "type": "bool", "name": "currentlyListed" },
+            { "type": "bool", "name": "insuranceRequired" },
+            { "type": "uint256", "name": "insurancePriceInUsdCents" }
           ]
         }
       ],
@@ -394,6 +395,15 @@
     },
     {
       "type": "function",
+      "name": "getEngineService",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
       "name": "getGeoServiceAddress",
       "constant": true,
       "stateMutability": "view",
@@ -629,7 +639,8 @@
             { "type": "uint64", "name": "milesIncludedPerDay" },
             { "type": "uint32", "name": "timeBufferBetweenTripsInSec" },
             { "type": "bool", "name": "currentlyListed" },
-            { "type": "bool", "name": "insuranceIncluded" },
+            { "type": "bool", "name": "insuranceRequired" },
+            { "type": "uint256", "name": "insurancePriceInUsdCents" },
             { "type": "uint8", "name": "engineType" },
             { "type": "string", "name": "tokenUri" }
           ]
@@ -676,14 +687,6 @@
       "constant": false,
       "payable": false,
       "inputs": [{ "type": "address", "name": "_eventManager" }],
-      "outputs": []
-    },
-    {
-      "type": "function",
-      "name": "updateGeoParsesAddress",
-      "constant": false,
-      "payable": false,
-      "inputs": [{ "type": "address", "name": "newGeoParserAddress" }],
       "outputs": []
     },
     {
