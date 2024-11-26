@@ -10,6 +10,4 @@ WORKDIR /home/app
 
 COPY . .
 
-COPY ./docker/env.contracts .env
-
 RUN npm install
