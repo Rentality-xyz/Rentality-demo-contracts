@@ -192,6 +192,7 @@ interface Schemas {
     string hostPhoneNumber;
     InsuranceInfo[] insurancesInfo;
     uint paidForInsuranceInUsdCents;
+    string guestDrivingLicenseIssueCountry;
   }
 
   /// CHAT LOGIC
