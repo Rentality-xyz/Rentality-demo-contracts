@@ -427,6 +427,7 @@ interface Schemas {
     bool insuranceIncluded;
     LocationInfo locationInfo;
     InsuranceCarInfo insuranceInfo;
+    bool isGuestHasInsurance;
   }
   struct AvailableCarDTO {
     uint carId;
