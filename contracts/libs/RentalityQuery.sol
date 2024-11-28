@@ -285,7 +285,7 @@ library RentalityQuery {
       }
     }
     result = new Schemas.SearchCar[](resultCount);
-
+    bool isGuestHasInsurance = insuranceService.isGuestHasInsurance(user);
     for (uint i = 0; i < resultCount; i++) {
       uint64 totalTripDays = uint64(Math.ceilDiv(endDateTime - startDateTime, 1 days));
       totalTripDays = totalTripDays == 0 ? 1 : totalTripDays;
@@ -344,7 +344,7 @@ library RentalityQuery {
         temp[i].insuranceIncluded,
         IRentalityGeoService(carService.getGeoServiceAddress()).getLocationInfo(temp[i].locationHash),
         insuranceService.getCarInsuranceInfo(temp[i].carId),
-        insuranceService.isGuestHasInsurance(user)
+        isGuestHasInsurance
       );
     }
     return result;
