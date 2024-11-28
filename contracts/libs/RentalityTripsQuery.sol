@@ -320,6 +320,8 @@ library RentalityTripsQuery {
       address(tripService),
       address(userService)
     );
+    trip.guestInsuranceCompanyName = "";
+    trip.guestInsurancePolicyNumber = "";
     return
       Schemas.TripDTO(
         trip,
@@ -343,7 +345,8 @@ library RentalityTripsQuery {
         guestPhoneNumber,
         hostPhoneNumber,
         insuranceService.getTripInsurances(tripId),
-        insuranceService.getInsurancePriceByTrip(tripId)
+        insuranceService.getInsurancePriceByTrip(tripId),
+        userService.getMyFullKYCInfo().additionalKYC.issueCountry
       );
   }
   function getTripInsurancesBy(

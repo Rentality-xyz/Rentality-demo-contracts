@@ -192,6 +192,7 @@ interface Schemas {
     string hostPhoneNumber;
     InsuranceInfo[] insurancesInfo;
     uint paidForInsuranceInUsdCents;
+    string guestDrivingLicenseIssueCountry;
   }
 
   /// CHAT LOGIC
@@ -426,6 +427,7 @@ interface Schemas {
     bool insuranceIncluded;
     LocationInfo locationInfo;
     InsuranceCarInfo insuranceInfo;
+    bool isGuestHasInsurance;
   }
   struct AvailableCarDTO {
     uint carId;
