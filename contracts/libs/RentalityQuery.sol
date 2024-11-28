@@ -343,7 +343,8 @@ library RentalityQuery {
         dropOf,
         temp[i].insuranceIncluded,
         IRentalityGeoService(carService.getGeoServiceAddress()).getLocationInfo(temp[i].locationHash),
-        insuranceService.getCarInsuranceInfo(temp[i].carId)
+        insuranceService.getCarInsuranceInfo(temp[i].carId),
+        insuranceService.isGuestHasInsurance(user)
       );
     }
     return result;
