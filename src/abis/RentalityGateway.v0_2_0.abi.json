@@ -1169,7 +1169,8 @@
                 { "type": "address", "name": "createdBy" }
               ]
             },
-            { "type": "uint256", "name": "paidForInsuranceInUsdCents" }
+            { "type": "uint256", "name": "paidForInsuranceInUsdCents" },
+            { "type": "string", "name": "guestDrivingLicenseIssueCountry" }
           ]
         }
       ]
@@ -1356,7 +1357,8 @@
                 { "type": "address", "name": "createdBy" }
               ]
             },
-            { "type": "uint256", "name": "paidForInsuranceInUsdCents" }
+            { "type": "uint256", "name": "paidForInsuranceInUsdCents" },
+            { "type": "string", "name": "guestDrivingLicenseIssueCountry" }
           ]
         }
       ]
@@ -1587,7 +1589,8 @@
                     { "type": "bool", "name": "required" },
                     { "type": "uint256", "name": "priceInUsdCents" }
                   ]
-                }
+                },
+                { "type": "bool", "name": "isGuestHasInsurance" }
               ]
             },
             { "type": "int256", "name": "distance" }
