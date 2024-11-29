@@ -232,7 +232,8 @@
                 { "type": "bool", "name": "required" },
                 { "type": "uint256", "name": "priceInUsdCents" }
               ]
-            }
+            },
+            { "type": "bool", "name": "isGuestHasInsurance" }
           ]
         },
         {
@@ -299,7 +300,8 @@
                     { "type": "bool", "name": "required" },
                     { "type": "uint256", "name": "priceInUsdCents" }
                   ]
-                }
+                },
+                { "type": "bool", "name": "isGuestHasInsurance" }
               ]
             },
             { "type": "int256", "name": "distance" }
