@@ -454,9 +454,9 @@ library RentalityQuery {
   /// @return Returns true if the car is editable, otherwise false.
   function isCarEditable(RentalityContract memory contracts, uint carId) public view returns (bool) {
     RentalityTripService tripService = contracts.tripService;
-
-    for (uint i = 1; i <= tripService.totalTripCount(); i++) {
-      Schemas.Trip memory tripInfo = tripService.getTrip(i);
+    uint[] memory trips = tripService.getActiveTrips(carId);
+    for (uint i = 0; i < trips.length; i++) {
+      Schemas.Trip memory tripInfo = tripService.getTrip(trips[i]);
 
       if (
         tripInfo.carId == carId &&
