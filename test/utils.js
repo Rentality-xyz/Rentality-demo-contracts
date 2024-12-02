@@ -275,7 +275,7 @@ function getEmptySearchCarParams(seed) {
     yearOfProductionTo: 0,
     pricePerDayInUsdCentsFrom: 0,
     pricePerDayInUsdCentsTo: 0,
-    userLocation: locationInfo,
+    userLocation: emptyLocationInfo,
   }
 }
 
@@ -514,6 +514,7 @@ async function deployDefaultFixture() {
   ])
   await rentalityView.waitForDeployment()
 
+
   const rentalityPlatform = await upgrades.deployProxy(RentalityPlatform, [
     await rentalityCarToken.getAddress(),
     await rentalityCurrencyConverter.getAddress(),
@@ -640,6 +641,8 @@ async function deployDefaultFixture() {
     hostSignature,
     mockRequestWithInsurance,
     insuranceService,
+  rentalityView,
+    tripsQuery
   }
 }
 

@@ -6,6 +6,7 @@ import './RentalityUserService.sol';
 import './RentalityCarToken.sol';
 import './payments/RentalityInsurance.sol';
 import './features/RentalityClaimService.sol';
+import './payments/RentalityPaymentService.sol';
 import './payments/RentalityCurrencyConverter.sol';
 import './libs/RentalityTripsQuery.sol';
 import './libs/RentalityQuery.sol';
@@ -63,8 +64,22 @@ contract RentalityView is UUPSUpgradeable, Initializable {
   /// @notice Retrieves the metadata URI of a car by its ID.
   /// @param carId The ID of the car.
   /// @return The metadata URI of the car.
-  function getCarMetadataURI(uint256 carId) public view returns (string memory) {
-    return addresses.carService.tokenURI(carId);
+  // function getCarMetadataURI(uint256 carId) public view returns (string memory) {
+    // return addresses.carService.tokenURI(carId);
+  // }
+
+  // not using
+  /// @notice Retrieves information about all cars.
+  /// @return An array of car information.
+  // function getAllCars() public view returns (Schemas.CarInfo[] memory) {
+  //   return addresses.carService.getAllCars();
+  // }
+
+  /// @notice Retrieves information about available cars for a specific user.
+  /// @param user The address of the user.
+  /// @return An array of available car information for the specified user.
+  function getAvailableCarsForUser(address user) public view returns (Schemas.CarInfo[] memory) {
+    return addresses.carService.getAvailableCarsForUser(user);
   }
 
   /// @notice Searches for available cars based on specified criteria.
