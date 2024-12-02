@@ -54,6 +54,7 @@ module.exports = {
       chainId: 5611,
     },
   },
+  loggingEnabled: true,
   solidity: {
     version: '0.8.19',
     settings: {

@@ -367,8 +367,10 @@ library RentalityQuery {
     RentalityBaseDiscount discountService = contracts.paymentService.getBaseDiscount();
     RentalityInsurance insuranceService = RentalityInsurance(insuranceServiceAddress);
     RentalityCarToken carService = contracts.carService;
+   
     Schemas.AvailableCarDTO memory emptyCar;
-
+     if(!carService.isCarAvailableForUser(carId, user, searchParams))
+    return emptyCar;
     uint fuelPrice = engineService.getFuelPriceFromEngineParams(temp.engineType, temp.engineParams);
 
     uint64 totalTripDays = uint64(Math.ceilDiv(endDateTime - startDateTime, 1 days));
@@ -454,9 +456,9 @@ library RentalityQuery {
   /// @return Returns true if the car is editable, otherwise false.
   function isCarEditable(RentalityContract memory contracts, uint carId) public view returns (bool) {
     RentalityTripService tripService = contracts.tripService;
-
-    for (uint i = 1; i <= tripService.totalTripCount(); i++) {
-      Schemas.Trip memory tripInfo = tripService.getTrip(i);
+    uint[] memory trips = tripService.getActiveTrips(carId);
+    for (uint i = 0; i < trips.length; i++) {
+      Schemas.Trip memory tripInfo = tripService.getTrip(trips[i]);
 
       if (
         tripInfo.carId == carId &&
