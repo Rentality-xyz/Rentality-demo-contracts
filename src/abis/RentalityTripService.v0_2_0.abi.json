@@ -141,6 +141,15 @@
     },
     {
       "type": "function",
+      "name": "getActiveTrips",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "carId" }],
+      "outputs": [{ "type": "uint256[]", "name": "" }]
+    },
+    {
+      "type": "function",
       "name": "getAddressesByTripId",
       "constant": true,
       "stateMutability": "view",
@@ -150,6 +159,15 @@
         { "type": "address", "name": "hostAddress" },
         { "type": "address", "name": "guestAddress" }
       ]
+    },
+    {
+      "type": "function",
+      "name": "getCarTrips",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "carId" }],
+      "outputs": [{ "type": "uint256[]", "name": "" }]
     },
     {
       "type": "function",
