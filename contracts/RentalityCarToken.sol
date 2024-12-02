@@ -330,7 +330,7 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
   /// @param user The address of the user for whom to fetch available cars.
   /// @param searchCarParams The parameters used to filter available cars.
   /// @return An array of CarInfo representing the available cars for the user.
-  function fetchAvailableCarsForUser(
+ function fetchAvailableCarsForUser(
     address user,
     Schemas.SearchCarParams memory searchCarParams
   ) public view returns (Schemas.CarInfo[] memory) {
@@ -401,6 +401,7 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
 
     return result;
   }
+
 
   /// @notice Verifies the authenticity of the signed location information.
   /// @dev This function checks the validity of the signed location information using the geoService.
