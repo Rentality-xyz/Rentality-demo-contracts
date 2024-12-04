@@ -15,6 +15,7 @@ import '@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol';
 import './libs/RentalityTripsQuery.sol';
 import './RentalityGateway.sol';
 import {RentalityTripsView, FunctionNotFound} from './RentalityTripsView.sol';
+import {RentalityDimoService} from './features/RentalityDimoService.sol';
 /// @dev SAFETY: The linked library is not supported yet because it can modify the state or call
 ///  selfdestruct, as far as RentalityTripsQuery doesn't has this logic,
 /// it's completely safe for upgrade
@@ -26,16 +27,19 @@ contract RentalityView is UUPSUpgradeable, Initializable {
 
   RentalityInsurance private insuranceService;
   RentalityTripsView private tripsView;
+  RentalityDimoService private dimoService;
 
   function updateServiceAddresses(
     RentalityContract memory contracts,
     address insurance,
-    address tripsViewAddress
+    address tripsViewAddress,
+    address dimoServiceAddress
   ) public {
     require(addresses.userService.isAdmin(tx.origin), 'only Admin.');
     addresses = contracts;
     insuranceService = RentalityInsurance(insurance);
     tripsView = RentalityTripsView(tripsViewAddress);
+    dimoService = RentalityDimoService(dimoServiceAddress);
   }
 
   fallback(bytes calldata data) external returns (bytes memory) {
@@ -135,7 +139,7 @@ contract RentalityView is UUPSUpgradeable, Initializable {
   /// @notice Retrieves information about cars owned by the caller.
   /// @return An array of car information owned by the caller.
   function getMyCars() public view returns (Schemas.CarInfoDTO[] memory) {
-    return RentalityUtils.getCarsOwnedByUserWithEditability(addresses);
+    return RentalityUtils.getCarsOwnedByUserWithEditability(addresses, dimoService);
   }
 
   /// @notice Retrieves detailed information about a car.
@@ -268,7 +272,8 @@ contract RentalityView is UUPSUpgradeable, Initializable {
     address claimServiceAddress,
     address carDeliveryAddress,
     address insuranceAddress,
-    address tripsViewAddress
+    address tripsViewAddress,
+    address dimoServiceAddress
   ) public initializer {
     addresses = RentalityContract(
       RentalityCarToken(carServiceAddress),
@@ -285,6 +290,7 @@ contract RentalityView is UUPSUpgradeable, Initializable {
     insuranceService = RentalityInsurance(insuranceAddress);
     tripsView = RentalityTripsView(tripsViewAddress);
     tripsView.updateViewService(this);
+    dimoService = RentalityDimoService(dimoServiceAddress);
   }
 
   function _authorizeUpgrade(address /*newImplementation*/) internal view override {

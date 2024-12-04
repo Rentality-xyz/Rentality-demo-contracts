@@ -6,7 +6,7 @@ import './RentalityPlatform.sol';
 import './abstract/IRentalityAdminGateway.sol';
 import {RentalityContract, RentalityGateway} from './RentalityGateway.sol';
 import './Schemas.sol';
-import './Schemas.sol';
+import {RentalityDimoService} from './features/RentalityDimoService.sol';
 
 /// @custom:oz-upgrades-unsafe-allow external-library-linking
 contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
@@ -20,6 +20,7 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
   RentalityCarDelivery private deliveryService;
   RentalityView private viewService;
   RentalityInsurance private insuranceService;
+  RentalityDimoService private dimoService;
   /// @notice Ensures that the caller is either an admin, the contract owner, or an admin from the origin transaction.
   modifier onlyAdmin() {
     require(
@@ -44,6 +45,12 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
       );
   }
 
+function updateDimoService(address dimoServiceAddress) public onlyAdmin {
+    dimoService = RentalityDimoService(dimoService);
+}
+  function getDimoService() public view returns (RentalityDimoService) {
+    return dimoService;
+  }
   function getInsuranceService() public view returns (RentalityInsurance) {
     return insuranceService;
   }
@@ -475,7 +482,8 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
     address carDeliveryAddress,
     address viewServiceAddress,
     address insuranceServiceAddress,
-    address rentalityTripsViewAddress
+    address rentalityTripsViewAddress,
+    address dimoServiceAddress
   ) public initializer {
     carService = RentalityCarToken(carServiceAddress);
     currencyConverterService = RentalityCurrencyConverter(currencyConverterServiceAddress);
@@ -486,8 +494,9 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
     claimService = RentalityClaimService(claimServiceAddress);
     deliveryService = RentalityCarDelivery(carDeliveryAddress);
     viewService = RentalityView(viewServiceAddress);
+    dimoService = RentalityDimoService(dimoServiceAddress);
 
-    viewService.updateServiceAddresses(getRentalityContracts(), insuranceServiceAddress, rentalityTripsViewAddress);
+    viewService.updateServiceAddresses(getRentalityContracts(), insuranceServiceAddress, rentalityTripsViewAddress, dimoServiceAddress);
     __Ownable_init();
   }
 }

@@ -627,7 +627,8 @@
               ]
             },
             { "type": "string", "name": "metadataURI" },
-            { "type": "bool", "name": "isEditable" }
+            { "type": "bool", "name": "isEditable" },
+            { "type": "uint256", "name": "dimoTokenId" }
           ]
         }
       ]
@@ -791,7 +792,8 @@
         { "type": "address", "name": "claimServiceAddress" },
         { "type": "address", "name": "carDeliveryAddress" },
         { "type": "address", "name": "insuranceAddress" },
-        { "type": "address", "name": "tripsViewAddress" }
+        { "type": "address", "name": "tripsViewAddress" },
+        { "type": "address", "name": "dimoServiceAddress" }
       ],
       "outputs": []
     },
@@ -959,7 +961,8 @@
           ]
         },
         { "type": "address", "name": "insurance" },
-        { "type": "address", "name": "tripsViewAddress" }
+        { "type": "address", "name": "tripsViewAddress" },
+        { "type": "address", "name": "dimoServiceAddress" }
       ],
       "outputs": []
     },

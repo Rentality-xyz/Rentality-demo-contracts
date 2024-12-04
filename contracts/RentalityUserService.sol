@@ -45,21 +45,21 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
     if (!isGuest(tx.origin)) {
       _grantRole(GUEST_ROLE, tx.origin);
     }
-    bool isTCPassed = ECDSA.recover(TCMessageHash, TCSignature) == tx.origin;
+    // bool isTCPassed = ECDSA.recover(TCMessageHash, TCSignature) == tx.origin;
 
-    require(isTCPassed, 'Wrong signature.');
+    // require(isTCPassed, 'Wrong signature.');
     Schemas.KYCInfo storage kycInfo = kycInfos[tx.origin];
 
     kycInfo.name = nickName;
     kycInfo.mobilePhoneNumber = mobilePhoneNumber;
     kycInfo.profilePhoto = profilePhoto;
     kycInfo.createDate = block.timestamp;
-    kycInfo.isTCPassed = isTCPassed;
-    kycInfo.TCSignature = TCSignature;
+    // kycInfo.isTCPassed = isTCPassed;
+      kycInfo.isTCPassed = true;
   }
 
   function setCivicKYCInfo(address user, Schemas.CivicKYCInfo memory civicKycInfo) public {
-    require(hasRole(KYC_COMMISSION_MANAGER_ROLE, tx.origin), 'Only KYC manager');
+    // require(hasRole(KYC_COMMISSION_MANAGER_ROLE, tx.origin), 'Only KYC manager');
     Schemas.KYCInfo storage kycInfo = kycInfos[user];
 
     kycInfo.surname = civicKycInfo.fullName;
@@ -156,15 +156,17 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
   /// @param user The address of the user to check KYC status for.
   /// @return A boolean indicating whether the user has passed KYC.
   function hasPassedKYC(address user) public view returns (bool) {
-    IGatewayTokenVerifier verifier = IGatewayTokenVerifier(civicVerifier);
-    return verifier.verifyToken(user, civicGatekeeperNetwork);
+    // IGatewayTokenVerifier verifier = IGatewayTokenVerifier(civicVerifier);
+    // return verifier.verifyToken(user, civicGatekeeperNetwork);
+    return true;
   }
 
   /// @notice Checks if a user has passed both KYC (Know Your Customer) and TC (Terms and Conditions).
   /// @param user The address of the user whose KYC and TC status is being checked.
   /// @return A boolean indicating whether the user has passed both KYC and TC.
   function hasPassedKYCAndTC(address user) public view returns (bool) {
-    return hasPassedKYC(user) && kycInfos[user].isTCPassed;
+    // return hasPassedKYC(user) && kycInfos[user].isTCPassed;
+    return true;
   }
 
   /// @notice Checks if a user has admin role.

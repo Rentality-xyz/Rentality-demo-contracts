@@ -14,6 +14,7 @@ import './libs/RentalityQuery.sol';
 import {RentalityCarDelivery} from './features/RentalityCarDelivery.sol';
 import {UUPSOwnable} from './proxy/UUPSOwnable.sol';
 import {RentalityUtils} from './libs/RentalityUtils.sol';
+import {RentalityDimoService} from './features/RentalityDimoService.sol';
 import './RentalityView.sol';
 import './payments/RentalityInsurance.sol';
 
@@ -34,11 +35,13 @@ contract RentalityPlatform is UUPSOwnable {
   /// @dev Modifier to restrict access to admin users only.
 
   RentalityInsurance private insuranceService;
+  RentalityDimoService private dimoService;
 
   function updateServiceAddresses(RentalityAdminGateway adminService) public {
     require(addresses.userService.isAdmin(tx.origin), 'only Admin.');
     addresses = adminService.getRentalityContracts();
     insuranceService = adminService.getInsuranceService();
+    dimoService = adminService.getDimoService();
   }
 
   /// @notice Creates a trip request with delivery.
@@ -345,7 +348,9 @@ contract RentalityPlatform is UUPSOwnable {
     uint carId = addresses.carService.addCar(request);
 
     insuranceService.saveInsuranceRequired(carId, request.insurancePriceInUsdCents, request.insuranceRequired);
-
+    Schemas.DimoTokensData[] memory dimo = new Schemas.DimoTokensData[](1);
+    dimo[0] = Schemas.DimoTokensData(request.dimoTokenId,carId);
+  dimoService.saveDimoTokenIds(dimo);
     return carId;
   }
 
@@ -413,7 +418,8 @@ contract RentalityPlatform is UUPSOwnable {
     address claimServiceAddress,
     address carDeliveryAddress,
     address viewService,
-    address insuranceServiceAddress
+    address insuranceServiceAddress,
+    address dimoServiceAddress
   ) public initializer {
     addresses = RentalityContract(
       RentalityCarToken(carServiceAddress),
@@ -428,6 +434,7 @@ contract RentalityPlatform is UUPSOwnable {
       RentalityView(viewService)
     );
     insuranceService = RentalityInsurance(insuranceServiceAddress);
+    dimoService = RentalityDimoService(dimoServiceAddress);
     __Ownable_init();
   }
 }

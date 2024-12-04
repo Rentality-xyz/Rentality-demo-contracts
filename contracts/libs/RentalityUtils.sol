@@ -13,6 +13,7 @@ import '../payments/RentalityInsurance.sol';
 import {RentalityContract} from '../RentalityGateway.sol';
 import {RentalityCarDelivery} from '../features/RentalityCarDelivery.sol';
 import {RentalityClaimService} from '../features/RentalityClaimService.sol';
+import {RentalityDimoService} from '../features/RentalityDimoService.sol';
 /// @title RentalityUtils Library
 /// @notice
 /// This library provides utility functions for handling coordinates, string manipulation,
@@ -662,7 +663,8 @@ library RentalityUtils {
     );
   }
   function getCarsOwnedByUserWithEditability(
-    RentalityContract memory contracts
+    RentalityContract memory contracts,
+    RentalityDimoService dimoService
   ) public view returns (Schemas.CarInfoDTO[] memory) {
     RentalityCarToken carService = contracts.carService;
 
@@ -673,6 +675,7 @@ library RentalityUtils {
       result[i].carInfo = carInfoes[i];
       result[i].metadataURI = carService.tokenURI(carInfoes[i].carId);
       result[i].isEditable = isCarEditable(contracts, carInfoes[i].carId);
+      result[i].dimoTokenId = dimoService.getDimoTokenId(carInfoes[i].carId);
     }
 
     return result;
