@@ -443,7 +443,8 @@
         { "type": "address", "name": "carDeliveryAddress" },
         { "type": "address", "name": "viewServiceAddress" },
         { "type": "address", "name": "insuranceServiceAddress" },
-        { "type": "address", "name": "rentalityTripsViewAddress" }
+        { "type": "address", "name": "rentalityTripsViewAddress" },
+        { "type": "address", "name": "dimoServiceAddress" }
       ],
       "outputs": []
     },
@@ -598,6 +599,14 @@
       "constant": false,
       "payable": false,
       "inputs": [{ "type": "address", "name": "contractAddress" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "updateDimoService",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "dimoServiceAddress" }],
       "outputs": []
     },
     {

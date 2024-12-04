@@ -44,6 +44,7 @@ interface Schemas {
     CarInfo carInfo;
     string metadataURI;
     bool isEditable;
+    uint dimoTokenId;
   }
 
   /// @notice Struct to store input parameters for creating a new car.
@@ -64,6 +65,7 @@ interface Schemas {
     bool currentlyListed;
     bool insuranceRequired;
     uint insurancePriceInUsdCents;
+    uint dimoTokenId; // 0 if not connected to dimo
   }
 
   /// @notice Struct to store input parameters for updating car information.
@@ -669,4 +671,9 @@ interface Schemas {
     CarInfo carInfo;
     InsuranceCarInfo insuranceInfo;
   }
+
+  struct DimoTokensData {
+    uint dimoTokenId;
+    uint rentalityTokenId;
+}
 }
