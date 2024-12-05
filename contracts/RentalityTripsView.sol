@@ -8,7 +8,6 @@ import './payments/RentalityInsurance.sol';
 import './features/RentalityClaimService.sol';
 import './payments/RentalityCurrencyConverter.sol';
 import './libs/RentalityTripsQuery.sol';
-import './libs/RentalityQuery.sol';
 import '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 import '@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol';
 import './libs/RentalityTripsQuery.sol';
@@ -21,7 +20,6 @@ error FunctionNotFound();
 /// @custom:oz-upgrades-unsafe-allow external-library-linking
 contract RentalityTripsView is UUPSUpgradeable, Initializable {
   RentalityContract private addresses;
-  using RentalityQuery for RentalityContract;
   using RentalityTripsQuery for RentalityContract;
 
   RentalityInsurance private insuranceService;
