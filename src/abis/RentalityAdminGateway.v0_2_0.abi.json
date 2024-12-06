@@ -340,6 +340,15 @@
     },
     {
       "type": "function",
+      "name": "getDimoService",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
       "name": "getInsuranceService",
       "constant": true,
       "stateMutability": "view",
