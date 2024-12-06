@@ -65,9 +65,9 @@ contract RentalityView is UUPSUpgradeable, Initializable {
   /// @notice Retrieves the metadata URI of a car by its ID.
   /// @param carId The ID of the car.
   /// @return The metadata URI of the car.
-  // function getCarMetadataURI(uint256 carId) public view returns (string memory) {
-  //   return addresses.carService.tokenURI(carId);
-  // }
+  function getCarMetadataURI(uint256 carId) public view returns (string memory) {
+    return addresses.carService.tokenURI(carId);
+  }
 
   // not using
   /// @notice Retrieves information about all cars.
