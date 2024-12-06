@@ -658,7 +658,8 @@ library RentalityUtils {
       geo.getCarCoordinateValidity(carId),
       car.currentlyListed,
       geo.getLocationInfo(car.locationHash),
-      car.carVinNumber
+      car.carVinNumber,
+      carService.tokenURI(carId)
     );
   }
   function getCarsOwnedByUserWithEditability(
