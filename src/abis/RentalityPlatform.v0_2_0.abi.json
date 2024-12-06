@@ -80,7 +80,8 @@
             },
             { "type": "bool", "name": "currentlyListed" },
             { "type": "bool", "name": "insuranceRequired" },
-            { "type": "uint256", "name": "insurancePriceInUsdCents" }
+            { "type": "uint256", "name": "insurancePriceInUsdCents" },
+            { "type": "uint256", "name": "dimoTokenId" }
           ]
         }
       ],
@@ -280,7 +281,8 @@
         { "type": "address", "name": "claimServiceAddress" },
         { "type": "address", "name": "carDeliveryAddress" },
         { "type": "address", "name": "viewService" },
-        { "type": "address", "name": "insuranceServiceAddress" }
+        { "type": "address", "name": "insuranceServiceAddress" },
+        { "type": "address", "name": "dimoServiceAddress" }
       ],
       "outputs": []
     },
@@ -447,7 +449,8 @@
             { "type": "bool", "name": "insuranceRequired" },
             { "type": "uint256", "name": "insurancePriceInUsdCents" },
             { "type": "uint8", "name": "engineType" },
-            { "type": "string", "name": "tokenUri" }
+            { "type": "string", "name": "tokenUri" },
+            { "type": "uint256", "name": "dimoTokenId" }
           ]
         }
       ],
@@ -473,7 +476,8 @@
             { "type": "bool", "name": "insuranceRequired" },
             { "type": "uint256", "name": "insurancePriceInUsdCents" },
             { "type": "uint8", "name": "engineType" },
-            { "type": "string", "name": "tokenUri" }
+            { "type": "string", "name": "tokenUri" },
+            { "type": "uint256", "name": "dimoTokenId" }
           ]
         },
         {
@@ -506,14 +510,6 @@
       "constant": false,
       "payable": false,
       "inputs": [{ "type": "uint256", "name": "claimId" }],
-      "outputs": []
-    },
-    {
-      "type": "function",
-      "name": "updateServiceAddresses",
-      "constant": false,
-      "payable": false,
-      "inputs": [{ "type": "address", "name": "adminService" }],
       "outputs": []
     },
     {

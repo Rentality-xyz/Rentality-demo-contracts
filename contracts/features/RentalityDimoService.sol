@@ -51,10 +51,8 @@ contract RentalityDimoService is UUPSAccess, EIP712Upgradeable {
     //   );
   }
 
-function saveDimoTokenIds(Schemas.DimoTokensData[] memory tokensData) public {
-    for (uint i = 0; i < tokensData.length; i++) {
-        carIdToDimoTokenId[tokensData[i].rentalityTokenId] = tokensData[i].dimoTokenId;
-    }
+function saveDimoTokenId(uint dimoTokenId, uint carId) public {
+        carIdToDimoTokenId[carId] = dimoTokenId;
 }
 function getDimoTokenId(uint carId) public view returns(uint) {
        return carIdToDimoTokenId[carId];

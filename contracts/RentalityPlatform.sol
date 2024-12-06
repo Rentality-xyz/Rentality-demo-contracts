@@ -37,12 +37,12 @@ contract RentalityPlatform is UUPSOwnable {
   RentalityInsurance private insuranceService;
   RentalityDimoService private dimoService;
 
-  function updateServiceAddresses(RentalityAdminGateway adminService) public {
-    require(addresses.userService.isAdmin(tx.origin), 'only Admin.');
-    addresses = adminService.getRentalityContracts();
-    insuranceService = adminService.getInsuranceService();
-    dimoService = adminService.getDimoService();
-  }
+  // function updateServiceAddresses(RentalityAdminGateway adminService) public {
+  //   require(addresses.userService.isAdmin(tx.origin), 'only Admin.');
+  //   addresses = adminService.getRentalityContracts();
+  //   insuranceService = adminService.getInsuranceService();
+  //   dimoService = adminService.getDimoService();
+  // }
 
   /// @notice Creates a trip request with delivery.
   /// @param request The trip request with delivery details.
@@ -348,9 +348,7 @@ contract RentalityPlatform is UUPSOwnable {
     uint carId = addresses.carService.addCar(request);
 
     insuranceService.saveInsuranceRequired(carId, request.insurancePriceInUsdCents, request.insuranceRequired);
-    Schemas.DimoTokensData[] memory dimo = new Schemas.DimoTokensData[](1);
-    dimo[0] = Schemas.DimoTokensData(request.dimoTokenId,carId);
-  dimoService.saveDimoTokenIds(dimo);
+  dimoService.saveDimoTokenId(request.dimoTokenId, carId);
     return carId;
   }
 
@@ -363,6 +361,7 @@ contract RentalityPlatform is UUPSOwnable {
       IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getLocationInfo(bytes32('')),
       string('')
     );
+    dimoService.saveDimoTokenId(request.dimoTokenId, request.carId);
     insuranceService.saveInsuranceRequired(request.carId, request.insurancePriceInUsdCents, request.insuranceRequired);
   }
 
@@ -379,6 +378,7 @@ contract RentalityPlatform is UUPSOwnable {
 
     addresses.carService.verifySignedLocationInfo(location);
     insuranceService.saveInsuranceRequired(request.carId, request.insurancePriceInUsdCents, request.insuranceRequired);
+     dimoService.saveDimoTokenId(request.dimoTokenId, request.carId);
     return addresses.carService.updateCarInfo(request, location.locationInfo, geoApiKey);
   }
   /// @notice Adds a user discount.

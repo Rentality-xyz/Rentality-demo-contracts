@@ -81,6 +81,7 @@ interface Schemas {
     uint insurancePriceInUsdCents;
     uint8 engineType;
     string tokenUri;
+    uint dimoTokenId;
   }
 
   /// @notice Struct to store search parameters for querying cars.
