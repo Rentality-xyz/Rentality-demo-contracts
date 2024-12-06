@@ -569,7 +569,8 @@
                 { "type": "string", "name": "timeZoneId" }
               ]
             },
-            { "type": "string", "name": "carVinNumber" }
+            { "type": "string", "name": "carVinNumber" },
+            { "type": "string", "name": "carMetadataURI" }
           ]
         }
       ]
@@ -617,7 +618,8 @@
                 { "type": "bool", "name": "required" },
                 { "type": "uint256", "name": "priceInUsdCents" }
               ]
-            }
+            },
+            { "type": "string", "name": "carMetadataURI" }
           ]
         }
       ]
