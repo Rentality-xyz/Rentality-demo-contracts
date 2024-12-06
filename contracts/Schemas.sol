@@ -488,6 +488,7 @@ interface Schemas {
     bool currentlyListed;
     LocationInfo locationInfo;
     string carVinNumber;
+    string carMetadataURI;
   }
 
   // Taxes
@@ -668,5 +669,6 @@ interface Schemas {
   struct CarInfoWithInsurance {
     CarInfo carInfo;
     InsuranceCarInfo insuranceInfo;
+    string carMetadataURI;
   }
 }
