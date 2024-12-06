@@ -103,7 +103,7 @@ interface IRentalityGateway {
   /// @notice Get the metadata URI for a specific car.
   /// @param carId The ID of the car.
   /// @return The metadata URI for the specified car.
-  function getCarMetadataURI(uint256 carId) external view returns (string memory);
+  // function getCarMetadataURI(uint256 carId) external view returns (string memory);
 
   /// @notice Get information about a specific car by ID.
   /// @param carId The ID of the car.
