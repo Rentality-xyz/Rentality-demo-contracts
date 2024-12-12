@@ -30,6 +30,10 @@ contract RentalityInsurance is Initializable, UUPSAccess {
     if (insuranceInfo.insuranceType == Schemas.InsuranceType.None) {
       if (insurances.length > 0) insurances[insurances.length - 1].insuranceType = insuranceInfo.insuranceType;
     }
+    else {
+      if(insurances.length > 0)
+      insurances[insurances.length - 1].insuranceType = Schemas.InsuranceType.None;
+    
     insurances.push(
       Schemas.InsuranceInfo(
         insuranceInfo.companyName,
@@ -41,6 +45,7 @@ contract RentalityInsurance is Initializable, UUPSAccess {
         tx.origin
       )
     );
+    }
   }
   function getMyInsurancesAsGuest(address user) public view returns (Schemas.InsuranceInfo[] memory) {
     require(userService.isManager(msg.sender), 'only Manager');

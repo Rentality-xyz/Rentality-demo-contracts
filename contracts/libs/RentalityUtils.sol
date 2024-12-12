@@ -685,9 +685,10 @@ library RentalityUtils {
   /// @return Returns true if the car is editable, otherwise false.
   function isCarEditable(RentalityContract memory contracts, uint carId) internal view returns (bool) {
     RentalityTripService tripService = contracts.tripService;
+    uint[] memory carTrips = tripService.getActiveTrips(carId);
 
-    for (uint i = 1; i <= tripService.totalTripCount(); i++) {
-      Schemas.Trip memory tripInfo = tripService.getTrip(i);
+    for (uint i = 0; i < carTrips.length; i++) {
+      Schemas.Trip memory tripInfo = tripService.getTrip(carTrips[i]);
 
       if (
         tripInfo.carId == carId &&
