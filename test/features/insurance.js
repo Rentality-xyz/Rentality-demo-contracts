@@ -215,6 +215,21 @@ describe('Rentality insurance', function () {
     expect(insurances[0].photo).to.be.eq(insurance.photo)
     expect(insurances[0].policyNumber).to.be.eq(insurance.policyNumber)
   })
+  it('guest add second insurance, second has none status', async function () {
+    let insurance = {
+      companyName: 'myCo',
+      policyNumber: '12124-124-124',
+      photo: 'url',
+      comment: 'comment',
+      insuranceType: InsuranceType.General,
+    }
+    await expect(rentalityGateway.connect(guest).saveGuestInsurance(insurance)).to.not.reverted
+    await expect(rentalityGateway.connect(guest).saveGuestInsurance(insurance)).to.not.reverted
+
+    let insurances = await rentalityGateway.connect(guest).getMyInsurancesAsGuest()
+    expect(insurances[0].insuranceType).to.be.eq(0)
+    expect(insurances[1].insuranceType).to.be.eq(1)
+  })
   it('guest can not add one time insurance in profile', async function () {
     let insurance = {
       companyName: 'myCo',
