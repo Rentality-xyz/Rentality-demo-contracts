@@ -141,7 +141,9 @@ contract RentalityView is UUPSUpgradeable, Initializable {
   function getMyCars() public view returns (Schemas.CarInfoDTO[] memory) {
     return RentalityUtils.getCarsOwnedByUserWithEditability(addresses, dimoService);
   }
-
+function getDimoVihicles() public view returns(uint[] memory) {
+  return dimoService.getDimoVihicles();
+}
   /// @notice Retrieves detailed information about a car.
   /// @param carId The ID of the car for which details are requested.
   /// @return details An instance of `Schemas.CarDetails` containing the details of the specified car.

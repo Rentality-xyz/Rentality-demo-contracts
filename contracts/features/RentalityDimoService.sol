@@ -19,6 +19,7 @@ contract RentalityDimoService is UUPSAccess, EIP712Upgradeable {
  RentalityCarToken private carToken;
  address private adminAddress;
 
+uint[] private dimoVihicles;
 
   function verifySignedLocationInfo(Schemas.SignedLocationInfo memory locationInfo) public view {
     require(_verify(locationInfo) == adminAddress, 'Wrong signature');
@@ -53,6 +54,16 @@ contract RentalityDimoService is UUPSAccess, EIP712Upgradeable {
 
 function saveDimoTokenId(uint dimoTokenId, uint carId) public {
         carIdToDimoTokenId[carId] = dimoTokenId;
+}
+function saveButch(uint[] memory dimoTokenIds, uint[] memory carIds) public {
+  require(dimoTokenIds.length == carIds.length, "Wrong length");
+  for (uint i = 0; i < dimoTokenIds.length; i++) {
+        carIdToDimoTokenId[carIds[i]] = dimoTokenIds[i];
+       dimoVihicles.push(dimoTokenIds[i]);
+  }
+}
+function getDimoVihicles() public view returns(uint[] memory) {
+  return dimoVihicles;
 }
 function getDimoTokenId(uint carId) public view returns(uint) {
        return carIdToDimoTokenId[carId];

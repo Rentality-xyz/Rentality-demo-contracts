@@ -65,7 +65,6 @@ interface Schemas {
     bool currentlyListed;
     bool insuranceRequired;
     uint insurancePriceInUsdCents;
-    uint dimoTokenId; // 0 if not connected to dimo
   }
 
   /// @notice Struct to store input parameters for updating car information.
@@ -81,7 +80,6 @@ interface Schemas {
     uint insurancePriceInUsdCents;
     uint8 engineType;
     string tokenUri;
-    uint dimoTokenId;
   }
 
   /// @notice Struct to store search parameters for querying cars.

@@ -368,4 +368,7 @@ interface IRentalityGateway {
   /// @param duration The total number of days for the car rental
   /// @return Schemas.FilterInfoDTO A data structure containing additional filter information, optimized for the specified rental duration
   function getFilterInfo(uint64 duration) external view returns (Schemas.FilterInfoDTO memory);
+
+  function getDimoVihicles() external view returns(uint[] memory);
+  function saveDimoTokenIds(uint[] memory, uint[] memory) external;
 }
