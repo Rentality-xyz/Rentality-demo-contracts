@@ -348,7 +348,6 @@ contract RentalityPlatform is UUPSOwnable {
     uint carId = addresses.carService.addCar(request);
 
     insuranceService.saveInsuranceRequired(carId, request.insurancePriceInUsdCents, request.insuranceRequired);
-  dimoService.saveDimoTokenId(request.dimoTokenId, carId);
     return carId;
   }
 
@@ -361,7 +360,6 @@ contract RentalityPlatform is UUPSOwnable {
       IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getLocationInfo(bytes32('')),
       string('')
     );
-    dimoService.saveDimoTokenId(request.dimoTokenId, request.carId);
     insuranceService.saveInsuranceRequired(request.carId, request.insurancePriceInUsdCents, request.insuranceRequired);
   }
 
@@ -378,7 +376,6 @@ contract RentalityPlatform is UUPSOwnable {
 
     addresses.carService.verifySignedLocationInfo(location);
     insuranceService.saveInsuranceRequired(request.carId, request.insurancePriceInUsdCents, request.insuranceRequired);
-     dimoService.saveDimoTokenId(request.dimoTokenId, request.carId);
     return addresses.carService.updateCarInfo(request, location.locationInfo, geoApiKey);
   }
   /// @notice Adds a user discount.
@@ -389,6 +386,9 @@ contract RentalityPlatform is UUPSOwnable {
 
   function addUserDeliveryPrices(uint64 underTwentyFiveMilesInUsdCents, uint64 aboveTwentyFiveMilesInUsdCents) public {
     addresses.deliveryService.setUserDeliveryPrices(underTwentyFiveMilesInUsdCents, aboveTwentyFiveMilesInUsdCents);
+  }
+  function saveDimoTokenIds(uint[] memory dimoTokenIds, uint[] memory carIds) public {
+    dimoService.saveButch(dimoTokenIds, carIds);
   }
 
   function saveTripInsuranceInfo(uint tripId, Schemas.SaveInsuranceRequest memory insuranceInfo) public {
