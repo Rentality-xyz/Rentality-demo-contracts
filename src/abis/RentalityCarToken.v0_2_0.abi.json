@@ -125,8 +125,7 @@
             },
             { "type": "bool", "name": "currentlyListed" },
             { "type": "bool", "name": "insuranceRequired" },
-            { "type": "uint256", "name": "insurancePriceInUsdCents" },
-            { "type": "uint256", "name": "dimoTokenId" }
+            { "type": "uint256", "name": "insurancePriceInUsdCents" }
           ]
         }
       ],
