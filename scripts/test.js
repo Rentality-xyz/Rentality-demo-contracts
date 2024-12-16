@@ -5,8 +5,8 @@ const { startDeploy } = require('./utils/deployHelper')
 const { emptyLocationInfo, getEmptySearchCarParams } = require('../test/utils')
 
 async function main() {
-  let contract = await ethers.getContractAt('RentalityView', '0x112CB6d63c40d9078848Db7761459D2335F0312D')
-  console.log(await contract.getMyInsurancesAsGuest())
+  let contract = await ethers.getContractAt('RentalityInsurance', '0x7E3D4fa52C23f9E5Ee35E757092B0068d7FA5463')
+  console.log(await contract.getTripInsurances(170))
 }
 
 main()
