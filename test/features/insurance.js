@@ -651,4 +651,42 @@ describe('Rentality insurance', function () {
     )
     expect(result2.carId).to.be.eq(0)
   })
+  it('Only last innsurance adds to the the trip', async function () {
+    await expect(rentalityGateway.connect(host).addCar(mockRequestWithInsurance)).not.to.be.reverted
+    const myCars = await rentalityGateway.connect(host).getMyCars()
+    expect(myCars.length).to.equal(1)
+   
+    let insurance = {
+      companyName: 'myCo',
+      policyNumber: '12124-124-124',
+      photo: 'url',
+      comment: 'comment',
+      insuranceType: InsuranceType.General,
+    }
+    await expect(rentalityGateway.connect(guest).saveGuestInsurance(insurance)).to.not.reverted
+    await expect(rentalityGateway.connect(guest).saveGuestInsurance(insurance)).to.not.reverted
+
+    const result = await rentalityGateway
+      .connect(guest)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo)
+
+    await expect(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
+        {
+          carId: 1,
+          startDateTime: 123,
+          endDateTime: 321,
+          currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
+        },
+        { value: result.totalPrice }
+      )
+    ).to.not.reverted
+
+  
+
+    let insurances = await rentalityGateway.connect(guest).getInsurancesBy(false)
+    expect(insurances.length).to.be.eq(1)
+  })
 })
