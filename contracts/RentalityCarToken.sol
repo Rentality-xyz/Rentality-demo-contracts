@@ -34,6 +34,7 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     require(userService.isAdmin(tx.origin), 'Only admin.');
     _;
   }
+  mapping(uint => uint) private carIdToListingMoment;
 
   /// @dev Updates the address of the RentalityEventManager contract.
   /// @param _eventManager The address of the new RentalityEventManager contract.
@@ -123,6 +124,9 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     require(request.milesIncludedPerDay > 0, "Make sure the included distance isn't negative");
     require(isUniqueVinNumber(request.carVinNumber), 'Car with this VIN number already exists');
     geoService.verifySignedLocationInfo(request.locationInfo);
+    if (!userService.isHost(tx.origin)) {
+      userService.grantHostRole(tx.origin);
+    }
 
     _carIdCounter.increment();
     uint256 newCarId = _carIdCounter.current();
@@ -155,8 +159,9 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
       hash
     );
 
+    if (request.currentlyListed) carIdToListingMoment[newCarId] = block.timestamp;
+
     _approve(address(this), newCarId);
-    //_transfer(msg.sender, address(this), carId);
 
     eventManager.emitEvent(Schemas.EventType.Car, newCarId, uint8(Schemas.CarUpdateStatus.Add), tx.origin, tx.origin);
 
@@ -166,13 +171,12 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
   /// @notice Updates the information for a specific car.
   /// @param request The input parameters for updating the car.
   /// @param location The location for verifying geographic coordinates.
-  ///  can be empty, for left old location information.
-  /// @param geoApiKey The API key for the geographic verification service.
-  /// can be empty, if location param is empty.
+  /// can be empty if updateLocation is false
+  /// @param updateLocation Wether update location or not
   function updateCarInfo(
     Schemas.UpdateCarInfoRequest memory request,
     Schemas.LocationInfo memory location,
-    string memory geoApiKey
+    bool updateLocation
   ) public {
     require(userService.isManager(msg.sender), 'Only from manager contract.');
     require(_exists(request.carId), 'Token does not exist');
@@ -180,8 +184,7 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     require(request.pricePerDayInUsdCents > 0, "Make sure the price isn't negative");
     require(request.milesIncludedPerDay > 0, "Make sure the included distance isn't negative");
 
-    if (bytes(location.userAddress).length > 0) {
-      require(bytes(geoApiKey).length > 0, 'Provide a valid geo API key');
+    if (updateLocation) {
       idToCarInfo[request.carId].geoVerified = true;
       bytes32 hash = geoService.createLocationInfo(location);
       idToCarInfo[request.carId].locationHash = hash;
@@ -199,6 +202,12 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     idToCarInfo[request.carId].timeBufferBetweenTripsInSec = request.timeBufferBetweenTripsInSec;
     idToCarInfo[request.carId].currentlyListed = request.currentlyListed;
 
+    bool listed = idToCarInfo[request.carId].currentlyListed;
+
+    if (listed && !request.currentlyListed) carIdToListingMoment[request.carId] = 0;
+
+    if (!listed && request.currentlyListed) carIdToListingMoment[request.carId] = block.timestamp;
+
     eventManager.emitEvent(
       Schemas.EventType.Car,
       request.carId,
@@ -206,6 +215,10 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
       tx.origin,
       tx.origin
     );
+  }
+
+  function getListingMoment(uint carId) public view returns (uint) {
+    return carIdToListingMoment[carId];
   }
 
   /// @notice Updates the token URI associated with a specific car.

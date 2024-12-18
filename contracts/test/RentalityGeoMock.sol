@@ -316,7 +316,8 @@ contract RentalityGeoMock is IRentalityGeoParser {
       }
 
       // remove last char, because it duplicated
-      assembly {
+
+      assembly ('memory-safe') {
         mstore(inputBytes, sub(mload(inputBytes), 1))
       }
     }

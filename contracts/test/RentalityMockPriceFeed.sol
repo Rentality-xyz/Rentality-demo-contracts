@@ -8,8 +8,6 @@ import {AggregatorV2V3Interface} from '@chainlink/contracts/src/v0.8/interfaces/
 /// @notice This contract represents a mock Chainlink price feed for testing purposes.
 /// @dev It extends the MockV3Aggregator and allows configuring the number of decimals and initial answer.
 contract RentalityMockPriceFeed is AggregatorV2V3Interface {
-  uint256 public constant version = 0;
-
   uint8 public override decimals;
   int256 public override latestAnswer;
   uint256 public override latestTimestamp;
@@ -72,5 +70,8 @@ contract RentalityMockPriceFeed is AggregatorV2V3Interface {
 
   function description() external pure override returns (string memory) {
     return 'v0.8/tests/MockV3Aggregator.sol';
+  }
+  function version() external pure override returns (uint256) {
+    return 0;
   }
 }

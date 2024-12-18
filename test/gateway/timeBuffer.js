@@ -11,6 +11,7 @@ const {
   signTCMessage,
   signLocationInfo,
   emptyLocationInfo,
+  zeroHash,
   emptySignedLocationInfo,
 } = require('../utils')
 
@@ -67,6 +68,7 @@ describe('RentalityGateway: time buffer', function () {
     let locationInfo1 = {
       locationInfo,
       signature: signLocationInfo(await rentalityLocationVerifier.getAddress(), admin),
+      zeroHash,
     }
     const createCarRequest = {
       tokenUri: 'uri',
@@ -88,7 +90,7 @@ describe('RentalityGateway: time buffer', function () {
       insurancePriceInUsdCents: 0,
     }
 
-    await expect(rentalityGateway.connect(host).addCar(createCarRequest)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(createCarRequest, zeroHash)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
@@ -147,6 +149,7 @@ describe('RentalityGateway: time buffer', function () {
     let locationInfo1 = {
       locationInfo,
       signature: signLocationInfo(await rentalityLocationVerifier.getAddress(), admin),
+      zeroHash,
     }
     const createCarRequest = {
       tokenUri: 'uri',
@@ -169,7 +172,7 @@ describe('RentalityGateway: time buffer', function () {
       insurancePriceInUsdCents: 0,
     }
 
-    await expect(rentalityGateway.connect(host).addCar(createCarRequest)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(createCarRequest,zeroHash)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
@@ -235,7 +238,7 @@ describe('RentalityGateway: time buffer', function () {
       insurancePriceInUsdCents: 0,
     }
 
-    await expect(rentalityGateway.connect(host).addCar(createCarRequest)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(createCarRequest, zeroHash)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
@@ -301,7 +304,7 @@ describe('RentalityGateway: time buffer', function () {
       insurancePriceInUsdCents: 0,
     }
 
-    await expect(rentalityGateway.connect(host).addCar(createCarRequest)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(createCarRequest, zeroHash)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 

@@ -88,6 +88,10 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     uint msgValue
   ) public returns (uint) {
     require(addresses.userService.isManager(msg.sender), 'Only from manager contract.');
+
+    if (!addresses.userService.isGuest(tx.origin)) {
+      addresses.userService.grantGuestRole(tx.origin);
+    }
     _tripIdCounter.increment();
     uint256 newTripId = _tripIdCounter.current();
     if (milesIncludedPerDay == 0) {
@@ -95,7 +99,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     }
     carIdToActiveTrips[carId].push(newTripId);
     carIdToTrips[carId].push(newTripId);
-    
+
     paymentInfo.tripId = newTripId;
 
     Schemas.CarInfo memory carInfo = addresses.carService.getCarInfoById(carId);
@@ -170,13 +174,14 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
   ///   - Only the host or guest of the trip can reject it.
   ///   - The trip must be in status Created, Approved, or CheckedInByHost.
   ///  @param tripId The ID of the trip to be Rejected
-  function rejectTrip(uint256 tripId) public {
+  function rejectTrip(uint256 tripId, uint256 rentalityFee, uint256 depositRefund, uint256 tripEarnings) public {
     require(addresses.userService.isManager(msg.sender), 'Only from manager contract.');
+    Schemas.TripStatus status = idToTripInfo[tripId].status;
 
     address host = idToTripInfo[tripId].host;
     address guest = idToTripInfo[tripId].guest;
     bool controversialSituation = addresses.userService.isAdmin(tx.origin) &&
-      idToTripInfo[tripId].status == Schemas.TripStatus.CheckedOutByHost;
+      status == Schemas.TripStatus.CheckedOutByHost;
 
     require(
       idToTripInfo[tripId].host == tx.origin || idToTripInfo[tripId].guest == tx.origin || controversialSituation,
@@ -194,6 +199,14 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     idToTripInfo[tripId].status = Schemas.TripStatus.Canceled;
     idToTripInfo[tripId].rejectedDateTime = block.timestamp;
     idToTripInfo[tripId].rejectedBy = tx.origin;
+
+      saveTransactionInfo(
+      tripId,
+      rentalityFee,
+      status,
+      depositRefund,
+      tripEarnings
+    );
 
     eventManager.emitEvent(
       Schemas.EventType.Trip,
@@ -482,9 +495,9 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     uint[] memory activeTrips = carIdToActiveTrips[carId];
     for (uint i = 0; i < activeTrips.length; i++) {
       if(activeTrips[i] == tripId) {
-        for (uint j = i; j < activeTrips.length - 1; j++) 
+        for (uint j = i; j < activeTrips.length - 1; j++)
         activeTrips[j] = activeTrips[j + 1];
-      
+
       carIdToActiveTrips[carId] = activeTrips;
       break;
       }

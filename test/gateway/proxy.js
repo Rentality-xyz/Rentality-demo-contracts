@@ -145,28 +145,24 @@ describe('RentalityGateway: proxy', function () {
   it('should not be able to update platform without access', async function () {
     const RentalityPlatformAnnon = await ethers.getContractFactory('RentalityPlatform', {
       libraries: {
-        RentalityQuery: await query.getAddress(),
         RentalityUtils: await utils.getAddress(),
       },
       signer: anonymous,
     })
     const RentalityPlatformHost = await ethers.getContractFactory('RentalityPlatform', {
       libraries: {
-        RentalityQuery: await query.getAddress(),
         RentalityUtils: await utils.getAddress(),
       },
       signer: host,
     })
     const RentalityPlatformGuest = await ethers.getContractFactory('RentalityPlatform', {
       libraries: {
-        RentalityQuery: await query.getAddress(),
         RentalityUtils: await utils.getAddress(),
       },
       signer: guest,
     })
     const RentalityPlatformOwner = await ethers.getContractFactory('RentalityPlatform', {
       libraries: {
-        RentalityQuery: await query.getAddress(),
         RentalityUtils: await utils.getAddress(),
       },
       signer: owner,

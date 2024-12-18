@@ -361,7 +361,12 @@
       "name": "rejectTrip",
       "constant": false,
       "payable": false,
-      "inputs": [{ "type": "uint256", "name": "tripId" }],
+      "inputs": [
+        { "type": "uint256", "name": "tripId" },
+        { "type": "uint256", "name": "rentalityFee" },
+        { "type": "uint256", "name": "depositRefund" },
+        { "type": "uint256", "name": "tripEarnings" }
+      ],
       "outputs": []
     },
     {

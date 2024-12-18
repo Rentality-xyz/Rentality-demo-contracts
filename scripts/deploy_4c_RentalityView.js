@@ -65,6 +65,11 @@ async function main() {
     getContractAddress('RentalityTripsView', 'scripts/deploy_4b_RentalityTripsView.js', chainId),
     'RentalityTripsView'
   )
+  const rentalityReferralService = checkNotNull(
+    getContractAddress('RentalityReferralProgram', 'scripts/deploy_3e_RentalityReferralProgram.js', chainId),
+    'RentalityReferralProgram'
+  )
+  
   const contractFactory = await ethers.getContractFactory(contractName, {
     libraries: {
       RentalityUtils: rentalityUtilsAddress,
@@ -82,6 +87,7 @@ async function main() {
     rentalityCarDelivery,
     rentalityInsurance,
     rentalityTripsView,
+    rentalityReferralService
   ])
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()

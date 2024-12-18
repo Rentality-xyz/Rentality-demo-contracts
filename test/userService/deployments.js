@@ -1,5 +1,5 @@
 const { ethers, upgrades } = require('hardhat')
-const { ethToken, signTCMessage, signKycInfo, emptyKyc } = require('../utils')
+const { ethToken, signTCMessage, signKycInfo, emptyKyc, zeroHash } = require('../utils')
 
 // We define a fixture to reuse the same setup in every test.
 // We use loadFixture to run this setup once, snapshot that state,
@@ -31,12 +31,15 @@ async function deployDefaultFixture() {
   const RentalityCarToken = await ethers.getContractFactory('RentalityCarToken', {
     libraries: { RentalityUtils: await utils.getAddress() },
   })
-  let TripsQuery = await ethers.getContractFactory('RentalityTripsQuery')
+  let TripsQuery = await ethers.getContractFactory('RentalityTripsQuery', {
+    libraries: {
+      RentalityUtils: await utils.getAddress(),
+    },
+  })
   let tripsQuery = await TripsQuery.deploy()
   const RentalityPlatform = await ethers.getContractFactory('RentalityPlatform', {
     libraries: {
       RentalityUtils: await utils.getAddress(),
-      RentalityQuery: await query.getAddress(),
     },
   })
 
@@ -126,6 +129,23 @@ async function deployDefaultFixture() {
 
   await rentalityCarToken.waitForDeployment()
 
+  let RefferalLibFactory = await ethers.getContractFactory('RentalityRefferalLib')
+  let refferalLib = await RefferalLibFactory.deploy()
+  await refferalLib.waitForDeployment()
+
+  let ReffProgram = await ethers.getContractFactory('RentalityReferralProgram', {
+    libraries: {
+      RentalityRefferalLib: await refferalLib.getAddress(),
+    },
+  })
+
+  const refferalProgram = await upgrades.deployProxy(ReffProgram, [
+    await rentalityUserService.getAddress(),
+    await refferalLib.getAddress(),
+    await rentalityCarToken.getAddress(),
+  ])
+  await refferalProgram.waitForDeployment()
+
   const RentalityFloridaTaxes = await ethers.getContractFactory('RentalityFloridaTaxes')
 
   const rentalityFloridaTaxes = await upgrades.deployProxy(RentalityFloridaTaxes, [
@@ -213,6 +233,8 @@ async function deployDefaultFixture() {
     await deliveryService.getAddress(),
     await insuranceService.getAddress(),
     await rentalityTripsView.getAddress(),
+
+    await refferalProgram.getAddress(),
   ])
   await rentalityView.waitForDeployment()
 
@@ -226,6 +248,7 @@ async function deployDefaultFixture() {
     await deliveryService.getAddress(),
     await rentalityView.getAddress(),
     await insuranceService.getAddress(),
+    await refferalProgram.getAddress(),
   ])
 
   await rentalityPlatform.waitForDeployment()
@@ -261,11 +284,12 @@ async function deployDefaultFixture() {
 
   rentalityGateway = await ethers.getContractAt('IRentalityGateway', await rentalityGateway.getAddress())
 
-  await rentalityGateway.connect(host).setKYCInfo(' ', ' ', ' ', hostSignature)
-  await rentalityGateway.connect(guest).setKYCInfo(' ', ' ', ' ', guestSignature)
+  await rentalityGateway.connect(host).setKYCInfo(' ', ' ', ' ', hostSignature, zeroHash)
+  await rentalityGateway.connect(guest).setKYCInfo(' ', ' ', ' ', guestSignature, zeroHash)
 
   const RentalityAdminGateway = await ethers.getContractFactory('RentalityAdminGateway', {
     libraries: {
+      RentalityTripsQuery: await tripsQuery.getAddress(),
       RentalityUtils: await utils.getAddress(),
     },
   })
@@ -281,6 +305,8 @@ async function deployDefaultFixture() {
     await rentalityView.getAddress(),
     await insuranceService.getAddress(),
     await rentalityTripsView.getAddress(),
+
+    await refferalProgram.getAddress(),
   ])
   await rentalityAdminGateway.waitForDeployment()
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityView.getAddress())

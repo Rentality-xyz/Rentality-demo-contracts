@@ -56,7 +56,7 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
 
   function _parseResult(bool flag, bytes memory result) internal pure returns (bytes memory) {
     if (!flag)
-      assembly {
+      assembly ('memory-safe') {
         revert(add(32, result), mload(result))
       }
     return result;
