@@ -46,7 +46,8 @@
             { "type": "bool", "name": "insuranceRequired" },
             { "type": "uint256", "name": "insurancePriceInUsdCents" }
           ]
-        }
+        },
+        { "type": "bytes32", "name": "refferalHash" }
       ],
       "outputs": [{ "type": "uint256", "name": "" }]
     },
@@ -317,7 +318,8 @@
       "payable": false,
       "inputs": [
         { "type": "uint256", "name": "tripId" },
-        { "type": "uint64[]", "name": "panelParams" }
+        { "type": "uint64[]", "name": "panelParams" },
+        { "type": "bytes32", "name": "refferalHash" }
       ],
       "outputs": []
     },
@@ -337,7 +339,10 @@
       "name": "confirmCheckOut",
       "constant": false,
       "payable": false,
-      "inputs": [{ "type": "uint256", "name": "tripId" }],
+      "inputs": [
+        { "type": "uint256", "name": "tripId" },
+        { "type": "bytes32", "name": "" }
+      ],
       "outputs": []
     },
     {
@@ -355,6 +360,26 @@
             { "type": "string", "name": "description" },
             { "type": "uint64", "name": "amountInUsdCents" },
             { "type": "string", "name": "photosUrl" }
+          ]
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "createTripRequest",
+      "constant": false,
+      "stateMutability": "payable",
+      "payable": true,
+      "inputs": [
+        {
+          "type": "tuple",
+          "name": "request",
+          "components": [
+            { "type": "uint256", "name": "carId" },
+            { "type": "uint64", "name": "startDateTime" },
+            { "type": "uint64", "name": "endDateTime" },
+            { "type": "address", "name": "currencyType" }
           ]
         }
       ],
@@ -425,7 +450,10 @@
       "name": "finishTrip",
       "constant": false,
       "payable": false,
-      "inputs": [{ "type": "uint256", "name": "tripId" }],
+      "inputs": [
+        { "type": "uint256", "name": "tripId" },
+        { "type": "bytes32", "name": "" }
+      ],
       "outputs": []
     },
     {
@@ -1617,7 +1645,8 @@
             { "type": "string", "name": "issueCountry" },
             { "type": "string", "name": "email" }
           ]
-        }
+        },
+        { "type": "bytes32", "name": "" }
       ],
       "outputs": []
     },
@@ -1630,7 +1659,8 @@
         { "type": "string", "name": "nickName" },
         { "type": "string", "name": "mobilePhoneNumber" },
         { "type": "string", "name": "profilePhoto" },
-        { "type": "bytes", "name": "TCSignature" }
+        { "type": "bytes", "name": "TCSignature" },
+        { "type": "bytes32", "name": "hash" }
       ],
       "outputs": []
     },
@@ -1702,8 +1732,7 @@
             },
             { "type": "bytes", "name": "signature" }
           ]
-        },
-        { "type": "string", "name": "geoApiKey" }
+        }
       ],
       "outputs": []
     },
