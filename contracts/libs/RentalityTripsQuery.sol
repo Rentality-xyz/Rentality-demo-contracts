@@ -402,6 +402,7 @@ function getTripsThatIntersect(
           insurances[counter].creatorFullName = kyc.surname;
           insurances[counter].startDateTime = trip.startDateTime;
           insurances[counter].endDateTime = trip.endDateTime;
+          insurances[counter].isActual = j == tripInsurances.length - 1;
           counter += 1;
         }
       }
