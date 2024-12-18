@@ -665,6 +665,7 @@ interface Schemas {
     string creatorFullName;
     uint64 startDateTime;
     uint64 endDateTime;
+    bool isActual;
   }
   struct CarInfoWithInsurance {
     CarInfo carInfo;
