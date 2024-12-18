@@ -635,7 +635,8 @@ library RentalityUtils {
   /// @return details A CarDetails structure containing all relevant information about the car.
   function getCarDetails(
     RentalityContract memory contracts,
-    uint carId
+    uint carId,
+    RentalityDimoService dimoService
   ) public view returns (Schemas.CarDetails memory details) {
     RentalityCarToken carService = contracts.carService;
     IRentalityGeoService geo = IRentalityGeoService(carService.getGeoServiceAddress());
@@ -659,7 +660,8 @@ library RentalityUtils {
       geo.getCarCoordinateValidity(carId),
       car.currentlyListed,
       geo.getLocationInfo(car.locationHash),
-      car.carVinNumber
+      car.carVinNumber,
+      dimoService.getDimoTokenId(carId)
     );
   }
   function getCarsOwnedByUserWithEditability(

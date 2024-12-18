@@ -148,7 +148,7 @@ function getDimoVihicles() public view returns(uint[] memory) {
   /// @param carId The ID of the car for which details are requested.
   /// @return details An instance of `Schemas.CarDetails` containing the details of the specified car.
   function getCarDetails(uint carId) public view returns (Schemas.CarDetails memory) {
-    return RentalityUtils.getCarDetails(addresses, carId);
+    return RentalityUtils.getCarDetails(addresses, carId, dimoService);
   }
 
   /// @notice Retrieves all claims where the caller is the host.

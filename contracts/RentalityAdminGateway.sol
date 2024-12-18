@@ -456,7 +456,7 @@ function updateDimoService(address dimoServiceAddress) public onlyAdmin {
 
     Schemas.AdminCarDTO[] memory cars = new Schemas.AdminCarDTO[](endIndex - startIndex + 1);
     for (uint i = startIndex; i <= endIndex; i++) {
-      cars[i - startIndex].car = RentalityUtils.getCarDetails(contracts, i);
+      cars[i - startIndex].car = RentalityUtils.getCarDetails(contracts, i, dimoService);
       cars[i - startIndex].carMetadataURI = contracts.carService.tokenURI(i);
     }
     return Schemas.AllCarsDTO(cars, totalPageCount);

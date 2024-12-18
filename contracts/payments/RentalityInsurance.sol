@@ -78,7 +78,7 @@ contract RentalityInsurance is Initializable, UUPSAccess {
       bool guestHasInsurance = (insurances.length > 0 &&
         insurances[insurances.length - 1].insuranceType == Schemas.InsuranceType.General);
       if (guestHasInsurance) {
-        Schemas.InsuranceInfo[] memory tripInsurances = Schemas.InsuranceInfo[](1);
+        Schemas.InsuranceInfo[] memory tripInsurances = new Schemas.InsuranceInfo[](1);
         tripInsurances[0] = insurances[insurances.length - 1];
         tripIdToInsuranceInfo[tripId] = tripInsurances;
         }
