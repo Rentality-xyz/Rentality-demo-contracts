@@ -197,23 +197,12 @@ async function setCarsForHost(host, admin, verifierAddress, gateway) {
 }
 
 async function getTripCount(host, gateway) {
-  return (await gateway.connect(host).getTripsAs(true)).length
+  return (await gateway.connect(host).getTripsAsHost()).length
 }
 
 async function createPendingTrip(tripIndex, carId, host, guest, gateway) {
   const ethAddress = ethers.getAddress('0x0000000000000000000000000000000000000000')
-  const emptyContractLocationInfo = {
-    userAddress: '',
-    country: '',
-    state: '',
-    city: '',
-    latitude: '',
-    longitude: '',
-    timeZoneId: '',
-  }
-  const paymentsNeeded = await gateway
-    .connect(guest)
-    .calculatePaymentsWithDelivery(carId, 1, ethAddress, emptyContractLocationInfo, emptyContractLocationInfo)
+  const paymentsNeeded = await gateway.connect(guest).calculatePayments(carId, 1, ethAddress)
   const request = {
     carId: carId,
     startDateTime: Math.ceil(new Date().getTime() / 1000 + tripIndex * 3),
@@ -232,7 +221,7 @@ async function createPendingTrip(tripIndex, carId, host, guest, gateway) {
     value: paymentsNeeded.totalPrice,
   })
 
-  const trips = await gateway.connect(guest).getTripsAs(false)
+  const trips = await gateway.connect(guest).getTripsAsGuest()
   const tripId = trips[trips.length - 1]?.trip?.tripId ?? -1
   console.log(`\nTrip #${tripIndex} was created with id ${tripId} and status 'Pending'`)
   return tripId
