@@ -346,6 +346,7 @@ contract RentalityPlatform is UUPSOwnable {
   function addCar(Schemas.CreateCarRequest memory request) public returns (uint) {
     require(addresses.paymentService.taxExist(request.locationInfo.locationInfo) != 0, 'Tax not exist.');
     uint carId = addresses.carService.addCar(request);
+    dimoService.saveDimoTokenId(request.dimoTokenId,carId);
 
     insuranceService.saveInsuranceRequired(carId, request.insurancePriceInUsdCents, request.insuranceRequired);
     return carId;

@@ -7,7 +7,6 @@ import './RentalityCarToken.sol';
 import './payments/RentalityInsurance.sol';
 import './features/RentalityClaimService.sol';
 import './payments/RentalityCurrencyConverter.sol';
-import './libs/RentalityQuery.sol';
 import '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 import '@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol';
 import './libs/RentalityTripsQuery.sol';

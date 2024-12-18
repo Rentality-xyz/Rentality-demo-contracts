@@ -65,6 +65,7 @@ interface Schemas {
     bool currentlyListed;
     bool insuranceRequired;
     uint insurancePriceInUsdCents;
+    uint dimoTokenId;
   }
 
   /// @notice Struct to store input parameters for updating car information.
@@ -489,6 +490,7 @@ interface Schemas {
     bool currentlyListed;
     LocationInfo locationInfo;
     string carVinNumber;
+    uint dimoTokenId;
   }
 
   // Taxes
