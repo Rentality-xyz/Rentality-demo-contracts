@@ -388,9 +388,10 @@ function getTripsThatIntersect(
       Schemas.Trip memory trip = tripService.getTrip(i);
       if (trip.guest == guest) {
         Schemas.InsuranceInfo[] memory tripInsurances = insuranceService.getTripInsurances(i);
+        (uint oneTimeActual, uint generalActual) = insuranceService.findActualInsurance(tripInsurances);
         for (uint j = 0; j < tripInsurances.length; j++) {
           Schemas.KYCInfo memory kyc = contracts.userService.getKYCInfo(tripInsurances[j].createdBy);
-
+        uint index = j;
           Schemas.CarInfo memory car = contracts.carService.getCarInfoById(trip.carId);
           insurances[counter].tripId = i;
           insurances[counter].carBrand = car.brand;
@@ -402,13 +403,15 @@ function getTripsThatIntersect(
           insurances[counter].creatorFullName = kyc.surname;
           insurances[counter].startDateTime = trip.startDateTime;
           insurances[counter].endDateTime = trip.endDateTime;
+          insurances[counter].isActual = (index == oneTimeActual || index == generalActual);
           counter += 1;
+  }
         }
       }
-    }
 
     return insurances;
   }
+ 
   function getTripInsurancesByHost(
     RentalityContract memory contracts,
     RentalityInsurance insuranceService,
@@ -428,6 +431,7 @@ function getTripsThatIntersect(
       Schemas.Trip memory trip = tripService.getTrip(i);
       if (trip.host == host) {
         Schemas.InsuranceInfo[] memory tripInsurances = insuranceService.getTripInsurances(i);
+        (uint oneTimeActual, uint generalActual) = insuranceService.findActualInsurance(tripInsurances);
         for (uint j = 0; j < tripInsurances.length; j++) {
           Schemas.KYCInfo memory kyc = contracts.userService.getKYCInfo(tripInsurances[j].createdBy);
 
@@ -442,6 +446,7 @@ function getTripsThatIntersect(
           insurances[counter].creatorFullName = kyc.surname;
           insurances[counter].startDateTime = trip.startDateTime;
           insurances[counter].endDateTime = trip.endDateTime;
+            insurances[counter].isActual = (j == oneTimeActual || j == generalActual);
           counter += 1;
         }
       }
