@@ -213,7 +213,7 @@ contract RentalityPlatform is UUPSOwnable {
       rentalityFee,
       Schemas.TripStatus.Finished,
       valueToGuestInUsdCents,
-      valueToHostInUsdCents - trip.paymentInfo.resolveAmountInUsdCents - insurancePrice;
+      valueToHostInUsdCents - trip.paymentInfo.resolveAmountInUsdCents - insurancePrice
     );
   }
 
