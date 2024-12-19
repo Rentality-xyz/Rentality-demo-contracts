@@ -201,9 +201,10 @@ contract RentalityPlatform is UUPSOwnable {
       trip.paymentInfo.priceWithDiscount + trip.paymentInfo.pickUpFee + trip.paymentInfo.dropOfFee
     );
 
+    uint insurancePrice = insuranceService.getInsurancePriceByTrip(tripId);
     (uint valueToHost, uint valueToGuest, uint valueToHostInUsdCents, uint valueToGuestInUsdCents) = addresses
       .currencyConverterService
-      .calculateTripFinsish(trip.paymentInfo, rentalityFee, insuranceService.getInsurancePriceByTrip(tripId));
+      .calculateTripFinsish(trip.paymentInfo, rentalityFee, insurancePrice);
 
     addresses.paymentService.payFinishTrip(trip, valueToHost, valueToGuest);
 
@@ -212,7 +213,7 @@ contract RentalityPlatform is UUPSOwnable {
       rentalityFee,
       Schemas.TripStatus.Finished,
       valueToGuestInUsdCents,
-      valueToHostInUsdCents - trip.paymentInfo.resolveAmountInUsdCents
+      valueToHostInUsdCents - trip.paymentInfo.resolveAmountInUsdCents - insurancePrice;
     );
   }
 
