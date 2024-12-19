@@ -290,6 +290,9 @@ contract RentalityPlatform is UUPSOwnable {
   function setCivicKYCInfo(address user, Schemas.CivicKYCInfo memory civicKycInfo) public {
     addresses.userService.setCivicKYCInfo(user, civicKycInfo);
   }
+   function setMyCivicKYCInfo(Schemas.CivicKYCInfo memory civicKycInfo) public {
+    addresses.userService.setMyCivicKYCInfo(tx.origin, civicKycInfo);
+  }
   /// @notice Allows the host to perform a check-in for a specific trip.
   /// This action typically occurs at the start of the trip and records key information
   /// such as fuel level, odometer reading, insurance details, and any other relevant data.
