@@ -81,8 +81,8 @@ async function main() {
     rentalityClaimService,
     rentalityCarDelivery,
     rentalityView,
-    rentalityReferralService,
-    rentalityInsurance
+    rentalityInsurance,
+    rentalityReferralService
   ])
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()
