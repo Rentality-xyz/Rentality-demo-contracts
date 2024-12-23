@@ -1657,6 +1657,26 @@
     },
     {
       "type": "function",
+      "name": "setMyCivicKYCInfo",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "tuple",
+          "name": "civicKycInfo",
+          "components": [
+            { "type": "string", "name": "fullName" },
+            { "type": "string", "name": "licenseNumber" },
+            { "type": "uint64", "name": "expirationDate" },
+            { "type": "string", "name": "issueCountry" },
+            { "type": "string", "name": "email" }
+          ]
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
       "name": "updateCarInfo",
       "constant": false,
       "payable": false,
