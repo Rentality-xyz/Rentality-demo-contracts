@@ -270,6 +270,10 @@ interface IRentalityGateway {
 
   function setCivicKYCInfo(address user, Schemas.CivicKYCInfo memory civicKycInfo) external;
 
+  /// @param civicKycInfo The Civic KYC information structure containing the user's data
+  /// @dev This function is used to set verified KYC information from the Civic platform
+  function setMyCivicKYCInfo(Schemas.CivicKYCInfo memory civicKycInfo) external;
+
   /// @notice Get KYC (Know Your Customer) information for a specific user.
   /// @param user The address of the user.
   /// @return KYCInfo structure containing details about the KYC information of the specified user.
