@@ -9,6 +9,11 @@ async function main() {
 
   if (chainId < 0) throw new Error('chainId is not set')
 
+    const rentalityUtilsAddress = checkNotNull(
+      getContractAddress('RentalityUtils', 'scripts/deploy_1a_RentalityUtils.js', chainId),
+      'RentalityUtils'
+    )
+
   const rentalityUserServiceAddress = checkNotNull(
     getContractAddress('RentalityUserService', 'scripts/deploy_1b_RentalityUserService.js', chainId),
     'RentalityUserService'
@@ -51,9 +56,9 @@ async function main() {
     getContractAddress('RentalityView', 'scripts/deploy_4c_RentalityView.js', chainId),
     'RentalityView'
   )
-  const rentalityUtilsAddress = checkNotNull(
-    getContractAddress('RentalityUtils', 'scripts/deploy_1a_RentalityUtils.js', chainId),
-    'RentalityUtils'
+  const rentalityTripsQueryAddress = checkNotNull(
+    getContractAddress('RentalityTripsQuery', 'scripts/deploy_1e_RentalityTripsQuery.js', chainId),
+    'RentalityTripsQuery'
   )
   const rentalityQueryAddress = checkNotNull(
     getContractAddress('RentalityQuery', 'scripts/deploy_1d_RentalityQuery.js', chainId),
@@ -63,13 +68,21 @@ async function main() {
     getContractAddress('RentalityInsurance', 'scripts/deploy_3d_RentalityInsurance.js', chainId),
     'RentalityInsurance'
   )
+
+  const rentalityRefferalProgram = checkNotNull(
+    getContractAddress('RentalityReferralProgram', 'scripts/deploy_3e_RentalityReferralProgram.js', chainId),
+    'RentalityReferralProgram'
+  )
   const rentalityTripsView = checkNotNull(
     getContractAddress('RentalityTripsView', 'scripts/deploy_4b_RentalityTripsView.js', chainId),
     'RentalityTripsView'
   )
+ 
+
 
   const contractFactory = await ethers.getContractFactory(contractName, {
     libraries: {
+      RentalityTripsQuery: rentalityTripsQueryAddress,
       RentalityUtils: rentalityUtilsAddress,
     },
   })
@@ -86,6 +99,7 @@ async function main() {
     rentalityView,
     rentalityInsurance,
     rentalityTripsView,
+    rentalityRefferalProgram
   ])
 
   await contract.waitForDeployment()

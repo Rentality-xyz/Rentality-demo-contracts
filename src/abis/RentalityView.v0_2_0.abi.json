@@ -803,7 +803,8 @@
         { "type": "address", "name": "claimServiceAddress" },
         { "type": "address", "name": "carDeliveryAddress" },
         { "type": "address", "name": "insuranceAddress" },
-        { "type": "address", "name": "tripsViewAddress" }
+        { "type": "address", "name": "tripsViewAddress" },
+        { "type": "address", "name": "refferalProgramAddress" }
       ],
       "outputs": []
     },
