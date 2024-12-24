@@ -884,7 +884,8 @@
             { "type": "string", "name": "creatorPhoneNumber" },
             { "type": "string", "name": "creatorFullName" },
             { "type": "uint64", "name": "startDateTime" },
-            { "type": "uint64", "name": "endDateTime" }
+            { "type": "uint64", "name": "endDateTime" },
+            { "type": "bool", "name": "isActual" }
           ]
         }
       ]
@@ -1661,6 +1662,26 @@
         { "type": "string", "name": "profilePhoto" },
         { "type": "bytes", "name": "TCSignature" },
         { "type": "bytes32", "name": "hash" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "setMyCivicKYCInfo",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "tuple",
+          "name": "civicKycInfo",
+          "components": [
+            { "type": "string", "name": "fullName" },
+            { "type": "string", "name": "licenseNumber" },
+            { "type": "uint64", "name": "expirationDate" },
+            { "type": "string", "name": "issueCountry" },
+            { "type": "string", "name": "email" }
+          ]
+        }
       ],
       "outputs": []
     },

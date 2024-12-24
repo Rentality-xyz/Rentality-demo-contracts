@@ -39,7 +39,8 @@ describe('Rentality insurance', function () {
     anonymous,
     rentalityLocationVerifier,
     mockRequestWithInsurance,
-    insuranceService
+    insuranceService,
+    tripsQuery
 
   beforeEach(async function () {
     ;({
@@ -66,6 +67,7 @@ describe('Rentality insurance', function () {
       rentalityLocationVerifier,
       mockRequestWithInsurance,
       insuranceService,
+      tripsQuery
     } = await loadFixture(deployDefaultFixture))
   })
 
@@ -548,7 +550,69 @@ describe('Rentality insurance', function () {
 
     await expect(rentalityGateway.connect(host).saveTripInsuranceInfo(2, insurance2)).to.not.reverted
     insurances = await rentalityGateway.connect(host).getInsurancesBy(true)
-    expect(insurances.length).to.be.eq(4)
+
+    await expect(
+      rentalityGateway.connect(host).saveTripInsuranceInfo(2, {
+        companyName: 'myCo',
+        policyNumber: '12124-124-124',
+        photo: 'url',
+        comment: 'comment',
+        insuranceType: InsuranceType.OneTime,
+      })
+    ).to.not.reverted
+    await ethers.provider.send('evm_increaseTime', [3600]);
+    await expect(
+      rentalityGateway.connect(host).saveTripInsuranceInfo(2, {
+        companyName: 'myCo',
+        policyNumber: '12124-124-124',
+        photo: 'url',
+        comment: 'comment',
+        insuranceType: InsuranceType.OneTime,
+      })
+    ).to.not.reverted
+    await ethers.provider.send('evm_increaseTime', [3600]);
+    await expect(
+      rentalityGateway.connect(host).saveTripInsuranceInfo(2, {
+        companyName: 'myCo',
+        policyNumber: '12124-124-124124',
+        photo: 'url',
+        comment: 'comment',
+        insuranceType: InsuranceType.OneTime,
+      })
+    ).to.not.reverted
+    await expect(
+      rentalityGateway.connect(host).saveTripInsuranceInfo(2, {
+        companyName: 'myCo',
+        policyNumber: '12124-124-121244',
+        photo: 'url',
+        comment: 'comment',
+        insuranceType: InsuranceType.OneTime,
+      })
+    ).to.not.reverted
+    await ethers.provider.send('evm_increaseTime', [3600]);
+    await expect(
+      rentalityGateway.connect(host).saveTripInsuranceInfo(2, {
+        companyName: 'myCo',
+        policyNumber: '12124-124-1241214',
+        photo: 'url',
+        comment: 'comment',
+        insuranceType: InsuranceType.OneTime,
+      })
+    ).to.not.reverted
+    await ethers.provider.send('evm_increaseTime', [3600]);
+    await expect(
+      rentalityGateway.connect(host).saveTripInsuranceInfo(2, {
+        companyName: 'myCo',
+        policyNumber: '12124-124-124124',
+        photo: 'url',
+        comment: 'comment',
+        insuranceType: InsuranceType.General,
+      })
+    ).to.not.reverted
+  
+    insurances = await rentalityGateway.connect(host).getInsurancesBy(true)
+   
+    expect(insurances.length).to.be.eq(10)
     expect(insurances[2].tripId).to.be.eq(2)
     expect(insurances[3].tripId).to.be.eq(2)
     expect(insurances[2].carBrand).to.be.eq(mockRequestWithInsurance.brand)
