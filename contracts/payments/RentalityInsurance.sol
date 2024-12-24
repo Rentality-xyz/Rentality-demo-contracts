@@ -118,6 +118,25 @@ contract RentalityInsurance is Initializable, UUPSAccess {
     Schemas.InsuranceInfo[] memory insurances = guestToInsuranceInfo[guest];
     return insurances.length > 0 && insurances[insurances.length - 1].insuranceType == Schemas.InsuranceType.General;
   }
+    function findActualInsurance(Schemas.InsuranceInfo[] memory insurances) public view returns (uint, uint) {
+     uint lastGeneralIndex = 0;
+     uint lastOneTimeIndex = 0;
+     uint latestGeneralTime = 0;
+     uint latestOneTimeTime = 0;
+
+   for (uint i = 0; i < insurances.length; i++) {
+        if (insurances[i].insuranceType == Schemas.InsuranceType.General && insurances[i].createdTime > latestGeneralTime) {
+            latestGeneralTime = insurances[i].createdTime;
+            lastGeneralIndex = i;
+        }
+        if (insurances[i].insuranceType == Schemas.InsuranceType.OneTime && insurances[i].createdTime > latestOneTimeTime) {
+            latestOneTimeTime = insurances[i].createdTime;
+            lastOneTimeIndex = i;
+        }
+    }
+
+        return (lastOneTimeIndex, lastGeneralIndex);
+  } 
 
   /// @notice Initializes the RentalityFloridaTaxes contract.
   /// @param _userService The address of the RentalityUserService contract.

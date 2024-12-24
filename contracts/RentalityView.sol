@@ -282,12 +282,6 @@ contract RentalityView is UUPSUpgradeable, Initializable {
     return RentalityCarDelivery(addresses.adminService.getDeliveryServiceAddress()).getUserDeliveryPrices(user);
   }
 
-  ///  @notice Calculates the KYC commission for a given currency.
-  ///  @param currency The address of the currency to calculate the KYC commission for.
-  ///  @return The calculated KYC commission amount.
-  function calculateKycCommission(address currency) public view returns (uint) {
-    return RentalityTripsQuery.calculateKycCommission(addresses, currency);
-  }
 
   /// @notice Retrieves the KYC commission amount.
   /// @dev Calls the `getKycCommission` function from the `userService` contract.

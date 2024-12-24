@@ -421,6 +421,7 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
 
     viewService.updateServiceAddresses(getRentalityContracts(), insuranceServiceAddress, rentalityTripsViewAddress);
     refferalProgram = RentalityReferralProgram(refferalProgramAddress);
+    insuranceService = RentalityInsurance(insuranceServiceAddress);
     __Ownable_init();
   }
 }
