@@ -109,5 +109,10 @@
     "RentalityNotificationService": "0x1FDE15F97808Ceb425b152c3Ca447225d3048f6b",
     "RentalityInsurance": "0x28D0580A6E8914c3f19A130Ab003B55c5ae58110",
     "RentalityTripsView": "0x3D76E799d0e3664BeB162074efE52a2398C6e522"
+  },
+  {
+    "name": "localhost",
+    "chainId": 1337,
+    "RentalityUtils": "0xb6aD2903fAC2db628624DeE61e217F50Ad54638E"
   }
 ]
