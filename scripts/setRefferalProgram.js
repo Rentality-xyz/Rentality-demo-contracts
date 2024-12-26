@@ -78,7 +78,7 @@ async function main() {
     getContractAddress('RentalityTripsView', 'scripts/deploy_4b_RentalityTripsView.js', chainId),
     'RentalityTripsView'
   )
-  let adminContract = await ethers.getContractAt('RentalityAdminService',adminService)
+  let adminContract = await ethers.getContractAt('RentalityAdminGateway',adminService)
   console.log(await adminContract.updateRefferalProgramService(rentalityRefferalProgram))
 
   let contract1 = await ethers.getContractAt('RentalityView', rentalityView)
