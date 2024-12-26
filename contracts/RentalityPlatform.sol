@@ -10,7 +10,6 @@ import './RentalityUserService.sol';
 import './payments/RentalityPaymentService.sol';
 import './Schemas.sol';
 import './RentalityAdminGateway.sol';
-import './libs/RentalityQuery.sol';
 import {RentalityCarDelivery} from './features/RentalityCarDelivery.sol';
 import {UUPSOwnable} from './proxy/UUPSOwnable.sol';
 import {RentalityUtils} from './libs/RentalityUtils.sol';
@@ -32,7 +31,6 @@ contract RentalityPlatform is UUPSOwnable {
   address private automationService;
 
 
-  using RentalityQuery for RentalityContract;
   using RentalityTripsQuery for RentalityContract;
   /// @dev Modifier to restrict access to admin users only.
 
