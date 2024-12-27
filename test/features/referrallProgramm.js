@@ -77,7 +77,6 @@ describe('Referral program', function () {
 
     await expect(refferalProgram.claimPoints(anonymous.address)).to.not.reverted
     expect(await refferalProgram.addressToPoints(anonymous.address)).to.be.eq(145) // daily + kyc
-
     const hashPoints = await refferalProgram.getReadyToClaimFromRefferalHash(hashCreator.address)
     const hashCreatorPoints = hashPoints.toClaim.find((obj) => obj.refType === BigInt(RefferalProgram.SetKYC)).points
 

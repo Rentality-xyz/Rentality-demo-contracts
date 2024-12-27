@@ -22,12 +22,12 @@ abstract contract ARentalityRefferalPointsSetter is ARentalityRefferal {
 
   mapping(uint => uint) internal carIdToListedClaimTime;
 
-  function updateDaily() public returns (uint) {
+  function updateDaily(address user) public returns (uint) {
     uint result = 0;
-    uint last = addressToLastDailyClaim[tx.origin];
+    uint last = addressToLastDailyClaim[user];
     uint current = block.timestamp;
-    if (last < current + 1 days) {
-      addressToLastDailyClaim[tx.origin] = block.timestamp;
+    if (current >= last + 1 days) {
+      addressToLastDailyClaim[user] = block.timestamp;
       result = uint(permanentSelectorToPoints[Schemas.RefferalProgram.Daily].points);
     }
     return result;
@@ -36,7 +36,7 @@ abstract contract ARentalityRefferalPointsSetter is ARentalityRefferal {
     uint result = 0;
     uint last = addressToLastDailyClaim[user];
     uint current = block.timestamp;
-    if (last < current + 1 days) {
+    if (current >= last + 1 days) {
       result = uint(permanentSelectorToPoints[Schemas.RefferalProgram.Daily].points);
     }
     return result;
