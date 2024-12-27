@@ -369,8 +369,7 @@ library RentalityQuery {
         RentalityCarToken carService = contracts.carService;
 
         Schemas.AvailableCarDTO memory emptyCar;
-        if(!carService.isCarAvailableForUser(carId, user, searchParams))
-            return emptyCar;
+        
         uint fuelPrice = engineService.getFuelPriceFromEngineParams(temp.engineType, temp.engineParams);
 
         uint64 totalTripDays = uint64(Math.ceilDiv(endDateTime - startDateTime, 1 days));
