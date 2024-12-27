@@ -64,11 +64,6 @@ library RentalityRefferalLib {
     return (totalPoints, carIds);
   }
 
-  function updateDaily(int, bytes memory data) public returns (int) {
-    address refferalService = abi.decode(data, (address));
-    return int(RentalityReferralProgram(refferalService).updateDaily());
-  }
-
   function formatReadyToClaim(
     Schemas.ReadyToClaimDTO memory toClaim,
     RentalityReferralProgram refferalProgram
