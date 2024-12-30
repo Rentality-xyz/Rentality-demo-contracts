@@ -412,7 +412,7 @@
       "name": "updateDaily",
       "constant": false,
       "payable": false,
-      "inputs": [],
+      "inputs": [{ "type": "address", "name": "user" }],
       "outputs": [{ "type": "uint256", "name": "" }]
     },
     {
