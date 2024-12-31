@@ -780,4 +780,31 @@ interface Schemas {
     InsuranceCarInfo insuranceInfo;
     string carMetadataURI;
   }
+
+  struct PromoUsedInfo {
+  Promo promo;
+  bytes3 promoCode;
+  uint usedAt;
+}
+
+  struct Promo {
+  PromoType promoType;
+  bytes3 code;
+  uint startDate;
+  uint expireDate;
+  address createdBy;
+  uint createdAt;
+  PromoStatus status;
+}
+
+ enum PromoType {
+  OneTime,
+  Wildcard
+}
+
+enum PromoStatus {
+  Active,
+  Idle,
+  Used
+}
 }

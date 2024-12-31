@@ -72,7 +72,8 @@
     "RentalityInsurance": "0x7E3D4fa52C23f9E5Ee35E757092B0068d7FA5463",
     "RentalityTripsView": "0x921d0897F50d9bC04DA2af069dce7bE631C7D0c5",
     "RentalityRefferalLib": "0x6942c5D5E65aEB5d61A43235e6Be45AED3b57FC7",
-    "RentalityReferralProgram": "0xBeF58aBf15D45B9c1e2c18339e2c2Dc9520a5e5D"
+    "RentalityReferralProgram": "0xBeF58aBf15D45B9c1e2c18339e2c2Dc9520a5e5D",
+    "RentalityPromoService": "0xF163d0436facbaf832D38af56220dEE25e727A98"
   },
   {
     "name": "opBNB_testnet",
