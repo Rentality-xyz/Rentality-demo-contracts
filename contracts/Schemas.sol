@@ -789,7 +789,7 @@ interface Schemas {
 
   struct Promo {
   PromoType promoType;
-  bytes3 code;
+  string code;
   uint startDate;
   uint expireDate;
   address createdBy;

@@ -4,11 +4,11 @@ const fs = require('fs')
 async function main() {
 
      
-// const Fabric = await ethers.getContractFactory('RentalityPromoService')
-// const contract = await upgrades.deployProxy(Fabric,['0xE15378Ad98796BB35cbbc116DfC70d3416B52D45'])
-// console.log(await contract.getAddress())
+const Fabric = await ethers.getContractFactory('RentalityPromoService')
+const contract = await upgrades.deployProxy(Fabric,['0xE15378Ad98796BB35cbbc116DfC70d3416B52D45'])
+console.log(await contract.getAddress())
 // 
-const contract = await ethers.getContractAt('RentalityPromoService','0x126a243cF83101397bFb2719EE5674cee8900577')
+// const contract = await ethers.getContractAt('RentalityPromoService','0xcFF1dD4230AEba815aFc58Fe39A44d9031C700f8')
 // const startDateTime =  new Date("2025-01-15T23:59:59Z").getSeconds()
 const date = new Date("2023-01-15T23:59:59Z");
 const startDateTime = Math.floor(date.getTime() / 1000);
@@ -16,24 +16,25 @@ const endDate =  new Date("2025-07-31T23:59:59Z")
 const endDateTime = Math.floor(endDate.getTime() / 1000);
 const prefix = "0xc0"
 const len = 100
-console.log(await contract.generateNumbers(10000,99999, 10,startDateTime,endDateTime,'0x05'))
+console.log(await contract.generateNumbers(1,10000, 50,startDateTime,endDateTime,'A'))
 
-const result= await contract.getPromoCodes() 
-const mapped = result.map(code => {
-  const parsed = parseInt(code, 16)
-return toSolBytes3(parsed.toString(16))})
-
-
-await Promise.all(mapped.map(async (code) => {
-  console.log(await contract.isActive(code))
-}
-))
+// const result= await contract.getPromoCodes() 
+// console.log("codes", result)
+// const mapped = result.map(code => {
+//   const parsed = parseInt(code, 16)
+// return toSolBytes3(parsed.toString(16))})
 
 
-const promo = fs.readFileSync('promoExists.txt', 'utf8');
+// await Promise.all(mapped.map(async (code) => {
+//   console.log(await contract.isActive(code))
+// }
+// ))
 
-const promoArray = promo.split('\n').map(code => code.trim());
-console.log("All PROMOs is uniq: ", new Set(promoArray).keys.length === len)
+
+// const promo = fs.readFileSync('promoExists.txt', 'utf8');
+
+// const promoArray = promo.split('\n').map(code => code.trim());
+// console.log("All PROMOs is uniq: ", new Set(promoArray).keys.length === len)
 // console.log(bytesToString('0x4369aa'))
 }
 function toSolBytes3(hex) {
