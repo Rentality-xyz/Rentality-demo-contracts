@@ -35,7 +35,7 @@ describe('RentalityGateway: time buffer', function () {
     guest,
     anonymous,
     rentalityLocationVerifier,
-      rentalityView,
+    rentalityView,
     tripsQuery
 
   beforeEach(async function () {
@@ -60,7 +60,7 @@ describe('RentalityGateway: time buffer', function () {
       anonymous,
       rentalityLocationVerifier,
       rentalityView,
-      tripsQuery
+      tripsQuery,
     } = await loadFixture(deployDefaultFixture))
   })
   it('should not show car, while time buffer not expired', async function () {
@@ -117,7 +117,7 @@ describe('RentalityGateway: time buffer', function () {
 
     const searchParams = getEmptySearchCarParams()
 
-    const value = await rentalityCarToken.fetchAvailableCarsForUser(guest.address,getEmptySearchCarParams())
+    const value = await rentalityCarToken.fetchAvailableCarsForUser(guest.address, getEmptySearchCarParams())
     // let rentalityContract = {
     //   carService: await rentalityCarToken.getAddress(),
     //   currencyConverterService: await rentalityCurrencyConverter.getAddress(),
@@ -130,8 +130,6 @@ describe('RentalityGateway: time buffer', function () {
     //   deliveryService: await rentalityCarDelivery.getAddress(),
     //   viewService: await rentalityView.getAddress()
     // };
-
-
 
     const availableCars = await rentalityView
       .connect(guest)
@@ -172,7 +170,7 @@ describe('RentalityGateway: time buffer', function () {
       insurancePriceInUsdCents: 0,
     }
 
-    await expect(rentalityGateway.connect(host).addCar(createCarRequest,zeroHash)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(createCarRequest, zeroHash)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 

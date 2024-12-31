@@ -29,22 +29,20 @@ contract RentalityInsurance is Initializable, UUPSAccess {
     Schemas.InsuranceInfo[] storage insurances = guestToInsuranceInfo[tx.origin];
     if (insuranceInfo.insuranceType == Schemas.InsuranceType.None) {
       if (insurances.length > 0) insurances[insurances.length - 1].insuranceType = insuranceInfo.insuranceType;
-    }
-    else {
-      if(insurances.length > 0)
-      insurances[insurances.length - 1].insuranceType = Schemas.InsuranceType.None;
-    
-    insurances.push(
-      Schemas.InsuranceInfo(
-        insuranceInfo.companyName,
-        insuranceInfo.policyNumber,
-        insuranceInfo.photo,
-        insuranceInfo.comment,
-        insuranceInfo.insuranceType,
-        block.timestamp,
-        tx.origin
-      )
-    );
+    } else {
+      if (insurances.length > 0) insurances[insurances.length - 1].insuranceType = Schemas.InsuranceType.None;
+
+      insurances.push(
+        Schemas.InsuranceInfo(
+          insuranceInfo.companyName,
+          insuranceInfo.policyNumber,
+          insuranceInfo.photo,
+          insuranceInfo.comment,
+          insuranceInfo.insuranceType,
+          block.timestamp,
+          tx.origin
+        )
+      );
     }
   }
   function getMyInsurancesAsGuest(address user) public view returns (Schemas.InsuranceInfo[] memory) {
@@ -81,11 +79,11 @@ contract RentalityInsurance is Initializable, UUPSAccess {
 
       bool guestHasInsurance = (insurances.length > 0 &&
         insurances[insurances.length - 1].insuranceType == Schemas.InsuranceType.General);
-        if (guestHasInsurance) {
+      if (guestHasInsurance) {
         Schemas.InsuranceInfo[] memory tripInsurances = new Schemas.InsuranceInfo[](1);
         tripInsurances[0] = insurances[insurances.length - 1];
         tripIdToInsuranceInfo[tripId] = tripInsurances;
-        }
+      }
 
       tripIdToInsurancePaid[tripId] = totalSum;
     }
@@ -117,25 +115,29 @@ contract RentalityInsurance is Initializable, UUPSAccess {
     Schemas.InsuranceInfo[] memory insurances = guestToInsuranceInfo[guest];
     return insurances.length > 0 && insurances[insurances.length - 1].insuranceType == Schemas.InsuranceType.General;
   }
-    function findActualInsurance(Schemas.InsuranceInfo[] memory insurances) public view returns (uint, uint) {
-     uint lastGeneralIndex = 0;
-     uint lastOneTimeIndex = 0;
-     uint latestGeneralTime = 0;
-     uint latestOneTimeTime = 0;
+  function findActualInsurance(Schemas.InsuranceInfo[] memory insurances) public view returns (uint, uint) {
+    uint lastGeneralIndex = 0;
+    uint lastOneTimeIndex = 0;
+    uint latestGeneralTime = 0;
+    uint latestOneTimeTime = 0;
 
-   for (uint i = 0; i < insurances.length; i++) {
-        if (insurances[i].insuranceType == Schemas.InsuranceType.General && insurances[i].createdTime > latestGeneralTime) {
-            latestGeneralTime = insurances[i].createdTime;
-            lastGeneralIndex = i;
-        }
-        if (insurances[i].insuranceType == Schemas.InsuranceType.OneTime && insurances[i].createdTime > latestOneTimeTime) {
-            latestOneTimeTime = insurances[i].createdTime;
-            lastOneTimeIndex = i;
-        }
+    for (uint i = 0; i < insurances.length; i++) {
+      if (
+        insurances[i].insuranceType == Schemas.InsuranceType.General && insurances[i].createdTime > latestGeneralTime
+      ) {
+        latestGeneralTime = insurances[i].createdTime;
+        lastGeneralIndex = i;
+      }
+      if (
+        insurances[i].insuranceType == Schemas.InsuranceType.OneTime && insurances[i].createdTime > latestOneTimeTime
+      ) {
+        latestOneTimeTime = insurances[i].createdTime;
+        lastOneTimeIndex = i;
+      }
     }
 
-        return (lastOneTimeIndex, lastGeneralIndex);
-  } 
+    return (lastOneTimeIndex, lastGeneralIndex);
+  }
 
   /// @notice Initializes the RentalityFloridaTaxes contract.
   /// @param _userService The address of the RentalityUserService contract.

@@ -196,7 +196,7 @@ describe('RentalityGateway: car', function () {
     const oneDayInSec = 86400
     const totalTripDays = 7
     const searchParams = getEmptySearchCarParams()
-    await expect(rentalityGateway.connect(host).addCar(addCarRequest,zeroHash)).not.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(addCarRequest, zeroHash)).not.be.reverted
     const resultAr = await rentalityGateway.searchAvailableCarsWithDelivery(
       new Date().getDate(),
       new Date().getDate() + oneDayInSec * totalTripDays,

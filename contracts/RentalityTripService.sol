@@ -41,7 +41,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
   mapping(uint => uint) public tripIdToEthSumInTripCreation;
   RentalityNotificationService private eventManager;
   mapping(uint => uint[]) private carIdToActiveTrips;
-  mapping (uint => uint[]) private carIdToTrips;
+  mapping(uint => uint[]) private carIdToTrips;
 
   /// @dev Updates the address of the RentalityEventManager contract.
   /// @param _eventManager The address of the new RentalityEventManager contract.
@@ -200,13 +200,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     idToTripInfo[tripId].rejectedDateTime = block.timestamp;
     idToTripInfo[tripId].rejectedBy = tx.origin;
 
-      saveTransactionInfo(
-      tripId,
-      rentalityFee,
-      status,
-      depositRefund,
-      tripEarnings
-    );
+    saveTransactionInfo(tripId, rentalityFee, status, depositRefund, tripEarnings);
 
     eventManager.emitEvent(
       Schemas.EventType.Trip,
@@ -494,19 +488,18 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
   function _removeAcriveTrip(uint carId, uint tripId) private {
     uint[] memory activeTrips = carIdToActiveTrips[carId];
     for (uint i = 0; i < activeTrips.length; i++) {
-      if(activeTrips[i] == tripId) {
-        for (uint j = i; j < activeTrips.length - 1; j++)
-        activeTrips[j] = activeTrips[j + 1];
+      if (activeTrips[i] == tripId) {
+        for (uint j = i; j < activeTrips.length - 1; j++) activeTrips[j] = activeTrips[j + 1];
 
-      carIdToActiveTrips[carId] = activeTrips;
-      break;
+        carIdToActiveTrips[carId] = activeTrips;
+        break;
       }
-      }
+    }
   }
-  function getActiveTrips(uint carId) public view returns(uint[] memory) {
+  function getActiveTrips(uint carId) public view returns (uint[] memory) {
     return carIdToActiveTrips[carId];
   }
-  function getCarTrips(uint carId) public view returns(uint[] memory) {
+  function getCarTrips(uint carId) public view returns (uint[] memory) {
     return carIdToTrips[carId];
   }
 
