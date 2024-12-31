@@ -48,7 +48,6 @@ contract RentalityInsurance is Initializable, UUPSAccess {
     }
   }
   function getMyInsurancesAsGuest(address user) public view returns (Schemas.InsuranceInfo[] memory) {
-    require(userService.isManager(msg.sender), 'only Manager');
     return guestToInsuranceInfo[user];
   }
 
