@@ -56,9 +56,9 @@ async function main() {
     getContractAddress('RentalityCarDelivery', 'scripts/deploy_2i_RentalityCarDelivery.js', chainId),
     'RentalityCarDelivery'
   )
-  const rentalityRefferalProgram = checkNotNull(
-    getContractAddress('RentalityReferralProgram', 'scripts/deploy_3e_RentalityReferralProgram.js', chainId),
-    'RentalityReferralProgram'
+  const rentalityInsurance = checkNotNull(
+    getContractAddress('RentalityInsurance', 'scripts/deploy_3d_RentalityInsurance.js', chainId),
+    'RentalityInsurance'
   )
   const contractFactory = await ethers.getContractFactory(contractName, {
     libraries: {
@@ -73,7 +73,7 @@ async function main() {
     rentalityPaymentServiceAddress,
     rentalityClaimService,
     rentalityCarDelivery,
-    rentalityRefferalProgram,
+    rentalityInsurance,
   ])
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()
