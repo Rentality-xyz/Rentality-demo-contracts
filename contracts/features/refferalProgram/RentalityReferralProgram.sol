@@ -36,9 +36,7 @@ contract RentalityReferralProgram is
   RentalityCarToken private carService;
   mapping(address => Schemas.ProgramHistory[]) private userProgramHistory;
 
-  
   mapping(address => Schemas.ReadyToClaimFromHash[]) private userToReadyToClaimFromHash;
-
 
   function getCarDailyClaimedTime(uint carId) public view returns (uint) {
     return carIdToDailyClaimed[carId];
@@ -70,7 +68,7 @@ contract RentalityReferralProgram is
       uint pointsToReduce = uint(-points);
       if (addressToPoints[user] < pointsToReduce) addressToPoints[user] = 0;
       else addressToPoints[user] -= pointsToReduce;
-         userProgramHistory[user].push(Schemas.ProgramHistory(points, block.timestamp, selector, isOneTime));
+      userProgramHistory[user].push(Schemas.ProgramHistory(points, block.timestamp, selector, isOneTime));
     }
   }
 
@@ -104,7 +102,9 @@ contract RentalityReferralProgram is
       uint total = 0;
       for (uint i = 0; i < toClaim.length; i++) {
         total += toClaim[i].points;
-        userProgramHistory[user].push(Schemas.ProgramHistory(int(toClaim[i].points), block.timestamp, toClaim[i].refType, toClaim[i].oneTime));
+        userProgramHistory[user].push(
+          Schemas.ProgramHistory(int(toClaim[i].points), block.timestamp, toClaim[i].refType, toClaim[i].oneTime)
+        );
       }
       total += updateDaily(user);
       (uint dailiListingPoints, uint[] memory cars) = RentalityRefferalLib.calculateListedCarsPoints(
@@ -243,7 +243,7 @@ contract RentalityReferralProgram is
     }
     return Schemas.AllRefferalInfoDTO(refferalPoints, hashPoints, discounts, getAllTearsInfo());
   }
-  function getPointsHistory() public view returns(Schemas.ProgramHistory [] memory) {
+  function getPointsHistory() public view returns (Schemas.ProgramHistory[] memory) {
     return userProgramHistory[msg.sender];
   }
 
@@ -275,7 +275,6 @@ contract RentalityReferralProgram is
     manageRefferalDiscount(Schemas.RefferalProgram.CreateTrip, Schemas.Tear.Tear2, 100, 2);
     manageRefferalDiscount(Schemas.RefferalProgram.CreateTrip, Schemas.Tear.Tear3, 150, 3);
     manageRefferalDiscount(Schemas.RefferalProgram.CreateTrip, Schemas.Tear.Tear4, 250, 5);
-
 
     manageRefferalDiscount(Schemas.RefferalProgram.FinishTripAsGuest, Schemas.Tear.Tear2, 100, 10);
     manageRefferalDiscount(Schemas.RefferalProgram.FinishTripAsGuest, Schemas.Tear.Tear3, 150, 15);

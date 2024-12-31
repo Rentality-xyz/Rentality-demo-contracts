@@ -5,14 +5,11 @@ const { startDeploy, checkNotNull } = require('./utils/deployHelper')
 const { emptyLocationInfo, getEmptySearchCarParams, zeroHash } = require('../test/utils')
 const { getContractAddress } = require('./utils/contractAddress')
 
-
-
 async function main() {
- 
-  const { contractName, chainId } = await startDeploy('RentalityGateway');
+  const { contractName, chainId } = await startDeploy('RentalityGateway')
 
-  if (chainId < 0) throw new Error('chainId is not set');
-  
+  if (chainId < 0) throw new Error('chainId is not set')
+
   const rentalityContract = {
     carService: checkNotNull(
       getContractAddress('RentalityCarToken', 'scripts/deploy_3_RentalityCarToken.js', chainId),
@@ -54,17 +51,17 @@ async function main() {
       getContractAddress('RentalityView', 'scripts/deploy_4c_RentalityView.js', chainId),
       'RentalityView'
     ),
-  };
+  }
   const rentalityView = checkNotNull(
     getContractAddress('RentalityView', 'scripts/deploy_4c_RentalityView.js', chainId),
     'RentalityView'
   )
-  
+
   const adminService = checkNotNull(
     getContractAddress('RentalityAdminGateway', 'scripts.deploy_6_RentalityAdminGateway.js', chainId),
     'RentalityAdminGateway'
   )
-  
+
   const rentalityInsurance = checkNotNull(
     getContractAddress('RentalityInsurance', 'scripts/deploy_3d_RentalityInsurance.js', chainId),
     'RentalityInsurance'
@@ -78,17 +75,16 @@ async function main() {
     getContractAddress('RentalityTripsView', 'scripts/deploy_4b_RentalityTripsView.js', chainId),
     'RentalityTripsView'
   )
-  let adminContract = await ethers.getContractAt('RentalityAdminGateway',adminService)
+  let adminContract = await ethers.getContractAt('RentalityAdminGateway', adminService)
   console.log(await adminContract.updateRefferalProgramService(rentalityRefferalProgram))
 
   let contract1 = await ethers.getContractAt('RentalityView', rentalityView)
-  console.log(await contract1.updateServiceAddresses(rentalityContract,rentalityInsurance,rentalityTripsView))
+  console.log(await contract1.updateServiceAddresses(rentalityContract, rentalityInsurance, rentalityTripsView))
 
   let contract2 = await ethers.getContractAt('RentalityTripsView', rentalityTripsView)
-  console.log(await contract2.updateServiceAddresses(rentalityContract,rentalityInsurance))
- 
+  console.log(await contract2.updateServiceAddresses(rentalityContract, rentalityInsurance))
 
-   let contract3 = await ethers.getContractAt('RentalityPlatform', rentalityContract.rentalityPlatform)
+  let contract3 = await ethers.getContractAt('RentalityPlatform', rentalityContract.rentalityPlatform)
   console.log(await contract3.updateServiceAddresses(adminService))
 }
 

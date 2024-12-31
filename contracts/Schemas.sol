@@ -611,114 +611,113 @@ interface Schemas {
     Admin,
     KYCManager
   }
-    enum RefferalProgram {
-        SetKYC,
-        PassCivic,
-        AddCar,
-        CreateTrip,
-        FinishTripAsGuest,
-        UnlistedCar,
-        Daily,
-        DailyListing
-    }
+  enum RefferalProgram {
+    SetKYC,
+    PassCivic,
+    AddCar,
+    CreateTrip,
+    FinishTripAsGuest,
+    UnlistedCar,
+    Daily,
+    DailyListing
+  }
 
-    enum Tear {
-        Tear1,
-        Tear2,
-        Tear3,
-        Tear4
-    }
-    enum RefferalAccrualType {
-        OneTime,
-        Permanent
-    }
+  enum Tear {
+    Tear1,
+    Tear2,
+    Tear3,
+    Tear4
+  }
+  enum RefferalAccrualType {
+    OneTime,
+    Permanent
+  }
 
-    struct ReadyToClaim {
-        uint points;
-        RefferalProgram refType;
-        bool oneTime;
-    }
-    struct ReadyToClaimRefferalHash {
-        uint points;
-        RefferalProgram refType;
-        bool oneTime;
-        bool claimed;
-    }
+  struct ReadyToClaim {
+    uint points;
+    RefferalProgram refType;
+    bool oneTime;
+  }
+  struct ReadyToClaimRefferalHash {
+    uint points;
+    RefferalProgram refType;
+    bool oneTime;
+    bool claimed;
+  }
 
-    struct ReadyToClaimFromHash {
-        uint points;
-        RefferalProgram refType;
-        bool oneTime;
-        bool claimed;
-        address user;
-    }
-    struct TearPoints {
-        uint from;
-        uint to;
-    }
+  struct ReadyToClaimFromHash {
+    uint points;
+    RefferalProgram refType;
+    bool oneTime;
+    bool claimed;
+    address user;
+  }
+  struct TearPoints {
+    uint from;
+    uint to;
+  }
 
-    struct RefferalDiscount {
-        uint pointsCosts;
-        uint percents;
-    }
+  struct RefferalDiscount {
+    uint pointsCosts;
+    uint percents;
+  }
 
-    struct TearDTO {
-        TearPoints points;
-        Tear tear;
-    }
+  struct TearDTO {
+    TearPoints points;
+    Tear tear;
+  }
 
-    struct ReadyToClaimDTO {
-        ReadyToClaim[] toClaim;
-        uint totalPoints;
-        uint toNextDailyClaim;
-    }
-    struct RefferalHashDTO {
-        ReadyToClaimFromHash[] toClaim;
-        uint totalPoints;
-        bytes32 hash;
-    }
+  struct ReadyToClaimDTO {
+    ReadyToClaim[] toClaim;
+    uint totalPoints;
+    uint toNextDailyClaim;
+  }
+  struct RefferalHashDTO {
+    ReadyToClaimFromHash[] toClaim;
+    uint totalPoints;
+    bytes32 hash;
+  }
 
-    /// admin panel ref program info
-    struct RefferalProgramInfoDTO {
-        RefferalAccrualType refferalType;
-        RefferalProgram method;
-        int points;
-    }
+  /// admin panel ref program info
+  struct RefferalProgramInfoDTO {
+    RefferalAccrualType refferalType;
+    RefferalProgram method;
+    int points;
+  }
 
-    struct HashPointsDTO {
-        RefferalProgram method;
-        uint points;
-    }
-    struct RefferalDiscountsDTO {
-        RefferalProgram method;
-        Tear tear;
-        RefferalDiscount discount;
-    }
+  struct HashPointsDTO {
+    RefferalProgram method;
+    uint points;
+  }
+  struct RefferalDiscountsDTO {
+    RefferalProgram method;
+    Tear tear;
+    RefferalDiscount discount;
+  }
 
-    struct AllRefferalInfoDTO {
-        RefferalProgramInfoDTO[] programPoints;
-        HashPointsDTO[] hashPoints;
-        RefferalDiscountsDTO[] discounts;
-        TearDTO[] tear;
-    }
-    struct RefferalHistory {
-      int points;
-      RefferalProgram method;
+  struct AllRefferalInfoDTO {
+    RefferalProgramInfoDTO[] programPoints;
+    HashPointsDTO[] hashPoints;
+    RefferalDiscountsDTO[] discounts;
+    TearDTO[] tear;
+  }
+  struct RefferalHistory {
+    int points;
+    RefferalProgram method;
+  }
 
-    }
+  struct History {
+    int points;
+    uint date;
+    RefferalProgram method;
+  }
 
-    struct History {
-      int points;
-      uint date;
-      RefferalProgram method;
-    }
-
-     struct ProgramHistory {
-      int points;
-      uint date;
-      RefferalProgram method;
-      bool oneTime;
-    }
+  struct ProgramHistory {
+    int points;
+    uint date;
+    RefferalProgram method;
+    bool oneTime;
+  }
   enum CarUpdateStatus {
     Add,
     Update,
@@ -782,29 +781,29 @@ interface Schemas {
   }
 
   struct PromoUsedInfo {
-  Promo promo;
-  bytes3 promoCode;
-  uint usedAt;
-}
+    Promo promo;
+    bytes3 promoCode;
+    uint usedAt;
+  }
 
   struct Promo {
-  PromoType promoType;
-  string code;
-  uint startDate;
-  uint expireDate;
-  address createdBy;
-  uint createdAt;
-  PromoStatus status;
-}
+    PromoType promoType;
+    string code;
+    uint startDate;
+    uint expireDate;
+    address createdBy;
+    uint createdAt;
+    PromoStatus status;
+  }
 
- enum PromoType {
-  OneTime,
-  Wildcard
-}
+  enum PromoType {
+    OneTime,
+    Wildcard
+  }
 
-enum PromoStatus {
-  Active,
-  Idle,
-  Used
-}
+  enum PromoStatus {
+    Active,
+    Idle,
+    Used
+  }
 }

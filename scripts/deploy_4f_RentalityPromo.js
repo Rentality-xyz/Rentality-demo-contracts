@@ -15,7 +15,7 @@ async function main() {
   )
   const contractFactory = await ethers.getContractFactory(contractName)
 
-const contract = await upgrades.deployProxy(contractFactory,[rentalityUserServiceAddress])
+  const contract = await upgrades.deployProxy(contractFactory, [rentalityUserServiceAddress])
   await contract.waitForDeployment()
 
   const contractAddress = await contract.getAddress()

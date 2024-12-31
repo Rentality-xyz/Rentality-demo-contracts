@@ -31,7 +31,6 @@ contract RentalityView is UUPSUpgradeable, Initializable {
 
   RentalityReferralProgram private refferalService;
 
-
   function updateServiceAddresses(
     RentalityContract memory contracts,
     address insurance,
@@ -112,27 +111,27 @@ contract RentalityView is UUPSUpgradeable, Initializable {
   //     );
   // }
 
-    function checkCarAvailabilityWithDelivery(
-        uint carId,
-        uint64 startDateTime,
-        uint64 endDateTime,
-        Schemas.SearchCarParams memory searchParams,
-        Schemas.LocationInfo memory pickUpInfo,
-        Schemas.LocationInfo memory returnInfo
-    ) public view returns (Schemas.AvailableCarDTO memory) {
-        return
-            addresses.checkCarAvailabilityWithDelivery(
-            carId,
-            tx.origin,
-            startDateTime,
-            endDateTime,
-            searchParams,
-            pickUpInfo,
-            returnInfo,
-            addresses.adminService.getDeliveryServiceAddress(),
-            address(insuranceService)
-        );
-    }
+  function checkCarAvailabilityWithDelivery(
+    uint carId,
+    uint64 startDateTime,
+    uint64 endDateTime,
+    Schemas.SearchCarParams memory searchParams,
+    Schemas.LocationInfo memory pickUpInfo,
+    Schemas.LocationInfo memory returnInfo
+  ) public view returns (Schemas.AvailableCarDTO memory) {
+    return
+      addresses.checkCarAvailabilityWithDelivery(
+        carId,
+        tx.origin,
+        startDateTime,
+        endDateTime,
+        searchParams,
+        pickUpInfo,
+        returnInfo,
+        addresses.adminService.getDeliveryServiceAddress(),
+        address(insuranceService)
+      );
+  }
   /// @notice Searches for available cars based on specified criteria.
   /// @param startDateTime The start date and time of the search.
   /// @param endDateTime The end date and time of the search.
@@ -179,7 +178,6 @@ contract RentalityView is UUPSUpgradeable, Initializable {
   function getCarDetails(uint carId) public view returns (Schemas.CarDetails memory) {
     return RentalityUtils.getCarDetails(addresses, carId);
   }
-
 
   /// @notice Retrieves information about trips where the caller is the host.
   /// @return An array of trip information.
@@ -281,7 +279,6 @@ contract RentalityView is UUPSUpgradeable, Initializable {
   function getUserDeliveryPrices(address user) public view returns (Schemas.DeliveryPrices memory) {
     return RentalityCarDelivery(addresses.adminService.getDeliveryServiceAddress()).getUserDeliveryPrices(user);
   }
-
 
   /// @notice Retrieves the KYC commission amount.
   /// @dev Calls the `getKycCommission` function from the `userService` contract.

@@ -97,11 +97,10 @@ library RentalityTripsQuery {
     uint currentIndex = 0;
 
     for (uint i = 1; i <= trips.length; i++) {
-        Schemas.Trip memory currentItem = tripService.getTrip(trips[i]);
-        result[currentIndex] = currentItem;
-        currentIndex += 1;
-      }
-
+      Schemas.Trip memory currentItem = tripService.getTrip(trips[i]);
+      result[currentIndex] = currentItem;
+      currentIndex += 1;
+    }
 
     return result;
   }
@@ -112,49 +111,48 @@ library RentalityTripsQuery {
   /// @param startDateTime The start time of the interval to check for intersection.
   /// @param endDateTime The end time of the interval to check for intersection.
   /// @return An array of Trip structures representing trips that intersect with the specified time interval.
-function getTripsThatIntersect(
+  function getTripsThatIntersect(
     RentalityContract memory contracts,
     uint64 startDateTime,
     uint64 endDateTime
-) internal view returns (Schemas.Trip[] memory) {
+  ) internal view returns (Schemas.Trip[] memory) {
     uint itemCount = 0;
 
     for (uint carId = 1; carId <= contracts.carService.totalSupply(); carId++) {
-        uint[] memory activeTrips = contracts.tripService.getActiveTrips(carId);
+      uint[] memory activeTrips = contracts.tripService.getActiveTrips(carId);
 
-        if (activeTrips.length > 0) {
-            for (uint i = 0; i < activeTrips.length; i++) {
-                uint tripId = activeTrips[i];
+      if (activeTrips.length > 0) {
+        for (uint i = 0; i < activeTrips.length; i++) {
+          uint tripId = activeTrips[i];
 
-                if (isTripThatIntersect(contracts, tripId, startDateTime, endDateTime)) {
-                    itemCount += 1;
-                }
-            }
+          if (isTripThatIntersect(contracts, tripId, startDateTime, endDateTime)) {
+            itemCount += 1;
+          }
         }
+      }
     }
 
-    if (itemCount == 0)
-        return new Schemas.Trip[](0);
+    if (itemCount == 0) return new Schemas.Trip[](0);
     Schemas.Trip[] memory result = new Schemas.Trip[](itemCount);
     uint currentIndex = 0;
 
     for (uint carId = 1; carId <= contracts.carService.totalSupply(); carId++) {
-        uint[] memory activeTrips = contracts.tripService.getActiveTrips(carId);
+      uint[] memory activeTrips = contracts.tripService.getActiveTrips(carId);
 
-        if (activeTrips.length > 0) {
-            for (uint i = 0; i < activeTrips.length; i++) {
-                uint tripId = activeTrips[i];
+      if (activeTrips.length > 0) {
+        for (uint i = 0; i < activeTrips.length; i++) {
+          uint tripId = activeTrips[i];
 
-                if (isTripThatIntersect(contracts, tripId, startDateTime, endDateTime)) {
-                    result[currentIndex] = contracts.tripService.getTrip(tripId);
-                    currentIndex += 1;
-                }
-            }
+          if (isTripThatIntersect(contracts, tripId, startDateTime, endDateTime)) {
+            result[currentIndex] = contracts.tripService.getTrip(tripId);
+            currentIndex += 1;
+          }
         }
+      }
     }
 
     return result;
-}
+  }
   /// @notice Calculates the detailed receipt for a specific trip.
   /// @dev This function computes various aspects of the trip receipt, including pricing, mileage, and fuel charges.
   /// @param tripId The ID of the trip for which the receipt is calculated.
@@ -328,8 +326,8 @@ function getTripsThatIntersect(
       address(tripService),
       address(userService)
     );
-    trip.guestInsuranceCompanyName = "";
-    trip.guestInsurancePolicyNumber = "";
+    trip.guestInsuranceCompanyName = '';
+    trip.guestInsurancePolicyNumber = '';
     return
       Schemas.TripDTO(
         trip,
@@ -391,7 +389,7 @@ function getTripsThatIntersect(
         (uint oneTimeActual, uint generalActual) = insuranceService.findActualInsurance(tripInsurances);
         for (uint j = 0; j < tripInsurances.length; j++) {
           Schemas.KYCInfo memory kyc = contracts.userService.getKYCInfo(tripInsurances[j].createdBy);
-        uint index = j;
+          uint index = j;
           Schemas.CarInfo memory car = contracts.carService.getCarInfoById(trip.carId);
           insurances[counter].tripId = i;
           insurances[counter].carBrand = car.brand;
@@ -405,13 +403,13 @@ function getTripsThatIntersect(
           insurances[counter].endDateTime = trip.endDateTime;
           insurances[counter].isActual = (index == oneTimeActual || index == generalActual);
           counter += 1;
-  }
         }
       }
+    }
 
     return insurances;
   }
- 
+
   function getTripInsurancesByHost(
     RentalityContract memory contracts,
     RentalityInsurance insuranceService,
@@ -446,7 +444,7 @@ function getTripsThatIntersect(
           insurances[counter].creatorFullName = kyc.surname;
           insurances[counter].startDateTime = trip.startDateTime;
           insurances[counter].endDateTime = trip.endDateTime;
-            insurances[counter].isActual = (j == oneTimeActual || j == generalActual);
+          insurances[counter].isActual = (j == oneTimeActual || j == generalActual);
           counter += 1;
         }
       }
@@ -494,156 +492,153 @@ function getTripsThatIntersect(
       chatInfoList[i].timeZoneId = IRentalityGeoService(carService.getGeoServiceAddress()).getCarTimeZoneId(
         carInfo.locationHash
       );
-  }
-      return chatInfoList;
-  }
-
-
-
-    function isCarThatIntersect(
-        RentalityContract memory contracts,
-        uint256 tripId,
-        uint256 carId,
-        uint64 startDateTime,
-        uint64 endDateTime
-    ) internal view returns (bool) {
-        Schemas.Trip memory trip = contracts.tripService.getTrip(tripId);
-        return (trip.carId == carId) && (trip.endDateTime > startDateTime) && (trip.startDateTime < endDateTime);
     }
-    // @notice Retrieves all trips based on the provided filter and pagination.
-    /// @param filter The filter to apply to the trips.
-    /// @param page The current page number.
-    /// @param itemsPerPage The number of items per page.
-    /// @return A structure containing the filtered trips and total page count.
-    function getAllTrips(
-        RentalityContract memory contracts,
-        Schemas.TripFilter memory filter,
-        uint page,
-        uint itemsPerPage
-    ) public view returns (Schemas.AllTripsDTO memory) {
-        uint totalTripsCount = contracts.tripService.totalTripCount();
+    return chatInfoList;
+  }
 
-        uint[] memory matchedTrips = new uint[](totalTripsCount);
+  function isCarThatIntersect(
+    RentalityContract memory contracts,
+    uint256 tripId,
+    uint256 carId,
+    uint64 startDateTime,
+    uint64 endDateTime
+  ) internal view returns (bool) {
+    Schemas.Trip memory trip = contracts.tripService.getTrip(tripId);
+    return (trip.carId == carId) && (trip.endDateTime > startDateTime) && (trip.startDateTime < endDateTime);
+  }
+  // @notice Retrieves all trips based on the provided filter and pagination.
+  /// @param filter The filter to apply to the trips.
+  /// @param page The current page number.
+  /// @param itemsPerPage The number of items per page.
+  /// @return A structure containing the filtered trips and total page count.
+  function getAllTrips(
+    RentalityContract memory contracts,
+    Schemas.TripFilter memory filter,
+    uint page,
+    uint itemsPerPage
+  ) public view returns (Schemas.AllTripsDTO memory) {
+    uint totalTripsCount = contracts.tripService.totalTripCount();
 
-        uint counter = 0;
-        for (uint i = 1; i <= totalTripsCount; i++) {
-            if (isTripMatch(contracts, filter, contracts.tripService.getTrip(i))) {
-                matchedTrips[counter] = i;
-                counter += 1;
-            }
-        }
-        if (counter == 0) return Schemas.AllTripsDTO(new Schemas.AdminTripDTO[](0), 0);
+    uint[] memory matchedTrips = new uint[](totalTripsCount);
 
-        uint totalPageCount = (counter + itemsPerPage - 1) / itemsPerPage;
+    uint counter = 0;
+    for (uint i = 1; i <= totalTripsCount; i++) {
+      if (isTripMatch(contracts, filter, contracts.tripService.getTrip(i))) {
+        matchedTrips[counter] = i;
+        counter += 1;
+      }
+    }
+    if (counter == 0) return Schemas.AllTripsDTO(new Schemas.AdminTripDTO[](0), 0);
 
-        if (page > totalPageCount) {
-            page = totalPageCount;
-        }
+    uint totalPageCount = (counter + itemsPerPage - 1) / itemsPerPage;
 
-        uint startIndex = (page - 1) * itemsPerPage;
-        uint endIndex = startIndex + itemsPerPage;
-
-        if (endIndex > counter) {
-            endIndex = counter;
-        }
-
-        Schemas.AdminTripDTO[] memory result = new Schemas.AdminTripDTO[](endIndex - startIndex);
-        for (uint i = startIndex; i < endIndex; i++) {
-            Schemas.Trip memory trip = contracts.tripService.getTrip(matchedTrips[i]);
-            Schemas.CarInfo memory car = contracts.carService.getCarInfoById(trip.carId);
-            result[i - startIndex] = Schemas.AdminTripDTO(
-                trip,
-                contracts.carService.tokenURI(trip.carId),
-                IRentalityGeoService(contracts.carService.getGeoServiceAddress()).getLocationInfo(car.locationHash)
-            );
-        }
-
-        return Schemas.AllTripsDTO(result, totalPageCount);
+    if (page > totalPageCount) {
+      page = totalPageCount;
     }
 
-    // @notice Checks if a trip matches the provided filter.
-    /// @dev This function is used internally to filter trips based on the given criteria.
-    /// @param filter The filter to apply.
-    /// @param trip The trip to check against the filter.
-    /// @return Returns true if the trip matches the filter, otherwise false.
-    function isTripMatch(
-        RentalityContract memory contracts,
-        Schemas.TripFilter memory filter,
-        Schemas.Trip memory trip
-    ) internal view returns (bool) {
-        IRentalityGeoService geoService = IRentalityGeoService(contracts.carService.getGeoServiceAddress());
-        Schemas.LocationInfo memory locationInfo = geoService.getLocationInfo(
-            contracts.carService.getCarInfoById(trip.carId).locationHash
-        );
-        return ((bytes(filter.location.country).length == 0 ||
-            RentalityUtils.containWord(
-                RentalityUtils.toLower(locationInfo.country),
-                RentalityUtils.toLower(filter.location.country)
-            )) &&
-        (bytes(filter.location.state).length == 0 ||
-            RentalityUtils.containWord(
-                RentalityUtils.toLower(locationInfo.state),
-                RentalityUtils.toLower(filter.location.state)
-            )) &&
-        (bytes(filter.location.city).length == 0 ||
-            RentalityUtils.containWord(
-                RentalityUtils.toLower(locationInfo.city),
-                RentalityUtils.toLower(filter.location.city)
-            )) &&
-        (filter.startDateTime <= trip.startDateTime && filter.endDateTime >= trip.endDateTime) &&
-        (filter.paymentStatus == Schemas.PaymentStatus.Any ||
+    uint startIndex = (page - 1) * itemsPerPage;
+    uint endIndex = startIndex + itemsPerPage;
+
+    if (endIndex > counter) {
+      endIndex = counter;
+    }
+
+    Schemas.AdminTripDTO[] memory result = new Schemas.AdminTripDTO[](endIndex - startIndex);
+    for (uint i = startIndex; i < endIndex; i++) {
+      Schemas.Trip memory trip = contracts.tripService.getTrip(matchedTrips[i]);
+      Schemas.CarInfo memory car = contracts.carService.getCarInfoById(trip.carId);
+      result[i - startIndex] = Schemas.AdminTripDTO(
+        trip,
+        contracts.carService.tokenURI(trip.carId),
+        IRentalityGeoService(contracts.carService.getGeoServiceAddress()).getLocationInfo(car.locationHash)
+      );
+    }
+
+    return Schemas.AllTripsDTO(result, totalPageCount);
+  }
+
+  // @notice Checks if a trip matches the provided filter.
+  /// @dev This function is used internally to filter trips based on the given criteria.
+  /// @param filter The filter to apply.
+  /// @param trip The trip to check against the filter.
+  /// @return Returns true if the trip matches the filter, otherwise false.
+  function isTripMatch(
+    RentalityContract memory contracts,
+    Schemas.TripFilter memory filter,
+    Schemas.Trip memory trip
+  ) internal view returns (bool) {
+    IRentalityGeoService geoService = IRentalityGeoService(contracts.carService.getGeoServiceAddress());
+    Schemas.LocationInfo memory locationInfo = geoService.getLocationInfo(
+      contracts.carService.getCarInfoById(trip.carId).locationHash
+    );
+    return ((bytes(filter.location.country).length == 0 ||
+      RentalityUtils.containWord(
+        RentalityUtils.toLower(locationInfo.country),
+        RentalityUtils.toLower(filter.location.country)
+      )) &&
+      (bytes(filter.location.state).length == 0 ||
+        RentalityUtils.containWord(
+          RentalityUtils.toLower(locationInfo.state),
+          RentalityUtils.toLower(filter.location.state)
+        )) &&
+      (bytes(filter.location.city).length == 0 ||
+        RentalityUtils.containWord(
+          RentalityUtils.toLower(locationInfo.city),
+          RentalityUtils.toLower(filter.location.city)
+        )) &&
+      (filter.startDateTime <= trip.startDateTime && filter.endDateTime >= trip.endDateTime) &&
+      (filter.paymentStatus == Schemas.PaymentStatus.Any ||
         (filter.paymentStatus == Schemas.PaymentStatus.PaidToHost && trip.status == Schemas.TripStatus.Finished) ||
         (filter.paymentStatus == Schemas.PaymentStatus.Prepayment &&
-            (trip.status == Schemas.TripStatus.Created ||
+          (trip.status == Schemas.TripStatus.Created ||
             trip.status == Schemas.TripStatus.Approved ||
             trip.status == Schemas.TripStatus.CheckedInByHost ||
             (trip.status == Schemas.TripStatus.CheckedInByGuest && trip.tripStartedBy == trip.guest) ||
             (trip.status == Schemas.TripStatus.CheckedOutByGuest && trip.tripFinishedBy == trip.guest) ||
-                (trip.status == Schemas.TripStatus.CheckedOutByHost && trip.tripFinishedBy == trip.guest))) ||
+            (trip.status == Schemas.TripStatus.CheckedOutByHost && trip.tripFinishedBy == trip.guest))) ||
         (filter.paymentStatus == Schemas.PaymentStatus.RefundToGuest && trip.status == Schemas.TripStatus.Canceled) ||
-            (filter.paymentStatus == Schemas.PaymentStatus.Unpaid &&
-                ((trip.status == Schemas.TripStatus.CheckedInByGuest && trip.tripStartedBy == trip.host) ||
-                    (trip.status == Schemas.TripStatus.CheckedOutByHost && trip.tripFinishedBy == trip.host)))) &&
-            (filter.status == Schemas.AdminTripStatus.Any ||
-            (filter.status == Schemas.AdminTripStatus.Created && trip.status == Schemas.TripStatus.Created) ||
-            (filter.status == Schemas.AdminTripStatus.Approved && trip.status == Schemas.TripStatus.Approved) ||
-            (filter.status == Schemas.AdminTripStatus.CheckedInByHost &&
-                trip.status == Schemas.TripStatus.CheckedInByHost) ||
-            (filter.status == Schemas.AdminTripStatus.CheckedInByGuest &&
-            trip.status == Schemas.TripStatus.CheckedInByGuest &&
-                trip.tripStartedBy == trip.guest) ||
-            (filter.status == Schemas.AdminTripStatus.CheckedOutByGuest &&
-            trip.status == Schemas.TripStatus.CheckedOutByGuest &&
-                trip.tripFinishedBy == trip.guest) ||
-            (filter.status == Schemas.AdminTripStatus.CheckedOutByHost &&
-            trip.status == Schemas.TripStatus.CheckedOutByHost &&
-                trip.tripFinishedBy == trip.guest) ||
-            (filter.status == Schemas.AdminTripStatus.Finished && trip.status == Schemas.TripStatus.Finished) ||
-            (filter.status == Schemas.AdminTripStatus.GuestCanceledBeforeApprove &&
-            trip.status == Schemas.TripStatus.Canceled &&
-            trip.approvedDateTime == 0 &&
-                trip.rejectedBy == trip.guest) ||
-            (filter.status == Schemas.AdminTripStatus.HostCanceledBeforeApprove &&
-            trip.status == Schemas.TripStatus.Canceled &&
-            trip.approvedDateTime == 0 &&
-                trip.rejectedBy == trip.host) ||
-            (filter.status == Schemas.AdminTripStatus.GuestCanceledAfterApprove &&
-            trip.status == Schemas.TripStatus.Canceled &&
-            trip.approvedDateTime > 0 &&
-                trip.rejectedBy == trip.guest) ||
-            (filter.status == Schemas.AdminTripStatus.HostCanceledAfterApprove &&
-            trip.status == Schemas.TripStatus.Canceled &&
-            trip.approvedDateTime > 0 &&
-                trip.rejectedBy == trip.host) ||
-            (filter.status == Schemas.AdminTripStatus.CompletedWithoutGuestConfirmation &&
-            trip.status == Schemas.TripStatus.CheckedOutByHost &&
-                trip.tripFinishedBy == trip.host) ||
-            (filter.status == Schemas.AdminTripStatus.CompletedByGuest &&
-            trip.status == Schemas.TripStatus.Finished &&
-                trip.tripFinishedBy == trip.host) ||
-                (filter.status == Schemas.AdminTripStatus.CompletedByAdmin &&
-                trip.status == Schemas.TripStatus.Finished &&
-                    contracts.tripService.completedByAdmin(trip.tripId))));
-    }
-
+        (filter.paymentStatus == Schemas.PaymentStatus.Unpaid &&
+          ((trip.status == Schemas.TripStatus.CheckedInByGuest && trip.tripStartedBy == trip.host) ||
+            (trip.status == Schemas.TripStatus.CheckedOutByHost && trip.tripFinishedBy == trip.host)))) &&
+      (filter.status == Schemas.AdminTripStatus.Any ||
+        (filter.status == Schemas.AdminTripStatus.Created && trip.status == Schemas.TripStatus.Created) ||
+        (filter.status == Schemas.AdminTripStatus.Approved && trip.status == Schemas.TripStatus.Approved) ||
+        (filter.status == Schemas.AdminTripStatus.CheckedInByHost &&
+          trip.status == Schemas.TripStatus.CheckedInByHost) ||
+        (filter.status == Schemas.AdminTripStatus.CheckedInByGuest &&
+          trip.status == Schemas.TripStatus.CheckedInByGuest &&
+          trip.tripStartedBy == trip.guest) ||
+        (filter.status == Schemas.AdminTripStatus.CheckedOutByGuest &&
+          trip.status == Schemas.TripStatus.CheckedOutByGuest &&
+          trip.tripFinishedBy == trip.guest) ||
+        (filter.status == Schemas.AdminTripStatus.CheckedOutByHost &&
+          trip.status == Schemas.TripStatus.CheckedOutByHost &&
+          trip.tripFinishedBy == trip.guest) ||
+        (filter.status == Schemas.AdminTripStatus.Finished && trip.status == Schemas.TripStatus.Finished) ||
+        (filter.status == Schemas.AdminTripStatus.GuestCanceledBeforeApprove &&
+          trip.status == Schemas.TripStatus.Canceled &&
+          trip.approvedDateTime == 0 &&
+          trip.rejectedBy == trip.guest) ||
+        (filter.status == Schemas.AdminTripStatus.HostCanceledBeforeApprove &&
+          trip.status == Schemas.TripStatus.Canceled &&
+          trip.approvedDateTime == 0 &&
+          trip.rejectedBy == trip.host) ||
+        (filter.status == Schemas.AdminTripStatus.GuestCanceledAfterApprove &&
+          trip.status == Schemas.TripStatus.Canceled &&
+          trip.approvedDateTime > 0 &&
+          trip.rejectedBy == trip.guest) ||
+        (filter.status == Schemas.AdminTripStatus.HostCanceledAfterApprove &&
+          trip.status == Schemas.TripStatus.Canceled &&
+          trip.approvedDateTime > 0 &&
+          trip.rejectedBy == trip.host) ||
+        (filter.status == Schemas.AdminTripStatus.CompletedWithoutGuestConfirmation &&
+          trip.status == Schemas.TripStatus.CheckedOutByHost &&
+          trip.tripFinishedBy == trip.host) ||
+        (filter.status == Schemas.AdminTripStatus.CompletedByGuest &&
+          trip.status == Schemas.TripStatus.Finished &&
+          trip.tripFinishedBy == trip.host) ||
+        (filter.status == Schemas.AdminTripStatus.CompletedByAdmin &&
+          trip.status == Schemas.TripStatus.Finished &&
+          contracts.tripService.completedByAdmin(trip.tripId))));
+  }
 }

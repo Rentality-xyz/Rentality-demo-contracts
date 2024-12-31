@@ -30,13 +30,12 @@ contract RentalityPlatform is UUPSOwnable {
   // unused, have to be here, because of proxy
   address private automationService;
 
-
   using RentalityTripsQuery for RentalityContract;
   /// @dev Modifier to restrict access to admin users only.
 
   RentalityInsurance private insuranceService;
 
-    RentalityReferralProgram private refferalProgram;
+  RentalityReferralProgram private refferalProgram;
 
   function updateServiceAddresses(RentalityAdminGateway adminService) public {
     require(addresses.userService.isAdmin(tx.origin), 'only Admin.');
@@ -44,7 +43,6 @@ contract RentalityPlatform is UUPSOwnable {
     insuranceService = adminService.getInsuranceService();
     refferalProgram = adminService.getRefferalServiceAddress();
   }
-
 
   /// @notice Creates a trip request with delivery.
   /// @param request The trip request with delivery details.
@@ -112,9 +110,8 @@ contract RentalityPlatform is UUPSOwnable {
     uint64 pickUp,
     uint64 dropOf,
     bytes32 pickUpHash,
-    bytes32 returnHash
-  ) private // bool useRefferalDiscount
-  {
+    bytes32 returnHash // bool useRefferalDiscount
+  ) private {
     RentalityUtils.validateTripRequest(addresses, currencyType, carId, startDateTime, endDateTime);
     // uint discount = 0;
     //    if(useRefferalDiscount)
@@ -179,7 +176,6 @@ contract RentalityPlatform is UUPSOwnable {
   /// @param tripId The ID of the trip to reject.
   function rejectTripRequest(uint256 tripId) public {
     Schemas.Trip memory trip = addresses.tripService.getTrip(tripId);
-
 
     uint insurance = insuranceService.getInsurancePriceByTrip(tripId);
     uint valueToReturnInUsdCents = addresses.currencyConverterService.calculateTripReject(trip.paymentInfo, insurance);
@@ -302,7 +298,7 @@ contract RentalityPlatform is UUPSOwnable {
     refferalProgram.passReferralProgram(Schemas.RefferalProgram.PassCivic, refferalHash, bytes(''), user);
     addresses.userService.setCivicKYCInfo(user, civicKycInfo);
   }
-   function setMyCivicKYCInfo(Schemas.CivicKYCInfo memory civicKycInfo) public {
+  function setMyCivicKYCInfo(Schemas.CivicKYCInfo memory civicKycInfo) public {
     addresses.userService.setMyCivicKYCInfo(tx.origin, civicKycInfo);
   }
   /// @notice Allows the host to perform a check-in for a specific trip.
@@ -316,7 +312,7 @@ contract RentalityPlatform is UUPSOwnable {
   function checkInByHost(
     uint256 tripId,
     uint64[] memory panelParams,
-      string memory insuranceCompany,
+    string memory insuranceCompany,
     string memory insuranceNumber
   ) public {
     if (bytes(insuranceNumber).length > 0 || bytes(insuranceCompany).length > 0)
@@ -388,7 +384,7 @@ contract RentalityPlatform is UUPSOwnable {
     Schemas.UpdateCarInfoRequest memory request,
     Schemas.SignedLocationInfo memory location
   ) public {
-    require(RentalityUtils.isCarEditable(addresses,request.carId), 'Car is not available for update.');
+    require(RentalityUtils.isCarEditable(addresses, request.carId), 'Car is not available for update.');
 
     if (location.signature.length > 0) addresses.carService.verifySignedLocationInfo(location);
     refferalProgram.passReferralProgram(
@@ -397,7 +393,7 @@ contract RentalityPlatform is UUPSOwnable {
       abi.encode(addresses.carService.getCarInfoById(request.carId).currentlyListed, request.currentlyListed),
       tx.origin
     );
-      insuranceService.saveInsuranceRequired(request.carId, request.insurancePriceInUsdCents, request.insuranceRequired);
+    insuranceService.saveInsuranceRequired(request.carId, request.insurancePriceInUsdCents, request.insuranceRequired);
     return addresses.carService.updateCarInfo(request, location.locationInfo, location.signature.length > 0);
   }
   /// @notice Adds a user discount.

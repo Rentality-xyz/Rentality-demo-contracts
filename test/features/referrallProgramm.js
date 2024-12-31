@@ -112,7 +112,7 @@ describe('Referral program', function () {
     ).to.not.reverted
 
     const hashPointsCar = await refferalProgram.getReadyToClaimFromRefferalHash(hashCreator.address)
-    console.log("HERE")
+    console.log('HERE')
     const hashCreatorPointsCar = hashPointsCar.toClaim.find(
       (obj) => obj.refType === BigInt(RefferalProgram.AddCar)
     ).points
@@ -121,7 +121,9 @@ describe('Referral program', function () {
 
     const readyToClaimCar = await refferalProgram.getReadyToClaim(anonymous.address)
 
-    const amountCar = readyToClaimCar.toClaim.find((obj) => obj.refType === BigInt(RefferalProgram.AddCar) && obj.oneTime).points
+    const amountCar = readyToClaimCar.toClaim.find(
+      (obj) => obj.refType === BigInt(RefferalProgram.AddCar) && obj.oneTime
+    ).points
     expect(amountCar).to.be.eq(2000)
     await expect(refferalProgram.claimPoints(anonymous.address)).to.not.reverted
 
@@ -131,14 +133,13 @@ describe('Referral program', function () {
     expect(await refferalProgram.addressToPoints(hashCreator.address)).to.be.eq(260)
   })
   it('update car should deacrease points', async function () {
-  
     expect(await refferalProgram.connect(hashCreator).generateReferralHash()).to.not.reverted
-   
+
     let hash = await refferalProgram.referralHash(hashCreator.address)
 
     expect(await rentalityGateway.connect(anonymous).setKYCInfo(' ', ' ', ' ', signTCMessage(anonymous), hash)).to.not
       .reverted
-      
+
     const readyToClaim = await refferalProgram.getReadyToClaim(anonymous.address)
 
     const amount = readyToClaim.toClaim.find((obj) => obj.refType === BigInt(RefferalProgram.SetKYC)).points
@@ -155,7 +156,7 @@ describe('Referral program', function () {
         .connect(anonymous)
         .addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin), hash)
     ).to.not.reverted
-  
+
     const hashPointsCar = await refferalProgram.getReadyToClaimFromRefferalHash(hashCreator.address)
     const hashCreatorPointsCar = hashPointsCar.toClaim.find(
       (obj) => obj.refType === BigInt(RefferalProgram.AddCar)
@@ -163,16 +164,14 @@ describe('Referral program', function () {
 
     expect(hashCreatorPointsCar).to.be.eq(250)
 
- 
     const toClaim = await refferalProgram.getReadyToClaim(anonymous.address)
-    const amountAddCar = toClaim.toClaim.find((obj) => obj.refType === BigInt(RefferalProgram.AddCar) && obj.oneTime).points
-
+    const amountAddCar = toClaim.toClaim.find(
+      (obj) => obj.refType === BigInt(RefferalProgram.AddCar) && obj.oneTime
+    ).points
 
     expect(amountAddCar).to.be.eq(2000)
     await expect(refferalProgram.claimPoints(anonymous.address)).to.not.reverted
-    
 
-    
     await expect(refferalProgram.claimRefferalPoints(hashCreator.address)).to.not.reverted
 
     expect(await refferalProgram.addressToPoints(anonymous.address)).to.be.eq(2145)
@@ -182,15 +181,15 @@ describe('Referral program', function () {
       carId: 1,
       pricePerDayInUsdCents: 2,
       securityDepositPerTripInUsdCents: 2,
-      engineParams: [2,2],
+      engineParams: [2, 2],
       timeBufferBetweenTripsInSec: 0,
       milesIncludedPerDay: 2,
       currentlyListed: false,
       insuranceIncluded: true,
       engineType: 1,
-      tokenUri: "",
+      tokenUri: '',
       insuranceRequired: false,
-      insurancePriceInUsdCents: 0
+      insurancePriceInUsdCents: 0,
     }
 
     let locationInfo = {
@@ -257,7 +256,6 @@ describe('Referral program', function () {
     expect(await refferalProgram.addressToPoints(hashCreator.address)).to.be.eq(60)
   })
 
-
   it('should have points with refferal hash after trip finish as guest', async function () {
     expect(await refferalProgram.connect(hashCreator).generateReferralHash()).to.not.reverted
 
@@ -300,8 +298,9 @@ describe('Referral program', function () {
     await expect(rentalityGateway.connect(anonymous).checkOutByGuest(1, [0, 0], hash)).not.to.be.reverted
 
     const toClaim = await refferalProgram.getReadyToClaim(anonymous.address)
-    const amountTripFinish = toClaim.toClaim.find((obj) => obj.refType === BigInt(RefferalProgram.FinishTripAsGuest) && obj.oneTime).points
-
+    const amountTripFinish = toClaim.toClaim.find(
+      (obj) => obj.refType === BigInt(RefferalProgram.FinishTripAsGuest) && obj.oneTime
+    ).points
 
     expect(amountTripFinish).to.be.eq(1250)
 
