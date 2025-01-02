@@ -16,6 +16,7 @@ import './libs/RentalityTripsQuery.sol';
 import './RentalityGateway.sol';
 import {RentalityTripsView, FunctionNotFound} from './RentalityTripsView.sol';
 import {RentalityReferralProgram} from './features/refferalProgram/RentalityReferralProgram.sol';
+import {RentalityPromoService} from './features/RentalityPromo.sol';
 
 /// @dev SAFETY: The linked library is not supported yet because it can modify the state or call
 ///  selfdestruct, as far as RentalityTripsQuery doesn't has this logic,
@@ -30,6 +31,8 @@ contract RentalityView is UUPSUpgradeable, Initializable {
   RentalityTripsView private tripsView;
 
   RentalityReferralProgram private refferalService;
+
+  RentalityPromoService private promoService;
 
   function updateServiceAddresses(
     RentalityContract memory contracts,
@@ -247,7 +250,8 @@ contract RentalityView is UUPSUpgradeable, Initializable {
     uint64 daysOfTrip,
     address currency,
     Schemas.LocationInfo memory pickUpLocation,
-    Schemas.LocationInfo memory returnLocation
+    Schemas.LocationInfo memory returnLocation,
+    string memory promo
   ) public view returns (Schemas.CalculatePaymentsDTO memory) {
     return
       RentalityUtils.calculatePaymentsWithDelivery(
@@ -257,7 +261,9 @@ contract RentalityView is UUPSUpgradeable, Initializable {
         currency,
         pickUpLocation,
         returnLocation,
-        insuranceService
+        insuranceService,
+        promo,
+        promoService
       );
   }
   /// @notice Get chat information for trips hosted by the caller on the Rentality platform.
@@ -323,7 +329,8 @@ contract RentalityView is UUPSUpgradeable, Initializable {
     address carDeliveryAddress,
     address insuranceAddress,
     address tripsViewAddress,
-    address refferalProgramAddress
+    address refferalProgramAddress,
+    address promoServiceAddress
   ) public initializer {
     addresses = RentalityContract(
       RentalityCarToken(carServiceAddress),
@@ -341,6 +348,7 @@ contract RentalityView is UUPSUpgradeable, Initializable {
     tripsView = RentalityTripsView(tripsViewAddress);
     tripsView.updateViewService(this);
     refferalService = RentalityReferralProgram(refferalProgramAddress);
+    promoService = RentalityPromoService(promoServiceAddress);
   }
 
   function _authorizeUpgrade(address /*newImplementation*/) internal view override {
