@@ -36,7 +36,8 @@
     "RentalityRefferalLib": "0x4b7c569Ab9BB4c68E351B8485950caf9D6e6eAcd",
     "RentalityInsurance": "0x5ecCde5f8e51C952982Ec76E9C78DA243bb6Dc99",
     "RentalityTripsView": "0x49A34Cf65683D499c9E1eEF95d0e3735DCF10F19",
-    "RentalityReferralProgram": "0x4f7cF63DCd5c418EEBdDb29FC7E5bFf841F51ddF"
+    "RentalityReferralProgram": "0x4f7cF63DCd5c418EEBdDb29FC7E5bFf841F51ddF",
+    "RentalityNotificationService": "0x37E1950eE1BCC531478fb0507476505AC0a5fAaf"
   },
   {
     "name": "base_sepolia",
