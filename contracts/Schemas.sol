@@ -782,7 +782,7 @@ interface Schemas {
 
   struct PromoUsedInfo {
     Promo promo;
-    bytes3 promoCode;
+    string promoCode;
     uint usedAt;
   }
 
@@ -805,5 +805,11 @@ interface Schemas {
     Active,
     Idle,
     Used
+  }
+  struct PromoTripData {
+    string promo;
+    uint hostEarningsInCurrency;
+    uint hostEarnings;
+
   }
 }
