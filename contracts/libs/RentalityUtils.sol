@@ -736,7 +736,7 @@ library RentalityUtils {
     require(trip.status == Schemas.TripStatus.CheckedOutByHost, 'The trip is not in status CheckedOutByHost');
   }
 
-    function getFilterInfo(
+  function getFilterInfo(
     RentalityContract memory contracts,
     uint64 duration
   ) public view returns (Schemas.FilterInfoDTO memory) {
@@ -757,16 +757,16 @@ library RentalityUtils {
     }
     return Schemas.FilterInfoDTO(maxCarPrice, minCarYearOfProduction);
   }
-      function calculateClaimValue(RentalityContract memory addresses, uint claimId) public view returns (uint) {
-        Schemas.Claim memory claim = addresses.claimService.getClaim(claimId);
-        if (claim.status == Schemas.ClaimStatus.Paid || claim.status == Schemas.ClaimStatus.Cancel) return 0;
+  function calculateClaimValue(RentalityContract memory addresses, uint claimId) public view returns (uint) {
+    Schemas.Claim memory claim = addresses.claimService.getClaim(claimId);
+    if (claim.status == Schemas.ClaimStatus.Paid || claim.status == Schemas.ClaimStatus.Cancel) return 0;
 
-        uint commission = addresses.claimService.getPlatformFeeFrom(claim.amountInUsdCents);
-        (uint result, , ) = addresses.currencyConverterService.getFromUsdLatest(
-            addresses.tripService.getTrip(claim.tripId).paymentInfo.currencyType,
-            claim.amountInUsdCents + commission
-        );
+    uint commission = addresses.claimService.getPlatformFeeFrom(claim.amountInUsdCents);
+    (uint result, , ) = addresses.currencyConverterService.getFromUsdLatest(
+      addresses.tripService.getTrip(claim.tripId).paymentInfo.currencyType,
+      claim.amountInUsdCents + commission
+    );
 
-        return result;
-    }
+    return result;
+  }
 }

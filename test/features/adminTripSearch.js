@@ -500,7 +500,7 @@ describe('Admin trip searching', function () {
       admin,
       request.locationInfo.locationInfo
     )
-    await expect(rentalityGateway.connect(host).addCar(request,zeroHash)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(request, zeroHash)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 

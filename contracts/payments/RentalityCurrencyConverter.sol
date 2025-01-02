@@ -136,7 +136,7 @@ contract RentalityCurrencyConverter is Initializable, UUPSAccess {
     return (valueToPay, feeInCurrency, rate, dec);
   }
 
-    function calculateTripFinsish(
+  function calculateTripFinsish(
     Schemas.PaymentInfo memory paymentInfo,
     uint256 rentalityFee,
     uint insurancePriceInUsdCents

@@ -90,43 +90,34 @@ abstract contract ARentalityRefferalPointsSetter is ARentalityRefferal {
     return (points.points, isOneTime);
   }
 
-  function getEmptyToClaim() public view returns(Schemas.ReadyToClaim[] memory) {
-  
-   Schemas.ReadyToClaim[] memory programs;
+  function getEmptyToClaim() public view returns (Schemas.ReadyToClaim[] memory) {
+    Schemas.ReadyToClaim[] memory programs;
     uint counter = 0;
     uint max = uint(type(Schemas.RefferalProgram).max) + 1;
-for (uint i = 0; i < max; i++) {
-    Schemas.RefferalProgram program = Schemas.RefferalProgram(i);
+    for (uint i = 0; i < max; i++) {
+      Schemas.RefferalProgram program = Schemas.RefferalProgram(i);
 
-    if (selectorToPoints[program].points != 0) 
-        counter += 1;
-    
-    if (permanentSelectorToPoints[program].points != 0) 
-        counter += 1;
-    
-}
+      if (selectorToPoints[program].points != 0) counter += 1;
+
+      if (permanentSelectorToPoints[program].points != 0) counter += 1;
+    }
     programs = new Schemas.ReadyToClaim[](counter);
     uint index = 0;
-      for (uint i = 0; i < max; i++ ) {
-      if(permanentSelectorToPoints[Schemas.RefferalProgram(i)].points != 0)
-      {
+    for (uint i = 0; i < max; i++) {
+      if (permanentSelectorToPoints[Schemas.RefferalProgram(i)].points != 0) {
         programs[index].refType = Schemas.RefferalProgram(i);
         programs[index].oneTime = false;
         index += 1;
       }
-  
     }
-       for (uint i = 0; i < max; i++ ) {
-      if(selectorToPoints[Schemas.RefferalProgram(i)].points != 0)
-      {
+    for (uint i = 0; i < max; i++) {
+      if (selectorToPoints[Schemas.RefferalProgram(i)].points != 0) {
         programs[index].refType = Schemas.RefferalProgram(i);
         programs[index].oneTime = true;
         index += 1;
       }
-  
     }
     return programs;
-  
   }
 
   function _isOneTimeProgramExists(Schemas.RefferalProgram selector) internal view returns (bool) {

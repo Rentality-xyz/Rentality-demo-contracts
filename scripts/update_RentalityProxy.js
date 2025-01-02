@@ -34,8 +34,8 @@ async function main() {
   if (initializationFunc.length === 0) {
     console.log(`Updating contract ${contractName} in address ${contractAddress}`)
     contract = await upgrades.upgradeProxy(contractAddress, contractFactory, {
-      unsafeAllow: ["structs"] // You may need to specify "structs" to allow incompatible struct changes
-  });
+      unsafeAllow: ['structs'], // You may need to specify "structs" to allow incompatible struct changes
+    })
   } else {
     const initializationArgs = readlineSync.question(
       `Enter args to ${initializationFunc} function arguments separated by spaces or skip \n`
@@ -51,7 +51,7 @@ async function main() {
         fn: initializationFunc,
         args: args,
       },
-      unsafeAllow: true
+      unsafeAllow: true,
     })
   }
 

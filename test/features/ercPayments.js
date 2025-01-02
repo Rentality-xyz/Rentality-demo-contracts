@@ -5,7 +5,7 @@ const {
   createMockClaimRequest,
   emptyLocationInfo,
   emptySignedLocationInfo,
-  zeroHash
+  zeroHash,
 } = require('../utils')
 const { expect } = require('chai')
 const { calculatePaymentsFrom } = require('../utils')

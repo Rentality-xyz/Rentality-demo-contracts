@@ -80,8 +80,7 @@ describe('Rentality History Service', function () {
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
           insurancePaid: false,
-          photo: ''
-
+          photo: '',
         },
         { value: result.totalPrice }
       )

@@ -78,7 +78,7 @@ library RentalityRefferalLib {
           claim[i].points += toClaim.toClaim[j].points;
         }
     }
-  
+
     toClaim.toClaim = claim;
     return toClaim;
   }

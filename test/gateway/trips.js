@@ -234,7 +234,7 @@ describe('RentalityGateway: trips', function () {
       insurancePriceInUsdCents: 0,
     }
 
-    await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest,zeroHash)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest, zeroHash)).not.to.be.reverted
 
     const dailyPriceInUsdCents = 1000
 
@@ -282,7 +282,7 @@ describe('RentalityGateway: trips', function () {
       insuranceRequired: false,
       insurancePriceInUsdCents: 0,
     }
-    await expect(rentalityGateway.connect(host).addCar(mockPatrolCreateCarRequest,zeroHash)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(mockPatrolCreateCarRequest, zeroHash)).not.to.be.reverted
     const resultPatrol = await rentalityGateway.calculatePaymentsWithDelivery(
       2,
       1,

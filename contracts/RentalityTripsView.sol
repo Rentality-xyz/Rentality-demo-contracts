@@ -58,18 +58,18 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable {
     return RentalityTripsQuery.getTripsAs(addresses, insuranceService, tx.origin, host);
   }
 
-   /// @notice Calculates the KYC commission in a specific currency based on the current exchange rate.
-    /// @dev This function uses the currency converter service to calculate the commission in the specified currency.
-    /// @param currency The address of the currency in which the commission should be calculated.
-    /// @return The KYC commission amount in the specified currency.
-    function calculateKycCommission(address currency) public view returns (uint) {
-        (uint result, , ) = addresses.currencyConverterService.getFromUsdLatest(
-            currency,
-            addresses.userService.getKycCommission()
-        );
+  /// @notice Calculates the KYC commission in a specific currency based on the current exchange rate.
+  /// @dev This function uses the currency converter service to calculate the commission in the specified currency.
+  /// @param currency The address of the currency in which the commission should be calculated.
+  /// @return The KYC commission amount in the specified currency.
+  function calculateKycCommission(address currency) public view returns (uint) {
+    (uint result, , ) = addresses.currencyConverterService.getFromUsdLatest(
+      currency,
+      addresses.userService.getKycCommission()
+    );
 
-        return result;
-    }
+    return result;
+  }
 
   function updateViewService(RentalityView viewService) public {
     require(addresses.userService.isAdmin(tx.origin), 'Only admin');

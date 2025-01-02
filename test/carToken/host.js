@@ -1,7 +1,7 @@
 const { expect } = require('chai')
 const { loadFixture, time } = require('@nomicfoundation/hardhat-network-helpers')
 
-const { getMockCarRequest,zeroHash } = require('../utils')
+const { getMockCarRequest, zeroHash } = require('../utils')
 const { deployFixtureWith1Car, deployDefaultFixture } = require('./deployments')
 
 describe('RentalityCarToken: host functions', function () {

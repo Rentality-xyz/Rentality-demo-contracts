@@ -254,7 +254,7 @@ async function deployDefaultFixture() {
     await deliveryService.getAddress(),
     await rentalityView.getAddress(),
     await insuranceService.getAddress(),
-    await refferalProgram.getAddress()
+    await refferalProgram.getAddress(),
   ])
   await rentalityPlatform.waitForDeployment()
 

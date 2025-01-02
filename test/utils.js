@@ -19,7 +19,6 @@ const RefferalProgram = {
   DailyListing: 7,
 }
 
-
 const signTCMessage = async (user) => {
   const message =
     'I have read and I agree with Terms of service, Cancellation policy, Prohibited uses and Privacy policy of Rentality.'
@@ -548,7 +547,6 @@ async function deployDefaultFixture() {
   ])
   await rentalityView.waitForDeployment()
 
-
   const rentalityPlatform = await upgrades.deployProxy(RentalityPlatform, [
     await rentalityCarToken.getAddress(),
     await rentalityCurrencyConverter.getAddress(),
@@ -559,7 +557,7 @@ async function deployDefaultFixture() {
     await deliveryService.getAddress(),
     await rentalityView.getAddress(),
     await insuranceService.getAddress(),
-    await refferalProgram.getAddress()
+    await refferalProgram.getAddress(),
   ])
   await rentalityPlatform.waitForDeployment()
 
@@ -679,7 +677,7 @@ async function deployDefaultFixture() {
     hostSignature,
     mockRequestWithInsurance,
     insuranceService,
-  rentalityView,
+    rentalityView,
     tripsQuery,
     refferalProgram,
     hashCreator,
@@ -709,5 +707,5 @@ module.exports = {
   zeroHash,
   RefferalProgram,
   emptySignedLocationInfo,
-  InsuranceType
+  InsuranceType,
 }

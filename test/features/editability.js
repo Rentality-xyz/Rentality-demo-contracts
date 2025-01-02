@@ -8,7 +8,7 @@ const {
   emptyLocationInfo,
   zeroHash,
   signLocationInfo,
-  emptySignedLocationInfo
+  emptySignedLocationInfo,
 } = require('../utils')
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 
