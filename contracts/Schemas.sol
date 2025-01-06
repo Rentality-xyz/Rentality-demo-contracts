@@ -810,6 +810,11 @@ interface Schemas {
     string promo;
     uint hostEarningsInCurrency;
     uint hostEarnings;
-
+  }
+  struct CheckPromoDTO {
+    bool isFound;
+    bool isValid;
+    bool isDiscount;
+    uint value;
   }
 }

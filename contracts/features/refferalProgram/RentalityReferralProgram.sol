@@ -14,6 +14,7 @@ import {RentalityRefferalLib} from '../../libs/RentalityRefferalLib.sol';
 import {ARentalityRefferalTear} from './ARentalityRefferalTear.sol';
 import {ARentalityRefferal} from './ARentalityRefferal.sol';
 import '../../Schemas.sol';
+import {RentalityPromoService} from '../../features/RentalityPromo.sol';
 
 struct TripDiscounts {
   uint host;
@@ -50,7 +51,8 @@ contract RentalityReferralProgram is
     Schemas.RefferalProgram selector,
     bytes32 hash,
     bytes memory callbackArgs,
-    address user
+    address user,
+    RentalityPromoService promoService
   ) public {
     require(userService.isManager(msg.sender), 'only Manager');
     (address owner, uint hashPoints) = _getHashProgramInfoIfExists(selector, hash);
@@ -62,6 +64,9 @@ contract RentalityReferralProgram is
           Schemas.ReadyToClaimFromHash(uint(hashPoints), selector, isOneTime, false, user)
         );
       }
+      try promoService.useRefferalPromo(hash, user) returns (uint refPoints) {
+        if (refPoints > 0) points = int(refPoints);
+      } catch {}
 
       addressToReadyToClaim[user].push(Schemas.ReadyToClaim(uint(points), selector, isOneTime));
     } else if (points < 0) {

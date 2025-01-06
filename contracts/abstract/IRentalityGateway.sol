@@ -74,10 +74,6 @@ interface IRentalityGateway {
   /// @return The ID of the newly added car.
   function addCar(Schemas.CreateCarRequest memory request, bytes32 refferalHash) external returns (uint);
 
-  /// @notice Update information for an existing car, without location.
-  /// @param request the Update car parameters
-  function updateCarInfo(Schemas.UpdateCarInfoRequest memory request) external;
-
   /// @notice Update information for an existing car with location
   /// @notice This sets geo verification status to false.
   /// @param request the Update car parameters
@@ -239,16 +235,16 @@ interface IRentalityGateway {
     uint64 daysOfTrip,
     address currency,
     Schemas.LocationInfo memory pickUpLocation,
-    Schemas.LocationInfo memory returnLocation
+    Schemas.LocationInfo memory returnLocation,
+    string memory promoCode
   ) external view returns (Schemas.CalculatePaymentsDTO memory);
 
   /// @notice Create a trip request.
   /// @param request The request parameters for creating a new trip.
-  function createTripRequest(Schemas.CreateTripRequest memory request) external payable;
-
-  /// @notice Create a trip request.
-  /// @param request The request parameters for creating a new trip.
-  function createTripRequestWithDelivery(Schemas.CreateTripRequestWithDelivery memory request) external payable;
+  function createTripRequestWithDelivery(
+    Schemas.CreateTripRequestWithDelivery memory request,
+    string memory promoCode
+  ) external payable;
 
   /// @notice Performs check-in by the guest for a trip.
   /// @param tripId The ID of the trip.
@@ -383,4 +379,6 @@ interface IRentalityGateway {
   function getFilterInfo(uint64 duration) external view returns (Schemas.FilterInfoDTO memory);
   /// @return An array of available car information for the specified user.
   function getAvailableCarsForUser(address user) external view returns (Schemas.CarInfo[] memory);
+
+  function checkPromo(string memory promo) external view returns (Schemas.CheckPromoDTO memory);
 }

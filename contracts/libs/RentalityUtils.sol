@@ -383,14 +383,19 @@ library RentalityUtils {
         ),
         addresses.carService.getCarInfoById(carId).createdBy
       );
-    return calculatePayments(addresses, carId, daysOfTrip, currency, deliveryFee, insuranceService,promo, promoService, tx.origin);
+    return
+      calculatePayments(
+        addresses,
+        carId,
+        daysOfTrip,
+        currency,
+        deliveryFee,
+        insuranceService,
+        promo,
+        promoService,
+        tx.origin
+      );
   }
-  /// @notice Checks if a car is available for a specific user based on search parameters.
-  /// @dev Calculates the payments for a trip.F
-  /// @param carId The ID of the car.
-  /// @param daysOfTrip The duration of the trip in days.
-  /// @param currency The currency to use for payment calculation.
-  /// @return calculatePaymentsDTO An object containing payment details.
   function calculatePayments(
     RentalityContract memory addresses,
     uint carId,
@@ -410,9 +415,6 @@ library RentalityUtils {
       daysOfTrip,
       car.pricePerDayInUsdCents
     );
-        uint64 discount = uint64(promoService.getDiscountByPromo(promo, user));
-    if(discount > 0)
-    sumWithDiscount = sumWithDiscount - (sumWithDiscount / 100 * discount);
 
     uint taxId = addresses.paymentService.defineTaxesType(address(addresses.carService), carId);
 
@@ -421,7 +423,16 @@ library RentalityUtils {
       daysOfTrip,
       sumWithDiscount + deliveryFee
     );
-    uint totalPrice = car.securityDepositPerTripInUsdCents + salesTaxes + govTax + sumWithDiscount + deliveryFee;
+
+    uint64 discount = uint64(promoService.getDiscountByPromo(promo, user));
+    uint64 priceBeforePromo = sumWithDiscount + salesTaxes + govTax + deliveryFee;
+
+    uint64 discountedPrice = priceBeforePromo;
+    if (discount > 0) {
+      discountedPrice = priceBeforePromo - ((priceBeforePromo * discount) / 100);
+    }
+
+    uint totalPrice = car.securityDepositPerTripInUsdCents + discountedPrice;
 
     if (!insuranceService.isGuestHasInsurance(tx.origin)) {
       totalPrice += insuranceService.getInsurancePriceByCar(carId) * daysOfTrip;
@@ -520,10 +531,7 @@ library RentalityUtils {
       carInfo.pricePerDayInUsdCents
     );
     uint64 priceBeforePromo = priceWithDiscount;
-    uint64 discount = uint64(promoService.getDiscountByPromo(promo, user));
-    if(discount > 0) 
-    priceWithDiscount = priceWithDiscount - (priceWithDiscount / 100 * discount);
-    
+
     uint taxId = addresses.paymentService.defineTaxesType(address(addresses.carService), carId);
 
     (uint64 salesTaxes, uint64 govTax) = addresses.paymentService.calculateTaxes(
@@ -532,6 +540,8 @@ library RentalityUtils {
       priceWithDiscount + pickUp + dropOf
     );
 
+    uint64 discount = uint64(promoService.getDiscountByPromo(promo, user));
+
     uint valueSum = priceWithDiscount +
       salesTaxes +
       govTax +
@@ -539,29 +549,28 @@ library RentalityUtils {
       pickUp +
       dropOf;
 
-   
+    uint priceWithPromo = 0;
+    if (discount > 0) {
+      uint sumBeforePromo = priceWithDiscount + salesTaxes + govTax + pickUp + dropOf;
+      priceWithPromo = (sumBeforePromo - ((sumBeforePromo * discount) / 100));
+    }
+
     (uint valueSumInCurrency, int rate, uint8 decimals) = addresses.currencyConverterService.getFromUsdLatest(
       currencyType,
       valueSum
     );
 
-     uint valueSumInCurrencyBeforePromo = valueSumInCurrency;
-    uint valueSumIBeforePromo = valueSum;
-    if(discount > 0) {
-      valueSumIBeforePromo = priceBeforePromo +
-      salesTaxes +
-      govTax +
-      carInfo.securityDepositPerTripInUsdCents +
-      pickUp +
-      dropOf;
-     
-     uint valueSumInCurrencyBeforePromo = addresses.currencyConverterService.getFromUsd(
-      currencyType,
-      valueSumIBeforePromo,
-      rate,
-      decimals
-    );
-    
+    uint valueSumInCurrencyBeforePromo = valueSumInCurrency;
+    uint valueSumWithPromo = valueSum;
+    if (discount > 0) {
+      valueSumWithPromo = priceWithPromo;
+
+      valueSumInCurrency = addresses.currencyConverterService.getFromUsd(
+        currencyType,
+        priceWithPromo + carInfo.securityDepositPerTripInUsdCents,
+        rate,
+        decimals
+      );
     }
 
     Schemas.PaymentInfo memory paymentInfo = Schemas.PaymentInfo(
@@ -583,7 +592,7 @@ library RentalityUtils {
       dropOf
     );
 
-    return (paymentInfo, valueSumInCurrency, valueSumInCurrencyBeforePromo, valueSumIBeforePromo);
+    return (paymentInfo, valueSumInCurrency, valueSumInCurrencyBeforePromo, priceWithPromo);
   }
 
   /// @dev Retrieves delivery data for a given car.

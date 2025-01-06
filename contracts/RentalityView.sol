@@ -37,12 +37,14 @@ contract RentalityView is UUPSUpgradeable, Initializable {
   function updateServiceAddresses(
     RentalityContract memory contracts,
     address insurance,
-    address tripsViewAddress
+    address tripsViewAddress,
+    address promoServiceAddress
   ) public {
     require(addresses.userService.isAdmin(tx.origin), 'only Admin.');
     addresses = contracts;
     insuranceService = RentalityInsurance(insurance);
     tripsView = RentalityTripsView(tripsViewAddress);
+    promoService = RentalityPromoService(promoServiceAddress);
   }
 
   fallback(bytes calldata data) external returns (bytes memory) {
@@ -317,6 +319,9 @@ contract RentalityView is UUPSUpgradeable, Initializable {
 
   function getFilterInfo(uint64 duration) public view returns (Schemas.FilterInfoDTO memory) {
     return RentalityUtils.getFilterInfo(addresses, duration);
+  }
+  function checkPromo(string memory promo) public view returns (Schemas.CheckPromoDTO memory) {
+    promoService.checkPromo(promo);
   }
 
   function initialize(

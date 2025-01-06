@@ -275,7 +275,8 @@ describe('Referral program', function () {
       1,
       ethToken,
       emptyLocationInfo,
-      emptyLocationInfo
+      emptyLocationInfo,
+      ' '
     )
     await expect(
       await rentalityGateway.connect(anonymous).createTripRequestWithDelivery(
@@ -288,6 +289,7 @@ describe('Referral program', function () {
           returnInfo: emptySignedLocationInfo,
           useRefferalDiscount: false,
         },
+        ' ',
         { value: result.totalPrice }
       )
     ).to.not.reverted
@@ -364,7 +366,8 @@ describe('Referral program', function () {
       1,
       ethToken,
       emptyLocationInfo,
-      emptyLocationInfo
+      emptyLocationInfo,
+      ' '
     )
     await expect(
       await rentalityGateway.connect(anonymous).createTripRequestWithDelivery(
@@ -377,6 +380,7 @@ describe('Referral program', function () {
           returnInfo: emptySignedLocationInfo,
           useRefferalDiscount: false,
         },
+        ' ',
         { value: result.totalPrice }
       )
     ).to.not.reverted
@@ -397,7 +401,8 @@ describe('Referral program', function () {
       10,
       ethToken,
       emptyLocationInfo,
-      emptyLocationInfo
+      emptyLocationInfo,
+      ' '
     )
     await expect(
       await rentalityGateway.connect(anonymous).createTripRequestWithDelivery(
@@ -410,6 +415,7 @@ describe('Referral program', function () {
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
         },
+        ' ',
         { value: result2.totalPrice }
       )
     ).to.not.reverted
@@ -443,7 +449,8 @@ describe('Referral program', function () {
       1,
       ethToken,
       emptyLocationInfo,
-      emptyLocationInfo
+      emptyLocationInfo,
+      ' '
     )
     await expect(
       await rentalityGateway.connect(anonymous).createTripRequestWithDelivery(
@@ -456,6 +463,7 @@ describe('Referral program', function () {
           returnInfo: emptySignedLocationInfo,
           useRefferalDiscount: false,
         },
+        ' ',
         { value: result.totalPrice }
       )
     ).to.not.reverted
@@ -478,7 +486,8 @@ describe('Referral program', function () {
       10,
       ethToken,
       emptyLocationInfo,
-      emptyLocationInfo
+      emptyLocationInfo,
+      ' '
     )
     await expect(
       await rentalityGateway.connect(anonymous).createTripRequestWithDelivery(
@@ -491,6 +500,7 @@ describe('Referral program', function () {
           returnInfo: emptySignedLocationInfo,
           useRefferalDiscount: false,
         },
+        ' ',
         { value: result2.totalPrice }
       )
     ).to.not.reverted

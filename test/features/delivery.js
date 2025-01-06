@@ -248,7 +248,7 @@ describe('Rentality Delivery', function () {
 
       timeZoneId: 'id',
     }
-    let result = await rentalityGateway.calculatePaymentsWithDelivery(1, 1, ethToken, locationInfo, locationInfo2)
+    let result = await rentalityGateway.calculatePaymentsWithDelivery(1, 1, ethToken, locationInfo, locationInfo2, '')
     await expect(
       await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
@@ -266,6 +266,7 @@ describe('Rentality Delivery', function () {
             locationInfo: locationInfo2,
           },
         },
+        ' ',
         { value: result.totalPrice }
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])

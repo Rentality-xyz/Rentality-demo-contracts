@@ -9,6 +9,7 @@ import './Schemas.sol';
 import './Schemas.sol';
 import './features/refferalProgram/RentalityReferralProgram.sol';
 import {RentalityReferralProgram} from './features/refferalProgram/RentalityReferralProgram.sol';
+import {RentalityPromoService} from './features/RentalityPromo.sol';
 
 /// @custom:oz-upgrades-unsafe-allow external-library-linking
 contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
@@ -23,6 +24,7 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
   RentalityView private viewService;
   RentalityInsurance private insuranceService;
   RentalityReferralProgram private refferalProgram;
+  RentalityPromoService private promoService;
   /// @notice Ensures that the caller is either an admin, the contract owner, or an admin from the origin transaction.
   modifier onlyAdmin() {
     require(
@@ -45,6 +47,12 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
         deliveryService,
         viewService
       );
+  }
+  function getPromoService() public view returns (RentalityPromoService) {
+    return promoService;
+  }
+  function setPromoService(address promoServiceAddress) public onlyAdmin {
+    promoService = RentalityPromoService(promoServiceAddress);
   }
 
   function getInsuranceService() public view returns (RentalityInsurance) {
@@ -185,6 +193,10 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
   /// @param valueInPPM The new platform fee value in PPM.
   function setPlatformFeeInPPM(uint32 valueInPPM) public onlyAdmin {
     paymentService.setPlatformFeeInPPM(valueInPPM);
+  }
+
+  function updatePromoData(string memory prefix, uint discount) public {
+    promoService.addPrefix(prefix, discount);
   }
 
   /// @dev Sets the waiting time, only callable by administrators.
@@ -407,7 +419,8 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
     address viewServiceAddress,
     address insuranceServiceAddress,
     address rentalityTripsViewAddress,
-    address refferalProgramAddress
+    address refferalProgramAddress,
+    address promoServiceAddress
   ) public initializer {
     carService = RentalityCarToken(carServiceAddress);
     currencyConverterService = RentalityCurrencyConverter(currencyConverterServiceAddress);
@@ -418,8 +431,14 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
     claimService = RentalityClaimService(claimServiceAddress);
     deliveryService = RentalityCarDelivery(carDeliveryAddress);
     viewService = RentalityView(viewServiceAddress);
+    promoService = RentalityPromoService(promoServiceAddress);
 
-    viewService.updateServiceAddresses(getRentalityContracts(), insuranceServiceAddress, rentalityTripsViewAddress);
+    viewService.updateServiceAddresses(
+      getRentalityContracts(),
+      insuranceServiceAddress,
+      rentalityTripsViewAddress,
+      promoServiceAddress
+    );
     refferalProgram = RentalityReferralProgram(refferalProgramAddress);
     insuranceService = RentalityInsurance(insuranceServiceAddress);
     __Ownable_init();
