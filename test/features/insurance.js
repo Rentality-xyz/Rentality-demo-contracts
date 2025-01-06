@@ -78,7 +78,7 @@ describe('Rentality insurance', function () {
 
     const result = await rentalityGateway
       .connect(guest)
-      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
     await expect(
       await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
@@ -89,6 +89,7 @@ describe('Rentality insurance', function () {
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
         },
+        ' ',
         { value: result.totalPrice }
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
@@ -100,7 +101,7 @@ describe('Rentality insurance', function () {
 
       const result = await rentalityGateway
         .connect(guest)
-        .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo)
+        .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
       await expect(
         await rentalityGateway.connect(guest).createTripRequestWithDelivery(
           {
@@ -113,6 +114,7 @@ describe('Rentality insurance', function () {
             pickUpInfo: emptySignedLocationInfo,
             returnInfo: emptySignedLocationInfo,
           },
+          ' ',
           { value: result.totalPrice }
         )
       ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
@@ -132,7 +134,8 @@ describe('Rentality insurance', function () {
       3,
       ethToken,
       emptyLocationInfo,
-      emptyLocationInfo
+      emptyLocationInfo,
+      ' '
     )
     await expect(
       await rentalityGateway.connect(guest).createTripRequestWithDelivery(
@@ -146,6 +149,7 @@ describe('Rentality insurance', function () {
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
         },
+        ' ',
         { value: result.totalPrice }
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
@@ -162,7 +166,7 @@ describe('Rentality insurance', function () {
 
     const result = await rentalityGateway
       .connect(guest)
-      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
     await expect(
       await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
@@ -175,6 +179,7 @@ describe('Rentality insurance', function () {
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
         },
+        ' ',
         { value: result.totalPrice }
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
@@ -268,13 +273,13 @@ describe('Rentality insurance', function () {
 
     const result1 = await rentalityGateway
       .connect(guest)
-      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
 
     await expect(rentalityGateway.connect(guest).saveGuestInsurance(noneInsurance)).to.not.reverted
 
     const result2 = await rentalityGateway
       .connect(guest)
-      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
     expect(result1 < result2).to.be.eq(true)
 
     await expect(
@@ -287,6 +292,7 @@ describe('Rentality insurance', function () {
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
         },
+        ' ',
         { value: result2.totalPrice }
       )
     ).to.not.reverted
@@ -301,6 +307,7 @@ describe('Rentality insurance', function () {
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
         },
+        ' ',
         { value: result1.totalPrice }
       )
     ).to.be.reverted
@@ -312,7 +319,7 @@ describe('Rentality insurance', function () {
 
     const result = await rentalityGateway
       .connect(guest)
-      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
 
     await expect(
       await rentalityGateway.connect(guest).createTripRequestWithDelivery(
@@ -324,6 +331,7 @@ describe('Rentality insurance', function () {
           returnInfo: emptySignedLocationInfo,
           currencyType: ethToken,
         },
+        '',
         { value: result.totalPrice }
       )
     ).to.not.reverted
@@ -348,7 +356,7 @@ describe('Rentality insurance', function () {
 
     const result = await rentalityGateway
       .connect(guest)
-      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
 
     await expect(
       await rentalityGateway.connect(guest).createTripRequestWithDelivery(
@@ -360,6 +368,7 @@ describe('Rentality insurance', function () {
           returnInfo: emptySignedLocationInfo,
           currencyType: ethToken,
         },
+        '',
         { value: result.totalPrice }
       )
     ).to.not.reverted
@@ -395,7 +404,7 @@ describe('Rentality insurance', function () {
 
     const result = await rentalityGateway
       .connect(guest)
-      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
 
     await expect(
       await rentalityGateway.connect(guest).createTripRequestWithDelivery(
@@ -407,6 +416,7 @@ describe('Rentality insurance', function () {
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
         },
+        ' ',
         { value: result.totalPrice }
       )
     ).to.not.reverted
@@ -432,7 +442,7 @@ describe('Rentality insurance', function () {
 
     const result = await rentalityGateway
       .connect(guest)
-      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
 
     await expect(
       await rentalityGateway.connect(guest).createTripRequestWithDelivery(
@@ -444,6 +454,7 @@ describe('Rentality insurance', function () {
           returnInfo: emptySignedLocationInfo,
           currencyType: ethToken,
         },
+        '',
         { value: result.totalPrice }
       )
     ).to.not.reverted
@@ -469,7 +480,7 @@ describe('Rentality insurance', function () {
 
     const result = await rentalityGateway
       .connect(guest)
-      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
 
     await expect(
       await rentalityGateway.connect(guest).createTripRequestWithDelivery(
@@ -481,6 +492,7 @@ describe('Rentality insurance', function () {
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
         },
+        ' ',
         { value: result.totalPrice }
       )
     ).to.not.reverted
@@ -516,7 +528,7 @@ describe('Rentality insurance', function () {
 
     const result = await rentalityGateway
       .connect(guest)
-      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
 
     await expect(
       await rentalityGateway.connect(guest).createTripRequestWithDelivery(
@@ -528,6 +540,7 @@ describe('Rentality insurance', function () {
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
         },
+        ' ',
         { value: result.totalPrice }
       )
     ).to.not.reverted
@@ -563,6 +576,7 @@ describe('Rentality insurance', function () {
           returnInfo: emptySignedLocationInfo,
           currencyType: ethToken,
         },
+        '',
         { value: result.totalPrice }
       )
     ).to.not.reverted
@@ -665,7 +679,7 @@ describe('Rentality insurance', function () {
 
     const result = await rentalityGateway
       .connect(guest)
-      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
 
     await expect(
       await rentalityGateway.connect(guest).createTripRequestWithDelivery(
@@ -677,6 +691,7 @@ describe('Rentality insurance', function () {
           returnInfo: emptySignedLocationInfo,
           currencyType: ethToken,
         },
+        '',
         { value: result.totalPrice }
       )
     ).to.not.reverted

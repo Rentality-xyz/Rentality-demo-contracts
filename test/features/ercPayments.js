@@ -63,16 +63,19 @@ describe('ERC20 payments', function () {
     await usdtContract.connect(guest).approve(await rentalityPaymentService.getAddress(), rentPrice)
 
     await expect(
-      rentalityGateway.connect(guest).createTripRequestWithDelivery({
-        carId: 1,
-        startDateTime: 1,
-        endDateTime: 2,
-        currencyType: usdt,
-        insurancePaid: false,
-        photo: '',
-        pickUpInfo: emptySignedLocationInfo,
-        returnInfo: emptySignedLocationInfo,
-      })
+      rentalityGateway.connect(guest).createTripRequestWithDelivery(
+        {
+          carId: 1,
+          startDateTime: 1,
+          endDateTime: 2,
+          currencyType: usdt,
+          insurancePaid: false,
+          photo: '',
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
+        },
+        ' '
+      )
     ).to.not.reverted
 
     const balanceAfterTrip = await usdtContract.balanceOf(guest.address)
@@ -103,16 +106,19 @@ describe('ERC20 payments', function () {
     await usdtContract.connect(guest).approve(await rentalityPaymentService.getAddress(), rentPrice)
 
     await expect(
-      rentalityGateway.connect(guest).createTripRequestWithDelivery({
-        carId: 1,
-        startDateTime: 1,
-        endDateTime: 2,
-        currencyType: usdt,
-        insurancePaid: false,
-        photo: '',
-        pickUpInfo: emptySignedLocationInfo,
-        returnInfo: emptySignedLocationInfo,
-      })
+      rentalityGateway.connect(guest).createTripRequestWithDelivery(
+        {
+          carId: 1,
+          startDateTime: 1,
+          endDateTime: 2,
+          currencyType: usdt,
+          insurancePaid: false,
+          photo: '',
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
+        },
+        ' '
+      )
     ).to.not.reverted
 
     await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
@@ -164,23 +170,26 @@ describe('ERC20 payments', function () {
     await usdtContract.connect(guest).approve(await rentalityPaymentService.getAddress(), rentPrice)
 
     await expect(
-      rentalityGateway.connect(guest).createTripRequestWithDelivery({
-        carId: 1,
-        host: host.address,
-        startDateTime: 1,
-        endDateTime: 2,
-        startLocation: '',
-        endLocation: '',
-        totalDayPriceInUsdCents: dailyPriceInUsdCents,
-        depositInUsdCents: 0,
-        currencyRate: currencyRate,
-        currencyDecimals: currencyDecimals,
-        currencyType: await rentalityPlatform.getAddress(),
-        insurancePaid: false,
-        photo: '',
-        pickUpInfo: emptySignedLocationInfo,
-        returnInfo: emptySignedLocationInfo,
-      })
+      rentalityGateway.connect(guest).createTripRequestWithDelivery(
+        {
+          carId: 1,
+          host: host.address,
+          startDateTime: 1,
+          endDateTime: 2,
+          startLocation: '',
+          endLocation: '',
+          totalDayPriceInUsdCents: dailyPriceInUsdCents,
+          depositInUsdCents: 0,
+          currencyRate: currencyRate,
+          currencyDecimals: currencyDecimals,
+          currencyType: await rentalityPlatform.getAddress(),
+          insurancePaid: false,
+          photo: '',
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
+        },
+        ' '
+      )
     ).to.be.revertedWith('Token is not available.')
   })
 
@@ -208,23 +217,26 @@ describe('ERC20 payments', function () {
     await usdtContract.connect(guest).approve(await rentalityPaymentService.getAddress(), rentPrice)
 
     await expect(
-      rentalityGateway.connect(guest).createTripRequestWithDelivery({
-        carId: 1,
-        host: host.address,
-        startDateTime: 1,
-        endDateTime: 2,
-        startLocation: '',
-        endLocation: '',
-        totalDayPriceInUsdCents: dailyPriceInUsdCents,
-        depositInUsdCents: 0,
-        currencyRate: currencyRate,
-        currencyDecimals: currencyDecimals,
-        currencyType: usdt,
-        insurancePaid: false,
-        photo: '',
-        pickUpInfo: emptySignedLocationInfo,
-        returnInfo: emptySignedLocationInfo,
-      })
+      rentalityGateway.connect(guest).createTripRequestWithDelivery(
+        {
+          carId: 1,
+          host: host.address,
+          startDateTime: 1,
+          endDateTime: 2,
+          startLocation: '',
+          endLocation: '',
+          totalDayPriceInUsdCents: dailyPriceInUsdCents,
+          depositInUsdCents: 0,
+          currencyRate: currencyRate,
+          currencyDecimals: currencyDecimals,
+          currencyType: usdt,
+          insurancePaid: false,
+          photo: '',
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
+        },
+        ' '
+      )
     ).to.not.reverted
 
     await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
@@ -271,16 +283,19 @@ describe('ERC20 payments', function () {
     await usdtContract.connect(guest).approve(await rentalityPaymentService.getAddress(), rentPrice)
 
     await expect(
-      rentalityGateway.connect(guest).createTripRequestWithDelivery({
-        carId: 1,
-        startDateTime: 1,
-        endDateTime: 2,
-        currencyType: usdt,
-        insurancePaid: false,
-        photo: '',
-        pickUpInfo: emptySignedLocationInfo,
-        returnInfo: emptySignedLocationInfo,
-      })
+      rentalityGateway.connect(guest).createTripRequestWithDelivery(
+        {
+          carId: 1,
+          startDateTime: 1,
+          endDateTime: 2,
+          currencyType: usdt,
+          insurancePaid: false,
+          photo: '',
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
+        },
+        ' '
+      )
     ).to.not.reverted
 
     await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted

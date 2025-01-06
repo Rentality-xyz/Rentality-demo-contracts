@@ -176,6 +176,7 @@ describe('RentalityUserService: KYC management', function () {
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
         },
+        ' ',
         { value: rentPriceInEth }
       )
     ).not.to.be.reverted

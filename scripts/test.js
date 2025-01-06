@@ -2,7 +2,7 @@ const { ethers, network, upgrades } = require('hardhat')
 const fs = require('fs')
 
 async function main() {
-  const contract = await ethers.getContractAt('RentalityAdminGateway','0x19dE77342611e0aF6dD387223309B9397123450b')
+  const contract = await ethers.getContractAt('RentalityAdminGateway', '0x19dE77342611e0aF6dD387223309B9397123450b')
   console.log(await contract.getRefferalServiceAddress())
   // const Fabric = await ethers.getContractFactory('RentalityPromoService')
   // const contract = await upgrades.deployProxy(Fabric, ['0xE15378Ad98796BB35cbbc116DfC70d3416B52D45'])
