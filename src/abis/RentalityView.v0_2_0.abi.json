@@ -73,7 +73,8 @@
             { "type": "string", "name": "longitude" },
             { "type": "string", "name": "timeZoneId" }
           ]
-        }
+        },
+        { "type": "string", "name": "promo" }
       ],
       "outputs": [
         {
@@ -214,6 +215,26 @@
             { "type": "uint64", "name": "governmentTax" },
             { "type": "int128", "name": "distance" },
             { "type": "bool", "name": "isGuestHasInsurance" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "checkPromo",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "string", "name": "promo" }],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "",
+          "components": [
+            { "type": "bool", "name": "isFound" },
+            { "type": "bool", "name": "isValid" },
+            { "type": "bool", "name": "isDiscount" },
+            { "type": "uint256", "name": "value" }
           ]
         }
       ]
@@ -795,7 +816,8 @@
         { "type": "address", "name": "carDeliveryAddress" },
         { "type": "address", "name": "insuranceAddress" },
         { "type": "address", "name": "tripsViewAddress" },
-        { "type": "address", "name": "refferalProgramAddress" }
+        { "type": "address", "name": "refferalProgramAddress" },
+        { "type": "address", "name": "promoServiceAddress" }
       ],
       "outputs": []
     },
@@ -963,7 +985,8 @@
           ]
         },
         { "type": "address", "name": "insurance" },
-        { "type": "address", "name": "tripsViewAddress" }
+        { "type": "address", "name": "tripsViewAddress" },
+        { "type": "address", "name": "promoServiceAddress" }
       ],
       "outputs": []
     },

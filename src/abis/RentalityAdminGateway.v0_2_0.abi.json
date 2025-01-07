@@ -342,6 +342,15 @@
     },
     {
       "type": "function",
+      "name": "getPromoService",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
       "name": "getRefferalPointsInfo",
       "constant": true,
       "stateMutability": "view",
@@ -483,7 +492,8 @@
         { "type": "address", "name": "viewServiceAddress" },
         { "type": "address", "name": "insuranceServiceAddress" },
         { "type": "address", "name": "rentalityTripsViewAddress" },
-        { "type": "address", "name": "refferalProgramAddress" }
+        { "type": "address", "name": "refferalProgramAddress" },
+        { "type": "address", "name": "promoServiceAddress" }
       ],
       "outputs": []
     },
@@ -643,6 +653,14 @@
     },
     {
       "type": "function",
+      "name": "setPromoService",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "promoServiceAddress" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
       "name": "transferOwnership",
       "constant": false,
       "payable": false,
@@ -695,6 +713,17 @@
       "constant": false,
       "payable": false,
       "inputs": [{ "type": "address", "name": "contractAddress" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "updatePromoData",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "string", "name": "prefix" },
+        { "type": "uint256", "name": "discount" }
+      ],
       "outputs": []
     },
     {
