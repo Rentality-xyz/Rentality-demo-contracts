@@ -110,7 +110,6 @@ contract RentalityPromoService is Initializable, UUPSAccess {
     }
   }
   function checkPromo(string memory promo) public view returns (Schemas.CheckPromoDTO memory) {
-    require(userService.isAdmin(msg.sender), 'only admin');
     Schemas.Promo memory promoData = promoToPromoData[promo];
     string memory prefix = _getPrefix(promo);
     uint promoValue = promoPrefixToDisctount[prefix];
