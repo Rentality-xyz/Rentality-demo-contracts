@@ -673,10 +673,9 @@ describe('Rentality promoService Service', function () {
     expect(availableCars.length).to.equal(1)
 
     await promoService.generateNumbers(1, 10000, 10, 0, 17361747333920 + 86200, 'C')
-    await promoService.generateGeneralCode()
+    await promoService.generateGeneralCode(0, new Date().getTime() + 86400)
 
     const promos = await promoService.getPromoCodes()
-    console.log('PROMO LEN: ', zeroHash.length)
     const promoInBytes32 = ethers.encodeBytes32String(promos[0].toString())
 
     const ownerSignature = await signTCMessage(owner)
