@@ -11,6 +11,7 @@ const {
   InsuranceType,
   emptySignedLocationInfo,
   zeroHash,
+  signLocationInfo,
 } = require('../utils')
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 const { ethers } = require('hardhat')
@@ -704,4 +705,5 @@ describe('Rentality insurance', function () {
     expect(insurances[0].insuranceInfo.companyName).to.be.eq(insurance.companyName)
     expect(insurances[0].insuranceInfo.policyNumber).to.be.eq(insurance.policyNumber)
   })
+
 })
