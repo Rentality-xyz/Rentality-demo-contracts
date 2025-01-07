@@ -36,11 +36,9 @@ interface IRentalityGateway {
   /// @dev This function is used to set verified KYC information from the Civic platform
   function setCivicKYCInfo(address user, Schemas.CivicKYCInfo memory civicKycInfo, bytes32) external;
 
-
-
   /// @param civicKycInfo The Civic KYC information structure containing the user's data
   /// @dev This function is used to set verified KYC information from the Civic platform
-   function setMyCivicKYCInfo(Schemas.CivicKYCInfo memory civicKycInfo) external;
+  function setMyCivicKYCInfo(Schemas.CivicKYCInfo memory civicKycInfo) external;
 
   /// @notice Retrieves the KYC commission amount.
   /// @dev Calls the `getKycCommission` function from the `userService` contract.
@@ -75,10 +73,6 @@ interface IRentalityGateway {
   /// @param request The request parameters for creating a new car.
   /// @return The ID of the newly added car.
   function addCar(Schemas.CreateCarRequest memory request, bytes32 refferalHash) external returns (uint);
-
-  /// @notice Update information for an existing car, without location.
-  /// @param request the Update car parameters
-  function updateCarInfo(Schemas.UpdateCarInfoRequest memory request) external;
 
   /// @notice Update information for an existing car with location
   /// @notice This sets geo verification status to false.
@@ -167,8 +161,7 @@ interface IRentalityGateway {
     uint256 tripId
   ) external view returns (string memory guestPhoneNumber, string memory hostPhoneNumber);
 
-   
-    /// ------------------------------
+  /// ------------------------------
   ///     HOST
   /// ------------------------------
 
@@ -242,16 +235,16 @@ interface IRentalityGateway {
     uint64 daysOfTrip,
     address currency,
     Schemas.LocationInfo memory pickUpLocation,
-    Schemas.LocationInfo memory returnLocation
+    Schemas.LocationInfo memory returnLocation,
+    string memory promoCode
   ) external view returns (Schemas.CalculatePaymentsDTO memory);
 
   /// @notice Create a trip request.
   /// @param request The request parameters for creating a new trip.
-  function createTripRequest(Schemas.CreateTripRequest memory request) external payable;
-
-  /// @notice Create a trip request.
-  /// @param request The request parameters for creating a new trip.
-  function createTripRequestWithDelivery(Schemas.CreateTripRequestWithDelivery memory request) external payable;
+  function createTripRequestWithDelivery(
+    Schemas.CreateTripRequestWithDelivery memory request,
+    string memory promoCode
+  ) external payable;
 
   /// @notice Performs check-in by the guest for a trip.
   /// @param tripId The ID of the trip.
@@ -264,7 +257,6 @@ interface IRentalityGateway {
   /// @param panelParams An array representing parameters related to fuel, odometer,
   /// and other relevant details depends on engine.
   function checkOutByGuest(uint256 tripId, uint64[] memory panelParams, bytes32 refferalHash) external;
-
 
   /// ------------------------------
   /// CLAIMS functions
@@ -291,12 +283,12 @@ interface IRentalityGateway {
   /// @param claimId ID of the claim to be rejected.
   function rejectClaim(uint256 claimId) external;
 
-    /// @notice Calculates the claim value for a specified insurance claim
-    /// @param claimId The ID of the insurance claim for which the value is being calculated
-    /// @return The calculated claim value in the specified currency
-    function calculateClaimValue(uint claimId) external view returns (uint);
+  /// @notice Calculates the claim value for a specified insurance claim
+  /// @param claimId The ID of the insurance claim for which the value is being calculated
+  /// @return The calculated claim value in the specified currency
+  function calculateClaimValue(uint claimId) external view returns (uint);
 
-    /// @notice Pays a specific claim through the Rentality platform, transferring funds and handling excess.
+  /// @notice Pays a specific claim through the Rentality platform, transferring funds and handling excess.
   /// @dev This function delegates the claim payment to the Rentality platform contract.
   /// @param claimId ID of the claim to be paid.
   function payClaim(uint256 claimId) external payable;
@@ -321,9 +313,9 @@ interface IRentalityGateway {
   /// @return An array of chat information.
   function getChatInfoFor(bool host) external view returns (Schemas.ChatInfo[] memory);
 
-    /// ------------------------------
-    /// GENERAL functions
-    /// ------------------------------
+  /// ------------------------------
+  /// GENERAL functions
+  /// ------------------------------
 
   /// @notice Retrieves insurance info
   /// @param host A boolean indicating whether to retrieve insurance for hosts (true) or guests (false)
@@ -371,7 +363,6 @@ interface IRentalityGateway {
   /// @return An array of car information.
   function getAllCars() external view returns (Schemas.CarInfo[] memory);
 
-
   function checkCarAvailabilityWithDelivery(
     uint carId,
     uint64 startDateTime,
@@ -389,4 +380,5 @@ interface IRentalityGateway {
   /// @return An array of available car information for the specified user.
   function getAvailableCarsForUser(address user) external view returns (Schemas.CarInfo[] memory);
 
+  function checkPromo(string memory promo) external view returns (Schemas.CheckPromoDTO memory);
 }

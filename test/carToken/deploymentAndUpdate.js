@@ -54,7 +54,8 @@ it('Update car without location should work fine', async function () {
   expect(car_info.milesIncludedPerDay).to.be.equal(update_params.milesIncludedPerDay)
 })
 it('Update car with location, but without api should revert', async function () {
-  const { rentalityCarToken, rentalityLocationVerifier, admin,rentalityGateway } = await loadFixture(deployFixtureWith1Car)
+  const { rentalityCarToken, rentalityLocationVerifier, admin, rentalityGateway } =
+    await loadFixture(deployFixtureWith1Car)
 
   let request = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
   await expect(rentalityCarToken.addCar(request)).not.be.reverted

@@ -19,7 +19,6 @@ const RefferalProgram = {
   DailyListing: 7,
 }
 
-
 const signTCMessage = async (user) => {
   const message =
     'I have read and I agree with Terms of service, Cancellation policy, Prohibited uses and Privacy policy of Rentality.'
@@ -413,6 +412,9 @@ async function deployDefaultFixture() {
   const geoParserMock = await GeoParserMock.deploy()
   await geoParserMock.waitForDeployment()
 
+  const PromoService = await ethers.getContractFactory('RentalityPromoService')
+  const promoService = await upgrades.deployProxy(PromoService, [await rentalityUserService.getAddress()])
+
   const RentalityVerifier = await ethers.getContractFactory('RentalityLocationVerifier')
 
   let rentalityLocationVerifier = await upgrades.deployProxy(RentalityVerifier, [
@@ -543,11 +545,10 @@ async function deployDefaultFixture() {
     await deliveryService.getAddress(),
     await insuranceService.getAddress(),
     await rentalityTripsView.getAddress(),
-
     await refferalProgram.getAddress(),
+    await promoService.getAddress(),
   ])
   await rentalityView.waitForDeployment()
-
 
   const rentalityPlatform = await upgrades.deployProxy(RentalityPlatform, [
     await rentalityCarToken.getAddress(),
@@ -559,9 +560,12 @@ async function deployDefaultFixture() {
     await deliveryService.getAddress(),
     await rentalityView.getAddress(),
     await insuranceService.getAddress(),
-    await refferalProgram.getAddress()
+    await refferalProgram.getAddress(),
+    await promoService.getAddress(),
   ])
   await rentalityPlatform.waitForDeployment()
+
+  await promoService.generateGeneralCode(0, new Date().getTime() + 86400)
 
   const RentalityAdminGateway = await ethers.getContractFactory('RentalityAdminGateway', {
     signer: owner,
@@ -585,6 +589,7 @@ async function deployDefaultFixture() {
     await rentalityTripsView.getAddress(),
 
     await refferalProgram.getAddress(),
+    await promoService.getAddress(),
   ])
   await rentalityAdminGateway.waitForDeployment()
 
@@ -627,11 +632,14 @@ async function deployDefaultFixture() {
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityPaymentService.getAddress())
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityView.getAddress())
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityTripsView.getAddress())
+  await rentalityUserService.connect(owner).grantManagerRole(await refferalProgram.getAddress())
 
   const hostSignature = await signTCMessage(host)
   const guestSignature = await signTCMessage(guest)
+  const adminSignature = await signTCMessage(admin)
   const adminKyc = signKycInfo(await rentalityLocationVerifier.getAddress(), admin, zeroHash)
   await rentalityGateway.connect(host).setKYCInfo(' ', ' ', ' ', hostSignature, zeroHash)
+  await rentalityGateway.connect(admin).setKYCInfo(' ', ' ', ' ', adminSignature, zeroHash)
   await rentalityGateway.connect(guest).setKYCInfo(' ', ' ', ' ', guestSignature, zeroHash)
 
   await rentalityCurrencyConverter.addCurrencyType(
@@ -679,10 +687,11 @@ async function deployDefaultFixture() {
     hostSignature,
     mockRequestWithInsurance,
     insuranceService,
-  rentalityView,
+    rentalityView,
     tripsQuery,
     refferalProgram,
     hashCreator,
+    promoService,
   }
 }
 
@@ -709,5 +718,5 @@ module.exports = {
   zeroHash,
   RefferalProgram,
   emptySignedLocationInfo,
-  InsuranceType
+  InsuranceType,
 }

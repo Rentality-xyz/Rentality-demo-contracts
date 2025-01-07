@@ -218,10 +218,9 @@ describe('Rentality Delivery', function () {
       geoApiKey: 'key',
       locationInfo: locationInfo1,
       currentlyListed: true,
-      insuranceRequired:false,
+      insuranceRequired: false,
       insurancePriceInUsdCents: 0,
-      insuranceIncluded: true
-   
+      insuranceIncluded: true,
     }
 
     await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest, zeroHash)).not.to.be.reverted
@@ -249,7 +248,7 @@ describe('Rentality Delivery', function () {
 
       timeZoneId: 'id',
     }
-    let result = await rentalityGateway.calculatePaymentsWithDelivery(1, 1, ethToken, locationInfo, locationInfo2)
+    let result = await rentalityGateway.calculatePaymentsWithDelivery(1, 1, ethToken, locationInfo, locationInfo2, '')
     await expect(
       await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
@@ -267,6 +266,7 @@ describe('Rentality Delivery', function () {
             locationInfo: locationInfo2,
           },
         },
+        ' ',
         { value: result.totalPrice }
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
@@ -363,9 +363,8 @@ describe('Rentality Delivery', function () {
       locationInfo,
       insuranceIncluded: true,
       currentlyListed: true,
-      insuranceRequired:false,
+      insuranceRequired: false,
       insurancePriceInUsdCents: 0,
-   
     }
     await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest, zeroHash)).not.to.be.reverted
 
@@ -387,7 +386,6 @@ describe('Rentality Delivery', function () {
       currentlyListed: true,
       insuranceRequired: false,
       insurancePriceInUsdCents: 0,
-   
     }
     await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest1, zeroHash)).not.to.be.reverted
 
@@ -409,7 +407,6 @@ describe('Rentality Delivery', function () {
       currentlyListed: true,
       insuranceRequired: false,
       insurancePriceInUsdCents: 0,
-   
     }
     await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest2, zeroHash)).not.to.be.reverted
     let loc = {
@@ -440,7 +437,6 @@ describe('Rentality Delivery', function () {
       currentlyListed: true,
       insuranceRequired: false,
       insurancePriceInUsdCents: 0,
-   
     }
     const mockCreateCarRequest3 = {
       tokenUri: 'uri',
@@ -479,7 +475,6 @@ describe('Rentality Delivery', function () {
       currentlyListed: true,
       insuranceRequired: false,
       insurancePriceInUsdCents: 0,
-   
     }
     await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest4, zeroHash)).not.to.be.reverted
     await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest5, zeroHash)).not.to.be.reverted

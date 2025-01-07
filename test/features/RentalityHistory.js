@@ -69,7 +69,7 @@ describe('Rentality History Service', function () {
 
     const result = await rentalityGateway
       .connect(guest)
-      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
     await expect(
       await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
@@ -80,9 +80,9 @@ describe('Rentality History Service', function () {
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
           insurancePaid: false,
-          photo: ''
-
+          photo: '',
         },
+        ' ',
         { value: result.totalPrice }
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
@@ -136,6 +136,7 @@ describe('Rentality History Service', function () {
           insurancePaid: false,
           photo: '',
         },
+        ' ',
         { value: rentPriceInEth }
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-rentPriceInEth, rentPriceInEth])
@@ -219,6 +220,7 @@ describe('Rentality History Service', function () {
           returnInfo: emptySignedLocationInfo,
           insurancePaid: false,
         },
+        ' ',
         { value: payments.totalPrice }
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-payments.totalPrice, payments.totalPrice])
