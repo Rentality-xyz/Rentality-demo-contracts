@@ -259,7 +259,8 @@
               ]
             }
           ]
-        }
+        },
+        { "type": "string", "name": "promo" }
       ],
       "outputs": []
     },
@@ -289,7 +290,8 @@
         { "type": "address", "name": "carDeliveryAddress" },
         { "type": "address", "name": "viewService" },
         { "type": "address", "name": "insuranceServiceAddress" },
-        { "type": "address", "name": "refferalProgramAddress" }
+        { "type": "address", "name": "refferalProgramAddress" },
+        { "type": "address", "name": "promoServiceAddress" }
       ],
       "outputs": []
     },
