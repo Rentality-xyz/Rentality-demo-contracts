@@ -1,0 +1,135 @@
+{
+  "abi": [
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "AdminChanged",
+      "inputs": [
+        { "type": "address", "name": "previousAdmin", "indexed": false },
+        { "type": "address", "name": "newAdmin", "indexed": false }
+      ]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "BeaconUpgraded",
+      "inputs": [{ "type": "address", "name": "beacon", "indexed": true }]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "Initialized",
+      "inputs": [{ "type": "uint8", "name": "version", "indexed": false }]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "Upgraded",
+      "inputs": [{ "type": "address", "name": "implementation", "indexed": true }]
+    },
+    {
+      "type": "function",
+      "name": "addPrefix",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "string", "name": "prefix" },
+        { "type": "uint256", "name": "discount" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "generateNumbers",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint256", "name": "min" },
+        { "type": "uint256", "name": "max" },
+        { "type": "uint256", "name": "amount" },
+        { "type": "uint256", "name": "startDateTime" },
+        { "type": "uint256", "name": "endDateTime" },
+        { "type": "string", "name": "prefix" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "getPromoCodes",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "string[]", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getPromoData",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "string", "name": "promo" }],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "",
+          "components": [
+            { "type": "uint8", "name": "promoType" },
+            { "type": "string", "name": "code" },
+            { "type": "uint256", "name": "startDate" },
+            { "type": "uint256", "name": "expireDate" },
+            { "type": "address", "name": "createdBy" },
+            { "type": "uint256", "name": "createdAt" },
+            { "type": "uint8", "name": "status" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "initialize",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "_userService" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "isActive",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "string", "name": "promo" }],
+      "outputs": [{ "type": "bool", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "proxiableUUID",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "bytes32", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "upgradeTo",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "newImplementation" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "upgradeToAndCall",
+      "constant": false,
+      "stateMutability": "payable",
+      "payable": true,
+      "inputs": [
+        { "type": "address", "name": "newImplementation" },
+        { "type": "bytes", "name": "data" }
+      ],
+      "outputs": []
+    }
+  ]
+}
