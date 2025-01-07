@@ -660,4 +660,69 @@ describe('Rentality insurance', function () {
     expect(insurances[0].insuranceInfo.companyName).to.be.eq(insurance.companyName)
     expect(insurances[0].insuranceInfo.policyNumber).to.be.eq(insurance.policyNumber)
   })
+  it.only('guest and host see all insurances', async function () {
+    await expect(rentalityGateway.connect(host).addCar(mockRequestWithInsurance,zeroHash)).not.to.be.reverted
+    const myCars = await rentalityGateway.connect(host).getMyCars()
+    expect(myCars.length).to.equal(1)
+
+    let insurance = {
+      companyName: 'myCo',
+      policyNumber: '12124-124-124',
+      photo: 'url',
+      comment: 'comment',
+      insuranceType: InsuranceType.General,
+    }
+
+    await expect(rentalityGateway.connect(guest).saveGuestInsurance(insurance)).to.not.reverted
+
+    const result = await rentalityGateway.connect(guest).calculatePaymentsWithDelivery(1, 1, ethToken,emptyLocationInfo,emptyLocationInfo)
+
+    await expect(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
+        {
+          carId: 1,
+          startDateTime: 123,
+          endDateTime: 321,
+          currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
+        },
+        { value: result.totalPrice }
+      )
+    ).to.not.reverted
+
+    await expect(
+      rentalityGateway.connect(host).saveTripInsuranceInfo(1, {
+        companyName: 'myCo',
+        policyNumber: '12124-124-124',
+        photo: 'url',
+        comment: 'comment',
+        insuranceType: InsuranceType.OneTime,
+      })
+    ).to.not.reverted
+    await expect(
+      rentalityGateway.connect(host).saveTripInsuranceInfo(1, {
+        companyName: 'myCo',
+        policyNumber: '12124-124-124',
+        photo: 'url',
+        comment: 'comment',
+        insuranceType: InsuranceType.General,
+      })
+    ).to.not.reverted
+
+    await expect(
+      rentalityGateway.connect(guest).saveTripInsuranceInfo(1, {
+        companyName: 'myCo',
+        policyNumber: '12124-124-124',
+        photo: 'url',
+        comment: 'comment',
+        insuranceType: InsuranceType.OneTime,
+      })
+    ).to.not.reverted
+
+    let insurances = await rentalityGateway.connect(guest).getInsurancesBy(false)
+    expect(insurances.length).to.be.eq(2)
+    let res = await insuranceService.getTripInsurances(1)
+    console.log(res)
+  })
 })
