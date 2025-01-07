@@ -82,6 +82,9 @@ async function deployDefaultFixture() {
   await rentalityUserService.connect(owner).grantHostRole(host.address)
   await rentalityUserService.connect(owner).grantGuestRole(guest.address)
 
+  const PromoService = await ethers.getContractFactory('RentalityPromoService')
+  const promoService = await upgrades.deployProxy(PromoService, [await rentalityUserService.getAddress()])
+
   const RentalityEth = await ethers.getContractFactory('RentalityETHConvertor')
 
   const ethContract = await upgrades.deployProxy(RentalityEth, [
@@ -235,6 +238,7 @@ async function deployDefaultFixture() {
     await rentalityTripsView.getAddress(),
 
     await refferalProgram.getAddress(),
+    await promoService.getAddress(),
   ])
   await rentalityView.waitForDeployment()
 
@@ -249,6 +253,7 @@ async function deployDefaultFixture() {
     await rentalityView.getAddress(),
     await insuranceService.getAddress(),
     await refferalProgram.getAddress(),
+    await promoService.getAddress(),
   ])
 
   await rentalityPlatform.waitForDeployment()
@@ -305,8 +310,8 @@ async function deployDefaultFixture() {
     await rentalityView.getAddress(),
     await insuranceService.getAddress(),
     await rentalityTripsView.getAddress(),
-
     await refferalProgram.getAddress(),
+    await promoService.getAddress(),
   ])
   await rentalityAdminGateway.waitForDeployment()
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityView.getAddress())

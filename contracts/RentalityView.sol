@@ -16,6 +16,7 @@ import './libs/RentalityTripsQuery.sol';
 import './RentalityGateway.sol';
 import {RentalityTripsView, FunctionNotFound} from './RentalityTripsView.sol';
 import {RentalityReferralProgram} from './features/refferalProgram/RentalityReferralProgram.sol';
+import {RentalityPromoService} from './features/RentalityPromo.sol';
 
 /// @dev SAFETY: The linked library is not supported yet because it can modify the state or call
 ///  selfdestruct, as far as RentalityTripsQuery doesn't has this logic,
@@ -31,16 +32,19 @@ contract RentalityView is UUPSUpgradeable, Initializable {
 
   RentalityReferralProgram private refferalService;
 
+  RentalityPromoService private promoService;
 
   function updateServiceAddresses(
     RentalityContract memory contracts,
     address insurance,
-    address tripsViewAddress
+    address tripsViewAddress,
+    address promoServiceAddress
   ) public {
     require(addresses.userService.isAdmin(tx.origin), 'only Admin.');
     addresses = contracts;
     insuranceService = RentalityInsurance(insurance);
     tripsView = RentalityTripsView(tripsViewAddress);
+    promoService = RentalityPromoService(promoServiceAddress);
   }
 
   fallback(bytes calldata data) external returns (bytes memory) {
@@ -112,27 +116,27 @@ contract RentalityView is UUPSUpgradeable, Initializable {
   //     );
   // }
 
-    function checkCarAvailabilityWithDelivery(
-        uint carId,
-        uint64 startDateTime,
-        uint64 endDateTime,
-        Schemas.SearchCarParams memory searchParams,
-        Schemas.LocationInfo memory pickUpInfo,
-        Schemas.LocationInfo memory returnInfo
-    ) public view returns (Schemas.AvailableCarDTO memory) {
-        return
-            addresses.checkCarAvailabilityWithDelivery(
-            carId,
-            tx.origin,
-            startDateTime,
-            endDateTime,
-            searchParams,
-            pickUpInfo,
-            returnInfo,
-            addresses.adminService.getDeliveryServiceAddress(),
-            address(insuranceService)
-        );
-    }
+  function checkCarAvailabilityWithDelivery(
+    uint carId,
+    uint64 startDateTime,
+    uint64 endDateTime,
+    Schemas.SearchCarParams memory searchParams,
+    Schemas.LocationInfo memory pickUpInfo,
+    Schemas.LocationInfo memory returnInfo
+  ) public view returns (Schemas.AvailableCarDTO memory) {
+    return
+      addresses.checkCarAvailabilityWithDelivery(
+        carId,
+        tx.origin,
+        startDateTime,
+        endDateTime,
+        searchParams,
+        pickUpInfo,
+        returnInfo,
+        addresses.adminService.getDeliveryServiceAddress(),
+        address(insuranceService)
+      );
+  }
   /// @notice Searches for available cars based on specified criteria.
   /// @param startDateTime The start date and time of the search.
   /// @param endDateTime The end date and time of the search.
@@ -179,7 +183,6 @@ contract RentalityView is UUPSUpgradeable, Initializable {
   function getCarDetails(uint carId) public view returns (Schemas.CarDetails memory) {
     return RentalityUtils.getCarDetails(addresses, carId);
   }
-
 
   /// @notice Retrieves information about trips where the caller is the host.
   /// @return An array of trip information.
@@ -249,7 +252,8 @@ contract RentalityView is UUPSUpgradeable, Initializable {
     uint64 daysOfTrip,
     address currency,
     Schemas.LocationInfo memory pickUpLocation,
-    Schemas.LocationInfo memory returnLocation
+    Schemas.LocationInfo memory returnLocation,
+    string memory promo
   ) public view returns (Schemas.CalculatePaymentsDTO memory) {
     return
       RentalityUtils.calculatePaymentsWithDelivery(
@@ -259,7 +263,9 @@ contract RentalityView is UUPSUpgradeable, Initializable {
         currency,
         pickUpLocation,
         returnLocation,
-        insuranceService
+        insuranceService,
+        promo,
+        promoService
       );
   }
   /// @notice Get chat information for trips hosted by the caller on the Rentality platform.
@@ -281,7 +287,6 @@ contract RentalityView is UUPSUpgradeable, Initializable {
   function getUserDeliveryPrices(address user) public view returns (Schemas.DeliveryPrices memory) {
     return RentalityCarDelivery(addresses.adminService.getDeliveryServiceAddress()).getUserDeliveryPrices(user);
   }
-
 
   /// @notice Retrieves the KYC commission amount.
   /// @dev Calls the `getKycCommission` function from the `userService` contract.
@@ -315,6 +320,9 @@ contract RentalityView is UUPSUpgradeable, Initializable {
   function getFilterInfo(uint64 duration) public view returns (Schemas.FilterInfoDTO memory) {
     return RentalityUtils.getFilterInfo(addresses, duration);
   }
+  function checkPromo(string memory promo) public view returns (Schemas.CheckPromoDTO memory) {
+    promoService.checkPromo(promo);
+  }
 
   function initialize(
     address carServiceAddress,
@@ -326,7 +334,8 @@ contract RentalityView is UUPSUpgradeable, Initializable {
     address carDeliveryAddress,
     address insuranceAddress,
     address tripsViewAddress,
-    address refferalProgramAddress
+    address refferalProgramAddress,
+    address promoServiceAddress
   ) public initializer {
     addresses = RentalityContract(
       RentalityCarToken(carServiceAddress),
@@ -344,6 +353,7 @@ contract RentalityView is UUPSUpgradeable, Initializable {
     tripsView = RentalityTripsView(tripsViewAddress);
     tripsView.updateViewService(this);
     refferalService = RentalityReferralProgram(refferalProgramAddress);
+    promoService = RentalityPromoService(promoServiceAddress);
   }
 
   function _authorizeUpgrade(address /*newImplementation*/) internal view override {

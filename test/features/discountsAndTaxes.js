@@ -113,7 +113,8 @@ describe('Rentality taxes & discounts', function () {
       dayInTrip,
       ethToken,
       emptyLocationInfo,
-      emptyLocationInfo
+      emptyLocationInfo,
+      ' '
     )
 
     await expect(
@@ -126,6 +127,7 @@ describe('Rentality taxes & discounts', function () {
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
         },
+        ' ',
         { value: result.totalPrice }
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
@@ -148,7 +150,8 @@ describe('Rentality taxes & discounts', function () {
       dayInTrip,
       ethToken,
       emptyLocationInfo,
-      emptyLocationInfo
+      emptyLocationInfo,
+      ' '
     )
 
     await expect(
@@ -161,6 +164,7 @@ describe('Rentality taxes & discounts', function () {
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
         },
+        ' ',
         { value: result.totalPrice }
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
@@ -182,7 +186,8 @@ describe('Rentality taxes & discounts', function () {
       dayInTrip,
       ethToken,
       emptyLocationInfo,
-      emptyLocationInfo
+      emptyLocationInfo,
+      ' '
     )
 
     await expect(
@@ -195,6 +200,7 @@ describe('Rentality taxes & discounts', function () {
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
         },
+        ' ',
         { value: result.totalPrice }
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
@@ -218,7 +224,8 @@ describe('Rentality taxes & discounts', function () {
       dayInTrip,
       ethToken,
       emptyLocationInfo,
-      emptyLocationInfo
+      emptyLocationInfo,
+      ' '
     )
 
     await expect(
@@ -231,6 +238,7 @@ describe('Rentality taxes & discounts', function () {
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
         },
+        ' ',
         { value: result.totalPrice }
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
@@ -261,7 +269,8 @@ describe('Rentality taxes & discounts', function () {
       31,
       ethToken,
       emptyLocationInfo,
-      emptyLocationInfo
+      emptyLocationInfo,
+      ' '
     )
     const value = result[0]
 
@@ -275,6 +284,7 @@ describe('Rentality taxes & discounts', function () {
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
         },
+        ' ',
         { value }
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-value, value])
@@ -346,7 +356,8 @@ describe('Rentality taxes & discounts', function () {
       tripDays,
       '0x0000000000000000000000000000000000000000',
       emptyLocationInfo,
-      emptyLocationInfo
+      emptyLocationInfo,
+      ' '
     )
     expect(contractResult.totalPrice).to.be.eq(rentPriceInEth)
   })
@@ -371,7 +382,8 @@ describe('Rentality taxes & discounts', function () {
       tripDays,
       '0x0000000000000000000000000000000000000000',
       emptyLocationInfo,
-      emptyLocationInfo
+      emptyLocationInfo,
+      ' '
     )
     expect(contractResult.totalPrice).to.be.eq(rentPriceInEth)
 
@@ -392,6 +404,7 @@ describe('Rentality taxes & discounts', function () {
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
         },
+        ' ',
         { value: contractResult.totalPrice }
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-contractResult.totalPrice, contractResult.totalPrice])

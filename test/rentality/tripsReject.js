@@ -49,7 +49,7 @@ describe('Rentality: reject Trip Request', function () {
 
     const result = await rentalityGateway
       .connect(guest)
-      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
     await expect(
       await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
@@ -60,6 +60,7 @@ describe('Rentality: reject Trip Request', function () {
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
         },
+        ' ',
         { value: result.totalPrice }
       )
     ).not.to.be.reverted
@@ -111,7 +112,7 @@ describe('Rentality: reject Trip Request', function () {
 
     const result = await rentalityGateway
       .connect(guest)
-      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
 
     await expect(
       await rentalityGateway.connect(guest).createTripRequestWithDelivery(
@@ -123,6 +124,7 @@ describe('Rentality: reject Trip Request', function () {
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
         },
+        ' ',
         { value: result.totalPrice }
       )
     ).not.to.be.reverted
@@ -175,7 +177,7 @@ describe('Rentality: reject Trip Request', function () {
 
     const result = await rentalityGateway
       .connect(guest)
-      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
     await expect(
       await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
@@ -186,6 +188,7 @@ describe('Rentality: reject Trip Request', function () {
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
         },
+        ' ',
         { value: result.totalPrice }
       )
     ).not.to.be.reverted
@@ -219,7 +222,7 @@ describe('Rentality: reject Trip Request', function () {
 
     const result = await rentalityGateway
       .connect(guest)
-      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
 
     await expect(
       await rentalityGateway.connect(guest).createTripRequestWithDelivery(
@@ -231,6 +234,7 @@ describe('Rentality: reject Trip Request', function () {
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
         },
+        ' ',
         { value: result.totalPrice }
       )
     ).not.to.be.reverted
