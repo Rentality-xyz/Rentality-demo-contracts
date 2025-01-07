@@ -565,7 +565,7 @@ async function deployDefaultFixture() {
   ])
   await rentalityPlatform.waitForDeployment()
 
-  await promoService.generateGeneralCode()
+  await promoService.generateGeneralCode(0, new Date().getTime() + 86400)
 
   const RentalityAdminGateway = await ethers.getContractFactory('RentalityAdminGateway', {
     signer: owner,
