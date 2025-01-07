@@ -147,6 +147,9 @@ async function deployDefaultFixture() {
 
   await rentalityCarToken.waitForDeployment()
 
+  const PromoService = await ethers.getContractFactory('RentalityPromoService')
+  const promoService = await upgrades.deployProxy(PromoService, [await rentalityUserService.getAddress()])
+
   const refferalProgram = await upgrades.deployProxy(ReffProgram, [
     await rentalityUserService.getAddress(),
     await refferalLib.getAddress(),
@@ -243,6 +246,7 @@ async function deployDefaultFixture() {
     await rentalityTripsView.getAddress(),
 
     await refferalProgram.getAddress(),
+    await promoService.getAddress(),
   ])
   await rentalityView.waitForDeployment()
 
@@ -256,7 +260,8 @@ async function deployDefaultFixture() {
     await deliveryService.getAddress(),
     await rentalityView.getAddress(),
     await insuranceService.getAddress(),
-    await refferalProgram.getAddress()
+    await refferalProgram.getAddress(),
+    await promoService.getAddress(),
   ])
   await rentalityPlatform.waitForDeployment()
 
@@ -282,6 +287,7 @@ async function deployDefaultFixture() {
     await rentalityTripsView.getAddress(),
 
     await refferalProgram.getAddress(),
+    await promoService.getAddress(),
   ])
   await rentalityAdminGateway.waitForDeployment()
 

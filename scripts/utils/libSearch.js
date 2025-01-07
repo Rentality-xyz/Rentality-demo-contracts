@@ -26,9 +26,9 @@ const existingLibs = [
     pathToDeploy: './scripts/deploy_4b_RentalityView.js',
   },
   {
-  name: 'RentalityRefferalLib',
-  pathToDeploy: './scripts/deploy_1f_RentalityRefferalLib.js'
-}
+    name: 'RentalityRefferalLib',
+    pathToDeploy: './scripts/deploy_1f_RentalityRefferalLib.js',
+  },
 ]
 
 const getContractLibs = (contract, chainId) => {

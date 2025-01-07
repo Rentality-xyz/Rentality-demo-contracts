@@ -181,8 +181,16 @@ contract RentalityPaymentService is UUPSOwnable {
 
     if (trip.paymentInfo.currencyType == address(0)) {
       // Handle payment in native currency (ETH)
-      (successHost, ) = payable(trip.host).call{value: valueToHost}('');
-      (successGuest, ) = payable(trip.guest).call{value: valueToGuest}('');
+      if (valueToHost > 0) {
+        (successHost, ) = payable(trip.host).call{value: valueToHost}('');
+      } else {
+        successHost = true;
+      }
+      if (valueToGuest > 0) {
+        (successGuest, ) = payable(trip.guest).call{value: valueToGuest}('');
+      } else {
+        successGuest = true;
+      }
     } else {
       // Handle payment in ERC20 tokens
       successHost = IERC20(trip.paymentInfo.currencyType).transfer(trip.host, valueToHost);

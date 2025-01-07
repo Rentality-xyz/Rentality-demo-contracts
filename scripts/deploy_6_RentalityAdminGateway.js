@@ -9,10 +9,10 @@ async function main() {
 
   if (chainId < 0) throw new Error('chainId is not set')
 
-    const rentalityUtilsAddress = checkNotNull(
-      getContractAddress('RentalityUtils', 'scripts/deploy_1a_RentalityUtils.js', chainId),
-      'RentalityUtils'
-    )
+  const rentalityUtilsAddress = checkNotNull(
+    getContractAddress('RentalityUtils', 'scripts/deploy_1a_RentalityUtils.js', chainId),
+    'RentalityUtils'
+  )
 
   const rentalityUserServiceAddress = checkNotNull(
     getContractAddress('RentalityUserService', 'scripts/deploy_1b_RentalityUserService.js', chainId),
@@ -77,8 +77,10 @@ async function main() {
     getContractAddress('RentalityTripsView', 'scripts/deploy_4b_RentalityTripsView.js', chainId),
     'RentalityTripsView'
   )
- 
-
+  const rentalityPromoService = checkNotNull(
+    getContractAddress('RentalityPromoService', 'scripts/deploy_4f_RentalityPromo.js', chainId),
+    'RentalityPromoService'
+  )
 
   const contractFactory = await ethers.getContractFactory(contractName, {
     libraries: {
@@ -99,7 +101,8 @@ async function main() {
     rentalityView,
     rentalityInsurance,
     rentalityTripsView,
-    rentalityRefferalProgram
+    rentalityRefferalProgram,
+    rentalityPromoService,
   ])
 
   await contract.waitForDeployment()
