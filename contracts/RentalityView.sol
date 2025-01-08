@@ -10,6 +10,7 @@ import './payments/RentalityPaymentService.sol';
 import './payments/RentalityCurrencyConverter.sol';
 import './libs/RentalityTripsQuery.sol';
 import './libs/RentalityQuery.sol';
+import './libs/RentalityViewLib.sol';
 import '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 import '@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol';
 import './libs/RentalityTripsQuery.sol';
@@ -17,8 +18,8 @@ import './RentalityGateway.sol';
 import {RentalityTripsView, FunctionNotFound} from './RentalityTripsView.sol';
 import {RentalityReferralProgram} from './features/refferalProgram/RentalityReferralProgram.sol';
 import {RentalityPromoService} from './features/RentalityPromo.sol';
-
 import {RentalityDimoService} from './features/RentalityDimoService.sol';
+
 /// @dev SAFETY: The linked library is not supported yet because it can modify the state or call
 ///  selfdestruct, as far as RentalityTripsQuery doesn't has this logic,
 /// it's completely safe for upgrade
@@ -317,7 +318,7 @@ function getDimoVihicles() public view returns(uint[] memory) {
   }
 
   function calculateClaimValue(uint claimdId) public view returns (uint) {
-    return RentalityUtils.calculateClaimValue(addresses, claimdId);
+    return RentalityViewLib.calculateClaimValue(addresses, claimdId);
   }
 
   function getMyInsurancesAsGuest() public view returns (Schemas.InsuranceInfo[] memory) {
@@ -325,7 +326,7 @@ function getDimoVihicles() public view returns(uint[] memory) {
   }
 
   function getFilterInfo(uint64 duration) public view returns (Schemas.FilterInfoDTO memory) {
-    return RentalityUtils.getFilterInfo(addresses, duration);
+    return RentalityViewLib.getFilterInfo(addresses, duration);
   }
   function checkPromo(string memory promo) public view returns (Schemas.CheckPromoDTO memory) {
     promoService.checkPromo(promo);

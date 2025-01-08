@@ -22,6 +22,11 @@ async function main() {
     'RentalityTripsQuery'
   )
 
+  const rentalityViewLib = checkNotNull(
+    getContractAddress('RentalityViewLib', 'scripts/deploy_1g_RentalityViewLib.js', chainId),
+    'RentalityViewLib'
+  )
+
   const rentalityUserServiceAddress = checkNotNull(
     getContractAddress('RentalityUserService', 'scripts/deploy_1b_RentalityUserService.js', chainId),
     'RentalityUserService'
@@ -85,6 +90,7 @@ async function main() {
       RentalityUtils: rentalityUtilsAddress,
       RentalityQuery: rentalityQueryAddress,
       RentalityTripsQuery: rentalityTripsQueryAddress,
+      RentalityViewLib: rentalityViewLib
     },
   })
   const contract = await upgrades.deployProxy(contractFactory, [
