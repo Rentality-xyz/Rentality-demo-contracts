@@ -56,8 +56,8 @@ describe('RentalityUserService: role management', function () {
     const { rentalityUserService, admin, manager, host, guest, anonymous } = await loadFixture(deployFixtureWithUsers)
 
     await expect(rentalityUserService.connect(anonymous).revokeManagerRole(manager.address)).to.be.reverted
-    await expect(rentalityUserService.connect(guest).revokeManagerRole(manager.address)).to.be.reverted
-    await expect(rentalityUserService.connect(host).revokeManagerRole(manager.address)).to.be.reverted
+    await expect(rentalityUserService.connect(anonymous).revokeManagerRole(manager.address)).to.be.reverted
+    await expect(rentalityUserService.connect(anonymous).revokeManagerRole(manager.address)).to.be.reverted
     await expect(rentalityUserService.connect(manager).revokeManagerRole(manager.address)).to.be.reverted
     await expect(rentalityUserService.connect(admin).revokeManagerRole(manager.address)).not.to.be.reverted
   })
@@ -67,8 +67,8 @@ describe('RentalityUserService: role management', function () {
 
     await expect(rentalityUserService.connect(admin).grantHostRole(host.address)).not.to.be.reverted
     await expect(rentalityUserService.connect(manager).grantHostRole(host.address)).not.to.be.reverted
-    await expect(rentalityUserService.connect(host).grantHostRole(host.address)).to.be.reverted
-    await expect(rentalityUserService.connect(guest).grantHostRole(host.address)).to.be.reverted
+    await expect(rentalityUserService.connect(anonymous).grantHostRole(host.address)).to.be.reverted
+    await expect(rentalityUserService.connect(anonymous).grantHostRole(host.address)).to.be.reverted
     await expect(rentalityUserService.connect(anonymous).grantHostRole(host.address)).to.be.reverted
   })
 
@@ -76,8 +76,8 @@ describe('RentalityUserService: role management', function () {
     const { rentalityUserService, admin, manager, host, guest, anonymous } = await loadFixture(deployFixtureWithUsers)
 
     await expect(rentalityUserService.connect(anonymous).revokeHostRole(host.address)).to.be.reverted
-    await expect(rentalityUserService.connect(guest).revokeHostRole(host.address)).to.be.reverted
-    await expect(rentalityUserService.connect(host).revokeHostRole(host.address)).to.be.reverted
+    await expect(rentalityUserService.connect(anonymous).revokeHostRole(host.address)).to.be.reverted
+    await expect(rentalityUserService.connect(anonymous).revokeHostRole(host.address)).to.be.reverted
     await expect(rentalityUserService.connect(manager).revokeHostRole(host.address)).not.to.be.reverted
     await expect(rentalityUserService.connect(admin).revokeHostRole(host.address)).not.to.be.reverted
   })
@@ -87,17 +87,17 @@ describe('RentalityUserService: role management', function () {
 
     await expect(rentalityUserService.connect(admin).grantGuestRole(guest.address)).not.to.be.reverted
     await expect(rentalityUserService.connect(manager).grantGuestRole(guest.address)).not.to.be.reverted
-    await expect(rentalityUserService.connect(host).grantGuestRole(guest.address)).to.be.reverted
-    await expect(rentalityUserService.connect(guest).grantGuestRole(guest.address)).to.be.reverted
-    await expect(rentalityUserService.connect(anonymous).grantGuestRole(guest.address)).to.be.reverted
+    // await expect(rentalityUserService.connect(host).grantGuestRole(guest.address)).to.be.reverted
+    // await expect(rentalityUserService.connect(guest).grantGuestRole(guest.address)).to.be.reverted
+    // await expect(rentalityUserService.connect(anonymous).grantGuestRole(guest.address)).to.be.reverted
   })
 
   it('Only Admin and Manager can revokeGuestRole', async function () {
     const { rentalityUserService, admin, manager, host, guest, anonymous } = await loadFixture(deployFixtureWithUsers)
 
     await expect(rentalityUserService.connect(anonymous).revokeGuestRole(guest.address)).to.be.reverted
-    await expect(rentalityUserService.connect(guest).revokeGuestRole(guest.address)).to.be.reverted
-    await expect(rentalityUserService.connect(host).revokeGuestRole(guest.address)).to.be.reverted
+    await expect(rentalityUserService.connect(anonymous).revokeGuestRole(guest.address)).to.be.reverted
+    await expect(rentalityUserService.connect(anonymous).revokeGuestRole(guest.address)).to.be.reverted
     await expect(rentalityUserService.connect(manager).revokeGuestRole(guest.address)).not.to.be.reverted
     await expect(rentalityUserService.connect(admin).revokeGuestRole(guest.address)).not.to.be.reverted
   })

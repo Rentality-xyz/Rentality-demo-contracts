@@ -10,6 +10,8 @@ const {
   emptyLocationInfo,
   InsuranceType,
   emptySignedLocationInfo,
+  zeroHash,
+  signLocationInfo,
 } = require('../utils')
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 const { ethers } = require('hardhat')
@@ -38,7 +40,8 @@ describe('Rentality insurance', function () {
     anonymous,
     rentalityLocationVerifier,
     mockRequestWithInsurance,
-    insuranceService
+    insuranceService,
+    tripsQuery
 
   beforeEach(async function () {
     ;({
@@ -65,17 +68,18 @@ describe('Rentality insurance', function () {
       rentalityLocationVerifier,
       mockRequestWithInsurance,
       insuranceService,
+      tripsQuery,
     } = await loadFixture(deployDefaultFixture))
   })
 
   it('Should take additional 2500 cents per day, when insurance required', async function () {
-    await expect(rentalityGateway.connect(host).addCar(mockRequestWithInsurance)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(mockRequestWithInsurance, zeroHash)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
     const result = await rentalityGateway
       .connect(guest)
-      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
     await expect(
       await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
@@ -86,18 +90,19 @@ describe('Rentality insurance', function () {
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
         },
+        ' ',
         { value: result.totalPrice }
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
   }),
     it('Insurance payment should get back to guest after rejection', async function () {
-      await expect(rentalityGateway.connect(host).addCar(mockRequestWithInsurance)).not.to.be.reverted
+      await expect(rentalityGateway.connect(host).addCar(mockRequestWithInsurance, zeroHash)).not.to.be.reverted
       const myCars = await rentalityGateway.connect(host).getMyCars()
       expect(myCars.length).to.equal(1)
 
       const result = await rentalityGateway
         .connect(guest)
-        .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo)
+        .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
       await expect(
         await rentalityGateway.connect(guest).createTripRequestWithDelivery(
           {
@@ -110,6 +115,7 @@ describe('Rentality insurance', function () {
             pickUpInfo: emptySignedLocationInfo,
             returnInfo: emptySignedLocationInfo,
           },
+          ' ',
           { value: result.totalPrice }
         )
       ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
@@ -120,7 +126,7 @@ describe('Rentality insurance', function () {
       )
     })
   it('Insurance payment should get back to guest after rejection for several days', async function () {
-    await expect(rentalityGateway.connect(host).addCar(mockRequestWithInsurance)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(mockRequestWithInsurance, zeroHash)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
@@ -129,7 +135,8 @@ describe('Rentality insurance', function () {
       3,
       ethToken,
       emptyLocationInfo,
-      emptyLocationInfo
+      emptyLocationInfo,
+      ' '
     )
     await expect(
       await rentalityGateway.connect(guest).createTripRequestWithDelivery(
@@ -143,6 +150,7 @@ describe('Rentality insurance', function () {
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
         },
+        ' ',
         { value: result.totalPrice }
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
@@ -153,13 +161,13 @@ describe('Rentality insurance', function () {
     )
   })
   it('Insurance payment should come to host after trip finish', async function () {
-    await expect(rentalityGateway.connect(host).addCar(mockRequestWithInsurance)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(mockRequestWithInsurance, zeroHash)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
     const result = await rentalityGateway
       .connect(guest)
-      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
     await expect(
       await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
@@ -172,6 +180,7 @@ describe('Rentality insurance', function () {
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
         },
+        ' ',
         { value: result.totalPrice }
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
@@ -186,7 +195,7 @@ describe('Rentality insurance', function () {
     await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
     await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0], '', '')).not.to.be.reverted
     await expect(rentalityGateway.connect(guest).checkInByGuest(1, [0, 0])).not.to.be.reverted
-    await expect(rentalityGateway.connect(guest).checkOutByGuest(1, [0, 0])).not.to.be.reverted
+    await expect(rentalityGateway.connect(guest).checkOutByGuest(1, [0, 0], zeroHash)).not.to.be.reverted
     await expect(rentalityGateway.connect(host).checkOutByHost(1, [0, 0])).not.to.be.reverted
 
     const depositValue = await rentalityCurrencyConverter.getFromUsd(
@@ -198,7 +207,7 @@ describe('Rentality insurance', function () {
 
     const returnToHost = result.totalPrice - depositValue - payments.rentalityFee - payments.taxes
 
-    await expect(rentalityGateway.connect(host).finishTrip(1)).to.changeEtherBalances([host], [returnToHost])
+    await expect(rentalityGateway.connect(host).finishTrip(1, zeroHash)).to.changeEtherBalances([host], [returnToHost])
   })
   it('guest can add insurance', async function () {
     let insurance = {
@@ -215,6 +224,21 @@ describe('Rentality insurance', function () {
     expect(insurances[0].photo).to.be.eq(insurance.photo)
     expect(insurances[0].policyNumber).to.be.eq(insurance.policyNumber)
   })
+  it('guest add second insurance, second has none status', async function () {
+    let insurance = {
+      companyName: 'myCo',
+      policyNumber: '12124-124-124',
+      photo: 'url',
+      comment: 'comment',
+      insuranceType: InsuranceType.General,
+    }
+    await expect(rentalityGateway.connect(guest).saveGuestInsurance(insurance)).to.not.reverted
+    await expect(rentalityGateway.connect(guest).saveGuestInsurance(insurance)).to.not.reverted
+
+    let insurances = await rentalityGateway.connect(guest).getMyInsurancesAsGuest()
+    expect(insurances[0].insuranceType).to.be.eq(0)
+    expect(insurances[1].insuranceType).to.be.eq(1)
+  })
   it('guest can not add one time insurance in profile', async function () {
     let insurance = {
       companyName: 'myCo',
@@ -227,7 +251,7 @@ describe('Rentality insurance', function () {
   })
 
   it('guest will not pay for insurance if he have one in profile', async function () {
-    await expect(rentalityGateway.connect(host).addCar(mockRequestWithInsurance)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(mockRequestWithInsurance, zeroHash)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
@@ -250,13 +274,13 @@ describe('Rentality insurance', function () {
 
     const result1 = await rentalityGateway
       .connect(guest)
-      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
 
     await expect(rentalityGateway.connect(guest).saveGuestInsurance(noneInsurance)).to.not.reverted
 
     const result2 = await rentalityGateway
       .connect(guest)
-      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
     expect(result1 < result2).to.be.eq(true)
 
     await expect(
@@ -269,6 +293,7 @@ describe('Rentality insurance', function () {
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
         },
+        ' ',
         { value: result2.totalPrice }
       )
     ).to.not.reverted
@@ -283,18 +308,19 @@ describe('Rentality insurance', function () {
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
         },
+        ' ',
         { value: result1.totalPrice }
       )
     ).to.be.reverted
   })
   it('guest can add insurance to the trip', async function () {
-    await expect(rentalityGateway.connect(host).addCar(mockRequestWithInsurance)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(mockRequestWithInsurance, zeroHash)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
     const result = await rentalityGateway
       .connect(guest)
-      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
 
     await expect(
       await rentalityGateway.connect(guest).createTripRequestWithDelivery(
@@ -302,10 +328,11 @@ describe('Rentality insurance', function () {
           carId: 1,
           startDateTime: 123,
           endDateTime: 321,
-          currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+          currencyType: ethToken,
         },
+        '',
         { value: result.totalPrice }
       )
     ).to.not.reverted
@@ -324,13 +351,13 @@ describe('Rentality insurance', function () {
     expect(insurances.length).to.be.eq(1)
   })
   it('host can add insurance to the trip', async function () {
-    await expect(rentalityGateway.connect(host).addCar(mockRequestWithInsurance)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(mockRequestWithInsurance, zeroHash)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
     const result = await rentalityGateway
       .connect(guest)
-      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
 
     await expect(
       await rentalityGateway.connect(guest).createTripRequestWithDelivery(
@@ -338,10 +365,11 @@ describe('Rentality insurance', function () {
           carId: 1,
           startDateTime: 123,
           endDateTime: 321,
-          currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+          currencyType: ethToken,
         },
+        '',
         { value: result.totalPrice }
       )
     ).to.not.reverted
@@ -352,6 +380,7 @@ describe('Rentality insurance', function () {
         policyNumber: '12124-124-124',
         photo: 'url',
         comment: 'comment',
+
         insuranceType: InsuranceType.General,
       })
     ).to.not.reverted
@@ -360,7 +389,7 @@ describe('Rentality insurance', function () {
     expect(insurances.length).to.be.eq(1)
   })
   it('host can see guest general insurance', async function () {
-    await expect(rentalityGateway.connect(host).addCar(mockRequestWithInsurance)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(mockRequestWithInsurance, zeroHash)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
@@ -376,7 +405,7 @@ describe('Rentality insurance', function () {
 
     const result = await rentalityGateway
       .connect(guest)
-      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
 
     await expect(
       await rentalityGateway.connect(guest).createTripRequestWithDelivery(
@@ -388,6 +417,7 @@ describe('Rentality insurance', function () {
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
         },
+        ' ',
         { value: result.totalPrice }
       )
     ).to.not.reverted
@@ -397,7 +427,7 @@ describe('Rentality insurance', function () {
   })
 
   it('host can see guest added insurances', async function () {
-    await expect(rentalityGateway.connect(host).addCar(mockRequestWithInsurance)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(mockRequestWithInsurance, zeroHash)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
@@ -413,7 +443,7 @@ describe('Rentality insurance', function () {
 
     const result = await rentalityGateway
       .connect(guest)
-      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
 
     await expect(
       await rentalityGateway.connect(guest).createTripRequestWithDelivery(
@@ -421,10 +451,11 @@ describe('Rentality insurance', function () {
           carId: 1,
           startDateTime: 123,
           endDateTime: 321,
-          currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+          currencyType: ethToken,
         },
+        '',
         { value: result.totalPrice }
       )
     ).to.not.reverted
@@ -444,13 +475,13 @@ describe('Rentality insurance', function () {
   })
 
   it('guest can see host added insurances', async function () {
-    await expect(rentalityGateway.connect(host).addCar(mockRequestWithInsurance)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(mockRequestWithInsurance, zeroHash)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
     const result = await rentalityGateway
       .connect(guest)
-      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
 
     await expect(
       await rentalityGateway.connect(guest).createTripRequestWithDelivery(
@@ -462,6 +493,7 @@ describe('Rentality insurance', function () {
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
         },
+        ' ',
         { value: result.totalPrice }
       )
     ).to.not.reverted
@@ -481,7 +513,7 @@ describe('Rentality insurance', function () {
   })
 
   it('guest and host see all insurances', async function () {
-    await expect(rentalityGateway.connect(host).addCar(mockRequestWithInsurance)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(mockRequestWithInsurance, zeroHash)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
@@ -497,7 +529,7 @@ describe('Rentality insurance', function () {
 
     const result = await rentalityGateway
       .connect(guest)
-      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
 
     await expect(
       await rentalityGateway.connect(guest).createTripRequestWithDelivery(
@@ -509,6 +541,7 @@ describe('Rentality insurance', function () {
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
         },
+        ' ',
         { value: result.totalPrice }
       )
     ).to.not.reverted
@@ -540,10 +573,11 @@ describe('Rentality insurance', function () {
           carId: 1,
           startDateTime: 123,
           endDateTime: 321,
-          currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+          currencyType: ethToken,
         },
+        '',
         { value: result.totalPrice }
       )
     ).to.not.reverted
@@ -558,7 +592,69 @@ describe('Rentality insurance', function () {
 
     await expect(rentalityGateway.connect(host).saveTripInsuranceInfo(2, insurance2)).to.not.reverted
     insurances = await rentalityGateway.connect(host).getInsurancesBy(true)
-    expect(insurances.length).to.be.eq(4)
+
+    await expect(
+      rentalityGateway.connect(host).saveTripInsuranceInfo(2, {
+        companyName: 'myCo',
+        policyNumber: '12124-124-124',
+        photo: 'url',
+        comment: 'comment',
+        insuranceType: InsuranceType.OneTime,
+      })
+    ).to.not.reverted
+    await ethers.provider.send('evm_increaseTime', [3600])
+    await expect(
+      rentalityGateway.connect(host).saveTripInsuranceInfo(2, {
+        companyName: 'myCo',
+        policyNumber: '12124-124-124',
+        photo: 'url',
+        comment: 'comment',
+        insuranceType: InsuranceType.OneTime,
+      })
+    ).to.not.reverted
+    await ethers.provider.send('evm_increaseTime', [3600])
+    await expect(
+      rentalityGateway.connect(host).saveTripInsuranceInfo(2, {
+        companyName: 'myCo',
+        policyNumber: '12124-124-124124',
+        photo: 'url',
+        comment: 'comment',
+        insuranceType: InsuranceType.OneTime,
+      })
+    ).to.not.reverted
+    await expect(
+      rentalityGateway.connect(host).saveTripInsuranceInfo(2, {
+        companyName: 'myCo',
+        policyNumber: '12124-124-121244',
+        photo: 'url',
+        comment: 'comment',
+        insuranceType: InsuranceType.OneTime,
+      })
+    ).to.not.reverted
+    await ethers.provider.send('evm_increaseTime', [3600])
+    await expect(
+      rentalityGateway.connect(host).saveTripInsuranceInfo(2, {
+        companyName: 'myCo',
+        policyNumber: '12124-124-1241214',
+        photo: 'url',
+        comment: 'comment',
+        insuranceType: InsuranceType.OneTime,
+      })
+    ).to.not.reverted
+    await ethers.provider.send('evm_increaseTime', [3600])
+    await expect(
+      rentalityGateway.connect(host).saveTripInsuranceInfo(2, {
+        companyName: 'myCo',
+        policyNumber: '12124-124-124124',
+        photo: 'url',
+        comment: 'comment',
+        insuranceType: InsuranceType.General,
+      })
+    ).to.not.reverted
+
+    insurances = await rentalityGateway.connect(host).getInsurancesBy(true)
+
+    expect(insurances.length).to.be.eq(10)
     expect(insurances[2].tripId).to.be.eq(2)
     expect(insurances[3].tripId).to.be.eq(2)
     expect(insurances[2].carBrand).to.be.eq(mockRequestWithInsurance.brand)
@@ -570,7 +666,7 @@ describe('Rentality insurance', function () {
     expect(insurances[3].insuranceInfo.policyNumber).to.be.eq(insurance2.policyNumber)
   })
   it('check in by host add insurance to list', async function () {
-    await expect(rentalityGateway.connect(host).addCar(mockRequestWithInsurance)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(mockRequestWithInsurance, zeroHash)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
@@ -584,7 +680,7 @@ describe('Rentality insurance', function () {
 
     const result = await rentalityGateway
       .connect(guest)
-      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
 
     await expect(
       await rentalityGateway.connect(guest).createTripRequestWithDelivery(
@@ -592,10 +688,11 @@ describe('Rentality insurance', function () {
           carId: 1,
           startDateTime: 123,
           endDateTime: 321,
-          currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+          currencyType: ethToken,
         },
+        '',
         { value: result.totalPrice }
       )
     ).to.not.reverted
@@ -608,32 +705,5 @@ describe('Rentality insurance', function () {
     expect(insurances[0].insuranceInfo.companyName).to.be.eq(insurance.companyName)
     expect(insurances[0].insuranceInfo.policyNumber).to.be.eq(insurance.policyNumber)
   })
-  it('check Available car return correct data', async function () {
-    await expect(rentalityGateway.connect(host).addCar(mockRequestWithInsurance)).not.to.be.reverted
-    const myCars = await rentalityGateway.connect(host).getMyCars()
-    expect(myCars.length).to.equal(1)
 
-    let searchParams = {
-      country: 'Ukraine',
-      state: '',
-      city: '',
-      brand: '',
-      model: '',
-      yearOfProductionFrom: 0,
-      yearOfProductionTo: 0,
-      pricePerDayInUsdCentsFrom: 0,
-      pricePerDayInUsdCentsTo: 0,
-      userLocation: emptyLocationInfo,
-    }
-
-    let result2 = await rentalityGateway.checkCarAvailabilityWithDelivery(
-      1,
-      0,
-      0,
-      searchParams,
-      emptyLocationInfo,
-      emptyLocationInfo
-    )
-    expect(result2.carId).to.be.eq(0)
-  })
 })

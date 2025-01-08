@@ -6,6 +6,7 @@ const {
   getMockCarRequestWithAddress,
   locationInfo,
   signTCMessage,
+  zeroHash,
   emptyLocationInfo,
 } = require('../utils')
 const { deployFixtureWith1Car } = require('./deployments')
@@ -180,7 +181,7 @@ describe('RentalityCarToken: search functions', function () {
     location.country = 'Country'
     let carRequest = getMockCarRequest(2, await rentalityLocationVerifier.getAddress(), admin, location)
 
-    await rentalityCarToken.addCar(carRequest)
+    await rentalityGateway.addCar(carRequest, zeroHash)
 
     const searchCarParams1 = {
       country: 'Country',
@@ -240,13 +241,13 @@ describe('RentalityCarToken: search functions', function () {
       longitude: '-122.682653',
       timeZoneId: 'id',
     }
-    location.state = 'MYSTATE'
+    location.state = 'Florida'
     let carRequest = getMockCarRequest(2, await rentalityLocationVerifier.getAddress(), admin, location)
-    await rentalityCarToken.addCar(carRequest)
+    await rentalityGateway.addCar(carRequest, zeroHash)
 
     const searchCarParams1 = {
       country: '',
-      state: 'MYSTATE',
+      state: 'Florida',
       city: '',
       brand: '',
       model: '',
@@ -273,7 +274,7 @@ describe('RentalityCarToken: search functions', function () {
       .connect(guest)
       .searchAvailableCarsWithDelivery(0, 0, searchCarParams1, emptyLocationInfo, emptyLocationInfo)
 
-    expect(availableCars1.length).to.equal(1)
+    expect(availableCars1.length).to.equal(2)
 
     const availableCars2 = await rentalityGateway
       .connect(guest)
@@ -304,7 +305,7 @@ describe('RentalityCarToken: search functions', function () {
     }
     location.city = 'City'
     let carRequest = getMockCarRequest(2, await rentalityLocationVerifier.getAddress(), admin, location)
-    await rentalityCarToken.addCar(carRequest)
+    await rentalityGateway.addCar(carRequest, zeroHash)
 
     const searchCarParams1 = {
       country: '',

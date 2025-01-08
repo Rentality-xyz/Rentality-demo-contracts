@@ -8,6 +8,7 @@ const {
   signTCMessage,
   locationInfo,
   signLocationInfo,
+  zeroHash,
   emptyKyc,
   emptyLocationInfo,
 } = require('../utils')
@@ -61,14 +62,18 @@ describe('RentalityGateway: car', function () {
 
   it('Host can add car to gateway', async function () {
     await expect(
-      rentalityGateway.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+      rentalityGateway
+        .connect(host)
+        .addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin), zeroHash)
     ).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
   })
   it('Host dont see own cars as available', async function () {
     await expect(
-      rentalityGateway.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+      rentalityGateway
+        .connect(host)
+        .addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin), zeroHash)
     ).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
@@ -85,7 +90,9 @@ describe('RentalityGateway: car', function () {
   })
   it('Guest see cars as available', async function () {
     await expect(
-      rentalityGateway.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+      rentalityGateway
+        .connect(host)
+        .addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin), zeroHash)
     ).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
@@ -102,7 +109,7 @@ describe('RentalityGateway: car', function () {
   })
   it('should allow only host to update car info', async function () {
     let addCarRequest = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
-    await expect(rentalityGateway.connect(host).addCar(addCarRequest)).not.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(addCarRequest, zeroHash)).not.be.reverted
 
     let update_params = {
       carId: 1,
@@ -118,12 +125,16 @@ describe('RentalityGateway: car', function () {
       insuranceRequired: false,
       insurancePriceInUsdCents: 0,
     }
+    let locationInfo = {
+      locationInfo: emptyLocationInfo,
+      signature: signLocationInfo(await rentalityLocationVerifier.getAddress(), admin, emptyLocationInfo),
+    }
+    await expect(rentalityGateway.connect(host).updateCarInfoWithLocation(update_params, locationInfo)).not.to.be
+      .reverted
 
-    await expect(rentalityGateway.connect(host).updateCarInfo(update_params)).not.to.be.reverted
-
-    await expect(rentalityGateway.connect(anonymous).updateCarInfo(update_params)).to.be.revertedWith(
-      'Only the owner of the car can update car info'
-    )
+    await expect(
+      rentalityGateway.connect(anonymous).updateCarInfoWithLocation(update_params, locationInfo)
+    ).to.be.revertedWith('For car owner')
 
     let carInfo = await rentalityGateway.getCarInfoById(update_params.carId)
 
@@ -136,7 +147,7 @@ describe('RentalityGateway: car', function () {
 
   it('should have cars owned by user', async function () {
     let addCarRequest = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
-    await expect(rentalityCarToken.connect(host).addCar(addCarRequest)).not.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(addCarRequest, zeroHash)).not.be.reverted
 
     let available_cars = await rentalityGateway.connect(host).getMyCars()
 
@@ -160,7 +171,8 @@ describe('RentalityGateway: car', function () {
       locationInfo,
       signature: signLocationInfo(await rentalityLocationVerifier.getAddress(), admin),
     }
-    await expect(rentalityGateway.connect(host).setKYCInfo(name, number, photo, hostSignature)).to.not.reverted
+    await expect(rentalityGateway.connect(host).setKYCInfo(name, number, photo, hostSignature, zeroHash)).to.not
+      .reverted
 
     let addCarRequest = {
       tokenUri: 'uri',
@@ -184,7 +196,7 @@ describe('RentalityGateway: car', function () {
     const oneDayInSec = 86400
     const totalTripDays = 7
     const searchParams = getEmptySearchCarParams()
-    await expect(rentalityGateway.connect(host).addCar(addCarRequest)).not.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(addCarRequest, zeroHash)).not.be.reverted
     const resultAr = await rentalityGateway.searchAvailableCarsWithDelivery(
       new Date().getDate(),
       new Date().getDate() + oneDayInSec * totalTripDays,
@@ -217,7 +229,8 @@ describe('RentalityGateway: car', function () {
       locationInfo,
       signature: signLocationInfo(await rentalityLocationVerifier.getAddress(), admin),
     }
-    await expect(await rentalityGateway.connect(host).setKYCInfo(name, '', photo, hostSignature)).to.not.reverted
+    await expect(await rentalityGateway.connect(host).setKYCInfo(name, '', photo, hostSignature, zeroHash)).to.not
+      .reverted
 
     let addCarRequest = {
       tokenUri: 'uri',
@@ -238,7 +251,7 @@ describe('RentalityGateway: car', function () {
       insuranceRequired: false,
       insurancePriceInUsdCents: 0,
     }
-    await expect(await rentalityGateway.connect(host).addCar(addCarRequest)).not.be.reverted
+    await expect(await rentalityGateway.connect(host).addCar(addCarRequest, zeroHash)).not.be.reverted
     const result = await rentalityGateway.connect(guest).getCarDetails(1)
 
     expect(result.carId).to.be.equal(1)
@@ -266,7 +279,8 @@ describe('RentalityGateway: car', function () {
     let expirationDate = 10
 
     const hostSignature = await signTCMessage(host)
-    await expect(await rentalityGateway.connect(host).setKYCInfo(name, '', photo, hostSignature)).to.not.reverted
+    await expect(await rentalityGateway.connect(host).setKYCInfo(name, '', photo, hostSignature, zeroHash)).to.not
+      .reverted
     let locationInfo1 = {
       locationInfo,
       signature: signLocationInfo(await rentalityLocationVerifier.getAddress(), admin),
@@ -292,20 +306,52 @@ describe('RentalityGateway: car', function () {
         insurancePriceInUsdCents: 0,
       }
     }
-    await expect(await rentalityGateway.connect(host).addCar(addCar(0))).not.be.reverted
-    await expect(await rentalityGateway.connect(host).addCar(addCar(1))).not.be.reverted
-    await expect(await rentalityGateway.connect(host).addCar(addCar(2))).not.be.reverted
-    await expect(await rentalityGateway.connect(host).addCar(addCar(3))).not.be.reverted
-    await expect(await rentalityGateway.connect(host).addCar(addCar(4))).not.be.reverted
+    await expect(
+      await rentalityGateway
+        .connect(host)
+        .addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin), zeroHash)
+    )
+    await expect(
+      await rentalityGateway
+        .connect(host)
+        .addCar(getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin), zeroHash)
+    )
+    await expect(
+      await rentalityGateway
+        .connect(host)
+        .addCar(getMockCarRequest(2, await rentalityLocationVerifier.getAddress(), admin), zeroHash)
+    )
+    await expect(
+      await rentalityGateway
+        .connect(host)
+        .addCar(getMockCarRequest(3, await rentalityLocationVerifier.getAddress(), admin), zeroHash)
+    )
+    await expect(
+      await rentalityGateway
+        .connect(host)
+        .addCar(getMockCarRequest(4, await rentalityLocationVerifier.getAddress(), admin), zeroHash)
+    )
 
     await rentalityCarToken.connect(host).burnCar(3)
     const hostCars = await rentalityCarToken.getCarsOfHost(host.address)
     expect(hostCars.length).to.be.eq(4)
 
-    await expect(await rentalityGateway.connect(guest).addCar(addCar(5))).not.be.reverted
-    await expect(await rentalityGateway.connect(guest).addCar(addCar(6))).not.be.reverted
+    await expect(
+      await rentalityGateway
+        .connect(guest)
+        .addCar(getMockCarRequest(5, await rentalityLocationVerifier.getAddress(), admin), zeroHash)
+    )
+    await expect(
+      await rentalityGateway
+        .connect(guest)
+        .addCar(getMockCarRequest(6, await rentalityLocationVerifier.getAddress(), admin), zeroHash)
+    )
     await rentalityCarToken.connect(guest).burnCar(6)
-    await expect(await rentalityGateway.connect(guest).addCar(addCar(7))).not.be.reverted
+    await expect(
+      await rentalityGateway
+        .connect(guest)
+        .addCar(getMockCarRequest(7, await rentalityLocationVerifier.getAddress(), admin), zeroHash)
+    )
 
     const guestCars = await rentalityCarToken.getCarsOfHost(guest.address)
     expect(guestCars.length).to.be.eq(2)
@@ -319,7 +365,8 @@ describe('RentalityGateway: car', function () {
     let expirationDate = 10
 
     const hostSignature = await signTCMessage(host)
-    await expect(await rentalityGateway.connect(host).setKYCInfo(name, '', photo, hostSignature)).to.not.reverted
+    await expect(await rentalityGateway.connect(host).setKYCInfo(name, '', photo, hostSignature, zeroHash)).to.not
+      .reverted
 
     let locationInfo1 = {
       locationInfo,
@@ -346,7 +393,11 @@ describe('RentalityGateway: car', function () {
         insurancePriceInUsdCents: 0,
       }
     }
-    await expect(await rentalityGateway.connect(host).addCar(addCar(0))).not.be.reverted
+    await expect(
+      await rentalityGateway
+        .connect(host)
+        .addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin), zeroHash)
+    )
 
     const tokenContract = await ethers.getContractAt(
       'ERC721URIStorageUpgradeable',

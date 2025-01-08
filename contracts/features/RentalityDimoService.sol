@@ -21,43 +21,15 @@ contract RentalityDimoService is UUPSAccess, EIP712Upgradeable {
 
 uint[] private dimoVihicles;
 
-  function verifySignedLocationInfo(Schemas.SignedLocationInfo memory locationInfo) public view {
-    require(_verify(locationInfo) == adminAddress, 'Wrong signature');
-  }
-
-  function _verify(Schemas.SignedLocationInfo memory location) internal view returns (address) {
-    // bytes32 digest = _hash(location.locationInfo);
-    return address(0);
-    // return ECDSA.recover(digest, location.signature);
-  }
-  function verify(Schemas.SignedLocationInfo memory location) public view returns (address) {
-    // bytes32 digest = _hash(location.locationInfo);
-    // return ECDSA.recover(digest, location.signature);
-    return address(0);
-  }
-
-  function _hash() internal view returns (bytes32) {
-    return bytes32('');
-    // return
-    //   _hashTypedDataV4(
-    //     keccak256(
-    //       abi.encode(
-    //         keccak256(
-    //           'DimoData(uint tokenId,string vinNumber)'
-    //         ),
-    //         data.tokeId,
-    //         keccak256(bytes(data.vinNumber))
-    //       )
-    //     )
-    //   );
-  }
-
 function saveDimoTokenId(uint dimoTokenId, uint carId) public {
+        Schemas.CarInfo memory carInfo = carToken.getCarInfoById(carId);
+        require(carToken.ownerOf(carId) == tx.origin, "Not car owner");
         carIdToDimoTokenId[carId] = dimoTokenId;
 }
 function saveButch(uint[] memory dimoTokenIds, uint[] memory carIds) public {
   require(dimoTokenIds.length == carIds.length, "Wrong length");
   for (uint i = 0; i < dimoTokenIds.length; i++) {
+      require(carToken.ownerOf(carIds[i]) == tx.origin, "Not car owner");
         carIdToDimoTokenId[carIds[i]] = dimoTokenIds[i];
        dimoVihicles.push(dimoTokenIds[i]);
   }

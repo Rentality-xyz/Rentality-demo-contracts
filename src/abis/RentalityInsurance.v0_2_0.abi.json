@@ -42,6 +42,32 @@
     },
     {
       "type": "function",
+      "name": "findActualInsurance",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        {
+          "type": "tuple[]",
+          "name": "insurances",
+          "components": [
+            { "type": "string", "name": "companyName" },
+            { "type": "string", "name": "policyNumber" },
+            { "type": "string", "name": "photo" },
+            { "type": "string", "name": "comment" },
+            { "type": "uint8", "name": "insuranceType" },
+            { "type": "uint256", "name": "createdTime" },
+            { "type": "address", "name": "createdBy" }
+          ]
+        }
+      ],
+      "outputs": [
+        { "type": "uint256", "name": "" },
+        { "type": "uint256", "name": "" }
+      ]
+    },
+    {
+      "type": "function",
       "name": "getCarInsuranceInfo",
       "constant": true,
       "stateMutability": "view",

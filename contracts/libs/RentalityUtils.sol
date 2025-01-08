@@ -9,11 +9,14 @@ import '../abstract/IRentalityGeoService.sol';
 import '../RentalityTripService.sol';
 import '../payments/RentalityCurrencyConverter.sol';
 import '../payments/RentalityPaymentService.sol';
-import '../payments/RentalityInsurance.sol';
 import {RentalityContract} from '../RentalityGateway.sol';
 import {RentalityCarDelivery} from '../features/RentalityCarDelivery.sol';
+import {RentalityInsurance} from '../payments/RentalityInsurance.sol';
+import {RentalityReferralProgram} from '../features/refferalProgram/RentalityReferralProgram.sol';
+
 import {RentalityClaimService} from '../features/RentalityClaimService.sol';
 import {RentalityDimoService} from '../features/RentalityDimoService.sol';
+import {RentalityPromoService} from '../features/RentalityPromo.sol';
 /// @title RentalityUtils Library
 /// @notice
 /// This library provides utility functions for handling coordinates, string manipulation,
@@ -365,7 +368,9 @@ library RentalityUtils {
     address currency,
     Schemas.LocationInfo memory pickUpLocation,
     Schemas.LocationInfo memory returnLocation,
-    RentalityInsurance insuranceService
+    RentalityInsurance insuranceService,
+    string memory promo,
+    RentalityPromoService promoService
   ) public view returns (Schemas.CalculatePaymentsDTO memory) {
     uint64 deliveryFee = RentalityCarDelivery(addresses.adminService.getDeliveryServiceAddress())
       .calculatePriceByDeliveryDataInUsdCents(
@@ -379,21 +384,29 @@ library RentalityUtils {
         ),
         addresses.carService.getCarInfoById(carId).createdBy
       );
-    return calculatePayments(addresses, carId, daysOfTrip, currency, deliveryFee, insuranceService);
+    return
+      calculatePayments(
+        addresses,
+        carId,
+        daysOfTrip,
+        currency,
+        deliveryFee,
+        insuranceService,
+        promo,
+        promoService,
+        tx.origin
+      );
   }
-  /// @notice Checks if a car is available for a specific user based on search parameters.
-  /// @dev Calculates the payments for a trip.
-  /// @param carId The ID of the car.
-  /// @param daysOfTrip The duration of the trip in days.
-  /// @param currency The currency to use for payment calculation.
-  /// @return calculatePaymentsDTO An object containing payment details.
   function calculatePayments(
     RentalityContract memory addresses,
     uint carId,
     uint64 daysOfTrip,
     address currency,
     uint64 deliveryFee,
-    RentalityInsurance insuranceService
+    RentalityInsurance insuranceService,
+    string memory promo,
+    RentalityPromoService promoService,
+    address user
   ) public view returns (Schemas.CalculatePaymentsDTO memory) {
     address carOwner = addresses.carService.ownerOf(carId);
     Schemas.CarInfo memory car = addresses.carService.getCarInfoById(carId);
@@ -403,6 +416,7 @@ library RentalityUtils {
       daysOfTrip,
       car.pricePerDayInUsdCents
     );
+
     uint taxId = addresses.paymentService.defineTaxesType(address(addresses.carService), carId);
 
     (uint64 salesTaxes, uint64 govTax) = addresses.paymentService.calculateTaxes(
@@ -410,7 +424,16 @@ library RentalityUtils {
       daysOfTrip,
       sumWithDiscount + deliveryFee
     );
-    uint totalPrice = car.securityDepositPerTripInUsdCents + salesTaxes + govTax + sumWithDiscount + deliveryFee;
+
+    uint64 discount = uint64(promoService.getDiscountByPromo(promo, user));
+    uint64 priceBeforePromo = sumWithDiscount + salesTaxes + govTax + deliveryFee;
+
+    uint64 discountedPrice = priceBeforePromo;
+    if (discount > 0) {
+      discountedPrice = priceBeforePromo - ((priceBeforePromo * discount) / 100);
+    }
+
+    uint totalPrice = car.securityDepositPerTripInUsdCents + discountedPrice;
 
     if (!insuranceService.isGuestHasInsurance(tx.origin)) {
       totalPrice += insuranceService.getInsurancePriceByCar(carId) * daysOfTrip;
@@ -494,8 +517,11 @@ library RentalityUtils {
     uint64 endDateTime,
     address currencyType,
     uint64 pickUp,
-    uint64 dropOf
-  ) public view returns (Schemas.PaymentInfo memory, uint) {
+    uint64 dropOf,
+    RentalityPromoService promoService,
+    string memory promo,
+    address user
+  ) public view returns (Schemas.PaymentInfo memory, uint, uint, uint) {
     Schemas.CarInfo memory carInfo = addresses.carService.getCarInfoById(carId);
 
     uint64 daysOfTrip = getCeilDays(startDateTime, endDateTime);
@@ -505,6 +531,8 @@ library RentalityUtils {
       daysOfTrip,
       carInfo.pricePerDayInUsdCents
     );
+    uint64 priceBeforePromo = priceWithDiscount;
+
     uint taxId = addresses.paymentService.defineTaxesType(address(addresses.carService), carId);
 
     (uint64 salesTaxes, uint64 govTax) = addresses.paymentService.calculateTaxes(
@@ -513,6 +541,8 @@ library RentalityUtils {
       priceWithDiscount + pickUp + dropOf
     );
 
+    uint64 discount = uint64(promoService.getDiscountByPromo(promo, user));
+
     uint valueSum = priceWithDiscount +
       salesTaxes +
       govTax +
@@ -520,10 +550,29 @@ library RentalityUtils {
       pickUp +
       dropOf;
 
+    uint priceWithPromo = 0;
+    if (discount > 0) {
+      uint sumBeforePromo = priceWithDiscount + salesTaxes + govTax + pickUp + dropOf;
+      priceWithPromo = (sumBeforePromo - ((sumBeforePromo * discount) / 100));
+    }
+
     (uint valueSumInCurrency, int rate, uint8 decimals) = addresses.currencyConverterService.getFromUsdLatest(
       currencyType,
       valueSum
     );
+
+    uint valueSumInCurrencyBeforePromo = valueSumInCurrency;
+    uint valueSumWithPromo = valueSum;
+    if (discount > 0) {
+      valueSumWithPromo = priceWithPromo;
+
+      valueSumInCurrency = addresses.currencyConverterService.getFromUsd(
+        currencyType,
+        priceWithPromo + carInfo.securityDepositPerTripInUsdCents,
+        rate,
+        decimals
+      );
+    }
 
     Schemas.PaymentInfo memory paymentInfo = Schemas.PaymentInfo(
       0,
@@ -544,7 +593,7 @@ library RentalityUtils {
       dropOf
     );
 
-    return (paymentInfo, valueSumInCurrency);
+    return (paymentInfo, valueSumInCurrency, valueSumInCurrencyBeforePromo, priceWithPromo);
   }
 
   /// @dev Retrieves delivery data for a given car.
@@ -661,9 +710,14 @@ library RentalityUtils {
       car.currentlyListed,
       geo.getLocationInfo(car.locationHash),
       car.carVinNumber,
+      carService.tokenURI(carId),
       dimoService.getDimoTokenId(carId)
     );
   }
+  /// @notice Retrieves all cars owned by the user with information about editability.
+  /// @dev This function fetches the user's cars and checks if they can be edited.
+  /// @param contracts The Rentality contract instance containing service addresses.
+  /// @return An array of CarInfoDTO structures containing information about the user's cars and whether they are editable.
   function getCarsOwnedByUserWithEditability(
     RentalityContract memory contracts,
     RentalityDimoService dimoService
@@ -682,16 +736,18 @@ library RentalityUtils {
 
     return result;
   }
+
   /// @notice Checks if a car is editable based on its associated trips.
   /// @dev This function checks the status of trips associated with the car to determine if it can be edited.
   /// @param contracts The Rentality contract instance containing service addresses.
   /// @param carId The ID of the car to check for editability.
   /// @return Returns true if the car is editable, otherwise false.
-  function isCarEditable(RentalityContract memory contracts, uint carId) internal view returns (bool) {
+  function isCarEditable(RentalityContract memory contracts, uint carId) public view returns (bool) {
     RentalityTripService tripService = contracts.tripService;
+    uint[] memory carTrips = tripService.getActiveTrips(carId);
 
-    for (uint i = 1; i <= tripService.totalTripCount(); i++) {
-      Schemas.Trip memory tripInfo = tripService.getTrip(i);
+    for (uint i = 0; i < carTrips.length; i++) {
+      Schemas.Trip memory tripInfo = tripService.getTrip(carTrips[i]);
 
       if (
         tripInfo.carId == carId &&
@@ -705,9 +761,69 @@ library RentalityUtils {
 
     return true;
   }
+  function verifyClaim(
+    RentalityContract memory addresses,
+    Schemas.CreateClaimRequest memory request
+  ) public view returns (address, address) {
+    Schemas.Trip memory trip = addresses.tripService.getTrip(request.tripId);
+
+    require(
+      (trip.host == tx.origin && uint8(request.claimType) <= 7) ||
+        (trip.guest == tx.origin && ((uint8(request.claimType) <= 9) && (uint8(request.claimType) >= 3))),
+      'Only for trip host or guest, or wrong claim type.'
+    );
+
+    require(
+      trip.status != Schemas.TripStatus.Canceled && trip.status != Schemas.TripStatus.Created,
+      'Wrong trip status.'
+    );
+    return (trip.host, trip.guest);
+  }
+
+  function verifyConfirmCheckOut(RentalityContract memory contracts, uint tripId) public view {
+    Schemas.Trip memory trip = contracts.tripService.getTrip(tripId);
+
+    require(trip.guest == tx.origin || contracts.userService.isAdmin(tx.origin), 'For trip guest or admin');
+    require(trip.host == trip.tripFinishedBy, 'No needs to confirm.');
+    require(trip.status == Schemas.TripStatus.CheckedOutByHost, 'The trip is not in status CheckedOutByHost');
+  }
+
+  function getFilterInfo(
+    RentalityContract memory contracts,
+    uint64 duration
+  ) public view returns (Schemas.FilterInfoDTO memory) {
+    uint64 maxCarPrice = 0;
+    RentalityCarToken carService = contracts.carService;
+    uint minCarYearOfProduction = carService.getCarInfoById(1).yearOfProduction;
+
+    for (uint i = 2; i <= carService.totalSupply(); i++) {
+      Schemas.CarInfo memory car = carService.getCarInfoById(i);
+
+      uint64 sumWithDiscount = contracts.paymentService.calculateSumWithDiscount(
+        carService.ownerOf(i),
+        duration,
+        car.pricePerDayInUsdCents
+      );
+      if (sumWithDiscount > maxCarPrice) maxCarPrice = sumWithDiscount;
+      if (car.yearOfProduction < minCarYearOfProduction) minCarYearOfProduction = car.yearOfProduction;
+    }
+    return Schemas.FilterInfoDTO(maxCarPrice, minCarYearOfProduction);
+  }
+  function calculateClaimValue(RentalityContract memory addresses, uint claimId) public view returns (uint) {
+    Schemas.Claim memory claim = addresses.claimService.getClaim(claimId);
+    if (claim.status == Schemas.ClaimStatus.Paid || claim.status == Schemas.ClaimStatus.Cancel) return 0;
+
+    uint commission = addresses.claimService.getPlatformFeeFrom(claim.amountInUsdCents);
+    (uint result, , ) = addresses.currencyConverterService.getFromUsdLatest(
+      addresses.tripService.getTrip(claim.tripId).paymentInfo.currencyType,
+      claim.amountInUsdCents + commission
+    );
+
+    return result;
+  }
 
  function validatePayClaim(Schemas.Trip memory trip, Schemas.Claim memory claim) public view {
  require((claim.isHostClaims && tx.origin == trip.guest) || tx.origin == trip.host, 'Guest or host.');
     require(claim.status != Schemas.ClaimStatus.Paid && claim.status != Schemas.ClaimStatus.Cancel, 'Wrong Status.');
- } 
+ }
 }

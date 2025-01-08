@@ -10,6 +10,7 @@ const {
   filter,
   PaymentStatus,
   AdminTripStatus,
+  zeroHash,
   signLocationInfo,
   emptyLocationInfo,
   emptySignedLocationInfo,
@@ -85,7 +86,7 @@ describe('Admin trip searching', function () {
       admin,
       request.locationInfo.locationInfo
     )
-    await expect(rentalityGateway.connect(host).addCar(request)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(request, zeroHash)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
@@ -104,7 +105,7 @@ describe('Admin trip searching', function () {
 
     const resultPayments = await rentalityGateway
       .connect(guest)
-      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
     let startDateTime = Date.now() - 10
     let endDateTime = Date.now() + oneDayInSeconds + 10
     await expect(
@@ -116,7 +117,9 @@ describe('Admin trip searching', function () {
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+          useRefferalDiscount: false,
         },
+        ' ',
         { value: resultPayments.totalPrice }
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-resultPayments.totalPrice, resultPayments.totalPrice])
@@ -151,7 +154,7 @@ describe('Admin trip searching', function () {
       admin,
       request.locationInfo.locationInfo
     )
-    await expect(rentalityGateway.connect(host).addCar(request)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(request, zeroHash)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
@@ -173,7 +176,8 @@ describe('Admin trip searching', function () {
       2,
       ethToken,
       emptyLocationInfo,
-      emptyLocationInfo
+      emptyLocationInfo,
+      ' '
     )
     let startDateTime = Date.now() - 10
     let endDateTime = Date.now() + oneDayInSeconds * 2
@@ -188,6 +192,7 @@ describe('Admin trip searching', function () {
             pickUpInfo: emptySignedLocationInfo,
             returnInfo: emptySignedLocationInfo,
           },
+          ' ',
           { value: resultPayments.totalPrice }
         )
       ).to.changeEtherBalances(
@@ -246,7 +251,7 @@ describe('Admin trip searching', function () {
       admin,
       request.locationInfo.locationInfo
     )
-    await expect(rentalityGateway.connect(host).addCar(request)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(request, zeroHash)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
@@ -268,7 +273,8 @@ describe('Admin trip searching', function () {
       2,
       ethToken,
       emptyLocationInfo,
-      emptyLocationInfo
+      emptyLocationInfo,
+      ' '
     )
     let startDateTime = Date.now() - 10
     let endDateTime = Date.now() + oneDayInSeconds * 2
@@ -285,6 +291,7 @@ describe('Admin trip searching', function () {
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
         },
+        ' ',
         { value: resultPayments.totalPrice }
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-resultPayments.totalPrice, resultPayments.totalPrice])
@@ -308,7 +315,7 @@ describe('Admin trip searching', function () {
     expect(result.trips.length).to.be.eq(1)
     expect(result.trips[0].trip.tripId).to.be.eq(1)
 
-    await expect(rentalityGateway.connect(guest).checkOutByGuest(1, [0, 0])).not.to.be.reverted
+    await expect(rentalityGateway.connect(guest).checkOutByGuest(1, [0, 0], zeroHash)).not.to.be.reverted
     result = await rentalityAdminGateway.getAllTrips(searchFiler, 1, 3)
     expect(result.trips.length).to.be.eq(1)
     expect(result.trips[0].trip.tripId).to.be.eq(1)
@@ -318,7 +325,7 @@ describe('Admin trip searching', function () {
     expect(result.trips.length).to.be.eq(1)
     expect(result.trips[0].trip.tripId).to.be.eq(1)
 
-    await expect(rentalityGateway.connect(host).finishTrip(1)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).finishTrip(1, zeroHash)).not.to.be.reverted
     result = await rentalityAdminGateway.getAllTrips(searchFiler, 1, 3)
     expect(result.trips.length).to.be.eq(0)
 
@@ -344,7 +351,7 @@ describe('Admin trip searching', function () {
       admin,
       request.locationInfo.locationInfo
     )
-    await expect(rentalityGateway.connect(host).addCar(request)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(request, zeroHash)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
@@ -366,7 +373,8 @@ describe('Admin trip searching', function () {
       2,
       ethToken,
       emptyLocationInfo,
-      emptyLocationInfo
+      emptyLocationInfo,
+      ' '
     )
     let startDateTime = Date.now() - 10
     let endDateTime = Date.now() + oneDayInSeconds * 2
@@ -383,6 +391,7 @@ describe('Admin trip searching', function () {
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
         },
+        ' ',
         { value: resultPayments.totalPrice }
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-resultPayments.totalPrice, resultPayments.totalPrice])
@@ -407,7 +416,7 @@ describe('Admin trip searching', function () {
     expect(result.trips.length).to.be.eq(1)
     expect(result.trips[0].trip.tripId).to.be.eq(1)
 
-    await expect(rentalityGateway.connect(admin).confirmCheckOut(1)).not.to.be.reverted
+    await expect(rentalityGateway.connect(admin).confirmCheckOut(1, zeroHash)).not.to.be.reverted
 
     searchFiler.paymentStatus = PaymentStatus.PaidToHost
     result = await rentalityAdminGateway.getAllTrips(searchFiler, 1, 3)
@@ -431,7 +440,7 @@ describe('Admin trip searching', function () {
       admin,
       request.locationInfo.locationInfo
     )
-    await expect(rentalityGateway.connect(host).addCar(request)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(request, zeroHash)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
@@ -453,7 +462,8 @@ describe('Admin trip searching', function () {
       2,
       ethToken,
       emptyLocationInfo,
-      emptyLocationInfo
+      emptyLocationInfo,
+      ' '
     )
     let startDateTime = Date.now() - 10
     let endDateTime = Date.now() + oneDayInSeconds * 2
@@ -470,6 +480,7 @@ describe('Admin trip searching', function () {
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
         },
+        ' ',
         { value: resultPayments.totalPrice }
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-resultPayments.totalPrice, resultPayments.totalPrice])
@@ -498,7 +509,7 @@ describe('Admin trip searching', function () {
       admin,
       request.locationInfo.locationInfo
     )
-    await expect(rentalityGateway.connect(host).addCar(request)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(request, zeroHash)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
@@ -520,7 +531,8 @@ describe('Admin trip searching', function () {
       2,
       ethToken,
       emptyLocationInfo,
-      emptyLocationInfo
+      emptyLocationInfo,
+      ' '
     )
     let startDateTime = Date.now() - 10
     let endDateTime = Date.now() + oneDayInSeconds * 2
@@ -538,6 +550,7 @@ describe('Admin trip searching', function () {
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
         },
+        ' ',
         { value: resultPayments.totalPrice }
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-resultPayments.totalPrice, resultPayments.totalPrice])
@@ -564,7 +577,7 @@ describe('Admin trip searching', function () {
     expect(result.trips.length).to.be.eq(1)
     expect(result.trips[0].trip.tripId).to.be.eq(1)
 
-    await expect(rentalityGateway.connect(admin).confirmCheckOut(1)).not.to.be.reverted
+    await expect(rentalityGateway.connect(admin).confirmCheckOut(1, zeroHash)).not.to.be.reverted
 
     searchFiler.status = AdminTripStatus.CompletedByAdmin
     searchFiler.paymentStatus = PaymentStatus.PaidToHost
@@ -576,7 +589,9 @@ describe('Admin trip searching', function () {
   it('All cars pagination test', async function () {
     for (let i = 0; i < 10; i++)
       await expect(
-        rentalityGateway.connect(host).addCar(getMockCarRequest(i, await rentalityLocationVerifier.getAddress(), admin))
+        rentalityGateway
+          .connect(host)
+          .addCar(getMockCarRequest(i, await rentalityLocationVerifier.getAddress(), admin), zeroHash)
       ).not.to.be.reverted
 
     let result = await rentalityAdminGateway.getAllCars(1, 3)

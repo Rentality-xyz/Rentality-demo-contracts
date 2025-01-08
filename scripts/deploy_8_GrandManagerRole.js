@@ -36,6 +36,7 @@ async function main() {
   const rentalityTripsView = checkNotNull(addresses['RentalityTripsView'], 'RentalityTripsViewAddress')
   const rentalityCarDelivery = checkNotNull(addresses['RentalityCarDelivery'], 'RentalityCarDelivery')
   const rentalityClaimService = checkNotNull(addresses['RentalityClaimService'], 'RentalityClaimService')
+  const refferalProgram = checkNotNull(addresses['RentalityReferralProgram'], 'RentalityReferralProgram')
 
   let rentalityUserServiceContract = new ethers.Contract(
     rentalityUserServiceAddress,
@@ -54,6 +55,7 @@ async function main() {
   await rentalityUserServiceContract.grantManagerRole(rentalityCarDelivery)
   await rentalityUserServiceContract.grantManagerRole(rentalityTripsView)
   await rentalityUserServiceContract.grantManagerRole(rentalityClaimService)
+  await rentalityUserServiceContract.grantManagerRole(refferalProgram)
   console.log('manager role was granded')
 }
 

@@ -5,6 +5,7 @@ const {
   getMockCarRequest,
   deployDefaultFixture,
   ethToken,
+  zeroHash,
   calculatePayments,
   signTCMessage,
   emptyKyc,
@@ -63,7 +64,7 @@ describe('RentalityGateway: chat', function () {
   it('Should have chat history by guest', async function () {
     let addCarRequest = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
 
-    await expect(rentalityGateway.connect(host).addCar(addCarRequest)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(addCarRequest, zeroHash)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
 
     expect(myCars.length).to.equal(1)
@@ -87,7 +88,8 @@ describe('RentalityGateway: chat', function () {
       2,
       ethToken,
       emptyLocationInfo,
-      emptyLocationInfo
+      emptyLocationInfo,
+      ' '
     )
     await expect(
       await rentalityGateway.connect(guest).createTripRequestWithDelivery(
@@ -99,6 +101,7 @@ describe('RentalityGateway: chat', function () {
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
         },
+        ' ',
         { value: result.totalPrice }
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
@@ -113,11 +116,13 @@ describe('RentalityGateway: chat', function () {
     const hostSignature = await signTCMessage(host)
     const guestSignature = await signTCMessage(guest)
     await expect(
-      rentalityGateway.connect(host).setKYCInfo(name + 'host', number + 'host', photo + 'host', hostSignature)
+      rentalityGateway.connect(host).setKYCInfo(name + 'host', number + 'host', photo + 'host', hostSignature, zeroHash)
     ).not.be.reverted
 
     await expect(
-      rentalityGateway.connect(guest).setKYCInfo(name + 'guest', number + 'guest', photo + 'guest', guestSignature)
+      rentalityGateway
+        .connect(guest)
+        .setKYCInfo(name + 'guest', number + 'guest', photo + 'guest', guestSignature, zeroHash)
     ).not.be.reverted
 
     let chatInfoArray = await rentalityGateway.connect(guest).getChatInfoFor(false)
@@ -135,7 +140,7 @@ describe('RentalityGateway: chat', function () {
   })
   it('Should have chat history by host', async function () {
     let addCarRequest = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
-    await expect(rentalityGateway.connect(host).addCar(addCarRequest)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(addCarRequest, zeroHash)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
     const availableCars = await rentalityGateway
@@ -158,18 +163,20 @@ describe('RentalityGateway: chat', function () {
     const hostSignature = await signTCMessage(host)
     const guestSignature = await signTCMessage(guest)
     await expect(
-      rentalityGateway.connect(host).setKYCInfo(name + 'host', number + 'host', photo + 'host', hostSignature)
+      rentalityGateway.connect(host).setKYCInfo(name + 'host', number + 'host', photo + 'host', hostSignature, zeroHash)
     ).not.be.reverted
 
     await expect(
-      rentalityGateway.connect(guest).setKYCInfo(name + 'guest', number + 'guest', photo + 'guest', guestSignature)
+      rentalityGateway
+        .connect(guest)
+        .setKYCInfo(name + 'guest', number + 'guest', photo + 'guest', guestSignature, zeroHash)
     ).not.be.reverted
 
     const oneDayInSeconds = 86400
 
     const result = await rentalityGateway
       .connect(guest)
-      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
     await expect(
       await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
@@ -180,6 +187,7 @@ describe('RentalityGateway: chat', function () {
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
         },
+        ' ',
         { value: result.totalPrice }
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
