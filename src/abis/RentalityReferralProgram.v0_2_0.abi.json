@@ -385,7 +385,8 @@
         { "type": "uint8", "name": "selector" },
         { "type": "bytes32", "name": "hash" },
         { "type": "bytes", "name": "callbackArgs" },
-        { "type": "address", "name": "user" }
+        { "type": "address", "name": "user" },
+        { "type": "address", "name": "promoService" }
       ],
       "outputs": []
     },
@@ -412,7 +413,7 @@
       "name": "updateDaily",
       "constant": false,
       "payable": false,
-      "inputs": [],
+      "inputs": [{ "type": "address", "name": "user" }],
       "outputs": [{ "type": "uint256", "name": "" }]
     },
     {
