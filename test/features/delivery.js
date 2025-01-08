@@ -6,6 +6,7 @@ const {
   getEmptySearchCarParams,
   signTCMessage,
   signLocationInfo,
+  zeroHash,
   emptyLocationInfo,
 } = require('../utils')
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
@@ -219,9 +220,10 @@ describe('Rentality Delivery', function () {
       currentlyListed: true,
       insuranceRequired: false,
       insurancePriceInUsdCents: 0,
+      insuranceIncluded: true,
     }
 
-    await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest, zeroHash)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
@@ -246,8 +248,7 @@ describe('Rentality Delivery', function () {
 
       timeZoneId: 'id',
     }
-    let result = await rentalityGateway.calculatePaymentsWithDelivery(1, 1, ethToken, locationInfo, locationInfo2)
-
+    let result = await rentalityGateway.calculatePaymentsWithDelivery(1, 1, ethToken, locationInfo, locationInfo2, '')
     await expect(
       await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
@@ -255,6 +256,7 @@ describe('Rentality Delivery', function () {
           startDateTime: 123,
           endDateTime: 321,
           currencyType: ethToken,
+          useRefferalDiscount: false,
           pickUpInfo: {
             signature: signLocationInfo(await rentalityLocationVerifier.getAddress(), admin, locationInfo),
             locationInfo,
@@ -264,6 +266,7 @@ describe('Rentality Delivery', function () {
             locationInfo: locationInfo2,
           },
         },
+        ' ',
         { value: result.totalPrice }
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
@@ -271,9 +274,9 @@ describe('Rentality Delivery', function () {
     await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
     await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0], '', '')).not.to.be.reverted
     await expect(rentalityGateway.connect(guest).checkInByGuest(1, [0, 0])).not.to.be.reverted
-    await expect(rentalityGateway.connect(guest).checkOutByGuest(1, [0, 0])).not.to.be.reverted
+    await expect(rentalityGateway.connect(guest).checkOutByGuest(1, [0, 0], zeroHash)).not.to.be.reverted
     await expect(rentalityGateway.connect(host).checkOutByHost(1, [0, 0])).not.to.be.reverted
-    await expect(rentalityGateway.connect(host).finishTrip(1)).to.not.reverted
+    await expect(rentalityGateway.connect(host).finishTrip(1, zeroHash)).to.not.reverted
 
     let totalDeliveryPrice = await deliveryService
       .connect(host)
@@ -363,7 +366,7 @@ describe('Rentality Delivery', function () {
       insuranceRequired: false,
       insurancePriceInUsdCents: 0,
     }
-    await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest, zeroHash)).not.to.be.reverted
 
     const mockCreateCarRequest1 = {
       tokenUri: 'uri',
@@ -384,7 +387,7 @@ describe('Rentality Delivery', function () {
       insuranceRequired: false,
       insurancePriceInUsdCents: 0,
     }
-    await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest1)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest1, zeroHash)).not.to.be.reverted
 
     const mockCreateCarRequest2 = {
       tokenUri: 'uri',
@@ -405,7 +408,7 @@ describe('Rentality Delivery', function () {
       insuranceRequired: false,
       insurancePriceInUsdCents: 0,
     }
-    await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest2)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest2, zeroHash)).not.to.be.reverted
     let loc = {
       latitude: pickUpLat,
       longitude: pickUpLon,
@@ -473,10 +476,10 @@ describe('Rentality Delivery', function () {
       insuranceRequired: false,
       insurancePriceInUsdCents: 0,
     }
-    await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest4)).not.to.be.reverted
-    await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest5)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest4, zeroHash)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest5, zeroHash)).not.to.be.reverted
 
-    await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest3)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest3, zeroHash)).not.to.be.reverted
 
     let emptySearchParams = { ...getEmptySearchCarParams(), userLocation: loc }
     let result = await rentalityGateway.searchAvailableCarsWithDelivery(0, 1, emptySearchParams, loc, loc)

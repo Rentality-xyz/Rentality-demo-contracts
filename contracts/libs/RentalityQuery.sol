@@ -18,68 +18,68 @@ import '../Schemas.sol';
 import {RentalityTripsQuery} from './RentalityTripsQuery.sol';
 import {CurrencyRate as ClaimCurrencyRate} from '../features/RentalityClaimService.sol';
 import {RentalityInsurance} from '../payments/RentalityInsurance.sol';
-
+import {RentalityReferralProgram} from '../features/refferalProgram/RentalityReferralProgram.sol';
 library RentalityQuery {
-  /// @notice Retrieves all claims associated with a specific trip.
-  /// @dev This function fetches detailed claim information for a given trip ID.
-  /// @param contracts The Rentality contract instance containing service addresses.
-  /// @param tripId The ID of the trip for which to retrieve claims.
-  /// @return An array of FullClaimInfo structures containing detailed information about each claim.
-  function getClaimsByTrip(
-    RentalityContract memory contracts,
-    uint256 tripId
-  ) public view returns (Schemas.FullClaimInfo[] memory) {
-    RentalityClaimService claimService = contracts.claimService;
-    RentalityTripService tripService = contracts.tripService;
-    RentalityCarToken carService = contracts.carService;
-    RentalityUserService userService = contracts.userService;
-    RentalityCurrencyConverter currencyConverterService = contracts.currencyConverterService;
+  // /// @notice Retrieves all claims associated with a specific trip.
+  // /// @dev This function fetches detailed claim information for a given trip ID.
+  // /// @param contracts The Rentality contract instance containing service addresses.
+  // /// @param tripId The ID of the trip for which to retrieve claims.
+  // /// @return An array of FullClaimInfo structures containing detailed information about each claim.
+  // function getClaimsByTrip(
+  //   RentalityContract memory contracts,
+  //   uint256 tripId
+  // ) public view returns (Schemas.FullClaimInfo[] memory) {
+  //   RentalityClaimService claimService = contracts.claimService;
+  //   RentalityTripService tripService = contracts.tripService;
+  //   RentalityCarToken carService = contracts.carService;
+  //   RentalityUserService userService = contracts.userService;
+  //   RentalityCurrencyConverter currencyConverterService = contracts.currencyConverterService;
 
-    uint256 arraySize = 0;
-    for (uint256 i = 1; i <= claimService.getClaimsAmount(); i++) {
-      Schemas.Claim memory claim = claimService.getClaim(i);
-      if (claim.tripId == tripId) {
-        arraySize += 1;
-      }
-    }
-    uint256 counter = 0;
+  //   uint256 arraySize = 0;
+  //   for (uint256 i = 1; i <= claimService.getClaimsAmount(); i++) {
+  //     Schemas.Claim memory claim = claimService.getClaim(i);
+  //     if (claim.tripId == tripId) {
+  //       arraySize += 1;
+  //     }
+  //   }
+  //   uint256 counter = 0;
 
-    Schemas.FullClaimInfo[] memory claimInfos = new Schemas.FullClaimInfo[](arraySize);
+  //   Schemas.FullClaimInfo[] memory claimInfos = new Schemas.FullClaimInfo[](arraySize);
 
-    for (uint256 i = 1; i <= claimService.getClaimsAmount(); i++) {
-      Schemas.Claim memory claim = claimService.getClaim(i);
+  //   for (uint256 i = 1; i <= claimService.getClaimsAmount(); i++) {
+  //     Schemas.Claim memory claim = claimService.getClaim(i);
 
-      if (claim.tripId == tripId) {
-        Schemas.Trip memory trip = tripService.getTrip(tripId);
-        Schemas.CarInfo memory carInfo = carService.getCarInfoById(trip.carId);
-        string memory guestPhoneNumber = userService.getKYCInfo(trip.guest).mobilePhoneNumber;
-        string memory hostPhoneNumber = userService.getKYCInfo(trip.host).mobilePhoneNumber;
+  //     if (claim.tripId == tripId) {
+  //       Schemas.Trip memory trip = tripService.getTrip(tripId);
+  //       Schemas.CarInfo memory carInfo = carService.getCarInfoById(trip.carId);
+  //       string memory guestPhoneNumber = userService.getKYCInfo(trip.guest).mobilePhoneNumber;
+  //       string memory hostPhoneNumber = userService.getKYCInfo(trip.host).mobilePhoneNumber;
 
-        uint valueInEth = _getClaimValueInCurrency(
-          trip.paymentInfo.currencyType,
-          claim.amountInUsdCents,
-          claim,
-          claimService,
-          currencyConverterService
-        );
+  //       uint valueInEth = _getClaimValueInCurrency(
+  //         trip.paymentInfo.currencyType,
+  //         claim.amountInUsdCents,
+  //         claim,
+  //         claimService,
+  //         currencyConverterService
+  //       );
 
-        claimInfos[counter++] = Schemas.FullClaimInfo(
-          claim,
-          trip.host,
-          trip.guest,
-          guestPhoneNumber,
-          hostPhoneNumber,
-          carInfo,
-          valueInEth,
-          IRentalityGeoService(contracts.carService.getGeoServiceAddress()).getCarTimeZoneId(
-            carService.getCarInfoById(trip.carId).locationHash
-          )
-        );
-      }
-    }
+  //       claimInfos[counter++] = Schemas.FullClaimInfo(
+  //         claim,
+  //         trip.host,
+  //         trip.guest,
+  //         guestPhoneNumber,
+  //         hostPhoneNumber,
+  //         carInfo,
+  //         valueInEth,
+  //         IRentalityGeoService(contracts.carService.getGeoServiceAddress()).getCarTimeZoneId(
+  //           carService.getCarInfoById(trip.carId).locationHash
+  //         )
+  //       );
+  //     }
+  //   }
 
-    return claimInfos;
-  }
+  //   return claimInfos;
+  // }
 
   function getClaimsBy(
     RentalityContract memory contracts,
@@ -367,10 +367,9 @@ library RentalityQuery {
     RentalityBaseDiscount discountService = contracts.paymentService.getBaseDiscount();
     RentalityInsurance insuranceService = RentalityInsurance(insuranceServiceAddress);
     RentalityCarToken carService = contracts.carService;
-   
+
     Schemas.AvailableCarDTO memory emptyCar;
-     if(!carService.isCarAvailableForUser(carId, user, searchParams))
-    return emptyCar;
+
     uint fuelPrice = engineService.getFuelPriceFromEngineParams(temp.engineType, temp.engineParams);
 
     uint64 totalTripDays = uint64(Math.ceilDiv(endDateTime - startDateTime, 1 days));
@@ -449,27 +448,42 @@ library RentalityQuery {
       );
   }
 
-  /// @notice Checks if a car is editable based on its associated trips.
-  /// @dev This function checks the status of trips associated with the car to determine if it can be edited.
+  /// @notice Searches for available cars and sorts them by distance from the user.
+  /// @dev This function first searches for available cars and then sorts the results by distance.
   /// @param contracts The Rentality contract instance containing service addresses.
-  /// @param carId The ID of the car to check for editability.
-  /// @return Returns true if the car is editable, otherwise false.
-  function isCarEditable(RentalityContract memory contracts, uint carId) public view returns (bool) {
-    RentalityTripService tripService = contracts.tripService;
-    uint[] memory trips = tripService.getActiveTrips(carId);
-    for (uint i = 0; i < trips.length; i++) {
-      Schemas.Trip memory tripInfo = tripService.getTrip(trips[i]);
-
-      if (
-        tripInfo.carId == carId &&
-        (tripInfo.status != Schemas.TripStatus.Finished &&
-          tripInfo.status != Schemas.TripStatus.Canceled &&
-          (tripInfo.status != Schemas.TripStatus.CheckedOutByHost && tripInfo.host != tripInfo.tripFinishedBy))
-      ) {
-        return false;
-      }
-    }
-
-    return true;
+  /// @param user The address of the user searching for cars.
+  /// @param startDateTime The start time for the search period.
+  /// @param endDateTime The end time for the search period.
+  /// @param searchParams The parameters to filter the search (e.g., car type, price).
+  /// @param pickUpInfo The location info for car pick-up.
+  /// @param returnInfo The location info for car return.
+  /// @param deliveryServiceAddress The address of the delivery service contract.
+  /// @return An array of SearchCarWithDistance structures containing available cars sorted by distance.
+  function searchSortedCars(
+    RentalityContract memory contracts,
+    address user,
+    uint64 startDateTime,
+    uint64 endDateTime,
+    Schemas.SearchCarParams memory searchParams,
+    Schemas.LocationInfo memory pickUpInfo,
+    Schemas.LocationInfo memory returnInfo,
+    address deliveryServiceAddress,
+    address insuranceAddress
+  ) public view returns (Schemas.SearchCarWithDistance[] memory) {
+    return
+      RentalityCarDelivery(deliveryServiceAddress).sortCarsByDistance(
+        searchAvailableCarsForUser(
+          contracts,
+          user,
+          startDateTime,
+          endDateTime,
+          searchParams,
+          pickUpInfo,
+          returnInfo,
+          deliveryServiceAddress,
+          insuranceAddress
+        ),
+        searchParams.userLocation
+      );
   }
 }

@@ -38,33 +38,6 @@
     },
     {
       "type": "function",
-      "name": "addCurrency",
-      "constant": false,
-      "payable": false,
-      "inputs": [
-        { "type": "address", "name": "tokenAddress" },
-        { "type": "address", "name": "rentalityTokenService" }
-      ],
-      "outputs": []
-    },
-    {
-      "type": "function",
-      "name": "addDiscountContract",
-      "constant": false,
-      "payable": false,
-      "inputs": [{ "type": "address", "name": "discountContactAddress" }],
-      "outputs": []
-    },
-    {
-      "type": "function",
-      "name": "addTaxesContract",
-      "constant": false,
-      "payable": false,
-      "inputs": [{ "type": "address", "name": "taxesContactAddress" }],
-      "outputs": []
-    },
-    {
-      "type": "function",
       "name": "calculateSumWithDiscount",
       "constant": true,
       "stateMutability": "view",
@@ -91,14 +64,6 @@
         { "type": "uint64", "name": "" },
         { "type": "uint64", "name": "" }
       ]
-    },
-    {
-      "type": "function",
-      "name": "changeCurrentDiscountType",
-      "constant": false,
-      "payable": false,
-      "inputs": [{ "type": "address", "name": "discountContract" }],
-      "outputs": []
     },
     {
       "type": "function",
@@ -151,7 +116,7 @@
                       ]
                     },
                     { "type": "string", "name": "carVinNumber" },
-                    { "type": "uint256", "name": "dimoTokenId" }
+                    { "type": "string", "name": "carMetadataURI" }
                   ]
                 },
                 { "type": "string", "name": "carMetadataURI" }
@@ -341,15 +306,6 @@
     },
     {
       "type": "function",
-      "name": "getDimoService",
-      "constant": true,
-      "stateMutability": "view",
-      "payable": false,
-      "inputs": [],
-      "outputs": [{ "type": "address", "name": "" }]
-    },
-    {
-      "type": "function",
       "name": "getInsuranceService",
       "constant": true,
       "stateMutability": "view",
@@ -383,6 +339,79 @@
       "payable": false,
       "inputs": [],
       "outputs": [{ "type": "uint32", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getRefferalPointsInfo",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "",
+          "components": [
+            {
+              "type": "tuple[]",
+              "name": "programPoints",
+              "components": [
+                { "type": "uint8", "name": "refferalType" },
+                { "type": "uint8", "name": "method" },
+                { "type": "int256", "name": "points" }
+              ]
+            },
+            {
+              "type": "tuple[]",
+              "name": "hashPoints",
+              "components": [
+                { "type": "uint8", "name": "method" },
+                { "type": "uint256", "name": "points" }
+              ]
+            },
+            {
+              "type": "tuple[]",
+              "name": "discounts",
+              "components": [
+                { "type": "uint8", "name": "method" },
+                { "type": "uint8", "name": "tear" },
+                {
+                  "type": "tuple",
+                  "name": "discount",
+                  "components": [
+                    { "type": "uint256", "name": "pointsCosts" },
+                    { "type": "uint256", "name": "percents" }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "tuple[]",
+              "name": "tear",
+              "components": [
+                {
+                  "type": "tuple",
+                  "name": "points",
+                  "components": [
+                    { "type": "uint256", "name": "from" },
+                    { "type": "uint256", "name": "to" }
+                  ]
+                },
+                { "type": "uint8", "name": "tear" }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getRefferalServiceAddress",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
     },
     {
       "type": "function",
@@ -454,7 +483,44 @@
         { "type": "address", "name": "viewServiceAddress" },
         { "type": "address", "name": "insuranceServiceAddress" },
         { "type": "address", "name": "rentalityTripsViewAddress" },
-        { "type": "address", "name": "dimoServiceAddress" }
+        { "type": "address", "name": "refferalProgramAddress" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "manageRefferalBonusAccrual",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint8", "name": "accrualType" },
+        { "type": "uint8", "name": "program" },
+        { "type": "int256", "name": "points" },
+        { "type": "int256", "name": "pointsWithReffHash" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "manageRefferalDiscount",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint8", "name": "program" },
+        { "type": "uint8", "name": "tear" },
+        { "type": "uint256", "name": "points" },
+        { "type": "uint256", "name": "percents" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "manageRefferalHashPoints",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint8", "name": "program" },
+        { "type": "uint256", "name": "points" }
       ],
       "outputs": []
     },
@@ -467,6 +533,18 @@
         { "type": "uint8", "name": "role" },
         { "type": "address", "name": "user" },
         { "type": "bool", "name": "grant" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "manageTearInfo",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint8", "name": "tear" },
+        { "type": "uint256", "name": "from" },
+        { "type": "uint256", "name": "to" }
       ],
       "outputs": []
     },
@@ -549,14 +627,6 @@
     },
     {
       "type": "function",
-      "name": "setNewTCMessage",
-      "constant": false,
-      "payable": false,
-      "inputs": [{ "type": "string", "name": "message" }],
-      "outputs": []
-    },
-    {
-      "type": "function",
       "name": "setPlatformFee",
       "constant": false,
       "payable": false,
@@ -613,14 +683,6 @@
     },
     {
       "type": "function",
-      "name": "updateDimoService",
-      "constant": false,
-      "payable": false,
-      "inputs": [{ "type": "address", "name": "dimoServiceAddress" }],
-      "outputs": []
-    },
-    {
-      "type": "function",
       "name": "updateGeoServiceAddress",
       "constant": false,
       "payable": false,
@@ -630,6 +692,14 @@
     {
       "type": "function",
       "name": "updatePaymentService",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "contractAddress" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "updateRefferalProgramService",
       "constant": false,
       "payable": false,
       "inputs": [{ "type": "address", "name": "contractAddress" }],

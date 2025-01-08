@@ -65,6 +65,16 @@ async function main() {
     getContractAddress('RentalityTripsView', 'scripts/deploy_4b_RentalityTripsView.js', chainId),
     'RentalityTripsView'
   )
+  const rentalityReferralService = checkNotNull(
+    getContractAddress('RentalityReferralProgram', 'scripts/deploy_3e_RentalityReferralProgram.js', chainId),
+    'RentalityReferralProgram'
+  )
+
+  const rentalityPromoService = checkNotNull(
+    getContractAddress('RentalityPromoService', 'scripts/deploy_4f_RentalityPromo.js', chainId),
+    'RentalityPromoService'
+  )
+
 
   const dimoService = checkNotNull(
     getContractAddress('RentalityDimoService', 'scripts/deploy_3e_RentalityDimoService.js', chainId),
@@ -87,6 +97,8 @@ async function main() {
     rentalityCarDelivery,
     rentalityInsurance,
     rentalityTripsView,
+    rentalityReferralService,
+    rentalityPromoService,
     dimoService
   ])
   await contract.waitForDeployment()

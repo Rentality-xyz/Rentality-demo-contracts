@@ -6,6 +6,10 @@ import './RentalityPlatform.sol';
 import './abstract/IRentalityAdminGateway.sol';
 import {RentalityContract, RentalityGateway} from './RentalityGateway.sol';
 import './Schemas.sol';
+import './Schemas.sol';
+import './features/refferalProgram/RentalityReferralProgram.sol';
+import {RentalityReferralProgram} from './features/refferalProgram/RentalityReferralProgram.sol';
+import {RentalityPromoService} from './features/RentalityPromo.sol';
 import {RentalityDimoService} from './features/RentalityDimoService.sol';
 
 /// @custom:oz-upgrades-unsafe-allow external-library-linking
@@ -20,6 +24,8 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
   RentalityCarDelivery private deliveryService;
   RentalityView private viewService;
   RentalityInsurance private insuranceService;
+  RentalityReferralProgram private refferalProgram;
+  RentalityPromoService private promoService;
   RentalityDimoService private dimoService;
   /// @notice Ensures that the caller is either an admin, the contract owner, or an admin from the origin transaction.
   modifier onlyAdmin() {
@@ -43,6 +49,12 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
         deliveryService,
         viewService
       );
+  }
+  function getPromoService() public view returns (RentalityPromoService) {
+    return promoService;
+  }
+  function setPromoService(address promoServiceAddress) public onlyAdmin {
+    promoService = RentalityPromoService(promoServiceAddress);
   }
 
 function updateDimoService(address dimoServiceAddress) public onlyAdmin {
@@ -158,6 +170,16 @@ function updateDimoService(address dimoServiceAddress) public onlyAdmin {
   function updateDeliveryService(address contractAddress) public onlyAdmin {
     deliveryService = RentalityCarDelivery(contractAddress);
   }
+  /// @notice Retrieves the address of the RentalityRefferalProgram contract.
+  /// @return The address of the RentalityRefferalProgram contract.
+  function getRefferalServiceAddress() public view returns (RentalityReferralProgram) {
+    return RentalityReferralProgram(refferalProgram);
+  }
+  /// @notice Updates the address of the RentalityReferralProgram contract. Only callable by admins.
+  /// @param contractAddress The new address of the RentalityReferralProgram contract.
+  function updateRefferalProgramService(address contractAddress) public onlyAdmin {
+    refferalProgram = RentalityReferralProgram(contractAddress);
+  }
 
   /// @notice Withdraws the specified amount from the RentalityPlatform contract.
   /// @param amount The amount to withdraw.
@@ -181,10 +203,8 @@ function updateDimoService(address dimoServiceAddress) public onlyAdmin {
     paymentService.setPlatformFeeInPPM(valueInPPM);
   }
 
-  /// @notice Adds currency to list of available on Rentality,
-  /// by providing ERC20 token address, and corresponding Rentality service for calculation.
-  function addCurrency(address tokenAddress, address rentalityTokenService) public onlyAdmin {
-    currencyConverterService.addCurrencyType(tokenAddress, rentalityTokenService);
+  function updatePromoData(string memory prefix, uint discount) public {
+    promoService.addPrefix(prefix, discount);
   }
 
   /// @dev Sets the waiting time, only callable by administrators.
@@ -230,28 +250,10 @@ function updateDimoService(address dimoServiceAddress) public onlyAdmin {
     return paymentService.calculateTaxes(taxesId, daysOfTrip, value);
   }
 
-  /// @notice Adds a new taxes contract to the payment service.
-  /// @param taxesContactAddress The address of the taxes contract to add.
-  function addTaxesContract(address taxesContactAddress) public {
-    paymentService.addTaxesContract(taxesContactAddress);
-  }
-
-  /// @notice Adds a new discount contract to the payment service.
-  /// @param discountContactAddress The address of the discount contract to add.
-  function addDiscountContract(address discountContactAddress) public {
-    paymentService.addDiscountContract(discountContactAddress);
-  }
-
-  /// @notice Changes the current discount contract used by the payment service.
-  /// @param discountContract The address of the new discount contract.
-  function changeCurrentDiscountType(address discountContract) public {
-    paymentService.changeCurrentDiscountType(discountContract);
-  }
-
   /// @notice Confirms check-out for a trip.
   /// @param tripId The ID of the trip.
   function payToHost(uint256 tripId) public {
-    rentalityPlatform.confirmCheckOut(tripId);
+    rentalityPlatform.confirmCheckOut(tripId, bytes32(''));
   }
 
   /// @notice Rejects a trip request. Only callable by hosts.
@@ -264,13 +266,6 @@ function updateDimoService(address dimoServiceAddress) public onlyAdmin {
   /// @param _civicGatekeeperNetwork The identifier of the Civic gatekeeper network.
   function setCivicData(address _civicVerifier, uint _civicGatekeeperNetwork) public {
     userService.setCivicData(_civicVerifier, _civicGatekeeperNetwork);
-  }
-
-  // @notice Sets a new message for the Terms and Conditions (TC) and updates the corresponding hashed message.
-  /// @dev This function can only be called by an admin.
-  /// @param message The new message for the TC.
-  function setNewTCMessage(string memory message) public {
-    userService.setNewTCMessage(message);
   }
 
   // @notice Sets the platform fee that will be charged for each transaction.
@@ -303,125 +298,7 @@ function updateDimoService(address dimoServiceAddress) public onlyAdmin {
     uint page,
     uint itemsPerPage
   ) public view returns (Schemas.AllTripsDTO memory) {
-    uint totalTripsCount = tripService.totalTripCount();
-
-    uint[] memory matchedTrips = new uint[](totalTripsCount);
-
-    uint counter = 0;
-    for (uint i = 1; i <= totalTripsCount; i++) {
-      if (isTripMatch(filter, tripService.getTrip(i))) {
-        matchedTrips[counter] = i;
-        counter += 1;
-      }
-    }
-    if (counter == 0) return Schemas.AllTripsDTO(new Schemas.AdminTripDTO[](0), 0);
-
-    uint totalPageCount = (counter + itemsPerPage - 1) / itemsPerPage;
-
-    if (page > totalPageCount) {
-      page = totalPageCount;
-    }
-
-    uint startIndex = (page - 1) * itemsPerPage;
-    uint endIndex = startIndex + itemsPerPage;
-
-    if (endIndex > counter) {
-      endIndex = counter;
-    }
-
-    Schemas.AdminTripDTO[] memory result = new Schemas.AdminTripDTO[](endIndex - startIndex);
-    for (uint i = startIndex; i < endIndex; i++) {
-      Schemas.Trip memory trip = tripService.getTrip(matchedTrips[i]);
-      Schemas.CarInfo memory car = carService.getCarInfoById(trip.carId);
-      result[i - startIndex] = Schemas.AdminTripDTO(
-        trip,
-        carService.tokenURI(trip.carId),
-        IRentalityGeoService(carService.getGeoServiceAddress()).getLocationInfo(car.locationHash)
-      );
-    }
-
-    return Schemas.AllTripsDTO(result, totalPageCount);
-  }
-
-  // @notice Checks if a trip matches the provided filter.
-  /// @dev This function is used internally to filter trips based on the given criteria.
-  /// @param filter The filter to apply.
-  /// @param trip The trip to check against the filter.
-  /// @return Returns true if the trip matches the filter, otherwise false.
-  function isTripMatch(Schemas.TripFilter memory filter, Schemas.Trip memory trip) internal view returns (bool) {
-    IRentalityGeoService geoService = IRentalityGeoService(carService.getGeoServiceAddress());
-    Schemas.LocationInfo memory locationInfo = geoService.getLocationInfo(
-      carService.getCarInfoById(trip.carId).locationHash
-    );
-    return ((bytes(filter.location.country).length == 0 ||
-      RentalityUtils.containWord(
-        RentalityUtils.toLower(locationInfo.country),
-        RentalityUtils.toLower(filter.location.country)
-      )) &&
-      (bytes(filter.location.state).length == 0 ||
-        RentalityUtils.containWord(
-          RentalityUtils.toLower(locationInfo.state),
-          RentalityUtils.toLower(filter.location.state)
-        )) &&
-      (bytes(filter.location.city).length == 0 ||
-        RentalityUtils.containWord(
-          RentalityUtils.toLower(locationInfo.city),
-          RentalityUtils.toLower(filter.location.city)
-        )) &&
-      (filter.startDateTime <= trip.startDateTime && filter.endDateTime >= trip.endDateTime) &&
-      (filter.paymentStatus == Schemas.PaymentStatus.Any ||
-        (filter.paymentStatus == Schemas.PaymentStatus.PaidToHost && trip.status == Schemas.TripStatus.Finished) ||
-        (filter.paymentStatus == Schemas.PaymentStatus.Prepayment &&
-          (trip.status == Schemas.TripStatus.Created ||
-            trip.status == Schemas.TripStatus.Approved ||
-            trip.status == Schemas.TripStatus.CheckedInByHost ||
-            (trip.status == Schemas.TripStatus.CheckedInByGuest && trip.tripStartedBy == trip.guest) ||
-            (trip.status == Schemas.TripStatus.CheckedOutByGuest && trip.tripFinishedBy == trip.guest) ||
-            (trip.status == Schemas.TripStatus.CheckedOutByHost && trip.tripFinishedBy == trip.guest))) ||
-        (filter.paymentStatus == Schemas.PaymentStatus.RefundToGuest && trip.status == Schemas.TripStatus.Canceled) ||
-        (filter.paymentStatus == Schemas.PaymentStatus.Unpaid &&
-          ((trip.status == Schemas.TripStatus.CheckedInByGuest && trip.tripStartedBy == trip.host) ||
-            (trip.status == Schemas.TripStatus.CheckedOutByHost && trip.tripFinishedBy == trip.host)))) &&
-      (filter.status == Schemas.AdminTripStatus.Any ||
-        (filter.status == Schemas.AdminTripStatus.Created && trip.status == Schemas.TripStatus.Created) ||
-        (filter.status == Schemas.AdminTripStatus.Approved && trip.status == Schemas.TripStatus.Approved) ||
-        (filter.status == Schemas.AdminTripStatus.CheckedInByHost &&
-          trip.status == Schemas.TripStatus.CheckedInByHost) ||
-        (filter.status == Schemas.AdminTripStatus.CheckedInByGuest &&
-          trip.status == Schemas.TripStatus.CheckedInByGuest &&
-          trip.tripStartedBy == trip.guest) ||
-        (filter.status == Schemas.AdminTripStatus.CheckedOutByGuest &&
-          trip.status == Schemas.TripStatus.CheckedOutByGuest &&
-          trip.tripFinishedBy == trip.guest) ||
-        (filter.status == Schemas.AdminTripStatus.CheckedOutByHost &&
-          trip.status == Schemas.TripStatus.CheckedOutByHost &&
-          trip.tripFinishedBy == trip.guest) ||
-        (filter.status == Schemas.AdminTripStatus.Finished && trip.status == Schemas.TripStatus.Finished) ||
-        (filter.status == Schemas.AdminTripStatus.GuestCanceledBeforeApprove &&
-          trip.status == Schemas.TripStatus.Canceled &&
-          trip.approvedDateTime == 0 &&
-          trip.rejectedBy == trip.guest) ||
-        (filter.status == Schemas.AdminTripStatus.HostCanceledBeforeApprove &&
-          trip.status == Schemas.TripStatus.Canceled &&
-          trip.approvedDateTime == 0 &&
-          trip.rejectedBy == trip.host) ||
-        (filter.status == Schemas.AdminTripStatus.GuestCanceledAfterApprove &&
-          trip.status == Schemas.TripStatus.Canceled &&
-          trip.approvedDateTime > 0 &&
-          trip.rejectedBy == trip.guest) ||
-        (filter.status == Schemas.AdminTripStatus.HostCanceledAfterApprove &&
-          trip.status == Schemas.TripStatus.Canceled &&
-          trip.approvedDateTime > 0 &&
-          trip.rejectedBy == trip.host) ||
-        (filter.status == Schemas.AdminTripStatus.CompletedWithoutGuestConfirmation &&
-          trip.status == Schemas.TripStatus.CheckedOutByHost &&
-          trip.tripFinishedBy == trip.host) ||
-        (filter.status == Schemas.AdminTripStatus.CompletedByGuest &&
-          trip.status == Schemas.TripStatus.Finished &&
-          trip.tripFinishedBy == trip.host) ||
-        (filter.status == Schemas.AdminTripStatus.CompletedByAdmin &&
-          trip.status == Schemas.TripStatus.Finished &&
-          tripService.completedByAdmin(trip.tripId))));
+    return RentalityTripsQuery.getAllTrips(getRentalityContracts(), filter, page, itemsPerPage);
   }
 
   // @notice Manages user roles by granting or revoking specific roles.
@@ -462,6 +339,73 @@ function updateDimoService(address dimoServiceAddress) public onlyAdmin {
     return Schemas.AllCarsDTO(cars, totalPageCount);
   }
 
+  function manageRefferalBonusAccrual(
+    Schemas.RefferalAccrualType accrualType,
+    Schemas.RefferalProgram program,
+    int points,
+    int pointsWithReffHash
+  ) public {
+    require(userService.isAdmin(msg.sender), 'only Admin');
+    if (Schemas.RefferalAccrualType.OneTime == accrualType)
+      refferalProgram.addOneTimeProgram(program, points, pointsWithReffHash, bytes4(''));
+    else refferalProgram.addPermanentProgram(program, points, bytes4(''));
+  }
+  function manageRefferalHashPoints(Schemas.RefferalProgram program, uint points) public {
+    require(userService.isAdmin(msg.sender), 'only Admin');
+    refferalProgram.manageRefHashesProgram(program, points);
+  }
+
+  function manageRefferalDiscount(
+    Schemas.RefferalProgram program,
+    Schemas.Tear tear,
+    uint points,
+    uint percents
+  ) public {
+    require(userService.isAdmin(msg.sender), 'only Admin');
+    refferalProgram.manageRefferalDiscount(program, tear, points, percents);
+  }
+
+  function manageTearInfo(Schemas.Tear tear, uint from, uint to) public {
+    require(userService.isAdmin(msg.sender), 'only Admin');
+    refferalProgram.manageTearInfo(tear, from, to);
+  }
+  function getRefferalPointsInfo() public view returns (Schemas.AllRefferalInfoDTO memory) {
+    return refferalProgram.getRefferalPointsInfo();
+  }
+
+  ///------------------------------------
+  /// NOT USING IN FRONT
+  ///------------------------------------
+  // @notice Sets a new message for the Terms and Conditions (TC) and updates the corresponding hashed message.
+  /// @dev This function can only be called by an admin.
+  /// @param message The new message for the TC.
+  // function setNewTCMessage(string memory message) public {
+  //   userService.setNewTCMessage(message);
+  // }
+
+  /// @notice Adds currency to list of available on Rentality,
+  /// by providing ERC20 token address, and corresponding Rentality service for calculation.
+  // function addCurrency(address tokenAddress, address rentalityTokenService) public onlyAdmin {
+  //   currencyConverterService.addCurrencyType(tokenAddress, rentalityTokenService);
+  // }
+
+  /// @notice Adds a new taxes contract to the payment service.
+  /// param taxesContactAddress The address of the taxes contract to add.
+  // function addTaxesContract(address taxesContactAddress) public {
+  //   paymentService.addTaxesContract(taxesContactAddress);
+  // }
+
+  /// @notice Adds a new discount contract to the payment service.
+  /// param discountContactAddress The address of the discount contract to add.
+  // function addDiscountContract(address discountContactAddress) public {
+  //   paymentService.addDiscountContract(discountContactAddress);
+  // }
+  /// @notice Changes the current discount contract used by the payment service.
+  /// param discountContract The address of the new discount contract.
+  // function changeCurrentDiscountType(address discountContract) public {
+  // paymentService.changeCurrentDiscountType(discountContract);
+  // }
+
   //  @dev Initializes the contract with the provided addresses for various services.
   //  @param carServiceAddress The address of the RentalityCarToken contract.
   //  @param currencyConverterServiceAddress The address of the RentalityCurrencyConverter contract.
@@ -483,6 +427,8 @@ function updateDimoService(address dimoServiceAddress) public onlyAdmin {
     address viewServiceAddress,
     address insuranceServiceAddress,
     address rentalityTripsViewAddress,
+    address refferalProgramAddress,
+    address promoServiceAddress,
     address dimoServiceAddress
   ) public initializer {
     carService = RentalityCarToken(carServiceAddress);
@@ -494,9 +440,18 @@ function updateDimoService(address dimoServiceAddress) public onlyAdmin {
     claimService = RentalityClaimService(claimServiceAddress);
     deliveryService = RentalityCarDelivery(carDeliveryAddress);
     viewService = RentalityView(viewServiceAddress);
+    promoService = RentalityPromoService(promoServiceAddress);
     dimoService = RentalityDimoService(dimoServiceAddress);
 
-    viewService.updateServiceAddresses(getRentalityContracts(), insuranceServiceAddress, rentalityTripsViewAddress, dimoServiceAddress);
+    viewService.updateServiceAddresses(
+      getRentalityContracts(),
+      insuranceServiceAddress,
+      rentalityTripsViewAddress,
+      promoServiceAddress,
+      address(dimoService)
+);
+    refferalProgram = RentalityReferralProgram(refferalProgramAddress);
+    insuranceService = RentalityInsurance(insuranceServiceAddress);
     __Ownable_init();
   }
 }

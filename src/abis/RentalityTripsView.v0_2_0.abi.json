@@ -31,6 +31,15 @@
     { "type": "fallback", "stateMutability": "nonpayable" },
     {
       "type": "function",
+      "name": "calculateKycCommission",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "currency" }],
+      "outputs": [{ "type": "uint256", "name": "" }]
+    },
+    {
+      "type": "function",
       "name": "getTrip",
       "constant": true,
       "stateMutability": "view",

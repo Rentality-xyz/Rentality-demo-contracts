@@ -44,10 +44,10 @@
             },
             { "type": "bool", "name": "currentlyListed" },
             { "type": "bool", "name": "insuranceRequired" },
-            { "type": "uint256", "name": "insurancePriceInUsdCents" },
-            { "type": "uint256", "name": "dimoTokenId" }
+            { "type": "uint256", "name": "insurancePriceInUsdCents" }
           ]
-        }
+        },
+        { "type": "bytes32", "name": "refferalHash" }
       ],
       "outputs": [{ "type": "uint256", "name": "" }]
     },
@@ -318,7 +318,8 @@
       "payable": false,
       "inputs": [
         { "type": "uint256", "name": "tripId" },
-        { "type": "uint64[]", "name": "panelParams" }
+        { "type": "uint64[]", "name": "panelParams" },
+        { "type": "bytes32", "name": "refferalHash" }
       ],
       "outputs": []
     },
@@ -338,7 +339,10 @@
       "name": "confirmCheckOut",
       "constant": false,
       "payable": false,
-      "inputs": [{ "type": "uint256", "name": "tripId" }],
+      "inputs": [
+        { "type": "uint256", "name": "tripId" },
+        { "type": "bytes32", "name": "" }
+      ],
       "outputs": []
     },
     {
@@ -356,6 +360,26 @@
             { "type": "string", "name": "description" },
             { "type": "uint64", "name": "amountInUsdCents" },
             { "type": "string", "name": "photosUrl" }
+          ]
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "createTripRequest",
+      "constant": false,
+      "stateMutability": "payable",
+      "payable": true,
+      "inputs": [
+        {
+          "type": "tuple",
+          "name": "request",
+          "components": [
+            { "type": "uint256", "name": "carId" },
+            { "type": "uint64", "name": "startDateTime" },
+            { "type": "uint64", "name": "endDateTime" },
+            { "type": "address", "name": "currencyType" }
           ]
         }
       ],
@@ -426,7 +450,10 @@
       "name": "finishTrip",
       "constant": false,
       "payable": false,
-      "inputs": [{ "type": "uint256", "name": "tripId" }],
+      "inputs": [
+        { "type": "uint256", "name": "tripId" },
+        { "type": "bytes32", "name": "" }
+      ],
       "outputs": []
     },
     {
@@ -571,7 +598,7 @@
               ]
             },
             { "type": "string", "name": "carVinNumber" },
-            { "type": "uint256", "name": "dimoTokenId" }
+            { "type": "string", "name": "carMetadataURI" }
           ]
         }
       ]
@@ -619,7 +646,8 @@
                 { "type": "bool", "name": "required" },
                 { "type": "uint256", "name": "priceInUsdCents" }
               ]
-            }
+            },
+            { "type": "string", "name": "carMetadataURI" }
           ]
         }
       ]
@@ -787,15 +815,6 @@
     },
     {
       "type": "function",
-      "name": "getDimoVihicles",
-      "constant": true,
-      "stateMutability": "view",
-      "payable": false,
-      "inputs": [],
-      "outputs": [{ "type": "uint256[]", "name": "" }]
-    },
-    {
-      "type": "function",
       "name": "getDiscount",
       "constant": true,
       "stateMutability": "view",
@@ -865,7 +884,8 @@
             { "type": "string", "name": "creatorPhoneNumber" },
             { "type": "string", "name": "creatorFullName" },
             { "type": "uint64", "name": "startDateTime" },
-            { "type": "uint64", "name": "endDateTime" }
+            { "type": "uint64", "name": "endDateTime" },
+            { "type": "bool", "name": "isActual" }
           ]
         }
       ]
@@ -916,8 +936,7 @@
               ]
             },
             { "type": "string", "name": "metadataURI" },
-            { "type": "bool", "name": "isEditable" },
-            { "type": "uint256", "name": "dimoTokenId" }
+            { "type": "bool", "name": "isEditable" }
           ]
         }
       ]
@@ -1448,17 +1467,6 @@
     },
     {
       "type": "function",
-      "name": "saveDimoTokenIds",
-      "constant": false,
-      "payable": false,
-      "inputs": [
-        { "type": "uint256[]", "name": "" },
-        { "type": "uint256[]", "name": "" }
-      ],
-      "outputs": []
-    },
-    {
-      "type": "function",
       "name": "saveGuestInsurance",
       "constant": false,
       "payable": false,
@@ -1638,7 +1646,8 @@
             { "type": "string", "name": "issueCountry" },
             { "type": "string", "name": "email" }
           ]
-        }
+        },
+        { "type": "bytes32", "name": "" }
       ],
       "outputs": []
     },
@@ -1651,7 +1660,28 @@
         { "type": "string", "name": "nickName" },
         { "type": "string", "name": "mobilePhoneNumber" },
         { "type": "string", "name": "profilePhoto" },
-        { "type": "bytes", "name": "TCSignature" }
+        { "type": "bytes", "name": "TCSignature" },
+        { "type": "bytes32", "name": "hash" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "setMyCivicKYCInfo",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "tuple",
+          "name": "civicKycInfo",
+          "components": [
+            { "type": "string", "name": "fullName" },
+            { "type": "string", "name": "licenseNumber" },
+            { "type": "uint64", "name": "expirationDate" },
+            { "type": "string", "name": "issueCountry" },
+            { "type": "string", "name": "email" }
+          ]
+        }
       ],
       "outputs": []
     },
@@ -1723,8 +1753,7 @@
             },
             { "type": "bytes", "name": "signature" }
           ]
-        },
-        { "type": "string", "name": "geoApiKey" }
+        }
       ],
       "outputs": []
     },

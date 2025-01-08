@@ -8,6 +8,7 @@ import '../abstract/IRentalityAccessControl.sol';
 import '../proxy/UUPSAccess.sol';
 import '../Schemas.sol';
 import './RentalityCurrencyType.sol';
+import {RentalityPromoService} from '../features/RentalityPromo.sol';
 
 /// @title RentalityCurrencygeter
 /// @notice A contract for getting between available on Rentality currency and United States Dollar (USD) using Chainlink rate feeds
@@ -139,8 +140,11 @@ contract RentalityCurrencyConverter is Initializable, UUPSAccess {
   function calculateTripFinsish(
     Schemas.PaymentInfo memory paymentInfo,
     uint256 rentalityFee,
-    uint insurancePriceInUsdCents
+    uint insurancePriceInUsdCents,
+    RentalityPromoService promoService
   ) public view returns (uint, uint, uint, uint) {
+    Schemas.PromoTripData memory tripData = promoService.getTripPromoData(paymentInfo.tripId);
+
     uint256 valueToHostInUsdCents = paymentInfo.priceWithDiscount +
       paymentInfo.pickUpFee +
       paymentInfo.dropOfFee +
