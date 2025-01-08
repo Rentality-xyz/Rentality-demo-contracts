@@ -410,6 +410,17 @@ library RentalityUtils {
     address carOwner = addresses.carService.ownerOf(carId);
     Schemas.CarInfo memory car = addresses.carService.getCarInfoById(carId);
 
+    uint64 discount = uint64(promoService.getDiscountByPromo(promo, user));
+     uint64 priceWithDiscount;
+  if(discount == 0) 
+     priceWithDiscount = addresses.paymentService.calculateSumWithDiscount(
+      addresses.carService.ownerOf(carId),
+      daysOfTrip,
+      car.pricePerDayInUsdCents
+    );
+    else 
+      priceWithDiscount = car.pricePerDayInUsdCents * daysOfTrip;
+
     uint64 sumWithDiscount = addresses.paymentService.calculateSumWithDiscount(
       carOwner,
       daysOfTrip,
@@ -424,7 +435,6 @@ library RentalityUtils {
       sumWithDiscount + deliveryFee
     );
 
-    uint64 discount = uint64(promoService.getDiscountByPromo(promo, user));
     uint64 priceBeforePromo = sumWithDiscount + salesTaxes + govTax + deliveryFee;
 
     uint64 discountedPrice = priceBeforePromo;
@@ -525,11 +535,17 @@ library RentalityUtils {
 
     uint64 daysOfTrip = getCeilDays(startDateTime, endDateTime);
 
-    uint64 priceWithDiscount = addresses.paymentService.calculateSumWithDiscount(
+     uint64 discount = uint64(promoService.getDiscountByPromo(promo, user));
+
+ uint64 priceWithDiscount;
+  if(discount == 0) 
+     priceWithDiscount = addresses.paymentService.calculateSumWithDiscount(
       addresses.carService.ownerOf(carId),
       daysOfTrip,
       carInfo.pricePerDayInUsdCents
     );
+    else 
+      priceWithDiscount = carInfo.pricePerDayInUsdCents * daysOfTrip;
     uint64 priceBeforePromo = priceWithDiscount;
 
     uint taxId = addresses.paymentService.defineTaxesType(address(addresses.carService), carId);
@@ -539,8 +555,6 @@ library RentalityUtils {
       daysOfTrip,
       priceWithDiscount + pickUp + dropOf
     );
-
-    uint64 discount = uint64(promoService.getDiscountByPromo(promo, user));
 
     uint valueSum = priceWithDiscount +
       salesTaxes +
