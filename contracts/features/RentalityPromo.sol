@@ -109,7 +109,7 @@ contract RentalityPromoService is Initializable, UUPSAccess {
       }
     }
   }
-  function checkPromo(string memory promo) public view returns (Schemas.CheckPromoDTO memory) {
+  function checkPromo(string memory promo, uint startDateTime, uint endDateTime) public view returns (Schemas.CheckPromoDTO memory) {
     Schemas.Promo memory promoData = promoToPromoData[promo];
     string memory prefix = _getPrefix(promo);
     uint promoValue = promoPrefixToDisctount[prefix];
@@ -120,8 +120,8 @@ contract RentalityPromoService is Initializable, UUPSAccess {
       Schemas.CheckPromoDTO(
         promoData.createdAt > 0,
         promoData.status == Schemas.PromoStatus.Active &&
-          promoData.expireDate > block.timestamp &&
-          promoData.startDate < block.timestamp,
+          promoData.expireDate >= endDateTime &&
+          promoData.startDate <= startDateTime,
         promoValue > 0,
         promoValue > 0 ? promoValue : promoPrefixToRefferalPoints[prefix]
       );
@@ -157,7 +157,7 @@ contract RentalityPromoService is Initializable, UUPSAccess {
    if(bytes(promo).length == 0)
     return 0;
     
-    return checkPromo(promo).value;
+    return promoPrefixToDisctount[_getPrefix(promo)];
   }
   function getGeneralPromoCode() public view returns (string memory) {
     return generalCode.code;
@@ -167,22 +167,24 @@ contract RentalityPromoService is Initializable, UUPSAccess {
     uint tripId,
     address user,
     uint tripEarningsInCurrency,
-    uint tripEarnings
+    uint tripEarnings,
+    uint startTripDate,
+    uint endTripData
   ) public returns (bool) {
     require(userService.isManager(msg.sender), 'Only for Manager.');
     Schemas.Promo memory promo = promoToPromoData[promoCode];
     if (
       promo.status == Schemas.PromoStatus.Active &&
-      promo.expireDate > block.timestamp &&
-      promo.startDate < block.timestamp
+      promo.expireDate >= endTripData &&
+      promo.startDate <= startTripDate
     ) {
       tripToPromoData[tripId] = Schemas.PromoTripData(promoCode, tripEarningsInCurrency, tripEarnings);
       userPromo[user].push(Schemas.PromoUsedInfo(promo, promoCode, block.timestamp));
       promoToPromoData[promoCode].status = Schemas.PromoStatus.Used;
       return true;
     } else if (keccak256(abi.encode(promoCode)) == keccak256(abi.encode(generalCode.code)) &&
-     generalCode.startDate < block.timestamp &&
-      generalCode.expireDate > block.timestamp) {
+     generalCode.startDate <= startTripDate &&
+      generalCode.expireDate >= endTripData) {
       Schemas.PromoUsedInfo[] memory usedPromos = userPromo[user];
       bool used = false;
       for (uint i = 0; i < usedPromos.length; i++) {
