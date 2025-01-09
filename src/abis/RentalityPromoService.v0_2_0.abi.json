@@ -148,6 +148,15 @@
     },
     {
       "type": "function",
+      "name": "getTripDiscount",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "tripId" }],
+      "outputs": [{ "type": "uint256", "name": "" }]
+    },
+    {
+      "type": "function",
       "name": "getTripPromoData",
       "constant": true,
       "stateMutability": "view",

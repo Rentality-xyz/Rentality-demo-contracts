@@ -1203,7 +1203,8 @@
               ]
             },
             { "type": "uint256", "name": "paidForInsuranceInUsdCents" },
-            { "type": "string", "name": "guestDrivingLicenseIssueCountry" }
+            { "type": "string", "name": "guestDrivingLicenseIssueCountry" },
+            { "type": "uint256", "name": "promoDiscount" }
           ]
         }
       ]
@@ -1391,7 +1392,8 @@
               ]
             },
             { "type": "uint256", "name": "paidForInsuranceInUsdCents" },
-            { "type": "string", "name": "guestDrivingLicenseIssueCountry" }
+            { "type": "string", "name": "guestDrivingLicenseIssueCountry" },
+            { "type": "uint256", "name": "promoDiscount" }
           ]
         }
       ]
