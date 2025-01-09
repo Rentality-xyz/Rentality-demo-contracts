@@ -1,7 +1,7 @@
 {
   "addresses": [
     { "chainId": 8453, "address": "0x11ABc9C1c57b521522B48329AeE00409f03cf36f" },
-    { "chainId": 84532, "address": "0x1238c1000ff34deD8E515a5cF85D0Fb2A0f9AcC5" },
-    { "chainId": 5611, "address": "0x4e449F402A0eC2adC5a3de8dB641dC120e972FCF" }
+    { "chainId": 84532, "address": "0x8Dd41b682a5530e3e2b7650b8Add8D60866145D3" },
+    { "chainId": 5611, "address": "0x207a736365f5b31Dfcedcb170e920Bd461b47e0F" }
   ]
 }
