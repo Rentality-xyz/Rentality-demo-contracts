@@ -151,6 +151,14 @@ contract RentalityPromoService is Initializable, UUPSAccess {
   function getTripPromoData(uint tripId) public view returns (Schemas.PromoTripData memory) {
     return tripToPromoData[tripId];
   }
+
+   function getTripDiscount(uint tripId) public view returns (uint) {
+   string memory promo = getTripPromoData(tripId).promo;
+   if(bytes(promo).length == 0)
+    return 0;
+    
+    return checkPromo(promo).value;
+  }
   function getGeneralPromoCode() public view returns (string memory) {
     return generalCode.code;
   }
