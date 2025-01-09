@@ -137,7 +137,6 @@ contract RentalityPromoService is Initializable, UUPSAccess {
       return promoPrefixToDisctount[_getPrefix(promoCode)];
     } else if (keccak256(abi.encode(promoCode)) == keccak256(abi.encode(generalCode.code))) {
       Schemas.PromoUsedInfo[] memory usedPromos = userPromo[user];
-      bool used = false;
       for (uint i = 0; i < usedPromos.length; i++) {
         if (keccak256(abi.encode(usedPromos[i].promoCode)) == keccak256(abi.encode(generalCode.code))) {
           return 0;

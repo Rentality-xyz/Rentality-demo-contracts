@@ -115,7 +115,7 @@ contract RentalityInsurance is Initializable, UUPSAccess {
     Schemas.InsuranceInfo[] memory insurances = guestToInsuranceInfo[guest];
     return insurances.length > 0 && insurances[insurances.length - 1].insuranceType == Schemas.InsuranceType.General;
   }
-  function findActualInsurance(Schemas.InsuranceInfo[] memory insurances) public view returns (uint, uint) {
+  function findActualInsurance(Schemas.InsuranceInfo[] memory insurances) public pure returns (uint, uint) {
     uint lastGeneralIndex = type(uint).max;
     uint lastOneTimeIndex = type(uint).max;
     uint latestGeneralTime = 0;
