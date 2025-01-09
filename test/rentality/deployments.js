@@ -151,6 +151,11 @@ async function deployDefaultFixture() {
 
   await rentalityCarToken.waitForDeployment()
 
+  
+  const DimoService = await ethers.getContractFactory('RentalityDimoService')
+  const rentalityDimo = await upgrades.deployProxy(DimoService, [await rentalityUserService.getAddress(), await rentalityCarToken.getAddress(), owner.address])
+
+
   const PromoService = await ethers.getContractFactory('RentalityPromoService')
   const promoService = await upgrades.deployProxy(PromoService, [await rentalityUserService.getAddress()])
 
@@ -197,7 +202,6 @@ async function deployDefaultFixture() {
   const RentalityPlatform = await ethers.getContractFactory('RentalityPlatform', {
     libraries: {
       RentalityUtils: await utils.getAddress(),
-      RentalityViewLib: await viewLib.getAddress(),
     },
   })
   let TripsQuery = await ethers.getContractFactory('RentalityTripsQuery', {
@@ -253,10 +257,12 @@ async function deployDefaultFixture() {
 
     await refferalProgram.getAddress(),
     await promoService.getAddress(),
+    await rentalityDimo.getAddress()
   ])
   await rentalityView.waitForDeployment()
   const RentalityPlatformHelper = await ethers.getContractFactory('RentalityPlatformHelper', {
     libraries: {
+      RentalityUtils: await utils.getAddress(),
     },
   })
 
@@ -274,6 +280,7 @@ async function deployDefaultFixture() {
     await insuranceService.getAddress(),
     await refferalProgram.getAddress(),
     await promoService.getAddress(),
+    await rentalityDimo.getAddress()
   ])
   await rentalityPlatformHelper.waitForDeployment()
  
@@ -290,6 +297,7 @@ async function deployDefaultFixture() {
     await insuranceService.getAddress(),
     await refferalProgram.getAddress(),
     await promoService.getAddress(),
+    await rentalityDimo.getAddress(),
     await rentalityPlatformHelper.getAddress()
   ])
   await rentalityPlatform.waitForDeployment()
@@ -317,6 +325,7 @@ async function deployDefaultFixture() {
 
     await refferalProgram.getAddress(),
     await promoService.getAddress(),
+    await rentalityDimo.getAddress()
   ])
   await rentalityAdminGateway.waitForDeployment()
 

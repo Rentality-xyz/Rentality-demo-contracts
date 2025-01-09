@@ -5,6 +5,9 @@ require('@openzeppelin/hardhat-upgrades')
 require('solidity-docgen')
 
 module.exports = {
+  mocha: {
+    timeout: 100000000,
+  },
   docgen: {
     outputFormat: 'md',
     path: './docs', // Output directory for the generated documentation
