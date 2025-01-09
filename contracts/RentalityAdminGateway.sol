@@ -58,7 +58,7 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
   }
 
 function updateDimoService(address dimoServiceAddress) public onlyAdmin {
-    dimoService = RentalityDimoService(dimoService);
+    dimoService = RentalityDimoService(dimoServiceAddress);
 }
   function getDimoService() public view returns (RentalityDimoService) {
     return dimoService;

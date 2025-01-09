@@ -22,7 +22,6 @@ contract RentalityDimoService is UUPSAccess, EIP712Upgradeable {
 uint[] private dimoVihicles;
 
 function saveDimoTokenId(uint dimoTokenId, uint carId) public {
-        Schemas.CarInfo memory carInfo = carToken.getCarInfoById(carId);
         require(carToken.ownerOf(carId) == tx.origin, "Not car owner");
         carIdToDimoTokenId[carId] = dimoTokenId;
 }
