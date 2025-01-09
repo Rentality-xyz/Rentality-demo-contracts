@@ -320,8 +320,8 @@ contract RentalityView is UUPSUpgradeable, Initializable {
   function getFilterInfo(uint64 duration) public view returns (Schemas.FilterInfoDTO memory) {
     return RentalityUtils.getFilterInfo(addresses, duration);
   }
-  function checkPromo(string memory promo) public view returns (Schemas.CheckPromoDTO memory) {
-    return promoService.checkPromo(promo);
+  function checkPromo(string memory promo, uint startDateTime, uint endDateTime) public view returns (Schemas.CheckPromoDTO memory) {
+    return promoService.checkPromo(promo, startDateTime, endDateTime);
   }
 
   function initialize(

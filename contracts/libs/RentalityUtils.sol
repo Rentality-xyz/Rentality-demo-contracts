@@ -527,7 +527,8 @@ library RentalityUtils {
     RentalityPromoService promoService,
     string memory promo,
     address user
-  ) public view returns (Schemas.PaymentInfo memory, uint, uint, uint) {
+  ) public view returns (Schemas.PaymentInfo memory, uint, uint, uint, bool) {
+    bool usePromo = false;
     Schemas.CarInfo memory carInfo = addresses.carService.getCarInfoById(carId);
 
     uint64 daysOfTrip = getCeilDays(startDateTime, endDateTime);
@@ -559,6 +560,7 @@ library RentalityUtils {
 
     uint priceWithPromo = 0;
     if (discount > 0) {
+      usePromo = true;
       uint sumBeforePromo = priceWithDiscount + salesTaxes + govTax + pickUp + dropOf;
       priceWithPromo = (sumBeforePromo - ((sumBeforePromo * discount) / 100));
     }
@@ -600,7 +602,7 @@ library RentalityUtils {
       dropOf
     );
 
-    return (paymentInfo, valueSumInCurrency, valueSumInCurrencyBeforePromo, priceWithPromo);
+    return (paymentInfo, valueSumInCurrency, valueSumInCurrencyBeforePromo, priceWithPromo, usePromo);
   }
 
   /// @dev Retrieves delivery data for a given car.

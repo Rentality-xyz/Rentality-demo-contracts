@@ -14,7 +14,9 @@ module.exports = {
                     * 'items': one page per item
                    'files': one page per input Solidity file  */,
   },
-
+  mocha: {
+  timeout: 1000000
+  },
   defaultNetwork: 'localhost',
   networks: {
     hardhat: {
