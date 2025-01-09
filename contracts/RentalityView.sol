@@ -271,7 +271,7 @@ contract RentalityView is UUPSUpgradeable, Initializable {
   /// @notice Get chat information for trips hosted by the caller on the Rentality platform.
   /// @return chatInfo An array of chat information for trips hosted by the caller.
   function getChatInfoFor(bool host) public view returns (Schemas.ChatInfo[] memory) {
-    return RentalityTripsQuery.populateChatInfo(addresses, insuranceService, tx.origin, host);
+    return RentalityTripsQuery.populateChatInfo(addresses, insuranceService, tx.origin, host, promoService);
   }
 
   /// @dev Retrieves delivery data for a given car.
