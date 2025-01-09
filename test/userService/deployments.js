@@ -43,7 +43,6 @@ async function deployDefaultFixture() {
   const RentalityPlatform = await ethers.getContractFactory('RentalityPlatform', {
     libraries: {
       RentalityUtils: await utils.getAddress(),
-      RentalityViewLib: await viewLib.getAddress(),
     },
   })
 
@@ -135,6 +134,10 @@ async function deployDefaultFixture() {
   ])
 
   await rentalityCarToken.waitForDeployment()
+  
+
+  const DimoService = await ethers.getContractFactory('RentalityDimoService')
+  const dimoService = await upgrades.deployProxy(DimoService, [await rentalityUserService.getAddress(), await rentalityCarToken.getAddress(),owner.address])
 
   let RefferalLibFactory = await ethers.getContractFactory('RentalityRefferalLib')
   let refferalLib = await RefferalLibFactory.deploy()
@@ -244,11 +247,13 @@ async function deployDefaultFixture() {
 
     await refferalProgram.getAddress(),
     await promoService.getAddress(),
+    await dimoService.getAddress()
   ])
   await rentalityView.waitForDeployment()
 
   const RentalityPlatformHelper = await ethers.getContractFactory('RentalityPlatformHelper', {
     libraries: {
+      RentalityUtils: await utils.getAddress()
     },
   })
 
@@ -266,6 +271,7 @@ async function deployDefaultFixture() {
     await insuranceService.getAddress(),
     await refferalProgram.getAddress(),
     await promoService.getAddress(),
+    await dimoService.getAddress()
   ])
   await rentalityPlatformHelper.waitForDeployment()
 
@@ -281,6 +287,7 @@ async function deployDefaultFixture() {
     await insuranceService.getAddress(),
     await refferalProgram.getAddress(),
     await promoService.getAddress(),
+    await dimoService.getAddress(),
     await rentalityPlatformHelper.getAddress()
   ])
 
@@ -340,6 +347,7 @@ async function deployDefaultFixture() {
     await rentalityTripsView.getAddress(),
     await refferalProgram.getAddress(),
     await promoService.getAddress(),
+    await dimoService.getAddress()
   ])
   await rentalityAdminGateway.waitForDeployment()
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityView.getAddress())

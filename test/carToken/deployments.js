@@ -152,6 +152,9 @@ async function deployDefaultFixture() {
 
   await rentalityCarToken.waitForDeployment()
 
+  const DimoService = await ethers.getContractFactory('RentalityDimoService')
+  const dimoService = await upgrades.deployProxy(DimoService, [await rentalityUserService.getAddress(), await rentalityCarToken.getAddress(),owner.address])
+
   const refferalProgram = await upgrades.deployProxy(ReffProgram, [
     await rentalityUserService.getAddress(),
     await refferalLib.getAddress(),
@@ -208,7 +211,6 @@ async function deployDefaultFixture() {
   const RentalityPlatform = await ethers.getContractFactory('RentalityPlatform', {
     libraries: {
       RentalityUtils: await utils.getAddress(),
-      RentalityViewLib: await viewLib.getAddress(),
     },
   })
   let RentalityTripsView = await ethers.getContractFactory('RentalityTripsView', {
@@ -248,14 +250,15 @@ async function deployDefaultFixture() {
     await deliveryService.getAddress(),
     await insuranceService.getAddress(),
     await rentalityTripsView.getAddress(),
-
     await refferalProgram.getAddress(),
     await promoService.getAddress(),
+    await dimoService.getAddress()
   ])
   await rentalityView.waitForDeployment()
 
   const RentalityPlatformHelper = await ethers.getContractFactory('RentalityPlatformHelper', {
     libraries: {
+      RentalityUtils: await utils.getAddress()
     },
   })
 
@@ -273,6 +276,7 @@ async function deployDefaultFixture() {
     await insuranceService.getAddress(),
     await refferalProgram.getAddress(),
     await promoService.getAddress(),
+    await dimoService.getAddress()
   ])
   await rentalityPlatformHelper.waitForDeployment()
 
@@ -290,7 +294,8 @@ async function deployDefaultFixture() {
     await insuranceService.getAddress(),
     await refferalProgram.getAddress(),
     await promoService.getAddress(),
-    await rentalityPlatformHelper.getAddress()
+    await dimoService.getAddress(),
+    await rentalityPlatformHelper.getAddress(),
   ])
   await rentalityPlatform.waitForDeployment()
 
@@ -317,6 +322,7 @@ async function deployDefaultFixture() {
 
     await refferalProgram.getAddress(),
     await promoService.getAddress(),
+    await dimoService.getAddress()
   ])
   await rentalityAdminGateway.waitForDeployment()
 

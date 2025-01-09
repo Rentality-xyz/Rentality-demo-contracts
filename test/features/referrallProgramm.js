@@ -101,7 +101,6 @@ describe('Referral program', function () {
     expect(amount).to.be.eq(125)
 
     const hashPoints = await refferalProgram.getReadyToClaimFromRefferalHash(hashCreator.address)
-    console.log(hashPoints)
     const hashCreatorPoints = hashPoints.toClaim.find((obj) => obj.refType === BigInt(RefferalProgram.SetKYC)).points
     expect(hashCreatorPoints).to.be.eq(10)
 
@@ -112,7 +111,6 @@ describe('Referral program', function () {
     ).to.not.reverted
 
     const hashPointsCar = await refferalProgram.getReadyToClaimFromRefferalHash(hashCreator.address)
-    console.log('HERE')
     const hashCreatorPointsCar = hashPointsCar.toClaim.find(
       (obj) => obj.refType === BigInt(RefferalProgram.AddCar)
     ).points
@@ -190,6 +188,7 @@ describe('Referral program', function () {
       tokenUri: '',
       insuranceRequired: false,
       insurancePriceInUsdCents: 0,
+dimoTokenId: 0
     }
 
     let locationInfo = {
