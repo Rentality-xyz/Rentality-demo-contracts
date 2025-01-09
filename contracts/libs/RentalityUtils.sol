@@ -412,14 +412,11 @@ library RentalityUtils {
 
     uint64 discount = uint64(promoService.getDiscountByPromo(promo, user));
      uint64 priceWithDiscount;
-  if(discount == 0) 
      priceWithDiscount = addresses.paymentService.calculateSumWithDiscount(
       addresses.carService.ownerOf(carId),
       daysOfTrip,
       car.pricePerDayInUsdCents
     );
-    else 
-      priceWithDiscount = car.pricePerDayInUsdCents * daysOfTrip;
 
     uint64 sumWithDiscount = addresses.paymentService.calculateSumWithDiscount(
       carOwner,
@@ -537,15 +534,12 @@ library RentalityUtils {
 
      uint64 discount = uint64(promoService.getDiscountByPromo(promo, user));
 
- uint64 priceWithDiscount;
-  if(discount == 0) 
-     priceWithDiscount = addresses.paymentService.calculateSumWithDiscount(
+ uint64 priceWithDiscount = addresses.paymentService.calculateSumWithDiscount(
       addresses.carService.ownerOf(carId),
       daysOfTrip,
       carInfo.pricePerDayInUsdCents
     );
-    else 
-      priceWithDiscount = carInfo.pricePerDayInUsdCents * daysOfTrip;
+  
     uint64 priceBeforePromo = priceWithDiscount;
 
     uint taxId = addresses.paymentService.defineTaxesType(address(addresses.carService), carId);

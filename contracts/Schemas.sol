@@ -193,6 +193,7 @@ interface Schemas {
     InsuranceInfo[] insurancesInfo;
     uint paidForInsuranceInUsdCents;
     string guestDrivingLicenseIssueCountry;
+    uint promoDiscount;
   }
 
   /// CHAT LOGIC
