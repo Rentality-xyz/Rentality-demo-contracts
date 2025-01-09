@@ -23,11 +23,13 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable {
   using RentalityTripsQuery for RentalityContract;
 
   RentalityInsurance private insuranceService;
+  RentalityPromoService private promoService;
 
-  function updateServiceAddresses(RentalityContract memory contracts, address insurance) public {
+  function updateServiceAddresses(RentalityContract memory contracts, address insurance, address promoServiceAddress) public {
     require(addresses.userService.isAdmin(tx.origin), 'only Admin.');
     addresses = contracts;
     insuranceService = RentalityInsurance(insurance);
+    promoService = RentalityPromoService(promoServiceAddress);
   }
   fallback(bytes calldata) external returns (bytes memory) {
     revert FunctionNotFound();
@@ -49,13 +51,13 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable {
   /// @param tripId The ID of the trip.
   /// @return Trip information.
   function getTrip(uint256 tripId) public view returns (Schemas.TripDTO memory) {
-    return RentalityTripsQuery.getTripDTO(addresses, insuranceService, tripId);
+    return RentalityTripsQuery.getTripDTO(addresses, insuranceService, tripId, promoService);
   }
 
   /// @notice Retrieves information about trips where the caller is the guest.
   /// @return An array of trip information.
   function getTripsAs(bool host) public view returns (Schemas.TripDTO[] memory) {
-    return RentalityTripsQuery.getTripsAs(addresses, insuranceService, tx.origin, host);
+    return RentalityTripsQuery.getTripsAs(addresses, insuranceService, tx.origin, host, promoService);
   }
 
   /// @notice Calculates the KYC commission in a specific currency based on the current exchange rate.
@@ -84,7 +86,8 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable {
     address paymentServiceAddress,
     address claimServiceAddress,
     address carDeliveryAddress,
-    address insuranceAddress
+    address insuranceAddress,
+    address promoServiceAddress
   ) public initializer {
     addresses = RentalityContract(
       RentalityCarToken(carServiceAddress),
@@ -99,6 +102,7 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable {
       RentalityView(address(0))
     );
     insuranceService = RentalityInsurance(insuranceAddress);
+    promoService = RentalityPromoService(promoServiceAddress);
   }
 
   function _authorizeUpgrade(address /*newImplementation*/) internal view override {

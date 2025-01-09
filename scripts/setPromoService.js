@@ -36,14 +36,8 @@ async function main() {
     getContractAddress('RentalityPromoService', 'scripts/deploy_4f_RentalityPromo.js', chainId),
     'RentalityPromoService'
   )
-  const adminService = await ethers.getContractAt('RentalityAdminGateway', rentalityAdminGatewayAddress)
-  await adminService.setPromoService(rentalityPromoService)
 
-  const platform = await ethers.getContractAt('RentalityPlatform', rentalityPlatformAddress)
-
-  await platform.updateServiceAddresses(rentalityAdminGatewayAddress)
-
-  const view = await ethers.getContractAt('RentalityView', rentalityView)
+  const view = await ethers.getContractAt('RentalityTripsView', rentalityTripsView)
 
   const rentalityUserServiceAddress = checkNotNull(
     getContractAddress('RentalityUserService', 'scripts/deploy_1b_RentalityUserService.js', chainId),
@@ -91,29 +85,9 @@ async function main() {
     deliveryService: rentalityCarDelivery,
     viewService: rentalityView,
   }
-  await view.updateServiceAddresses(contractsAddresses, rentalityInsurance, rentalityTripsView, rentalityPromoService)
+  await view.updateServiceAddresses(contractsAddresses, rentalityInsurance, rentalityPromoService)
 
   console.log('updated!')
-  const userService = await ethers.getContractAt('RentalityUserService', rentalityUserServiceAddress)
-
-  const rentalityReferralService = checkNotNull(
-    getContractAddress('RentalityReferralProgram', 'scripts/deploy_3e_RentalityReferralProgram.js', chainId),
-    'RentalityReferralProgram'
-  )
-
-  await userService.grantManagerRole(rentalityReferralService)
-
-  const promoService = await ethers.getContractAt('RentalityPromoService', rentalityPromoService)
-
-  const date = new Date()
-  const startDateTime = Math.floor(date.getTime() / 1000)
-  const endDate = new Date('2025-07-31T23:59:59Z')
-  const endDateTime = Math.floor(endDate.getTime() / 1000)
-  console.log(await promoService.generateGeneralCode(startDateTime, endDateTime))
-
-  const generalCode = await promoService.getGeneralPromoCode()
-
-  console.log('General promo is: ', generalCode)
 }
 
 main()
