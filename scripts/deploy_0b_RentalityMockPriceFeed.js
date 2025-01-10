@@ -6,7 +6,7 @@ const { startDeploy } = require('./utils/deployHelper')
 async function main() {
   const { contractName, chainId } = await startDeploy('RentalityMockPriceFeed')
 
-  if (chainId !== 1337n) throw new Error('Can be deployed only on chainId: 1337')
+  // if (chainId !== 1337n) throw new Error('Can be deployed only on chainId: 1337')
 
   const contractFactory = await ethers.getContractFactory(contractName)
   const contract = await contractFactory.deploy(8, 200000000000)

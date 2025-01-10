@@ -411,6 +411,14 @@ library RentalityUtils {
     address carOwner = addresses.carService.ownerOf(carId);
     Schemas.CarInfo memory car = addresses.carService.getCarInfoById(carId);
 
+    uint64 discount = uint64(promoService.getDiscountByPromo(promo, user));
+     uint64 priceWithDiscount;
+     priceWithDiscount = addresses.paymentService.calculateSumWithDiscount(
+      addresses.carService.ownerOf(carId),
+      daysOfTrip,
+      car.pricePerDayInUsdCents
+    );
+
     uint64 sumWithDiscount = addresses.paymentService.calculateSumWithDiscount(
       carOwner,
       daysOfTrip,
@@ -425,7 +433,6 @@ library RentalityUtils {
       sumWithDiscount + deliveryFee
     );
 
-    uint64 discount = uint64(promoService.getDiscountByPromo(promo, user));
     uint64 priceBeforePromo = sumWithDiscount + salesTaxes + govTax + deliveryFee;
 
     uint64 discountedPrice = priceBeforePromo;
@@ -521,16 +528,21 @@ library RentalityUtils {
     RentalityPromoService promoService,
     string memory promo,
     address user
-  ) public view returns (Schemas.PaymentInfo memory, uint, uint, uint) {
+  ) public view returns (Schemas.PaymentInfo memory, uint, uint, uint, bool) {
+    bool usePromo = false;
     Schemas.CarInfo memory carInfo = addresses.carService.getCarInfoById(carId);
 
     uint64 daysOfTrip = getCeilDays(startDateTime, endDateTime);
 
-    uint64 priceWithDiscount = addresses.paymentService.calculateSumWithDiscount(
+     uint64 discount = uint64(promoService.getDiscountByPromo(promo, user));
+
+ uint64 priceWithDiscount = addresses.paymentService.calculateSumWithDiscount(
       addresses.carService.ownerOf(carId),
       daysOfTrip,
       carInfo.pricePerDayInUsdCents
     );
+
+    uint64 priceBeforePromo = priceWithDiscount;
 
     uint taxId = addresses.paymentService.defineTaxesType(address(addresses.carService), carId);
 
@@ -539,8 +551,6 @@ library RentalityUtils {
       daysOfTrip,
       priceWithDiscount + pickUp + dropOf
     );
-
-    uint64 discount = uint64(promoService.getDiscountByPromo(promo, user));
 
     uint valueSum = priceWithDiscount +
       salesTaxes +
@@ -551,6 +561,7 @@ library RentalityUtils {
 
     uint priceWithPromo = 0;
     if (discount > 0) {
+      usePromo = true;
       uint sumBeforePromo = priceWithDiscount + salesTaxes + govTax + pickUp + dropOf;
       priceWithPromo = (sumBeforePromo - ((sumBeforePromo * discount) / 100));
     }
@@ -592,7 +603,7 @@ library RentalityUtils {
       dropOf
     );
 
-    return (paymentInfo, valueSumInCurrency, valueSumInCurrencyBeforePromo, priceWithPromo);
+    return (paymentInfo, valueSumInCurrency, valueSumInCurrencyBeforePromo, priceWithPromo, usePromo);
   }
 
   /// @dev Retrieves delivery data for a given car.

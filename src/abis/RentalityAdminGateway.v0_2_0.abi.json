@@ -116,7 +116,8 @@
                       ]
                     },
                     { "type": "string", "name": "carVinNumber" },
-                    { "type": "string", "name": "carMetadataURI" }
+                    { "type": "string", "name": "carMetadataURI" },
+                    { "type": "uint256", "name": "dimoTokenId" }
                   ]
                 },
                 { "type": "string", "name": "carMetadataURI" }
@@ -306,6 +307,15 @@
     },
     {
       "type": "function",
+      "name": "getDimoService",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
       "name": "getInsuranceService",
       "constant": true,
       "stateMutability": "view",
@@ -339,6 +349,15 @@
       "payable": false,
       "inputs": [],
       "outputs": [{ "type": "uint32", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getPromoService",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
     },
     {
       "type": "function",
@@ -483,7 +502,9 @@
         { "type": "address", "name": "viewServiceAddress" },
         { "type": "address", "name": "insuranceServiceAddress" },
         { "type": "address", "name": "rentalityTripsViewAddress" },
-        { "type": "address", "name": "refferalProgramAddress" }
+        { "type": "address", "name": "refferalProgramAddress" },
+        { "type": "address", "name": "promoServiceAddress" },
+        { "type": "address", "name": "dimoServiceAddress" }
       ],
       "outputs": []
     },
@@ -643,6 +664,14 @@
     },
     {
       "type": "function",
+      "name": "setPromoService",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "promoServiceAddress" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
       "name": "transferOwnership",
       "constant": false,
       "payable": false,
@@ -683,6 +712,14 @@
     },
     {
       "type": "function",
+      "name": "updateDimoService",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "dimoServiceAddress" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
       "name": "updateGeoServiceAddress",
       "constant": false,
       "payable": false,
@@ -695,6 +732,17 @@
       "constant": false,
       "payable": false,
       "inputs": [{ "type": "address", "name": "contractAddress" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "updatePromoData",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "string", "name": "prefix" },
+        { "type": "uint256", "name": "discount" }
+      ],
       "outputs": []
     },
     {

@@ -137,7 +137,8 @@ contract RentalityPlatform is UUPSOwnable {
       Schemas.PaymentInfo memory paymentInfo,
       uint valueSumInCurrency,
       uint hostEarningsInCurrency,
-      uint hostEarnings
+      uint hostEarnings,
+      bool usePromo
     ) = RentalityUtils.createPaymentInfo(
         addresses,
         carId,
@@ -174,9 +175,8 @@ contract RentalityPlatform is UUPSOwnable {
       msg.value
     );
     insuranceService.saveGuestinsurancePayment(tripId, carId, insurance);
-
-    if (valueSumInCurrency != hostEarnings)
-      promoService.usePromo(promo, tripId, tx.origin, hostEarningsInCurrency, hostEarnings);
+    if (usePromo)
+     promoService.usePromo(promo, tripId, tx.origin, hostEarningsInCurrency, hostEarnings, uint(startDateTime), uint(endDateTime));
   }
 
   /// @notice Approve a trip request on the Rentality platform.

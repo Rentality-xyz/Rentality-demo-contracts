@@ -230,10 +230,11 @@ library RentalityTripsQuery {
     RentalityContract memory contracts,
     RentalityInsurance insuranceService,
     address user,
-    bool host
+    bool host,
+    RentalityPromoService promoService
   ) public view returns (Schemas.TripDTO[] memory) {
     return
-      host ? getTripsByHost(contracts, insuranceService, user) : getTripsByGuest(contracts, insuranceService, user);
+      host ? getTripsByHost(contracts, insuranceService, user, promoService) : getTripsByGuest(contracts, insuranceService, user, promoService);
   }
 
   /// @notice Retrieves all trips associated with a specific guest.
@@ -244,7 +245,8 @@ library RentalityTripsQuery {
   function getTripsByGuest(
     RentalityContract memory contracts,
     RentalityInsurance insuranceService,
-    address guest
+    address guest,
+    RentalityPromoService promoService
   ) private view returns (Schemas.TripDTO[] memory) {
     RentalityTripService tripService = contracts.tripService;
     uint itemCount = 0;
@@ -260,7 +262,7 @@ library RentalityTripsQuery {
 
     for (uint i = 1; i <= tripService.totalTripCount(); i++) {
       if (tripService.getTrip(i).guest == guest) {
-        result[currentIndex] = getTripDTO(contracts, insuranceService, i);
+        result[currentIndex] = getTripDTO(contracts, insuranceService, i, promoService);
         currentIndex += 1;
       }
     }
@@ -276,7 +278,8 @@ library RentalityTripsQuery {
   function getTripsByHost(
     RentalityContract memory contracts,
     RentalityInsurance insuranceService,
-    address host
+    address host,
+    RentalityPromoService promoService
   ) private view returns (Schemas.TripDTO[] memory) {
     RentalityTripService tripService = contracts.tripService;
     uint itemCount = 0;
@@ -292,7 +295,7 @@ library RentalityTripsQuery {
 
     for (uint i = 1; i <= tripService.totalTripCount(); i++) {
       if (tripService.getTrip(i).host == host) {
-        result[currentIndex] = getTripDTO(contracts, insuranceService, i);
+        result[currentIndex] = getTripDTO(contracts, insuranceService, i, promoService);
         currentIndex += 1;
       }
     }
@@ -308,7 +311,8 @@ library RentalityTripsQuery {
   function getTripDTO(
     RentalityContract memory contracts,
     RentalityInsurance insuranceService,
-    uint tripId
+    uint tripId,
+    RentalityPromoService promoService
   ) public view returns (Schemas.TripDTO memory) {
     RentalityTripService tripService = contracts.tripService;
     RentalityCarToken carService = contracts.carService;
@@ -316,7 +320,7 @@ library RentalityTripsQuery {
 
     Schemas.Trip memory trip = tripService.getTrip(tripId);
     Schemas.CarInfo memory car = carService.getCarInfoById(trip.carId);
-
+    
     Schemas.LocationInfo memory pickUpLocation = IRentalityGeoService(carService.getGeoServiceAddress())
       .getLocationInfo(trip.pickUpHash);
     Schemas.LocationInfo memory returnLocation = IRentalityGeoService(carService.getGeoServiceAddress())
@@ -352,7 +356,8 @@ library RentalityTripsQuery {
         hostPhoneNumber,
         insuranceService.getTripInsurances(tripId),
         insuranceService.getInsurancePriceByTrip(tripId),
-        userService.getMyFullKYCInfo().additionalKYC.issueCountry
+        userService.getMyFullKYCInfo().additionalKYC.issueCountry,
+        promoService.getTripDiscount(tripId)
       );
   }
   function getTripInsurancesBy(
@@ -460,9 +465,10 @@ library RentalityTripsQuery {
     RentalityContract memory addresses,
     RentalityInsurance insuranceService,
     address user,
-    bool host
+    bool host,
+    RentalityPromoService promoService
   ) public view returns (Schemas.ChatInfo[] memory) {
-    Schemas.TripDTO[] memory trips = getTripsAs(addresses, insuranceService, user, host);
+    Schemas.TripDTO[] memory trips = getTripsAs(addresses, insuranceService, user, host, promoService);
 
     RentalityUserService userService = addresses.userService;
     RentalityCarToken carService = addresses.carService;

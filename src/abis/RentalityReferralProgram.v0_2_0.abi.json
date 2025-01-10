@@ -122,7 +122,8 @@
     {
       "type": "function",
       "name": "getDiscount",
-      "constant": false,
+      "constant": true,
+      "stateMutability": "view",
       "payable": false,
       "inputs": [
         { "type": "uint8", "name": "selector" },
@@ -385,7 +386,8 @@
         { "type": "uint8", "name": "selector" },
         { "type": "bytes32", "name": "hash" },
         { "type": "bytes", "name": "callbackArgs" },
-        { "type": "address", "name": "user" }
+        { "type": "address", "name": "user" },
+        { "type": "address", "name": "promoService" }
       ],
       "outputs": []
     },

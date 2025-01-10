@@ -39,6 +39,7 @@ contract RentalityReferralProgram is
 
   mapping(address => Schemas.ReadyToClaimFromHash[]) private userToReadyToClaimFromHash;
 
+
   function getCarDailyClaimedTime(uint carId) public view returns (uint) {
     return carIdToDailyClaimed[carId];
   }
@@ -111,7 +112,13 @@ contract RentalityReferralProgram is
           Schemas.ProgramHistory(int(toClaim[i].points), block.timestamp, toClaim[i].refType, toClaim[i].oneTime)
         );
       }
-      total += updateDaily(user);
+      uint daily = updateDaily(user);
+      if(daily > 0) {
+         userProgramHistory[user].push(
+          Schemas.ProgramHistory(int(daily), block.timestamp, Schemas.RefferalProgram.Daily, false)
+        );
+      total += daily;
+      }
       (uint dailiListingPoints, uint[] memory cars) = RentalityRefferalLib.calculateListedCarsPoints(
         permanentSelectorToPoints[Schemas.RefferalProgram.DailyListing].points,
         user,

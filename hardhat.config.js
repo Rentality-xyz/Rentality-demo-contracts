@@ -3,6 +3,7 @@ require('dotenv').config()
 require('@nomicfoundation/hardhat-toolbox')
 require('@openzeppelin/hardhat-upgrades')
 require('solidity-docgen')
+require("hardhat-tracer");
 
 module.exports = {
   mocha: {
@@ -17,9 +18,16 @@ module.exports = {
                     * 'items': one page per item
                    'files': one page per input Solidity file  */,
   },
-
+  mocha: {
+  timeout: 1000000
+  },
   defaultNetwork: 'localhost',
   networks: {
+    tenderlyVirtual: {
+      chainId: 102,
+      url: process.env.TENDERLY_URL,
+      accounts: [process.env.PRIVATE_KEY],
+    },
     hardhat: {
       chainId: 1337,
     },

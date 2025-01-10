@@ -73,7 +73,8 @@
             { "type": "string", "name": "longitude" },
             { "type": "string", "name": "timeZoneId" }
           ]
-        }
+        },
+        { "type": "string", "name": "promo" }
       ],
       "outputs": [
         {
@@ -220,6 +221,30 @@
     },
     {
       "type": "function",
+      "name": "checkPromo",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        { "type": "string", "name": "promo" },
+        { "type": "uint256", "name": "startDateTime" },
+        { "type": "uint256", "name": "endDateTime" }
+      ],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "",
+          "components": [
+            { "type": "bool", "name": "isFound" },
+            { "type": "bool", "name": "isValid" },
+            { "type": "bool", "name": "isDiscount" },
+            { "type": "uint256", "name": "value" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
       "name": "getAvailableCarsForUser",
       "constant": true,
       "stateMutability": "view",
@@ -292,7 +317,8 @@
               ]
             },
             { "type": "string", "name": "carVinNumber" },
-            { "type": "string", "name": "carMetadataURI" }
+            { "type": "string", "name": "carMetadataURI" },
+            { "type": "uint256", "name": "dimoTokenId" }
           ]
         }
       ]
@@ -509,6 +535,15 @@
     },
     {
       "type": "function",
+      "name": "getDimoVihicles",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "uint256[]", "name": "" }]
+    },
+    {
+      "type": "function",
       "name": "getDiscount",
       "constant": true,
       "stateMutability": "view",
@@ -630,7 +665,8 @@
               ]
             },
             { "type": "string", "name": "metadataURI" },
-            { "type": "bool", "name": "isEditable" }
+            { "type": "bool", "name": "isEditable" },
+            { "type": "uint256", "name": "dimoTokenId" }
           ]
         }
       ]
@@ -795,7 +831,9 @@
         { "type": "address", "name": "carDeliveryAddress" },
         { "type": "address", "name": "insuranceAddress" },
         { "type": "address", "name": "tripsViewAddress" },
-        { "type": "address", "name": "refferalProgramAddress" }
+        { "type": "address", "name": "refferalProgramAddress" },
+        { "type": "address", "name": "promoServiceAddress" },
+        { "type": "address", "name": "dimoServiceAddress" }
       ],
       "outputs": []
     },
@@ -963,7 +1001,9 @@
           ]
         },
         { "type": "address", "name": "insurance" },
-        { "type": "address", "name": "tripsViewAddress" }
+        { "type": "address", "name": "tripsViewAddress" },
+        { "type": "address", "name": "promoServiceAddress" },
+        { "type": "address", "name": "dimoServiceAddress" }
       ],
       "outputs": []
     },
