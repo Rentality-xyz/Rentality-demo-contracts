@@ -174,6 +174,7 @@ contract RentalityPromoService is Initializable, UUPSAccess {
     require(userService.isManager(msg.sender), 'Only for Manager.');
     Schemas.Promo memory promo = promoToPromoData[promoCode];
     if (
+      promo.createdAt != 0 &&
       promo.status == Schemas.PromoStatus.Active &&
       promo.expireDate >= endTripData &&
       promo.startDate <= startTripDate
@@ -197,7 +198,7 @@ contract RentalityPromoService is Initializable, UUPSAccess {
         return true;
       }
     }
-    return false;
+     revert("Promo is not valid for the date range");
   }
   function rejectDiscountByTrip(uint tripId, address user) public {
     require(userService.isManager(msg.sender), 'Only for Manager.');
