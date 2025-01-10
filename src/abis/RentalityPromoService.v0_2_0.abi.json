@@ -53,7 +53,11 @@
       "constant": true,
       "stateMutability": "view",
       "payable": false,
-      "inputs": [{ "type": "string", "name": "promo" }],
+      "inputs": [
+        { "type": "string", "name": "promo" },
+        { "type": "uint256", "name": "startDateTime" },
+        { "type": "uint256", "name": "endDateTime" }
+      ],
       "outputs": [
         {
           "type": "tuple",
@@ -232,7 +236,9 @@
         { "type": "uint256", "name": "tripId" },
         { "type": "address", "name": "user" },
         { "type": "uint256", "name": "tripEarningsInCurrency" },
-        { "type": "uint256", "name": "tripEarnings" }
+        { "type": "uint256", "name": "tripEarnings" },
+        { "type": "uint256", "name": "startTripDate" },
+        { "type": "uint256", "name": "endTripData" }
       ],
       "outputs": [{ "type": "bool", "name": "" }]
     },
