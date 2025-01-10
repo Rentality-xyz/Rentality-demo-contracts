@@ -167,9 +167,8 @@ contract RentalityPlatform is UUPSOwnable {
       msg.value
     );
     insuranceService.saveGuestinsurancePayment(tripId, carId, insurance);
-
     if (usePromo)
-      promoService.usePromo(promo, tripId, tx.origin, hostEarningsInCurrency, hostEarnings, uint(startDateTime), uint(endDateTime));
+     promoService.usePromo(promo, tripId, tx.origin, hostEarningsInCurrency, hostEarnings, uint(startDateTime), uint(endDateTime));
   }
 
   /// @notice Approve a trip request on the Rentality platform.
