@@ -279,7 +279,7 @@ function getDimoVihicles() public view returns(uint[] memory) {
   /// @notice Get chat information for trips hosted by the caller on the Rentality platform.
   /// @return chatInfo An array of chat information for trips hosted by the caller.
   function getChatInfoFor(bool host) public view returns (Schemas.ChatInfo[] memory) {
-    return RentalityTripsQuery.populateChatInfo(addresses, insuranceService, tx.origin, host);
+    return RentalityTripsQuery.populateChatInfo(addresses, insuranceService, tx.origin, host, promoService);
   }
 
   /// @dev Retrieves delivery data for a given car.
@@ -328,8 +328,8 @@ function getDimoVihicles() public view returns(uint[] memory) {
   function getFilterInfo(uint64 duration) public view returns (Schemas.FilterInfoDTO memory) {
     return RentalityViewLib.getFilterInfo(addresses, duration);
   }
-  function checkPromo(string memory promo) public view returns (Schemas.CheckPromoDTO memory) {
-    return promoService.checkPromo(promo);
+  function checkPromo(string memory promo, uint startDateTime, uint endDateTime) public view returns (Schemas.CheckPromoDTO memory) {
+    return promoService.checkPromo(promo, startDateTime, endDateTime);
   }
 
   function initialize(

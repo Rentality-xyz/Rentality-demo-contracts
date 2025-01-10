@@ -1,5 +1,6 @@
 {
   "abi": [
+    { "type": "error", "name": "FunctionNotFound", "inputs": [] },
     {
       "type": "event",
       "anonymous": false,
@@ -36,6 +37,7 @@
       "name": "Upgraded",
       "inputs": [{ "type": "address", "name": "implementation", "indexed": true }]
     },
+    { "type": "fallback", "stateMutability": "nonpayable" },
     {
       "type": "function",
       "name": "addCar",
@@ -80,42 +82,13 @@
             },
             { "type": "bool", "name": "currentlyListed" },
             { "type": "bool", "name": "insuranceRequired" },
-            { "type": "uint256", "name": "insurancePriceInUsdCents" }
+            { "type": "uint256", "name": "insurancePriceInUsdCents" },
+            { "type": "uint256", "name": "dimoTokenId" }
           ]
         },
         { "type": "bytes32", "name": "refferalHash" }
       ],
       "outputs": [{ "type": "uint256", "name": "" }]
-    },
-    {
-      "type": "function",
-      "name": "addUserDeliveryPrices",
-      "constant": false,
-      "payable": false,
-      "inputs": [
-        { "type": "uint64", "name": "underTwentyFiveMilesInUsdCents" },
-        { "type": "uint64", "name": "aboveTwentyFiveMilesInUsdCents" }
-      ],
-      "outputs": []
-    },
-    {
-      "type": "function",
-      "name": "addUserDiscount",
-      "constant": false,
-      "payable": false,
-      "inputs": [
-        {
-          "type": "tuple",
-          "name": "data",
-          "components": [
-            { "type": "uint32", "name": "threeDaysDiscount" },
-            { "type": "uint32", "name": "sevenDaysDiscount" },
-            { "type": "uint32", "name": "thirtyDaysDiscount" },
-            { "type": "bool", "name": "initialized" }
-          ]
-        }
-      ],
-      "outputs": []
     },
     {
       "type": "function",
@@ -259,7 +232,8 @@
               ]
             }
           ]
-        }
+        },
+        { "type": "string", "name": "promo" }
       ],
       "outputs": []
     },
@@ -289,7 +263,10 @@
         { "type": "address", "name": "carDeliveryAddress" },
         { "type": "address", "name": "viewService" },
         { "type": "address", "name": "insuranceServiceAddress" },
-        { "type": "address", "name": "refferalProgramAddress" }
+        { "type": "address", "name": "refferalProgramAddress" },
+        { "type": "address", "name": "promoServiceAddress" },
+        { "type": "address", "name": "dimoServiceAddress" },
+        { "type": "address", "name": "rentalityPlatformHelperAddress" }
       ],
       "outputs": []
     },
@@ -309,15 +286,6 @@
       "stateMutability": "payable",
       "payable": true,
       "inputs": [{ "type": "uint256", "name": "claimId" }],
-      "outputs": []
-    },
-    {
-      "type": "function",
-      "name": "payKycCommission",
-      "constant": false,
-      "stateMutability": "payable",
-      "payable": true,
-      "inputs": [{ "type": "address", "name": "currency" }],
       "outputs": []
     },
     {
@@ -351,47 +319,6 @@
       "constant": false,
       "payable": false,
       "inputs": [],
-      "outputs": []
-    },
-    {
-      "type": "function",
-      "name": "saveGuestInsurance",
-      "constant": false,
-      "payable": false,
-      "inputs": [
-        {
-          "type": "tuple",
-          "name": "insuranceInfo",
-          "components": [
-            { "type": "string", "name": "companyName" },
-            { "type": "string", "name": "policyNumber" },
-            { "type": "string", "name": "photo" },
-            { "type": "string", "name": "comment" },
-            { "type": "uint8", "name": "insuranceType" }
-          ]
-        }
-      ],
-      "outputs": []
-    },
-    {
-      "type": "function",
-      "name": "saveTripInsuranceInfo",
-      "constant": false,
-      "payable": false,
-      "inputs": [
-        { "type": "uint256", "name": "tripId" },
-        {
-          "type": "tuple",
-          "name": "insuranceInfo",
-          "components": [
-            { "type": "string", "name": "companyName" },
-            { "type": "string", "name": "policyNumber" },
-            { "type": "string", "name": "photo" },
-            { "type": "string", "name": "comment" },
-            { "type": "uint8", "name": "insuranceType" }
-          ]
-        }
-      ],
       "outputs": []
     },
     {
@@ -460,56 +387,13 @@
     },
     {
       "type": "function",
-      "name": "updateCarInfoWithLocation",
-      "constant": false,
-      "payable": false,
-      "inputs": [
-        {
-          "type": "tuple",
-          "name": "request",
-          "components": [
-            { "type": "uint256", "name": "carId" },
-            { "type": "uint64", "name": "pricePerDayInUsdCents" },
-            { "type": "uint64", "name": "securityDepositPerTripInUsdCents" },
-            { "type": "uint64[]", "name": "engineParams" },
-            { "type": "uint64", "name": "milesIncludedPerDay" },
-            { "type": "uint32", "name": "timeBufferBetweenTripsInSec" },
-            { "type": "bool", "name": "currentlyListed" },
-            { "type": "bool", "name": "insuranceRequired" },
-            { "type": "uint256", "name": "insurancePriceInUsdCents" },
-            { "type": "uint8", "name": "engineType" },
-            { "type": "string", "name": "tokenUri" }
-          ]
-        },
-        {
-          "type": "tuple",
-          "name": "location",
-          "components": [
-            {
-              "type": "tuple",
-              "name": "locationInfo",
-              "components": [
-                { "type": "string", "name": "userAddress" },
-                { "type": "string", "name": "country" },
-                { "type": "string", "name": "state" },
-                { "type": "string", "name": "city" },
-                { "type": "string", "name": "latitude" },
-                { "type": "string", "name": "longitude" },
-                { "type": "string", "name": "timeZoneId" }
-              ]
-            },
-            { "type": "bytes", "name": "signature" }
-          ]
-        }
-      ],
-      "outputs": []
-    },
-    {
-      "type": "function",
       "name": "updateServiceAddresses",
       "constant": false,
       "payable": false,
-      "inputs": [{ "type": "address", "name": "adminService" }],
+      "inputs": [
+        { "type": "address", "name": "adminService" },
+        { "type": "address", "name": "platformHelperAddress" }
+      ],
       "outputs": []
     },
     {
@@ -530,14 +414,6 @@
         { "type": "address", "name": "newImplementation" },
         { "type": "bytes", "name": "data" }
       ],
-      "outputs": []
-    },
-    {
-      "type": "function",
-      "name": "useKycCommission",
-      "constant": false,
-      "payable": false,
-      "inputs": [{ "type": "address", "name": "user" }],
       "outputs": []
     }
   ]

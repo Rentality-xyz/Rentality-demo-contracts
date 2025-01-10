@@ -44,7 +44,8 @@
             },
             { "type": "bool", "name": "currentlyListed" },
             { "type": "bool", "name": "insuranceRequired" },
-            { "type": "uint256", "name": "insurancePriceInUsdCents" }
+            { "type": "uint256", "name": "insurancePriceInUsdCents" },
+            { "type": "uint256", "name": "dimoTokenId" }
           ]
         },
         { "type": "bytes32", "name": "refferalHash" }
@@ -142,7 +143,8 @@
             { "type": "string", "name": "longitude" },
             { "type": "string", "name": "timeZoneId" }
           ]
-        }
+        },
+        { "type": "string", "name": "promoCode" }
       ],
       "outputs": [
         {
@@ -336,6 +338,30 @@
     },
     {
       "type": "function",
+      "name": "checkPromo",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        { "type": "string", "name": "promo" },
+        { "type": "uint256", "name": "startDateTime" },
+        { "type": "uint256", "name": "endDateTime" }
+      ],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "",
+          "components": [
+            { "type": "bool", "name": "isFound" },
+            { "type": "bool", "name": "isValid" },
+            { "type": "bool", "name": "isDiscount" },
+            { "type": "uint256", "name": "value" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
       "name": "confirmCheckOut",
       "constant": false,
       "payable": false,
@@ -360,26 +386,6 @@
             { "type": "string", "name": "description" },
             { "type": "uint64", "name": "amountInUsdCents" },
             { "type": "string", "name": "photosUrl" }
-          ]
-        }
-      ],
-      "outputs": []
-    },
-    {
-      "type": "function",
-      "name": "createTripRequest",
-      "constant": false,
-      "stateMutability": "payable",
-      "payable": true,
-      "inputs": [
-        {
-          "type": "tuple",
-          "name": "request",
-          "components": [
-            { "type": "uint256", "name": "carId" },
-            { "type": "uint64", "name": "startDateTime" },
-            { "type": "uint64", "name": "endDateTime" },
-            { "type": "address", "name": "currencyType" }
           ]
         }
       ],
@@ -441,7 +447,8 @@
               ]
             }
           ]
-        }
+        },
+        { "type": "string", "name": "promoCode" }
       ],
       "outputs": []
     },
@@ -598,7 +605,8 @@
               ]
             },
             { "type": "string", "name": "carVinNumber" },
-            { "type": "string", "name": "carMetadataURI" }
+            { "type": "string", "name": "carMetadataURI" },
+            { "type": "uint256", "name": "dimoTokenId" }
           ]
         }
       ]
@@ -815,6 +823,15 @@
     },
     {
       "type": "function",
+      "name": "getDimoVihicles",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "uint256[]", "name": "" }]
+    },
+    {
+      "type": "function",
       "name": "getDiscount",
       "constant": true,
       "stateMutability": "view",
@@ -936,7 +953,8 @@
               ]
             },
             { "type": "string", "name": "metadataURI" },
-            { "type": "bool", "name": "isEditable" }
+            { "type": "bool", "name": "isEditable" },
+            { "type": "uint256", "name": "dimoTokenId" }
           ]
         }
       ]
@@ -1201,7 +1219,8 @@
               ]
             },
             { "type": "uint256", "name": "paidForInsuranceInUsdCents" },
-            { "type": "string", "name": "guestDrivingLicenseIssueCountry" }
+            { "type": "string", "name": "guestDrivingLicenseIssueCountry" },
+            { "type": "uint256", "name": "promoDiscount" }
           ]
         }
       ]
@@ -1389,7 +1408,8 @@
               ]
             },
             { "type": "uint256", "name": "paidForInsuranceInUsdCents" },
-            { "type": "string", "name": "guestDrivingLicenseIssueCountry" }
+            { "type": "string", "name": "guestDrivingLicenseIssueCountry" },
+            { "type": "uint256", "name": "promoDiscount" }
           ]
         }
       ]
@@ -1463,6 +1483,17 @@
       "constant": false,
       "payable": false,
       "inputs": [{ "type": "uint256", "name": "tripId" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "saveDimoTokenIds",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint256[]", "name": "" },
+        { "type": "uint256[]", "name": "" }
+      ],
       "outputs": []
     },
     {
@@ -1680,32 +1711,6 @@
             { "type": "uint64", "name": "expirationDate" },
             { "type": "string", "name": "issueCountry" },
             { "type": "string", "name": "email" }
-          ]
-        }
-      ],
-      "outputs": []
-    },
-    {
-      "type": "function",
-      "name": "updateCarInfo",
-      "constant": false,
-      "payable": false,
-      "inputs": [
-        {
-          "type": "tuple",
-          "name": "request",
-          "components": [
-            { "type": "uint256", "name": "carId" },
-            { "type": "uint64", "name": "pricePerDayInUsdCents" },
-            { "type": "uint64", "name": "securityDepositPerTripInUsdCents" },
-            { "type": "uint64[]", "name": "engineParams" },
-            { "type": "uint64", "name": "milesIncludedPerDay" },
-            { "type": "uint32", "name": "timeBufferBetweenTripsInSec" },
-            { "type": "bool", "name": "currentlyListed" },
-            { "type": "bool", "name": "insuranceRequired" },
-            { "type": "uint256", "name": "insurancePriceInUsdCents" },
-            { "type": "uint8", "name": "engineType" },
-            { "type": "string", "name": "tokenUri" }
           ]
         }
       ],

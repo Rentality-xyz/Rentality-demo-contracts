@@ -1,7 +1,1 @@
-{
-  "addresses": [
-    { "chainId": 8453, "address": "0x37E1950eE1BCC531478fb0507476505AC0a5fAaf" },
-    { "chainId": 84532, "address": "0x6538488EAD213996727D1f4eC9738c3C92141180" },
-    { "chainId": 5611, "address": "0x1FDE15F97808Ceb425b152c3Ca447225d3048f6b" }
-  ]
-}
+{ "addresses": [{ "chainId": 102, "address": "0x81ba3E36e3e52f67E478E13F3447AE2A2F76B6a9" }] }
