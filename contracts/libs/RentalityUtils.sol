@@ -526,7 +526,8 @@ library RentalityUtils {
     uint64 dropOf,
     RentalityPromoService promoService,
     string memory promo,
-    address user
+    address user,
+    uint insurance
   ) public view returns (Schemas.PaymentInfo memory, uint, uint, uint, bool) {
     bool usePromo = false;
     Schemas.CarInfo memory carInfo = addresses.carService.getCarInfoById(carId);
@@ -534,6 +535,7 @@ library RentalityUtils {
     uint64 daysOfTrip = getCeilDays(startDateTime, endDateTime);
 
      uint64 discount = uint64(promoService.getDiscountByPromo(promo, user));
+
 
  uint64 priceWithDiscount = addresses.paymentService.calculateSumWithDiscount(
       addresses.carService.ownerOf(carId),
@@ -556,10 +558,12 @@ library RentalityUtils {
       govTax +
       carInfo.securityDepositPerTripInUsdCents +
       pickUp +
-      dropOf;
+      dropOf + 
+      insurance;
 
     uint priceWithPromo = 0;
     if (discount > 0) {
+      require(discount == 100 || (pickUp == 0 && pickUp == 0), 'PickUp and DropOf should be 0');
       usePromo = true;
       uint sumBeforePromo = priceWithDiscount + salesTaxes + govTax + pickUp + dropOf;
       priceWithPromo = (sumBeforePromo - ((sumBeforePromo * discount) / 100));
@@ -577,7 +581,7 @@ library RentalityUtils {
 
       valueSumInCurrency = addresses.currencyConverterService.getFromUsd(
         currencyType,
-        priceWithPromo + carInfo.securityDepositPerTripInUsdCents,
+        priceWithPromo + carInfo.securityDepositPerTripInUsdCents + insurance,
         rate,
         decimals
       );
@@ -601,6 +605,8 @@ library RentalityUtils {
       pickUp,
       dropOf
     );
+    if(discount == 100) 
+    valueSumInCurrency = 0;
 
     return (paymentInfo, valueSumInCurrency, valueSumInCurrencyBeforePromo, priceWithPromo, usePromo);
   }
