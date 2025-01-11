@@ -15,6 +15,16 @@ async function deployDefaultFixture() {
   const utils = await RentalityUtils.deploy()
   const RentalityQuery = await ethers.getContractFactory('RentalityQuery')
   const query = await RentalityQuery.deploy()
+  const RentalityViewLib = await ethers.getContractFactory('RentalityViewLib', {
+    libraries:
+     {
+      RentalityUtils: await utils.getAddress(),
+    }
+  }
+  )
+
+  const viewLib = await RentalityViewLib.deploy()
+
 
   const RentalityGeoService = await ethers.getContractFactory('RentalityGeoService')
 
@@ -197,7 +207,7 @@ async function deployDefaultFixture() {
   })
   let TripsQuery = await ethers.getContractFactory('RentalityTripsQuery', {
     libraries: {
-      RentalityUtils: await utils.getAddress(),
+
     },
   })
   let tripsQuery = await TripsQuery.deploy()
@@ -269,7 +279,7 @@ async function deployDefaultFixture() {
   const RentalityAdminGateway = await ethers.getContractFactory('RentalityAdminGateway', {
     signer: owner,
     libraries: {
-      RentalityTripsQuery: await tripsQuery.getAddress(),
+      RentalityViewLib: await viewLib.getAddress(),
       RentalityUtils: await utils.getAddress(),
     },
   })

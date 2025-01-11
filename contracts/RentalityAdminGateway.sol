@@ -6,10 +6,10 @@ import './RentalityPlatform.sol';
 import './abstract/IRentalityAdminGateway.sol';
 import {RentalityContract, RentalityGateway} from './RentalityGateway.sol';
 import './Schemas.sol';
-import './Schemas.sol';
 import './features/refferalProgram/RentalityReferralProgram.sol';
 import {RentalityReferralProgram} from './features/refferalProgram/RentalityReferralProgram.sol';
 import {RentalityPromoService} from './features/RentalityPromo.sol';
+import {RentalityViewLib} from './libs/RentalityViewLib.sol';
 
 /// @custom:oz-upgrades-unsafe-allow external-library-linking
 contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
@@ -290,7 +290,7 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
     uint page,
     uint itemsPerPage
   ) public view returns (Schemas.AllTripsDTO memory) {
-    return RentalityTripsQuery.getAllTrips(getRentalityContracts(), filter, page, itemsPerPage);
+    return RentalityViewLib.getAllTrips(getRentalityContracts(), filter,promoService, page, itemsPerPage);
   }
 
   // @notice Manages user roles by granting or revoking specific roles.
