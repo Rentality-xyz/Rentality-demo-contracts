@@ -13,6 +13,8 @@ const {
   signKycInfo,
   RefferalProgram,
   signTCMessage,
+  AdminTripStatus,
+  PaymentStatus,
 } = require('../utils')
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 const { ethers } = require('hardhat')
@@ -83,7 +85,7 @@ async function calculateTripPriceWithCurrencyConversion(
   }
 }
 
-describe ('Rentality promoService Service', function () {
+describe('Rentality promoService Service', function () {
   let rentalityPlatform,
     rentalityGateway,
     transactionHistory,
@@ -179,9 +181,9 @@ describe ('Rentality promoService Service', function () {
           photo: '',
         },
         promos[0],
-        { value: result.totalPrice }
+        { value: 0 }
       )
-    ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
+    ).to.changeEtherBalances([guest, rentalityPaymentService], [0, 0])
   })
   it('90 percents promo works fine', async function () {
     const mockCarRequest = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
@@ -656,6 +658,89 @@ describe ('Rentality promoService Service', function () {
     )
   })
 
+  it('Happy case 100 percents', async function () {
+    const mockCarRequest = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
+    await expect(rentalityGateway.connect(host).addCar(mockCarRequest, zeroHash)).not.to.be.reverted
+    const myCars = await rentalityGateway.connect(host).getMyCars()
+    expect(myCars.length).to.equal(1)
+
+    const availableCars = await rentalityGateway
+      .connect(guest)
+      .searchAvailableCarsWithDelivery(
+        0,
+        new Date().getSeconds() + 86400,
+        getEmptySearchCarParams(1),
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
+    expect(availableCars.length).to.equal(1)
+
+    await promoService.generateNumbers(1, 10000, 10, Math.floor(new Date().getTime() / 1000), Math.floor(new Date().getTime() / 1000) + (86400 * 10), 'A')
+    const promos = await promoService.getPromoCodes()
+    const result = await rentalityGateway
+      .connect(guest)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, promos[0])
+
+    const priceWithoutDiscount = await rentalityGateway
+      .connect(guest)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, '')
+
+    const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals, rentalityFee, taxes } = await calculatePayments(
+      rentalityCurrencyConverter,
+      rentalityPaymentService,
+      mockCarRequest.pricePerDayInUsdCents,
+      1,
+      mockCarRequest.securityDepositPerTripInUsdCents
+    )
+
+    await expect(
+      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
+        {
+          carId: 1,
+          startDateTime:Math.floor(new Date().getTime() / 1000),
+          endDateTime: Math.floor(new Date().getTime() / 1000) + 86400,
+          currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
+          insurancePaid: false,
+          photo: '',
+        },
+        promos[0],
+        { value: 0}
+      )
+    ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
+
+    await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0], '', '')).not.to.be.reverted
+    await expect(rentalityGateway.connect(guest).checkInByGuest(1, [0, 0])).not.to.be.reverted
+    await expect(rentalityGateway.connect(guest).checkOutByGuest(1, [0, 0], zeroHash)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).checkOutByHost(1, [0, 0])).not.to.be.reverted
+
+    const trip = await rentalityGateway.getTrip(1)
+    const tripDetails = trip['trip']
+
+    const paymentInfo = tripDetails['paymentInfo']
+
+    const depositValue = await rentalityCurrencyConverter.getFromUsd(
+      ethToken,
+      paymentInfo.depositInUsdCents,
+      paymentInfo.currencyRate,
+      paymentInfo.currencyDecimals
+    )
+
+    const returnToHost = priceWithoutDiscount.totalPrice - depositValue - rentalityFee - taxes
+
+    await owner.sendTransaction({
+      to: await rentalityPaymentService.getAddress(),
+      value: ethers.parseEther('1.0'),
+    })
+
+    await expect(rentalityGateway.connect(host).finishTrip(1, zeroHash)).to.changeEtherBalances(
+      [host, guest],
+      [returnToHost, 0]
+    )
+  })
+
   it('Set KYC INFO with promo give ref points', async function () {
     const mockCarRequest = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
     await expect(rentalityGateway.connect(host).addCar(mockCarRequest, zeroHash)).not.to.be.reverted
@@ -755,5 +840,88 @@ describe ('Rentality promoService Service', function () {
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-resultWithoutPromo.totalPrice, resultWithoutPromo.totalPrice])
   })
+
+
+  it('Trip with promo has promo info', async function () {
+    const mockCarRequest = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
+    await expect(rentalityGateway.connect(host).addCar(mockCarRequest, zeroHash)).not.to.be.reverted
+    const myCars = await rentalityGateway.connect(host).getMyCars()
+    expect(myCars.length).to.equal(1)
+
+    const availableCars = await rentalityGateway
+      .connect(guest)
+      .searchAvailableCarsWithDelivery(
+        0,
+        new Date().getSeconds() + 86400,
+        getEmptySearchCarParams(1),
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
+    expect(availableCars.length).to.equal(1)
+
+
+    await promoService.generateNumbers(1, 10000, 10, Math.floor(new Date().getTime() / 1000), new Date().getTime(), 'A')
+    const promos = await promoService.getPromoCodes()
+
+    const result = await rentalityGateway
+      .connect(guest)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, promos[promos.length - 1])
+
+      const resultWithoutPromo = await rentalityGateway
+      .connect(guest)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo,"")
+      expect(result.totalPrice).to.be.not.eq(resultWithoutPromo.totalPrice)
+    await expect(
+      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
+        {
+          carId: 1,
+          startDateTime:Math.floor(new Date().getTime() / 1000),
+          endDateTime: Math.floor(new Date().getTime() / 1000) + 86400,
+          currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
+          insurancePaid: false,
+          photo: '',
+        },
+        promos[promos.length - 1],
+        { value: result.totalPrice }
+      )
+    ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
+
+
+    await expect(
+      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
+        {
+          carId: 1,
+          startDateTime:Math.floor(new Date().getTime() / 1000),
+          endDateTime: Math.floor(new Date().getTime() / 1000) + 86400,
+          currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
+          insurancePaid: false,
+          photo: '',
+        },
+        promos[promos.length - 1],
+        { value: resultWithoutPromo.totalPrice }
+      )
+    ).to.changeEtherBalances([guest, rentalityPaymentService], [-resultWithoutPromo.totalPrice, resultWithoutPromo.totalPrice])
+    const filter = {
+      paymentStatus: PaymentStatus.Any,
+      status: AdminTripStatus.Any,
+      location: emptyLocationInfo,
+      startDateTime: 0,
+      endDateTime: Math.floor(new Date().getTime() / 1000) + 86400,
+    }
+    filter.location.city = mockCarRequest.locationInfo.locationInfo.city
+    filter.location.state = mockCarRequest.locationInfo.locationInfo.state
+    filter.location.country = mockCarRequest.locationInfo.locationInfo.country
+    const totalTrips = await rentalityAdminGateway.getAllTrips(filter, 1, 10)
+    console.log(await promoService.connect(guest).getUserPromoData())
+    console.log(totalTrips[0])
+    console.log(totalTrips[1])
+
+  })
+
+
 
 })
