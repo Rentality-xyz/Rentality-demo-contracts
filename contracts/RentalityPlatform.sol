@@ -125,6 +125,7 @@ contract RentalityPlatform is UUPSOwnable {
     //  discount = refferalProgram.useDiscount(Schemas.RefferalProgram.CreateTrip, false, addresses.tripService.totalTripCount() + 1);
     Schemas.CarInfo memory carInfo = addresses.carService.getCarInfoById(carId);
 
+    uint insurance = insuranceService.calculateInsuranceForTrip(carId, startDateTime, endDateTime);
     (
       Schemas.PaymentInfo memory paymentInfo,
       uint valueSumInCurrency,
@@ -141,16 +142,10 @@ contract RentalityPlatform is UUPSOwnable {
         dropOf,
         promoService,
         promo,
-        tx.origin
+        tx.origin,
+        insurance
       );
-    uint insurance = insuranceService.calculateInsuranceForTrip(carId, startDateTime, endDateTime);
-    valueSumInCurrency += addresses.currencyConverterService.getFromUsd(
-      currencyType,
-      insurance,
-      paymentInfo.currencyRate,
-      paymentInfo.currencyDecimals
-    );
-
+   
     addresses.paymentService.payCreateTrip{value: msg.value}(currencyType, valueSumInCurrency);
 
     uint tripId = addresses.tripService.createNewTrip(
