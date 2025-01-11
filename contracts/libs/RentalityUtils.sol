@@ -449,6 +449,9 @@ library RentalityUtils {
       currency,
       totalPrice
     );
+    if(discount == 100) {
+      valueSumInCurrency = 0;
+    }
 
     return Schemas.CalculatePaymentsDTO(valueSumInCurrency, rate, decimals);
   }

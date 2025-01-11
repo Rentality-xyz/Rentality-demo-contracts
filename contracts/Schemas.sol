@@ -588,6 +588,7 @@ interface Schemas {
     Trip trip;
     string carMetadataURI;
     LocationInfo carLocation;
+    PromoDTO promoInfo;
   }
 
   struct AllTripsDTO {
@@ -817,5 +818,11 @@ interface Schemas {
     bool isValid;
     bool isDiscount;
     uint value;
+  }
+
+  struct PromoDTO {
+    string promoCode;
+    uint promoCodeValueInPercents;
+    uint promoCodeEnterDate;
   }
 }

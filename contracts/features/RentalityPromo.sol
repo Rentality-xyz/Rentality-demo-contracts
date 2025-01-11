@@ -195,6 +195,7 @@ contract RentalityPromoService is Initializable, UUPSAccess {
       }
       if (!used) {
         userPromo[user].push(Schemas.PromoUsedInfo(promo, promoCode, block.timestamp));
+        tripToPromoData[tripId] = Schemas.PromoTripData(promoCode, tripEarningsInCurrency, tripEarnings);
         return true;
       }
     }
@@ -242,12 +243,42 @@ contract RentalityPromoService is Initializable, UUPSAccess {
     require(userService.isAdmin(msg.sender), 'only admin');
     return promoCodes;
   }
+  function getPromoDiscountByTrip(uint tripId) public view returns (uint) {
+   Schemas.PromoTripData memory tripData = tripToPromoData[tripId];
+   if(bytes(tripData.promo).length == 0) {
+     return 0;
+   }
+   else {
+     return promoPrefixToDisctount[_getPrefix(tripData.promo)];
+   }
+  }
 
   function random(uint min, uint max, uint nonce) internal view returns (uint) {
     uint randomnumber = uint(keccak256(abi.encodePacked(block.timestamp, msg.sender, nonce))) % max;
     randomnumber = randomnumber + min;
     return randomnumber;
   }
+
+function getPromoTripInfo(uint tripId, address user) public view returns (Schemas.PromoDTO memory result) {
+    Schemas.PromoTripData memory tripData = tripToPromoData[tripId];
+    if(bytes(tripData.promo).length == 0) {
+      return result;
+    }
+  Schemas.PromoUsedInfo[] memory promoInfo = userPromo[user];
+  for (uint i = 0; i < promoInfo.length; i++) {
+    if (keccak256(abi.encode(promoInfo[i].promoCode)) == keccak256(abi.encode(tripData.promo))) {
+      result.promoCodeEnterDate = promoInfo[i].usedAt;
+      break;
+    }
+  }
+    result.promoCode = tripData.promo;
+    result.promoCodeValueInPercents = promoPrefixToDisctount[_getPrefix(tripData.promo)];
+}
+
+function getUserPromoData() public view returns (Schemas.PromoUsedInfo[] memory) {
+    return userPromo[msg.sender];
+  }
+
   function _getPrefix(string memory promo) public pure returns (string memory) {
     bytes memory temp = new bytes(1);
     temp[0] = bytes(promo)[0];
