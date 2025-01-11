@@ -89,7 +89,12 @@
     )
     await userService.grantManagerRole(rentalityReferralService)
     const promoService = await ethers.getContractAt('RentalityPromoService', rentalityPromoService)
-    console.log(await promoService.generateGeneralCode())
+
+    const date = new Date('2025-01-15T00:00:01Z')
+  const startDateTime = Math.floor(date.getTime() / 1000)
+  const endDate = new Date('2025-07-31T23:59:59Z')
+  const endDateTime = Math.floor(endDate.getTime() / 1000)
+    console.log(await promoService.generateGeneralCode(startDateTime,endDateTime))
     const generalCode = await promoService.getGeneralPromoCode()
     console.log('General promo is: ', generalCode)
   }
