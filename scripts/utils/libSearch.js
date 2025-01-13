@@ -30,7 +30,7 @@ const existingLibs = [
     pathToDeploy: './scripts/deploy_1f_RentalityRefferalLib.js',
   },
   {
-    name: 'RentalityViewlLib',
+    name: 'RentalityViewLib',
     pathToDeploy: './scripts/scripts/deploy_1g_RentalityViewLib.js',
   },
 ]
