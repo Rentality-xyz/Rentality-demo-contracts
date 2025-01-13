@@ -15,7 +15,7 @@
     "RentalityFloridaTaxes": "0xa65E7855986142F204dD5E14229dC1c1CCE3f261",
     "RentalityBaseDiscount": "0x963eCeC38ad5Bf2eC56185f08FdbFC01d88834AC",
     "RentalityPaymentService": "0x0638e2C99A879eD5D0bA0d6DA7872BD586060FaA",
-    "RentalityUtils": "0x11ABc9C1c57b521522B48329AeE00409f03cf36f",
+    "RentalityUtils": "0x217E7211752A8BbcA2D45caB05bEe0c1547F6802",
     "RentalityGeoParser": "0x128bFe418C90EC077EB532411a88f6EF21BB00E0",
     "RentalityGeoService": "0x2ECb7d9330abA1C47768a374C1f466e4deb9187e",
     "RentalityPetrolEngine": "0xA510EF78f590e9dD8d3c0dDa473907EC697e5a1e",
@@ -26,7 +26,7 @@
     "RentalityQuery": "0x5d5ac5c0ddb2802E48Af5a9A670AD1037e46D026",
     "RealMath": "0x123241f97D9B12609f67dbE45738565DD163c23d",
     "RentalityCarDelivery": "0xE88aAF624A804b188fB5e781E306C0F28dBE5305",
-    "RentalityTripsQuery": "0x2240e501B8F2869eDD7F5977112B55D01f47d423",
+    "RentalityTripsQuery": "0x5624eb0EcE21F083b14ECb384f84b297C33ec77B",
     "RentalityView": "0x83Ad5B96ad590a67176EaaDaFD0068c3Bf808742",
     "RentalityPlatform": "0x78FE6CE5f928437aCEE84cC7eC65dEC1C89E8115",
     "RentalityAdminGateway": "0x19dE77342611e0aF6dD387223309B9397123450b",
@@ -37,7 +37,8 @@
     "RentalityInsurance": "0x5ecCde5f8e51C952982Ec76E9C78DA243bb6Dc99",
     "RentalityTripsView": "0x49A34Cf65683D499c9E1eEF95d0e3735DCF10F19",
     "RentalityReferralProgram": "0x4f7cF63DCd5c418EEBdDb29FC7E5bFf841F51ddF",
-    "RentalityNotificationService": "0x37E1950eE1BCC531478fb0507476505AC0a5fAaf"
+    "RentalityNotificationService": "0x37E1950eE1BCC531478fb0507476505AC0a5fAaf",
+    "RentalityPromoService": "0x488b7c293222318E849faef91dcFD1DaBb8dB7F9"
   },
   {
     "name": "base_sepolia",
