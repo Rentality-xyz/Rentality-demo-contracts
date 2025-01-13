@@ -56,7 +56,7 @@
     "RentalityFloridaTaxes": "0x88927DF5F1E97E8080727A9E1587e6735bfBd56A",
     "RentalityBaseDiscount": "0x4Ab74cc01acb2C29e0CC915dBa72E7a74D1Cd193",
     "RentalityPaymentService": "0x6080F7A1F4fDaED78e01CDC951Bb15588B04EBF7",
-    "RentalityUtils": "0x7cc78d673664B475FfF1Db1cF472B9528E0b9f0c",
+    "RentalityUtils": "0x5845551560Be3d3628272E6F9e494c38921FF05B",
     "RentalityGeoParser": "0xDbF2977c5B8dA6A04807687B57764e7A2001b42c",
     "RentalityGeoService": "0xb1576942d42196a5448eA93105122E4F2Bc26eb4",
     "RentalityPetrolEngine": "0xE4eeffE08F2b0C62c8f69f7C807d85d6c302143C",
@@ -79,7 +79,8 @@
     "RentalityTripsView": "0x921d0897F50d9bC04DA2af069dce7bE631C7D0c5",
     "RentalityRefferalLib": "0x2762b7e6e6A6cD22CF320D491acD5515044b255E",
     "RentalityReferralProgram": "0xBeF58aBf15D45B9c1e2c18339e2c2Dc9520a5e5D",
-    "RentalityPromoService": "0x96687f9B6CBcAA7139f83934e33fa8e96989C153"
+    "RentalityPromoService": "0x96687f9B6CBcAA7139f83934e33fa8e96989C153",
+    "RentalityViewLib": "0x3F8De62854C44eeF4043b5B9eb3b26C26663D9c0"
   },
   {
     "name": "opBNB_testnet",
@@ -98,7 +99,7 @@
     "RentalityFloridaTaxes": "0x4fa8D1B6a03C150f033687B9DfDb0a8029042A36",
     "RentalityBaseDiscount": "0xB0eD952d6CA5Efea85146da5e0a8D4a6c5C3C9A4",
     "RentalityPaymentService": "0xf62a585028e34Dc6864577d66DD0E85bd0d25FC6",
-    "RentalityUtils": "0xA1652E0C7dB841A608e85C87571C4a6e1F0Ba298",
+    "RentalityUtils": "0x97Afbb596A9E86F41cD2569782864B21aEeaA600",
     "RentalityGeoParser": "0xD7DF18D38bB7497c2eC802A55e36b8FF3519B825",
     "RentalityGeoService": "0xc8Df3f5f1a312bc76E17F3A71B0C5e0b26635BCb",
     "RentalityPetrolEngine": "0xE539F9eAd6718fF7EC9D946476D4BcB1298D96D9",
@@ -120,6 +121,7 @@
     "RentalityTripsView": "0x3D76E799d0e3664BeB162074efE52a2398C6e522",
     "RentalityRefferalLib": "0xe43B39a057B7B52726b23C66CE66426E049ef97C",
     "RentalityReferralProgram": "0x876a30DaD07212Cb743031F530b24e9a095d7C90",
-    "RentalityPromoService": "0xc61f6425f4E4205750DB33019E5bA11D659A2bBb"
+    "RentalityPromoService": "0xc61f6425f4E4205750DB33019E5bA11D659A2bBb",
+    "RentalityViewLib": "0x7365378A0F1C9EaE41242B2a5792AeE726479828"
   }
 ]
