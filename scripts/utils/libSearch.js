@@ -38,7 +38,7 @@ const existingLibs = [
 const getContractLibs = (contract, chainId) => {
   let libs = {}
   const pathToContract = findContractFile(contract, pathToContractFolder)
-  console.log("PATH TO CONTRACT",pathToContract)
+
   for (let i = 0; i < existingLibs.length; i++) {
     const libName = searchPatternInFile(pathToContract, existingLibs[i].name)
     if (libName === null) continue
