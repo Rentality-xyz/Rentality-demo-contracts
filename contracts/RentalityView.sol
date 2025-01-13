@@ -12,7 +12,6 @@ import './libs/RentalityTripsQuery.sol';
 import './libs/RentalityQuery.sol';
 import '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 import '@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol';
-import './libs/RentalityTripsQuery.sol';
 import './RentalityGateway.sol';
 import {RentalityTripsView, FunctionNotFound} from './RentalityTripsView.sol';
 import {RentalityReferralProgram} from './features/refferalProgram/RentalityReferralProgram.sol';
