@@ -44,8 +44,8 @@
   {
     "name": "base_sepolia",
     "chainId": 84532,
-    "EthToUsdPriceFeedAddress": "0x4aDC67696bA383F43DD60A9e78F2C97Fbbfc7cb1",
     "CivicGatewayTokenContract": "0xF65b6396dF6B7e2D8a6270E3AB6c7BB08BAEF22E",
+    "EthToUsdPriceFeedAddress": "0x4aDC67696bA383F43DD60A9e78F2C97Fbbfc7cb1",
     "UsdtToUsdPriceFeedAddress": "0x3ec8593F930EA45ea58c968260e6e9FF53FC934f",
     "CivicMockVerifier": "0xc8Df3f5f1a312bc76E17F3A71B0C5e0b26635BCb",
     "RentalityUserService": "0xE15378Ad98796BB35cbbc116DfC70d3416B52D45",
@@ -86,9 +86,9 @@
   {
     "name": "opBNB_testnet",
     "chainId": 5611,
+    "CivicGatewayTokenContract": "0xF65b6396dF6B7e2D8a6270E3AB6c7BB08BAEF22E",
     "EthToUsdPriceFeedAddress": "0x879859c5170FBb1125F06EAAF651Df2CeaC79c23",
     "UsdtToUsdPriceFeedAddress": "0xB541215585dD13ea75c3e7f9F1F3027a4b7B2C3a",
-    "CivicGatewayTokenContract": "0xF65b6396dF6B7e2D8a6270E3AB6c7BB08BAEF22E",
     "CivicMockVerifier": "0xefE8Abd0B2d7429cb07E682D764f68DD5e0e8e1d",
     "RentalityUserService": "0x3A45122816A284dC8f6250Cc3CaF7b0F1cF65e8C",
     "RentalityClaimService": "0x5134D16E77568B072Ad4af2dBefD8b0c09d96751",
