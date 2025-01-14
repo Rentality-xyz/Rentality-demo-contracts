@@ -198,14 +198,14 @@ describe('RentalityUserService: KYC management', function () {
 
     const Signature = await signTCMessage(host)
 
-    await rentalityGateway.connect(host).setKYCInfo('name', 'surname', '13123', Signature)
+    await rentalityGateway.connect(host).setKYCInfo('name', 'surname', '13123', Signature,zeroHash)
     const hostData = await rentalityUserService.connect(owner).getKYCInfo(host.address)
 
     expect(hostData.isTCPassed).to.be.true
-    expect(hostData.TCSignature).to.be.eq(Signature)
+    expect(hostData.TCSignature,zeroHash).to.be.eq(Signature,zeroHash)
 
     await expect(
-      rentalityGateway.connect(guest).setKYCInfo('name', 'surname', '13123', Signature)
+      rentalityGateway.connect(guest).setKYCInfo('name', 'surname', '13123', Signature,zeroHash)
     ).to.be.revertedWith('Wrong signature.')
   })
 })
