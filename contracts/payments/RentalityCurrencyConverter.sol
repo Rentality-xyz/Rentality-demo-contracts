@@ -143,6 +143,9 @@ contract RentalityCurrencyConverter is Initializable, UUPSAccess {
     uint insurancePriceInUsdCents,
     RentalityPromoService promoService
   ) public view returns (uint, uint, uint, uint) {
+    Schemas.PromoTripData memory tripData = promoService.getTripPromoData(paymentInfo.tripId);
+    uint discount = promoService.getPromoDiscountByTrip(paymentInfo.tripId);
+
 
     uint256 valueToHostInUsdCents = paymentInfo.priceWithDiscount +
       paymentInfo.pickUpFee +
@@ -165,6 +168,10 @@ contract RentalityCurrencyConverter is Initializable, UUPSAccess {
       paymentInfo.currencyRate,
       paymentInfo.currencyDecimals
     );
+    if(discount == 100) {
+      valueToGuest = 0;
+      valueToGuestInUsdCents = 0;
+    }
     return (valueToHost, valueToGuest, valueToHostInUsdCents, valueToGuestInUsdCents);
   }
 

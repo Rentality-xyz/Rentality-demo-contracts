@@ -224,7 +224,7 @@ dimoTokenId: 0,
       insuranceIncluded: true,
     }
 
-    await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest, zeroHash)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
@@ -275,9 +275,9 @@ dimoTokenId: 0,
     await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
     await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0], '', '')).not.to.be.reverted
     await expect(rentalityGateway.connect(guest).checkInByGuest(1, [0, 0])).not.to.be.reverted
-    await expect(rentalityGateway.connect(guest).checkOutByGuest(1, [0, 0], zeroHash)).not.to.be.reverted
+    await expect(rentalityGateway.connect(guest).checkOutByGuest(1, [0, 0])).not.to.be.reverted
     await expect(rentalityGateway.connect(host).checkOutByHost(1, [0, 0])).not.to.be.reverted
-    await expect(rentalityGateway.connect(host).finishTrip(1, zeroHash)).to.not.reverted
+    await expect(rentalityGateway.connect(host).finishTrip(1)).to.not.reverted
 
     let totalDeliveryPrice = await deliveryService
       .connect(host)
@@ -368,7 +368,7 @@ dimoTokenId: 0,
       insurancePriceInUsdCents: 0,
 dimoTokenId: 0
     }
-    await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest, zeroHash)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest)).not.to.be.reverted
 
     const mockCreateCarRequest1 = {
       tokenUri: 'uri',
@@ -390,7 +390,7 @@ dimoTokenId: 0
       insurancePriceInUsdCents: 0,
 dimoTokenId: 0
     }
-    await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest1, zeroHash)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest1)).not.to.be.reverted
 
     const mockCreateCarRequest2 = {
       tokenUri: 'uri',
@@ -412,7 +412,7 @@ dimoTokenId: 0
       insurancePriceInUsdCents: 0,
 dimoTokenId: 0
     }
-    await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest2, zeroHash)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest2)).not.to.be.reverted
     let loc = {
       latitude: pickUpLat,
       longitude: pickUpLon,
@@ -483,10 +483,10 @@ dimoTokenId: 0
       insurancePriceInUsdCents: 0,
 dimoTokenId: 0
     }
-    await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest4, zeroHash)).not.to.be.reverted
-    await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest5, zeroHash)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest4)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest5)).not.to.be.reverted
 
-    await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest3, zeroHash)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest3)).not.to.be.reverted
 
     let emptySearchParams = { ...getEmptySearchCarParams(), userLocation: loc }
     let result = await rentalityGateway.searchAvailableCarsWithDelivery(0, 1, emptySearchParams, loc, loc)

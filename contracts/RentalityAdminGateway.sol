@@ -6,10 +6,10 @@ import './RentalityPlatform.sol';
 import './abstract/IRentalityAdminGateway.sol';
 import {RentalityContract, RentalityGateway} from './RentalityGateway.sol';
 import './Schemas.sol';
-import './Schemas.sol';
 import './features/refferalProgram/RentalityReferralProgram.sol';
 import {RentalityReferralProgram} from './features/refferalProgram/RentalityReferralProgram.sol';
 import {RentalityPromoService} from './features/RentalityPromo.sol';
+import {RentalityViewLib} from './libs/RentalityViewLib.sol';
 import {RentalityDimoService} from './features/RentalityDimoService.sol';
 
 /// @custom:oz-upgrades-unsafe-allow external-library-linking
@@ -253,7 +253,7 @@ function updateDimoService(address dimoServiceAddress) public onlyAdmin {
   /// @notice Confirms check-out for a trip.
   /// @param tripId The ID of the trip.
   function payToHost(uint256 tripId) public {
-    rentalityPlatform.confirmCheckOut(tripId, bytes32(''));
+    rentalityPlatform.confirmCheckOut(tripId);
   }
 
   /// @notice Rejects a trip request. Only callable by hosts.
@@ -298,7 +298,7 @@ function updateDimoService(address dimoServiceAddress) public onlyAdmin {
     uint page,
     uint itemsPerPage
   ) public view returns (Schemas.AllTripsDTO memory) {
-    return RentalityTripsQuery.getAllTrips(getRentalityContracts(), filter, page, itemsPerPage);
+    return RentalityViewLib.getAllTrips(getRentalityContracts(), filter,promoService, page, itemsPerPage);
   }
 
   // @notice Manages user roles by granting or revoking specific roles.

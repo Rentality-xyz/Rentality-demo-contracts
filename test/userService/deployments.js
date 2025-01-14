@@ -1,5 +1,5 @@
 const { ethers, upgrades } = require('hardhat')
-const { ethToken, signTCMessage, signKycInfo, emptyKyc, zeroHash } = require('../utils')
+const { ethToken, signTCMessage, signKycInfo, emptyKyc } = require('../utils')
 
 // We define a fixture to reuse the same setup in every test.
 // We use loadFixture to run this setup once, snapshot that state,
@@ -16,8 +16,17 @@ async function deployDefaultFixture() {
 
   await utils.waitForDeployment()
 
-  const RentalityViewLib = await ethers.getContractFactory('RentalityViewLib')
+
+  const RentalityViewLib = await ethers.getContractFactory('RentalityViewLib', {
+    libraries:
+     {
+      RentalityUtils: await utils.getAddress(),
+    }
+  }
+  )
+
   const viewLib = await RentalityViewLib.deploy()
+
 
   const RentalityQuery = await ethers.getContractFactory('RentalityQuery')
   const query = await RentalityQuery.deploy()
@@ -36,7 +45,7 @@ async function deployDefaultFixture() {
   })
   let TripsQuery = await ethers.getContractFactory('RentalityTripsQuery', {
     libraries: {
-      RentalityUtils: await utils.getAddress(),
+
     },
   })
   let tripsQuery = await TripsQuery.deploy()
@@ -134,7 +143,7 @@ async function deployDefaultFixture() {
   ])
 
   await rentalityCarToken.waitForDeployment()
-  
+
 
   const DimoService = await ethers.getContractFactory('RentalityDimoService')
   const dimoService = await upgrades.deployProxy(DimoService, [await rentalityUserService.getAddress(), await rentalityCarToken.getAddress(),owner.address])
@@ -325,12 +334,12 @@ async function deployDefaultFixture() {
 
   rentalityGateway = await ethers.getContractAt('IRentalityGateway', await rentalityGateway.getAddress())
 
-  await rentalityGateway.connect(host).setKYCInfo(' ', ' ', ' ', hostSignature, zeroHash)
-  await rentalityGateway.connect(guest).setKYCInfo(' ', ' ', ' ', guestSignature, zeroHash)
+  await rentalityGateway.connect(host).setKYCInfo(' ', ' ', ' ', hostSignature)
+  await rentalityGateway.connect(guest).setKYCInfo(' ', ' ', ' ', guestSignature)
 
   const RentalityAdminGateway = await ethers.getContractFactory('RentalityAdminGateway', {
     libraries: {
-      RentalityTripsQuery: await tripsQuery.getAddress(),
+      RentalityViewLib: await viewLib.getAddress(),
       RentalityUtils: await utils.getAddress(),
     },
   })
