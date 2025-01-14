@@ -300,7 +300,8 @@ contract RentalityPlatform is UUPSOwnable {
     string memory nickName,
     string memory mobilePhoneNumber,
     string memory profilePhoto,
-    bytes memory TCSignature
+    bytes memory TCSignature,
+    bytes4 hash
   ) public {
     refferalProgram.generateReferralHash();
     refferalProgram.passReferralProgram(
@@ -310,18 +311,9 @@ contract RentalityPlatform is UUPSOwnable {
       promoService
     );
     return addresses.userService.setKYCInfo(nickName, mobilePhoneNumber, profilePhoto, TCSignature);
+    refferalProgram.saveRefferalHash(hash);
   }
-  function setKYCWithInsuranceInfo(
-    string memory nickName,
-    string memory mobilePhoneNumber,
-    string memory profilePhoto,
-    bytes memory TCSignature,
-    Schemas.SaveInsuranceRequest memory insuranceInfo) public {
-    setKYCInfo(nickName, mobilePhoneNumber, profilePhoto,TCSignature);
-    saveGuestInsurance(insuranceInfo);
-
-  }
-
+ 
   function setCivicKYCInfo(address user, Schemas.CivicKYCInfo memory civicKycInfo) public {
     refferalProgram.passReferralProgram(Schemas.RefferalProgram.PassCivic, bytes(''), user, promoService);
     addresses.userService.setCivicKYCInfo(user, civicKycInfo);

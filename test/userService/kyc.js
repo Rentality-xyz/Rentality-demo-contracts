@@ -37,7 +37,7 @@ describe('RentalityUserService: KYC management', function () {
       issueCountry: '',
       email: '',
     }
-    await rentalityGateway.connect(guest).setKYCInfo('name', 'surname', 'phoneNumber', guestSignature)
+    await rentalityGateway.connect(guest).setKYCInfo('name', 'surname', 'phoneNumber', guestSignature,zeroHash)
 
     await expect(
       await rentalityUserService.connect(owner).manageRole(UserRole.KYCManager, await anonymous.getAddress(), true)
@@ -54,7 +54,7 @@ describe('RentalityUserService: KYC management', function () {
     const expirationDate = (await time.latest()) + ONE_YEAR_IN_SECS
 
     const guestSignature = await signTCMessage(guest)
-    await rentalityGateway.connect(guest).setKYCInfo('name', 'surname', 'phoneNumber', guestSignature)
+    await rentalityGateway.connect(guest).setKYCInfo('name', 'surname', 'phoneNumber', guestSignature,zeroHash)
     await time.increaseTo(expirationDate + 1)
 
     expect(await rentalityUserService.hasValidKYC(guest.address)).to.equal(false)
@@ -65,7 +65,7 @@ describe('RentalityUserService: KYC management', function () {
     const ONE_YEAR_IN_SECS = 365 * 24 * 60 * 60
     const expirationDate = (await time.latest()) + ONE_YEAR_IN_SECS
     const guestSignature = await signTCMessage(guest)
-    await rentalityGateway.connect(guest).setKYCInfo('name', 'phoneNumber', 'profilePicture', guestSignature)
+    await rentalityGateway.connect(guest).setKYCInfo('name', 'phoneNumber', 'profilePicture', guestSignature,zeroHash)
 
     const kycInfo = await rentalityUserService.connect(guest).getMyKYCInfo()
 
@@ -81,7 +81,7 @@ describe('RentalityUserService: KYC management', function () {
     const expirationDate = (await time.latest()) + ONE_YEAR_IN_SECS
 
     const guestSignature = await signTCMessage(guest)
-    await rentalityGateway.connect(guest).setKYCInfo('name', 'surname', 'phoneNumber', guestSignature)
+    await rentalityGateway.connect(guest).setKYCInfo('name', 'surname', 'phoneNumber', guestSignature,zeroHash)
 
     await expect(rentalityUserService.connect(host).getMyKYCInfo(guest.address)).to.be.reverted
   })
@@ -100,7 +100,7 @@ describe('RentalityUserService: KYC management', function () {
     }
 
     const guestSignature = await signTCMessage(guest)
-    await rentalityGateway.connect(guest).setKYCInfo('name', 'phoneNumber', 'profilePicture', guestSignature)
+    await rentalityGateway.connect(guest).setKYCInfo('name', 'phoneNumber', 'profilePicture', guestSignature,zeroHash)
 
     const isManager = await rentalityUserService.isManager(manager.address)
     expect(isManager).to.equal(true)
@@ -164,8 +164,8 @@ describe('RentalityUserService: KYC management', function () {
     const hostSignature = await signTCMessage(host)
     const guestSignature = await signTCMessage(guest)
 
-    await rentalityGateway.connect(guest).setKYCInfo('name', 'phoneNumberGuest', 'surname', guestSignature)
-    await rentalityGateway.connect(host).setKYCInfo('name', 'phoneNumberHost', 'surname', hostSignature)
+    await rentalityGateway.connect(guest).setKYCInfo('name', 'phoneNumberGuest', 'surname', guestSignature,zeroHash)
+    await rentalityGateway.connect(host).setKYCInfo('name', 'phoneNumberHost', 'surname', hostSignature, zeroHash)
     await expect(
       await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {

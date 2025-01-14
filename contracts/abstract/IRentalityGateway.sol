@@ -26,16 +26,11 @@ interface IRentalityGateway {
     string memory nickName,
     string memory mobilePhoneNumber,
     string memory profilePhoto,
-    bytes memory TCSignature
+    bytes memory TCSignature,
+    bytes4 hash
  ) external;
 
-   function setKYCWithInsuranceInfo(
-    string memory nickName,
-    string memory mobilePhoneNumber,
-    string memory profilePhoto,
-    bytes memory TCSignature,
-    Schemas.SaveInsuranceRequest memory insuranceInfo) external;
-
+ 
   /// @notice Set KYC information for a specific user based on Civic identity
   /// @param user The address of the user whose Civic KYC information is being set
   /// @param civicKycInfo The Civic KYC information structure containing the user's data
