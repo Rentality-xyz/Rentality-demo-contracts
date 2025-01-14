@@ -522,7 +522,7 @@ describe('Referral program', function () {
     await refferalProgram.connect(manager).saveRefferalHash(hash)
     await expect(rentalityGateway.connect(anonymous).setKYCInfo(' ', ' ', ' ', signTCMessage(anonymous),hash)).to.not
       .reverted
-    await expect(rentalityGateway.connect(manager).setKYCInfo(' ', ' ', ' ', signTCMessage(manager))).to.not
+    await expect(rentalityGateway.connect(manager).setKYCInfo(' ', ' ', ' ', signTCMessage(manager),hash)).to.not
       .reverted
 
     const hashPoints = await refferalProgram.getReadyToClaimFromRefferalHash(host.address)

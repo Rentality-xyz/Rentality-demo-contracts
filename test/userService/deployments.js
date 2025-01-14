@@ -1,5 +1,5 @@
 const { ethers, upgrades } = require('hardhat')
-const { ethToken, signTCMessage, signKycInfo, emptyKyc } = require('../utils')
+const { ethToken, signTCMessage, signKycInfo, emptyKyc, zeroHash } = require('../utils')
 
 // We define a fixture to reuse the same setup in every test.
 // We use loadFixture to run this setup once, snapshot that state,
