@@ -82,8 +82,7 @@
             { "type": "bool", "name": "insuranceRequired" },
             { "type": "uint256", "name": "insurancePriceInUsdCents" }
           ]
-        },
-        { "type": "bytes32", "name": "refferalHash" }
+        }
       ],
       "outputs": [{ "type": "uint256", "name": "" }]
     },
@@ -156,8 +155,7 @@
       "payable": false,
       "inputs": [
         { "type": "uint256", "name": "tripId" },
-        { "type": "uint64[]", "name": "panelParams" },
-        { "type": "bytes32", "name": "refferalHash" }
+        { "type": "uint64[]", "name": "panelParams" }
       ],
       "outputs": []
     },
@@ -177,10 +175,7 @@
       "name": "confirmCheckOut",
       "constant": false,
       "payable": false,
-      "inputs": [
-        { "type": "uint256", "name": "tripId" },
-        { "type": "bytes32", "name": "refferalHash" }
-      ],
+      "inputs": [{ "type": "uint256", "name": "tripId" }],
       "outputs": []
     },
     {
@@ -269,10 +264,7 @@
       "name": "finishTrip",
       "constant": false,
       "payable": false,
-      "inputs": [
-        { "type": "uint256", "name": "tripId" },
-        { "type": "bytes32", "name": "refferalHash" }
-      ],
+      "inputs": [{ "type": "uint256", "name": "tripId" }],
       "outputs": []
     },
     {
@@ -413,8 +405,7 @@
             { "type": "string", "name": "issueCountry" },
             { "type": "string", "name": "email" }
           ]
-        },
-        { "type": "bytes32", "name": "refferalHash" }
+        }
       ],
       "outputs": []
     },
@@ -427,26 +418,29 @@
         { "type": "string", "name": "nickName" },
         { "type": "string", "name": "mobilePhoneNumber" },
         { "type": "string", "name": "profilePhoto" },
-        { "type": "bytes", "name": "TCSignature" },
-        { "type": "bytes32", "name": "refferalHash" }
+        { "type": "bytes", "name": "TCSignature" }
       ],
       "outputs": []
     },
     {
       "type": "function",
-      "name": "setMyCivicKYCInfo",
+      "name": "setKYCWithInsuranceInfo",
       "constant": false,
       "payable": false,
       "inputs": [
+        { "type": "string", "name": "nickName" },
+        { "type": "string", "name": "mobilePhoneNumber" },
+        { "type": "string", "name": "profilePhoto" },
+        { "type": "bytes", "name": "TCSignature" },
         {
           "type": "tuple",
-          "name": "civicKycInfo",
+          "name": "insuranceInfo",
           "components": [
-            { "type": "string", "name": "fullName" },
-            { "type": "string", "name": "licenseNumber" },
-            { "type": "uint64", "name": "expirationDate" },
-            { "type": "string", "name": "issueCountry" },
-            { "type": "string", "name": "email" }
+            { "type": "string", "name": "companyName" },
+            { "type": "string", "name": "policyNumber" },
+            { "type": "string", "name": "photo" },
+            { "type": "string", "name": "comment" },
+            { "type": "uint8", "name": "insuranceType" }
           ]
         }
       ],
