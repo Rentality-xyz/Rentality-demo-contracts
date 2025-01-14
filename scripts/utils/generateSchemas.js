@@ -41,6 +41,7 @@ function mapSolidityTypeToTs(solidityType) {
     case 'int[]':
       return 'bigint[]'
     case 'bytes32':
+    case 'bytes4':
     case 'bytes':
       return 'string'
     case 'address':
