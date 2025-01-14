@@ -59,7 +59,7 @@ describe('Ability to update car during trip', function () {
     await expect(
       rentalityGateway
         .connect(host)
-        .addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin), zeroHash)
+        .addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
     ).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
@@ -104,7 +104,7 @@ describe('Ability to update car during trip', function () {
     await expect(
       rentalityGateway
         .connect(host)
-        .addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin), zeroHash)
+        .addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
     ).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
@@ -173,7 +173,7 @@ describe('Ability to update car during trip', function () {
     await expect(
       rentalityGateway
         .connect(host)
-        .addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin), zeroHash)
+        .addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
     ).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)

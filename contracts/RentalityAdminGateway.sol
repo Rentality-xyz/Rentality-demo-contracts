@@ -245,7 +245,7 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
   /// @notice Confirms check-out for a trip.
   /// @param tripId The ID of the trip.
   function payToHost(uint256 tripId) public {
-    rentalityPlatform.confirmCheckOut(tripId, bytes32(''));
+    rentalityPlatform.confirmCheckOut(tripId);
   }
 
   /// @notice Rejects a trip request. Only callable by hosts.

@@ -29,8 +29,11 @@ contract RentalityPromoService is Initializable, UUPSAccess {
 
   function generateGeneralCode(uint startDateTime, uint endDateTime) public {
     require(userService.isAdmin(msg.sender), 'only admin');
-    uint time = random(10000, 99999, type(uint).max);
-    string memory generalCodeString = string.concat('D', Strings.toString(time));
+    string memory generalCodeString = string("WAGMI2025");
+    promoPrefixes[2] = string('W');
+    promoPrefixToDisctount[string('W')] = 20;
+    promoPrefixToDisctount[string('D')] = 0;
+
     generalCode = Schemas.Promo(
       Schemas.PromoType.OneTime,
       generalCodeString,
@@ -40,13 +43,6 @@ contract RentalityPromoService is Initializable, UUPSAccess {
       block.timestamp,
       Schemas.PromoStatus.Active
     );
-
-    promoPrefixes[2] = string('D');
-    promoPrefixToDisctount[string('D')] = 20;
-
-    promoPrefixToDisctount[string(TWENTY_PERCENTS)] = 0;
-
-    promoPrefixToRefferalPoints[string('C')] = 500;
   }
 
   function addPrefix(string memory prefix, uint discount) public {
@@ -194,7 +190,7 @@ contract RentalityPromoService is Initializable, UUPSAccess {
         }
       }
       if (!used) {
-        userPromo[user].push(Schemas.PromoUsedInfo(promo, promoCode, block.timestamp));
+        userPromo[user].push(Schemas.PromoUsedInfo(generalCode, promoCode, block.timestamp));
         tripToPromoData[tripId] = Schemas.PromoTripData(promoCode, tripEarningsInCurrency, tripEarnings);
         return true;
       }
@@ -204,21 +200,27 @@ contract RentalityPromoService is Initializable, UUPSAccess {
   function rejectDiscountByTrip(uint tripId, address user) public {
     require(userService.isManager(msg.sender), 'Only for Manager.');
     string memory promoCode = tripToPromoData[tripId].promo;
+    if(bytes(promoCode).length == 0)
+    return;
+
     Schemas.Promo memory promo = promoToPromoData[promoCode];
     if (promo.createdAt != 0 && promo.status == Schemas.PromoStatus.Used) {
       promoToPromoData[promoCode].status = Schemas.PromoStatus.Active;
+    }    
       delete tripToPromoData[tripId];
       Schemas.PromoUsedInfo[] memory userUsedPromo = userPromo[user];
       for (uint i = 0; i < userUsedPromo.length; i++) {
-        if (keccak256(abi.encode(promoCode)) == keccak256(abi.encode(userUsedPromo[i].promo.code))) {
+        if (keccak256(abi.encode(promoCode)) == keccak256(abi.encode(userUsedPromo[i].promoCode))) {
           if (i == userUsedPromo.length - 1) userPromo[user].pop();
           else {
-            for (uint j = i; j < userUsedPromo.length - 1; j++) userUsedPromo[j] = userUsedPromo[j + 1];
+            for (uint j = i; j < userUsedPromo.length - 1; j++) 
+             userUsedPromo[j] = userUsedPromo[j + 1];
+
             userPromo[user] = userUsedPromo;
-          }
+            userPromo[user].pop();
+            }
           break;
         }
-      }
     }
   }
 
