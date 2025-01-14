@@ -158,8 +158,8 @@
     "RentalityDimoService": "0xFC022d91cEF6A97f1D97E64AF7b6280C0eff80F8",
     "RentalityView": "0x1E28295a141370f694cDB58b18634C03BE9D2eA4",
     "RentalityPlatformHelper": "0xa3C3824133535Aed7194762c629d8E7bDe656099",
-    "RentalityPlatform": "0x00D4dcDA134d43F44de1AAFe98c548fD9874b2bd",
-    "RentalityAdminGateway": "0xe2E9092Bc59DC2C5b4ac19552ff97DE9c0c590a4",
-    "RentalityGateway": "0x4803946159a3E5DBeD51B9b38d4Dcf45F122503c"
+    "RentalityPlatform": "0xA505112BC26DbC61958b4C26261C901e4f572906",
+    "RentalityAdminGateway": "0x77Ff8017dC31A1cAB90827A1d274402924EB953d",
+    "RentalityGateway": "0x167238411aaB7274B62447889FdE647ac95ADbb3"
   }
 ]
