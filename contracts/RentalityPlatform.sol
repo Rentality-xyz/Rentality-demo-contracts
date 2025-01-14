@@ -203,25 +203,25 @@ contract RentalityPlatform is UUPSOwnable {
 
   /// @notice Confirms the check-out for a trip.
   /// @param tripId The ID of the trip to be confirmed.
-  function confirmCheckOut(uint256 tripId, bytes32 refferalHash) public {
+  function confirmCheckOut(uint256 tripId) public {
     RentalityUtils.verifyConfirmCheckOut(addresses, tripId);
-    _finishTrip(tripId, refferalHash);
+    _finishTrip(tripId);
   }
 
   /// @notice Finish a trip on the Rentality platform.
   /// @param tripId The ID of the trip to finish.
-  function finishTrip(uint256 tripId, bytes32 refferalHash) public {
+  function finishTrip(uint256 tripId) public {
     Schemas.Trip memory trip = addresses.tripService.getTrip(tripId);
     require(
       trip.status == Schemas.TripStatus.CheckedOutByHost && trip.tripFinishedBy == trip.guest,
       'The trip is not CheckedOutByHost'
     );
-    _finishTrip(tripId, refferalHash);
+    _finishTrip(tripId);
   }
 
   /// @notice Finish a trip on the Rentality platform.
   /// @param tripId The ID of the trip to finish.
-  function _finishTrip(uint256 tripId, /* bool useRefferalDiscount,*/ bytes32 refferalHash) internal {
+  function _finishTrip(uint256 tripId /* bool useRefferalDiscount,*/) internal {
     addresses.tripService.finishTrip(tripId);
     Schemas.Trip memory trip = addresses.tripService.getTrip(tripId);
 
@@ -300,27 +300,34 @@ contract RentalityPlatform is UUPSOwnable {
     string memory nickName,
     string memory mobilePhoneNumber,
     string memory profilePhoto,
-    bytes memory TCSignature,
-    bytes32 refferalHash
+    bytes memory TCSignature
   ) public {
     refferalProgram.generateReferralHash();
     refferalProgram.passReferralProgram(
       Schemas.RefferalProgram.SetKYC,
-      refferalHash,
       bytes(''),
       tx.origin,
       promoService
     );
     return addresses.userService.setKYCInfo(nickName, mobilePhoneNumber, profilePhoto, TCSignature);
   }
+  function setKYCWithInsuranceInfo(
+    string memory nickName,
+    string memory mobilePhoneNumber,
+    string memory profilePhoto,
+    bytes memory TCSignature,
+    Schemas.SaveInsuranceRequest memory insuranceInfo) public {
+    setKYCInfo(nickName, mobilePhoneNumber, profilePhoto,TCSignature);
+    saveGuestInsurance(insuranceInfo);
+}
 
-  function setCivicKYCInfo(address user, Schemas.CivicKYCInfo memory civicKycInfo, bytes32 refferalHash) public {
-    refferalProgram.passReferralProgram(Schemas.RefferalProgram.PassCivic, refferalHash, bytes(''), user, promoService);
+  function setCivicKYCInfo(address user, Schemas.CivicKYCInfo memory civicKycInfo) public {
+    refferalProgram.passReferralProgram(Schemas.RefferalProgram.PassCivic, bytes(''), user, promoService);
     addresses.userService.setCivicKYCInfo(user, civicKycInfo);
   }
-  function setMyCivicKYCInfo(Schemas.CivicKYCInfo memory civicKycInfo) public {
-    addresses.userService.setMyCivicKYCInfo(tx.origin, civicKycInfo);
-  }
+  // function setMyCivicKYCInfo(Schemas.CivicKYCInfo memory civicKycInfo) public {
+    // addresses.userService.setMyCivicKYCInfo(tx.origin, civicKycInfo);
+  // }
   /// @notice Allows the host to perform a check-in for a specific trip.
   /// This action typically occurs at the start of the trip and records key information
   /// such as fuel level, odometer reading, insurance details, and any other relevant data.
@@ -355,11 +362,10 @@ contract RentalityPlatform is UUPSOwnable {
   /// @param tripId The ID of the trip.
   /// @param panelParams An array representing parameters related to fuel, odometer,
   /// and other relevant details depends on engine.
-  function checkOutByGuest(uint256 tripId, uint64[] memory panelParams, bytes32 refferalHash) public {
+  function checkOutByGuest(uint256 tripId, uint64[] memory panelParams) public {
     Schemas.Trip memory trip = addresses.tripService.getTrip(tripId);
     refferalProgram.passReferralProgram(
       Schemas.RefferalProgram.FinishTripAsGuest,
-      refferalHash,
       abi.encode(trip.startDateTime, trip.endDateTime),
       tx.origin,
       promoService
@@ -377,10 +383,9 @@ contract RentalityPlatform is UUPSOwnable {
   /// @notice Adds a new car using the provided request. Grants host role to the caller if not already a host.
   /// @param request The request containing car information.
   /// @return The ID of the newly added car.
-  function addCar(Schemas.CreateCarRequest memory request, bytes32 refferalHash) public returns (uint) {
+  function addCar(Schemas.CreateCarRequest memory request) public returns (uint) {
     refferalProgram.passReferralProgram(
       Schemas.RefferalProgram.AddCar,
-      refferalHash,
       abi.encode(request.currentlyListed),
       tx.origin,
       promoService
@@ -411,7 +416,6 @@ contract RentalityPlatform is UUPSOwnable {
     if (location.signature.length > 0) addresses.carService.verifySignedLocationInfo(location);
     refferalProgram.passReferralProgram(
       Schemas.RefferalProgram.UnlistedCar,
-      bytes32(''),
       abi.encode(addresses.carService.getCarInfoById(request.carId).currentlyListed, request.currentlyListed),
       tx.origin,
       promoService

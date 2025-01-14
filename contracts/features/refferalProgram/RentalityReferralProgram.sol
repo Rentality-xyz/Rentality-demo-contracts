@@ -50,13 +50,15 @@ contract RentalityReferralProgram is
 
   function passReferralProgram(
     Schemas.RefferalProgram selector,
-    bytes32 hash,
     bytes memory callbackArgs,
     address user,
     RentalityPromoService promoService
   ) public {
     require(userService.isManager(msg.sender), 'only Manager');
+    bytes4 hash = userToSavedHash[user];
+  
     (address owner, uint hashPoints) = _getHashProgramInfoIfExists(selector, hash);
+   
 
     (int points, bool isOneTime) = _setPassedIfExists(selector, callbackArgs, owner != address(0), user);
     if (points > 0) {
@@ -103,37 +105,42 @@ contract RentalityReferralProgram is
 
   function claimPoints(address user) public {
     Schemas.ReadyToClaim[] memory toClaim = addressToReadyToClaim[user];
+    uint daily = updateDaily(user);
+    (uint dailiListingPoints, uint[] memory cars) = RentalityRefferalLib.calculateListedCarsPoints(
+        permanentSelectorToPoints[Schemas.RefferalProgram.DailyListing].points,
+        user,
+        carService,
+        this
+      );
+      uint total = 0;
+       if (dailiListingPoints > 0) {
+        uint time = block.timestamp;
+        for (uint i = 0; i < cars.length; i++) {
+          carIdToDailyClaimed[i] = time;
+        }
+        userProgramHistory[user].push(
+          Schemas.ProgramHistory(int(dailiListingPoints), block.timestamp, Schemas.RefferalProgram.DailyListing, false)
+        );
+        total += dailiListingPoints;
+      }
     if (toClaim.length > 0) {
       addressToReadyToClaim[user] = new Schemas.ReadyToClaim[](0);
-      uint total = 0;
       for (uint i = 0; i < toClaim.length; i++) {
         total += toClaim[i].points;
         userProgramHistory[user].push(
           Schemas.ProgramHistory(int(toClaim[i].points), block.timestamp, toClaim[i].refType, toClaim[i].oneTime)
         );
       }
-      uint daily = updateDaily(user);
+    }
       if(daily > 0) {
          userProgramHistory[user].push(
           Schemas.ProgramHistory(int(daily), block.timestamp, Schemas.RefferalProgram.Daily, false)
         );
       total += daily;
       }
-      (uint dailiListingPoints, uint[] memory cars) = RentalityRefferalLib.calculateListedCarsPoints(
-        permanentSelectorToPoints[Schemas.RefferalProgram.DailyListing].points,
-        user,
-        carService,
-        this
-      );
-      if (dailiListingPoints > 0) {
-        uint time = block.timestamp;
-        for (uint i = 0; i < cars.length; i++) {
-          carIdToDailyClaimed[i] = time;
-        }
-      }
 
-      addressToPoints[user] = total;
-    }
+        addressToPoints[user] += total;
+    
   }
 
   function getReadyToClaim(address user) public view returns (Schemas.ReadyToClaimDTO memory) {
@@ -180,7 +187,7 @@ contract RentalityReferralProgram is
     for (uint i = 0; i < availableToClaim.length; i++) {
       if (!availableToClaim[i].claimed) counter += availableToClaim[i].points;
     }
-    bytes32 hash = referralHash[user];
+    bytes4 hash = referralHashV2[user];
     return Schemas.RefferalHashDTO(availableToClaim, counter, hash);
   }
 

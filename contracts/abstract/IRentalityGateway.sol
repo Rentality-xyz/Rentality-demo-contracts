@@ -26,15 +26,21 @@ interface IRentalityGateway {
     string memory nickName,
     string memory mobilePhoneNumber,
     string memory profilePhoto,
+    bytes memory TCSignature
+ ) external;
+
+   function setKYCWithInsuranceInfo(
+    string memory nickName,
+    string memory mobilePhoneNumber,
+    string memory profilePhoto,
     bytes memory TCSignature,
-    bytes32 hash
-  ) external;
+    Schemas.SaveInsuranceRequest memory insuranceInfo) external;
 
   /// @notice Set KYC information for a specific user based on Civic identity
   /// @param user The address of the user whose Civic KYC information is being set
   /// @param civicKycInfo The Civic KYC information structure containing the user's data
   /// @dev This function is used to set verified KYC information from the Civic platform
-  function setCivicKYCInfo(address user, Schemas.CivicKYCInfo memory civicKycInfo, bytes32) external;
+  function setCivicKYCInfo(address user, Schemas.CivicKYCInfo memory civicKycInfo) external;
 
   /// @param civicKycInfo The Civic KYC information structure containing the user's data
   /// @dev This function is used to set verified KYC information from the Civic platform
@@ -72,7 +78,7 @@ interface IRentalityGateway {
   /// @notice Add a new car to the platform.
   /// @param request The request parameters for creating a new car.
   /// @return The ID of the newly added car.
-  function addCar(Schemas.CreateCarRequest memory request, bytes32 refferalHash) external returns (uint);
+  function addCar(Schemas.CreateCarRequest memory request) external returns (uint);
 
   /// @notice Update information for an existing car with location
   /// @notice This sets geo verification status to false.
@@ -198,11 +204,11 @@ interface IRentalityGateway {
 
   /// @notice Confirms check-out for a trip.
   /// @param tripId The ID of the trip.
-  function confirmCheckOut(uint256 tripId, bytes32) external;
+  function confirmCheckOut(uint256 tripId) external;
 
   /// @notice Finish a trip as the host.
   /// @param tripId The ID of the trip to finish.
-  function finishTrip(uint256 tripId, bytes32) external;
+  function finishTrip(uint256 tripId) external;
 
   /// ------------------------------
   ///     GUEST
@@ -256,7 +262,7 @@ interface IRentalityGateway {
   /// @param tripId The ID of the trip.
   /// @param panelParams An array representing parameters related to fuel, odometer,
   /// and other relevant details depends on engine.
-  function checkOutByGuest(uint256 tripId, uint64[] memory panelParams, bytes32 refferalHash) external;
+  function checkOutByGuest(uint256 tripId, uint64[] memory panelParams) external;
 
   /// ------------------------------
   /// CLAIMS functions
