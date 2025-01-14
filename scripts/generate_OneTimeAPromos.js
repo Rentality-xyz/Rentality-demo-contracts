@@ -28,7 +28,7 @@ async function main() {
   const endDateTimeGeneral = Math.floor(endDateGeneral.getTime() / 1000)
   console.log(await  contract.generateGeneralCode(startDateTimeGeneral, endDateTimeGeneral))
 
-  const result = await contract.getPromoCodes(endDateTimeGeneral)
+  const result = await contract.getPromoCodes()
 
 
   const filtered = result.filter((code) => code.includes('A'))
