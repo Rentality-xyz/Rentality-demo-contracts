@@ -1659,31 +1659,8 @@
         { "type": "string", "name": "nickName" },
         { "type": "string", "name": "mobilePhoneNumber" },
         { "type": "string", "name": "profilePhoto" },
-        { "type": "bytes", "name": "TCSignature" }
-      ],
-      "outputs": []
-    },
-    {
-      "type": "function",
-      "name": "setKYCWithInsuranceInfo",
-      "constant": false,
-      "payable": false,
-      "inputs": [
-        { "type": "string", "name": "nickName" },
-        { "type": "string", "name": "mobilePhoneNumber" },
-        { "type": "string", "name": "profilePhoto" },
         { "type": "bytes", "name": "TCSignature" },
-        {
-          "type": "tuple",
-          "name": "insuranceInfo",
-          "components": [
-            { "type": "string", "name": "companyName" },
-            { "type": "string", "name": "policyNumber" },
-            { "type": "string", "name": "photo" },
-            { "type": "string", "name": "comment" },
-            { "type": "uint8", "name": "insuranceType" }
-          ]
-        }
+        { "type": "bytes4", "name": "hash" }
       ],
       "outputs": []
     },
