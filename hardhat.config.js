@@ -5,6 +5,8 @@ require('@openzeppelin/hardhat-upgrades')
 require('solidity-docgen')
 require("hardhat-tracer");
 
+
+
 module.exports = {
   mocha: {
     timeout: 100000000,
@@ -64,6 +66,10 @@ module.exports = {
       accounts: [process.env.PRIVATE_KEY],
       chainId: 5611,
     },
+  },
+  tenderly: {
+    project: "rentality",
+    username: "gleborg",
   },
   loggingEnabled: true,
   solidity: {
