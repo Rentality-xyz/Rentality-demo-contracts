@@ -251,6 +251,15 @@
                     { "type": "string", "name": "longitude" },
                     { "type": "string", "name": "timeZoneId" }
                   ]
+                },
+                {
+                  "type": "tuple",
+                  "name": "promoInfo",
+                  "components": [
+                    { "type": "string", "name": "promoCode" },
+                    { "type": "uint256", "name": "promoCodeValueInPercents" },
+                    { "type": "uint256", "name": "promoCodeEnterDate" }
+                  ]
                 }
               ]
             },

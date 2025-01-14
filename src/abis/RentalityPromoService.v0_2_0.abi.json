@@ -152,6 +152,37 @@
     },
     {
       "type": "function",
+      "name": "getPromoDiscountByTrip",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "tripId" }],
+      "outputs": [{ "type": "uint256", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getPromoTripInfo",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        { "type": "uint256", "name": "tripId" },
+        { "type": "address", "name": "user" }
+      ],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "result",
+          "components": [
+            { "type": "string", "name": "promoCode" },
+            { "type": "uint256", "name": "promoCodeValueInPercents" },
+            { "type": "uint256", "name": "promoCodeEnterDate" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
       "name": "getTripDiscount",
       "constant": true,
       "stateMutability": "view",
@@ -174,6 +205,37 @@
             { "type": "string", "name": "promo" },
             { "type": "uint256", "name": "hostEarningsInCurrency" },
             { "type": "uint256", "name": "hostEarnings" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getUserPromoData",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "tuple[]",
+          "name": "",
+          "components": [
+            {
+              "type": "tuple",
+              "name": "promo",
+              "components": [
+                { "type": "uint8", "name": "promoType" },
+                { "type": "string", "name": "code" },
+                { "type": "uint256", "name": "startDate" },
+                { "type": "uint256", "name": "expireDate" },
+                { "type": "address", "name": "createdBy" },
+                { "type": "uint256", "name": "createdAt" },
+                { "type": "uint8", "name": "status" }
+              ]
+            },
+            { "type": "string", "name": "promoCode" },
+            { "type": "uint256", "name": "usedAt" }
           ]
         }
       ]
