@@ -154,6 +154,24 @@
     },
     {
       "type": "function",
+      "name": "getMyRefferalInfo",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "",
+          "components": [
+            { "type": "bytes4", "name": "myHash" },
+            { "type": "bytes4", "name": "savedHash" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
       "name": "getMyStartDiscount",
       "constant": true,
       "stateMutability": "view",
@@ -232,7 +250,7 @@
               ]
             },
             { "type": "uint256", "name": "totalPoints" },
-            { "type": "bytes32", "name": "hash" }
+            { "type": "bytes4", "name": "hash" }
           ]
         }
       ]
@@ -325,7 +343,7 @@
       "constant": true,
       "stateMutability": "view",
       "payable": false,
-      "inputs": [{ "type": "bytes32", "name": "hash" }],
+      "inputs": [{ "type": "bytes4", "name": "hash" }],
       "outputs": [{ "type": "bool", "name": "" }]
     },
     {
@@ -383,7 +401,6 @@
       "payable": false,
       "inputs": [
         { "type": "uint8", "name": "selector" },
-        { "type": "bytes32", "name": "hash" },
         { "type": "bytes", "name": "callbackArgs" },
         { "type": "address", "name": "user" },
         { "type": "address", "name": "promoService" }
@@ -407,6 +424,23 @@
       "payable": false,
       "inputs": [{ "type": "address", "name": "" }],
       "outputs": [{ "type": "bytes32", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "referralHashV2",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "" }],
+      "outputs": [{ "type": "bytes4", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "saveRefferalHash",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "bytes4", "name": "hash" }],
+      "outputs": []
     },
     {
       "type": "function",
