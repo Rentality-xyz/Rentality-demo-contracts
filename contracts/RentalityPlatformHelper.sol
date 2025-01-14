@@ -82,7 +82,6 @@ contract RentalityPlatformHelper is UUPSOwnable {
     if (location.signature.length > 0) addresses.carService.verifySignedLocationInfo(location);
     refferalProgram.passReferralProgram(
       Schemas.RefferalProgram.UnlistedCar,
-      bytes32(''),
       abi.encode(addresses.carService.getCarInfoById(request.carId).currentlyListed, request.currentlyListed),
       tx.origin,
       promoService

@@ -81,10 +81,7 @@ contract RentalityPlatform is UUPSOwnable {
       request.returnInfo
     );
     _createTripRequest(
-      request.currencyType,
-      request.carId,
-      request.startDateTime,
-      request.endDateTime,
+      request,
       pickUp,
       dropOf,
       pickUpHash,
@@ -110,30 +107,22 @@ contract RentalityPlatform is UUPSOwnable {
   // }
   /// @notice Creates a trip request with specified details.
   /// @dev This function is private and should only be called internally.
-  /// @param currencyType Address of the currency type contract.
-  /// @param carId ID of the car for the trip request.
-  /// @param startDateTime Start date and time of the trip request.
-  /// @param endDateTime End date and time of the trip request.
   /// @param pickUp Fee for delivery associated with the trip request.
   /// @param dropOf Fee for delivery associated with the trip request.
   function _createTripRequest(
-    address currencyType,
-    uint carId,
-    uint64 startDateTime,
-    uint64 endDateTime,
+    Schemas.CreateTripRequestWithDelivery memory request,
     uint64 pickUp,
     uint64 dropOf,
     bytes32 pickUpHash,
     bytes32 returnHash,
     string memory promo
   ) private {
-    RentalityUtils.validateTripRequest(addresses, currencyType, carId, startDateTime, endDateTime);
+    RentalityUtils.validateTripRequest(addresses, request.currencyType, request.carId, request.startDateTime, request.endDateTime);
     // uint discount = 0;
     //    if(useRefferalDiscount)
     //  discount = refferalProgram.useDiscount(Schemas.RefferalProgram.CreateTrip, false, addresses.tripService.totalTripCount() + 1);
-    Schemas.CarInfo memory carInfo = addresses.carService.getCarInfoById(carId);
 
-    uint insurance = insuranceService.calculateInsuranceForTrip(carId, startDateTime, endDateTime);
+    uint insurance = insuranceService.calculateInsuranceForTrip(request.carId, request.startDateTime, request.endDateTime);
     (
       Schemas.PaymentInfo memory paymentInfo,
       uint valueSumInCurrency,
@@ -142,10 +131,10 @@ contract RentalityPlatform is UUPSOwnable {
       bool usePromo
     ) = RentalityUtils.createPaymentInfo(
         addresses,
-        carId,
-        startDateTime,
-        endDateTime,
-        currencyType,
+        request.carId,
+        request.startDateTime,
+        request.endDateTime,
+        request.currencyType,
         pickUp,
         dropOf,
         promoService,
@@ -154,24 +143,24 @@ contract RentalityPlatform is UUPSOwnable {
         insurance
       );
 
-    addresses.paymentService.payCreateTrip{value: msg.value}(currencyType, valueSumInCurrency);
+    addresses.paymentService.payCreateTrip{value: msg.value}(request.currencyType, valueSumInCurrency);
 
     uint tripId = addresses.tripService.createNewTrip(
-      carId,
+      request.carId,
       tx.origin,
-      addresses.carService.ownerOf(carId),
-      carInfo.pricePerDayInUsdCents,
-      startDateTime,
-      endDateTime,
+      addresses.carService.ownerOf(request.carId),
+      addresses.carService.getCarInfoById(request.carId).pricePerDayInUsdCents,
+      request.startDateTime,
+      request.endDateTime,
       pickUpHash,
       returnHash,
-      carInfo.milesIncludedPerDay,
+      addresses.carService.getCarInfoById(request.carId).milesIncludedPerDay,
       paymentInfo,
       msg.value
     );
-    insuranceService.saveGuestinsurancePayment(tripId, carId, insurance);
+    insuranceService.saveGuestinsurancePayment(tripId, request.carId, insurance);
     if (usePromo)
-     promoService.usePromo(promo, tripId, tx.origin, hostEarningsInCurrency, hostEarnings, uint(startDateTime), uint(endDateTime));
+     promoService.usePromo(promo, tripId, tx.origin, hostEarningsInCurrency, hostEarnings, uint(request.startDateTime), uint(request.endDateTime));
   }
 
   /// @notice Approve a trip request on the Rentality platform.
