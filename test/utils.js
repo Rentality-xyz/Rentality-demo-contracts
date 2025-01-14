@@ -248,7 +248,7 @@ function getMockCarRequest(seed, contractAddress, admin, locationI) {
   }
 }
 
-let zeroHash = ethers.zeroPadBytes(ethToken, 32)
+let zeroHash = ethers.zeroPadBytes('0x', 4)
 function createMockClaimRequest(tripId, amountToClaim) {
   return {
     tripId: tripId,
@@ -649,10 +649,10 @@ async function deployDefaultFixture() {
   const hostSignature = await signTCMessage(host)
   const guestSignature = await signTCMessage(guest)
   const adminSignature = await signTCMessage(admin)
-  const adminKyc = signKycInfo(await rentalityLocationVerifier.getAddress(), admin, zeroHash)
-  await rentalityGateway.connect(host).setKYCInfo(' ', ' ', ' ', hostSignature, zeroHash)
-  await rentalityGateway.connect(admin).setKYCInfo(' ', ' ', ' ', adminSignature, zeroHash)
-  await rentalityGateway.connect(guest).setKYCInfo(' ', ' ', ' ', guestSignature, zeroHash)
+  const adminKyc = signKycInfo(await rentalityLocationVerifier.getAddress(), admin)
+  await rentalityGateway.connect(host).setKYCInfo(' ', ' ', ' ', hostSignature)
+  await rentalityGateway.connect(admin).setKYCInfo(' ', ' ', ' ', adminSignature)
+  await rentalityGateway.connect(guest).setKYCInfo(' ', ' ', ' ', guestSignature)
 
   await rentalityCurrencyConverter.addCurrencyType(
     await usdtContract.getAddress(),

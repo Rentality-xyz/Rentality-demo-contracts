@@ -1,5 +1,5 @@
 const { ethers, upgrades } = require('hardhat')
-const { getMockCarRequest, zeroHash, ethToken, signTCMessage, signKycInfo, emptyKyc } = require('../utils')
+const { getMockCarRequest, ethToken, signTCMessage, signKycInfo, emptyKyc } = require('../utils')
 
 async function deployDefaultFixture() {
   const [owner, admin, manager, host, guest, anonymous] = await ethers.getSigners()
@@ -335,10 +335,10 @@ async function deployDefaultFixture() {
   const hostSignature = await signTCMessage(host)
   const guestSignature = await signTCMessage(guest)
   const deployerSignature = await signTCMessage(owner)
-  const adminKyc = signKycInfo(await rentalityLocationVerifier.getAddress(), admin, zeroHash)
-  await rentalityGateway.connect(host).setKYCInfo(' ', ' ', ' ', hostSignature, zeroHash)
-  await rentalityGateway.connect(guest).setKYCInfo(' ', ' ', ' ', guestSignature, zeroHash)
-  await rentalityGateway.setKYCInfo(' ', ' ', ' ', deployerSignature, zeroHash)
+  const adminKyc = signKycInfo(await rentalityLocationVerifier.getAddress(), admin)
+  await rentalityGateway.connect(host).setKYCInfo(' ', ' ', ' ', hostSignature)
+  await rentalityGateway.connect(guest).setKYCInfo(' ', ' ', ' ', guestSignature)
+  await rentalityGateway.setKYCInfo(' ', ' ', ' ', deployerSignature)
 
   return {
     rentalityCarToken,
@@ -377,7 +377,7 @@ async function deployFixtureWith1Car() {
 
   const request = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
 
-  await rentalityGateway.connect(host).addCar(request, zeroHash)
+  await rentalityGateway.connect(host).addCar(request)
 
   return {
     rentalityCarToken,
