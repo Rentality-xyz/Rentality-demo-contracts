@@ -286,7 +286,7 @@ contract RentalityReferralProgram is
     return Schemas.MyRefferalInfoDTO(referralHashV2[msg.sender], userToSavedHash[msg.sender]);
   }
   function saveRefferalHash(bytes4 hash) public {
-    userToSavedHash[msg.sender] = hash;
+    userToSavedHash[tx.origin] = hash;
   }
   function _getHashProgramInfoIfExists(
     Schemas.RefferalProgram programSelector,
