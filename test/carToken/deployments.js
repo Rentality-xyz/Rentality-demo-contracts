@@ -1,5 +1,5 @@
 const { ethers, upgrades } = require('hardhat')
-const { getMockCarRequest, ethToken, signTCMessage, signKycInfo, emptyKyc } = require('../utils')
+const { getMockCarRequest, ethToken, signTCMessage, signKycInfo, emptyKyc, zeroHash } = require('../utils')
 
 async function deployDefaultFixture() {
   const [owner, admin, manager, host, guest, anonymous] = await ethers.getSigners()
