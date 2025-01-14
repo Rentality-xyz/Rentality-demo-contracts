@@ -319,7 +319,8 @@ contract RentalityPlatform is UUPSOwnable {
     Schemas.SaveInsuranceRequest memory insuranceInfo) public {
     setKYCInfo(nickName, mobilePhoneNumber, profilePhoto,TCSignature);
     saveGuestInsurance(insuranceInfo);
-}
+
+  }
 
   function setCivicKYCInfo(address user, Schemas.CivicKYCInfo memory civicKycInfo) public {
     refferalProgram.passReferralProgram(Schemas.RefferalProgram.PassCivic, bytes(''), user, promoService);

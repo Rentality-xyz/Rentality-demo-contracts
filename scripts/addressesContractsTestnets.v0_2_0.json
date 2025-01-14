@@ -40,7 +40,7 @@
     "RentalityAdminGateway": "0x19dE77342611e0aF6dD387223309B9397123450b",
     "RentalityGateway": "0xCf261b0275870d924d65d67beB9E88Ebd8deE693",
     "RentalityChatHelper": "0xd35fDe915f0E0B79522d20BCFbdc518d81667a1F"
-    },
+  },
   {
     "name": "base_sepolia",
     "chainId": 84532,
