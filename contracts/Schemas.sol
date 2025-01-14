@@ -591,6 +591,7 @@ interface Schemas {
     Trip trip;
     string carMetadataURI;
     LocationInfo carLocation;
+    PromoDTO promoInfo;
   }
 
   struct AllTripsDTO {
@@ -679,7 +680,7 @@ interface Schemas {
   struct RefferalHashDTO {
     ReadyToClaimFromHash[] toClaim;
     uint totalPoints;
-    bytes32 hash;
+    bytes4 hash;
   }
 
   /// admin panel ref program info
@@ -708,6 +709,11 @@ interface Schemas {
   struct RefferalHistory {
     int points;
     RefferalProgram method;
+  }
+
+  struct MyRefferalInfoDTO {
+    bytes4 myHash;
+    bytes4 savedHash;
   }
 
   struct History {
@@ -826,4 +832,10 @@ interface Schemas {
     uint dimoTokenId;
     uint rentalityTokenId;
 }
+
+  struct PromoDTO {
+    string promoCode;
+    uint promoCodeValueInPercents;
+    uint promoCodeEnterDate;
+  }
 }

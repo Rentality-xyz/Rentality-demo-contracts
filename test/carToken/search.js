@@ -181,7 +181,7 @@ describe('RentalityCarToken: search functions', function () {
     location.country = 'Country'
     let carRequest = getMockCarRequest(2, await rentalityLocationVerifier.getAddress(), admin, location)
 
-    await rentalityGateway.addCar(carRequest, zeroHash)
+    await rentalityGateway.addCar(carRequest)
 
     const searchCarParams1 = {
       country: 'Country',
@@ -243,7 +243,7 @@ describe('RentalityCarToken: search functions', function () {
     }
     location.state = 'Florida'
     let carRequest = getMockCarRequest(2, await rentalityLocationVerifier.getAddress(), admin, location)
-    await rentalityGateway.addCar(carRequest, zeroHash)
+    await rentalityGateway.addCar(carRequest)
 
     const searchCarParams1 = {
       country: '',
@@ -305,7 +305,7 @@ describe('RentalityCarToken: search functions', function () {
     }
     location.city = 'City'
     let carRequest = getMockCarRequest(2, await rentalityLocationVerifier.getAddress(), admin, location)
-    await rentalityGateway.addCar(carRequest, zeroHash)
+    await rentalityGateway.addCar(carRequest)
 
     const searchCarParams1 = {
       country: '',

@@ -64,9 +64,9 @@ describe('Referral program', function () {
   it('should be able to setKyc with referral code', async function () {
     expect(await refferalProgram.connect(hashCreator).generateReferralHash()).to.not.reverted
 
-    let hash = await refferalProgram.referralHash(hashCreator.address)
-
-    expect(await rentalityGateway.connect(anonymous).setKYCInfo(' ', ' ', ' ', signTCMessage(anonymous), hash)).to.not
+    let hash = await refferalProgram.referralHashV2(hashCreator.address)
+    await refferalProgram.connect(anonymous).saveRefferalHash(hash)
+    expect(await rentalityGateway.connect(anonymous).setKYCInfo(' ', ' ', ' ', signTCMessage(anonymous))).to.not
       .reverted
 
     const readyToClaim = await refferalProgram.getReadyToClaim(anonymous.address)
@@ -89,9 +89,9 @@ describe('Referral program', function () {
   it('should be able to add car with referral code', async function () {
     expect(await refferalProgram.connect(hashCreator).generateReferralHash()).to.not.reverted
 
-    let hash = await refferalProgram.referralHash(hashCreator.address)
-
-    expect(await rentalityGateway.connect(anonymous).setKYCInfo(' ', ' ', ' ', signTCMessage(anonymous), hash)).to.not
+    let hash = await refferalProgram.referralHashV2(hashCreator.address)
+    await refferalProgram.connect(anonymous).saveRefferalHash(hash)
+    expect(await rentalityGateway.connect(anonymous).setKYCInfo(' ', ' ', ' ', signTCMessage(anonymous))).to.not
       .reverted
 
     const readyToClaim = await refferalProgram.getReadyToClaim(anonymous.address)
@@ -107,7 +107,7 @@ describe('Referral program', function () {
     expect(
       await rentalityGateway
         .connect(anonymous)
-        .addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin), hash)
+        .addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
     ).to.not.reverted
 
     const hashPointsCar = await refferalProgram.getReadyToClaimFromRefferalHash(hashCreator.address)
@@ -127,15 +127,15 @@ describe('Referral program', function () {
 
     await expect(refferalProgram.claimRefferalPoints(hashCreator.address)).to.not.reverted
 
-    expect(await refferalProgram.addressToPoints(anonymous.address)).to.be.eq(2145)
+    expect(await refferalProgram.addressToPoints(anonymous.address)).to.be.eq(2155)
     expect(await refferalProgram.addressToPoints(hashCreator.address)).to.be.eq(260)
   })
   it('update car should deacrease points', async function () {
     expect(await refferalProgram.connect(hashCreator).generateReferralHash()).to.not.reverted
 
-    let hash = await refferalProgram.referralHash(hashCreator.address)
-
-    expect(await rentalityGateway.connect(anonymous).setKYCInfo(' ', ' ', ' ', signTCMessage(anonymous), hash)).to.not
+    let hash = await refferalProgram.referralHashV2(hashCreator.address)
+    await refferalProgram.connect(anonymous).saveRefferalHash(hash)
+    expect(await rentalityGateway.connect(anonymous).setKYCInfo(' ', ' ', ' ', signTCMessage(anonymous))).to.not
       .reverted
 
     const readyToClaim = await refferalProgram.getReadyToClaim(anonymous.address)
@@ -152,7 +152,7 @@ describe('Referral program', function () {
     expect(
       await rentalityGateway
         .connect(anonymous)
-        .addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin), hash)
+        .addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
     ).to.not.reverted
 
     const hashPointsCar = await refferalProgram.getReadyToClaimFromRefferalHash(hashCreator.address)
@@ -172,7 +172,7 @@ describe('Referral program', function () {
 
     await expect(refferalProgram.claimRefferalPoints(hashCreator.address)).to.not.reverted
 
-    expect(await refferalProgram.addressToPoints(anonymous.address)).to.be.eq(2145)
+    expect(await refferalProgram.addressToPoints(anonymous.address)).to.be.eq(2155)
     expect(await refferalProgram.addressToPoints(hashCreator.address)).to.be.eq(260)
 
     let update_params = {
@@ -198,17 +198,17 @@ dimoTokenId: 0
     await expect(rentalityGateway.connect(anonymous).updateCarInfoWithLocation(update_params, locationInfo)).to.not
       .reverted
 
-    expect(await refferalProgram.addressToPoints(anonymous.address)).to.be.eq(1645)
+    expect(await refferalProgram.addressToPoints(anonymous.address)).to.be.eq(1655)
     await expect(rentalityGateway.connect(anonymous).updateCarInfoWithLocation(update_params, locationInfo)).to.not
       .reverted
-    expect(await refferalProgram.addressToPoints(anonymous.address)).to.be.eq(1645)
+    expect(await refferalProgram.addressToPoints(anonymous.address)).to.be.eq(1655)
   })
   it('should be able to pass civic with referral code', async function () {
     expect(await refferalProgram.connect(hashCreator).generateReferralHash()).to.not.reverted
 
-    let hash = await refferalProgram.referralHash(hashCreator.address)
-
-    expect(await rentalityGateway.connect(anonymous).setKYCInfo(' ', ' ', ' ', signTCMessage(anonymous), hash)).to.not
+    let hash = await refferalProgram.referralHashV2(hashCreator.address)
+    await refferalProgram.connect(anonymous).saveRefferalHash(hash)
+    expect(await rentalityGateway.connect(anonymous).setKYCInfo(' ', ' ', ' ', signTCMessage(anonymous))).to.not
       .reverted
 
     const readyToClaim = await refferalProgram.getReadyToClaim(anonymous.address)
@@ -233,8 +233,8 @@ dimoTokenId: 0
     await expect(
       await rentalityUserService.connect(owner).manageRole(UserRole.KYCManager, await host.getAddress(), true)
     ).to.not.reverted
-
-    await expect(rentalityGateway.connect(host).setCivicKYCInfo(anonymous.address, kyc, hash)).to.not.reverted
+    await refferalProgram.connect(host).saveRefferalHash(hash)
+    await expect(rentalityGateway.connect(host).setCivicKYCInfo(anonymous.address, kyc)).to.not.reverted
 
     const toClaim = await refferalProgram.getReadyToClaim(anonymous.address)
     const amountСivic = toClaim.toClaim.find((obj) => obj.refType === BigInt(RefferalProgram.PassCivic)).points
@@ -258,15 +258,15 @@ dimoTokenId: 0
   it('should have points with refferal hash after trip finish as guest', async function () {
     expect(await refferalProgram.connect(hashCreator).generateReferralHash()).to.not.reverted
 
-    let hash = await refferalProgram.referralHash(hashCreator.address)
-
-    expect(await rentalityGateway.connect(anonymous).setKYCInfo(' ', ' ', ' ', signTCMessage(anonymous), hash)).to.not
+    let hash = await refferalProgram.referralHashV2(hashCreator.address)
+    await refferalProgram.connect(anonymous).saveRefferalHash(hash)
+    expect(await rentalityGateway.connect(anonymous).setKYCInfo(' ', ' ', ' ', signTCMessage(anonymous))).to.not
       .reverted
 
     expect(
       await rentalityGateway
         .connect(host)
-        .addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin), zeroHash)
+        .addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
     ).to.not.reverted
 
     const result = await rentalityGateway.calculatePaymentsWithDelivery(
@@ -296,7 +296,7 @@ dimoTokenId: 0
     await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
     await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0], '', '')).not.to.be.reverted
     await expect(rentalityGateway.connect(anonymous).checkInByGuest(1, [0, 0])).not.to.be.reverted
-    await expect(rentalityGateway.connect(anonymous).checkOutByGuest(1, [0, 0], hash)).not.to.be.reverted
+    await expect(rentalityGateway.connect(anonymous).checkOutByGuest(1, [0, 0])).not.to.be.reverted
 
     const toClaim = await refferalProgram.getReadyToClaim(anonymous.address)
     const amountTripFinish = toClaim.toClaim.find(
@@ -322,21 +322,21 @@ dimoTokenId: 0
   it('should have points with refferal hash after trip finish as guest', async function () {
     expect(await refferalProgram.connect(hashCreator).generateReferralHash()).to.not.reverted
 
-    let hash = await refferalProgram.referralHash(hashCreator.address)
-
-    expect(await rentalityGateway.connect(anonymous).setKYCInfo(' ', ' ', ' ', signTCMessage(anonymous), hash)).to.not
+    let hash = await refferalProgram.referralHashV2(hashCreator.address)
+    await refferalProgram.connect(anonymous).saveRefferalHash(hash)
+    expect(await rentalityGateway.connect(anonymous).setKYCInfo(' ', ' ', ' ', signTCMessage(anonymous))).to.not
       .reverted
 
     expect(
       await rentalityGateway
         .connect(anonymous)
-        .addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin), hash)
+        .addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
     ).to.not.reverted
 
     expect(
       await rentalityGateway
         .connect(anonymous)
-        .addCar(getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin), hash)
+        .addCar(getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin))
     ).to.not.reverted
 
     const toClaim = await refferalProgram.getReadyToClaim(anonymous.address)
@@ -344,20 +344,20 @@ dimoTokenId: 0
 
     expect(amountAddCar).to.be.eq(500)
     await expect(refferalProgram.claimPoints(anonymous.address)).to.not.reverted
-    expect(await refferalProgram.addressToPoints(anonymous.address)).to.be.eq(2645)
+    expect(await refferalProgram.addressToPoints(anonymous.address)).to.be.eq(2665)
   })
   it('should be able to get permanent guest trip bonus for 10 days', async function () {
     expect(await refferalProgram.connect(hashCreator).generateReferralHash()).to.not.reverted
 
-    let hash = await refferalProgram.referralHash(hashCreator.address)
-
-    expect(await rentalityGateway.connect(anonymous).setKYCInfo(' ', ' ', ' ', signTCMessage(anonymous), hash)).to.not
+    let hash = await refferalProgram.referralHashV2(hashCreator.address)
+    await refferalProgram.connect(anonymous).saveRefferalHash(hash)
+    expect(await rentalityGateway.connect(anonymous).setKYCInfo(' ', ' ', ' ', signTCMessage(anonymous))).to.not
       .reverted
 
     expect(
       await rentalityGateway
         .connect(host)
-        .addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin), zeroHash)
+        .addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
     ).to.not.reverted
 
     const result = await rentalityGateway.calculatePaymentsWithDelivery(
@@ -387,12 +387,12 @@ dimoTokenId: 0
     await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
     await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0], '', '')).not.to.be.reverted
     await expect(rentalityGateway.connect(anonymous).checkInByGuest(1, [0, 0])).not.to.be.reverted
-    await expect(rentalityGateway.connect(anonymous).checkOutByGuest(1, [0, 0], hash)).not.to.be.reverted
+    await expect(rentalityGateway.connect(anonymous).checkOutByGuest(1, [0, 0])).not.to.be.reverted
 
     expect(
       await rentalityGateway
         .connect(host)
-        .addCar(getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin), hash)
+        .addCar(getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin))
     ).to.not.reverted
 
     const result2 = await rentalityGateway.calculatePaymentsWithDelivery(
@@ -422,7 +422,7 @@ dimoTokenId: 0
     await expect(rentalityGateway.connect(host).approveTripRequest(2)).not.to.be.reverted
     await expect(rentalityGateway.connect(host).checkInByHost(2, [0, 0], '', '')).not.to.be.reverted
     await expect(rentalityGateway.connect(anonymous).checkInByGuest(2, [0, 0])).not.to.be.reverted
-    await expect(rentalityGateway.connect(anonymous).checkOutByGuest(2, [0, 0], hash)).not.to.be.reverted
+    await expect(rentalityGateway.connect(anonymous).checkOutByGuest(2, [0, 0])).not.to.be.reverted
 
     await expect(refferalProgram.claimPoints(anonymous.address)).to.not.reverted
 
@@ -432,15 +432,15 @@ dimoTokenId: 0
   it('should be able to get permanent host trip bonus for 10 days', async function () {
     expect(await refferalProgram.connect(hashCreator).generateReferralHash()).to.not.reverted
 
-    let hash = await refferalProgram.referralHash(hashCreator.address)
+    let hash = await refferalProgram.referralHashV2(hashCreator.address)
 
-    expect(await rentalityGateway.connect(anonymous).setKYCInfo(' ', ' ', ' ', signTCMessage(anonymous), zeroHash)).to
+    expect(await rentalityGateway.connect(anonymous).setKYCInfo(' ', ' ', ' ', signTCMessage(anonymous))).to
       .not.reverted
-
+      await refferalProgram.connect(host).saveRefferalHash(hash)
     expect(
       await rentalityGateway
         .connect(host)
-        .addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin), hash)
+        .addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
     ).to.not.reverted
 
     const result = await rentalityGateway.calculatePaymentsWithDelivery(
@@ -470,14 +470,14 @@ dimoTokenId: 0
     await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
     await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0], '', '')).not.to.be.reverted
     await expect(rentalityGateway.connect(anonymous).checkInByGuest(1, [0, 0])).not.to.be.reverted
-    await expect(rentalityGateway.connect(anonymous).checkOutByGuest(1, [0, 0], hash)).not.to.be.reverted
+    await expect(rentalityGateway.connect(anonymous).checkOutByGuest(1, [0, 0])).not.to.be.reverted
     await expect(rentalityGateway.connect(host).checkOutByHost(1, [0, 0])).not.to.be.reverted
-    await expect(rentalityGateway.connect(host).finishTrip(1, hash)).to.not.reverted
+    await expect(rentalityGateway.connect(host).finishTrip(1)).to.not.reverted
 
     expect(
       await rentalityGateway
         .connect(host)
-        .addCar(getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin), hash)
+        .addCar(getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin))
     ).to.not.reverted
 
     const result2 = await rentalityGateway.calculatePaymentsWithDelivery(
@@ -507,22 +507,23 @@ dimoTokenId: 0
     await expect(rentalityGateway.connect(host).approveTripRequest(2)).not.to.be.reverted
     await expect(rentalityGateway.connect(host).checkInByHost(2, [0, 0], '', '')).not.to.be.reverted
     await expect(rentalityGateway.connect(anonymous).checkInByGuest(2, [0, 0])).not.to.be.reverted
-    await expect(rentalityGateway.connect(anonymous).checkOutByGuest(2, [0, 0], hash)).not.to.be.reverted
+    await expect(rentalityGateway.connect(anonymous).checkOutByGuest(2, [0, 0])).not.to.be.reverted
     await expect(rentalityGateway.connect(host).checkOutByHost(2, [0, 0])).not.to.be.reverted
-    await expect(rentalityGateway.connect(host).finishTrip(2, hash)).to.not.reverted
+    await expect(rentalityGateway.connect(host).finishTrip(2)).to.not.reverted
 
     await expect(refferalProgram.claimPoints(host.address)).to.not.reverted
 
-    expect(await refferalProgram.addressToPoints(host.address)).to.be.eq(2620)
+    expect(await refferalProgram.addressToPoints(host.address)).to.be.eq(2640)
   })
   it('Can use hash a lot of time', async function () {
     expect(await refferalProgram.connect(host).generateReferralHash()).to.not.reverted
 
-    let hash = await refferalProgram.referralHash(host.address)
-
-    await expect(rentalityGateway.connect(anonymous).setKYCInfo(' ', ' ', ' ', signTCMessage(anonymous), hash)).to.not
+    let hash = await refferalProgram.referralHashV2(host.address)
+    await refferalProgram.connect(anonymous).saveRefferalHash(hash)
+    await refferalProgram.connect(manager).saveRefferalHash(hash)
+    await expect(rentalityGateway.connect(anonymous).setKYCInfo(' ', ' ', ' ', signTCMessage(anonymous))).to.not
       .reverted
-    await expect(rentalityGateway.connect(manager).setKYCInfo(' ', ' ', ' ', signTCMessage(manager), hash)).to.not
+    await expect(rentalityGateway.connect(manager).setKYCInfo(' ', ' ', ' ', signTCMessage(manager))).to.not
       .reverted
 
     const hashPoints = await refferalProgram.getReadyToClaimFromRefferalHash(host.address)
@@ -538,15 +539,15 @@ dimoTokenId: 0
   it('Already pass program, use code again: do nothing', async function () {
     expect(await refferalProgram.connect(host).generateReferralHash()).to.not.reverted
 
-    let hash = await refferalProgram.referralHash(host.address)
-
-    await expect(rentalityGateway.connect(anonymous).setKYCInfo(' ', ' ', ' ', signTCMessage(anonymous), hash)).to.not
+    let hash = await refferalProgram.referralHashV2(host.address)
+    await refferalProgram.connect(anonymous).saveRefferalHash(hash)
+    await expect(rentalityGateway.connect(anonymous).setKYCInfo(' ', ' ', ' ', signTCMessage(anonymous))).to.not
       .reverted
 
     await expect(refferalProgram.claimPoints(anonymous.address)).to.not.reverted
     expect(await refferalProgram.addressToPoints(anonymous.address)).to.be.eq(145)
 
-    await expect(rentalityGateway.connect(anonymous).setKYCInfo(' ', ' ', ' ', signTCMessage(anonymous), hash)).to.not
+    await expect(rentalityGateway.connect(anonymous).setKYCInfo(' ', ' ', ' ', signTCMessage(anonymous))).to.not
       .reverted
 
     await expect(refferalProgram.claimPoints(anonymous.address)).to.not.reverted
@@ -569,9 +570,9 @@ dimoTokenId: 0
       .reverted
     expect(await refferalProgram.connect(hashCreator).generateReferralHash()).to.not.reverted
 
-    let hash = await refferalProgram.referralHash(hashCreator.address)
-
-    expect(await rentalityGateway.connect(anonymous).setKYCInfo(' ', ' ', ' ', signTCMessage(anonymous), hash)).to.not
+    let hash = await refferalProgram.referralHashV2(hashCreator.address)
+    await refferalProgram.connect(anonymous).saveRefferalHash(hash)
+    expect(await rentalityGateway.connect(anonymous).setKYCInfo(' ', ' ', ' ', signTCMessage(anonymous))).to.not
       .reverted
 
     const readyToClaim = await refferalProgram.getReadyToClaim(anonymous.address)

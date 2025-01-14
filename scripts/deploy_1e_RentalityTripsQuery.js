@@ -16,7 +16,6 @@ async function main() {
 
   const contractFactory = await ethers.getContractFactory(contractName, {
     libraries: {
-      RentalityUtils: rentalityUtilsAddress,
     },
   })
   const contract = await contractFactory.deploy()
