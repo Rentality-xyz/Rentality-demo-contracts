@@ -172,7 +172,7 @@ dimoTokenId: 0
       locationInfo,
       signature: signLocationInfo(await rentalityLocationVerifier.getAddress(), admin),
     }
-    await expect(rentalityGateway.connect(host).setKYCInfo(name, number, photo, hostSignature)).to.not
+    await expect(rentalityGateway.connect(host).setKYCInfo(name, number, photo, hostSignature, zeroHash)).to.not
       .reverted
 
     let addCarRequest = {
@@ -231,7 +231,7 @@ dimoTokenId: 0
       locationInfo,
       signature: signLocationInfo(await rentalityLocationVerifier.getAddress(), admin),
     }
-    await expect(await rentalityGateway.connect(host).setKYCInfo(name, '', photo, hostSignature)).to.not
+    await expect(await rentalityGateway.connect(host).setKYCInfo(name, '', photo, hostSignature, zeroHash)).to.not
       .reverted
 
     let addCarRequest = {
@@ -282,7 +282,7 @@ dimoTokenId: 0
     let expirationDate = 10
 
     const hostSignature = await signTCMessage(host)
-    await expect(await rentalityGateway.connect(host).setKYCInfo(name, '', photo, hostSignature)).to.not
+    await expect(await rentalityGateway.connect(host).setKYCInfo(name, '', photo, hostSignature, zeroHash)).to.not
       .reverted
     let locationInfo1 = {
       locationInfo,
@@ -368,7 +368,7 @@ dimoTokenId: 0
     let expirationDate = 10
 
     const hostSignature = await signTCMessage(host)
-    await expect(await rentalityGateway.connect(host).setKYCInfo(name, '', photo, hostSignature)).to.not
+    await expect(await rentalityGateway.connect(host).setKYCInfo(name, '', photo, hostSignature, zeroHash)).to.not
       .reverted
 
     let locationInfo1 = {

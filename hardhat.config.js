@@ -25,11 +25,6 @@ module.exports = {
   },
   defaultNetwork: 'localhost',
   networks: {
-    tenderlyVirtual: {
-      chainId: 102,
-      url: process.env.TENDERLY_URL,
-      accounts: [process.env.PRIVATE_KEY],
-    },
     hardhat: {
       chainId: 1337,
     },
@@ -91,5 +86,7 @@ module.exports = {
       baseSepolia: process.env.BASE_API_TOKEN,
       base: process.env.BASE_API_TOKEN,
     }, // command to run: npx hardhat verify --network <contract address>
+
+   
   },
 }
