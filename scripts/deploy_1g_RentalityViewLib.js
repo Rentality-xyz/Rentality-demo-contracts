@@ -12,7 +12,7 @@ async function main() {
         getContractAddress('RentalityUtils', 'scriptsdeploy_1a_RentalityUtils.js', chainId),
         'RentalityUtils'
       )
-    
+
       const contractFactory = await ethers.getContractFactory(contractName, {
         libraries: {
           RentalityUtils: rentalityUtilsAddress,

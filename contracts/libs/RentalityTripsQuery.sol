@@ -216,7 +216,7 @@ library RentalityTripsQuery {
     address tripService,
     address userService
   ) public view returns (string memory guestPhoneNumber, string memory hostPhoneNumber) {
-    require(RentalityUserService(userService).isHostOrGuest(tx.origin), 'User is not a host or guest');
+    // require(RentalityUserService(userService).isHostOrGuest(tx.origin), 'User is not a host or guest');
 
     Schemas.Trip memory trip = RentalityTripService(tripService).getTrip(tripId);
 

@@ -17,6 +17,8 @@ async function main() {
   await deployLib('RentalityQuery')
   await deployLib('RealMath')
   await deployLib('RentalityTripsQuery')
+  await deployLib('RentalityViewLib')
+  await deployLib('RentalityRefferalLib')
   for (let i = 0; i < ProxyList.length; i++) {
     let contractName = ProxyList[i]
     let contractAddress = contracts[contractName]

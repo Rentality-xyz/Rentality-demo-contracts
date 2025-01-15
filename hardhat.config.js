@@ -3,8 +3,14 @@ require('dotenv').config()
 require('@nomicfoundation/hardhat-toolbox')
 require('@openzeppelin/hardhat-upgrades')
 require('solidity-docgen')
+require("hardhat-tracer");
+
+
 
 module.exports = {
+  mocha: {
+    timeout: 100000000,
+  },
   docgen: {
     outputFormat: 'md',
     path: './docs', // Output directory for the generated documentation
@@ -56,6 +62,10 @@ module.exports = {
       chainId: 5611,
     },
   },
+  tenderly: {
+    project: "rentality",
+    username: "gleborg",
+  },
   loggingEnabled: true,
   solidity: {
     version: '0.8.19',
@@ -76,5 +86,7 @@ module.exports = {
       baseSepolia: process.env.BASE_API_TOKEN,
       base: process.env.BASE_API_TOKEN,
     }, // command to run: npx hardhat verify --network <contract address>
+
+   
   },
 }
