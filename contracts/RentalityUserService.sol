@@ -41,6 +41,7 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
     string memory nickName,
     string memory mobilePhoneNumber,
     string memory profilePhoto,
+    string memory email,
     bytes memory TCSignature
   ) public {
     if (!isGuest(tx.origin)) {
@@ -52,6 +53,10 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
     Schemas.KYCInfo storage kycInfo = kycInfos[tx.origin];
     if(kycInfo.createDate == 0 || !_alreadyInPlatformUsersList(tx.origin)) 
       platformUsers.push(tx.origin);
+
+    string memory oldEmail = additionalKycInfo[tx.origin].email;
+    if(bytes(oldEmail).length == 0 || !hasPassedKYC(tx.origin))
+    additionalKycInfo[tx.origin].email = email;
 
     kycInfo.name = nickName;
     kycInfo.mobilePhoneNumber = mobilePhoneNumber;
