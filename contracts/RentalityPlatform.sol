@@ -300,6 +300,7 @@ contract RentalityPlatform is UUPSOwnable {
     string memory nickName,
     string memory mobilePhoneNumber,
     string memory profilePhoto,
+    string memory email,
     bytes memory TCSignature,
     bytes4 hash
   ) public {
@@ -310,7 +311,7 @@ contract RentalityPlatform is UUPSOwnable {
       tx.origin,
       promoService
     );
-    return addresses.userService.setKYCInfo(nickName, mobilePhoneNumber, profilePhoto, TCSignature);
+    return addresses.userService.setKYCInfo(nickName, mobilePhoneNumber, profilePhoto, email, TCSignature);
     refferalProgram.saveRefferalHash(hash);
   }
  

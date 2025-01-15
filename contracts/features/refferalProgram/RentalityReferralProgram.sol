@@ -179,6 +179,7 @@ contract RentalityReferralProgram is
     } else toNextDaily = block.timestamp + 1 days - addressToLastDailyClaim[user];
 
     if (dailiListingPoints > 0) {
+      counter += dailiListingPoints;
       result[index] = Schemas.ReadyToClaim(dailiListingPoints, Schemas.RefferalProgram.DailyListing, false);
     }
 
