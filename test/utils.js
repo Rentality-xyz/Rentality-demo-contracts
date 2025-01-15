@@ -318,8 +318,7 @@ async function deployDefaultFixture() {
   const RentalityQuery = await ethers.getContractFactory('RentalityQuery')
   const query = await RentalityQuery.deploy()
 
-  const RentalityViewLib = await ethers.getContractFactory('RentalityViewLib')
-  const viewLib = await RentalityViewLib.deploy()
+
 
   const RentalityMockPriceFeed = await ethers.getContractFactory('RentalityMockPriceFeed')
   const RentalityUserService = await ethers.getContractFactory('RentalityUserService')

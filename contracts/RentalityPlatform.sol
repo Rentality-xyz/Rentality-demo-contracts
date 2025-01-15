@@ -400,25 +400,7 @@ contract RentalityPlatform is UUPSOwnable {
 
   // }
 
-  /// @notice Updates the information of a car, including location details. Only callable by hosts.
-  /// @param request The request containing updated car information.
-  /// @param location The new location of the car.
-  function updateCarInfoWithLocation(
-    Schemas.UpdateCarInfoRequest memory request,
-    Schemas.SignedLocationInfo memory location
-  ) public {
-    require(RentalityUtils.isCarEditable(addresses, request.carId), 'Car is not available for update.');
-
-    if (location.signature.length > 0) addresses.carService.verifySignedLocationInfo(location);
-    refferalProgram.passReferralProgram(
-      Schemas.RefferalProgram.UnlistedCar,
-      abi.encode(addresses.carService.getCarInfoById(request.carId).currentlyListed, request.currentlyListed),
-      tx.origin,
-      promoService
-    );
-    insuranceService.saveInsuranceRequired(request.carId, request.insurancePriceInUsdCents, request.insuranceRequired);
-    return addresses.carService.updateCarInfo(request, location.locationInfo, location.signature.length > 0);
-  }
+ 
   /// @notice Adds a user discount.
   /// @param data The discount data.
   function addUserDiscount(Schemas.BaseDiscount memory data) public {

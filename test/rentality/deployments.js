@@ -26,8 +26,6 @@ async function deployDefaultFixture() {
   const viewLib = await RentalityViewLib.deploy()
 
 
-  const RentalityViewLib = await ethers.getContractFactory('RentalityViewLib')
-  const viewLib = await RentalityViewLib.deploy()
 
 
   const RentalityGeoService = await ethers.getContractFactory('RentalityGeoService')
