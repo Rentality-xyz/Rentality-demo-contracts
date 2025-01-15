@@ -14,6 +14,7 @@ const {
   emptySignedLocationInfo,
 } = require('../utils')
 const { deployFixtureWithUsers, deployDefaultFixture } = require('./deployments')
+const { userConfig } = require('hardhat')
 
 describe('RentalityUserService: KYC management', function () {
   it("By default user doesn't have valid KYC", async function () {
@@ -207,5 +208,34 @@ describe('RentalityUserService: KYC management', function () {
     await expect(
       rentalityGateway.connect(guest).setKYCInfo('name', 'surname', '13123', Signature,zeroHash)
     ).to.be.revertedWith('Wrong signature.')
+  })
+  it('can get platform users list', async function () {
+    const { host, guest, owner, rentalityUserService, rentalityGateway, adminKyc,anonymous } =
+      await loadFixture(deployDefaultFixture)
+
+   
+    let platformUsers = await rentalityUserService.getPlatformUsers()
+    expect(platformUsers.includes(guest.address)).to.be.true
+    expect(platformUsers.includes(host.address)).to.be.true
+
+    expect(platformUsers.length).to.be.eq(2)
+
+    const Signature = await signTCMessage(anonymous)
+
+    await rentalityGateway.connect(anonymous).setKYCInfo('name', 'surname', '13123', Signature,zeroHash)
+    const platformUsers2= await rentalityUserService.getPlatformUsers()
+    expect(platformUsers2.includes(anonymous.address)).to.be.true
+
+    expect(platformUsers2.length).to.be.eq(3)
+
+    await rentalityGateway.connect(anonymous).setKYCInfo('name', 'surname', '13123', Signature,zeroHash)
+    const platformUsers3= await rentalityUserService.getPlatformUsers()
+
+    expect(platformUsers3.length).to.be.eq(3)
+
+    console.log(await rentalityUserService.getPlatformUsersKYCInfos())
+
+
+
   })
 })
