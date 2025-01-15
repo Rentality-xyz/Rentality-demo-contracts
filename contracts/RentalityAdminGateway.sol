@@ -10,6 +10,7 @@ import './features/refferalProgram/RentalityReferralProgram.sol';
 import {RentalityReferralProgram} from './features/refferalProgram/RentalityReferralProgram.sol';
 import {RentalityPromoService} from './features/RentalityPromo.sol';
 import {RentalityViewLib} from './libs/RentalityViewLib.sol';
+import {RentalityDimoService} from './features/RentalityDimoService.sol';
 
 /// @custom:oz-upgrades-unsafe-allow external-library-linking
 contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
@@ -25,6 +26,7 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
   RentalityInsurance private insuranceService;
   RentalityReferralProgram private refferalProgram;
   RentalityPromoService private promoService;
+  RentalityDimoService private dimoService;
   /// @notice Ensures that the caller is either an admin, the contract owner, or an admin from the origin transaction.
   modifier onlyAdmin() {
     require(
@@ -55,6 +57,12 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
     promoService = RentalityPromoService(promoServiceAddress);
   }
 
+function updateDimoService(address dimoServiceAddress) public onlyAdmin {
+    dimoService = RentalityDimoService(dimoServiceAddress);
+}
+  function getDimoService() public view returns (RentalityDimoService) {
+    return dimoService;
+  }
   function getInsuranceService() public view returns (RentalityInsurance) {
     return insuranceService;
   }
@@ -325,7 +333,7 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
 
     Schemas.AdminCarDTO[] memory cars = new Schemas.AdminCarDTO[](endIndex - startIndex + 1);
     for (uint i = startIndex; i <= endIndex; i++) {
-      cars[i - startIndex].car = RentalityUtils.getCarDetails(contracts, i);
+      cars[i - startIndex].car = RentalityUtils.getCarDetails(contracts, i, dimoService);
       cars[i - startIndex].carMetadataURI = contracts.carService.tokenURI(i);
     }
     return Schemas.AllCarsDTO(cars, totalPageCount);
@@ -420,7 +428,8 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
     address insuranceServiceAddress,
     address rentalityTripsViewAddress,
     address refferalProgramAddress,
-    address promoServiceAddress
+    address promoServiceAddress,
+    address dimoServiceAddress
   ) public initializer {
     carService = RentalityCarToken(carServiceAddress);
     currencyConverterService = RentalityCurrencyConverter(currencyConverterServiceAddress);
@@ -432,13 +441,15 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
     deliveryService = RentalityCarDelivery(carDeliveryAddress);
     viewService = RentalityView(viewServiceAddress);
     promoService = RentalityPromoService(promoServiceAddress);
+    dimoService = RentalityDimoService(dimoServiceAddress);
 
     viewService.updateServiceAddresses(
       getRentalityContracts(),
       insuranceServiceAddress,
       rentalityTripsViewAddress,
-      promoServiceAddress
-    );
+      promoServiceAddress,
+      address(dimoService)
+);
     refferalProgram = RentalityReferralProgram(refferalProgramAddress);
     insuranceService = RentalityInsurance(insuranceServiceAddress);
     __Ownable_init();

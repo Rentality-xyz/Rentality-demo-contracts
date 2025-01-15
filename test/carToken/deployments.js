@@ -1,5 +1,5 @@
 const { ethers, upgrades } = require('hardhat')
-const { getMockCarRequest, ethToken, signTCMessage, signKycInfo, emptyKyc } = require('../utils')
+const { getMockCarRequest, ethToken, signTCMessage, signKycInfo, emptyKyc, zeroHash } = require('../utils')
 
 async function deployDefaultFixture() {
   const [owner, admin, manager, host, guest, anonymous] = await ethers.getSigners()
@@ -157,6 +157,9 @@ async function deployDefaultFixture() {
 
   await rentalityCarToken.waitForDeployment()
 
+  const DimoService = await ethers.getContractFactory('RentalityDimoService')
+  const dimoService = await upgrades.deployProxy(DimoService, [await rentalityUserService.getAddress(), await rentalityCarToken.getAddress(),owner.address])
+
   const refferalProgram = await upgrades.deployProxy(ReffProgram, [
     await rentalityUserService.getAddress(),
     await refferalLib.getAddress(),
@@ -239,6 +242,7 @@ async function deployDefaultFixture() {
       RentalityUtils: await utils.getAddress(),
       RentalityQuery: await query.getAddress(),
       RentalityTripsQuery: await tripsQuery.getAddress(),
+      RentalityViewLib: await viewLib.getAddress(),
     },
   })
 
@@ -252,11 +256,37 @@ async function deployDefaultFixture() {
     await deliveryService.getAddress(),
     await insuranceService.getAddress(),
     await rentalityTripsView.getAddress(),
-
     await refferalProgram.getAddress(),
     await promoService.getAddress(),
+    await dimoService.getAddress()
   ])
   await rentalityView.waitForDeployment()
+
+  const RentalityPlatformHelper = await ethers.getContractFactory('RentalityPlatformHelper', {
+    libraries: {
+      RentalityUtils: await utils.getAddress()
+    },
+  })
+
+
+
+  const rentalityPlatformHelper = await upgrades.deployProxy(RentalityPlatformHelper, [
+    await rentalityCarToken.getAddress(),
+    await rentalityCurrencyConverter.getAddress(),
+    await rentalityTripService.getAddress(),
+    await rentalityUserService.getAddress(),
+    await rentalityPaymentService.getAddress(),
+    await claimService.getAddress(),
+    await deliveryService.getAddress(),
+    await rentalityView.getAddress(),
+    await insuranceService.getAddress(),
+    await refferalProgram.getAddress(),
+    await promoService.getAddress(),
+    await dimoService.getAddress()
+  ])
+  await rentalityPlatformHelper.waitForDeployment()
+
+
 
   const rentalityPlatform = await upgrades.deployProxy(RentalityPlatform, [
     await rentalityCarToken.getAddress(),
@@ -270,6 +300,8 @@ async function deployDefaultFixture() {
     await insuranceService.getAddress(),
     await refferalProgram.getAddress(),
     await promoService.getAddress(),
+    await dimoService.getAddress(),
+    await rentalityPlatformHelper.getAddress(),
   ])
   await rentalityPlatform.waitForDeployment()
 
@@ -296,6 +328,7 @@ async function deployDefaultFixture() {
 
     await refferalProgram.getAddress(),
     await promoService.getAddress(),
+    await dimoService.getAddress()
   ])
   await rentalityAdminGateway.waitForDeployment()
 

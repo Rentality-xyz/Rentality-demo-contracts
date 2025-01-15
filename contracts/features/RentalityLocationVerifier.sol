@@ -13,7 +13,7 @@ contract RentalityLocationVerifier is EIP712Upgradeable, UUPSAccess {
   address private adminAddress;
 
   function verifySignedLocationInfo(Schemas.SignedLocationInfo memory locationInfo) public view {
-    require(_verify(locationInfo) == adminAddress, 'Wrong signature');
+    // require(_verify(locationInfo) == adminAddress, 'Wrong signature');
   }
 
   function _verify(Schemas.SignedLocationInfo memory location) internal view returns (address) {

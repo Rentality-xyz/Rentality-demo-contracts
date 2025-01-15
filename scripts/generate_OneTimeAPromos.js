@@ -15,9 +15,9 @@ async function main() {
   )
 
   const contract = await ethers.getContractAt('RentalityPromoService', rentalityPromoService)
-  const date = new Date()
+  const date = new Date('2025-01-12T00:00:01Z')
   const startDateTime = Math.floor(date.getTime() / 1000)
-  const endDate = new Date('2025-01-25T00:00:01Z')
+  const endDate = new Date('2025-01-26T00:00:01Z')
   const endDateTime = Math.floor(endDate.getTime() / 1000)
 
   console.log(await contract.generateNumbers(1000, 9999, 5, startDateTime, endDateTime, 'A'))
@@ -26,7 +26,7 @@ async function main() {
   const startDateTimeGeneral = Math.floor(dateGeneral.getTime() / 1000)
   const endDateGeneral = new Date('2025-07-31T23:59:59Z')
   const endDateTimeGeneral = Math.floor(endDateGeneral.getTime() / 1000)
-  // console.log(await  contract.generateGeneralCode(startDateTimeGeneral, endDateTimeGeneral))
+  console.log(await  contract.generateGeneralCode(startDateTimeGeneral, endDateTimeGeneral))
 
   const result = await contract.getPromoCodes()
 

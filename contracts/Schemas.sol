@@ -44,6 +44,7 @@ interface Schemas {
     CarInfo carInfo;
     string metadataURI;
     bool isEditable;
+    uint dimoTokenId;
   }
 
   /// @notice Struct to store input parameters for creating a new car.
@@ -64,6 +65,7 @@ interface Schemas {
     bool currentlyListed;
     bool insuranceRequired;
     uint insurancePriceInUsdCents;
+    uint dimoTokenId;
   }
 
   /// @notice Struct to store input parameters for updating car information.
@@ -490,6 +492,7 @@ interface Schemas {
     LocationInfo locationInfo;
     string carVinNumber;
     string carMetadataURI;
+    uint dimoTokenId;
   }
 
   // Taxes
@@ -824,6 +827,11 @@ interface Schemas {
     bool isDiscount;
     uint value;
   }
+
+  struct DimoTokensData {
+    uint dimoTokenId;
+    uint rentalityTokenId;
+}
 
   struct PromoDTO {
     string promoCode;
