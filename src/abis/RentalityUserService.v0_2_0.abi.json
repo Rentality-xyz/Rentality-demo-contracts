@@ -202,6 +202,54 @@
     },
     {
       "type": "function",
+      "name": "getPlatformUsers",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address[]", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getPlatformUsersKYCInfos",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "tuple[]",
+          "name": "result",
+          "components": [
+            {
+              "type": "tuple",
+              "name": "kyc",
+              "components": [
+                { "type": "string", "name": "name" },
+                { "type": "string", "name": "surname" },
+                { "type": "string", "name": "mobilePhoneNumber" },
+                { "type": "string", "name": "profilePhoto" },
+                { "type": "string", "name": "licenseNumber" },
+                { "type": "uint64", "name": "expirationDate" },
+                { "type": "uint256", "name": "createDate" },
+                { "type": "bool", "name": "isTCPassed" },
+                { "type": "bytes", "name": "TCSignature" }
+              ]
+            },
+            {
+              "type": "tuple",
+              "name": "additionalKYC",
+              "components": [
+                { "type": "string", "name": "issueCountry" },
+                { "type": "string", "name": "email" }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
       "name": "getRoleAdmin",
       "constant": true,
       "stateMutability": "view",
@@ -473,6 +521,7 @@
         { "type": "string", "name": "nickName" },
         { "type": "string", "name": "mobilePhoneNumber" },
         { "type": "string", "name": "profilePhoto" },
+        { "type": "string", "name": "email" },
         { "type": "bytes", "name": "TCSignature" }
       ],
       "outputs": []
