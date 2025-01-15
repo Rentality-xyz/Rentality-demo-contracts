@@ -364,6 +364,9 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
   function getRefferalPointsInfo() public view returns (Schemas.AllRefferalInfoDTO memory) {
     return refferalProgram.getRefferalPointsInfo();
   }
+  function getPlatformUsersInfo() public view returns(Schemas.FullKYCInfoDTO[] memory result) {
+    return userService.getPlatformUsersKYCInfos();
+  }
 
   ///------------------------------------
   /// NOT USING IN FRONT
