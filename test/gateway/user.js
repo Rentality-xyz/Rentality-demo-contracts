@@ -73,7 +73,7 @@ describe('RentalityGateway: user info', function () {
     }
     const adminSignature = signKycInfo(await rentalityLocationVerifier.getAddress(), admin, kyc)
 
-    await expect(rentalityGateway.connect(host).setKYCInfo(name, number, photo, hostSignature, zeroHash)).not.be
+    await expect(rentalityGateway.connect(host).setKYCInfo(name, number, photo,"", hostSignature, zeroHash)).not.be
       .reverted
 
     const fullKycInfo = await rentalityGateway.connect(host).getMyFullKYCInfo()
@@ -100,7 +100,7 @@ describe('RentalityGateway: user info', function () {
       email: '',
     }
     const adminSignature = signKycInfo(await rentalityLocationVerifier.getAddress(), admin, kyc)
-    await expect(rentalityGateway.connect(guest).setKYCInfo(name, number, photo, guestSignature,zeroHash)).not.be
+    await expect(rentalityGateway.connect(guest).setKYCInfo(name, number, photo,"", guestSignature,zeroHash)).not.be
       .reverted
 
     const fullKycInfo = await rentalityGateway.connect(guest).getMyFullKYCInfo()
@@ -156,10 +156,10 @@ describe('RentalityGateway: user info', function () {
 
     let guestNumber = '+380'
     let hostNumber = '+3801'
-    await expect(rentalityGateway.connect(guest).setKYCInfo('name', guestNumber, 'photo', guestSignature,zeroHash)).not
+    await expect(rentalityGateway.connect(guest).setKYCInfo('name', guestNumber, 'photo',"", guestSignature,zeroHash)).not
       .be.reverted
 
-    await expect(rentalityGateway.connect(host).setKYCInfo('name', hostNumber, 'photo', hostSignature, zeroHash)).not.be
+    await expect(rentalityGateway.connect(host).setKYCInfo('name', hostNumber, 'photo',"", hostSignature, zeroHash)).not.be
       .reverted
 
     let [guestPhoneNumber, hostPhoneNumber] = await rentalityGateway.connect(guest).getTripContactInfo(1)
@@ -212,10 +212,10 @@ describe('RentalityGateway: user info', function () {
     const guestSignature = await signTCMessage(guest)
     let guestNumber = '+380'
     let hostNumber = '+3801'
-    await expect(rentalityGateway.connect(guest).setKYCInfo('name', guestNumber, 'photo', guestSignature,zeroHash)).not
+    await expect(rentalityGateway.connect(guest).setKYCInfo('name', guestNumber, 'photo',"", guestSignature,zeroHash)).not
       .be.reverted
 
-    await expect(rentalityGateway.connect(host).setKYCInfo('name', hostNumber, 'photo', hostSignature, zeroHash)).not.be
+    await expect(rentalityGateway.connect(host).setKYCInfo('name', hostNumber, 'photo',"", hostSignature, zeroHash)).not.be
       .reverted
 
     let [guestPhoneNumber, hostPhoneNumber] = await rentalityGateway.connect(host).getTripContactInfo(1)
@@ -268,7 +268,7 @@ describe('RentalityGateway: user info', function () {
     const guestSignature = await signTCMessage(guest)
     let guestNumber = '+380'
     let hostNumber = '+3801'
-    await expect(rentalityGateway.connect(guest).setKYCInfo('name', 'surname', guestNumber, guestSignature,zeroHash))
+    await expect(rentalityGateway.connect(guest).setKYCInfo('name', 'surname', guestNumber,"", guestSignature,zeroHash))
       .not.be.reverted
 
     await expect(rentalityGateway.connect(host).setKYCInfo('name', 'surname', hostNumber, hostSignature, zeroHash)).not
@@ -292,7 +292,7 @@ describe('RentalityGateway: user info', function () {
     const hostSignature = await signTCMessage(host)
 
     await expect(
-      rentalityGateway.connect(host).setKYCInfo(name + 'host', number + 'host', photo + 'host', hostSignature, zeroHash)
+      rentalityGateway.connect(host).setKYCInfo(name + 'host', number + 'host', photo + 'host',"", hostSignature, zeroHash)
     ).not.be.reverted
 
     const availableCars = await rentalityGateway
@@ -322,7 +322,7 @@ describe('RentalityGateway: user info', function () {
     }
     const adminSignature = signKycInfo(await rentalityLocationVerifier.getAddress(), admin, kyc)
 
-    await expect(rentalityGateway.connect(host).setKYCInfo(name, number, photo, hostSignature, zeroHash)).not.be
+    await expect(rentalityGateway.connect(host).setKYCInfo(name, number, photo,"", hostSignature, zeroHash)).not.be
       .reverted
 
     await expect(rentalityGateway.connect(anonymous).setCivicKYCInfo(host.address, kyc)).to.be.reverted
