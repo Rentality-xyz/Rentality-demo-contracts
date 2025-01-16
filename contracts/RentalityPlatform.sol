@@ -311,7 +311,7 @@ contract RentalityPlatform is UUPSOwnable {
       tx.origin,
       promoService
     );
-    return addresses.userService.setKYCInfo(nickName, mobilePhoneNumber, profilePhoto, email, TCSignature);
+    addresses.userService.setKYCInfo(nickName, mobilePhoneNumber, profilePhoto, email, TCSignature);
     refferalProgram.saveRefferalHash(hash);
   }
  
