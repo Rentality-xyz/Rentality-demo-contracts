@@ -1,7 +1,14 @@
 const { expect } = require('chai')
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 
-const { getMockCarRequest, getMockCarRequestWithAddress, locationInfo, signTCMessage } = require('../utils')
+const {
+  getMockCarRequest,
+  getMockCarRequestWithAddress,
+  locationInfo,
+  signTCMessage,
+  zeroHash,
+  emptyLocationInfo,
+} = require('../utils')
 const { deployFixtureWith1Car } = require('./deployments')
 
 describe('RentalityCarToken: search functions', function () {
@@ -22,7 +29,9 @@ describe('RentalityCarToken: search functions', function () {
       userLocation: locationInfo,
     }
 
-    const availableCars = await rentalityGateway.connect(guest).searchAvailableCars(0, 0, searchCarParams)
+    const availableCars = await rentalityGateway
+      .connect(guest)
+      .searchAvailableCarsWithDelivery(0, 0, searchCarParams, emptyLocationInfo, emptyLocationInfo)
 
     expect(availableCars.length).to.equal(1)
   })
@@ -57,11 +66,15 @@ describe('RentalityCarToken: search functions', function () {
       userLocation: locationInfo,
     }
 
-    const availableCars1 = await rentalityGateway.connect(guest).searchAvailableCars(0, 0, searchCarParams1)
+    const availableCars1 = await rentalityGateway
+      .connect(guest)
+      .searchAvailableCarsWithDelivery(0, 0, searchCarParams1, emptyLocationInfo, emptyLocationInfo)
 
     expect(availableCars1.length).to.equal(1)
 
-    const availableCars2 = await rentalityGateway.connect(guest).searchAvailableCars(0, 0, searchCarParams2)
+    const availableCars2 = await rentalityGateway
+      .connect(guest)
+      .searchAvailableCarsWithDelivery(0, 0, searchCarParams2, emptyLocationInfo, emptyLocationInfo)
 
     expect(availableCars2.length).to.equal(0)
   })
@@ -96,11 +109,15 @@ describe('RentalityCarToken: search functions', function () {
       userLocation: locationInfo,
     }
 
-    const availableCars1 = await rentalityGateway.connect(guest).searchAvailableCars(0, 0, searchCarParams1)
+    const availableCars1 = await rentalityGateway
+      .connect(guest)
+      .searchAvailableCarsWithDelivery(0, 0, searchCarParams1, emptyLocationInfo, emptyLocationInfo)
 
     expect(availableCars1.length).to.equal(1)
 
-    const availableCars2 = await rentalityGateway.connect(guest).searchAvailableCars(0, 0, searchCarParams2)
+    const availableCars2 = await rentalityGateway
+      .connect(guest)
+      .searchAvailableCarsWithDelivery(0, 0, searchCarParams2, emptyLocationInfo, emptyLocationInfo)
 
     expect(availableCars2.length).to.equal(0)
   })
@@ -135,17 +152,21 @@ describe('RentalityCarToken: search functions', function () {
       userLocation: locationInfo,
     }
 
-    const availableCars1 = await rentalityGateway.connect(guest).searchAvailableCars(0, 0, searchCarParams1)
+    const availableCars1 = await rentalityGateway
+      .connect(guest)
+      .searchAvailableCarsWithDelivery(0, 0, searchCarParams1, emptyLocationInfo, emptyLocationInfo)
 
     expect(availableCars1.length).to.equal(1)
 
-    const availableCars2 = await rentalityGateway.connect(guest).searchAvailableCars(0, 0, searchCarParams2)
+    const availableCars2 = await rentalityGateway
+      .connect(guest)
+      .searchAvailableCarsWithDelivery(0, 0, searchCarParams2, emptyLocationInfo, emptyLocationInfo)
 
     expect(availableCars2.length).to.equal(0)
   })
 
   it('Search with country should work', async function () {
-    const { rentalityCarToken, rentalityPlatform, guest, rentalityGateway, host, rentalityLocationVerifier, admin } =
+    const { rentalityCarToken, rentalityTripService, guest, rentalityGateway, host, rentalityLocationVerifier, admin } =
       await loadFixture(deployFixtureWith1Car)
 
     let location = {
@@ -160,7 +181,7 @@ describe('RentalityCarToken: search functions', function () {
     location.country = 'Country'
     let carRequest = getMockCarRequest(2, await rentalityLocationVerifier.getAddress(), admin, location)
 
-    await rentalityPlatform.addCar(carRequest)
+    await rentalityGateway.addCar(carRequest)
 
     const searchCarParams1 = {
       country: 'Country',
@@ -187,11 +208,15 @@ describe('RentalityCarToken: search functions', function () {
       userLocation: locationInfo,
     }
 
-    const availableCars1 = await rentalityGateway.connect(guest).searchAvailableCars(0, 0, searchCarParams1)
+    const availableCars1 = await rentalityGateway
+      .connect(guest)
+      .searchAvailableCarsWithDelivery(0, 0, searchCarParams1, emptyLocationInfo, emptyLocationInfo)
 
     expect(availableCars1.length).to.equal(1)
 
-    const availableCars2 = await rentalityGateway.connect(guest).searchAvailableCars(0, 0, searchCarParams2)
+    const availableCars2 = await rentalityGateway
+      .connect(guest)
+      .searchAvailableCarsWithDelivery(0, 0, searchCarParams2, emptyLocationInfo, emptyLocationInfo)
 
     expect(availableCars2.length).to.equal(0)
   })
@@ -202,16 +227,15 @@ describe('RentalityCarToken: search functions', function () {
       rentalityTripService,
       guest,
       geoParserMock,
-      rentalityView,
+      rentalityGateway,
       rentalityLocationVerifier,
       admin,
-      rentalityPlatform,
     } = await loadFixture(deployFixtureWith1Car)
 
     let location = {
       userAddress: 'Miami Riverwalk, Miami, Florida, USA',
       country: 'USA',
-      state: 'None',
+      state: 'Florida',
       city: 'Miami',
       latitude: '45.509248',
       longitude: '-122.682653',
@@ -219,7 +243,7 @@ describe('RentalityCarToken: search functions', function () {
     }
     location.state = 'Florida'
     let carRequest = getMockCarRequest(2, await rentalityLocationVerifier.getAddress(), admin, location)
-    await rentalityPlatform.addCar(carRequest)
+    await rentalityGateway.addCar(carRequest)
 
     const searchCarParams1 = {
       country: '',
@@ -246,11 +270,15 @@ describe('RentalityCarToken: search functions', function () {
       userLocation: locationInfo,
     }
 
-    const availableCars1 = await rentalityView.connect(guest).searchAvailableCars(0, 0, searchCarParams1)
+    const availableCars1 = await rentalityGateway
+      .connect(guest)
+      .searchAvailableCarsWithDelivery(0, 0, searchCarParams1, emptyLocationInfo, emptyLocationInfo)
 
     expect(availableCars1.length).to.equal(2)
 
-    const availableCars2 = await rentalityView.connect(guest).searchAvailableCars(0, 0, searchCarParams2)
+    const availableCars2 = await rentalityGateway
+      .connect(guest)
+      .searchAvailableCarsWithDelivery(0, 0, searchCarParams2, emptyLocationInfo, emptyLocationInfo)
 
     expect(availableCars2.length).to.equal(0)
   })
@@ -264,7 +292,6 @@ describe('RentalityCarToken: search functions', function () {
       rentalityGateway,
       rentalityLocationVerifier,
       admin,
-      rentalityPlatform,
     } = await loadFixture(deployFixtureWith1Car)
 
     let location = {
@@ -278,7 +305,7 @@ describe('RentalityCarToken: search functions', function () {
     }
     location.city = 'City'
     let carRequest = getMockCarRequest(2, await rentalityLocationVerifier.getAddress(), admin, location)
-    await rentalityPlatform.addCar(carRequest)
+    await rentalityGateway.addCar(carRequest)
 
     const searchCarParams1 = {
       country: '',
@@ -305,11 +332,15 @@ describe('RentalityCarToken: search functions', function () {
       userLocation: locationInfo,
     }
 
-    const availableCars1 = await rentalityGateway.connect(guest).searchAvailableCars(0, 0, searchCarParams1)
+    const availableCars1 = await rentalityGateway
+      .connect(guest)
+      .searchAvailableCarsWithDelivery(0, 0, searchCarParams1, emptyLocationInfo, emptyLocationInfo)
 
     expect(availableCars1.length).to.equal(1)
 
-    const availableCars2 = await rentalityGateway.connect(guest).searchAvailableCars(0, 0, searchCarParams2)
+    const availableCars2 = await rentalityGateway
+      .connect(guest)
+      .searchAvailableCarsWithDelivery(0, 0, searchCarParams2, emptyLocationInfo, emptyLocationInfo)
 
     expect(availableCars2.length).to.equal(0)
   })
@@ -356,15 +387,21 @@ describe('RentalityCarToken: search functions', function () {
       userLocation: locationInfo,
     }
 
-    const availableCars1 = await rentalityGateway.connect(guest).searchAvailableCars(0, 0, searchCarParams1)
+    const availableCars1 = await rentalityGateway
+      .connect(guest)
+      .searchAvailableCarsWithDelivery(0, 0, searchCarParams1, emptyLocationInfo, emptyLocationInfo)
 
     expect(availableCars1.length).to.equal(1)
 
-    const availableCars2 = await rentalityGateway.connect(guest).searchAvailableCars(0, 0, searchCarParams2)
+    const availableCars2 = await rentalityGateway
+      .connect(guest)
+      .searchAvailableCarsWithDelivery(0, 0, searchCarParams2, emptyLocationInfo, emptyLocationInfo)
 
     expect(availableCars2.length).to.equal(0)
 
-    const availableCars3 = await rentalityGateway.connect(guest).searchAvailableCars(0, 0, searchCarParams3)
+    const availableCars3 = await rentalityGateway
+      .connect(guest)
+      .searchAvailableCarsWithDelivery(0, 0, searchCarParams3, emptyLocationInfo, emptyLocationInfo)
 
     expect(availableCars3.length).to.equal(1)
   })
@@ -411,15 +448,21 @@ describe('RentalityCarToken: search functions', function () {
       userLocation: locationInfo,
     }
 
-    const availableCars1 = await rentalityGateway.connect(guest).searchAvailableCars(0, 0, searchCarParams1)
+    const availableCars1 = await rentalityGateway
+      .connect(guest)
+      .searchAvailableCarsWithDelivery(0, 0, searchCarParams1, emptyLocationInfo, emptyLocationInfo)
 
     expect(availableCars1.length).to.equal(1)
 
-    const availableCars2 = await rentalityGateway.connect(guest).searchAvailableCars(0, 0, searchCarParams2)
+    const availableCars2 = await rentalityGateway
+      .connect(guest)
+      .searchAvailableCarsWithDelivery(0, 0, searchCarParams2, emptyLocationInfo, emptyLocationInfo)
 
     expect(availableCars2.length).to.equal(1)
 
-    const availableCars3 = await rentalityGateway.connect(guest).searchAvailableCars(0, 0, searchCarParams3)
+    const availableCars3 = await rentalityGateway
+      .connect(guest)
+      .searchAvailableCarsWithDelivery(0, 0, searchCarParams3, emptyLocationInfo, emptyLocationInfo)
 
     expect(availableCars3.length).to.equal(0)
   })

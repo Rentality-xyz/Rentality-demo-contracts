@@ -104,5 +104,5 @@ interface IRentalityAdminGateway {
   /// @notice Sets a new message for the Terms and Conditions (TC) and updates the corresponding hashed message.
   /// @dev This function can only be called by an admin.
   /// @param message The new message for the TC.
-  function setNewTCMessage(string memory message) external;
+  // function setNewTCMessage(string memory message) external;
 }

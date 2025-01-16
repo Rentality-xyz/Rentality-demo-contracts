@@ -8,7 +8,8 @@
       "payable": false,
       "inputs": [
         { "type": "uint256", "name": "tripId" },
-        { "type": "address", "name": "tripServiceAddress" }
+        { "type": "address", "name": "tripServiceAddress" },
+        { "type": "address", "name": "insuranceAddress" }
       ],
       "outputs": [
         {
@@ -34,7 +35,8 @@
             { "type": "uint64", "name": "startFuelLevel" },
             { "type": "uint64", "name": "endFuelLevel" },
             { "type": "uint64", "name": "startOdometer" },
-            { "type": "uint64", "name": "endOdometer" }
+            { "type": "uint64", "name": "endOdometer" },
+            { "type": "uint256", "name": "insuranceFee" }
           ]
         }
       ]

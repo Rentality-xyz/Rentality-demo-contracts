@@ -6,6 +6,7 @@ import '@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol';
 import {AccessControlUpgradeable} from '@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol';
 import './Schemas.sol';
 import '@openzeppelin/contracts/utils/cryptography/ECDSA.sol';
+import {IRentalityAccessControl} from './abstract/IRentalityAccessControl.sol';
 
 /// @title RentalityUserService Contract
 /// @notice
@@ -16,7 +17,7 @@ import '@openzeppelin/contracts/utils/cryptography/ECDSA.sol';
 ///
 /// The contract includes functions to set and retrieve KYC information, check for valid KYC,
 /// grant and revoke roles, and check user roles
-contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
+contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRentalityAccessControl {
   // Role identifiers for access control
   bytes32 public constant MANAGER_ROLE = keccak256('MANAGER_ROLE');
   bytes32 public constant HOST_ROLE = keccak256('HOST_ROLE');
@@ -59,6 +60,17 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
     kycInfo.TCSignature = TCSignature;
   }
 
+  function setMyCivicKYCInfo(address user, Schemas.CivicKYCInfo memory civicKycInfo) public {
+    require(hasRole(MANAGER_ROLE, msg.sender), 'Only manager');
+    Schemas.KYCInfo storage kycInfo = kycInfos[user];
+
+    kycInfo.surname = civicKycInfo.fullName;
+    kycInfo.licenseNumber = civicKycInfo.licenseNumber;
+    kycInfo.expirationDate = civicKycInfo.expirationDate;
+    additionalKycInfo[user].email = civicKycInfo.email;
+    additionalKycInfo[user].issueCountry = civicKycInfo.issueCountry;
+  }
+
   function setCivicKYCInfo(address user, Schemas.CivicKYCInfo memory civicKycInfo) public {
     require(hasRole(KYC_COMMISSION_MANAGER_ROLE, tx.origin), 'Only KYC manager');
     Schemas.KYCInfo storage kycInfo = kycInfos[user];
@@ -75,7 +87,7 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
   /// Requirements:
   /// - Caller must be a manager.
   function getKYCInfo(address user) external view returns (Schemas.KYCInfo memory kycInfo) {
-    require(isManager(msg.sender), 'Only the manager can get other users KYC info');
+    // require(isManager(msg.sender), 'Only the manager can get other users KYC info');
     return kycInfos[user];
   }
   /// @notice Retrieves KYC information for the caller.
@@ -165,7 +177,7 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable {
   /// @param user The address of the user whose KYC and TC status is being checked.
   /// @return A boolean indicating whether the user has passed both KYC and TC.
   function hasPassedKYCAndTC(address user) public view returns (bool) {
-    return hasPassedKYC(user) && kycInfos[user].isTCPassed;
+    return kycInfos[user].isTCPassed;
   }
 
   /// @notice Checks if a user has admin role.

@@ -1,5 +1,4 @@
 const RentalityGatewayJSON_ABI = require('../src/abis/RentalityGateway.v0_2_0.abi.json')
-const RentalityChatHelperJSON_ABI = require('../src/abis/RentalityChatHelper.v0_2_0.abi.json')
 const testData = require('./testData/testData.json')
 const { ethers, network } = require('hardhat')
 const { buildPath } = require('./utils/pathBuilder')
@@ -25,11 +24,6 @@ const checkInitialization = async () => {
     throw new Error(`Addresses for RentalityGateway was not found`)
   }
 
-  const chatHelperAddress = checkNotNull(addresses['RentalityChatHelper'], 'chatHelperAddress')
-  if (!chatHelperAddress) {
-    throw new Error(`Addresses for RentalityChatHelper was not found`)
-  }
-
   const verifierAddress = checkNotNull(addresses['RentalityLocationVerifier'], 'verifierAddress')
   if (!verifierAddress) {
     throw new Error(`Addresses for RentalityLocationVerifier was not found`)
@@ -46,6 +40,12 @@ const checkInitialization = async () => {
     throw new Error('GUEST_PRIVATE_KEY env variable is undefined')
   }
   const guest = new ethers.Wallet(GUEST_PRIVATE_KEY, ethers.provider)
+
+  const KYC_MANAGER_PRIVATE_KEY = testData.kycManagerWalletPrivateKey
+  if (!KYC_MANAGER_PRIVATE_KEY) {
+    throw new Error('KYC_MANAGER_PRIVATE_KEY env variable is undefined')
+  }
+  const kycManager = new ethers.Wallet(KYC_MANAGER_PRIVATE_KEY, ethers.provider)
 
   const ADMIN_PRIVATE_KEY = testData.adminWalletPrivateKey
   if (!ADMIN_PRIVATE_KEY) {
@@ -78,9 +78,8 @@ const checkInitialization = async () => {
   }
 
   const gateway = new ethers.Contract(rentalityGatewayAddress, RentalityGatewayJSON_ABI.abi, deployer)
-  const chatService = new ethers.Contract(chatHelperAddress, RentalityChatHelperJSON_ABI.abi, deployer)
 
-  return [host, guest, admin, gateway, chatService, verifierAddress]
+  return [host, guest, kycManager, admin, gateway, verifierAddress]
 }
 
 async function signLocationInfo(signer, verifierAddress, locationInfo) {
@@ -108,34 +107,62 @@ async function signLocationInfo(signer, verifierAddress, locationInfo) {
   return signer.signTypedData(domain, types, locationInfo)
 }
 
-async function setHostKycIfNotSet(host, gateway, chatService) {
+async function setHostKycIfNotSet(host, kycManager, gateway) {
   console.log('\nSetting KYC for host...')
 
-  if ((await gateway.connect(host).getMyKYCInfo()).name) {
+  const kyc = (await gateway.connect(host).getMyFullKYCInfo()).kyc
+
+  if (kyc.name && kyc.licenseNumber) {
     console.log('KYC for host has already set')
     return
   }
 
   const data = testData.hostProfileInfo
-  await gateway.connect(host).setKYCInfo(data.nickname, data.mobilePhoneNumber, data.profilePhoto, data.tcSignature)
-  await chatService.connect(host).setMyChatPublicKey(data.privateKey, data.publicKey)
 
-  console.log('KYC for host was set')
+  if (!kyc.name) {
+    await gateway.connect(host).setKYCInfo(data.nickname, data.mobilePhoneNumber, data.profilePhoto, data.tcSignature)
+    console.log('KYC for host was set')
+  }
+
+  if (!kyc.licenseNumber) {
+    await gateway.connect(kycManager).setCivicKYCInfo(host, {
+      fullName: `${data.name} ${data.surname}`,
+      licenseNumber: data.licenseNumber,
+      expirationDate: data.expirationDate,
+      issueCountry: 'UKR',
+      email: `${data.name}${data.surname}@gmail.com`,
+    })
+    console.log('Civic KYC for host was set')
+  }
 }
 
-async function setGuestKycIfNotSet(guest, gateway, chatService) {
+async function setGuestKycIfNotSet(guest, kycManager, gateway) {
   console.log('\nSetting KYC for guest...')
 
-  if ((await gateway.connect(guest).getMyKYCInfo(guest.address)).name) {
+  const kyc = (await gateway.connect(guest).getMyFullKYCInfo()).kyc
+
+  if (kyc.name && kyc.licenseNumber) {
     console.log('KYC for guest has already set')
     return
   }
 
   const data = testData.guestProfileInfo
-  await gateway.connect(guest).setKYCInfo(data.nickname, data.mobilePhoneNumber, data.profilePhoto, data.tcSignature)
-  await chatService.connect(guest).setMyChatPublicKey(data.privateKey, data.publicKey)
 
-  console.log('KYC for guest was set')
+  if (!kyc.name) {
+    await gateway.connect(guest).setKYCInfo(data.nickname, data.mobilePhoneNumber, data.profilePhoto, data.tcSignature)
+    console.log('KYC for guest was set')
+  }
+
+  if (!kyc.licenseNumber) {
+    await gateway.connect(kycManager).setCivicKYCInfo(guest, {
+      fullName: `${data.name} ${data.surname}`,
+      licenseNumber: data.licenseNumber,
+      expirationDate: data.expirationDate,
+      issueCountry: 'UKR',
+      email: `${data.name}${data.surname}@gmail.com`,
+    })
+    console.log('Civic KYC for guest was set')
+  }
 }
 
 async function setCarsForHost(host, admin, verifierAddress, gateway) {
@@ -181,8 +208,16 @@ async function createPendingTrip(tripIndex, carId, host, guest, gateway) {
     startDateTime: Math.ceil(new Date().getTime() / 1000 + tripIndex * 3),
     endDateTime: Math.ceil(new Date().getTime() / 1000 + tripIndex * 3 + 1),
     currencyType: ethAddress,
+    pickUpInfo: {
+      locationInfo: emptyContractLocationInfo,
+      signature: '0x',
+    },
+    returnInfo: {
+      locationInfo: emptyContractLocationInfo,
+      signature: '0x',
+    },
   }
-  await gateway.connect(guest).createTripRequest(request, {
+  await gateway.connect(guest).createTripRequestWithDelivery(request, {
     value: paymentsNeeded.totalPrice,
   })
 
@@ -305,10 +340,10 @@ async function createConfirmedAfterCompletedWithoutGuestComfirmationTrip(tripInd
 }
 
 async function main() {
-  const [host, guest, admin, gateway, chatService, verifierAddress] = await checkInitialization()
+  const [host, guest, kycManager, admin, gateway, verifierAddress] = await checkInitialization()
 
-  await setHostKycIfNotSet(host, gateway, chatService)
-  await setGuestKycIfNotSet(guest, gateway, chatService)
+  await setHostKycIfNotSet(host, kycManager, gateway)
+  await setGuestKycIfNotSet(guest, kycManager, gateway)
 
   const carIds = await setCarsForHost(host, admin, verifierAddress, gateway)
   let tripCount = await getTripCount(host, gateway)

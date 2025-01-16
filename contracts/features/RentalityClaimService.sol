@@ -22,22 +22,21 @@ contract RentalityClaimService is Initializable, UUPSAccess {
   mapping(uint256 => Schemas.Claim) private claimIdToClaim;
 
   mapping(uint => CurrencyRate) public claimIdToCurrencyRate;
-  event ClaimStatusChanged(
-    uint256 claimId,
-    Schemas.ClaimStatus claimStatus,
-    address indexed host,
-    address indexed guest
-  );
+  RentalityNotificationService private eventManager;
 
   event WaitingTimeChanged(uint256 newWaitingTime);
 
-  RentalityNotificationService private eventManager;
   // Modifier to restrict access to only managers contracts
   modifier onlyManager() {
     require(userService.isManager(msg.sender), 'Only manager.');
     _;
   }
-
+  /// @dev Updates the address of the RentalityEventManager contract.
+  /// @param _eventManager The address of the new RentalityEventManager contract.
+  function updateEventServiceAddress(address _eventManager) public {
+    require(userService.isAdmin(msg.sender), 'Only admin.');
+    eventManager = RentalityNotificationService(_eventManager);
+  }
   /// @dev Sets the waiting time, only callable by administrators.
   /// @param newWaitingTimeInSec, set old value to this
   function setWaitingTime(uint256 newWaitingTimeInSec) public onlyManager {
@@ -52,21 +51,10 @@ contract RentalityClaimService is Initializable, UUPSAccess {
   function getWaitingTime() public view returns (uint) {
     return waitingTimeForApproveInSec;
   }
-  /// @dev Updates the address of the RentalityEventManager contract.
-  /// @param _eventManager The address of the new RentalityEventManager contract.
-  function updateEventServiceAddress(address _eventManager) public {
-    require(userService.isAdmin(msg.sender), 'Only admin.');
-    eventManager = RentalityNotificationService(_eventManager);
-  }
 
   /// @dev Creates a new claim, only callable by managers contracts.
   /// @param request Details of the claim to be created.
-  function createClaim(
-    Schemas.CreateClaimRequest memory request,
-    address host,
-    address guest,
-    address user
-  ) public onlyManager {
+  function createClaim(Schemas.CreateClaimRequest memory request, address host, address guest) public onlyManager {
     require(request.amountInUsdCents > 0, 'Amount can not be null.');
 
     claimId += 1;
@@ -86,7 +74,7 @@ contract RentalityClaimService is Initializable, UUPSAccess {
       address(0),
       0,
       request.photosUrl,
-      user == host ? true : false
+      tx.origin == host ? true : false
     );
     claimIdToClaim[newClaimId] = newClaim;
 
@@ -94,8 +82,8 @@ contract RentalityClaimService is Initializable, UUPSAccess {
       Schemas.EventType.Claim,
       newClaimId,
       uint8(Schemas.ClaimStatus.NotPaid),
-      user,
-      host == user ? host : guest
+      host == tx.origin ? guest : host,
+      host == tx.origin ? host : guest
     );
   }
 
@@ -182,8 +170,8 @@ contract RentalityClaimService is Initializable, UUPSAccess {
   /// @param _userService, contract for access control
   function initialize(address _userService, address _eventManager) public initializer {
     userService = IRentalityAccessControl(_userService);
-    eventManager = RentalityNotificationService(_eventManager);
     waitingTimeForApproveInSec = 259_200;
     platformFeeInPPM = 0;
+    eventManager = RentalityNotificationService(_eventManager);
   }
 }

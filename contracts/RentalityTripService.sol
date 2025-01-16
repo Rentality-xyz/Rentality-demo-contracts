@@ -32,7 +32,6 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
   Counters.Counter private _tripIdCounter;
 
   mapping(uint256 => Schemas.Trip) private idToTripInfo;
-
   RentalityContract private addresses;
 
   using RentalityQuery for RentalityContract;
@@ -41,6 +40,8 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
 
   mapping(uint => uint) public tripIdToEthSumInTripCreation;
   RentalityNotificationService private eventManager;
+  mapping(uint => uint[]) private carIdToActiveTrips;
+  mapping(uint => uint[]) private carIdToTrips;
 
   /// @dev Updates the address of the RentalityEventManager contract.
   /// @param _eventManager The address of the new RentalityEventManager contract.
@@ -48,6 +49,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     require(addresses.userService.isAdmin(msg.sender), 'Only admin.');
     eventManager = RentalityNotificationService(_eventManager);
   }
+
   /// @dev Updates the address of the RentalityEnginesService contract.
   /// @param _engineService The address of the new RentalityEnginesService contract.
   function updateEngineServiceAddress(address _engineService) public {
@@ -84,13 +86,20 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     uint64 milesIncludedPerDay,
     Schemas.PaymentInfo memory paymentInfo,
     uint msgValue
-  ) public {
+  ) public returns (uint) {
     require(addresses.userService.isManager(msg.sender), 'Only from manager contract.');
+
+    if (!addresses.userService.isGuest(tx.origin)) {
+      addresses.userService.grantGuestRole(tx.origin);
+    }
     _tripIdCounter.increment();
     uint256 newTripId = _tripIdCounter.current();
     if (milesIncludedPerDay == 0) {
       milesIncludedPerDay = 2 ** 32 - 1;
     }
+    carIdToActiveTrips[carId].push(newTripId);
+    carIdToTrips[carId].push(newTripId);
+
     paymentInfo.tripId = newTripId;
 
     Schemas.CarInfo memory carInfo = addresses.carService.getCarInfoById(carId);
@@ -134,6 +143,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     tripIdToEthSumInTripCreation[newTripId] = msgValue;
 
     eventManager.emitEvent(Schemas.EventType.Trip, newTripId, uint8(Schemas.TripStatus.Created), guest, host);
+    return newTripId;
   }
 
   /// @notice Approves a trip by changing its status to Approved.
@@ -166,11 +176,12 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
   ///  @param tripId The ID of the trip to be Rejected
   function rejectTrip(uint256 tripId, address user) public {
     require(addresses.userService.isManager(msg.sender), 'Only from manager contract.');
+    Schemas.TripStatus status = idToTripInfo[tripId].status;
 
     address host = idToTripInfo[tripId].host;
     address guest = idToTripInfo[tripId].guest;
     bool controversialSituation = addresses.userService.isAdmin(user) &&
-      idToTripInfo[tripId].status == Schemas.TripStatus.CheckedOutByHost;
+      status == Schemas.TripStatus.CheckedOutByHost;
 
     require(host == user || guest == user || controversialSituation, 'Only host or guest of the trip can reject it');
 
@@ -181,7 +192,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
         controversialSituation,
       'The trip is not in status Created, Approved'
     );
-
+    _removeAcriveTrip(idToTripInfo[tripId].carId, tripId);
     idToTripInfo[tripId].status = Schemas.TripStatus.Canceled;
     idToTripInfo[tripId].rejectedDateTime = block.timestamp;
     idToTripInfo[tripId].rejectedBy = user;
@@ -212,7 +223,6 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     string memory insuranceNumber,
     address user
   ) public {
-    require(addresses.userService.isManager(msg.sender), 'only Manager');
     Schemas.Trip memory trip = getTrip(tripId);
     require(trip.host == user, 'For host only');
 
@@ -275,7 +285,13 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     idToTripInfo[tripId].status = Schemas.TripStatus.CheckedInByGuest;
     idToTripInfo[tripId].checkedInByGuestDateTime = block.timestamp;
 
-    eventManager.emitEvent(Schemas.EventType.Trip, tripId, uint8(Schemas.TripStatus.CheckedInByGuest), user, trip.host);
+    eventManager.emitEvent(
+      Schemas.EventType.Trip,
+      tripId,
+      uint8(Schemas.TripStatus.CheckedInByGuest),
+      trip.guest,
+      trip.host
+    );
   }
 
   ///  @dev Initiates the check-out process by the guest, updating trip status, and recording end details.
@@ -323,7 +339,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
       Schemas.EventType.Trip,
       tripId,
       uint8(Schemas.TripStatus.CheckedOutByGuest),
-      user,
+      trip.guest,
       trip.host
     );
   }
@@ -398,6 +414,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
 
     trip.status = Schemas.TripStatus.Finished;
 
+    _removeAcriveTrip(idToTripInfo[tripId].carId, tripId);
     trip.finishDateTime = block.timestamp;
     completedByAdmin[tripId] = addresses.userService.isAdmin(user) && trip.host != user && trip.guest != user;
 
@@ -464,6 +481,23 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
   ///  @return guestAddress The address of the guest.
   function getAddressesByTripId(uint256 tripId) external view returns (address hostAddress, address guestAddress) {
     return (idToTripInfo[tripId].host, idToTripInfo[tripId].guest);
+  }
+  function _removeAcriveTrip(uint carId, uint tripId) private {
+    uint[] memory activeTrips = carIdToActiveTrips[carId];
+    for (uint i = 0; i < activeTrips.length; i++) {
+      if (activeTrips[i] == tripId) {
+        for (uint j = i; j < activeTrips.length - 1; j++) activeTrips[j] = activeTrips[j + 1];
+
+        carIdToActiveTrips[carId] = activeTrips;
+        break;
+      }
+    }
+  }
+  function getActiveTrips(uint carId) public view returns (uint[] memory) {
+    return carIdToActiveTrips[carId];
+  }
+  function getCarTrips(uint carId) public view returns (uint[] memory) {
+    return carIdToTrips[carId];
   }
 
   /// @param currencyConverterServiceAddress The address of the currency converter service.
