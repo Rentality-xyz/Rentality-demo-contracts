@@ -271,7 +271,7 @@ describe('RentalityGateway: user info', function () {
     await expect(rentalityGateway.connect(guest).setKYCInfo('name', 'surname', guestNumber,"", guestSignature,zeroHash))
       .not.be.reverted
 
-    await expect(rentalityGateway.connect(host).setKYCInfo('name', 'surname', hostNumber, hostSignature, zeroHash)).not
+    await expect(rentalityGateway.connect(host).setKYCInfo('name', 'surname', hostNumber,"", hostSignature, zeroHash)).not
       .be.reverted
 
     await expect(rentalityGateway.connect(anonymous).getTripContactInfo(1)).to.be.reverted
