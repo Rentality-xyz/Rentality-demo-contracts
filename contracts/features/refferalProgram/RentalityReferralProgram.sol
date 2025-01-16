@@ -302,6 +302,11 @@ contract RentalityReferralProgram is
     return (resultAddress, resultPoints);
   }
 
+  function updateLib(address refLib) public {
+    require(userService.isAdmin(msg.sender),"only Admin");
+    refferalLib = refLib;
+  }
+
 
   function initialize(
     address _userService,
