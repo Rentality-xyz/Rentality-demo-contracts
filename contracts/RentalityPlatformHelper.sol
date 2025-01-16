@@ -49,7 +49,7 @@ contract RentalityPlatformHelper is UUPSOwnable {
   }
 
   function addUserDeliveryPrices(uint64 underTwentyFiveMilesInUsdCents, uint64 aboveTwentyFiveMilesInUsdCents) public {
-    addresses.deliveryService.setUserDeliveryPrices(underTwentyFiveMilesInUsdCents, aboveTwentyFiveMilesInUsdCents);
+    addresses.deliveryService.setUserDeliveryPrices(underTwentyFiveMilesInUsdCents, aboveTwentyFiveMilesInUsdCents,tx.origin);
   }
   function saveDimoTokenIds(uint[] memory dimoTokenIds, uint[] memory carIds) public {
     dimoService.saveButch(dimoTokenIds, carIds);
@@ -64,7 +64,7 @@ contract RentalityPlatformHelper is UUPSOwnable {
       addresses.userService.getKycCommission()
     );
 
-    addresses.paymentService.payKycCommission{value: msg.value}(valueToPay, currency);
+    addresses.paymentService.payKycCommission{value: msg.value}(valueToPay, currency,tx.origin);
   }
 
     function saveTripInsuranceInfo(uint tripId, Schemas.SaveInsuranceRequest memory insuranceInfo) public {
@@ -72,6 +72,7 @@ contract RentalityPlatformHelper is UUPSOwnable {
     require(trip.host == tx.origin || trip.guest == tx.origin, 'For trip host or guest');
     insuranceService.saveTripInsuranceInfo(tripId, insuranceInfo);
   }
+  
 
     function updateCarInfoWithLocation(
     Schemas.UpdateCarInfoRequest memory request,
@@ -87,9 +88,9 @@ contract RentalityPlatformHelper is UUPSOwnable {
       promoService
     );
     insuranceService.saveInsuranceRequired(request.carId, request.insurancePriceInUsdCents, request.insuranceRequired);
-    return addresses.carService.updateCarInfo(request, location.locationInfo, location.signature.length > 0);
+    return addresses.carService.updateCarInfo(request, location.locationInfo, location.signature.length > 0, tx.origin);
   }
- 
+
 
 
     /// @notice Constructor to initialize the RentalityPlatform with service contract addresses.

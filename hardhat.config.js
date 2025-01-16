@@ -37,6 +37,11 @@ module.exports = {
     //   chainId: 1337,
     //   timeout: 1_000_000,
     // },
+    tenderlyVirtual: {
+      url: process.env.TENDERLY_URL ?? '',
+      accounts: [process.env.PRIVATE_KEY],
+      chainId: 8453,
+    },
     base: {
       url: process.env.BASE_URL ?? '',
       accounts: [process.env.PRIVATE_KEY],

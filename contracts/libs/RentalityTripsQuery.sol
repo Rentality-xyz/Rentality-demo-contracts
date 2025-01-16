@@ -328,7 +328,8 @@ library RentalityTripsQuery {
     (string memory guestPhoneNumber, string memory hostPhoneNumber) = getTripContactInfo(
       tripId,
       address(tripService),
-      address(userService)
+      address(userService),
+      tx.origin
     );
     trip.guestInsuranceCompanyName = '';
     trip.guestInsurancePolicyNumber = '';

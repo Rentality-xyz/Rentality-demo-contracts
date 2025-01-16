@@ -39,7 +39,7 @@ function getDimoTokenId(uint carId) public view returns(uint) {
        return carIdToDimoTokenId[carId];
 }
 
-  function initialize(address _userService, address _carToken, address _admin) public initializer {
+  function initialize(address _userService, address _carToken) public initializer {
     userService = IRentalityAccessControl(_userService);
     carToken = RentalityCarToken(_carToken);
   }

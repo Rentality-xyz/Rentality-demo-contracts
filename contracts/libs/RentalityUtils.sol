@@ -547,7 +547,6 @@ library RentalityUtils {
       carInfo.pricePerDayInUsdCents
     );
 
-    uint64 priceBeforePromo = priceWithDiscount;
 
     uint taxId = addresses.paymentService.defineTaxesType(address(addresses.carService), carId);
 
