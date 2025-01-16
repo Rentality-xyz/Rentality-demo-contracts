@@ -301,6 +301,7 @@ contract RentalityReferralProgram is
     }
     return (resultAddress, resultPoints);
   }
+  
 
 
   function initialize(
