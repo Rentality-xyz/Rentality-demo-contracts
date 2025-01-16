@@ -8,11 +8,14 @@ import '../payments/RentalityCurrencyConverter.sol';
 import './RentalityInvestmentPool.sol';
 import '../RentalityCarToken.sol';
 import '../Schemas.sol';
+import {RentalityInsurance} from '../payments/RentalityInsurance.sol';
 
 contract RentalityInvestment is Initializable, UUPSAccess {
   uint public investmentId;
   RentalityCurrencyConverter private converter;
   RentalityCarToken private carToken;
+  RentalityPaymentService private paymentService;
+  RentalityInsurance private insuranceService;
 
   mapping(uint => Schemas.CarInvestment) private investmentIdToCarInfo;
   mapping(uint => uint) public investmentIdToPayedInETH;
@@ -23,6 +26,8 @@ contract RentalityInvestment is Initializable, UUPSAccess {
 
   function createCarInvestment(Schemas.CarInvestment memory car, string memory name_, string memory symbol_) public {
     require(carToken.isUniqueVinNumber(car.car.carVinNumber), 'Car with this VIN number already exists');
+   require(paymentService.taxExist(car.car.locationInfo.locationInfo) != 0, 'Tax not exist.');
+
     investmentId += 1;
     investmentIdToCarInfo[investmentId] = car;
     RentalityInvestmentNft newNftCollection = new RentalityInvestmentNft(
@@ -41,7 +46,7 @@ contract RentalityInvestment is Initializable, UUPSAccess {
 
     require(investment.inProgress, 'Not available');
 
-    uint amountAfterInvestment = converter.getFromUsdLatest(address(0), payedInETH + msg.value);
+    (uint amountAfterInvestment,,) = converter.getFromUsdLatest(address(0), payedInETH + msg.value);
 
     if (amountAfterInvestment >= investment.priceInUsd) {
       investment.inProgress = false;
@@ -64,7 +69,9 @@ contract RentalityInvestment is Initializable, UUPSAccess {
       address(userService)
     );
     investIdToPool[investId] = newPool;
+
     uint carId = carToken.addCar(investment.car, msg.sender);
+     insuranceService.saveInsuranceRequired(carId, investment.car.insurancePriceInUsdCents, investment.car.insuranceRequired);
     carIdToInvestId[carId] = investId;
     (bool success, ) = payable(msg.sender).call{value: payedInETH}('');
     require(success, 'Fail to transfer.');
@@ -117,9 +124,17 @@ contract RentalityInvestment is Initializable, UUPSAccess {
 
   /// @notice Initializes the contract with the specified addresses for user service and geolocation parser.
 
-  function initialize(address _userService, address _currencyConverter, address _carService) public initializer {
+  function initialize(
+    address _userService,
+    address _currencyConverter,
+    address _carService,
+    address _paymentService,
+    address _insuranceServce
+    ) public initializer {
     userService = IRentalityAccessControl(_userService);
     converter = RentalityCurrencyConverter(_currencyConverter);
     carToken = RentalityCarToken(_carService);
+    paymentService = RentalityPaymentService(payable(_paymentService));
+    insuranceService = RentalityInsurance(_insuranceServce);
   }
 }

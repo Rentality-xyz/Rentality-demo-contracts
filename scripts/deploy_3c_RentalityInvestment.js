@@ -22,11 +22,23 @@ async function main() {
     'RentalityCurrencyConverter'
   )
 
+  const rentalityPaymentServiceAddress = checkNotNull(
+    getContractAddress('RentalityPaymentService', 'scripts/deploy_3c_RentalityPaymentService.js', chainId),
+    'RentalityPaymentService'
+  )
+
+  const rentalityInsurance = checkNotNull(
+    getContractAddress('RentalityInsurance', 'scripts/deploy_3d_RentalityInsurance.js', chainId),
+    'RentalityInsurance'
+  )
+
   const contractFactory = await ethers.getContractFactory(contractName)
   const contract = await upgrades.deployProxy(contractFactory, [
     userService,
     rentalityCurrencyConverterAddress,
     rentalityCarTokenAddress,
+    rentalityPaymentServiceAddress,
+    rentalityInsurance
   ])
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()
