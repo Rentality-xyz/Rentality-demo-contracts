@@ -32,6 +32,7 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
   uint private kycCommission;
   mapping(address => Schemas.KycCommissionData[]) private userToKYCCommission;
   mapping(address => Schemas.AdditionalKYCInfo) private additionalKycInfo;
+  address[] private platformUsers;
 
   /// @notice Sets KYC information for the caller (host or guest).
   /// Requirements:
@@ -40,17 +41,22 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
     string memory nickName,
     string memory mobilePhoneNumber,
     string memory profilePhoto,
-    bytes memory TCSignature,
-    address user
+    string memory email,
+    bytes memory TCSignature
   ) public {
-    require(isManager(msg.sender), 'only Manager');
-    if (!isGuest(user)) {
-      _grantRole(GUEST_ROLE, user);
+    if (!isGuest(tx.origin)) {
+      _grantRole(GUEST_ROLE, tx.origin);
     }
-    bool isTCPassed = ECDSA.recover(TCMessageHash, TCSignature) == user;
+    bool isTCPassed = ECDSA.recover(TCMessageHash, TCSignature) == tx.origin;
 
     require(isTCPassed, 'Wrong signature.');
-    Schemas.KYCInfo storage kycInfo = kycInfos[user];
+    Schemas.KYCInfo storage kycInfo = kycInfos[tx.origin];
+    if(kycInfo.createDate == 0 || !_alreadyInPlatformUsersList(tx.origin)) 
+      platformUsers.push(tx.origin);
+
+    string memory oldEmail = additionalKycInfo[tx.origin].email;
+    if(bytes(oldEmail).length == 0 || !hasPassedKYC(tx.origin))
+    additionalKycInfo[tx.origin].email = email;
 
     kycInfo.name = nickName;
     kycInfo.mobilePhoneNumber = mobilePhoneNumber;
@@ -92,12 +98,19 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
   }
   /// @notice Retrieves KYC information for the caller.
   /// @return kycInfo KYCInfo structure containing caller's KYC information.
-  function getMyKYCInfo(address user) external view returns (Schemas.KYCInfo memory kycInfo) {
-    return kycInfos[user];
+  function getMyKYCInfo() external view returns (Schemas.KYCInfo memory kycInfo) {
+    return kycInfos[tx.origin];
   }
 
-  function getMyFullKYCInfo(address user) public view returns (Schemas.FullKYCInfoDTO memory) {
-    return Schemas.FullKYCInfoDTO(kycInfos[user], additionalKycInfo[user]);
+  function getMyFullKYCInfo() public view returns (Schemas.FullKYCInfoDTO memory) {
+    return Schemas.FullKYCInfoDTO(kycInfos[tx.origin], additionalKycInfo[tx.origin]);
+  }
+  function getPlatformUsersKYCInfos() public view returns(Schemas.FullKYCInfoDTO[] memory result) {
+    address[] memory users = platformUsers;
+    result = new Schemas.FullKYCInfoDTO[](platformUsers.length);
+    for (uint i = 0; i < result.length; i++) {
+      result[i] = Schemas.FullKYCInfoDTO(kycInfos[users[i]], additionalKycInfo[users[i]]);
+    }
   }
   /// @notice Checks if the KYC information for a specified user is valid.
   /// @param user The address of the user to check for valid KYC.
@@ -257,9 +270,9 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
     return commissions[commissions.length - 1].commissionPaid;
   }
 
-  function payCommission(address user) public {
+  function payCommission() public {
     require(isManager(msg.sender), 'only manager.');
-    userToKYCCommission[user].push(Schemas.KycCommissionData(block.timestamp, true));
+    userToKYCCommission[tx.origin].push(Schemas.KycCommissionData(block.timestamp, true));
   }
 
   function manageRole(Schemas.Role newRole, address user, bool grant) public {
@@ -274,6 +287,19 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
     else {
       _revokeRole(role, user);
     }
+  }
+
+  function getPlatformUsers() public view returns(address[] memory) {
+    return platformUsers;
+  }
+
+  function _alreadyInPlatformUsersList(address user) private view returns(bool) {
+    address[] memory users = platformUsers;
+    for (uint i = 0; i < users.length; i++) {
+      if(users[i] == user)
+      return true;
+    }
+    return false;
   }
 
   /// @notice Initializes the contract with the specified Civic verifier address and gatekeeper network ID, and sets the default admin role.

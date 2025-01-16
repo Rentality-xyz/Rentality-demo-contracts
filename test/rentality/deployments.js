@@ -374,9 +374,9 @@ async function deployDefaultFixture() {
   const guestSignature = await signTCMessage(guest)
   const deployerSignature = await signTCMessage(owner)
   const adminKyc = signKycInfo(await rentalityLocationVerifier.getAddress(), admin)
-  await rentalityGateway.connect(host).setKYCInfo(' ', ' ', ' ', hostSignature, zeroHash)
-  await rentalityGateway.connect(guest).setKYCInfo(' ', ' ', ' ', guestSignature,zeroHash)
-  await rentalityGateway.setKYCInfo(' ', ' ', ' ', deployerSignature,zeroHash)
+  await rentalityGateway.connect(host).setKYCInfo(' ', ' ', ' ', ' ',hostSignature, zeroHash)
+  await rentalityGateway.connect(guest).setKYCInfo(' ', ' ', ' ', ' ',guestSignature,zeroHash)
+  await rentalityGateway.setKYCInfo(' ', ' ', ' ', ' ',deployerSignature,zeroHash)
   return {
     rentalityMockPriceFeed,
     rentalityUserService,

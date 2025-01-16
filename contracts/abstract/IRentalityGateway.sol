@@ -26,6 +26,7 @@ interface IRentalityGateway {
     string memory nickName,
     string memory mobilePhoneNumber,
     string memory profilePhoto,
+    string memory email,
     bytes memory TCSignature,
     bytes4 hash
  ) external;
