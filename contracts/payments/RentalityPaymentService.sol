@@ -29,6 +29,10 @@ RentalityInvestment private investmentService;
     require(userService.isAdmin(tx.origin), 'Only admin.');
     _;
   }
+  function getBaseDiscount() public view returns (RentalityBaseDiscount) {
+    address discountAddress = address(discountAddressToDiscountContract[currentDiscount]);
+    return RentalityBaseDiscount(discountAddress);
+  }
 
   /// @notice Get the current platform fee in parts per million (PPM).
   /// @return The current platform fee in PPM.
@@ -186,15 +190,25 @@ RentalityInvestment private investmentService;
       pool.deposit{value: depositToPool}(totalIncome);
     }
     if (trip.paymentInfo.currencyType == address(0)) {
-      (successHost, ) = payable(trip.host).call{value: valueToHost}('');
-      (successGuest, ) = payable(trip.guest).call{value: valueToGuest}('');
+      // Handle payment in native currency (ETH)
+      if (valueToHost > 0) {
+        (successHost, ) = payable(trip.host).call{value: valueToHost}('');
+      } else {
+        successHost = true;
+      }
+      if (valueToGuest > 0) {
+        (successGuest, ) = payable(trip.guest).call{value: valueToGuest}('');
+      } else {
+        successGuest = true;
+      }
     } else {
+      // Handle payment in ERC20 tokens
       successHost = IERC20(trip.paymentInfo.currencyType).transfer(trip.host, valueToHost);
       successGuest = IERC20(trip.paymentInfo.currencyType).transfer(trip.guest, valueToGuest);
     }
+
     require(successHost && successGuest, 'Transfer failed.');
   }
-
 
   /// @notice Handles the payment of the KYC commission by the user.
   /// @dev This function can only be called by a manager. The function handles both native currency (ETH) and ERC20 tokens.

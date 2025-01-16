@@ -10,6 +10,9 @@ const {
   locationInfo,
   signTCMessage,
   signLocationInfo,
+  emptyLocationInfo,
+  zeroHash,
+  emptySignedLocationInfo,
 } = require('../utils')
 
 describe('RentalityGateway: time buffer', function () {
@@ -32,7 +35,8 @@ describe('RentalityGateway: time buffer', function () {
     guest,
     anonymous,
     rentalityLocationVerifier,
-    rentalityView
+    rentalityView,
+    tripsQuery
 
   beforeEach(async function () {
     ;({
@@ -56,6 +60,7 @@ describe('RentalityGateway: time buffer', function () {
       anonymous,
       rentalityLocationVerifier,
       rentalityView,
+      tripsQuery,
     } = await loadFixture(deployDefaultFixture))
   })
   it('should not show car, while time buffer not expired', async function () {
@@ -63,6 +68,7 @@ describe('RentalityGateway: time buffer', function () {
     let locationInfo1 = {
       locationInfo,
       signature: signLocationInfo(await rentalityLocationVerifier.getAddress(), admin),
+      zeroHash,
     }
     const createCarRequest = {
       tokenUri: 'uri',
@@ -80,34 +86,62 @@ describe('RentalityGateway: time buffer', function () {
       insuranceIncluded: true,
       locationInfo: locationInfo1,
       currentlyListed: true,
+      insuranceRequired: false,
+      insurancePriceInUsdCents: 0,
+dimoTokenId: 0
     }
 
-    await expect(rentalityPlatform.connect(host).addCar(createCarRequest)).not.to.be.reverted
-    const myCars = await rentalityView.connect(host).getMyCars()
+    await expect(rentalityGateway.connect(host).addCar(createCarRequest)).not.to.be.reverted
+    const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
     const oneDayInSeconds = 86400
 
-    const result = await rentalityView.connect(host).calculatePayments(1, 2, ethToken)
+    const result = await rentalityGateway
+      .connect(host)
+      .calculatePaymentsWithDelivery(1, 2, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Date.now(),
           endDateTime: Date.now() + oneDayInSeconds * 2,
           currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
+        ' ',
         { value: result.totalPrice }
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
 
-    await expect(rentalityPlatform.connect(host).approveTripRequest(1)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
 
     const searchParams = getEmptySearchCarParams()
 
+    const value = await rentalityCarToken.fetchAvailableCarsForUser(guest.address, getEmptySearchCarParams())
+    // let rentalityContract = {
+    //   carService: await rentalityCarToken.getAddress(),
+    //   currencyConverterService: await rentalityCurrencyConverter.getAddress(),
+    //   tripService: await rentalityTripService.getAddress(),
+    //   userService: await rentalityUserService.getAddress(),
+    //   rentalityPlatform: await rentalityPlatform.getAddress(),
+    //   paymentService: await rentalityPaymentService.getAddress(),
+    //   claimService: await claimService.getAddress(),
+    //   adminService: await rentalityAdminGateway.getAddress(),
+    //   deliveryService: await rentalityCarDelivery.getAddress(),
+    //   viewService: await rentalityView.getAddress()
+    // };
+
     const availableCars = await rentalityView
       .connect(guest)
-      .searchAvailableCars(Date.now() + oneDayInSec * 3, Date.now() + oneDayInSec * 4, searchParams)
+      .searchAvailableCarsWithDelivery(
+        Date.now() + oneDayInSec * 3,
+        Date.now() + oneDayInSec * 4,
+        searchParams,
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
     expect(availableCars.length).to.be.eq(0)
   })
   it('should show car after time buffer expiration', async function () {
@@ -115,6 +149,7 @@ describe('RentalityGateway: time buffer', function () {
     let locationInfo1 = {
       locationInfo,
       signature: signLocationInfo(await rentalityLocationVerifier.getAddress(), admin),
+      zeroHash,
     }
     const createCarRequest = {
       tokenUri: 'uri',
@@ -133,36 +168,50 @@ describe('RentalityGateway: time buffer', function () {
       insuranceIncluded: true,
       locationInfo: locationInfo1,
       currentlyListed: true,
+      insuranceRequired: false,
+      insurancePriceInUsdCents: 0,
+dimoTokenId: 0
     }
 
-    await expect(rentalityPlatform.connect(host).addCar(createCarRequest)).not.to.be.reverted
-    const myCars = await rentalityView.connect(host).getMyCars()
+    await expect(rentalityGateway.connect(host).addCar(createCarRequest)).not.to.be.reverted
+    const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
     const oneDayInSeconds = 86400
 
     const dailyPriceInUsdCents = 1000
 
-    const result = await rentalityView.connect(host).calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway
+      .connect(host)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: 123,
           endDateTime: 321,
           currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
+        ' ',
         { value: result.totalPrice }
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
 
-    await expect(rentalityPlatform.connect(host).approveTripRequest(1)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
 
     const searchParams = getEmptySearchCarParams()
 
-    const availableCars = await rentalityView
+    const availableCars = await rentalityGateway
       .connect(guest)
-      .searchAvailableCars(Date.now() + oneDayInSec * 2 + oneDayInSec / 2, Date.now() + oneDayInSec * 4, searchParams)
+      .searchAvailableCarsWithDelivery(
+        Date.now() + oneDayInSec * 2 + oneDayInSec / 2,
+        Date.now() + oneDayInSec * 4,
+        searchParams,
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
     expect(availableCars.length).to.be.eq(1)
   })
   it('should not be able to create tripRequest if trip buffer not expired', async function () {
@@ -187,37 +236,48 @@ describe('RentalityGateway: time buffer', function () {
       locationInfo: locationInfo1,
       geoApiKey: 'aasda',
       currentlyListed: true,
+      insuranceRequired: false,
+      insurancePriceInUsdCents: 0,
+dimoTokenId: 0
     }
 
-    await expect(rentalityPlatform.connect(host).addCar(createCarRequest)).not.to.be.reverted
-    const myCars = await rentalityView.connect(host).getMyCars()
+    await expect(rentalityGateway.connect(host).addCar(createCarRequest)).not.to.be.reverted
+    const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
     const dailyPriceInUsdCents = 1000
 
-    const result = await rentalityView.calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway
+      .connect(guest)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Date.now(),
           endDateTime: Date.now() + oneDayInSec,
           currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
+        ' ',
         { value: result.totalPrice }
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
 
-    await expect(rentalityPlatform.connect(host).approveTripRequest(1)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
 
     await expect(
-      rentalityPlatform.connect(guest).createTripRequest(
+      rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Date.now() + (oneDayInSec * 3) / 2,
           endDateTime: Date.now() + oneDayInSec * 5,
           currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
+        ' ',
         { value: result.totalPrice }
       )
     ).to.be.revertedWith('Unavailable for current date.')
@@ -245,41 +305,59 @@ describe('RentalityGateway: time buffer', function () {
       insuranceIncluded: true,
       locationInfo: locationInfo1,
       currentlyListed: true,
+      insuranceRequired: false,
+      insurancePriceInUsdCents: 0,
+dimoTokenId: 0
     }
 
-    await expect(rentalityPlatform.connect(host).addCar(createCarRequest)).not.to.be.reverted
-    const myCars = await rentalityView.connect(host).getMyCars()
+    await expect(rentalityGateway.connect(host).addCar(createCarRequest)).not.to.be.reverted
+    const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
     const dailyPriceInUsdCents = 1000
 
-    const result = await rentalityView.calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway
+      .connect(guest)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: 123,
           endDateTime: 321,
           currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
+        ' ',
         { value: result.totalPrice }
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
 
-    const resultTwoDays = await rentalityView.calculatePayments(1, 2, ethToken)
+    const resultTwoDays = await rentalityGateway.calculatePaymentsWithDelivery(
+      1,
+      2,
+      ethToken,
+      emptyLocationInfo,
+      emptyLocationInfo,
+      ' '
+    )
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: 123,
           endDateTime: 123 + oneDayInSeconds * 2,
           currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
+        ' ',
         { value: resultTwoDays.totalPrice }
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-resultTwoDays.totalPrice, resultTwoDays.totalPrice])
 
-    await expect(await rentalityPlatform.connect(host).approveTripRequest(1)).not.to.be.reverted
+    await expect(await rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
 
     const canceledTrip = await rentalityTripService.getTrip(2)
 

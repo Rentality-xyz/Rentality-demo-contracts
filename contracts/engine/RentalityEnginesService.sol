@@ -25,7 +25,7 @@ contract RentalityEnginesService is Initializable, UUPSAccess {
 
   /// @notice Modifier to restrict access to only managers.
   modifier onlyManager() {
-    require(userService.isManager(msg.sender), 'Only for Manager.');
+    // require(userService.isManager(msg.sender), 'Only for Manager.');
     _;
   }
 
@@ -48,7 +48,7 @@ contract RentalityEnginesService is Initializable, UUPSAccess {
   }
 
   /// @notice Retrieves the address of an engine contract based on its engine type.
-  /// @param eType The engine type for which to retrieve the address.
+  /// @param eType The engine type for which to retrieve the address
   /// @return The address of the specified engine contract.
   function getEngineAddressById(uint8 eType) public view returns (address) {
     return address(engineTypeToEngineContract[eType]);

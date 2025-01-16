@@ -8,6 +8,7 @@ import '../abstract/IRentalityAccessControl.sol';
 import '../proxy/UUPSAccess.sol';
 import '../Schemas.sol';
 import './RentalityCurrencyType.sol';
+import {RentalityPromoService} from '../features/RentalityPromo.sol';
 
 /// @title RentalityCurrencygeter
 /// @notice A contract for getting between available on Rentality currency and United States Dollar (USD) using Chainlink rate feeds
@@ -138,13 +139,20 @@ contract RentalityCurrencyConverter is Initializable, UUPSAccess {
 
   function calculateTripFinsish(
     Schemas.PaymentInfo memory paymentInfo,
-    uint256 rentalityFee
-  ) public view returns (uint, uint, uint, uint, uint) {
+    uint256 rentalityFee,
+    uint insurancePriceInUsdCents,
+    RentalityPromoService promoService
+  ) public view returns (uint, uint, uint, uint) {
+    Schemas.PromoTripData memory tripData = promoService.getTripPromoData(paymentInfo.tripId);
+    uint discount = promoService.getPromoDiscountByTrip(paymentInfo.tripId);
+
+
     uint256 valueToHostInUsdCents = paymentInfo.priceWithDiscount +
       paymentInfo.pickUpFee +
       paymentInfo.dropOfFee +
       paymentInfo.resolveAmountInUsdCents -
-      rentalityFee;
+      rentalityFee +
+      insurancePriceInUsdCents;
 
     uint256 valueToGuestInUsdCents = paymentInfo.depositInUsdCents - paymentInfo.resolveAmountInUsdCents;
 
@@ -166,16 +174,21 @@ contract RentalityCurrencyConverter is Initializable, UUPSAccess {
       paymentInfo.currencyRate,
       paymentInfo.currencyDecimals
     );
+      if(discount == 100) {
+          valueToGuest = 0;
+          valueToGuestInUsdCents = 0;
+      }
     return (valueToHost, valueToGuest, valueToHostInUsdCents, valueToGuestInUsdCents, totalIncome);
   }
 
-  function calculateTripReject(Schemas.PaymentInfo memory paymentInfo) public pure returns (uint) {
+  function calculateTripReject(Schemas.PaymentInfo memory paymentInfo, uint insurance) public pure returns (uint) {
     uint64 valueToReturnInUsdCents = paymentInfo.priceWithDiscount +
       paymentInfo.salesTax +
       paymentInfo.governmentTax +
       uint64(paymentInfo.pickUpFee) +
       uint64(paymentInfo.dropOfFee) +
-      paymentInfo.depositInUsdCents;
+      paymentInfo.depositInUsdCents +
+      uint64(insurance);
 
     return valueToReturnInUsdCents;
   }

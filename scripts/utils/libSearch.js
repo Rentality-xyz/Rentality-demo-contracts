@@ -23,13 +23,22 @@ const existingLibs = [
   },
   {
     name: 'RentalityTripsQuery',
-    pathToDeploy: './scripts/deploy_4b_RentalityView.js',
+    pathToDeploy: './scripts/deploy_1e_RentalityTripsQuery.js',
+  },
+  {
+    name: 'RentalityRefferalLib',
+    pathToDeploy: './scripts/deploy_1f_RentalityRefferalLib.js',
+  },
+  {
+    name: 'RentalityViewLib',
+    pathToDeploy: './scripts/deploy_1g_RentalityViewLib.js',
   },
 ]
 
 const getContractLibs = (contract, chainId) => {
   let libs = {}
   const pathToContract = findContractFile(contract, pathToContractFolder)
+
   for (let i = 0; i < existingLibs.length; i++) {
     const libName = searchPatternInFile(pathToContract, existingLibs[i].name)
     if (libName === null) continue
@@ -52,7 +61,7 @@ function findContractFile(contractName, folderPath) {
         return result
       }
     } else {
-      if (file.match(contractName) && !file.match('I' + contractName) && !file.match('A' + contractName)) {
+      if (file.match(contractName  + '.sol') && !file.match('I' + contractName) && !file.match('A' + contractName)) {
         return '.' + path.sep + filePath
       }
     }
@@ -66,6 +75,7 @@ function searchPatternInFile(filePath, pattern) {
     const fileContent = fs.readFileSync(filePath, 'utf-8')
 
     let match = fileContent.match(new RegExp(pattern + '\\.([a-zA-Z_$][a-zA-Z_$0-9]*)', 'g'))
+
 
     if (match) {
       let result = match

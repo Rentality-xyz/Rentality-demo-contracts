@@ -9,6 +9,15 @@ async function main() {
 
   if (chainId < 0) throw new Error('chainId is not set')
 
+  const rentalityUtilsAddress = checkNotNull(
+    getContractAddress('RentalityUtils', 'scripts/deploy_1a_RentalityUtils.js', chainId),
+    'RentalityUtils'
+  )
+  const rentalityViewLib = checkNotNull(
+    getContractAddress('RentalityViewLib', 'scripts/deploy_1g_RentalityViewLib.js', chainId),
+    'RentalityViewLib'
+  )
+
   const rentalityUserServiceAddress = checkNotNull(
     getContractAddress('RentalityUserService', 'scripts/deploy_1b_RentalityUserService.js', chainId),
     'RentalityUserService'
@@ -48,26 +57,43 @@ async function main() {
     'RentalityCarDelivery'
   )
   const rentalityView = checkNotNull(
-    getContractAddress('RentalityView', 'scripts/deploy_4b_RentalityView.js', chainId),
+    getContractAddress('RentalityView', 'scripts/deploy_4c_RentalityView.js', chainId),
     'RentalityView'
   )
-  const rentalityUtilsAddress = checkNotNull(
-    getContractAddress('RentalityUtils', 'scripts/deploy_1a_RentalityUtils.js', chainId),
-    'RentalityUtils'
+  const rentalityTripsQueryAddress = checkNotNull(
+    getContractAddress('RentalityTripsQuery', 'scripts/deploy_1e_RentalityTripsQuery.js', chainId),
+    'RentalityTripsQuery'
   )
   const rentalityQueryAddress = checkNotNull(
     getContractAddress('RentalityQuery', 'scripts/deploy_1d_RentalityQuery.js', chainId),
     'RentalityQuery'
   )
-  const investService = checkNotNull(
-    getContractAddress('RentalityInvestment', 'scripts/deploy_3c_RentalityInvestment.js', chainId),
-    'RentalityInvestment'
+  const rentalityInsurance = checkNotNull(
+    getContractAddress('RentalityInsurance', 'scripts/deploy_3d_RentalityInsurance.js', chainId),
+    'RentalityInsurance'
+  )
+
+  const rentalityRefferalProgram = checkNotNull(
+    getContractAddress('RentalityReferralProgram', 'scripts/deploy_3e_RentalityReferralProgram.js', chainId),
+    'RentalityReferralProgram'
+  )
+  const rentalityTripsView = checkNotNull(
+    getContractAddress('RentalityTripsView', 'scripts/deploy_4b_RentalityTripsView.js', chainId),
+    'RentalityTripsView'
+  )
+  const rentalityPromoService = checkNotNull(
+    getContractAddress('RentalityPromoService', 'scripts/deploy_4f_RentalityPromo.js', chainId),
+    'RentalityPromoService'
+  )
+  const dimoService = checkNotNull(
+    getContractAddress('RentalityDimoService', 'scripts/deploy_3e_RentalityDimoService.js', chainId),
+    'RentalityDimoService'
   )
 
   const contractFactory = await ethers.getContractFactory(contractName, {
     libraries: {
+      RentalityViewLib: rentalityViewLib,
       RentalityUtils: rentalityUtilsAddress,
-      RentalityQuery: rentalityQueryAddress,
     },
   })
 
@@ -81,7 +107,11 @@ async function main() {
     rentalityClaimService,
     rentalityCarDelivery,
     rentalityView,
-    investService
+    rentalityInsurance,
+    rentalityTripsView,
+    rentalityRefferalProgram,
+    rentalityPromoService,
+    dimoService
   ])
 
   await contract.waitForDeployment()

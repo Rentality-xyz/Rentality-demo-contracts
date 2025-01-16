@@ -43,6 +43,7 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
   using RentalityQuery for RentalityContract;
 
   fallback(bytes calldata data) external payable returns (bytes memory) {
+    require(msg.sender == tx.origin, 'Smart wallets not allowed now');
     (bool ok_view, bytes memory res_view) = address(addresses.viewService).call(data);
     bytes4 errorSign = 0x403e7fa6;
 
@@ -55,7 +56,7 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
 
   function _parseResult(bool flag, bytes memory result) internal pure returns (bytes memory) {
     if (!flag)
-      assembly {
+      assembly ('memory-safe') {
         revert(add(32, result), mload(result))
       }
     return result;

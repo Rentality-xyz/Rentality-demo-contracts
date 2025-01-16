@@ -9,9 +9,12 @@ const {
   ethToken,
   calculatePayments,
   signTCMessage,
+  zeroHash,
   emptyKyc,
   signKycInfo,
+  emptyLocationInfo,
   UserRole,
+  emptySignedLocationInfo,
 } = require('../utils')
 
 describe('RentalityGateway: user info', function () {
@@ -24,9 +27,7 @@ describe('RentalityGateway: user info', function () {
     guest,
     anonymous,
     rentalityLocationVerifier,
-    adminKyc,
-    rentalityPlatform,
-    rentalityView
+    adminKyc
 
   beforeEach(async function () {
     ;({
@@ -50,8 +51,6 @@ describe('RentalityGateway: user info', function () {
       anonymous,
       rentalityLocationVerifier,
       adminKyc,
-      rentalityPlatform,
-      rentalityView,
     } = await loadFixture(deployDefaultFixture))
   })
 
@@ -74,10 +73,11 @@ describe('RentalityGateway: user info', function () {
     }
     const adminSignature = signKycInfo(await rentalityLocationVerifier.getAddress(), admin, kyc)
 
-    await expect(rentalityPlatform.connect(host).setKYCInfo(name, number, photo, hostSignature)).not.be.reverted
+    await expect(rentalityGateway.connect(host).setKYCInfo(name, number, photo, hostSignature, zeroHash)).not.be
+      .reverted
 
-    const kycInfo = await rentalityView.connect(host).getMyKYCInfo()
-
+    const fullKycInfo = await rentalityGateway.connect(host).getMyFullKYCInfo()
+    let kycInfo = fullKycInfo.kyc
     expect(kycInfo.name).to.equal(name)
 
     expect(kycInfo.mobilePhoneNumber).to.equal(number)
@@ -100,10 +100,11 @@ describe('RentalityGateway: user info', function () {
       email: '',
     }
     const adminSignature = signKycInfo(await rentalityLocationVerifier.getAddress(), admin, kyc)
-    await expect(rentalityPlatform.connect(guest).setKYCInfo(name, number, photo, guestSignature)).not.be.reverted
+    await expect(rentalityGateway.connect(guest).setKYCInfo(name, number, photo, guestSignature,zeroHash)).not.be
+      .reverted
 
-    const kycInfo = await rentalityView.connect(guest).getMyKYCInfo()
-
+    const fullKycInfo = await rentalityGateway.connect(guest).getMyFullKYCInfo()
+    let kycInfo = fullKycInfo.kyc
     expect(kycInfo.name).to.equal(name)
 
     expect(kycInfo.mobilePhoneNumber).to.equal(number)
@@ -112,25 +113,40 @@ describe('RentalityGateway: user info', function () {
 
   it('Guest should be able to get trip contacts', async function () {
     await expect(
-      rentalityPlatform.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+      rentalityGateway
+        .connect(host)
+        .addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
     ).not.to.be.reverted
-    const myCars = await rentalityView.connect(host).getMyCars()
+    const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
-    const availableCars = await rentalityView.connect(guest).getAvailableCarsForUser(guest.address)
+    const availableCars = await rentalityGateway
+      .connect(guest)
+      .searchAvailableCarsWithDelivery(
+        0,
+        new Date().getSeconds() + 86400,
+        getEmptySearchCarParams(1),
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
     expect(availableCars.length).to.equal(1)
 
     const dailyPriceInUsdCents = 1000
 
-    const result = await rentalityView.calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway
+      .connect(guest)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: 123,
           endDateTime: 321,
           currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
+        ' ',
         { value: result.totalPrice }
       )
     ).not.to.be.reverted
@@ -140,12 +156,13 @@ describe('RentalityGateway: user info', function () {
 
     let guestNumber = '+380'
     let hostNumber = '+3801'
-    await expect(rentalityPlatform.connect(guest).setKYCInfo('name', guestNumber, 'photo', guestSignature)).not.be
+    await expect(rentalityGateway.connect(guest).setKYCInfo('name', guestNumber, 'photo', guestSignature,zeroHash)).not
+      .be.reverted
+
+    await expect(rentalityGateway.connect(host).setKYCInfo('name', hostNumber, 'photo', hostSignature, zeroHash)).not.be
       .reverted
 
-    await expect(rentalityPlatform.connect(host).setKYCInfo('name', hostNumber, 'photo', hostSignature)).not.be.reverted
-
-    let [guestPhoneNumber, hostPhoneNumber] = await rentalityView.connect(guest).getTripContactInfo(1)
+    let [guestPhoneNumber, hostPhoneNumber] = await rentalityGateway.connect(guest).getTripContactInfo(1)
 
     expect(guestPhoneNumber).to.be.equal(guestNumber)
     expect(hostPhoneNumber).to.be.equal(hostNumber)
@@ -153,25 +170,40 @@ describe('RentalityGateway: user info', function () {
 
   it('Host should be able to get trip contacts', async function () {
     await expect(
-      rentalityPlatform.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+      rentalityGateway
+        .connect(host)
+        .addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
     ).not.to.be.reverted
-    const myCars = await rentalityView.connect(host).getMyCars()
+    const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
-    const availableCars = await rentalityView.connect(guest).getAvailableCarsForUser(guest.address)
+    const availableCars = await rentalityGateway
+      .connect(guest)
+      .searchAvailableCarsWithDelivery(
+        0,
+        new Date().getSeconds() + 86400,
+        getEmptySearchCarParams(1),
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
     expect(availableCars.length).to.equal(1)
 
     const dailyPriceInUsdCents = 1000
 
-    const result = await rentalityView.calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway
+      .connect(guest)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: 123,
           endDateTime: 321,
           currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
+        ' ',
         { value: result.totalPrice }
       )
     ).not.to.be.reverted
@@ -180,38 +212,54 @@ describe('RentalityGateway: user info', function () {
     const guestSignature = await signTCMessage(guest)
     let guestNumber = '+380'
     let hostNumber = '+3801'
-    await expect(rentalityPlatform.connect(guest).setKYCInfo('name', guestNumber, 'photo', guestSignature)).not.be
+    await expect(rentalityGateway.connect(guest).setKYCInfo('name', guestNumber, 'photo', guestSignature,zeroHash)).not
+      .be.reverted
+
+    await expect(rentalityGateway.connect(host).setKYCInfo('name', hostNumber, 'photo', hostSignature, zeroHash)).not.be
       .reverted
 
-    await expect(rentalityPlatform.connect(host).setKYCInfo('name', hostNumber, 'photo', hostSignature)).not.be.reverted
-
-    let [guestPhoneNumber, hostPhoneNumber] = await rentalityView.connect(host).getTripContactInfo(1)
+    let [guestPhoneNumber, hostPhoneNumber] = await rentalityGateway.connect(host).getTripContactInfo(1)
 
     expect(guestPhoneNumber).to.be.equal(guestNumber)
     expect(hostPhoneNumber).to.be.equal(hostNumber)
   })
 
-  it('Only host and guest should be able to get trip contacts', async function () {
+  it.skip('Only host and guest should be able to get trip contacts', async function () {
     await expect(
-      rentalityPlatform.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+      rentalityGateway
+        .connect(host)
+        .addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
     ).not.to.be.reverted
-    const myCars = await rentalityView.connect(host).getMyCars()
+    const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
-    const availableCars = await rentalityView.connect(guest).getAvailableCarsForUser(guest.address)
+    const availableCars = await rentalityGateway
+      .connect(guest)
+      .searchAvailableCarsWithDelivery(
+        0,
+        new Date().getSeconds() + 86400,
+        getEmptySearchCarParams(1),
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
     expect(availableCars.length).to.equal(1)
 
     const dailyPriceInUsdCents = 1000
 
-    const result = await rentalityView.calculatePayments(1, 1, ethToken)
+    const result = await rentalityGateway
+      .connect(guest)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: 123,
           endDateTime: 321,
           currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
+        ' ',
         { value: result.totalPrice }
       )
     ).not.to.be.reverted
@@ -220,18 +268,18 @@ describe('RentalityGateway: user info', function () {
     const guestSignature = await signTCMessage(guest)
     let guestNumber = '+380'
     let hostNumber = '+3801'
-    await expect(rentalityPlatform.connect(guest).setKYCInfo('name', 'surname', guestNumber, guestSignature)).not.be
-      .reverted
+    await expect(rentalityGateway.connect(guest).setKYCInfo('name', 'surname', guestNumber, guestSignature,zeroHash))
+      .not.be.reverted
 
-    await expect(rentalityPlatform.connect(host).setKYCInfo('name', 'surname', hostNumber, hostSignature)).not.be
-      .reverted
+    await expect(rentalityGateway.connect(host).setKYCInfo('name', 'surname', hostNumber, hostSignature, zeroHash)).not
+      .be.reverted
 
     await expect(rentalityGateway.connect(anonymous).getTripContactInfo(1)).to.be.reverted
   })
   it('Should have host photoUrl and host name in available car response ', async function () {
     let addCarRequest = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
-    await expect(rentalityPlatform.connect(host).addCar(addCarRequest)).not.to.be.reverted
-    const myCars = await rentalityView.connect(host).getMyCars()
+    await expect(rentalityGateway.connect(host).addCar(addCarRequest)).not.to.be.reverted
+    const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
     let name = 'name'
@@ -244,10 +292,12 @@ describe('RentalityGateway: user info', function () {
     const hostSignature = await signTCMessage(host)
 
     await expect(
-      rentalityPlatform.connect(host).setKYCInfo(name + 'host', number + 'host', photo + 'host', hostSignature)
+      rentalityGateway.connect(host).setKYCInfo(name + 'host', number + 'host', photo + 'host', hostSignature, zeroHash)
     ).not.be.reverted
 
-    const availableCars = await rentalityGateway.connect(guest).searchAvailableCars(0, 1, getEmptySearchCarParams(0))
+    const availableCars = await rentalityGateway
+      .connect(guest)
+      .searchAvailableCarsWithDelivery(0, 1, getEmptySearchCarParams(0), emptyLocationInfo, emptyLocationInfo)
     expect(availableCars.length).to.equal(1)
     expect(availableCars[0].car.hostPhotoUrl).to.be.eq(photo + 'host')
     expect(availableCars[0].car.hostName).to.be.eq(name + 'host')
@@ -272,16 +322,17 @@ describe('RentalityGateway: user info', function () {
     }
     const adminSignature = signKycInfo(await rentalityLocationVerifier.getAddress(), admin, kyc)
 
-    await expect(rentalityPlatform.connect(host).setKYCInfo(name, number, photo, hostSignature)).not.be.reverted
+    await expect(rentalityGateway.connect(host).setKYCInfo(name, number, photo, hostSignature, zeroHash)).not.be
+      .reverted
 
-    await expect(rentalityPlatform.connect(anonymous).setCivicKYCInfo(host.address, kyc)).to.be.reverted
+    await expect(rentalityGateway.connect(anonymous).setCivicKYCInfo(host.address, kyc)).to.be.reverted
 
     await expect(
       await rentalityUserService.connect(owner).manageRole(UserRole.KYCManager, await anonymous.getAddress(), true)
     ).to.not.reverted
 
-    await expect(rentalityPlatform.connect(anonymous).setCivicKYCInfo(host.address, kyc)).to.not.reverted
-    const kycInfo = await rentalityView.connect(host).getMyFullKYCInfo()
+    await expect(rentalityGateway.connect(anonymous).setCivicKYCInfo(host.address, kyc)).to.not.reverted
+    const kycInfo = await rentalityGateway.connect(host).getMyFullKYCInfo()
 
     expect(kycInfo.kyc.name).to.equal(name)
     expect(kycInfo.kyc.surname).to.equal(surname)

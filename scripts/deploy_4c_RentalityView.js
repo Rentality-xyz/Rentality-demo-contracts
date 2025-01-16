@@ -22,6 +22,11 @@ async function main() {
     'RentalityTripsQuery'
   )
 
+  const rentalityViewLib = checkNotNull(
+    getContractAddress('RentalityViewLib', 'scripts/deploy_1g_RentalityViewLib.js', chainId),
+    'RentalityViewLib'
+  )
+
   const rentalityUserServiceAddress = checkNotNull(
     getContractAddress('RentalityUserService', 'scripts/deploy_1b_RentalityUserService.js', chainId),
     'RentalityUserService'
@@ -38,7 +43,7 @@ async function main() {
   )
 
   const rentalityPaymentServiceAddress = checkNotNull(
-    getContractAddress('RentalityPaymentService', 'scripts/deploy_3d_RentalityPaymentService.js', chainId),
+    getContractAddress('RentalityPaymentService', 'scripts/deploy_3c_RentalityPaymentService.js', chainId),
     'RentalityPaymentService'
   )
 
@@ -57,11 +62,35 @@ async function main() {
     'RentalityCarDelivery'
   )
 
+  const rentalityInsurance = checkNotNull(
+    getContractAddress('RentalityInsurance', 'scripts/deploy_3d_RentalityInsurance.js', chainId),
+    'RentalityInsurance'
+  )
+  const rentalityTripsView = checkNotNull(
+    getContractAddress('RentalityTripsView', 'scripts/deploy_4b_RentalityTripsView.js', chainId),
+    'RentalityTripsView'
+  )
+  const rentalityReferralService = checkNotNull(
+    getContractAddress('RentalityReferralProgram', 'scripts/deploy_3e_RentalityReferralProgram.js', chainId),
+    'RentalityReferralProgram'
+  )
+
+  const rentalityPromoService = checkNotNull(
+    getContractAddress('RentalityPromoService', 'scripts/deploy_4f_RentalityPromo.js', chainId),
+    'RentalityPromoService'
+  )
+
+
+  const dimoService = checkNotNull(
+    getContractAddress('RentalityDimoService', 'scripts/deploy_3e_RentalityDimoService.js', chainId),
+    'RentalityDimoService'
+  )
   const contractFactory = await ethers.getContractFactory(contractName, {
     libraries: {
       RentalityUtils: rentalityUtilsAddress,
       RentalityQuery: rentalityQueryAddress,
       RentalityTripsQuery: rentalityTripsQueryAddress,
+      RentalityViewLib: rentalityViewLib
     },
   })
   const contract = await upgrades.deployProxy(contractFactory, [
@@ -72,6 +101,11 @@ async function main() {
     rentalityPaymentServiceAddress,
     rentalityClaimService,
     rentalityCarDelivery,
+    rentalityInsurance,
+    rentalityTripsView,
+    rentalityReferralService,
+    rentalityPromoService,
+    dimoService
   ])
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()

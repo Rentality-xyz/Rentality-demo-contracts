@@ -3,28 +3,22 @@ const { loadFixture, time } = require('@nomicfoundation/hardhat-network-helpers'
 
 const { getMockCarRequest } = require('../utils')
 const { deployFixtureWith1Car, deployDefaultFixture } = require('./deployments')
-const { latestBlock } = require('@nomicfoundation/hardhat-network-helpers/dist/src/helpers/time')
 
 describe('RentalityCarToken: host functions', function () {
-  it('Adding car should emit RentalityEvent event', async function () {
-    const {
-      rentalityCarToken,
-      host,
-      rentalityLocationVerifier,
-      admin,
-      rentalityPlatform,
-      rentalityNotificationService,
-    } = await loadFixture(deployDefaultFixture)
+  it('Adding car should emit CarAddedSuccess event', async function () {
+    const { rentalityCarToken, host, rentalityLocationVerifier, admin, rentalityNotificationService } =
+      await loadFixture(deployDefaultFixture)
 
     const request = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
 
-    await expect(rentalityPlatform.connect(host).addCar(request))
+    await expect(rentalityCarToken.connect(host).addCar(request))
       .to.emit(rentalityNotificationService, 'RentalityEvent')
       .withArgs(0, 1, 0, host.address, host.address, (await time.latest()) + 1)
   })
 
   it('Adding car with the same VIN number should be reverted', async function () {
-    const { rentalityPlatform, host, rentalityLocationVerifier, admin } = await loadFixture(deployDefaultFixture)
+    const { rentalityCarToken, host, rentalityLocationVerifier, admin, rentalityGateway } =
+      await loadFixture(deployDefaultFixture)
 
     const request1 = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
     const request2 = {
@@ -32,18 +26,19 @@ describe('RentalityCarToken: host functions', function () {
       carVinNumber: request1.carVinNumber,
     }
 
-    await expect(rentalityPlatform.connect(host).addCar(request1)).not.be.reverted
-    await expect(rentalityPlatform.connect(host).addCar(request2)).to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(request1)).not.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(request2)).to.be.reverted
   })
 
   it('Adding car with the different VIN number should not be reverted', async function () {
-    const { rentalityPlatform, host, rentalityLocationVerifier, admin } = await loadFixture(deployDefaultFixture)
+    const { rentalityCarToken, host, rentalityLocationVerifier, admin, rentalityGateway } =
+      await loadFixture(deployDefaultFixture)
 
     const request1 = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
     const request2 = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
 
-    await expect(rentalityPlatform.connect(host).addCar(request1)).not.be.reverted
-    await expect(rentalityPlatform.connect(host).addCar(request2)).not.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(request1)).not.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(request2)).not.be.reverted
   })
 
   it('Only owner of the car can burn token', async function () {
@@ -59,7 +54,8 @@ describe('RentalityCarToken: host functions', function () {
   })
 
   it('getCarInfoById should return valid info', async function () {
-    const { rentalityCarToken, host, rentalityLocationVerifier, admin } = await loadFixture(deployFixtureWith1Car)
+    const { rentalityCarToken, host, rentalityLocationVerifier, admin, rentalityGateway } =
+      await loadFixture(deployFixtureWith1Car)
 
     const TOKEN_ID = 1
     const request = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
@@ -98,7 +94,8 @@ describe('RentalityCarToken: host functions', function () {
   })
 
   it('getCarsOwnedByUser with 1 car should return valid info', async function () {
-    const { rentalityCarToken, host, rentalityLocationVerifier, admin } = await loadFixture(deployFixtureWith1Car)
+    const { rentalityCarToken, host, rentalityLocationVerifier, admin, rentalityGateway } =
+      await loadFixture(deployFixtureWith1Car)
 
     const request = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
 
@@ -129,13 +126,15 @@ describe('RentalityCarToken: host functions', function () {
     expect(availableCars.length).to.equal(0)
   })
 
-  it('getAllAvailableCars with 1 car should return data for guest', async function () {
-    const { rentalityCarToken, host, guest, rentalityLocationVerifier, admin } =
-      await loadFixture(deployFixtureWith1Car)
+  // function not using
+  it.skip('getAllAvailableCars with 1 car should return data for guest', async function () {
+    const { rentalityGateway, host, guest, rentalityLocationVerifier, admin } = await loadFixture(deployFixtureWith1Car)
 
     const request = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
 
-    const availableCars = await rentalityCarToken.getAvailableCarsForUser(guest.address)
+    const availableCars = await rentalityGateway
+      .connect(guest)
+      .searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
 
     expect(availableCars.length).to.equal(1)
     expect(availableCars[0].carVinNumber).to.equal(request.carVinNumber)

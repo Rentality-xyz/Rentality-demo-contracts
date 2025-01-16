@@ -37,7 +37,12 @@ async function main() {
       RentalityUtils: rentalityUtilsAddress,
     },
   })
-  const contract = await upgrades.deployProxy(contractFactory, [geoAddress, engineAddress, rentalityUserServiceAddress,notificationService])
+  const contract = await upgrades.deployProxy(contractFactory, [
+    geoAddress,
+    engineAddress,
+    rentalityUserServiceAddress,
+    notificationService,
+  ])
   await contract.waitForDeployment()
 
   const contractAddress = await contract.getAddress()

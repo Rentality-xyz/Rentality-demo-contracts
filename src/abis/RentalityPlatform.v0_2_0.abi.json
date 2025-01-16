@@ -58,7 +58,6 @@
             { "type": "uint64", "name": "milesIncludedPerDay" },
             { "type": "uint32", "name": "timeBufferBetweenTripsInSec" },
             { "type": "string", "name": "geoApiKey" },
-            { "type": "bool", "name": "insuranceIncluded" },
             {
               "type": "tuple",
               "name": "locationInfo",
@@ -79,7 +78,9 @@
                 { "type": "bytes", "name": "signature" }
               ]
             },
-            { "type": "bool", "name": "currentlyListed" }
+            { "type": "bool", "name": "currentlyListed" },
+            { "type": "bool", "name": "insuranceRequired" },
+            { "type": "uint256", "name": "insurancePriceInUsdCents" }
           ]
         }
       ],
@@ -199,26 +200,6 @@
     },
     {
       "type": "function",
-      "name": "createTripRequest",
-      "constant": false,
-      "stateMutability": "payable",
-      "payable": true,
-      "inputs": [
-        {
-          "type": "tuple",
-          "name": "request",
-          "components": [
-            { "type": "uint256", "name": "carId" },
-            { "type": "uint64", "name": "startDateTime" },
-            { "type": "uint64", "name": "endDateTime" },
-            { "type": "address", "name": "currencyType" }
-          ]
-        }
-      ],
-      "outputs": []
-    },
-    {
-      "type": "function",
       "name": "createTripRequestWithDelivery",
       "constant": false,
       "stateMutability": "payable",
@@ -273,7 +254,8 @@
               ]
             }
           ]
-        }
+        },
+        { "type": "string", "name": "promo" }
       ],
       "outputs": []
     },
@@ -298,7 +280,10 @@
         { "type": "address", "name": "paymentServiceAddress" },
         { "type": "address", "name": "claimServiceAddress" },
         { "type": "address", "name": "carDeliveryAddress" },
-        { "type": "address", "name": "viewService" }
+        { "type": "address", "name": "viewService" },
+        { "type": "address", "name": "insuranceServiceAddress" },
+        { "type": "address", "name": "refferalProgramAddress" },
+        { "type": "address", "name": "promoServiceAddress" }
       ],
       "outputs": []
     },
@@ -364,6 +349,47 @@
     },
     {
       "type": "function",
+      "name": "saveGuestInsurance",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "tuple",
+          "name": "insuranceInfo",
+          "components": [
+            { "type": "string", "name": "companyName" },
+            { "type": "string", "name": "policyNumber" },
+            { "type": "string", "name": "photo" },
+            { "type": "string", "name": "comment" },
+            { "type": "uint8", "name": "insuranceType" }
+          ]
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "saveTripInsuranceInfo",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint256", "name": "tripId" },
+        {
+          "type": "tuple",
+          "name": "insuranceInfo",
+          "components": [
+            { "type": "string", "name": "companyName" },
+            { "type": "string", "name": "policyNumber" },
+            { "type": "string", "name": "photo" },
+            { "type": "string", "name": "comment" },
+            { "type": "uint8", "name": "insuranceType" }
+          ]
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
       "name": "setCivicKYCInfo",
       "constant": false,
       "payable": false,
@@ -392,7 +418,8 @@
         { "type": "string", "name": "nickName" },
         { "type": "string", "name": "mobilePhoneNumber" },
         { "type": "string", "name": "profilePhoto" },
-        { "type": "bytes", "name": "TCSignature" }
+        { "type": "bytes", "name": "TCSignature" },
+        { "type": "bytes4", "name": "hash" }
       ],
       "outputs": []
     },
@@ -402,29 +429,6 @@
       "constant": false,
       "payable": false,
       "inputs": [{ "type": "address", "name": "newOwner" }],
-      "outputs": []
-    },
-    {
-      "type": "function",
-      "name": "updateCarInfo",
-      "constant": false,
-      "payable": false,
-      "inputs": [
-        {
-          "type": "tuple",
-          "name": "request",
-          "components": [
-            { "type": "uint256", "name": "carId" },
-            { "type": "uint64", "name": "pricePerDayInUsdCents" },
-            { "type": "uint64", "name": "securityDepositPerTripInUsdCents" },
-            { "type": "uint64[]", "name": "engineParams" },
-            { "type": "uint64", "name": "milesIncludedPerDay" },
-            { "type": "uint32", "name": "timeBufferBetweenTripsInSec" },
-            { "type": "bool", "name": "currentlyListed" },
-            { "type": "bool", "name": "insuranceIncluded" }
-          ]
-        }
-      ],
       "outputs": []
     },
     {
@@ -444,7 +448,10 @@
             { "type": "uint64", "name": "milesIncludedPerDay" },
             { "type": "uint32", "name": "timeBufferBetweenTripsInSec" },
             { "type": "bool", "name": "currentlyListed" },
-            { "type": "bool", "name": "insuranceIncluded" }
+            { "type": "bool", "name": "insuranceRequired" },
+            { "type": "uint256", "name": "insurancePriceInUsdCents" },
+            { "type": "uint8", "name": "engineType" },
+            { "type": "string", "name": "tokenUri" }
           ]
         },
         {
@@ -466,28 +473,8 @@
             },
             { "type": "bytes", "name": "signature" }
           ]
-        },
-        { "type": "string", "name": "geoApiKey" }
+        }
       ],
-      "outputs": []
-    },
-    {
-      "type": "function",
-      "name": "updateCarTokenUri",
-      "constant": false,
-      "payable": false,
-      "inputs": [
-        { "type": "uint256", "name": "carId" },
-        { "type": "string", "name": "tokenUri" }
-      ],
-      "outputs": []
-    },
-    {
-      "type": "function",
-      "name": "updateClaim",
-      "constant": false,
-      "payable": false,
-      "inputs": [{ "type": "uint256", "name": "claimId" }],
       "outputs": []
     },
     {

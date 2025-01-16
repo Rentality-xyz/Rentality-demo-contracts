@@ -11,6 +11,12 @@ import '../payments/RentalityCurrencyConverter.sol';
 import '../payments/RentalityPaymentService.sol';
 import {RentalityContract} from '../RentalityGateway.sol';
 import {RentalityCarDelivery} from '../features/RentalityCarDelivery.sol';
+import {RentalityInsurance} from '../payments/RentalityInsurance.sol';
+import {RentalityReferralProgram} from '../features/refferalProgram/RentalityReferralProgram.sol';
+
+import {RentalityClaimService} from '../features/RentalityClaimService.sol';
+import {RentalityDimoService} from '../features/RentalityDimoService.sol';
+import {RentalityPromoService} from '../features/RentalityPromo.sol';
 /// @title RentalityUtils Library
 /// @notice
 /// This library provides utility functions for handling coordinates, string manipulation,
@@ -159,42 +165,43 @@ library RentalityUtils {
     return uint64(Math.ceilDiv(duration, 1 days));
   }
 
+  /// not using
   /// @notice Parses a response string containing geolocation data.
   /// @param response The response string to parse.
   /// @return result Parsed geolocation data in RentalityGeoService.ParsedGeolocationData structure.
-  function parseResponse(string memory response) public pure returns (Schemas.ParsedGeolocationData memory) {
-    Schemas.ParsedGeolocationData memory result;
+  // function parseResponse(string memory response) public pure returns (Schemas.ParsedGeolocationData memory) {
+  //   Schemas.ParsedGeolocationData memory result;
 
-    string[] memory pairs = splitString(response, bytes('|'));
-    for (uint256 i = 0; i < pairs.length; i++) {
-      string[] memory keyValue = splitKeyValue(pairs[i]);
-      string memory key = keyValue[0];
-      string memory value = keyValue[1];
-      if (compareStrings(key, 'status')) {
-        result.status = value;
-      } else if (compareStrings(key, 'locationLat')) {
-        result.locationLat = value;
-      } else if (compareStrings(key, 'locationLng')) {
-        result.locationLng = value;
-      } else if (compareStrings(key, 'northeastLat')) {
-        result.northeastLat = value;
-      } else if (compareStrings(key, 'northeastLng')) {
-        result.northeastLng = value;
-      } else if (compareStrings(key, 'southwestLat')) {
-        result.southwestLat = value;
-      } else if (compareStrings(key, 'southwestLng')) {
-        result.southwestLng = value;
-      } else if (compareStrings(key, 'locality')) {
-        result.city = value;
-      } else if (compareStrings(key, 'adminAreaLvl1')) {
-        result.state = value;
-      } else if (compareStrings(key, 'country')) {
-        result.country = value;
-      }
-    }
+  //   string[] memory pairs = splitString(response, bytes('|'));
+  //   for (uint256 i = 0; i < pairs.length; i++) {
+  //     string[] memory keyValue = splitKeyValue(pairs[i]);
+  //     string memory key = keyValue[0];
+  //     string memory value = keyValue[1];
+  //     if (compareStrings(key, 'status')) {
+  //       result.status = value;
+  //     } else if (compareStrings(key, 'locationLat')) {
+  //       result.locationLat = value;
+  //     } else if (compareStrings(key, 'locationLng')) {
+  //       result.locationLng = value;
+  //     } else if (compareStrings(key, 'northeastLat')) {
+  //       result.northeastLat = value;
+  //     } else if (compareStrings(key, 'northeastLng')) {
+  //       result.northeastLng = value;
+  //     } else if (compareStrings(key, 'southwestLat')) {
+  //       result.southwestLat = value;
+  //     } else if (compareStrings(key, 'southwestLng')) {
+  //       result.southwestLng = value;
+  //     } else if (compareStrings(key, 'locality')) {
+  //       result.city = value;
+  //     } else if (compareStrings(key, 'adminAreaLvl1')) {
+  //       result.state = value;
+  //     } else if (compareStrings(key, 'country')) {
+  //       result.country = value;
+  //     }
+  //   }
 
-    return result;
-  }
+  //   return result;
+  // }
 
   /// @notice Splits a string into an array of substrings based on a delimiter.
   /// @param input The input string to split.
@@ -360,7 +367,10 @@ library RentalityUtils {
     uint64 daysOfTrip,
     address currency,
     Schemas.LocationInfo memory pickUpLocation,
-    Schemas.LocationInfo memory returnLocation
+    Schemas.LocationInfo memory returnLocation,
+    RentalityInsurance insuranceService,
+    string memory promo,
+    RentalityPromoService promoService
   ) public view returns (Schemas.CalculatePaymentsDTO memory) {
     uint64 deliveryFee = RentalityCarDelivery(addresses.adminService.getDeliveryServiceAddress())
       .calculatePriceByDeliveryDataInUsdCents(
@@ -374,29 +384,47 @@ library RentalityUtils {
         ),
         addresses.carService.getCarInfoById(carId).createdBy
       );
-    return calculatePayments(addresses, carId, daysOfTrip, currency, deliveryFee);
+    return
+      calculatePayments(
+        addresses,
+        carId,
+        daysOfTrip,
+        currency,
+        deliveryFee,
+        insuranceService,
+        promo,
+        promoService,
+        tx.origin
+      );
   }
-  /// @notice Checks if a car is available for a specific user based on search parameters.
-  /// @dev Calculates the payments for a trip.
-  /// @param carId The ID of the car.
-  /// @param daysOfTrip The duration of the trip in days.
-  /// @param currency The currency to use for payment calculation.
-  /// @return calculatePaymentsDTO An object containing payment details.
   function calculatePayments(
     RentalityContract memory addresses,
     uint carId,
     uint64 daysOfTrip,
     address currency,
-    uint64 deliveryFee
+    uint64 deliveryFee,
+    RentalityInsurance insuranceService,
+    string memory promo,
+    RentalityPromoService promoService,
+    address user
   ) public view returns (Schemas.CalculatePaymentsDTO memory) {
     address carOwner = addresses.carService.ownerOf(carId);
     Schemas.CarInfo memory car = addresses.carService.getCarInfoById(carId);
+
+    uint64 discount = uint64(promoService.getDiscountByPromo(promo, user));
+     uint64 priceWithDiscount;
+     priceWithDiscount = addresses.paymentService.calculateSumWithDiscount(
+      addresses.carService.ownerOf(carId),
+      daysOfTrip,
+      car.pricePerDayInUsdCents
+    );
 
     uint64 sumWithDiscount = addresses.paymentService.calculateSumWithDiscount(
       carOwner,
       daysOfTrip,
       car.pricePerDayInUsdCents
     );
+
     uint taxId = addresses.paymentService.defineTaxesType(address(addresses.carService), carId);
 
     (uint64 salesTaxes, uint64 govTax) = addresses.paymentService.calculateTaxes(
@@ -405,10 +433,26 @@ library RentalityUtils {
       sumWithDiscount + deliveryFee
     );
 
+    uint64 priceBeforePromo = sumWithDiscount + salesTaxes + govTax + deliveryFee;
+
+    uint64 discountedPrice = priceBeforePromo;
+    if (discount > 0) {
+      discountedPrice = priceBeforePromo - ((priceBeforePromo * discount) / 100);
+    }
+
+    uint totalPrice = car.securityDepositPerTripInUsdCents + discountedPrice;
+
+    if (!insuranceService.isGuestHasInsurance(tx.origin)) {
+      totalPrice += insuranceService.getInsurancePriceByCar(carId) * daysOfTrip;
+    }
+
     (uint256 valueSumInCurrency, int rate, uint8 decimals) = addresses.currencyConverterService.getFromUsdLatest(
       currency,
-      car.securityDepositPerTripInUsdCents + salesTaxes + govTax + sumWithDiscount + deliveryFee
+      totalPrice
     );
+    if(discount == 100) {
+      valueSumInCurrency = 0;
+    }
 
     return Schemas.CalculatePaymentsDTO(valueSumInCurrency, rate, decimals);
   }
@@ -418,12 +462,11 @@ library RentalityUtils {
     address currencyType,
     uint carId,
     uint64 startDateTime,
-    uint64 endDateTime,
-    address user
+    uint64 endDateTime
   ) public view {
-    require(addresses.userService.hasPassedKYCAndTC(user), 'KYC or TC not passed.');
+    require(addresses.userService.hasPassedKYCAndTC(tx.origin), 'KYC or TC not passed.');
     require(addresses.currencyConverterService.currencyTypeIsAvailable(currencyType), 'Token is not available.');
-    require(addresses.carService.ownerOf(carId) != user, 'Car is not available for creator');
+    require(addresses.carService.ownerOf(carId) != tx.origin, 'Car is not available for creator');
     require(!isCarUnavailable(addresses, carId, startDateTime, endDateTime), 'Unavailable for current date.');
   }
 
@@ -484,17 +527,28 @@ library RentalityUtils {
     uint64 endDateTime,
     address currencyType,
     uint64 pickUp,
-    uint64 dropOf
-  ) public view returns (Schemas.PaymentInfo memory, uint) {
+    uint64 dropOf,
+    RentalityPromoService promoService,
+    string memory promo,
+    address user,
+    uint insurance
+  ) public view returns (Schemas.PaymentInfo memory, uint, uint, uint, bool) {
+    bool usePromo = false;
     Schemas.CarInfo memory carInfo = addresses.carService.getCarInfoById(carId);
 
     uint64 daysOfTrip = getCeilDays(startDateTime, endDateTime);
 
-    uint64 priceWithDiscount = addresses.paymentService.calculateSumWithDiscount(
+     uint64 discount = uint64(promoService.getDiscountByPromo(promo, user));
+
+
+ uint64 priceWithDiscount = addresses.paymentService.calculateSumWithDiscount(
       addresses.carService.ownerOf(carId),
       daysOfTrip,
       carInfo.pricePerDayInUsdCents
     );
+
+    uint64 priceBeforePromo = priceWithDiscount;
+
     uint taxId = addresses.paymentService.defineTaxesType(address(addresses.carService), carId);
 
     (uint64 salesTaxes, uint64 govTax) = addresses.paymentService.calculateTaxes(
@@ -508,12 +562,34 @@ library RentalityUtils {
       govTax +
       carInfo.securityDepositPerTripInUsdCents +
       pickUp +
-      dropOf;
+      dropOf +
+      insurance;
+
+    uint priceWithPromo = 0;
+    if (discount > 0) {
+      require(discount == 100 || (pickUp == 0 && pickUp == 0), 'PickUp and DropOf should be 0');
+      usePromo = true;
+      uint sumBeforePromo = priceWithDiscount + salesTaxes + govTax + pickUp + dropOf;
+      priceWithPromo = (sumBeforePromo - ((sumBeforePromo * discount) / 100));
+    }
 
     (uint valueSumInCurrency, int rate, uint8 decimals) = addresses.currencyConverterService.getFromUsdLatest(
       currencyType,
       valueSum
     );
+
+    uint valueSumInCurrencyBeforePromo = valueSumInCurrency;
+    uint valueSumWithPromo = valueSum;
+    if (discount > 0) {
+      valueSumWithPromo = priceWithPromo;
+
+      valueSumInCurrency = addresses.currencyConverterService.getFromUsd(
+        currencyType,
+        priceWithPromo + carInfo.securityDepositPerTripInUsdCents + insurance,
+        rate,
+        decimals
+      );
+    }
 
     Schemas.PaymentInfo memory paymentInfo = Schemas.PaymentInfo(
       0,
@@ -533,8 +609,10 @@ library RentalityUtils {
       pickUp,
       dropOf
     );
+    if(discount == 100)
+    valueSumInCurrency = 0;
 
-    return (paymentInfo, valueSumInCurrency);
+    return (paymentInfo, valueSumInCurrency, valueSumInCurrencyBeforePromo, priceWithPromo, usePromo);
   }
 
   /// @dev Retrieves delivery data for a given car.
@@ -558,4 +636,175 @@ library RentalityUtils {
         addresses.carService.getCarInfoById(carId).insuranceIncluded
       );
   }
+
+  function calculateDelivery(
+    RentalityContract memory addresses,
+    Schemas.CreateTripRequestWithDelivery memory request
+  ) public view returns (uint64, uint64) {
+    bytes32 locationHash = addresses.carService.getCarInfoById(request.carId).locationHash;
+    (uint64 pickUp, uint64 dropOf) = addresses.deliveryService.calculatePricesByDeliveryDataInUsdCents(
+      request.pickUpInfo.locationInfo,
+      request.returnInfo.locationInfo,
+      IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getCarLocationLatitude(locationHash),
+      IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getCarLocationLongitude(locationHash),
+      addresses.carService.getCarInfoById(request.carId).createdBy
+    );
+    if (pickUp > 0) addresses.carService.verifySignedLocationInfo(request.pickUpInfo);
+    if (dropOf > 0) addresses.carService.verifySignedLocationInfo(request.returnInfo);
+    return (pickUp, dropOf);
+  }
+
+  /// @notice Retrieves detailed claim information for a specific claim ID.
+  /// @dev This function fetches all relevant data for a claim including trip, car, and user information.
+  /// @param contracts The Rentality contract instance containing service addresses.
+  /// @param claimId The ID of the claim to retrieve.
+  /// @return A FullClaimInfo structure containing all relevant information about the claim.
+  function getClaim(
+    RentalityContract memory contracts,
+    uint256 claimId
+  ) public view returns (Schemas.FullClaimInfo memory) {
+    RentalityClaimService claimService = contracts.claimService;
+    RentalityTripService tripService = contracts.tripService;
+    RentalityCarToken carService = contracts.carService;
+    RentalityUserService userService = contracts.userService;
+    RentalityCurrencyConverter currencyConverterService = contracts.currencyConverterService;
+
+    Schemas.Claim memory claim = claimService.getClaim(claimId);
+    Schemas.Trip memory trip = tripService.getTrip(claim.tripId);
+    Schemas.CarInfo memory car = carService.getCarInfoById(trip.carId);
+
+    string memory guestPhoneNumber = userService.getKYCInfo(trip.guest).mobilePhoneNumber;
+    string memory hostPhoneNumber = userService.getKYCInfo(trip.host).mobilePhoneNumber;
+
+    uint valueInCurrency = currencyConverterService.getFromUsd(
+      trip.paymentInfo.currencyType,
+      claim.amountInUsdCents,
+      trip.paymentInfo.currencyRate,
+      trip.paymentInfo.currencyDecimals
+    );
+
+    return
+      Schemas.FullClaimInfo(
+        claim,
+        trip.host,
+        trip.guest,
+        guestPhoneNumber,
+        hostPhoneNumber,
+        car,
+        valueInCurrency,
+        IRentalityGeoService(contracts.carService.getGeoServiceAddress()).getCarTimeZoneId(car.locationHash)
+      );
+  }
+
+  /// @notice Retrieves detailed information about a specific car.
+  /// @dev This function fetches all relevant data for a car including geo-location and user information.
+  /// @param contracts The Rentality contract instance containing service addresses.
+  /// @param carId The ID of the car to retrieve.
+  /// @return details A CarDetails structure containing all relevant information about the car.
+  function getCarDetails(
+    RentalityContract memory contracts,
+    uint carId,
+    RentalityDimoService dimoService
+  ) public view returns (Schemas.CarDetails memory details) {
+    RentalityCarToken carService = contracts.carService;
+    IRentalityGeoService geo = IRentalityGeoService(carService.getGeoServiceAddress());
+    RentalityUserService userService = contracts.userService;
+
+    Schemas.CarInfo memory car = carService.getCarInfoById(carId);
+
+    details = Schemas.CarDetails(
+      carId,
+      userService.getKYCInfo(car.createdBy).name,
+      userService.getKYCInfo(car.createdBy).profilePhoto,
+      car.createdBy,
+      car.brand,
+      car.model,
+      car.yearOfProduction,
+      car.pricePerDayInUsdCents,
+      car.securityDepositPerTripInUsdCents,
+      car.milesIncludedPerDay,
+      car.engineType,
+      car.engineParams,
+      geo.getCarCoordinateValidity(carId),
+      car.currentlyListed,
+      geo.getLocationInfo(car.locationHash),
+      car.carVinNumber,
+      carService.tokenURI(carId),
+      dimoService.getDimoTokenId(carId)
+    );
+  }
+  /// @notice Retrieves all cars owned by the user with information about editability.
+  /// @dev This function fetches the user's cars and checks if they can be edited.
+  /// @param contracts The Rentality contract instance containing service addresses.
+  /// @return An array of CarInfoDTO structures containing information about the user's cars and whether they are editable.
+  function getCarsOwnedByUserWithEditability(
+    RentalityContract memory contracts,
+    RentalityDimoService dimoService
+  ) public view returns (Schemas.CarInfoDTO[] memory) {
+    RentalityCarToken carService = contracts.carService;
+
+    Schemas.CarInfo[] memory carInfoes = carService.getCarsOwnedByUser(tx.origin);
+
+    Schemas.CarInfoDTO[] memory result = new Schemas.CarInfoDTO[](carInfoes.length);
+    for (uint i = 0; i < carInfoes.length; i++) {
+      result[i].carInfo = carInfoes[i];
+      result[i].metadataURI = carService.tokenURI(carInfoes[i].carId);
+      result[i].isEditable = isCarEditable(contracts, carInfoes[i].carId);
+      result[i].dimoTokenId = dimoService.getDimoTokenId(carInfoes[i].carId);
+    }
+
+    return result;
+  }
+
+  /// @notice Checks if a car is editable based on its associated trips.
+  /// @dev This function checks the status of trips associated with the car to determine if it can be edited.
+  /// @param contracts The Rentality contract instance containing service addresses.
+  /// @param carId The ID of the car to check for editability.
+  /// @return Returns true if the car is editable, otherwise false.
+  function isCarEditable(RentalityContract memory contracts, uint carId) public view returns (bool) {
+    RentalityTripService tripService = contracts.tripService;
+    uint[] memory carTrips = tripService.getActiveTrips(carId);
+
+    for (uint i = 0; i < carTrips.length; i++) {
+      Schemas.Trip memory tripInfo = tripService.getTrip(carTrips[i]);
+
+      if (
+        tripInfo.carId == carId &&
+        (tripInfo.status != Schemas.TripStatus.Finished &&
+          tripInfo.status != Schemas.TripStatus.Canceled &&
+          (tripInfo.status != Schemas.TripStatus.CheckedOutByHost && tripInfo.host != tripInfo.tripFinishedBy))
+      ) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+  function verifyClaim(
+    RentalityContract memory addresses,
+    Schemas.CreateClaimRequest memory request
+  ) public view returns (address, address) {
+    Schemas.Trip memory trip = addresses.tripService.getTrip(request.tripId);
+
+    require(
+      (trip.host == tx.origin && uint8(request.claimType) <= 7) ||
+        (trip.guest == tx.origin && ((uint8(request.claimType) <= 9) && (uint8(request.claimType) >= 3))),
+      'Only for trip host or guest, or wrong claim type.'
+    );
+
+    require(
+      trip.status != Schemas.TripStatus.Canceled && trip.status != Schemas.TripStatus.Created,
+      'Wrong trip status.'
+    );
+    return (trip.host, trip.guest);
+  }
+
+  function verifyConfirmCheckOut(RentalityContract memory contracts, uint tripId) public view {
+    Schemas.Trip memory trip = contracts.tripService.getTrip(tripId);
+
+    require(trip.guest == tx.origin || contracts.userService.isAdmin(tx.origin), 'For trip guest or admin');
+    require(trip.host == trip.tripFinishedBy, 'No needs to confirm.');
+    require(trip.status == Schemas.TripStatus.CheckedOutByHost, 'The trip is not in status CheckedOutByHost');
+  }
+
 }

@@ -6,6 +6,8 @@ const {
   getEmptySearchCarParams,
   signTCMessage,
   signLocationInfo,
+  zeroHash,
+  emptyLocationInfo,
 } = require('../utils')
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 const { ethers } = require('hardhat')
@@ -31,8 +33,8 @@ describe('Rentality Delivery', function () {
     host,
     guest,
     anonymous,
-    rentalityLocationVerifier,
-    rentalityView
+    rentalityLocationVerifier
+
   beforeEach(async function () {
     ;({
       rentalityGateway,
@@ -56,7 +58,6 @@ describe('Rentality Delivery', function () {
       guest,
       anonymous,
       rentalityLocationVerifier,
-      rentalityView,
     } = await loadFixture(deployDefaultFixture))
   })
 
@@ -173,7 +174,7 @@ describe('Rentality Delivery', function () {
       timeZoneId: 'id',
     }
 
-    await rentalityPlatform.connect(host).addUserDeliveryPrices(500, 500)
+    await rentalityGateway.connect(host).addUserDeliveryPrices(500, 500)
     let result = await deliveryService
       .connect(host)
       .calculatePriceByDeliveryDataInUsdCents(locationInfo, locationInfo2, homeLat, homeLon, host)
@@ -216,15 +217,26 @@ describe('Rentality Delivery', function () {
       timeBufferBetweenTripsInSec: 0,
       geoApiKey: 'key',
       locationInfo: locationInfo1,
-      insuranceIncluded: true,
       currentlyListed: true,
+      insuranceRequired: false,
+      insurancePriceInUsdCents: 0,
+dimoTokenId: 0,
+      insuranceIncluded: true,
     }
 
-    await expect(rentalityPlatform.connect(host).addCar(mockCreateCarRequest)).not.to.be.reverted
-    const myCars = await rentalityView.connect(host).getMyCars()
+    await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest)).not.to.be.reverted
+    const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
-    const availableCars = await rentalityView.connect(guest).getAvailableCarsForUser(guest.address)
+    const availableCars = await rentalityGateway
+      .connect(guest)
+      .searchAvailableCarsWithDelivery(
+        0,
+        new Date().getSeconds() + 86400,
+        getEmptySearchCarParams(1),
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
     expect(availableCars.length).to.equal(1)
 
     let locationInfo2 = {
@@ -237,15 +249,15 @@ describe('Rentality Delivery', function () {
 
       timeZoneId: 'id',
     }
-    let result = await rentalityView.calculatePaymentsWithDelivery(1, 1, ethToken, locationInfo, locationInfo2)
-
+    let result = await rentalityGateway.calculatePaymentsWithDelivery(1, 1, ethToken, locationInfo, locationInfo2, '')
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: 123,
           endDateTime: 321,
           currencyType: ethToken,
+          useRefferalDiscount: false,
           pickUpInfo: {
             signature: signLocationInfo(await rentalityLocationVerifier.getAddress(), admin, locationInfo),
             locationInfo,
@@ -255,16 +267,17 @@ describe('Rentality Delivery', function () {
             locationInfo: locationInfo2,
           },
         },
+        ' ',
         { value: result.totalPrice }
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
 
-    await expect(rentalityPlatform.connect(host).approveTripRequest(1)).not.to.be.reverted
-    await expect(rentalityPlatform.connect(host).checkInByHost(1, [0, 0], '', '')).not.to.be.reverted
-    await expect(rentalityPlatform.connect(guest).checkInByGuest(1, [0, 0])).not.to.be.reverted
-    await expect(rentalityPlatform.connect(guest).checkOutByGuest(1, [0, 0])).not.to.be.reverted
-    await expect(rentalityPlatform.connect(host).checkOutByHost(1, [0, 0])).not.to.be.reverted
-    await expect(rentalityPlatform.connect(host).finishTrip(1)).to.not.reverted
+    await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0], '', '')).not.to.be.reverted
+    await expect(rentalityGateway.connect(guest).checkInByGuest(1, [0, 0])).not.to.be.reverted
+    await expect(rentalityGateway.connect(guest).checkOutByGuest(1, [0, 0])).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).checkOutByHost(1, [0, 0])).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).finishTrip(1)).to.not.reverted
 
     let totalDeliveryPrice = await deliveryService
       .connect(host)
@@ -351,8 +364,11 @@ describe('Rentality Delivery', function () {
       locationInfo,
       insuranceIncluded: true,
       currentlyListed: true,
+      insuranceRequired: false,
+      insurancePriceInUsdCents: 0,
+dimoTokenId: 0
     }
-    await expect(rentalityPlatform.connect(host).addCar(mockCreateCarRequest)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest)).not.to.be.reverted
 
     const mockCreateCarRequest1 = {
       tokenUri: 'uri',
@@ -370,8 +386,11 @@ describe('Rentality Delivery', function () {
       locationInfo: locationInfo1,
       insuranceIncluded: true,
       currentlyListed: true,
+      insuranceRequired: false,
+      insurancePriceInUsdCents: 0,
+dimoTokenId: 0
     }
-    await expect(rentalityPlatform.connect(host).addCar(mockCreateCarRequest1)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest1)).not.to.be.reverted
 
     const mockCreateCarRequest2 = {
       tokenUri: 'uri',
@@ -389,8 +408,11 @@ describe('Rentality Delivery', function () {
       locationInfo: locationInfo2,
       insuranceIncluded: true,
       currentlyListed: true,
+      insuranceRequired: false,
+      insurancePriceInUsdCents: 0,
+dimoTokenId: 0
     }
-    await expect(rentalityPlatform.connect(host).addCar(mockCreateCarRequest2)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest2)).not.to.be.reverted
     let loc = {
       latitude: pickUpLat,
       longitude: pickUpLon,
@@ -417,6 +439,9 @@ describe('Rentality Delivery', function () {
       locationInfo: locationInfo1,
       insuranceIncluded: true,
       currentlyListed: true,
+      insuranceRequired: false,
+      insurancePriceInUsdCents: 0,
+dimoTokenId: 0
     }
     const mockCreateCarRequest3 = {
       tokenUri: 'uri',
@@ -434,6 +459,9 @@ describe('Rentality Delivery', function () {
       locationInfo: locationInfo,
       insuranceIncluded: true,
       currentlyListed: true,
+      insuranceRequired: false,
+      insurancePriceInUsdCents: 0,
+dimoTokenId: 0
     }
     const mockCreateCarRequest4 = {
       tokenUri: 'uri',
@@ -451,13 +479,16 @@ describe('Rentality Delivery', function () {
       locationInfo: locationInfo2,
       insuranceIncluded: true,
       currentlyListed: true,
+      insuranceRequired: false,
+      insurancePriceInUsdCents: 0,
+dimoTokenId: 0
     }
-    await expect(rentalityPlatform.connect(host).addCar(mockCreateCarRequest4)).not.to.be.reverted
-    await expect(rentalityPlatform.connect(host).addCar(mockCreateCarRequest5)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest4)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest5)).not.to.be.reverted
 
-    await expect(rentalityPlatform.connect(host).addCar(mockCreateCarRequest3)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest3)).not.to.be.reverted
 
     let emptySearchParams = { ...getEmptySearchCarParams(), userLocation: loc }
-    let result = await rentalityView.searchAvailableCarsWithDelivery(0, 1, emptySearchParams, loc, loc)
+    let result = await rentalityGateway.searchAvailableCarsWithDelivery(0, 1, emptySearchParams, loc, loc)
   })
 })

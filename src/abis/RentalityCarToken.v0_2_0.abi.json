@@ -47,38 +47,6 @@
     {
       "type": "event",
       "anonymous": false,
-      "name": "CarAddedSuccess",
-      "inputs": [
-        { "type": "uint256", "name": "CarId", "indexed": false },
-        { "type": "string", "name": "carVinNumber", "indexed": false },
-        { "type": "address", "name": "createdBy", "indexed": false },
-        { "type": "uint64", "name": "pricePerDayInUsdCents", "indexed": false },
-        { "type": "bool", "name": "currentlyListed", "indexed": false }
-      ]
-    },
-    {
-      "type": "event",
-      "anonymous": false,
-      "name": "CarRemovedSuccess",
-      "inputs": [
-        { "type": "uint256", "name": "carId", "indexed": false },
-        { "type": "string", "name": "CarVinNumber", "indexed": false },
-        { "type": "address", "name": "removedBy", "indexed": false }
-      ]
-    },
-    {
-      "type": "event",
-      "anonymous": false,
-      "name": "CarUpdatedSuccess",
-      "inputs": [
-        { "type": "uint256", "name": "carId", "indexed": false },
-        { "type": "uint64", "name": "pricePerDayInUsdCents", "indexed": false },
-        { "type": "bool", "name": "currentlyListed", "indexed": false }
-      ]
-    },
-    {
-      "type": "event",
-      "anonymous": false,
       "name": "Initialized",
       "inputs": [{ "type": "uint8", "name": "version", "indexed": false }]
     },
@@ -135,7 +103,6 @@
             { "type": "uint64", "name": "milesIncludedPerDay" },
             { "type": "uint32", "name": "timeBufferBetweenTripsInSec" },
             { "type": "string", "name": "geoApiKey" },
-            { "type": "bool", "name": "insuranceIncluded" },
             {
               "type": "tuple",
               "name": "locationInfo",
@@ -156,7 +123,9 @@
                 { "type": "bytes", "name": "signature" }
               ]
             },
-            { "type": "bool", "name": "currentlyListed" }
+            { "type": "bool", "name": "currentlyListed" },
+            { "type": "bool", "name": "insuranceRequired" },
+            { "type": "uint256", "name": "insurancePriceInUsdCents" }
           ]
         }
       ],
@@ -426,6 +395,15 @@
     },
     {
       "type": "function",
+      "name": "getEngineService",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
       "name": "getGeoServiceAddress",
       "constant": true,
       "stateMutability": "view",
@@ -435,13 +413,23 @@
     },
     {
       "type": "function",
+      "name": "getListingMoment",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "carId" }],
+      "outputs": [{ "type": "uint256", "name": "" }]
+    },
+    {
+      "type": "function",
       "name": "initialize",
       "constant": false,
       "payable": false,
       "inputs": [
         { "type": "address", "name": "geoServiceAddress" },
         { "type": "address", "name": "engineServiceAddress" },
-        { "type": "address", "name": "userServiceAddress" }
+        { "type": "address", "name": "userServiceAddress" },
+        { "type": "address", "name": "eventManagerAddress" }
       ],
       "outputs": []
     },
@@ -660,7 +648,10 @@
             { "type": "uint64", "name": "milesIncludedPerDay" },
             { "type": "uint32", "name": "timeBufferBetweenTripsInSec" },
             { "type": "bool", "name": "currentlyListed" },
-            { "type": "bool", "name": "insuranceIncluded" }
+            { "type": "bool", "name": "insuranceRequired" },
+            { "type": "uint256", "name": "insurancePriceInUsdCents" },
+            { "type": "uint8", "name": "engineType" },
+            { "type": "string", "name": "tokenUri" }
           ]
         },
         {
@@ -676,7 +667,7 @@
             { "type": "string", "name": "timeZoneId" }
           ]
         },
-        { "type": "string", "name": "geoApiKey" }
+        { "type": "bool", "name": "updateLocation" }
       ],
       "outputs": []
     },
@@ -701,10 +692,10 @@
     },
     {
       "type": "function",
-      "name": "updateGeoParsesAddress",
+      "name": "updateEventServiceAddress",
       "constant": false,
       "payable": false,
-      "inputs": [{ "type": "address", "name": "newGeoParserAddress" }],
+      "inputs": [{ "type": "address", "name": "_eventManager" }],
       "outputs": []
     },
     {
