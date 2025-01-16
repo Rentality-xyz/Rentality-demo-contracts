@@ -97,6 +97,32 @@ async function deployDefaultFixture() {
   const PromoService = await ethers.getContractFactory('RentalityPromoService')
   const promoService = await upgrades.deployProxy(PromoService, [await rentalityUserService.getAddress()])
 
+  const patrolEngine = await ethers.getContractFactory('RentalityPetrolEngine')
+  const pEngine = await patrolEngine.deploy(await rentalityUserService.getAddress())
+
+  const electricEngine = await ethers.getContractFactory('RentalityElectricEngine')
+  const elEngine = await electricEngine.deploy(await rentalityUserService.getAddress())
+
+  const hybridEngine = await ethers.getContractFactory('RentalityHybridEngine')
+  const hEngine = await hybridEngine.deploy(await rentalityUserService.getAddress())
+
+  const EngineService = await ethers.getContractFactory('RentalityEnginesService')
+
+  const engineService = await upgrades.deployProxy(EngineService, [
+    await rentalityUserService.getAddress(),
+    [await pEngine.getAddress(), await elEngine.getAddress(), await hEngine.getAddress()],
+  ])
+  await engineService.waitForDeployment()
+
+  const rentalityCarToken = await upgrades.deployProxy(RentalityCarToken, [
+    await rentalityGeoService.getAddress(),
+    await engineService.getAddress(),
+    await rentalityUserService.getAddress(),
+    await rentalityNotificationService.getAddress(),
+  ])
+
+  await rentalityCarToken.waitForDeployment()
+
   const RentalityInsurance = await ethers.getContractFactory('RentalityInsurance')
   const insuranceService = await upgrades.deployProxy(RentalityInsurance, [
     await rentalityUserService.getAddress(),
@@ -148,31 +174,7 @@ async function deployDefaultFixture() {
   await rentalityUserService.connect(owner).grantHostRole(host.address)
   await rentalityUserService.connect(owner).grantGuestRole(guest.address)
 
-  const patrolEngine = await ethers.getContractFactory('RentalityPetrolEngine')
-  const pEngine = await patrolEngine.deploy(await rentalityUserService.getAddress())
 
-  const electricEngine = await ethers.getContractFactory('RentalityElectricEngine')
-  const elEngine = await electricEngine.deploy(await rentalityUserService.getAddress())
-
-  const hybridEngine = await ethers.getContractFactory('RentalityHybridEngine')
-  const hEngine = await hybridEngine.deploy(await rentalityUserService.getAddress())
-
-  const EngineService = await ethers.getContractFactory('RentalityEnginesService')
-
-  const engineService = await upgrades.deployProxy(EngineService, [
-    await rentalityUserService.getAddress(),
-    [await pEngine.getAddress(), await elEngine.getAddress(), await hEngine.getAddress()],
-  ])
-  await engineService.waitForDeployment()
-
-  const rentalityCarToken = await upgrades.deployProxy(RentalityCarToken, [
-    await rentalityGeoService.getAddress(),
-    await engineService.getAddress(),
-    await rentalityUserService.getAddress(),
-    await rentalityNotificationService.getAddress(),
-  ])
-
-  await rentalityCarToken.waitForDeployment()
 
   const DimoService = await ethers.getContractFactory('RentalityDimoService')
   const dimoService = await upgrades.deployProxy(DimoService, [await rentalityUserService.getAddress(), await rentalityCarToken.getAddress()])
