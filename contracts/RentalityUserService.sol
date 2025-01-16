@@ -61,6 +61,7 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
     kycInfo.name = nickName;
     kycInfo.mobilePhoneNumber = mobilePhoneNumber;
     kycInfo.profilePhoto = profilePhoto;
+    if(kycInfo.createDate == 0)
     kycInfo.createDate = block.timestamp;
     kycInfo.isTCPassed = isTCPassed;
     kycInfo.TCSignature = TCSignature;
