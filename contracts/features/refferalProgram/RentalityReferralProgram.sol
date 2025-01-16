@@ -120,7 +120,7 @@ contract RentalityReferralProgram is
        if (dailiListingPoints > 0) {
         uint time = block.timestamp;
         for (uint i = 0; i < cars.length; i++) {
-          carIdToDailyClaimed[i] = time;
+          carIdToDailyClaimed[cars[i]] = time;
         }
         userProgramHistory[user].push(
           Schemas.ProgramHistory(int(dailiListingPoints), block.timestamp, Schemas.RefferalProgram.DailyListing, false)
@@ -286,8 +286,9 @@ contract RentalityReferralProgram is
   function getMyRefferalInfo() public view returns(Schemas.MyRefferalInfoDTO memory) {
     return Schemas.MyRefferalInfoDTO(referralHashV2[msg.sender], userToSavedHash[msg.sender]);
   }
-  function saveRefferalHash(bytes4 hash) public {
-    userToSavedHash[tx.origin] = hash;
+  function saveRefferalHash(bytes4 hash, bool isGuest) public {
+    if(!isGuest && hash != bytes4('') && hashToOwnerV2[hash] != address(0))
+     userToSavedHash[tx.origin] = hash;
   }
   function _getHashProgramInfoIfExists(
     Schemas.RefferalProgram programSelector,
