@@ -23,7 +23,7 @@ module.exports = {
   mocha: {
   timeout: 1000000
   },
-  defaultNetwork: 'localhost',
+  defaultNetwork: 'tenderlyVirtual',
   networks: {
     hardhat: {
       chainId: 1337,
@@ -40,7 +40,7 @@ module.exports = {
     tenderlyVirtual: {
       url: process.env.TENDERLY_URL ?? '',
       accounts: [process.env.PRIVATE_KEY],
-      chainId: 8453,
+      chainId: 102,
     },
     base: {
       url: process.env.BASE_URL ?? '',
