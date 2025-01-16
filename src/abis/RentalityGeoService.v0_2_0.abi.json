@@ -305,14 +305,6 @@
     },
     {
       "type": "function",
-      "name": "updateParserAddress",
-      "constant": false,
-      "payable": false,
-      "inputs": [{ "type": "address", "name": "_geoParser" }],
-      "outputs": []
-    },
-    {
-      "type": "function",
       "name": "updateUserServiceAddress",
       "constant": false,
       "payable": false,

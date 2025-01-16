@@ -124,5 +124,28 @@
     "RentalityAdminGateway": "0x700c3f18513C8BB32DC2944492A9Dcc16fE4F05A",
     "RentalityGateway": "0xF57bBa938f5eD700648819971A13757e8064e40e",
     "RentalityChatHelper": "0xb1576942d42196a5448eA93105122E4F2Bc26eb4"
+  },
+  {
+    "name": "tenderlyVirtual",
+    "chainId": 102,
+    "CivicMockVerifier": "0xbBDd86827Fbd09674Fb1c8A22c5845497D668304",
+    "RentalityUserService": "0x6765500d078C7829d5d8F9f7BeA0B2489DD8eD4C",
+    "RentalityNotificationService": "0x221A65Fca76f6c7F1cB9B68018Ce334eAba58B70",
+    "RentalityClaimService": "0x745AB1c6F727Dad209918327539fcf38A9Db5121",
+    "EthToUsdPriceFeedAddress": "0xe885A9806b87E0522DA0D16b176E00d1600215D3",
+    "RentalityETHConvertor": "0x449Ebc48282dD5cb099e3b18705a415D4C69C2ae",
+    "RentalityTestUSDT": "0xd6FDFECD9f0419E738770313d7860BBff36195C9",
+    "UsdtToUsdPriceFeedAddress": "0x82Abb3563f6345bbDc695F0018CFFaCB53847423",
+    "RentalityUSDTConverter": "0xdA27e9D48670FAdACf2Db5f4Bb817a14089E8B6D",
+    "RentalityCurrencyConverter": "0x7D76f7DF601AACAb62E98C26eF1c56C40684BeC7",
+    "RentalityFloridaTaxes": "0xF5E32409F7C8fcDFE8B72E15c831Ae51500f4955",
+    "RentalityBaseDiscount": "0x28216f12E6ED11a7792c1d8e4C5689471fBC5963",
+    "RentalityUtils": "0xF98153072df509AF7E7Ad6077E75349898702F76",
+    "RentalityLocationVerifier": "0x611A61401747100510788FBF814BFaFD8d8a1f80",
+    "RentalityGeoService": "0x3334d3a2F89fe673844222a63b5a33b2915f26e4",
+    "RentalityPetrolEngine": "0xbb317cd114D68b0bE56E973ecF5737E513345d9b",
+    "RentalityElectricEngine": "0x3071d9beCf2fb0F4A90b23Ce9e274f6a3ea8e3d1",
+    "RentalityEnginesService": "0xc8c3A5de0044F974bC576d88170f08f60D43991e",
+    "RentalityCarToken": "0x9Aa2A97dFBb9670FE05413D273A74Da37e7399F0"
   }
 ]
