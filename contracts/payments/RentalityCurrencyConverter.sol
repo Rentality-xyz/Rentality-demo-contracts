@@ -142,8 +142,7 @@ contract RentalityCurrencyConverter is Initializable, UUPSAccess {
     uint256 rentalityFee,
     uint insurancePriceInUsdCents,
     RentalityPromoService promoService
-  ) public view returns (uint, uint, uint, uint) {
-    Schemas.PromoTripData memory tripData = promoService.getTripPromoData(paymentInfo.tripId);
+  ) public view returns (uint, uint, uint, uint, uint) {
     uint discount = promoService.getPromoDiscountByTrip(paymentInfo.tripId);
 
 

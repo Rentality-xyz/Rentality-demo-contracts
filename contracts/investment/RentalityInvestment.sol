@@ -39,10 +39,9 @@ contract RentalityInvestment is Initializable, UUPSAccess {
     uint payedInETH = investmentIdToPayedInETH[investId];
     Schemas.CarInvestment storage investment = investmentIdToCarInfo[investId];
 
-    uint amountInUsd = converter.getToUsdWithCache(address(0), payedInETH);
     require(investment.inProgress, 'Not available');
 
-    uint amountAfterInvestment = converter.getToUsdWithCache(address(0), payedInETH + msg.value);
+    uint amountAfterInvestment = converter.getFromUsdLatest(address(0), payedInETH + msg.value);
 
     if (amountAfterInvestment >= investment.priceInUsd) {
       investment.inProgress = false;

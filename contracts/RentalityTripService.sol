@@ -174,7 +174,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
   ///   - Only the host or guest of the trip can reject it.
   ///   - The trip must be in status Created, Approved, or CheckedInByHost.
   ///  @param tripId The ID of the trip to be Rejected
-  function rejectTrip(uint256 tripId, address user) public {
+  function rejectTrip(uint256 tripId, uint256 rentalityFee, uint256 depositRefund, uint256 tripEarnings, address user) public {
     require(addresses.userService.isManager(msg.sender), 'Only from manager contract.');
     Schemas.TripStatus status = idToTripInfo[tripId].status;
 
@@ -183,7 +183,10 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     bool controversialSituation = addresses.userService.isAdmin(user) &&
       status == Schemas.TripStatus.CheckedOutByHost;
 
-    require(host == user || guest == user || controversialSituation, 'Only host or guest of the trip can reject it');
+    require(
+      idToTripInfo[tripId].host == user || idToTripInfo[tripId].guest == user || controversialSituation,
+      'Only host or guest of the trip can reject it'
+    );
 
     require(
       idToTripInfo[tripId].status == Schemas.TripStatus.Created ||
@@ -197,6 +200,8 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     idToTripInfo[tripId].rejectedDateTime = block.timestamp;
     idToTripInfo[tripId].rejectedBy = user;
 
+    saveTransactionInfo(tripId, rentalityFee, status, depositRefund, tripEarnings);
+
     eventManager.emitEvent(
       Schemas.EventType.Trip,
       tripId,
@@ -205,7 +210,6 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
       user == guest ? guest : host
     );
   }
-
   /// @notice Allows the host to perform a check-in for a specific trip.
   /// This action typically occurs at the start of the trip and records key information
   /// such as fuel level, odometer reading, insurance details, and any other relevant data.

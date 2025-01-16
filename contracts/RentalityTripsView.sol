@@ -44,7 +44,7 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable {
     uint256 tripId
   ) public view returns (string memory guestPhoneNumber, string memory hostPhoneNumber) {
     return
-      RentalityTripsQuery.getTripContactInfo(tripId, address(addresses.tripService), address(addresses.userService));
+      RentalityTripsQuery.getTripContactInfo(tripId, address(addresses.tripService), address(addresses.userService), tx.origin);
   }
 
   /// @notice Retrieves information about a trip by ID.
