@@ -61,7 +61,10 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
     kycInfo.name = nickName;
     kycInfo.mobilePhoneNumber = mobilePhoneNumber;
     kycInfo.profilePhoto = profilePhoto;
+    
+    if(kycInfo.createDate == 0)
     kycInfo.createDate = block.timestamp;
+
     kycInfo.isTCPassed = isTCPassed;
     kycInfo.TCSignature = TCSignature;
   }
@@ -105,11 +108,11 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
   function getMyFullKYCInfo() public view returns (Schemas.FullKYCInfoDTO memory) {
     return Schemas.FullKYCInfoDTO(kycInfos[tx.origin], additionalKycInfo[tx.origin]);
   }
-  function getPlatformUsersKYCInfos() public view returns(Schemas.FullKYCInfoDTO[] memory result) {
+  function getPlatformUsersKYCInfos() public view returns(Schemas.AdminKYCInfoDTO[] memory result) {
     address[] memory users = platformUsers;
-    result = new Schemas.FullKYCInfoDTO[](platformUsers.length);
+    result = new Schemas.AdminKYCInfoDTO[](platformUsers.length);
     for (uint i = 0; i < result.length; i++) {
-      result[i] = Schemas.FullKYCInfoDTO(kycInfos[users[i]], additionalKycInfo[users[i]]);
+      result[i] = Schemas.AdminKYCInfoDTO(kycInfos[users[i]], additionalKycInfo[users[i]], users[i]);
     }
   }
   /// @notice Checks if the KYC information for a specified user is valid.

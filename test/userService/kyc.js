@@ -217,7 +217,6 @@ describe('RentalityUserService: KYC management', function () {
     let platformUsers = await rentalityUserService.getPlatformUsers()
     expect(platformUsers.includes(guest.address)).to.be.true
     expect(platformUsers.includes(host.address)).to.be.true
-
     expect(platformUsers.length).to.be.eq(2)
 
     const Signature = await signTCMessage(anonymous)
