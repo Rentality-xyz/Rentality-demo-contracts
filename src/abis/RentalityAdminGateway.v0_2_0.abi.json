@@ -383,7 +383,8 @@
                 { "type": "string", "name": "issueCountry" },
                 { "type": "string", "name": "email" }
               ]
-            }
+            },
+            { "type": "address", "name": "wallet" }
           ]
         }
       ]
