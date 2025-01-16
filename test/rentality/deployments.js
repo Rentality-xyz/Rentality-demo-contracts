@@ -161,7 +161,7 @@ async function deployDefaultFixture() {
 
   
   const DimoService = await ethers.getContractFactory('RentalityDimoService')
-  const rentalityDimo = await upgrades.deployProxy(DimoService, [await rentalityUserService.getAddress(), await rentalityCarToken.getAddress(), owner.address])
+  const rentalityDimo = await upgrades.deployProxy(DimoService, [await rentalityUserService.getAddress(), await rentalityCarToken.getAddress()])
 
 
   const PromoService = await ethers.getContractFactory('RentalityPromoService')
@@ -334,7 +334,8 @@ async function deployDefaultFixture() {
 
     await refferalProgram.getAddress(),
     await promoService.getAddress(),
-    await rentalityDimo.getAddress()
+    await rentalityDimo.getAddress(),
+    await investorsService.getAddress()
   ])
   await rentalityAdminGateway.waitForDeployment()
 

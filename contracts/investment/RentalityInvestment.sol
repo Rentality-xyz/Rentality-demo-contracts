@@ -14,7 +14,6 @@ contract RentalityInvestment is Initializable, UUPSAccess {
   uint public investmentId;
   RentalityCurrencyConverter private converter;
   RentalityCarToken private carToken;
-  RentalityPaymentService private paymentService;
   RentalityInsurance private insuranceService;
 
   mapping(uint => Schemas.CarInvestment) private investmentIdToCarInfo;
@@ -26,7 +25,6 @@ contract RentalityInvestment is Initializable, UUPSAccess {
 
   function createCarInvestment(Schemas.CarInvestment memory car, string memory name_, string memory symbol_) public {
     require(carToken.isUniqueVinNumber(car.car.carVinNumber), 'Car with this VIN number already exists');
-   require(paymentService.taxExist(car.car.locationInfo.locationInfo) != 0, 'Tax not exist.');
 
     investmentId += 1;
     investmentIdToCarInfo[investmentId] = car;
@@ -128,13 +126,11 @@ contract RentalityInvestment is Initializable, UUPSAccess {
     address _userService,
     address _currencyConverter,
     address _carService,
-    address _paymentService,
     address _insuranceServce
     ) public initializer {
     userService = IRentalityAccessControl(_userService);
     converter = RentalityCurrencyConverter(_currencyConverter);
     carToken = RentalityCarToken(_carService);
-    paymentService = RentalityPaymentService(payable(_paymentService));
     insuranceService = RentalityInsurance(_insuranceServce);
   }
 }

@@ -428,6 +428,7 @@ function updateDimoService(address dimoServiceAddress) public onlyAdmin {
   //  @param paymentServiceAddress The address of the RentalityPaymentService contract.
   //  Requirements:
   //  - The contract must not have been initialized before.
+
   function initialize(
     address carServiceAddress,
     address currencyConverterServiceAddress,
@@ -437,12 +438,12 @@ function updateDimoService(address dimoServiceAddress) public onlyAdmin {
     address paymentServiceAddress,
     address claimServiceAddress,
     address carDeliveryAddress,
+    address viewServiceAddress,
     address insuranceServiceAddress,
     address rentalityTripsViewAddress,
     address refferalProgramAddress,
     address promoServiceAddress,
     address dimoServiceAddress,
-    address viewServiceAddress,
     address investmentAddress
   ) public initializer {
     carService = RentalityCarToken(carServiceAddress);
