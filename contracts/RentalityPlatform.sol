@@ -305,6 +305,8 @@ contract RentalityPlatform is UUPSOwnable {
     bytes4 hash
   ) public {
     refferalProgram.generateReferralHash();
+     bool isGuest = addresses.userService.isGuest(tx.origin);
+    refferalProgram.saveRefferalHash(hash, isGuest);
     refferalProgram.passReferralProgram(
       Schemas.RefferalProgram.SetKYC,
       bytes(''),
@@ -312,7 +314,6 @@ contract RentalityPlatform is UUPSOwnable {
       promoService
     );
     addresses.userService.setKYCInfo(nickName, mobilePhoneNumber, profilePhoto, email, TCSignature);
-    refferalProgram.saveRefferalHash(hash);
   }
  
   function setCivicKYCInfo(address user, Schemas.CivicKYCInfo memory civicKycInfo) public {

@@ -199,7 +199,7 @@ describe('RentalityUserService: KYC management', function () {
 
     const Signature = await signTCMessage(host)
 
-    await rentalityGateway.connect(host).setKYCInfo('name', 'surname',"", '13123',"", Signature,zeroHash)
+    await rentalityGateway.connect(host).setKYCInfo('name', 'surname','13123',"", Signature,zeroHash)
     const hostData = await rentalityUserService.connect(owner).getKYCInfo(host.address)
 
     expect(hostData.isTCPassed).to.be.true
@@ -228,7 +228,7 @@ describe('RentalityUserService: KYC management', function () {
 
     expect(platformUsers2.length).to.be.eq(3)
 
-    await rentalityGateway.connect(anonymous).setKYCInfo('name', 'surname',"", '13123',"", Signature,zeroHash)
+    await rentalityGateway.connect(anonymous).setKYCInfo('name', 'surname', '13123',"", Signature,zeroHash)
     const platformUsers3= await rentalityUserService.getPlatformUsers()
 
     expect(platformUsers3.length).to.be.eq(3)
