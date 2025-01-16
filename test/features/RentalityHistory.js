@@ -13,7 +13,7 @@ const {
 } = require('../utils')
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 
-describe.only('Rentality History Service', function () {
+describe('Rentality History Service', function () {
   let rentalityPlatform,
     rentalityGateway,
     transactionHistory,

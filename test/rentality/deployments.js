@@ -103,6 +103,7 @@ async function deployDefaultFixture() {
     await rentalityUserService.getAddress(),
     await rentalityFloridaTaxes.getAddress(),
     await rentalityBaseDiscount.getAddress(),
+    await investorsService.getAddress(),
   ])
 
   const RentalityEth = await ethers.getContractFactory('RentalityETHConvertor')
