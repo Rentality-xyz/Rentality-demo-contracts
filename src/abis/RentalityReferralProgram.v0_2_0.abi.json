@@ -439,7 +439,10 @@
       "name": "saveRefferalHash",
       "constant": false,
       "payable": false,
-      "inputs": [{ "type": "bytes4", "name": "hash" }],
+      "inputs": [
+        { "type": "bytes4", "name": "hash" },
+        { "type": "bool", "name": "isGuest" }
+      ],
       "outputs": []
     },
     {
@@ -449,6 +452,14 @@
       "payable": false,
       "inputs": [{ "type": "address", "name": "user" }],
       "outputs": [{ "type": "uint256", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "updateLib",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "refLib" }],
+      "outputs": []
     },
     {
       "type": "function",
