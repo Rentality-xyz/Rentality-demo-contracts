@@ -29,7 +29,6 @@ async function main() {
   const contract = await upgrades.deployProxy(contractFactory, [
     rentalityUserServiceAddress,
     rentalityCarTokenAddress,
-    adminPubkey
   ])
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()
