@@ -382,5 +382,8 @@ interface IRentalityGateway {
   /// @return An array of available car information for the specified user.
   function getAvailableCarsForUser(address user) external view returns (Schemas.CarInfo[] memory);
 
+
+  function getDimoVihicles() external view returns(uint[] memory);
+  function saveDimoTokenIds(uint[] memory, uint[] memory) external;
   function checkPromo(string memory promo, uint startDateTime, uint endDateTime) external view returns (Schemas.CheckPromoDTO memory);
 }

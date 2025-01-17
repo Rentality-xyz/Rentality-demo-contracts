@@ -5,25 +5,31 @@ const addressSaver = require('./utils/addressSaver')
 const { checkNotNull, startDeploy } = require('./utils/deployHelper')
 
 async function main() {
-  const { contractName, chainId } = await startDeploy('RentalityPaymentService')
+  const { contractName, chainId } = await startDeploy('RentalityDimoService')
 
   if (chainId < 0) throw new Error('chainId is not set')
 
-  const userService = checkNotNull(
+  const rentalityUserServiceAddress = checkNotNull(
     getContractAddress('RentalityUserService', 'scripts/deploy_1b_RentalityUserService.js', chainId),
     'RentalityUserService'
   )
-  const floridaTaxes = checkNotNull(
-    getContractAddress('RentalityFloridaTaxes', 'scripts/deploy_2e_RentalityFloridaTaxes.js', chainId),
-    'RentalityFloridaTaxes'
-  )
-  const baseDiscount = checkNotNull(
-    getContractAddress('RentalityBaseDiscount', 'scripts/deploy_2g_RentalityBaseDiscount.js', chainId),
-    'RentalityBaseDiscount'
-  )
 
-  const contractFactory = await ethers.getContractFactory(contractName)
-  const contract = await upgrades.deployProxy(contractFactory, [userService, floridaTaxes, baseDiscount])
+
+
+  const rentalityCarTokenAddress = checkNotNull(
+    getContractAddress('RentalityCarToken', 'scripts/deploy_3_RentalityCarToken.js', chainId),
+    'RentalityCarToken'
+  )
+  const adminPubkey = process.env.ADMIN_PUBLIC_KEY // saved on api
+
+  const contractFactory = await ethers.getContractFactory(contractName, {
+    libraries: {},
+  })
+
+  const contract = await upgrades.deployProxy(contractFactory, [
+    rentalityUserServiceAddress,
+    rentalityCarTokenAddress,
+  ])
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()
 

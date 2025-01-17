@@ -15,6 +15,7 @@ import {RentalityInsurance} from '../payments/RentalityInsurance.sol';
 import {RentalityReferralProgram} from '../features/refferalProgram/RentalityReferralProgram.sol';
 
 import {RentalityClaimService} from '../features/RentalityClaimService.sol';
+import {RentalityDimoService} from '../features/RentalityDimoService.sol';
 import {RentalityPromoService} from '../features/RentalityPromo.sol';
 /// @title RentalityUtils Library
 /// @notice
@@ -545,8 +546,7 @@ library RentalityUtils {
       daysOfTrip,
       carInfo.pricePerDayInUsdCents
     );
-  
-    uint64 priceBeforePromo = priceWithDiscount;
+
 
     uint taxId = addresses.paymentService.defineTaxesType(address(addresses.carService), carId);
 
@@ -561,7 +561,7 @@ library RentalityUtils {
       govTax +
       carInfo.securityDepositPerTripInUsdCents +
       pickUp +
-      dropOf + 
+      dropOf +
       insurance;
 
     uint priceWithPromo = 0;
@@ -608,7 +608,7 @@ library RentalityUtils {
       pickUp,
       dropOf
     );
-    if(discount == 100) 
+    if(discount == 100)
     valueSumInCurrency = 0;
 
     return (paymentInfo, valueSumInCurrency, valueSumInCurrencyBeforePromo, priceWithPromo, usePromo);
@@ -702,7 +702,8 @@ library RentalityUtils {
   /// @return details A CarDetails structure containing all relevant information about the car.
   function getCarDetails(
     RentalityContract memory contracts,
-    uint carId
+    uint carId,
+    RentalityDimoService dimoService
   ) public view returns (Schemas.CarDetails memory details) {
     RentalityCarToken carService = contracts.carService;
     IRentalityGeoService geo = IRentalityGeoService(carService.getGeoServiceAddress());
@@ -727,7 +728,8 @@ library RentalityUtils {
       car.currentlyListed,
       geo.getLocationInfo(car.locationHash),
       car.carVinNumber,
-      carService.tokenURI(carId)
+      carService.tokenURI(carId),
+      dimoService.getDimoTokenId(carId)
     );
   }
   /// @notice Retrieves all cars owned by the user with information about editability.
@@ -735,7 +737,8 @@ library RentalityUtils {
   /// @param contracts The Rentality contract instance containing service addresses.
   /// @return An array of CarInfoDTO structures containing information about the user's cars and whether they are editable.
   function getCarsOwnedByUserWithEditability(
-    RentalityContract memory contracts
+    RentalityContract memory contracts,
+    RentalityDimoService dimoService
   ) public view returns (Schemas.CarInfoDTO[] memory) {
     RentalityCarToken carService = contracts.carService;
 
@@ -746,6 +749,7 @@ library RentalityUtils {
       result[i].carInfo = carInfoes[i];
       result[i].metadataURI = carService.tokenURI(carInfoes[i].carId);
       result[i].isEditable = isCarEditable(contracts, carInfoes[i].carId);
+      result[i].dimoTokenId = dimoService.getDimoTokenId(carInfoes[i].carId);
     }
 
     return result;
@@ -802,37 +806,4 @@ library RentalityUtils {
     require(trip.status == Schemas.TripStatus.CheckedOutByHost, 'The trip is not in status CheckedOutByHost');
   }
 
-  function getFilterInfo(
-    RentalityContract memory contracts,
-    uint64 duration
-  ) public view returns (Schemas.FilterInfoDTO memory) {
-    uint64 maxCarPrice = 0;
-    RentalityCarToken carService = contracts.carService;
-    uint minCarYearOfProduction = carService.getCarInfoById(1).yearOfProduction;
-
-    for (uint i = 2; i <= carService.totalSupply(); i++) {
-      Schemas.CarInfo memory car = carService.getCarInfoById(i);
-
-      uint64 sumWithDiscount = contracts.paymentService.calculateSumWithDiscount(
-        carService.ownerOf(i),
-        duration,
-        car.pricePerDayInUsdCents
-      );
-      if (sumWithDiscount > maxCarPrice) maxCarPrice = sumWithDiscount;
-      if (car.yearOfProduction < minCarYearOfProduction) minCarYearOfProduction = car.yearOfProduction;
-    }
-    return Schemas.FilterInfoDTO(maxCarPrice, minCarYearOfProduction);
-  }
-  function calculateClaimValue(RentalityContract memory addresses, uint claimId) public view returns (uint) {
-    Schemas.Claim memory claim = addresses.claimService.getClaim(claimId);
-    if (claim.status == Schemas.ClaimStatus.Paid || claim.status == Schemas.ClaimStatus.Cancel) return 0;
-
-    uint commission = addresses.claimService.getPlatformFeeFrom(claim.amountInUsdCents);
-    (uint result, , ) = addresses.currencyConverterService.getFromUsdLatest(
-      addresses.tripService.getTrip(claim.tripId).paymentInfo.currencyType,
-      claim.amountInUsdCents + commission
-    );
-
-    return result;
-  }
 }
