@@ -190,6 +190,7 @@ describe('Referral program', function () {
       tokenUri: '',
       insuranceRequired: false,
       insurancePriceInUsdCents: 0,
+dimoTokenId: 0
     }
 
     let locationInfo = {
