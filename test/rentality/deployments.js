@@ -99,6 +99,14 @@ async function deployDefaultFixture() {
     await rentalityUserService.getAddress(),
   ])
 
+  let InvestFactory = await ethers.getContractFactory('RentalityInvestment')
+  let investorsService = await upgrades.deployProxy(InvestFactory, [
+      await rentalityUserService.getAddress(),
+      await rentalityCurrencyConverter.getAddress(),
+      await rentalityCarToken.getAddress(),
+      await insuranceService.getAddress(),
+  ])
+  await investorsService.waitForDeployment()
   const rentalityPaymentService = await upgrades.deployProxy(RentalityPaymentService, [
     await rentalityUserService.getAddress(),
     await rentalityFloridaTaxes.getAddress(),

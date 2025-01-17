@@ -1,6 +1,6 @@
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 const { expect } = require('chai')
-const { getMockCarRequest, deployDefaultFixture, ethToken, getEmptySearchCarParams, emptyLocationInfo } = require('../utils')
+const { getMockCarRequest, deployDefaultFixture, ethToken, getEmptySearchCarParams, emptyLocationInfo, emptySignedLocationInfo } = require('../utils')
 const { ethers } = require('hardhat')
 
 describe('Rentality investment', function () {
@@ -147,21 +147,21 @@ describe('Rentality investment', function () {
     expect(cars.length).to.be.eq(1)
 
     const oneDayInSeconds = 86400
-
-    let result = await rentalityView.calculatePayments(1, 1, ethToken)
-
+    let result = await rentalityGateway.calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Date.now(),
           endDateTime: Date.now() + oneDayInSeconds,
           currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
-        { value: result[0] }
+" ",
+        { value: result[0]}
       )
     ).to.not.reverted
-
     await expect(rentalityPlatform.connect(host).approveTripRequest(1)).not.to.be.reverted
     await expect(rentalityPlatform.connect(host).checkInByHost(1, [0, 0], '', '')).not.to.be.reverted
     await expect(rentalityPlatform.connect(guest).checkInByGuest(1, [0, 0])).not.to.be.reverted
@@ -201,16 +201,18 @@ describe('Rentality investment', function () {
 
     const oneDayInSeconds = 86400
 
-    let result = await rentalityView.calculatePayments(1, 1, ethToken)
+    let result = await rentalityGateway.calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
 
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Date.now(),
           endDateTime: Date.now() + oneDayInSeconds,
           currencyType: ethToken,
-        },
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
+        },"",
         { value: result[0] }
       )
     ).to.not.reverted
@@ -225,7 +227,6 @@ describe('Rentality investment', function () {
 
     let claimsGuestCanDo = await investorsService.connect(guest).getAllInvestments()
     expect(claimsGuestCanDo[0].isCarBought).to.be.eq(true)
-    const trip = await rentalityView.getTrip(1)
 
     await expect(investorsService.connect(guest).claimAllMy(1)).to.changeEtherBalance(guest, 7200000000000)
   })
@@ -256,16 +257,19 @@ describe('Rentality investment', function () {
 
     const oneDayInSeconds = 86400
 
-    let result = await rentalityView.calculatePayments(1, 1, ethToken)
+    let result = await rentalityGateway.calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
 
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Date.now(),
-          endDateTime: Date.now() + oneDayInSeconds,
+          endDateTime: Date.now() + oneDayInSeconds ,
           currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
+        "",
         { value: result[0] }
       )
     ).to.not.reverted
@@ -319,17 +323,20 @@ describe('Rentality investment', function () {
 
     const oneDayInSeconds = 86400
 
-    let result = await rentalityView.calculatePayments(1, 1, ethToken)
+    let result = await rentalityGateway.calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
 
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Date.now(),
           endDateTime: Date.now() + oneDayInSeconds,
           currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
-        { value: result[0] }
+" ",
+        { value: result[0]}
       )
     ).to.not.reverted
 
@@ -384,17 +391,20 @@ describe('Rentality investment', function () {
 
     const oneDayInSeconds = 86400
 
-    let result = await rentalityView.calculatePayments(1, 1, ethToken)
+    let result = await rentalityGateway.calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
 
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Date.now(),
           endDateTime: Date.now() + oneDayInSeconds,
           currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
-        { value: result[0] }
+" ",
+        { value: result[0]}
       )
     ).to.not.reverted
 
@@ -409,14 +419,17 @@ describe('Rentality investment', function () {
       priceForDayInETH[0] / BigInt(10)
     )
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Date.now(),
           endDateTime: Date.now() + oneDayInSeconds,
           currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
-        { value: result[0] }
+" ",
+        { value: result[0]}
       )
     ).to.not.reverted
 
@@ -432,14 +445,17 @@ describe('Rentality investment', function () {
     )
 
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Date.now(),
           endDateTime: Date.now() + oneDayInSeconds,
           currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
-        { value: result[0] }
+" ",
+        { value: result[0]}
       )
     ).to.not.reverted
 
@@ -496,17 +512,20 @@ describe('Rentality investment', function () {
 
     const oneDayInSeconds = 86400
 
-    let result = await rentalityView.calculatePayments(1, 1, ethToken)
+    let result = await rentalityGateway.calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
 
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Date.now(),
           endDateTime: Date.now() + oneDayInSeconds,
           currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
-        { value: result[0] }
+" ",
+        { value: result[0]}
       )
     ).to.not.reverted
 
@@ -521,14 +540,17 @@ describe('Rentality investment', function () {
       priceForDayInETH[0] / BigInt(10)
     )
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Date.now(),
           endDateTime: Date.now() + oneDayInSeconds,
           currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
-        { value: result[0] }
+" ",
+        { value: result[0]}
       )
     ).to.not.reverted
 
@@ -544,14 +566,17 @@ describe('Rentality investment', function () {
     )
 
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Date.now(),
           endDateTime: Date.now() + oneDayInSeconds,
           currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
-        { value: result[0] }
+" ",
+        { value: result[0]}
       )
     ).to.not.reverted
 
@@ -608,17 +633,20 @@ describe('Rentality investment', function () {
 
     const oneDayInSeconds = 86400
 
-    let result = await rentalityView.calculatePayments(1, 1, ethToken)
+    let result = await rentalityGateway.calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
 
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequest(
+      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Date.now(),
           endDateTime: Date.now() + oneDayInSeconds,
           currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
         },
-        { value: result[0] }
+" ",
+        { value: result[0]}
       )
     ).to.not.reverted
 

@@ -666,6 +666,7 @@ async function deployDefaultFixture() {
 
   await rentalityUserService.connect(owner).grantManagerRole(await claimService.getAddress())
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityPlatformHelper.getAddress())
+  await rentalityUserService.connect(owner).grantManagerRole(await investorsService.getAddress())
 
   let rentalityGateway = await upgrades.deployProxy(RentalityGateway.connect(owner), [
     await rentalityCarToken.getAddress(),

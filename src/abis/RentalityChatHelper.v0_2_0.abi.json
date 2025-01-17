@@ -24,42 +24,45 @@
     {
       "type": "event",
       "anonymous": false,
-      "name": "RentalityEvent",
-      "inputs": [
-        { "type": "uint8", "name": "eType", "indexed": true },
-        { "type": "uint256", "name": "id", "indexed": false },
-        { "type": "uint8", "name": "objectStatus", "indexed": false },
-        { "type": "address", "name": "from", "indexed": true },
-        { "type": "address", "name": "to", "indexed": true },
-        { "type": "uint256", "name": "timestamp", "indexed": false }
-      ]
-    },
-    {
-      "type": "event",
-      "anonymous": false,
       "name": "Upgraded",
       "inputs": [{ "type": "address", "name": "implementation", "indexed": true }]
     },
     {
       "type": "function",
-      "name": "emitEvent",
-      "constant": false,
+      "name": "getChatPublicKeys",
+      "constant": true,
+      "stateMutability": "view",
       "payable": false,
-      "inputs": [
-        { "type": "uint8", "name": "eType" },
-        { "type": "uint256", "name": "id" },
-        { "type": "uint8", "name": "objectStatus" },
-        { "type": "address", "name": "from" },
-        { "type": "address", "name": "to" }
-      ],
-      "outputs": []
+      "inputs": [{ "type": "address[]", "name": "addresses" }],
+      "outputs": [
+        {
+          "type": "tuple[]",
+          "name": "",
+          "components": [
+            { "type": "address", "name": "userAddress" },
+            { "type": "string", "name": "publicKey" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getMyChatKeys",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        { "type": "string", "name": "" },
+        { "type": "string", "name": "" }
+      ]
     },
     {
       "type": "function",
       "name": "initialize",
       "constant": false,
       "payable": false,
-      "inputs": [{ "type": "address", "name": "userServiceAddress" }],
+      "inputs": [{ "type": "address", "name": "_userService" }],
       "outputs": []
     },
     {
@@ -70,6 +73,17 @@
       "payable": false,
       "inputs": [],
       "outputs": [{ "type": "bytes32", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "setMyChatPublicKey",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "string", "name": "chatPrivateKey" },
+        { "type": "string", "name": "chatPublicKey" }
+      ],
+      "outputs": []
     },
     {
       "type": "function",

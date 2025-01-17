@@ -44,7 +44,7 @@ contract RentalityInvestment is Initializable, UUPSAccess {
 
     require(investment.inProgress, 'Not available');
 
-    (uint amountAfterInvestment,,) = converter.getFromUsdLatest(address(0), payedInETH + msg.value);
+    (uint amountAfterInvestment,,) = converter.getToUsdLatest(address(0), payedInETH + msg.value);
 
     if (amountAfterInvestment >= investment.priceInUsd) {
       investment.inProgress = false;

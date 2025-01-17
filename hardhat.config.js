@@ -20,10 +20,7 @@ module.exports = {
                     * 'items': one page per item
                    'files': one page per input Solidity file  */,
   },
-  mocha: {
-  timeout: 1000000
-  },
-  defaultNetwork: 'tenderlyVirtual',
+  defaultNetwork: 'localhost',
   networks: {
     hardhat: {
       chainId: 1337,

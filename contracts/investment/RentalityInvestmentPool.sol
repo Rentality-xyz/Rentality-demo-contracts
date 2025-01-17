@@ -57,7 +57,6 @@ contract RentalityCarInvestmentPool {
         }
     }
 
-
     function getIncomesByNftId(uint id) public view returns (uint) {
         uint lastIncomeClaimed = nftIdToLastIncomeNumber[id];
         uint tokenPrice = nft.tokenIdToPriceInEth(id);
