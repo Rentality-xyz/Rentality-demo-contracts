@@ -14,7 +14,7 @@ async function main() {
     'RentalityPromoService'
   )
 
-  // const contract = await ethers.getContractAt('RentalityPromoService', rentalityPromoService)
+  const contract = await ethers.getContractAt('RentalityPromoService', rentalityPromoService)
   // const date = new Date('2025-01-12T00:00:01Z')
   // const startDateTime = Math.floor(date.getTime() / 1000)
   // const endDate = new Date('2025-01-26T00:00:01Z')
