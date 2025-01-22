@@ -196,6 +196,7 @@ interface Schemas {
     uint paidForInsuranceInUsdCents;
     string guestDrivingLicenseIssueCountry;
     uint promoDiscount;
+    uint dimoTokenId;
   }
 
   /// CHAT LOGIC
