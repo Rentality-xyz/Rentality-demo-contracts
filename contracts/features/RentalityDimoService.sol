@@ -20,14 +20,16 @@ contract RentalityDimoService is UUPSAccess, EIP712Upgradeable {
 
 uint[] private dimoVihicles;
 
-function saveDimoTokenId(uint dimoTokenId, uint carId) public {
-        require(carToken.ownerOf(carId) == tx.origin, "Not car owner");
+function saveDimoTokenId(uint dimoTokenId, uint carId, address user) public {
+        require(userService.isManager(msg.sender), "only Manager");
+        require(carToken.ownerOf(carId) == user, "Not car owner");
         carIdToDimoTokenId[carId] = dimoTokenId;
 }
-function saveButch(uint[] memory dimoTokenIds, uint[] memory carIds) public {
+function saveButch(uint[] memory dimoTokenIds, uint[] memory carIds, address user) public {
+  require(userService.isManager(msg.sender), "only Manager");
   require(dimoTokenIds.length == carIds.length, "Wrong length");
   for (uint i = 0; i < dimoTokenIds.length; i++) {
-      require(carToken.ownerOf(carIds[i]) == tx.origin, "Not car owner");
+      require(carToken.ownerOf(carIds[i]) == user, "Not car owner");
         carIdToDimoTokenId[carIds[i]] = dimoTokenIds[i];
        dimoVihicles.push(dimoTokenIds[i]);
   }

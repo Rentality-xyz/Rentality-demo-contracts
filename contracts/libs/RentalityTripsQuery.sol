@@ -214,8 +214,7 @@ library RentalityTripsQuery {
   function getTripContactInfo(
     uint256 tripId,
     address tripService,
-    address userService,
-    address user
+    address userService
   ) public view returns (string memory guestPhoneNumber, string memory hostPhoneNumber) {
 
     Schemas.Trip memory trip = RentalityTripService(tripService).getTrip(tripId);
@@ -262,7 +261,7 @@ library RentalityTripsQuery {
 
     for (uint i = 1; i <= tripService.totalTripCount(); i++) {
       if (tripService.getTrip(i).guest == guest) {
-        result[currentIndex] = getTripDTO(contracts, insuranceService, i, promoService);
+        result[currentIndex] = getTripDTO(contracts, insuranceService, i, promoService, guest);
         currentIndex += 1;
       }
     }
@@ -295,7 +294,7 @@ library RentalityTripsQuery {
 
     for (uint i = 1; i <= tripService.totalTripCount(); i++) {
       if (tripService.getTrip(i).host == host) {
-        result[currentIndex] = getTripDTO(contracts, insuranceService, i, promoService);
+        result[currentIndex] = getTripDTO(contracts, insuranceService, i, promoService,host);
         currentIndex += 1;
       }
     }
@@ -312,7 +311,8 @@ library RentalityTripsQuery {
     RentalityContract memory contracts,
     RentalityInsurance insuranceService,
     uint tripId,
-    RentalityPromoService promoService
+    RentalityPromoService promoService,
+    address user
   ) public view returns (Schemas.TripDTO memory) {
     RentalityTripService tripService = contracts.tripService;
     RentalityCarToken carService = contracts.carService;
@@ -328,8 +328,7 @@ library RentalityTripsQuery {
     (string memory guestPhoneNumber, string memory hostPhoneNumber) = getTripContactInfo(
       tripId,
       address(tripService),
-      address(userService),
-      tx.origin
+      address(userService)
     );
     trip.guestInsuranceCompanyName = '';
     trip.guestInsurancePolicyNumber = '';
@@ -357,7 +356,7 @@ library RentalityTripsQuery {
         hostPhoneNumber,
         insuranceService.getTripInsurances(tripId),
         insuranceService.getInsurancePriceByTrip(tripId),
-        userService.getMyFullKYCInfo().additionalKYC.issueCountry,
+        userService.getMyFullKYCInfo(user).additionalKYC.issueCountry,
         promoService.getTripDiscount(tripId)
       );
   }

@@ -20,13 +20,14 @@ module.exports = {
                     * 'items': one page per item
                    'files': one page per input Solidity file  */,
   },
-  defaultNetwork: 'localhost',
+  defaultNetwork: 'hardhat',
   networks: {
     hardhat: {
       chainId: 1337,
     },
     localhost: {
       chainId: 1337,
+      timeout: 1_000_000,
     },
     // ganache: {
     //   url: process.env.GANACHE_LOCALHOST_URL,

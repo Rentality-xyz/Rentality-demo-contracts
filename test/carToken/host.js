@@ -11,7 +11,7 @@ describe('RentalityCarToken: host functions', function () {
 
     const request = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
 
-    await expect(rentalityCarToken.connect(host).addCar(request))
+    await expect(rentalityGateway.connect(host).addCar(request))
       .to.emit(rentalityNotificationService, 'RentalityEvent')
       .withArgs(0, 1, 0, host.address, host.address, (await time.latest()) + 1)
   })

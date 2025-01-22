@@ -50,7 +50,7 @@ contract RentalityInvestment is Initializable, UUPSAccess {
       investment.inProgress = false;
     }
     investmentIdToPayedInETH[investId] += msg.value;
-    investIdToNft[investId].mint(msg.value);
+    investIdToNft[investId].mint(msg.value, msg.sender);
   }
 
   function claimAndCreatePool(uint investId) public {
@@ -69,7 +69,7 @@ contract RentalityInvestment is Initializable, UUPSAccess {
     investIdToPool[investId] = newPool;
 
     uint carId = carToken.addCar(investment.car, msg.sender);
-     insuranceService.saveInsuranceRequired(carId, investment.car.insurancePriceInUsdCents, investment.car.insuranceRequired);
+     insuranceService.saveInsuranceRequired(carId, investment.car.insurancePriceInUsdCents, investment.car.insuranceRequired, msg.sender);
     carIdToInvestId[carId] = investId;
     (bool success, ) = payable(msg.sender).call{value: payedInETH}('');
     require(success, 'Fail to transfer.');
