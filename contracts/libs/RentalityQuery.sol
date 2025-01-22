@@ -19,6 +19,7 @@ import {RentalityTripsQuery} from './RentalityTripsQuery.sol';
 import {CurrencyRate as ClaimCurrencyRate} from '../features/RentalityClaimService.sol';
 import {RentalityInsurance} from '../payments/RentalityInsurance.sol';
 import {RentalityReferralProgram} from '../features/refferalProgram/RentalityReferralProgram.sol';
+import {RentalityDimoService} from '../features/RentalityDimoService.sol';
 library RentalityQuery {
   // /// @notice Retrieves all claims associated with a specific trip.
   // /// @dev This function fetches detailed claim information for a given trip ID.
@@ -241,7 +242,8 @@ library RentalityQuery {
     Schemas.LocationInfo memory pickUpInfo,
     Schemas.LocationInfo memory returnInfo,
     address deliveryServiceAddress,
-    address insuranceServiceAddress
+    address insuranceServiceAddress,
+    address dimoService
   ) public view returns (Schemas.SearchCar[] memory result) {
     RentalityInsurance insuranceService = RentalityInsurance(insuranceServiceAddress);
     RentalityCarToken carService = contracts.carService;
@@ -344,7 +346,8 @@ library RentalityQuery {
         temp[i].insuranceIncluded,
         IRentalityGeoService(carService.getGeoServiceAddress()).getLocationInfo(temp[i].locationHash),
         insuranceService.getCarInsuranceInfo(temp[i].carId),
-        isGuestHasInsurance
+        isGuestHasInsurance,
+        RentalityDimoService(dimoService).getDimoTokenId(temp[i].carId)
       );
     }
     return result;
@@ -360,7 +363,8 @@ library RentalityQuery {
     Schemas.LocationInfo memory pickUpInfo,
     Schemas.LocationInfo memory returnInfo,
     address deliveryServiceAddress,
-    address insuranceServiceAddress
+    address insuranceServiceAddress,
+    address dimoService
   ) public view returns (Schemas.AvailableCarDTO memory) {
     Schemas.CarInfo memory temp = contracts.carService.getCarInfoById(carId);
     RentalityEnginesService engineService = contracts.carService.getEngineService();
@@ -442,7 +446,8 @@ library RentalityQuery {
         salesTaxes,
         govTax,
         distance,
-        insuranceService.isGuestHasInsurance(user)
+        insuranceService.isGuestHasInsurance(user),
+        RentalityDimoService(dimoService).getDimoTokenId(temp.carId)
       );
   }
 
@@ -466,7 +471,8 @@ library RentalityQuery {
     Schemas.LocationInfo memory pickUpInfo,
     Schemas.LocationInfo memory returnInfo,
     address deliveryServiceAddress,
-    address insuranceAddress
+    address insuranceAddress,
+    address dimoService
   ) public view returns (Schemas.SearchCarWithDistance[] memory) {
     return
       RentalityCarDelivery(deliveryServiceAddress).sortCarsByDistance(
@@ -479,7 +485,8 @@ library RentalityQuery {
           pickUpInfo,
           returnInfo,
           deliveryServiceAddress,
-          insuranceAddress
+          insuranceAddress,
+          dimoService
         ),
         searchParams.userLocation
       );
