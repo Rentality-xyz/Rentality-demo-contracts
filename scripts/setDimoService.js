@@ -81,17 +81,22 @@ async function main() {
     getContractAddress('RentalityTripsView', 'scripts/deploy_4b_RentalityTripsView.js', chainId),
     'RentalityTripsView'
   )
+  const rentalityPromoService = checkNotNull(
+    getContractAddress('RentalityPromoService', 'scripts/deploy_4f_RentalityPromo.js', chainId))
+
   let adminContract = await ethers.getContractAt('RentalityAdminGateway', adminService)
   console.log(await adminContract.updateDimoService(dimoService))
 
   let contract1 = await ethers.getContractAt('RentalityView', rentalityView)
-  console.log(await contract1.updateServiceAddresses(rentalityContract, rentalityInsurance, rentalityTripsView,dimoService))
+  console.log(await contract1.updateServiceAddresses(rentalityContract, rentalityInsurance, rentalityTripsView, rentalityPromoService, dimoService))
 
 
   let contract2 = await ethers.getContractAt('RentalityPlatform', rentalityContract.rentalityPlatform)
   console.log(await contract2.updateServiceAddresses(adminService, rentalityPlatformHelper))
   const userContract = await ethers.getContractAt('RentalityUserService', rentalityContract.userService)
 
+  let tripsView = await ethers.getContractAt('RentalityTripsView', tripsView)
+  console.log(await tripsView.updateServiceAddresses(rentalityContract, rentalityInsurance, rentalityPromoService, dimoService))
   console.log(await userContract.grantManagerRole(rentalityPlatformHelper))
 
   console.log('updated!')
