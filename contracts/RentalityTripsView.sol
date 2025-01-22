@@ -12,6 +12,7 @@ import '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 import '@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol';
 import './libs/RentalityTripsQuery.sol';
 import {RentalityView} from './RentalityView.sol';
+import {RentalityDimoService} from './features/RentalityDimoService.sol';
 
 error FunctionNotFound();
 /// @dev SAFETY: The linked library is not supported yet because it can modify the state or call
@@ -24,12 +25,19 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable {
 
   RentalityInsurance private insuranceService;
   RentalityPromoService private promoService;
+  RentalityDimoService private dimoService;
 
-  function updateServiceAddresses(RentalityContract memory contracts, address insurance, address promoServiceAddress) public {
+  function updateServiceAddresses(
+    RentalityContract memory contracts,
+     address insurance,
+      address promoServiceAddress,
+      address dimoServiceAddress
+      ) public {
     require(addresses.userService.isAdmin(tx.origin), 'only Admin.');
     addresses = contracts;
     insuranceService = RentalityInsurance(insurance);
     promoService = RentalityPromoService(promoServiceAddress);
+    dimoService = RentalityDimoService(dimoServiceAddress);
   }
   fallback(bytes calldata) external returns (bytes memory) {
     revert FunctionNotFound();
@@ -51,13 +59,13 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable {
   /// @param tripId The ID of the trip.
   /// @return Trip information.
   function getTrip(uint256 tripId) public view returns (Schemas.TripDTO memory) {
-    return RentalityTripsQuery.getTripDTO(addresses, insuranceService, tripId, promoService);
+    return RentalityTripsQuery.getTripDTO(addresses, insuranceService, tripId, promoService, dimoService);
   }
 
   /// @notice Retrieves information about trips where the caller is the guest.
   /// @return An array of trip information.
   function getTripsAs(bool host) public view returns (Schemas.TripDTO[] memory) {
-    return RentalityTripsQuery.getTripsAs(addresses, insuranceService, tx.origin, host, promoService);
+    return RentalityTripsQuery.getTripsAs(addresses, insuranceService, tx.origin, host, promoService, dimoService);
   }
 
   /// @notice Calculates the KYC commission in a specific currency based on the current exchange rate.
@@ -87,7 +95,8 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable {
     address claimServiceAddress,
     address carDeliveryAddress,
     address insuranceAddress,
-    address promoServiceAddress
+    address promoServiceAddress,
+    address dimoServiceAddress
   ) public initializer {
     addresses = RentalityContract(
       RentalityCarToken(carServiceAddress),
@@ -103,6 +112,7 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable {
     );
     insuranceService = RentalityInsurance(insuranceAddress);
     promoService = RentalityPromoService(promoServiceAddress);
+    dimoService = RentalityDimoService(dimoServiceAddress);
   }
 
   function _authorizeUpgrade(address /*newImplementation*/) internal view override {
