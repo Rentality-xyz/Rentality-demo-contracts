@@ -1,0 +1,7 @@
+{
+  "addresses": [
+    { "chainId": 8453, "address": "0x128bFe418C90EC077EB532411a88f6EF21BB00E0" },
+    { "chainId": 84532, "address": "0xDbF2977c5B8dA6A04807687B57764e7A2001b42c" },
+    { "chainId": 5611, "address": "0xD7DF18D38bB7497c2eC802A55e36b8FF3519B825" }
+  ]
+}
