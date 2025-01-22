@@ -64,12 +64,12 @@ describe('Rentality: reject Trip Request', function () {
         { value: result.totalPrice }
       )
     ).not.to.be.reverted
-    expect((await rentalityTripService.connect(host).getTrip(1)).status).to.equal(0)
+    expect((await rentalityGateway.connect(host).getTrip(1)).trip.status).to.equal(0)
 
     const balanceAfterRequest = await ethers.provider.getBalance(await guest.getAddress())
 
     expect(await rentalityGateway.connect(host).rejectTripRequest(1)).not.to.be.reverted
-    expect((await rentalityTripService.connect(host).getTrip(1)).status).to.equal(7)
+    expect((await rentalityGateway.connect(host).getTrip(1)).trip.status).to.equal(7)
 
     const balanceAfterRejection = await ethers.provider.getBalance(await guest.getAddress())
     const returnAmountDifference = result.totalPrice - (balanceAfterRejection - balanceAfterRequest)
@@ -128,7 +128,7 @@ describe('Rentality: reject Trip Request', function () {
         { value: result.totalPrice }
       )
     ).not.to.be.reverted
-    expect((await rentalityTripService.connect(host).getTrip(1)).status).to.equal(0)
+    expect((await rentalityGateway.connect(host).getTrip(1)).trip.status).to.equal(0)
 
     const balanceBeforeRejection = await ethers.provider.getBalance(await guest.getAddress())
 
@@ -195,7 +195,7 @@ describe('Rentality: reject Trip Request', function () {
 
     await expect(await rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
 
-    expect((await rentalityTripService.connect(host).getTrip(1)).status).to.equal(1)
+    expect((await rentalityGateway.connect(host).getTrip(1)).trip.status).to.equal(1)
   })
 
   it('Guest reject | trip status CheckedInByHost', async function () {
@@ -240,9 +240,9 @@ describe('Rentality: reject Trip Request', function () {
     ).not.to.be.reverted
 
     await expect(await rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
-    expect((await rentalityTripService.connect(host).getTrip(1)).status).to.equal(1)
+    expect((await rentalityGateway.connect(host).getTrip(1)).trip.status).to.equal(1)
 
-    await expect(await rentalityTripService.connect(host).checkInByHost(1, [10, 10], '', '')).not.to.be.reverted
-    expect((await rentalityTripService.connect(host).getTrip(1)).status).to.equal(2)
+    await expect(await rentalityGateway.connect(host).checkInByHost(1, [10, 10], '', '')).not.to.be.reverted
+    expect((await rentalityGateway.connect(host).getTrip(1)).trip.status).to.equal(2)
   })
 })

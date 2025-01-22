@@ -18,6 +18,7 @@ import './RentalityView.sol';
 import {RentalityReferralProgram} from './features/refferalProgram/RentalityReferralProgram.sol';
 import './payments/RentalityInsurance.sol';
 import {RentalityPromoService} from './features/RentalityPromo.sol';
+import {ARentalityContext} from './abstract/ARentalityContext.sol';
 
 /// @title Rentality Platform Contract
 /// @notice This contract manages various services related to the Rentality platform, including cars, trips, users, and payments.
@@ -26,7 +27,7 @@ import {RentalityPromoService} from './features/RentalityPromo.sol';
 ///  selfdestruct, as far as RentalityUtils doesn't has this logic,
 /// it's completely safe for upgrade
 /// @custom:oz-upgrades-unsafe-allow external-library-linking
-contract RentalityPlatformHelper is UUPSOwnable {
+contract RentalityPlatformHelper is UUPSOwnable, ARentalityContext {
 
     RentalityContract private addresses;
 
@@ -36,23 +37,24 @@ contract RentalityPlatformHelper is UUPSOwnable {
 
   RentalityReferralProgram private refferalProgram;
   RentalityPromoService private promoService;
+  address private trustedForwarderAddress;
 
 
   function saveGuestInsurance(Schemas.SaveInsuranceRequest memory insuranceInfo) public {
-    insuranceService.saveGuestInsurance(insuranceInfo);
+    insuranceService.saveGuestInsurance(insuranceInfo, _msgGatewaySender());
   }
 
     /// @notice Adds a user discount.
   /// @param data The discount data.
   function addUserDiscount(Schemas.BaseDiscount memory data) public {
-    addresses.paymentService.addBaseDiscount(tx.origin, data);
+    addresses.paymentService.addBaseDiscount(_msgGatewaySender(), data);
   }
 
   function addUserDeliveryPrices(uint64 underTwentyFiveMilesInUsdCents, uint64 aboveTwentyFiveMilesInUsdCents) public {
-    addresses.deliveryService.setUserDeliveryPrices(underTwentyFiveMilesInUsdCents, aboveTwentyFiveMilesInUsdCents,tx.origin);
+    addresses.deliveryService.setUserDeliveryPrices(underTwentyFiveMilesInUsdCents, aboveTwentyFiveMilesInUsdCents,_msgGatewaySender());
   }
   function saveDimoTokenIds(uint[] memory dimoTokenIds, uint[] memory carIds) public {
-    dimoService.saveButch(dimoTokenIds, carIds);
+    dimoService.saveButch(dimoTokenIds, carIds, _msgGatewaySender());
   }
   function useKycCommission(address user) public {
     addresses.userService.useKycCommission(user);
@@ -64,13 +66,14 @@ contract RentalityPlatformHelper is UUPSOwnable {
       addresses.userService.getKycCommission()
     );
 
-    addresses.paymentService.payKycCommission{value: msg.value}(valueToPay, currency,tx.origin);
+    addresses.paymentService.payKycCommission{value: msg.value}(valueToPay, currency,_msgGatewaySender());
   }
 
     function saveTripInsuranceInfo(uint tripId, Schemas.SaveInsuranceRequest memory insuranceInfo) public {
     Schemas.Trip memory trip = addresses.tripService.getTrip(tripId);
-    require(trip.host == tx.origin || trip.guest == tx.origin, 'For trip host or guest');
-    insuranceService.saveTripInsuranceInfo(tripId, insuranceInfo);
+    address sender = _msgGatewaySender();
+    require(trip.host == sender || trip.guest == sender, 'For trip host or guest');
+    insuranceService.saveTripInsuranceInfo(tripId, insuranceInfo, sender);
   }
   
 
@@ -84,12 +87,24 @@ contract RentalityPlatformHelper is UUPSOwnable {
     refferalProgram.passReferralProgram(
       Schemas.RefferalProgram.UnlistedCar,
       abi.encode(addresses.carService.getCarInfoById(request.carId).currentlyListed, request.currentlyListed),
-      tx.origin,
+      _msgGatewaySender(),
       promoService
     );
-    insuranceService.saveInsuranceRequired(request.carId, request.insurancePriceInUsdCents, request.insuranceRequired);
-    return addresses.carService.updateCarInfo(request, location.locationInfo, location.signature.length > 0, tx.origin);
+    insuranceService.saveInsuranceRequired(request.carId, request.insurancePriceInUsdCents, request.insuranceRequired, _msgGatewaySender());
+    return addresses.carService.updateCarInfo(request, location.locationInfo, location.signature.length > 0, _msgGatewaySender());
   }
+
+  function trustedForwarder() internal view override returns (address) {
+      return trustedForwarderAddress;
+
+     }
+
+    function isTrustedForwarder(address forwarder) internal view override returns (bool) {
+      return forwarder == trustedForwarderAddress;
+    }
+    function setTrustedForwarder(address forwarder) public onlyOwner {
+      trustedForwarderAddress = forwarder;
+    }
 
 
 

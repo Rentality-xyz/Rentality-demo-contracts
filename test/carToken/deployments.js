@@ -128,6 +128,14 @@ async function deployDefaultFixture() {
     await rentalityUserService.getAddress(),
     await rentalityCarToken.getAddress(),
   ])
+  const RentalityEth = await ethers.getContractFactory('RentalityETHConvertor')
+
+  const ethContract = await upgrades.deployProxy(RentalityEth, [
+    await rentalityUserService.getAddress(),
+    ethToken,
+    await rentalityMockPriceFeed.getAddress(),
+  ])
+  await ethContract.waitForDeployment()
   await insuranceService.waitForDeployment()
   const rentalityCurrencyConverter = await upgrades.deployProxy(RentalityCurrencyConverter, [
     await rentalityUserService.getAddress(),
@@ -152,14 +160,7 @@ async function deployDefaultFixture() {
     await investorsService.getAddress()
   ])
 
-  const RentalityEth = await ethers.getContractFactory('RentalityETHConvertor')
-
-  const ethContract = await upgrades.deployProxy(RentalityEth, [
-    await rentalityUserService.getAddress(),
-    ethToken,
-    await rentalityMockPriceFeed.getAddress(),
-  ])
-  await ethContract.waitForDeployment()
+  
 
   const TestUsdt = await ethers.getContractFactory('RentalityTestUSDT')
   const usdtContract = await TestUsdt.deploy()
@@ -365,6 +366,10 @@ async function deployDefaultFixture() {
     await rentalityView.getAddress(),
   ])
   await rentalityGateway.waitForDeployment()
+  await rentalityPlatform.setTrustedForwarder(await rentalityGateway.getAddress())
+  await rentalityView.setTrustedForwarder(await rentalityGateway.getAddress())
+  await rentalityTripsView.setTrustedForwarder(await rentalityGateway.getAddress())
+  await rentalityPlatformHelper.setTrustedForwarder(await rentalityGateway.getAddress())
 
   rentalityGateway = await ethers.getContractAt('IRentalityGateway', await rentalityGateway.getAddress())
 
@@ -381,6 +386,7 @@ async function deployDefaultFixture() {
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityPlatform.getAddress())
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityPaymentService.getAddress())
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityTripsView.getAddress())
+  await rentalityPlatform.set
 
   const hostSignature = await signTCMessage(host)
   const guestSignature = await signTCMessage(guest)
