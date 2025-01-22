@@ -432,6 +432,7 @@ interface Schemas {
     LocationInfo locationInfo;
     InsuranceCarInfo insuranceInfo;
     bool isGuestHasInsurance;
+    uint dimoTokenId;
   }
   struct AvailableCarDTO {
     uint carId;
@@ -463,6 +464,7 @@ interface Schemas {
     uint64 governmentTax;
     int128 distance;
     bool isGuestHasInsurance;
+    uint dimoTokenId;
   }
 
   struct GeoData {
