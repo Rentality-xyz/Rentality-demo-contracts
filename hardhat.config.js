@@ -29,12 +29,12 @@ module.exports = {
       chainId: 1337,
       timeout: 1_000_000,
     },
-    // ganache: {
-    //   url: process.env.GANACHE_LOCALHOST_URL,
-    //   accounts: [process.env.GANACHE_PRIVATE_KEY],
-    //   chainId: 1337,
-    //   timeout: 1_000_000,
-    // },
+    ganache: {
+      url: process.env.GANACHE_LOCALHOST_URL,
+      accounts: [process.env.GANACHE_PRIVATE_KEY],
+      chainId: 1337,
+      timeout: 1_000_000,
+    },
     tenderlyVirtual: {
       url: process.env.TENDERLY_URL ?? '',
       accounts: [process.env.PRIVATE_KEY],
