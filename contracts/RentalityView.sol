@@ -139,7 +139,8 @@ contract RentalityView is UUPSUpgradeable, Initializable {
         pickUpInfo,
         returnInfo,
         addresses.adminService.getDeliveryServiceAddress(),
-        address(insuranceService)
+        address(insuranceService),
+        address(dimoService)
       );
   }
   /// @notice Searches for available cars based on specified criteria.
@@ -172,7 +173,8 @@ contract RentalityView is UUPSUpgradeable, Initializable {
         pickUpInfo,
         returnInfo,
         RentalityAdminGateway(addresses.adminService).getDeliveryServiceAddress(),
-        address(insuranceService)
+        address(insuranceService),
+        address(dimoService)
       );
   }
 
