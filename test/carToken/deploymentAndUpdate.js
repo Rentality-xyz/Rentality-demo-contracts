@@ -1,7 +1,7 @@
 const { expect } = require('chai')
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 
-const { getMockCarRequest, locationInfo } = require('../utils')
+const { getMockCarRequest, locationInfo, emptySignedLocationInfo } = require('../utils')
 const { deployFixtureWith1Car, deployDefaultFixture } = require('./deployments')
 
 describe('RentalityCarToken: deployment and update', function () {
@@ -44,7 +44,7 @@ it('Update car without location should work fine', async function () {
     engineType: 1,
   }
 
-  await expect(rentalityCarToken.updateCarInfo(update_params, locationInfo, 'das')).not.be.reverted
+  await expect(rentalityGateway.updateCarInfoWithLocation(update_params,emptySignedLocationInfo)).not.be.reverted
 
   let car_info = await rentalityCarToken.getCarInfoById(2)
 
@@ -58,7 +58,7 @@ it('Update car with location, but without api should revert', async function () 
     await loadFixture(deployFixtureWith1Car)
 
   let request = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
-  await expect(rentalityCarToken.addCar(request)).not.be.reverted
+  await expect(rentalityGateway.addCar(request)).not.be.reverted
 
   let update_params = {
     carId: 2,

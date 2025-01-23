@@ -158,6 +158,7 @@ describe('Ability to update car during trip', function () {
       tokenUri: 'uri',
       insuranceRequired: false,
       insurancePriceInUsdCents: 0,
+dimoTokenId: 0
     }
 
     let locationInfo = {

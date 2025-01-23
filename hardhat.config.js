@@ -3,8 +3,14 @@ require('dotenv').config()
 require('@nomicfoundation/hardhat-toolbox')
 require('@openzeppelin/hardhat-upgrades')
 require('solidity-docgen')
+require("hardhat-tracer");
+
+
 
 module.exports = {
+  mocha: {
+    timeout: 100000000,
+  },
   docgen: {
     outputFormat: 'md',
     path: './docs', // Output directory for the generated documentation
@@ -14,22 +20,25 @@ module.exports = {
                     * 'items': one page per item
                    'files': one page per input Solidity file  */,
   },
-  mocha: {
-  timeout: 1000000
-  },
-  defaultNetwork: 'localhost',
+  defaultNetwork: 'hardhat',
   networks: {
     hardhat: {
       chainId: 1337,
     },
     localhost: {
       chainId: 1337,
+      timeout: 1_000_000,
     },
     ganache: {
       url: process.env.GANACHE_LOCALHOST_URL,
       accounts: [process.env.GANACHE_PRIVATE_KEY],
       chainId: 1337,
       timeout: 1_000_000,
+    },
+    tenderlyVirtual: {
+      url: process.env.TENDERLY_URL ?? '',
+      accounts: [process.env.PRIVATE_KEY],
+      chainId: 102,
     },
     base: {
       url: process.env.BASE_URL ?? '',
@@ -56,6 +65,10 @@ module.exports = {
       chainId: 5611,
     },
   },
+  tenderly: {
+    project: "rentality",
+    username: "gleborg",
+  },
   loggingEnabled: true,
   solidity: {
     version: '0.8.19',
@@ -76,5 +89,7 @@ module.exports = {
       baseSepolia: process.env.BASE_API_TOKEN,
       base: process.env.BASE_API_TOKEN,
     }, // command to run: npx hardhat verify --network <contract address>
+
+   
   },
 }

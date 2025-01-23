@@ -216,7 +216,6 @@ library RentalityTripsQuery {
     address tripService,
     address userService
   ) public view returns (string memory guestPhoneNumber, string memory hostPhoneNumber) {
-    require(RentalityUserService(userService).isHostOrGuest(tx.origin), 'User is not a host or guest');
 
     Schemas.Trip memory trip = RentalityTripService(tripService).getTrip(tripId);
 
@@ -262,7 +261,7 @@ library RentalityTripsQuery {
 
     for (uint i = 1; i <= tripService.totalTripCount(); i++) {
       if (tripService.getTrip(i).guest == guest) {
-        result[currentIndex] = getTripDTO(contracts, insuranceService, i, promoService);
+        result[currentIndex] = getTripDTO(contracts, insuranceService, i, promoService, guest);
         currentIndex += 1;
       }
     }
@@ -295,7 +294,7 @@ library RentalityTripsQuery {
 
     for (uint i = 1; i <= tripService.totalTripCount(); i++) {
       if (tripService.getTrip(i).host == host) {
-        result[currentIndex] = getTripDTO(contracts, insuranceService, i, promoService);
+        result[currentIndex] = getTripDTO(contracts, insuranceService, i, promoService,host);
         currentIndex += 1;
       }
     }
@@ -312,7 +311,8 @@ library RentalityTripsQuery {
     RentalityContract memory contracts,
     RentalityInsurance insuranceService,
     uint tripId,
-    RentalityPromoService promoService
+    RentalityPromoService promoService,
+    address user
   ) public view returns (Schemas.TripDTO memory) {
     RentalityTripService tripService = contracts.tripService;
     RentalityCarToken carService = contracts.carService;
@@ -320,7 +320,7 @@ library RentalityTripsQuery {
 
     Schemas.Trip memory trip = tripService.getTrip(tripId);
     Schemas.CarInfo memory car = carService.getCarInfoById(trip.carId);
-    
+
     Schemas.LocationInfo memory pickUpLocation = IRentalityGeoService(carService.getGeoServiceAddress())
       .getLocationInfo(trip.pickUpHash);
     Schemas.LocationInfo memory returnLocation = IRentalityGeoService(carService.getGeoServiceAddress())
@@ -356,7 +356,7 @@ library RentalityTripsQuery {
         hostPhoneNumber,
         insuranceService.getTripInsurances(tripId),
         insuranceService.getInsurancePriceByTrip(tripId),
-        userService.getMyFullKYCInfo().additionalKYC.issueCountry,
+        userService.getMyFullKYCInfo(user).additionalKYC.issueCountry,
         promoService.getTripDiscount(tripId)
       );
   }
@@ -512,5 +512,5 @@ library RentalityTripsQuery {
     Schemas.Trip memory trip = contracts.tripService.getTrip(tripId);
     return (trip.carId == carId) && (trip.endDateTime > startDateTime) && (trip.startDateTime < endDateTime);
   }
-  
+
 }
