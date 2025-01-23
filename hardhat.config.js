@@ -17,7 +17,7 @@ module.exports = {
   mocha: {
   timeout: 1000000
   },
-  defaultNetwork: 'localhost',
+  defaultNetwork: 'hardhat',
   networks: {
     hardhat: {
       chainId: 1337,
