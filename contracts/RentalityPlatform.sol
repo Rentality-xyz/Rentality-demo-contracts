@@ -295,18 +295,20 @@ contract RentalityPlatform is UUPSOwnable {
     string memory nickName,
     string memory mobilePhoneNumber,
     string memory profilePhoto,
+    string memory email,
     bytes memory TCSignature,
     bytes4 hash
   ) public {
     refferalProgram.generateReferralHash();
+     bool isGuest = addresses.userService.isGuest(tx.origin);
+    refferalProgram.saveRefferalHash(hash, isGuest);
     refferalProgram.passReferralProgram(
       Schemas.RefferalProgram.SetKYC,
       bytes(''),
       tx.origin,
       promoService
     );
-    return addresses.userService.setKYCInfo(nickName, mobilePhoneNumber, profilePhoto, TCSignature);
-    refferalProgram.saveRefferalHash(hash);
+    addresses.userService.setKYCInfo(nickName, mobilePhoneNumber, profilePhoto, email, TCSignature);
   }
  
   function setCivicKYCInfo(address user, Schemas.CivicKYCInfo memory civicKycInfo) public {

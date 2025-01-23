@@ -120,7 +120,7 @@ contract RentalityReferralProgram is
        if (dailiListingPoints > 0) {
         uint time = block.timestamp;
         for (uint i = 0; i < cars.length; i++) {
-          carIdToDailyClaimed[i] = time;
+          carIdToDailyClaimed[cars[i]] = time;
         }
         userProgramHistory[user].push(
           Schemas.ProgramHistory(int(dailiListingPoints), block.timestamp, Schemas.RefferalProgram.DailyListing, false)
@@ -179,6 +179,7 @@ contract RentalityReferralProgram is
     } else toNextDaily = block.timestamp + 1 days - addressToLastDailyClaim[user];
 
     if (dailiListingPoints > 0) {
+      counter += dailiListingPoints;
       result[index] = Schemas.ReadyToClaim(dailiListingPoints, Schemas.RefferalProgram.DailyListing, false);
     }
 
@@ -285,8 +286,11 @@ contract RentalityReferralProgram is
   function getMyRefferalInfo() public view returns(Schemas.MyRefferalInfoDTO memory) {
     return Schemas.MyRefferalInfoDTO(referralHashV2[msg.sender], userToSavedHash[msg.sender]);
   }
-  function saveRefferalHash(bytes4 hash) public {
-    userToSavedHash[tx.origin] = hash;
+  function saveRefferalHash(bytes4 hash, bool isGuest) public {
+    address user = hashToOwnerV2[hash];
+   if(!isGuest && hash != bytes4('') && user != address(0) && tx.origin != user) {
+     userToSavedHash[tx.origin] = hash;
+  }
   }
   function _getHashProgramInfoIfExists(
     Schemas.RefferalProgram programSelector,
@@ -298,6 +302,11 @@ contract RentalityReferralProgram is
       (resultAddress, resultPoints) = (hashToOwnerV2[hash], selectorHashToPoints[programSelector]);
     }
     return (resultAddress, resultPoints);
+  }
+
+  function updateLib(address refLib) public {
+    require(userService.isAdmin(msg.sender),"only Admin");
+    refferalLib = refLib;
   }
 
 
