@@ -400,6 +400,11 @@ interface Schemas {
     KYCInfo kyc;
     AdditionalKYCInfo additionalKYC;
   }
+  struct AdminKYCInfoDTO {
+    KYCInfo kyc;
+    AdditionalKYCInfo additionalKYC;
+    address wallet;
+  }
 
   /// Query
   struct SearchCarWithDistance {

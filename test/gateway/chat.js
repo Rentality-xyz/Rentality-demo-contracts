@@ -116,13 +116,13 @@ describe('RentalityGateway: chat', function () {
     const hostSignature = await signTCMessage(host)
     const guestSignature = await signTCMessage(guest)
     await expect(
-      rentalityGateway.connect(host).setKYCInfo(name + 'host', number + 'host', photo + 'host', hostSignature, zeroHash)
+      rentalityGateway.connect(host).setKYCInfo(name + 'host', number + 'host', photo + 'host',"", hostSignature, zeroHash)
     ).not.be.reverted
 
     await expect(
       rentalityGateway
         .connect(guest)
-        .setKYCInfo(name + 'guest', number + 'guest', photo + 'guest', guestSignature,zeroHash)
+        .setKYCInfo(name + 'guest', number + 'guest', photo + 'guest',"", guestSignature,zeroHash)
     ).not.be.reverted
 
     let chatInfoArray = await rentalityGateway.connect(guest).getChatInfoFor(false)
@@ -163,13 +163,13 @@ describe('RentalityGateway: chat', function () {
     const hostSignature = await signTCMessage(host)
     const guestSignature = await signTCMessage(guest)
     await expect(
-      rentalityGateway.connect(host).setKYCInfo(name + 'host', number + 'host', photo + 'host', hostSignature, zeroHash)
+      rentalityGateway.connect(host).setKYCInfo(name + 'host', number + 'host', photo + 'host',"", hostSignature, zeroHash)
     ).not.be.reverted
 
     await expect(
       rentalityGateway
         .connect(guest)
-        .setKYCInfo(name + 'guest', number + 'guest', photo + 'guest', guestSignature,zeroHash)
+        .setKYCInfo(name + 'guest', number + 'guest', photo + 'guest',"", guestSignature,zeroHash)
     ).not.be.reverted
 
     const oneDayInSeconds = 86400

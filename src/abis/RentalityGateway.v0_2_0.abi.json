@@ -1659,6 +1659,7 @@
         { "type": "string", "name": "nickName" },
         { "type": "string", "name": "mobilePhoneNumber" },
         { "type": "string", "name": "profilePhoto" },
+        { "type": "string", "name": "email" },
         { "type": "bytes", "name": "TCSignature" },
         { "type": "bytes4", "name": "hash" }
       ],
