@@ -372,6 +372,9 @@ function updateDimoService(address dimoServiceAddress) public onlyAdmin {
   function getRefferalPointsInfo() public view returns (Schemas.AllRefferalInfoDTO memory) {
     return refferalProgram.getRefferalPointsInfo();
   }
+  function getPlatformUsersInfo() public view returns(Schemas.AdminKYCInfoDTO[] memory result) {
+    return userService.getPlatformUsersKYCInfos();
+  }
 
   ///------------------------------------
   /// NOT USING IN FRONT

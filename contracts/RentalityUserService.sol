@@ -32,6 +32,7 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
   uint private kycCommission;
   mapping(address => Schemas.KycCommissionData[]) private userToKYCCommission;
   mapping(address => Schemas.AdditionalKYCInfo) private additionalKycInfo;
+  address[] private platformUsers;
 
   /// @notice Sets KYC information for the caller (host or guest).
   /// Requirements:
@@ -40,6 +41,7 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
     string memory nickName,
     string memory mobilePhoneNumber,
     string memory profilePhoto,
+    string memory email,
     bytes memory TCSignature
   ) public {
     if (!isGuest(tx.origin)) {
@@ -49,11 +51,20 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
 
     require(isTCPassed, 'Wrong signature.');
     Schemas.KYCInfo storage kycInfo = kycInfos[tx.origin];
+    if(kycInfo.createDate == 0 || !_alreadyInPlatformUsersList(tx.origin)) 
+      platformUsers.push(tx.origin);
+
+    string memory oldEmail = additionalKycInfo[tx.origin].email;
+    if(bytes(oldEmail).length == 0 || !hasPassedKYC(tx.origin))
+    additionalKycInfo[tx.origin].email = email;
 
     kycInfo.name = nickName;
     kycInfo.mobilePhoneNumber = mobilePhoneNumber;
     kycInfo.profilePhoto = profilePhoto;
+    
+    if(kycInfo.createDate == 0)
     kycInfo.createDate = block.timestamp;
+
     kycInfo.isTCPassed = isTCPassed;
     kycInfo.TCSignature = TCSignature;
   }
@@ -96,6 +107,13 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
 
   function getMyFullKYCInfo() public view returns (Schemas.FullKYCInfoDTO memory) {
     return Schemas.FullKYCInfoDTO(kycInfos[tx.origin], additionalKycInfo[tx.origin]);
+  }
+  function getPlatformUsersKYCInfos() public view returns(Schemas.AdminKYCInfoDTO[] memory result) {
+    address[] memory users = platformUsers;
+    result = new Schemas.AdminKYCInfoDTO[](platformUsers.length);
+    for (uint i = 0; i < result.length; i++) {
+      result[i] = Schemas.AdminKYCInfoDTO(kycInfos[users[i]], additionalKycInfo[users[i]], users[i]);
+    }
   }
   /// @notice Checks if the KYC information for a specified user is valid.
   /// @param user The address of the user to check for valid KYC.
@@ -272,6 +290,19 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
     else {
       _revokeRole(role, user);
     }
+  }
+
+  function getPlatformUsers() public view returns(address[] memory) {
+    return platformUsers;
+  }
+
+  function _alreadyInPlatformUsersList(address user) private view returns(bool) {
+    address[] memory users = platformUsers;
+    for (uint i = 0; i < users.length; i++) {
+      if(users[i] == user)
+      return true;
+    }
+    return false;
   }
 
   /// @notice Initializes the contract with the specified Civic verifier address and gatekeeper network ID, and sets the default admin role.
