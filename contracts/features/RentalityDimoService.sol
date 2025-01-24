@@ -8,6 +8,7 @@ import '@openzeppelin/contracts/utils/cryptography/ECDSA.sol';
 import {RentalityCarToken} from '../RentalityCarToken.sol';
 import {IRentalityAccessControl} from '../abstract/IRentalityAccessControl.sol';
 import '@openzeppelin/contracts/utils/cryptography/ECDSA.sol';
+import "@openzeppelin/contracts/utils/Strings.sol";
 
 
 
@@ -25,6 +26,10 @@ function saveDimoTokenId(uint dimoTokenId, uint carId, bytes memory signature) p
         require(carToken.ownerOf(carId) == tx.origin, "Not car owner");
         bool isTCPassed = ECDSA.recover(TCMessageHash, TCSignature) == tx.origin;
         carIdToDimoTokenId[carId] = dimoTokenId;
+}
+function verifySignature(bytes memory signature, uint dimoToken) public view {
+   bool isCorrectSignature = ECDSA.recover(Strings.toString(dimoToken), signature) == tx.origin;
+  
 }
 function saveButch(uint[] memory dimoTokenIds, uint[] memory carIds) public {
   require(dimoTokenIds.length == carIds.length, "Wrong length");
