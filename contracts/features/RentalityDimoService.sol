@@ -6,7 +6,8 @@ import {UUPSAccess} from '../proxy/UUPSAccess.sol';
 import {EIP712Upgradeable} from '@openzeppelin/contracts-upgradeable/utils/cryptography/EIP712Upgradeable.sol';
 import '@openzeppelin/contracts/utils/cryptography/ECDSA.sol';
 import {RentalityCarToken} from '../RentalityCarToken.sol';
-import {IRentalityAccessControl} from '../abstract/IRentalityAccessControl.sol'; 
+import {IRentalityAccessControl} from '../abstract/IRentalityAccessControl.sol';
+import '@openzeppelin/contracts/utils/cryptography/ECDSA.sol';
 
 
 
@@ -20,8 +21,9 @@ contract RentalityDimoService is UUPSAccess, EIP712Upgradeable {
 
 uint[] private dimoVihicles;
 
-function saveDimoTokenId(uint dimoTokenId, uint carId) public {
+function saveDimoTokenId(uint dimoTokenId, uint carId, bytes memory signature) public {
         require(carToken.ownerOf(carId) == tx.origin, "Not car owner");
+        bool isTCPassed = ECDSA.recover(TCMessageHash, TCSignature) == tx.origin;
         carIdToDimoTokenId[carId] = dimoTokenId;
 }
 function saveButch(uint[] memory dimoTokenIds, uint[] memory carIds) public {
