@@ -12,12 +12,13 @@ library RentalityRefferalLib {
     uint64 duration = endDateTime - startDateTime;
     return points * int(Math.ceilDiv(duration, 1 days));
   }
+
   function updateCar(int points, bytes memory data) public pure returns (int) {
     (bool wasListed, bool toBeListed) = abi.decode(data, (bool, bool));
     if (!wasListed) return 0;
     if (!toBeListed) return points;
 
-    return points;
+    return 0;
   }
   function calculateListedCarsPoints(
     int points,
