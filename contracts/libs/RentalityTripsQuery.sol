@@ -392,6 +392,10 @@ library RentalityTripsQuery {
         itemCount += insuranceService.getTripInsurances(i).length;
       }
     }
+    bool guestHasInsurance = insuranceService.isGuestHasInsurance(guest);
+    if (guestHasInsurance)
+          itemCount += 1;
+
     Schemas.InsuranceDTO[] memory insurances = new Schemas.InsuranceDTO[](itemCount);
     uint counter = 0;
     for (uint i = 1; i <= tripService.totalTripCount(); i++) {
@@ -400,26 +404,65 @@ library RentalityTripsQuery {
         Schemas.InsuranceInfo[] memory tripInsurances = insuranceService.getTripInsurances(i);
         (uint oneTimeActual, uint generalActual) = insuranceService.findActualInsurance(tripInsurances);
         for (uint j = 0; j < tripInsurances.length; j++) {
-          Schemas.KYCInfo memory kyc = contracts.userService.getKYCInfo(tripInsurances[j].createdBy);
-          uint index = j;
-          Schemas.CarInfo memory car = contracts.carService.getCarInfoById(trip.carId);
-          insurances[counter].tripId = i;
-          insurances[counter].carBrand = car.brand;
-          insurances[counter].carModel = car.model;
-          insurances[counter].carYear = car.yearOfProduction;
-          insurances[counter].insuranceInfo = tripInsurances[j];
-          insurances[counter].createdByHost = tripInsurances[j].createdBy == trip.host;
-          insurances[counter].creatorPhoneNumber = kyc.mobilePhoneNumber;
-          insurances[counter].creatorFullName = kyc.surname;
-          insurances[counter].startDateTime = trip.startDateTime;
-          insurances[counter].endDateTime = trip.endDateTime;
-          insurances[counter].isActual = (index == oneTimeActual || index == generalActual);
+          insurances[counter] = fullFillInsuranceDTO(
+            contracts,
+            tripInsurances[j],
+            j == oneTimeActual || j == generalActual,
+            trip.startDateTime,
+            trip.endDateTime,
+            i,
+            tripInsurances[j].createdBy == trip.host,
+            trip.carId,
+            tripInsurances[j].createdBy
+            );
+
           counter += 1;
         }
       }
     }
+        if(guestHasInsurance) {
+          Schemas.InsuranceInfo[] memory guestInsurances = insuranceService.getMyInsurancesAsGuest(guest);
+        insurances[counter] = fullFillInsuranceDTO(
+          contracts,
+          guestInsurances[guestInsurances.length - 1],
+          true,
+          0,
+          0,
+          0,
+          false,
+          type(uint).max,
+          guest
+          );
+        }
 
     return insurances;
+  }
+
+  function fullFillInsuranceDTO(
+        RentalityContract memory contracts,
+        Schemas.InsuranceInfo memory insuranceInfo,
+        bool isActual,
+        uint64 startDateTime,
+        uint64 endDateTime,
+        uint tripId,
+        bool createdByHost,
+        uint carId,
+        address creator
+  ) internal view returns(Schemas.InsuranceDTO memory result) { 
+     Schemas.KYCInfo memory kyc = contracts.userService.getKYCInfo(creator);
+          Schemas.CarInfo memory car = contracts.carService.getCarInfoById(carId);
+          result.tripId = tripId;
+          result.carBrand = car.brand;
+          result.carModel = car.model;
+          result.carYear = car.yearOfProduction;
+          result.insuranceInfo = insuranceInfo;
+          result.createdByHost = createdByHost;
+          result.creatorPhoneNumber = kyc.mobilePhoneNumber;
+          result.creatorFullName = kyc.surname;
+          result.startDateTime = startDateTime;
+          result.endDateTime = endDateTime;
+          result.isActual = isActual;
+
   }
 
   function getTripInsurancesByHost(
