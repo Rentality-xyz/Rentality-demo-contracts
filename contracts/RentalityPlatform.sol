@@ -382,8 +382,7 @@ contract RentalityPlatform is UUPSOwnable {
     );
     require(addresses.paymentService.taxExist(request.locationInfo.locationInfo) != 0, 'Tax not exist.');
     uint carId = addresses.carService.addCar(request);
-    dimoService.saveDimoTokenId(request.dimoTokenId,carId);
-
+    dimoService.saveDimoTokenId(request.dimoTokenId,carId, tx.origin, request.signedDimoTokenId);
     insuranceService.saveInsuranceRequired(carId, request.insurancePriceInUsdCents, request.insuranceRequired);
     return carId;
   }
@@ -395,24 +394,6 @@ contract RentalityPlatform is UUPSOwnable {
   // }
 
  
-  /// @notice Adds a user discount.
-  /// @param data The discount data.
-  function addUserDiscount(Schemas.BaseDiscount memory data) public {
-    addresses.paymentService.addBaseDiscount(tx.origin, data);
-  }
-
-  function addUserDeliveryPrices(uint64 underTwentyFiveMilesInUsdCents, uint64 aboveTwentyFiveMilesInUsdCents) public {
-    addresses.deliveryService.setUserDeliveryPrices(underTwentyFiveMilesInUsdCents, aboveTwentyFiveMilesInUsdCents);
-  }
-
-  function saveTripInsuranceInfo(uint tripId, Schemas.SaveInsuranceRequest memory insuranceInfo) public {
-    Schemas.Trip memory trip = addresses.tripService.getTrip(tripId);
-    require(trip.host == tx.origin || trip.guest == tx.origin, 'For trip host or guest');
-    insuranceService.saveTripInsuranceInfo(tripId, insuranceInfo);
-  }
-  function saveGuestInsurance(Schemas.SaveInsuranceRequest memory insuranceInfo) public {
-    insuranceService.saveGuestInsurance(insuranceInfo);
-  }
   // function updateCarTokenUri(uint256 carId, string memory tokenUri) public {
   // addresses.carService.updateCarTokenUri(carId,tokenUri);
   // }
