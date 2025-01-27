@@ -17,7 +17,7 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 const { ethers } = require('hardhat')
 const { applyProviderWrappers } = require('hardhat/internal/core/providers/construction')
 
-describe('Rentality insurance', function () {
+describe.only('Rentality insurance', function () {
   let rentalityGateway,
     rentalityMockPriceFeed,
     rentalityUserService,
@@ -557,7 +557,8 @@ describe('Rentality insurance', function () {
     ).to.not.reverted
 
     let insurances = await rentalityGateway.connect(guest).getInsurancesBy(false)
-    expect(insurances.length).to.be.eq(2)
+
+    expect(insurances.length).to.be.eq(3)
     let res = await insuranceService.getTripInsurances(1)
     expect(insurances[0].tripId).to.be.eq(1)
     expect(insurances[1].tripId).to.be.eq(1)

@@ -24,10 +24,14 @@ const signTCMessage = async (user) => {
     'I have read and I agree with Terms of service, Cancellation policy, Prohibited uses and Privacy policy of Rentality.'
   return await user.signMessage(message)
 }
+const signDimoToken = async (user, token) => {
+  const message = token.toString()
+  return await user.signMessage(message)
+}
 const emptyLocationInfo = {
   userAddress: '',
   country: '',
-  state: '',
+  state: 'Florida',
   city: '',
   latitude: '',
   longitude: '',
@@ -245,7 +249,8 @@ function getMockCarRequest(seed, contractAddress, admin, locationI) {
     currentlyListed: true,
     insuranceRequired: false,
     insurancePriceInUsdCents: 0,
-    dimoTokenId: 0
+    dimoTokenId: 0,
+    signedDimoTokenId: '0x'
   }
 }
 
@@ -364,6 +369,8 @@ async function deployDefaultFixture() {
   const rentalityUserService = await upgrades.deployProxy(RentalityUserService, [await mockCivic.getAddress(),0])
 
   await rentalityUserService.waitForDeployment()
+
+  await rentalityUserService.manageRole(4, owner.address, true)
 
   const RentalityNotificationService = await ethers.getContractFactory('RentalityNotificationService')
 
@@ -768,4 +775,5 @@ module.exports = {
   RefferalProgram,
   emptySignedLocationInfo,
   InsuranceType,
+  signDimoToken
 }

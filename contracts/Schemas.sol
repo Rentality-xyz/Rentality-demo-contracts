@@ -66,6 +66,7 @@ interface Schemas {
     bool insuranceRequired;
     uint insurancePriceInUsdCents;
     uint dimoTokenId;
+    bytes signedDimoTokenId;
   }
 
   /// @notice Struct to store input parameters for updating car information.
