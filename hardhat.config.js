@@ -23,7 +23,7 @@ module.exports = {
   mocha: {
   timeout: 1000000
   },
-  defaultNetwork: 'localhost',
+  defaultNetwork: 'hardhat',
   networks: {
     hardhat: {
       chainId: 1337,
@@ -61,10 +61,6 @@ module.exports = {
       accounts: [process.env.PRIVATE_KEY],
       chainId: 5611,
     },
-  },
-  tenderly: {
-    project: "rentality",
-    username: "gleborg",
   },
   loggingEnabled: true,
   solidity: {

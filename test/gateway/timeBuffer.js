@@ -88,7 +88,8 @@ describe('RentalityGateway: time buffer', function () {
       currentlyListed: true,
       insuranceRequired: false,
       insurancePriceInUsdCents: 0,
-dimoTokenId: 0
+dimoTokenId: 0,
+signedDimoTokenId: '0x'
     }
 
     await expect(rentalityGateway.connect(host).addCar(createCarRequest)).not.to.be.reverted
@@ -170,7 +171,8 @@ dimoTokenId: 0
       currentlyListed: true,
       insuranceRequired: false,
       insurancePriceInUsdCents: 0,
-dimoTokenId: 0
+dimoTokenId: 0,
+signedDimoTokenId: '0x'
     }
 
     await expect(rentalityGateway.connect(host).addCar(createCarRequest)).not.to.be.reverted
@@ -238,7 +240,8 @@ dimoTokenId: 0
       currentlyListed: true,
       insuranceRequired: false,
       insurancePriceInUsdCents: 0,
-dimoTokenId: 0
+dimoTokenId: 0,
+signedDimoTokenId: '0x'
     }
 
     await expect(rentalityGateway.connect(host).addCar(createCarRequest)).not.to.be.reverted
@@ -307,7 +310,8 @@ dimoTokenId: 0
       currentlyListed: true,
       insuranceRequired: false,
       insurancePriceInUsdCents: 0,
-dimoTokenId: 0
+dimoTokenId: 0,
+signedDimoTokenId: '0x'
     }
 
     await expect(rentalityGateway.connect(host).addCar(createCarRequest)).not.to.be.reverted

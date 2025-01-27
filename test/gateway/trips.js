@@ -236,7 +236,8 @@ describe('RentalityGateway: trips', function () {
       currentlyListed: true,
       insuranceRequired: false,
       insurancePriceInUsdCents: 0,
-dimoTokenId: 0
+dimoTokenId: 0,
+signedDimoTokenId: '0x'
     }
 
     await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest)).not.to.be.reverted
@@ -288,7 +289,8 @@ dimoTokenId: 0
       currentlyListed: true,
       insuranceRequired: false,
       insurancePriceInUsdCents: 0,
-dimoTokenId: 0
+dimoTokenId: 0,
+signedDimoTokenId: '0x'
     }
     await expect(rentalityGateway.connect(host).addCar(mockPatrolCreateCarRequest)).not.to.be.reverted
     const resultPatrol = await rentalityGateway.calculatePaymentsWithDelivery(
