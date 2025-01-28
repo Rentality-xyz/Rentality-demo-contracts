@@ -382,5 +382,6 @@ interface IRentalityGateway {
   /// @return An array of available car information for the specified user.
   function getAvailableCarsForUser(address user) external view returns (Schemas.CarInfo[] memory);
 
-  function checkPromo(string memory promo, uint startDateTime, uint endDateTime) external view returns (Schemas.CheckPromoDTO memory);
+ function checkPromo(string memory promo, uint startDateTime, uint endDateTime) external view returns (Schemas.CheckPromoDTO memory);
+
 }
