@@ -291,6 +291,9 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
       _revokeRole(role, user);
     }
   }
+    function isSignatureManager(address user) public view returns(bool) {
+       return hasRole(MANAGER_ROLE,user);
+  }
 
   function getPlatformUsers() public view returns(address[] memory) {
     return platformUsers;
