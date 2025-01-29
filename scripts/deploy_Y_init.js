@@ -82,6 +82,16 @@ const checkInitialization = async () => {
   return [host, guest, kycManager, admin, gateway, verifierAddress]
 }
 
+const emptyContractLocationInfo = {
+  userAddress: '',
+  country: '',
+  state: '',
+  city: '',
+  latitude: '',
+  longitude: '',
+  timeZoneId: '',
+}
+
 async function signLocationInfo(signer, verifierAddress, locationInfo) {
   const chainId = Number((await signer.provider?.getNetwork())?.chainId)
 
@@ -118,9 +128,12 @@ async function setHostKycIfNotSet(host, kycManager, gateway) {
   }
 
   const data = testData.hostProfileInfo
+  const email = `${data.name}${data.surname}@gmail.com`
 
   if (!kyc.name) {
-    await gateway.connect(host).setKYCInfo(data.nickname, data.mobilePhoneNumber, data.profilePhoto, data.tcSignature)
+    await gateway
+      .connect(host)
+      .setKYCInfo(data.nickname, data.mobilePhoneNumber, data.profilePhoto, email, data.tcSignature, '0x00000000')
     console.log('KYC for host was set')
   }
 
@@ -130,7 +143,7 @@ async function setHostKycIfNotSet(host, kycManager, gateway) {
       licenseNumber: data.licenseNumber,
       expirationDate: data.expirationDate,
       issueCountry: 'UKR',
-      email: `${data.name}${data.surname}@gmail.com`,
+      email: email,
     })
     console.log('Civic KYC for host was set')
   }
@@ -147,9 +160,11 @@ async function setGuestKycIfNotSet(guest, kycManager, gateway) {
   }
 
   const data = testData.guestProfileInfo
-
+  const email = `${data.name}${data.surname}@gmail.com`
   if (!kyc.name) {
-    await gateway.connect(guest).setKYCInfo(data.nickname, data.mobilePhoneNumber, data.profilePhoto, data.tcSignature)
+    await gateway
+      .connect(guest)
+      .setKYCInfo(data.nickname, data.mobilePhoneNumber, data.profilePhoto, email, data.tcSignature, '0x00000000')
     console.log('KYC for guest was set')
   }
 
@@ -159,7 +174,7 @@ async function setGuestKycIfNotSet(guest, kycManager, gateway) {
       licenseNumber: data.licenseNumber,
       expirationDate: data.expirationDate,
       issueCountry: 'UKR',
-      email: `${data.name}${data.surname}@gmail.com`,
+      email: email,
     })
     console.log('Civic KYC for guest was set')
   }
@@ -197,12 +212,26 @@ async function setCarsForHost(host, admin, verifierAddress, gateway) {
 }
 
 async function getTripCount(host, gateway) {
-  return (await gateway.connect(host).getTripsAsHost()).length
+  return (await gateway.connect(host).getTripsAs(true)).length
 }
 
 async function createPendingTrip(tripIndex, carId, host, guest, gateway) {
   const ethAddress = ethers.getAddress('0x0000000000000000000000000000000000000000')
-  const paymentsNeeded = await gateway.connect(guest).calculatePayments(carId, 1, ethAddress)
+
+  const carDeliveryData = await gateway.connect(guest).getDeliveryData(carId)
+  const carLocationInfo = {
+    userAddress: carDeliveryData.locationInfo.userAddress,
+    country: carDeliveryData.locationInfo.country,
+    state: carDeliveryData.locationInfo.state,
+    city: carDeliveryData.locationInfo.city,
+    latitude: carDeliveryData.locationInfo.latitude,
+    longitude: carDeliveryData.locationInfo.longitude,
+    timeZoneId: carDeliveryData.locationInfo.timeZoneId,
+  }
+
+  const paymentsNeeded = await gateway
+    .connect(guest)
+    .calculatePaymentsWithDelivery(carId, 1, ethAddress, carLocationInfo, carLocationInfo, '')
   const request = {
     carId: carId,
     startDateTime: Math.ceil(new Date().getTime() / 1000 + tripIndex * 3),
@@ -221,7 +250,7 @@ async function createPendingTrip(tripIndex, carId, host, guest, gateway) {
     value: paymentsNeeded.totalPrice,
   })
 
-  const trips = await gateway.connect(guest).getTripsAsGuest()
+  const trips = await gateway.connect(guest).getTripsAs(false)
   const tripId = trips[trips.length - 1]?.trip?.tripId ?? -1
   console.log(`\nTrip #${tripIndex} was created with id ${tripId} and status 'Pending'`)
   return tripId
