@@ -5,11 +5,13 @@ import '@openzeppelin/contracts/token/ERC721/ERC721.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
 
 contract RentalityInvestmentNft is ERC721, Ownable {
-  uint public tokenId;
-  uint public immutable investId;
+  uint private tokenId;
+  uint private immutable investId;
   mapping(uint => uint) public tokenIdToPriceInEth;
 
   string private _tokenUri;
+  
+  uint private totalHolders;
 
   constructor(
     string memory name_,
@@ -25,8 +27,13 @@ contract RentalityInvestmentNft is ERC721, Ownable {
   }
   function mint(uint priceInEth) public onlyOwner {
     tokenId += 1;
+      
+      if(balanceOf(tx.origin) == 0)
+      totalHolders += 1;
+
     _mint(tx.origin, tokenId);
     tokenIdToPriceInEth[tokenId] = priceInEth;
+ 
   }
 
   function tokenURI(uint256 id) public view virtual override returns (string memory) {
@@ -34,27 +41,17 @@ contract RentalityInvestmentNft is ERC721, Ownable {
     return _tokenUri;
   }
 
-  function getAllMyTokensWithTotalPrice(address user) public view returns (uint[] memory, uint) {
+  function getAllMyTokensWithTotalPrice(address user) public view returns (uint[] memory, uint, uint, uint) {
     uint[] memory result = new uint[](balanceOf(user));
     uint counter = 0;
     uint totalPrice = 0;
-    for (uint i = 1; i <= result.length; i++)
+    for (uint i = 1; i <= tokenId; i++)
       if (_ownerOf(i) == user) {
         result[counter] = i;
         counter += 1;
         totalPrice += tokenIdToPriceInEth[i];
       }
-    return (result, totalPrice);
+    return (result, totalPrice, totalHolders, tokenId);
   }
 
-  function getMyTokens(address user) public view returns (uint[] memory) {
-    uint[] memory result = new uint[](balanceOf(user));
-    uint counter = 0;
-    for (uint i = 1; i <= tokenId; i++)
-      if (_ownerOf(i) == user) {
-        result[counter] = i;
-        counter++;
-      }
-    return result;
-  }
 }
