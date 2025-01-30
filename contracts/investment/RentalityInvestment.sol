@@ -9,28 +9,38 @@ import './RentalityInvestmentPool.sol';
 import '../RentalityCarToken.sol';
 import '../Schemas.sol';
 import {RentalityInsurance} from '../payments/RentalityInsurance.sol';
+import "@openzeppelin/contracts/utils/Strings.sol";
+import '@openzeppelin/contracts/utils/math/Math.sol';
+import {RentalityViewLib} from '../libs/RentalityViewLib.sol';
 
+
+/// @dev SAFETY: The linked library is not supported yet because it can modify the state or call
+///  selfdestruct, as far as RentalityUtils doesn't has this logic,
+/// it's completely safe for upgrade
+/// @custom:oz-upgrades-unsafe-allow external-library-linking
 contract RentalityInvestment is Initializable, UUPSAccess {
-  uint public investmentId;
+  uint private investmentId;
   RentalityCurrencyConverter private converter;
   RentalityCarToken private carToken;
   RentalityInsurance private insuranceService;
 
   mapping(uint => Schemas.CarInvestment) private investmentIdToCarInfo;
-  mapping(uint => uint) public investmentIdToPayedInETH;
+  mapping(uint => uint) private investmentIdToPayedInETH;
   mapping(uint => RentalityCarInvestmentPool) private investIdToPool;
   mapping(uint => RentalityInvestmentNft) private investIdToNft;
   mapping(uint => address) private investmentIdToCreator;
   mapping(uint => uint) private carIdToInvestId;
 
-  function createCarInvestment(Schemas.CarInvestment memory car, string memory name_, string memory symbol_) public {
+  function createCarInvestment(Schemas.CarInvestment memory car, string memory name_) public {
     require(carToken.isUniqueVinNumber(car.car.carVinNumber), 'Car with this VIN number already exists');
 
     investmentId += 1;
+   string memory sym = RentalityViewLib.createSumbol(investmentId);
+
     investmentIdToCarInfo[investmentId] = car;
     RentalityInvestmentNft newNftCollection = new RentalityInvestmentNft(
       name_,
-      symbol_,
+      sym,
       investmentId,
       car.car.tokenUri
     );
@@ -60,13 +70,12 @@ contract RentalityInvestment is Initializable, UUPSAccess {
     Schemas.CarInvestment storage investment = investmentIdToCarInfo[investId];
     require(!investment.inProgress, 'In progress');
     uint payedInETH = investmentIdToPayedInETH[investId];
-    RentalityCarInvestmentPool newPool = new RentalityCarInvestmentPool(
+    investIdToPool[investId] = new RentalityCarInvestmentPool(
       investId,
       address(investIdToNft[investId]),
       payedInETH,
       address(userService)
     );
-    investIdToPool[investId] = newPool;
 
     uint carId = carToken.addCar(investment.car, msg.sender);
      insuranceService.saveInsuranceRequired(carId, investment.car.insurancePriceInUsdCents, investment.car.insuranceRequired);
@@ -75,33 +84,26 @@ contract RentalityInvestment is Initializable, UUPSAccess {
     require(success, 'Fail to transfer.');
   }
 
-  function isInvestorsCar(uint carId) public view returns (bool) {
-    return carIdToInvestId[carId] != 0;
-  }
 
   function getPaymentsInfo(uint carId) public view returns (uint, RentalityCarInvestmentPool) {
-    uint investID = carIdToInvestId[carId];
-    require(investID != 0, 'Wrong car');
-
-    return (investmentIdToCarInfo[investID].creatorPercents, investIdToPool[investID]);
+    return (investmentIdToCarInfo[carIdToInvestId[carId]].creatorPercents, investIdToPool[carIdToInvestId[carId]]);
   }
-
+ 
   function getAllInvestments() public view returns (Schemas.InvestmentDTO[] memory) {
     Schemas.InvestmentDTO[] memory cars = new Schemas.InvestmentDTO[](investmentId);
     for (uint i = 1; i <= investmentId; i++) {
-      (uint payed, , ) = converter.getToUsdLatest(address(0), investmentIdToPayedInETH[i]);
       uint income = 0;
       uint myIncomeInUsdCents = 0;
       bool isBought = address(investIdToPool[i]) != address(0);
+       (uint[] memory tokens, uint iInvested, uint totalHolders, uint totalTokens) = investIdToNft[i].getAllMyTokensWithTotalPrice(msg.sender);
+       (uint payed,,) = converter.getToUsdLatest(address(0), investmentIdToPayedInETH[i]);
       if (isBought) {
         (income, , ) = converter.getToUsdLatest(address(0), investIdToPool[i].getTotalIncome());
-        (uint[] memory tokens, ) = investIdToNft[i].getAllMyTokensWithTotalPrice(msg.sender);
-        uint myIncome = 0;
-        for (uint j = 0; j < tokens.length; j++) {
-          myIncome += investIdToPool[i].getIncomesByNftId(tokens[j]);
-        }
+        uint myIncome = RentalityViewLib.getTotalIncomeByNFTs(address(investIdToPool[i]),tokens);
+       
         (myIncomeInUsdCents, , ) = converter.getToUsdLatest(address(0), myIncome);
       }
+      (uint percentages, uint investInUsd) = RentalityViewLib.calculatePercentage(iInvested,investmentIdToCarInfo[i].priceInUsd, converter);
       cars[i - 1] = Schemas.InvestmentDTO(
         investmentIdToCarInfo[i],
         address(investIdToNft[i]),
@@ -110,7 +112,13 @@ contract RentalityInvestment is Initializable, UUPSAccess {
         investmentIdToCreator[i],
         isBought,
         income,
-        myIncomeInUsdCents
+        myIncomeInUsdCents,
+        investInUsd,
+        isBought ? investIdToPool[i].creationDate() : 0,
+        tokens.length,
+        percentages,
+        totalHolders,
+        totalTokens
       );
     }
     return cars;
@@ -119,6 +127,7 @@ contract RentalityInvestment is Initializable, UUPSAccess {
   function claimAllMy(uint investId) public {
     investIdToPool[investId].claimAllMy(msg.sender);
   }
+
 
   /// @notice Initializes the contract with the specified addresses for user service and geolocation parser.
 

@@ -182,7 +182,11 @@ async function deployDefaultFixture() {
   const rentalityBaseDiscount = await upgrades.deployProxy(RentalityBaseDiscount, [
     await rentalityUserService.getAddress(),
   ])
-  let InvestFactory = await ethers.getContractFactory('RentalityInvestment')
+  let InvestFactory = await ethers.getContractFactory('RentalityInvestment',{
+    libraries: {
+      RentalityViewLib: await viewLib.getAddress()
+    }
+  })
   let investorsService = await upgrades.deployProxy(InvestFactory, [
       await rentalityUserService.getAddress(),
       await rentalityCurrencyConverter.getAddress(),
