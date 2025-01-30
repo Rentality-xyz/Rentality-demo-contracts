@@ -584,6 +584,12 @@ interface Schemas {
     bool isCarBought;
     uint income;
     uint myIncome;
+    uint myInvestingSum;
+    uint listingDate;
+    uint myTokens;
+    uint myPart;
+    uint totalHolders;
+    uint totalTokens;
   }
 
   struct TripFilter {

@@ -182,8 +182,8 @@ RentalityInvestment private investmentService;
     require(userService.isManager(msg.sender), 'Only manager');
     bool successHost;
     bool successGuest;
-    if (investmentService.isInvestorsCar(trip.carId)) {
-      (uint hostPercents, RentalityCarInvestmentPool pool) = investmentService.getPaymentsInfo(trip.carId);
+     (uint hostPercents, RentalityCarInvestmentPool pool) = investmentService.getPaymentsInfo(trip.carId);
+    if (address(pool) != address(0)) {
       uint valueToPay = totalIncome - (totalIncome * 20 / 100);
       uint depositToPool = valueToPay - ((valueToPay * hostPercents) / 100);
       valueToHost = valueToHost - depositToPool;

@@ -20,12 +20,14 @@ contract RentalityCarInvestmentPool {
     Income[] private incomes;
 
     mapping(uint => uint) private nftIdToLastIncomeNumber;
+    uint public creationDate;
 
     constructor(uint _investmentId, address _nft, uint totalPrice, address _userService) {
         nft = RentalityInvestmentNft(_nft);
         investmentID = _investmentId;
         totalPriceInEth = totalPrice;
         userService = IRentalityAccessControl(_userService);
+        creationDate = block.timestamp;
     }
     function deposit(uint totalProfit) public payable {
        require(userService.isManager(msg.sender),"only Manager"); 
@@ -35,7 +37,7 @@ contract RentalityCarInvestmentPool {
     function claimAllMy(address user) public {
         require(userService.isManager(msg.sender),"only Manager");
         require(incomes.length > 0, 'no incomes');
-        uint[] memory tokens = nft.getMyTokens(user);
+        (uint[] memory tokens,,,) = nft.getAllMyTokensWithTotalPrice(user);
         uint toClaim = 0;
         for (uint i = 0; i < tokens.length; i++) {
             uint lastIncomeClaimed = nftIdToLastIncomeNumber[tokens[i]];
@@ -69,25 +71,6 @@ contract RentalityCarInvestmentPool {
         return (result * part) / 100_000;
     }
 
-    ///
-//    function getMyIncome() public view returns (uint) {
-//        uint[] memory tokens = nft.getMyTokens();
-//        uint toClaim = 0;
-//        for (uint i = 0; i < tokens.length; i++) {
-//            uint lastIncomeClaimed = nftIdToLastIncomeNumber[tokens[i]];
-//            uint tokenPrice = nft.tokenIdToPriceInEth(tokens[i]);
-//            uint part = (tokenPrice * 100_000) / totalPriceInEth;
-//            if (incomes.length > lastIncomeClaimed) {
-//                uint totalIncome = 0;
-//                for (uint j = lastIncomeClaimed; j < incomes.length; j++) {
-//                    totalIncome += incomes[j].income;
-//                }
-//                toClaim += (totalIncome * part) / 100_000;
-//            }
-//
-//        }
-//        return toClaim;
-//    }
 
     function getTotalIncome() public view returns (uint) {
         uint result = 0;
