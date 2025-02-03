@@ -17,7 +17,7 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 const { ethers } = require('hardhat')
 const { applyProviderWrappers } = require('hardhat/internal/core/providers/construction')
 
-describe.only('Rentality insurance', function () {
+describe('Rentality insurance', function () {
   let rentalityGateway,
     rentalityMockPriceFeed,
     rentalityUserService,
