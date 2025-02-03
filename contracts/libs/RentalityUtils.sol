@@ -481,9 +481,9 @@ library RentalityUtils {
     uint64 startDateTime,
     uint64 endDateTime
   ) private view returns (bool) {
-    // Iterate through all trips to check for intersections with the specified car and time range.
-    for (uint256 tripId = 1; tripId <= addresses.tripService.totalTripCount(); tripId++) {
-      Schemas.Trip memory trip = addresses.tripService.getTrip(tripId);
+    uint [] memory activeTrips = addresses.tripService.getCarTrips(carId);
+    for (uint256 i = 0; i < activeTrips.length; i++) {
+      Schemas.Trip memory trip = addresses.tripService.getTrip(activeTrips[i]);
       Schemas.CarInfo memory car = addresses.carService.getCarInfoById(trip.carId);
 
       if (

@@ -4,9 +4,9 @@ const addressSaver = require('./utils/addressSaver')
 const { startDeploy } = require('./utils/deployHelper')
 
 async function main() {
- const contract = await ethers.getContractAt('RentalityReferralProgram','0xBeF58aBf15D45B9c1e2c18339e2c2Dc9520a5e5D')
+ const contract = await ethers.getContractAt('RentalityPaymentService','0xC2AF429e5E8B2bA14a5b448923cb2e512f879Cd9')
 
- console.log(await contract.getMyRefferalInfo())
+ console.log(await contract.setInvestmentService('0xb572D0C0b306305aa845397F72Dc480F6796c49F'))
 }
 
 main()
