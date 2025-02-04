@@ -407,6 +407,15 @@
     },
     {
       "type": "function",
+      "name": "isSignatureManager",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "user" }],
+      "outputs": [{ "type": "bool", "name": "" }]
+    },
+    {
+      "type": "function",
       "name": "manageRole",
       "constant": false,
       "payable": false,

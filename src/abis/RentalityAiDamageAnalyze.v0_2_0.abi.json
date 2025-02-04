@@ -1,0 +1,126 @@
+{
+  "abi": [
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "AdminChanged",
+      "inputs": [
+        { "type": "address", "name": "previousAdmin", "indexed": false },
+        { "type": "address", "name": "newAdmin", "indexed": false }
+      ]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "BeaconUpgraded",
+      "inputs": [{ "type": "address", "name": "beacon", "indexed": true }]
+    },
+    { "type": "event", "anonymous": false, "name": "EIP712DomainChanged", "inputs": [] },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "Initialized",
+      "inputs": [{ "type": "uint8", "name": "version", "indexed": false }]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "Upgraded",
+      "inputs": [{ "type": "address", "name": "implementation", "indexed": true }]
+    },
+    {
+      "type": "function",
+      "name": "eip712Domain",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        { "type": "bytes1", "name": "fields" },
+        { "type": "string", "name": "name" },
+        { "type": "string", "name": "version" },
+        { "type": "uint256", "name": "chainId" },
+        { "type": "address", "name": "verifyingContract" },
+        { "type": "bytes32", "name": "salt" },
+        { "type": "uint256[]", "name": "extensions" }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getInsuranceCaseUrlByTrip",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "tripId" }],
+      "outputs": [{ "type": "string", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "initialize",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "_userService" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "isCaseExists",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "string", "name": "iCase" }],
+      "outputs": [{ "type": "bool", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "proxiableUUID",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "bytes32", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "saveInsuranceCase",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "string", "name": "iCase" },
+        { "type": "uint256", "name": "tripId" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "saveInsuranceCaseUrl",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "string", "name": "iCase" },
+        { "type": "string", "name": "url" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "upgradeTo",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "newImplementation" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "upgradeToAndCall",
+      "constant": false,
+      "stateMutability": "payable",
+      "payable": true,
+      "inputs": [
+        { "type": "address", "name": "newImplementation" },
+        { "type": "bytes", "name": "data" }
+      ],
+      "outputs": []
+    }
+  ]
+}
