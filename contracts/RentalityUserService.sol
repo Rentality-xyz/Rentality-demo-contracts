@@ -52,19 +52,16 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
 
     require(isTCPassed, 'Wrong signature.');
     Schemas.KYCInfo storage kycInfo = kycInfos[tx.origin];
-    if(kycInfo.createDate == 0 || !_alreadyInPlatformUsersList(tx.origin)) 
-      platformUsers.push(tx.origin);
+    if (kycInfo.createDate == 0 || !_alreadyInPlatformUsersList(tx.origin)) platformUsers.push(tx.origin);
 
     string memory oldEmail = additionalKycInfo[tx.origin].email;
-    if(bytes(oldEmail).length == 0 || !hasPassedKYC(tx.origin))
-    additionalKycInfo[tx.origin].email = email;
+    if (bytes(oldEmail).length == 0 || !hasPassedKYC(tx.origin)) additionalKycInfo[tx.origin].email = email;
 
     kycInfo.name = nickName;
     kycInfo.mobilePhoneNumber = mobilePhoneNumber;
     kycInfo.profilePhoto = profilePhoto;
-    
-    if(kycInfo.createDate == 0)
-    kycInfo.createDate = block.timestamp;
+
+    if (kycInfo.createDate == 0) kycInfo.createDate = block.timestamp;
 
     kycInfo.isTCPassed = isTCPassed;
     kycInfo.TCSignature = TCSignature;
@@ -109,7 +106,7 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
   function getMyFullKYCInfo() public view returns (Schemas.FullKYCInfoDTO memory) {
     return Schemas.FullKYCInfoDTO(kycInfos[tx.origin], additionalKycInfo[tx.origin]);
   }
-  function getPlatformUsersKYCInfos() public view returns(Schemas.AdminKYCInfoDTO[] memory result) {
+  function getPlatformUsersKYCInfos() public view returns (Schemas.AdminKYCInfoDTO[] memory result) {
     require(hasRole(ADMIN_VIEW_ROLE, tx.origin), 'Only Admin');
     address[] memory users = platformUsers;
     result = new Schemas.AdminKYCInfoDTO[](platformUsers.length);
@@ -295,25 +292,21 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
       _revokeRole(role, user);
     }
   }
-    function isSignatureManager(address user) public view returns(bool) {
-       return hasRole(MANAGER_ROLE,user);
-  }
 
-  function getPlatformUsers() public view returns(address[] memory) {
-  require(hasRole(ADMIN_VIEW_ROLE, tx.origin), 'Only Admin');
+  function getPlatformUsers() public view returns (address[] memory) {
+    require(hasRole(ADMIN_VIEW_ROLE, tx.origin), 'Only Admin');
     return platformUsers;
   }
 
-  function _alreadyInPlatformUsersList(address user) private view returns(bool) {
+  function _alreadyInPlatformUsersList(address user) private view returns (bool) {
     address[] memory users = platformUsers;
     for (uint i = 0; i < users.length; i++) {
-      if(users[i] == user)
-      return true;
+      if (users[i] == user) return true;
     }
     return false;
   }
-  function isSignatureManager(address user) public view returns(bool) {
-    return hasRole(MANAGER_ROLE,user);
+  function isSignatureManager(address user) public view returns (bool) {
+    return hasRole(MANAGER_ROLE, user);
   }
 
   /// @notice Initializes the contract with the specified Civic verifier address and gatekeeper network ID, and sets the default admin role.

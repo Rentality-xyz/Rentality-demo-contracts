@@ -395,7 +395,7 @@ contract RentalityPlatform is UUPSOwnable {
       promoService
     );
     require(addresses.paymentService.taxExist(request.locationInfo.locationInfo) != 0, 'Tax not exist.');
-    uint carId = addresses.carService.addCar(request);
+    uint carId = addresses.carService.addCar(request, tx.origin);
     dimoService.saveDimoTokenId(request.dimoTokenId, carId, tx.origin, request.signedDimoTokenId);
     insuranceService.saveInsuranceRequired(carId, request.insurancePriceInUsdCents, request.insuranceRequired);
     return carId;

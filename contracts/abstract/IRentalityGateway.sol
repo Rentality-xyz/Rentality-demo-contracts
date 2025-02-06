@@ -389,9 +389,4 @@ interface IRentalityGateway {
 
   function getDimoVihicles() external view returns (uint[] memory);
   function saveDimoTokenIds(uint[] memory, uint[] memory) external;
-  function checkPromo(
-    string memory promo,
-    uint startDateTime,
-    uint endDateTime
-  ) external view returns (Schemas.CheckPromoDTO memory);
 }
