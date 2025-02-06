@@ -273,9 +273,9 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
     return commissions[commissions.length - 1].commissionPaid;
   }
 
-  function payCommission() public {
+  function payCommission(address user) public {
     require(isManager(msg.sender), 'only manager.');
-    userToKYCCommission[tx.origin].push(Schemas.KycCommissionData(block.timestamp, true));
+    userToKYCCommission[user].push(Schemas.KycCommissionData(block.timestamp, true));
   }
 
   function manageRole(Schemas.Role newRole, address user, bool grant) public {

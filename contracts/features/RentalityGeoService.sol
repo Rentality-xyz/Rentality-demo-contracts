@@ -21,13 +21,6 @@ contract RentalityGeoService is IRentalityGeoService, Initializable, UUPSAccess 
 
   RentalityLocationVerifier private verifier;
 
-  /// @notice Updates the address of the geolocation parser contract.
-  /// @param _geoParser The address of the new geolocation parser contract.
-  function updateParserAddress(address _geoParser) public {
-    require(userService.isAdmin(tx.origin), 'Only admin.');
-    geoParser = IRentalityGeoParser(_geoParser);
-  }
-
   /// @notice Retrieves the address of the current geolocation parser contract.
   /// @return The address of the current geolocation parser contract.
   function getGeoParserAddress() public view returns (address) {

@@ -27,7 +27,8 @@ describe('Location sign', function () {
     anonymous,
     rentalityAdminGateway,
     rentalityGeoService,
-    rentalityLocationVerifier
+    rentalityLocationVerifier,
+    rentalityView
 
   beforeEach(async function () {
     ;({
@@ -54,6 +55,7 @@ describe('Location sign', function () {
       rentalityAdminGateway,
       rentalityGeoService,
       rentalityLocationVerifier,
+      rentalityView,
     } = await loadFixture(deployDefaultFixture))
   })
 

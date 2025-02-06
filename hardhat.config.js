@@ -3,8 +3,12 @@ require('dotenv').config()
 require('@nomicfoundation/hardhat-toolbox')
 require('@openzeppelin/hardhat-upgrades')
 require('solidity-docgen')
+require('hardhat-tracer')
 
 module.exports = {
+  mocha: {
+    timeout: 100000000,
+  },
   docgen: {
     outputFormat: 'md',
     path: './docs', // Output directory for the generated documentation
@@ -13,9 +17,6 @@ module.exports = {
     pages: 'files' /*'single': all items in one page
                     * 'items': one page per item
                    'files': one page per input Solidity file  */,
-  },
-  mocha: {
-  timeout: 1000000
   },
   defaultNetwork: 'hardhat',
   networks: {
@@ -30,6 +31,11 @@ module.exports = {
       accounts: [process.env.GANACHE_PRIVATE_KEY],
       chainId: 1337,
       timeout: 1_000_000,
+    },
+    tenderlyVirtual: {
+      url: process.env.TENDERLY_URL ?? '',
+      accounts: [process.env.PRIVATE_KEY],
+      chainId: 102,
     },
     base: {
       url: process.env.BASE_URL ?? '',
@@ -55,6 +61,10 @@ module.exports = {
       accounts: [process.env.PRIVATE_KEY],
       chainId: 5611,
     },
+  },
+  tenderly: {
+    project: 'rentality',
+    username: 'gleborg',
   },
   loggingEnabled: true,
   solidity: {

@@ -44,6 +44,7 @@ interface Schemas {
     CarInfo carInfo;
     string metadataURI;
     bool isEditable;
+    uint dimoTokenId;
   }
 
   /// @notice Struct to store input parameters for creating a new car.
@@ -64,6 +65,7 @@ interface Schemas {
     bool currentlyListed;
     bool insuranceRequired;
     uint insurancePriceInUsdCents;
+    uint dimoTokenId;
   }
 
   /// @notice Struct to store input parameters for updating car information.
@@ -495,6 +497,7 @@ interface Schemas {
     LocationInfo locationInfo;
     string carVinNumber;
     string carMetadataURI;
+    uint dimoTokenId;
   }
 
   // Taxes
@@ -556,6 +559,37 @@ interface Schemas {
   struct KycCommissionData {
     uint paidTime;
     bool commissionPaid;
+  }
+  // investment
+
+  struct CarInvestment {
+    CreateCarRequest car;
+    uint priceInUsd;
+    bool inProgress;
+    uint creatorPercents;
+  }
+
+  struct ClaimInvestmentDTO {
+    string tokenURI;
+    uint income;
+    uint myIncome;
+  }
+
+  struct InvestmentDTO {
+    CarInvestment investment;
+    address nft;
+    uint investmentId;
+    uint payedInUsd;
+    address creator;
+    bool isCarBought;
+    uint income;
+    uint myIncome;
+    uint myInvestingSum;
+    uint listingDate;
+    uint myTokens;
+    uint myPart;
+    uint totalHolders;
+    uint totalTokens;
   }
 
   struct TripFilter {
@@ -830,9 +864,15 @@ interface Schemas {
     uint value;
   }
 
+  struct DimoTokensData {
+    uint dimoTokenId;
+    uint rentalityTokenId;
+}
+
   struct PromoDTO {
     string promoCode;
     uint promoCodeValueInPercents;
     uint promoCodeEnterDate;
   }
+
 }

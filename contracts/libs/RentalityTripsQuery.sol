@@ -214,9 +214,9 @@ library RentalityTripsQuery {
   function getTripContactInfo(
     uint256 tripId,
     address tripService,
-    address userService
+    address userService,
+    address user
   ) public view returns (string memory guestPhoneNumber, string memory hostPhoneNumber) {
-    require(RentalityUserService(userService).isHostOrGuest(tx.origin), 'User is not a host or guest');
 
     Schemas.Trip memory trip = RentalityTripService(tripService).getTrip(tripId);
 
@@ -320,7 +320,7 @@ library RentalityTripsQuery {
 
     Schemas.Trip memory trip = tripService.getTrip(tripId);
     Schemas.CarInfo memory car = carService.getCarInfoById(trip.carId);
-    
+
     Schemas.LocationInfo memory pickUpLocation = IRentalityGeoService(carService.getGeoServiceAddress())
       .getLocationInfo(trip.pickUpHash);
     Schemas.LocationInfo memory returnLocation = IRentalityGeoService(carService.getGeoServiceAddress())
@@ -328,7 +328,8 @@ library RentalityTripsQuery {
     (string memory guestPhoneNumber, string memory hostPhoneNumber) = getTripContactInfo(
       tripId,
       address(tripService),
-      address(userService)
+      address(userService),
+      tx.origin
     );
     trip.guestInsuranceCompanyName = '';
     trip.guestInsurancePolicyNumber = '';
@@ -555,5 +556,5 @@ library RentalityTripsQuery {
     Schemas.Trip memory trip = contracts.tripService.getTrip(tripId);
     return (trip.carId == carId) && (trip.endDateTime > startDateTime) && (trip.startDateTime < endDateTime);
   }
-  
+
 }

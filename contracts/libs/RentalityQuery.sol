@@ -368,8 +368,6 @@ library RentalityQuery {
     RentalityInsurance insuranceService = RentalityInsurance(insuranceServiceAddress);
     RentalityCarToken carService = contracts.carService;
 
-    Schemas.AvailableCarDTO memory emptyCar;
-
     uint fuelPrice = engineService.getFuelPriceFromEngineParams(temp.engineType, temp.engineParams);
 
     uint64 totalTripDays = uint64(Math.ceilDiv(endDateTime - startDateTime, 1 days));
