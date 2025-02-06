@@ -66,6 +66,7 @@ interface Schemas {
     bool insuranceRequired;
     uint insurancePriceInUsdCents;
     uint dimoTokenId;
+    bytes signedDimoTokenId;
   }
 
   /// @notice Struct to store input parameters for updating car information.
@@ -196,6 +197,7 @@ interface Schemas {
     uint paidForInsuranceInUsdCents;
     string guestDrivingLicenseIssueCountry;
     uint promoDiscount;
+    uint dimoTokenId;
   }
 
   /// CHAT LOGIC
@@ -436,6 +438,7 @@ interface Schemas {
     LocationInfo locationInfo;
     InsuranceCarInfo insuranceInfo;
     bool isGuestHasInsurance;
+    uint dimoTokenId;
   }
   struct AvailableCarDTO {
     uint carId;
@@ -467,6 +470,7 @@ interface Schemas {
     uint64 governmentTax;
     int128 distance;
     bool isGuestHasInsurance;
+    uint dimoTokenId;
   }
 
   struct GeoData {

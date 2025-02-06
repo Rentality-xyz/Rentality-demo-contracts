@@ -1,0 +1,319 @@
+{
+  "abi": [
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "AdminChanged",
+      "inputs": [
+        { "type": "address", "name": "previousAdmin", "indexed": false },
+        { "type": "address", "name": "newAdmin", "indexed": false }
+      ]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "BeaconUpgraded",
+      "inputs": [{ "type": "address", "name": "beacon", "indexed": true }]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "Initialized",
+      "inputs": [{ "type": "uint8", "name": "version", "indexed": false }]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "Upgraded",
+      "inputs": [{ "type": "address", "name": "implementation", "indexed": true }]
+    },
+    {
+      "type": "function",
+      "name": "_getPrefix",
+      "constant": true,
+      "stateMutability": "pure",
+      "payable": false,
+      "inputs": [{ "type": "string", "name": "promo" }],
+      "outputs": [{ "type": "string", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "addPrefix",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "string", "name": "prefix" },
+        { "type": "uint256", "name": "discount" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "checkPromo",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        { "type": "string", "name": "promo" },
+        { "type": "uint256", "name": "startDateTime" },
+        { "type": "uint256", "name": "endDateTime" }
+      ],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "",
+          "components": [
+            { "type": "bool", "name": "isFound" },
+            { "type": "bool", "name": "isValid" },
+            { "type": "bool", "name": "isDiscount" },
+            { "type": "uint256", "name": "value" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "generateGeneralCode",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint256", "name": "startDateTime" },
+        { "type": "uint256", "name": "endDateTime" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "generateNumbers",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint256", "name": "min" },
+        { "type": "uint256", "name": "max" },
+        { "type": "uint256", "name": "amount" },
+        { "type": "uint256", "name": "startDateTime" },
+        { "type": "uint256", "name": "endDateTime" },
+        { "type": "string", "name": "prefix" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "getDiscountByPromo",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        { "type": "string", "name": "promoCode" },
+        { "type": "address", "name": "user" }
+      ],
+      "outputs": [{ "type": "uint256", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getGeneralPromoCode",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "string", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getPromoCodes",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "string[]", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getPromoData",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "string", "name": "promo" }],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "",
+          "components": [
+            { "type": "uint8", "name": "promoType" },
+            { "type": "string", "name": "code" },
+            { "type": "uint256", "name": "startDate" },
+            { "type": "uint256", "name": "expireDate" },
+            { "type": "address", "name": "createdBy" },
+            { "type": "uint256", "name": "createdAt" },
+            { "type": "uint8", "name": "status" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getPromoDiscountByTrip",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "tripId" }],
+      "outputs": [{ "type": "uint256", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getPromoTripInfo",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        { "type": "uint256", "name": "tripId" },
+        { "type": "address", "name": "user" }
+      ],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "result",
+          "components": [
+            { "type": "string", "name": "promoCode" },
+            { "type": "uint256", "name": "promoCodeValueInPercents" },
+            { "type": "uint256", "name": "promoCodeEnterDate" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getTripDiscount",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "tripId" }],
+      "outputs": [{ "type": "uint256", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getTripPromoData",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "tripId" }],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "",
+          "components": [
+            { "type": "string", "name": "promo" },
+            { "type": "uint256", "name": "hostEarningsInCurrency" },
+            { "type": "uint256", "name": "hostEarnings" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getUserPromoData",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "tuple[]",
+          "name": "",
+          "components": [
+            {
+              "type": "tuple",
+              "name": "promo",
+              "components": [
+                { "type": "uint8", "name": "promoType" },
+                { "type": "string", "name": "code" },
+                { "type": "uint256", "name": "startDate" },
+                { "type": "uint256", "name": "expireDate" },
+                { "type": "address", "name": "createdBy" },
+                { "type": "uint256", "name": "createdAt" },
+                { "type": "uint8", "name": "status" }
+              ]
+            },
+            { "type": "string", "name": "promoCode" },
+            { "type": "uint256", "name": "usedAt" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "initialize",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "_userService" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "proxiableUUID",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "bytes32", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "rejectDiscountByTrip",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint256", "name": "tripId" },
+        { "type": "address", "name": "user" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "upgradeTo",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "newImplementation" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "upgradeToAndCall",
+      "constant": false,
+      "stateMutability": "payable",
+      "payable": true,
+      "inputs": [
+        { "type": "address", "name": "newImplementation" },
+        { "type": "bytes", "name": "data" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "usePromo",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "string", "name": "promoCode" },
+        { "type": "uint256", "name": "tripId" },
+        { "type": "address", "name": "user" },
+        { "type": "uint256", "name": "tripEarningsInCurrency" },
+        { "type": "uint256", "name": "tripEarnings" },
+        { "type": "uint256", "name": "startTripDate" },
+        { "type": "uint256", "name": "endTripData" }
+      ],
+      "outputs": [{ "type": "bool", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "useRefferalPromo",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "bytes32", "name": "promoHash" },
+        { "type": "address", "name": "user" }
+      ],
+      "outputs": [{ "type": "uint256", "name": "" }]
+    }
+  ]
+}

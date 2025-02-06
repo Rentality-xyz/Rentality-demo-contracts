@@ -139,7 +139,8 @@ contract RentalityView is UUPSUpgradeable, Initializable {
         pickUpInfo,
         returnInfo,
         addresses.adminService.getDeliveryServiceAddress(),
-        address(insuranceService)
+        address(insuranceService),
+        address(dimoService)
       );
   }
   /// @notice Searches for available cars based on specified criteria.
@@ -172,7 +173,8 @@ contract RentalityView is UUPSUpgradeable, Initializable {
         pickUpInfo,
         returnInfo,
         RentalityAdminGateway(addresses.adminService).getDeliveryServiceAddress(),
-        address(insuranceService)
+        address(insuranceService),
+        address(dimoService)
       );
   }
 
@@ -278,7 +280,7 @@ function getDimoVihicles() public view returns(uint[] memory) {
   /// @notice Get chat information for trips hosted by the caller on the Rentality platform.
   /// @return chatInfo An array of chat information for trips hosted by the caller.
   function getChatInfoFor(bool host) public view returns (Schemas.ChatInfo[] memory) {
-    return RentalityTripsQuery.populateChatInfo(addresses, insuranceService, tx.origin, host, promoService);
+    return RentalityTripsQuery.populateChatInfo(addresses, insuranceService, tx.origin, host, promoService, dimoService);
   }
 
   /// @dev Retrieves delivery data for a given car.

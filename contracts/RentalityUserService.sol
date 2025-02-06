@@ -312,6 +312,9 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
     }
     return false;
   }
+  function isSignatureManager(address user) public view returns(bool) {
+    return hasRole(MANAGER_ROLE,user);
+  }
 
   /// @notice Initializes the contract with the specified Civic verifier address and gatekeeper network ID, and sets the default admin role.
   /// @dev This function is called during contract deployment.

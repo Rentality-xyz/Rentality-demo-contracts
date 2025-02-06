@@ -19,6 +19,7 @@ import '@openzeppelin/contracts/utils/math/Math.sol';
 import {RentalityInsurance} from '../payments/RentalityInsurance.sol';
 import '../engine/RentalityEnginesService.sol';
 import '../payments/RentalityBaseDiscount.sol';
+import {RentalityDimoService} from '../features/RentalityDimoService.sol';
 
 library RentalityTripsQuery {
   /// @notice Checks if a trip intersects with the specified time interval.
@@ -231,10 +232,12 @@ library RentalityTripsQuery {
     RentalityInsurance insuranceService,
     address user,
     bool host,
-    RentalityPromoService promoService
+    RentalityPromoService promoService,
+    RentalityDimoService dimoService
   ) public view returns (Schemas.TripDTO[] memory) {
     return
-      host ? getTripsByHost(contracts, insuranceService, user, promoService) : getTripsByGuest(contracts, insuranceService, user, promoService);
+      host ? getTripsByHost(contracts, insuranceService, user, promoService, dimoService) :
+       getTripsByGuest(contracts, insuranceService, user, promoService, dimoService);
   }
 
   /// @notice Retrieves all trips associated with a specific guest.
@@ -246,7 +249,8 @@ library RentalityTripsQuery {
     RentalityContract memory contracts,
     RentalityInsurance insuranceService,
     address guest,
-    RentalityPromoService promoService
+    RentalityPromoService promoService,
+     RentalityDimoService dimoService
   ) private view returns (Schemas.TripDTO[] memory) {
     RentalityTripService tripService = contracts.tripService;
     uint itemCount = 0;
@@ -262,7 +266,7 @@ library RentalityTripsQuery {
 
     for (uint i = 1; i <= tripService.totalTripCount(); i++) {
       if (tripService.getTrip(i).guest == guest) {
-        result[currentIndex] = getTripDTO(contracts, insuranceService, i, promoService);
+        result[currentIndex] = getTripDTO(contracts, insuranceService, i, promoService, dimoService);
         currentIndex += 1;
       }
     }
@@ -279,7 +283,8 @@ library RentalityTripsQuery {
     RentalityContract memory contracts,
     RentalityInsurance insuranceService,
     address host,
-    RentalityPromoService promoService
+    RentalityPromoService promoService,
+     RentalityDimoService dimoService
   ) private view returns (Schemas.TripDTO[] memory) {
     RentalityTripService tripService = contracts.tripService;
     uint itemCount = 0;
@@ -295,7 +300,7 @@ library RentalityTripsQuery {
 
     for (uint i = 1; i <= tripService.totalTripCount(); i++) {
       if (tripService.getTrip(i).host == host) {
-        result[currentIndex] = getTripDTO(contracts, insuranceService, i, promoService);
+        result[currentIndex] = getTripDTO(contracts, insuranceService, i, promoService, dimoService);
         currentIndex += 1;
       }
     }
@@ -312,7 +317,8 @@ library RentalityTripsQuery {
     RentalityContract memory contracts,
     RentalityInsurance insuranceService,
     uint tripId,
-    RentalityPromoService promoService
+    RentalityPromoService promoService,
+    RentalityDimoService dimoService
   ) public view returns (Schemas.TripDTO memory) {
     RentalityTripService tripService = contracts.tripService;
     RentalityCarToken carService = contracts.carService;
@@ -358,7 +364,8 @@ library RentalityTripsQuery {
         insuranceService.getTripInsurances(tripId),
         insuranceService.getInsurancePriceByTrip(tripId),
         userService.getMyFullKYCInfo().additionalKYC.issueCountry,
-        promoService.getTripDiscount(tripId)
+        promoService.getTripDiscount(tripId),
+        dimoService.getDimoTokenId(trip.carId)
       );
   }
   function getTripInsurancesBy(
@@ -510,9 +517,10 @@ library RentalityTripsQuery {
     RentalityInsurance insuranceService,
     address user,
     bool host,
-    RentalityPromoService promoService
+    RentalityPromoService promoService,
+    RentalityDimoService dimoService
   ) public view returns (Schemas.ChatInfo[] memory) {
-    Schemas.TripDTO[] memory trips = getTripsAs(addresses, insuranceService, user, host, promoService);
+    Schemas.TripDTO[] memory trips = getTripsAs(addresses, insuranceService, user, host, promoService, dimoService);
 
     RentalityUserService userService = addresses.userService;
     RentalityCarToken carService = addresses.carService;

@@ -221,6 +221,7 @@ describe('Rentality Delivery', function () {
       insuranceRequired: false,
       insurancePriceInUsdCents: 0,
 dimoTokenId: 0,
+signedDimoTokenId: '0x',
       insuranceIncluded: true,
     }
 
@@ -366,7 +367,8 @@ dimoTokenId: 0,
       currentlyListed: true,
       insuranceRequired: false,
       insurancePriceInUsdCents: 0,
-dimoTokenId: 0
+dimoTokenId: 0,
+signedDimoTokenId: '0x'
     }
     await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest)).not.to.be.reverted
 
@@ -388,7 +390,8 @@ dimoTokenId: 0
       currentlyListed: true,
       insuranceRequired: false,
       insurancePriceInUsdCents: 0,
-dimoTokenId: 0
+dimoTokenId: 0,
+signedDimoTokenId: '0x'
     }
     await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest1)).not.to.be.reverted
 
@@ -410,7 +413,8 @@ dimoTokenId: 0
       currentlyListed: true,
       insuranceRequired: false,
       insurancePriceInUsdCents: 0,
-dimoTokenId: 0
+dimoTokenId: 0,
+signedDimoTokenId: '0x'
     }
     await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest2)).not.to.be.reverted
     let loc = {
@@ -441,7 +445,8 @@ dimoTokenId: 0
       currentlyListed: true,
       insuranceRequired: false,
       insurancePriceInUsdCents: 0,
-dimoTokenId: 0
+dimoTokenId: 0,
+signedDimoTokenId: '0x'
     }
     const mockCreateCarRequest3 = {
       tokenUri: 'uri',
@@ -461,7 +466,8 @@ dimoTokenId: 0
       currentlyListed: true,
       insuranceRequired: false,
       insurancePriceInUsdCents: 0,
-dimoTokenId: 0
+dimoTokenId: 0,
+signedDimoTokenId: '0x'
     }
     const mockCreateCarRequest4 = {
       tokenUri: 'uri',
@@ -481,7 +487,8 @@ dimoTokenId: 0
       currentlyListed: true,
       insuranceRequired: false,
       insurancePriceInUsdCents: 0,
-dimoTokenId: 0
+dimoTokenId: 0,
+signedDimoTokenId: '0x'
     }
     await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest4)).not.to.be.reverted
     await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest5)).not.to.be.reverted
