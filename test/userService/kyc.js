@@ -210,11 +210,13 @@ describe('RentalityUserService: KYC management', function () {
     ).to.be.revertedWith('Wrong signature.')
   })
   it('can get platform users list', async function () {
-    const { host, guest, owner, rentalityUserService, rentalityGateway, adminKyc,anonymous } =
+    const { host, guest, owner, rentalityUserService, rentalityGateway, adminKyc, anonymous, rentalityAdminGateway } =
       await loadFixture(deployDefaultFixture)
 
    
-    let platformUsers = await rentalityUserService.getPlatformUsers()
+    await expect(rentalityUserService.getPlatformUsers()).to.be.revertedWith('Only Admin')
+    await rentalityAdminGateway.manageRole(5,owner.address,true)
+    const platformUsers = await rentalityUserService.getPlatformUsers()
     expect(platformUsers.includes(guest.address)).to.be.true
     expect(platformUsers.includes(host.address)).to.be.true
     expect(platformUsers.length).to.be.eq(2)

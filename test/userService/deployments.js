@@ -400,6 +400,7 @@ async function deployDefaultFixture() {
     anonymous,
     rentalityLocationVerifier,
     adminKyc,
+    rentalityAdminGateway
   }
 }
 

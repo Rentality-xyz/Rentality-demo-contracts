@@ -23,6 +23,7 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
   bytes32 public constant HOST_ROLE = keccak256('HOST_ROLE');
   bytes32 public constant GUEST_ROLE = keccak256('GUEST_ROLE');
   bytes32 public constant KYC_COMMISSION_MANAGER_ROLE = keccak256('KYC_MANAGER_ROLE');
+  bytes32 public constant ADMIN_VIEW_ROLE = keccak256('ADMIN_VIEW_ROLE');
 
   // Mapping to store KYC information for each user address
   mapping(address => Schemas.KYCInfo) private kycInfos;
@@ -109,6 +110,7 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
     return Schemas.FullKYCInfoDTO(kycInfos[tx.origin], additionalKycInfo[tx.origin]);
   }
   function getPlatformUsersKYCInfos() public view returns(Schemas.AdminKYCInfoDTO[] memory result) {
+    require(hasRole(ADMIN_VIEW_ROLE, tx.origin), 'Only Admin');
     address[] memory users = platformUsers;
     result = new Schemas.AdminKYCInfoDTO[](platformUsers.length);
     for (uint i = 0; i < result.length; i++) {
@@ -286,6 +288,8 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
     else if (newRole == Schemas.Role.Manager) role = MANAGER_ROLE;
     else if (newRole == Schemas.Role.Admin) role = DEFAULT_ADMIN_ROLE;
     else if (newRole == Schemas.Role.KYCManager) role = KYC_COMMISSION_MANAGER_ROLE;
+    else if (newRole == Schemas.Role.AdminView) role = ADMIN_VIEW_ROLE;
+    else revert('Invalid role');
     if (grant) _grantRole(role, user);
     else {
       _revokeRole(role, user);
@@ -296,6 +300,7 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
   }
 
   function getPlatformUsers() public view returns(address[] memory) {
+  require(hasRole(ADMIN_VIEW_ROLE, tx.origin), 'Only Admin');
     return platformUsers;
   }
 

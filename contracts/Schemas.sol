@@ -650,7 +650,8 @@ interface Schemas {
     Host,
     Manager,
     Admin,
-    KYCManager
+    KYCManager,
+    AdminView
   }
   enum RefferalProgram {
     SetKYC,
