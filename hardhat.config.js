@@ -3,9 +3,7 @@ require('dotenv').config()
 require('@nomicfoundation/hardhat-toolbox')
 require('@openzeppelin/hardhat-upgrades')
 require('solidity-docgen')
-require("hardhat-tracer");
-
-
+require('hardhat-tracer')
 
 module.exports = {
   mocha: {
@@ -28,12 +26,12 @@ module.exports = {
     localhost: {
       chainId: 1337,
     },
-    // ganache: {
-    //   url: process.env.GANACHE_LOCALHOST_URL,
-    //   accounts: [process.env.GANACHE_PRIVATE_KEY],
-    //   chainId: 1337,
-    //   timeout: 1_000_000,
-    // },
+    ganache: {
+      url: process.env.GANACHE_LOCALHOST_URL,
+      accounts: [process.env.GANACHE_PRIVATE_KEY],
+      chainId: 1337,
+      timeout: 1_000_000,
+    },
     tenderlyVirtual: {
       url: process.env.TENDERLY_URL ?? '',
       accounts: [process.env.PRIVATE_KEY],
@@ -65,8 +63,8 @@ module.exports = {
     },
   },
   tenderly: {
-    project: "rentality",
-    username: "gleborg",
+    project: 'rentality',
+    username: 'gleborg',
   },
   loggingEnabled: true,
   solidity: {
@@ -88,7 +86,5 @@ module.exports = {
       baseSepolia: process.env.BASE_API_TOKEN,
       base: process.env.BASE_API_TOKEN,
     }, // command to run: npx hardhat verify --network <contract address>
-
-   
   },
 }
