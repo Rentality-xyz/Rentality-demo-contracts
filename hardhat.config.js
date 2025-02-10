@@ -18,6 +18,9 @@ module.exports = {
                     * 'items': one page per item
                    'files': one page per input Solidity file  */,
   },
+  mocha: {
+    timeout: 1000000,
+  },
   defaultNetwork: 'hardhat',
   networks: {
     hardhat: {
@@ -55,6 +58,11 @@ module.exports = {
       url: process.env.OPTIMISM_SEPOLIA_URL ?? '',
       accounts: [process.env.PRIVATE_KEY],
       chainId: 11155420,
+    },
+    opBNB: {
+      url: process.env.OP_BNB_URL ?? '',
+      accounts: [process.env.PRIVATE_KEY],
+      chainId: 204,
     },
     opBNB_testnet: {
       url: process.env.OP_BNB_TESTNET_URL ?? '',

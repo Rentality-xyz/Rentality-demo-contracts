@@ -16,7 +16,7 @@
     "RentalityFloridaTaxes": "0xa65E7855986142F204dD5E14229dC1c1CCE3f261",
     "RentalityBaseDiscount": "0x963eCeC38ad5Bf2eC56185f08FdbFC01d88834AC",
     "RentalityPaymentService": "0x0638e2C99A879eD5D0bA0d6DA7872BD586060FaA",
-    "RentalityUtils": "0x2404AA58634903BCdeB6D141B9AcDfc58D15053B",
+    "RentalityUtils": "0xA1238A9BD4e48BE09AeC82bf6e98536D375f2186",
     "RentalityLocationVerifier": "0x163953E80BB35D5cEea42c334C6C435d85bd38AD",
     "RentalityGeoParser": "0x128bFe418C90EC077EB532411a88f6EF21BB00E0",
     "RentalityGeoService": "0x2ECb7d9330abA1C47768a374C1f466e4deb9187e",
@@ -39,7 +39,8 @@
     "RentalityViewLib": "0x46240EB4f67a544f0BB423405b4e96cdEc3C1201",
     "RentalityAdminGateway": "0x19dE77342611e0aF6dD387223309B9397123450b",
     "RentalityGateway": "0xCf261b0275870d924d65d67beB9E88Ebd8deE693",
-    "RentalityChatHelper": "0xd35fDe915f0E0B79522d20BCFbdc518d81667a1F"
+    "RentalityChatHelper": "0xd35fDe915f0E0B79522d20BCFbdc518d81667a1F",
+    "RentalityAiDamageAnalyze": "0xBBdF8ba46EC59AC1a726e64EF1419f693a055C7e"
   },
   {
     "name": "base_sepolia",
@@ -168,5 +169,11 @@
     "RentalityPlatform": "0x2Cac7696393c4C11c73b7b3A9B9a62C2e856d108",
     "RentalityAdminGateway": "0xC4a4b4ca47417776543A8593cE1e1C5bd360887B",
     "RentalityGateway": "0xD0E5cF390399aD578369577Ff865033dC976e74b"
+  },
+  {
+    "name": "opBNB",
+    "chainId": 204,
+    "EthToUsdPriceFeedAddress": "0x2cAE4a97fC8AB1BD2703b56231ED662Cc4E76133",
+    "UsdtToUsdPriceFeedAddress": "0xD2852dCbEc372aaeDb13E4fa4863fcB17fD89496"
   }
 ]
