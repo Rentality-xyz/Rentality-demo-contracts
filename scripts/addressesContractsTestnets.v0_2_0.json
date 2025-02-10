@@ -131,7 +131,7 @@
   {
     "name": "opBNB",
     "chainId": 204,
-    "EthToUsdPriceFeedAddress": "0x2cAE4a97fC8AB1BD2703b56231ED662Cc4E76133",
+    "EthToUsdPriceFeedAddress": "0x3d1E16C26E00A17e3C243330Cc9Ea031C2394c0a",
     "UsdtToUsdPriceFeedAddress": "0xD2852dCbEc372aaeDb13E4fa4863fcB17fD89496"
   }
 ]
