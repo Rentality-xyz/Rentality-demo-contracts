@@ -33,14 +33,14 @@ async function main() {
 
   const contractFactory = await ethers.getContractFactory(contractName, {
     libraries: {
-      RentalityViewLib: rentalityViewLib,
-    },
+      RentalityViewLib : rentalityViewLib
+    }
   })
   const contract = await upgrades.deployProxy(contractFactory, [
     userService,
     rentalityCurrencyConverterAddress,
     rentalityCarTokenAddress,
-    rentalityInsurance,
+    rentalityInsurance
   ])
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()

@@ -38,23 +38,21 @@ contract RentalityInvestment is Initializable, UUPSAccess {
    string memory sym = RentalityViewLib.createSumbol(investmentId);
 
     investmentIdToCarInfo[investmentId] = car;
-    RentalityInvestmentNft newNftCollection = new RentalityInvestmentNft(
+    investIdToNft[investmentId] = new RentalityInvestmentNft(
       name_,
       sym,
       investmentId,
       car.car.tokenUri
     );
-    investIdToNft[investmentId] = newNftCollection;
     investmentIdToCreator[investmentId] = msg.sender;
   }
 
   function invest(uint investId) public payable {
-    uint payedInETH = investmentIdToPayedInETH[investId];
     Schemas.CarInvestment storage investment = investmentIdToCarInfo[investId];
 
     require(investment.inProgress, 'Not available');
 
-    (uint amountAfterInvestment,,) = converter.getToUsdLatest(address(0), payedInETH + msg.value);
+    (uint amountAfterInvestment,,) = converter.getToUsdLatest(address(0), investmentIdToPayedInETH[investId] + msg.value);
 
     if (amountAfterInvestment >= investment.priceInUsd) {
       investment.inProgress = false;
@@ -69,37 +67,37 @@ contract RentalityInvestment is Initializable, UUPSAccess {
 
     Schemas.CarInvestment storage investment = investmentIdToCarInfo[investId];
     require(!investment.inProgress, 'In progress');
-    uint payedInETH = investmentIdToPayedInETH[investId];
     investIdToPool[investId] = new RentalityCarInvestmentPool(
       investId,
       address(investIdToNft[investId]),
-      payedInETH,
+      investmentIdToPayedInETH[investId],
       address(userService)
     );
 
     uint carId = carToken.addCar(investment.car, msg.sender);
      insuranceService.saveInsuranceRequired(carId, investment.car.insurancePriceInUsdCents, investment.car.insuranceRequired, msg.sender);
     carIdToInvestId[carId] = investId;
-    (bool success, ) = payable(msg.sender).call{value: payedInETH}('');
+    (bool success, ) = payable(msg.sender).call{value: investmentIdToPayedInETH[investId]}('');
     require(success, 'Fail to transfer.');
   }
 
 
-  function getPaymentsInfo(uint carId) public view returns (uint, RentalityCarInvestmentPool) {
-    return (investmentIdToCarInfo[carIdToInvestId[carId]].creatorPercents, investIdToPool[carIdToInvestId[carId]]);
+  function getPaymentsInfo(uint carId) public view returns (uint percents, RentalityCarInvestmentPool pool) {
+    percents = investmentIdToCarInfo[carIdToInvestId[carId]].creatorPercents;
+    pool = investIdToPool[carIdToInvestId[carId]];
   }
  
-  function getAllInvestments() public view returns (Schemas.InvestmentDTO[] memory) {
-    Schemas.InvestmentDTO[] memory cars = new Schemas.InvestmentDTO[](investmentId);
+  function getAllInvestments() public view returns (Schemas.InvestmentDTO[] memory cars) {
+    cars = new Schemas.InvestmentDTO[](investmentId);
     for (uint i = 1; i <= investmentId; i++) {
       uint income = 0;
       uint myIncomeInUsdCents = 0;
       bool isBought = address(investIdToPool[i]) != address(0);
-       (uint[] memory tokens, uint iInvested, uint totalHolders, uint totalTokens) = investIdToNft[i].getAllMyTokensWithTotalPrice(msg.sender);
+       (uint[] memory tokens, uint iInvested, uint totalHolders, uint totalTokens) = RentalityViewLib.getAllMyTokensWithTotalPrice(msg.sender, investIdToNft[i]);
        (uint payed,,) = converter.getToUsdLatest(address(0), investmentIdToPayedInETH[i]);
       if (isBought) {
-        (income, , ) = converter.getToUsdLatest(address(0), investIdToPool[i].getTotalIncome());
-        uint myIncome = RentalityViewLib.getTotalIncomeByNFTs(address(investIdToPool[i]),tokens);
+        (income, , ) = converter.getToUsdLatest(address(0), RentalityViewLib.getTotalIncome(investIdToPool[i]));
+        uint myIncome = RentalityViewLib.getTotalIncomeByNFTs(tokens,investIdToPool[i],investIdToNft[i]);
        
         (myIncomeInUsdCents, , ) = converter.getToUsdLatest(address(0), myIncome);
       }
@@ -121,11 +119,11 @@ contract RentalityInvestment is Initializable, UUPSAccess {
         totalTokens
       );
     }
-    return cars;
   }
 
   function claimAllMy(uint investId) public {
-    investIdToPool[investId].claimAllMy(msg.sender);
+    (uint[] memory tokens,,,) = RentalityViewLib.getAllMyTokensWithTotalPrice(msg.sender, investIdToNft[investId]);
+    investIdToPool[investId].claimAllMy(msg.sender,tokens);
   }
 
 

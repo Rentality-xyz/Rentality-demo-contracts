@@ -34,10 +34,9 @@ contract RentalityCarInvestmentPool {
         incomes.push(Income(msg.value, totalProfit));
     }
 
-    function claimAllMy(address user) public {
+    function claimAllMy(address user, uint[] memory tokens) public {
         require(userService.isManager(msg.sender),"only Manager");
         require(incomes.length > 0, 'no incomes');
-        (uint[] memory tokens,,,) = nft.getAllMyTokensWithTotalPrice(user);
         uint toClaim = 0;
         for (uint i = 0; i < tokens.length; i++) {
             uint lastIncomeClaimed = nftIdToLastIncomeNumber[tokens[i]];
@@ -59,24 +58,7 @@ contract RentalityCarInvestmentPool {
         }
     }
 
-    function getIncomesByNftId(uint id) public view returns (uint) {
-        uint lastIncomeClaimed = nftIdToLastIncomeNumber[id];
-        uint tokenPrice = nft.tokenIdToPriceInEth(id);
-        uint part = (tokenPrice * 100_000) / totalPriceInEth;
-
-        uint result = 0;
-        for (uint i = lastIncomeClaimed; i < incomes.length; i++) {
-            result += incomes[i].income;
-        }
-        return (result * part) / 100_000;
-    }
-
-
-    function getTotalIncome() public view returns (uint) {
-        uint result = 0;
-        for (uint i = 0; i < incomes.length; i++) {
-            result += incomes[i].totalProfit;
-        }
-        return result;
+    function getIncomeInfoByNft(uint id) public view returns(Income[] memory, uint, uint) {
+        return (incomes, nftIdToLastIncomeNumber[id], totalPriceInEth);
     }
 }

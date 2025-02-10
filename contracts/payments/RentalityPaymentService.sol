@@ -29,6 +29,11 @@ RentalityInvestment private investmentService;
     require(userService.isAdmin(tx.origin), 'Only admin.');
     _;
   }
+
+  function setInvestmentService(address investAddress) public {
+    require(userService.isAdmin(msg.sender), "only admin");
+    investmentService = RentalityInvestment(investAddress);
+  }
   function getBaseDiscount() public view returns (RentalityBaseDiscount) {
     address discountAddress = address(discountAddressToDiscountContract[currentDiscount]);
     return RentalityBaseDiscount(discountAddress);

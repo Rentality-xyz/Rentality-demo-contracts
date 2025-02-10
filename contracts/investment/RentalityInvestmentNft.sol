@@ -10,7 +10,7 @@ contract RentalityInvestmentNft is ERC721, Ownable {
   mapping(uint => uint) public tokenIdToPriceInEth;
 
   string private _tokenUri;
-
+  
   uint private totalHolders;
 
   constructor(
@@ -27,13 +27,13 @@ contract RentalityInvestmentNft is ERC721, Ownable {
   }
   function mint(uint priceInEth, address user) public onlyOwner {
     tokenId += 1;
-    _mint(user, tokenId);
-
+      
       if(balanceOf(user) == 0)
       totalHolders += 1;
 
     _mint(user, tokenId);
     tokenIdToPriceInEth[tokenId] = priceInEth;
+ 
   }
 
   function tokenURI(uint256 id) public view virtual override returns (string memory) {
@@ -41,17 +41,8 @@ contract RentalityInvestmentNft is ERC721, Ownable {
     return _tokenUri;
   }
 
-  function getAllMyTokensWithTotalPrice(address user) public view returns (uint[] memory, uint, uint, uint) {
-    uint[] memory result = new uint[](balanceOf(user));
-    uint counter = 0;
-    uint totalPrice = 0;
-    for (uint i = 1; i <= tokenId; i++)
-      if (_ownerOf(i) == user) {
-        result[counter] = i;
-        counter += 1;
-        totalPrice += tokenIdToPriceInEth[i];
-      }
-    return (result, totalPrice, totalHolders, tokenId);
+  function totalSupplyWithTotalHolders() public view returns(uint, uint) {
+    return (tokenId,totalHolders);
   }
 
 }
