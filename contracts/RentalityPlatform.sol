@@ -407,20 +407,6 @@ contract RentalityPlatform is UUPSOwnable {
 
   // }
 
-  /// @notice Adds a user discount.
-  /// @param data The discount data.
-  function addUserDiscount(Schemas.BaseDiscount memory data) public {
-    addresses.paymentService.addBaseDiscount(tx.origin, data);
-  }
-
-  function addUserDeliveryPrices(uint64 underTwentyFiveMilesInUsdCents, uint64 aboveTwentyFiveMilesInUsdCents) public {
-    addresses.deliveryService.setUserDeliveryPrices(
-      underTwentyFiveMilesInUsdCents,
-      aboveTwentyFiveMilesInUsdCents,
-      tx.origin
-    );
-  }
-
   // function updateCarTokenUri(uint256 carId, string memory tokenUri) public {
   // addresses.carService.updateCarTokenUri(carId,tokenUri);
   // }
