@@ -47,7 +47,7 @@ contract RentalityDimoService is UUPSAccess, EIP712Upgradeable {
     return carIdToDimoTokenId[carId];
   }
 
-  function initialize(address _userService, address _carToken, address _admin) public initializer {
+  function initialize(address _userService, address _carToken) public initializer {
     userService = IRentalityAccessControl(_userService);
     carToken = RentalityCarToken(_carToken);
   }

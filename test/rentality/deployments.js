@@ -136,11 +136,7 @@ async function deployDefaultFixture() {
   const usdtContract = await TestUsdt.deploy()
   await usdtContract.waitForDeployment()
 
-  const rentalityCurrencyConverter = await upgrades.deployProxy(RentalityCurrencyConverter, [
-    await rentalityUserService.getAddress(),
-    await ethContract.getAddress(),
-  ])
-  await rentalityCurrencyConverter.waitForDeployment()
+ 
 
   await rentalityCurrencyConverter.waitForDeployment()
   await rentalityPaymentService.waitForDeployment()
@@ -183,29 +179,6 @@ async function deployDefaultFixture() {
     await rentalityCarToken.getAddress(),
   ])
   await insuranceService.waitForDeployment()
-
-  let InvestFactory = await ethers.getContractFactory('RentalityInvestment')
-  let investorsService = await upgrades.deployProxy(InvestFactory, [
-      await rentalityUserService.getAddress(),
-      await rentalityCurrencyConverter.getAddress(),
-      await rentalityCarToken.getAddress(),
-      await insuranceService.getAddress(),
-  ])
-  await investorsService.waitForDeployment()
-  const rentalityPaymentService = await upgrades.deployProxy(RentalityPaymentService, [
-    await rentalityUserService.getAddress(),
-    await rentalityFloridaTaxes.getAddress(),
-    await rentalityBaseDiscount.getAddress(),
-    await investorsService.getAddress(),
-  ])
-
-
-
-
-
-  const TestUsdt = await ethers.getContractFactory('RentalityTestUSDT')
-  const usdtContract = await TestUsdt.deploy()
-  await usdtContract.waitForDeployment()
 
 
   await rentalityCurrencyConverter.waitForDeployment()

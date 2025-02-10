@@ -196,7 +196,7 @@ library RentalityViewLib {
         return result;
     }
 
-    function validatePayClaim(Schemas.Trip memory trip, Schemas.Claim memory claim, address user) public view {
+    function validatePayClaim(Schemas.Trip memory trip, Schemas.Claim memory claim, address user) public pure {
         require((claim.isHostClaims && user == trip.guest) || user == trip.host, 'Guest or host.');
         require(claim.status != Schemas.ClaimStatus.Paid && claim.status != Schemas.ClaimStatus.Cancel, 'Wrong Status.');
     }
@@ -277,7 +277,7 @@ library RentalityViewLib {
           return (result, totalPrice, totalHolders, totalSupply);
   }
 
-  function getIncomesByNftId(uint id, RentalityCarInvestmentPool pool, RentalityInvestmentNft nft) public view returns(uint) {
+  function getIncomesByNftId(uint id, RentalityCarInvestmentPool pool, RentalityInvestmentNft nft) private view returns(uint) {
        (Income[] memory incomes, uint lastIncomeClaimed, uint totalPriceInEth) = pool.getIncomeInfoByNft(id);
         uint tokenPrice = nft.tokenIdToPriceInEth(id);
         uint part = (tokenPrice * 100_000) / totalPriceInEth;
@@ -297,6 +297,13 @@ library RentalityViewLib {
         }
         return result;
     }
+
+    function verifyInvestment(address user, address sender, RentalityCarInvestmentPool pool, Schemas.CarInvestment memory investment) public pure {
+       require(sender == user, 'Only for creator');
+       require(address(pool) == address(0), 'Claimed');
+       require(!investment.inProgress, 'In progress');
+
+}
 
     function getConvertedAmount(RentalityCurrencyConverter converter , uint amount) public view returns (uint) {
         (uint convertedAmount, , ) = converter.getToUsdLatest(address(0), amount);

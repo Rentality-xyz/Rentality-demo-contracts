@@ -9,8 +9,6 @@ import './RentalityInvestmentPool.sol';
 import '../RentalityCarToken.sol';
 import '../Schemas.sol';
 import {RentalityInsurance} from '../payments/RentalityInsurance.sol';
-import "@openzeppelin/contracts/utils/Strings.sol";
-import '@openzeppelin/contracts/utils/math/Math.sol';
 import {RentalityViewLib} from '../libs/RentalityViewLib.sol';
 
 
@@ -127,7 +125,7 @@ contract RentalityInvestment is Initializable, UUPSAccess {
   }
 
 
-  /// @notice Initializes the contract with the specified addresses for user service and geolocation parser.
+  /// @notice Initializes the contract with the specified addresses
 
   function initialize(
     address _userService,

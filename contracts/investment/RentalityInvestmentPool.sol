@@ -3,7 +3,6 @@ pragma solidity ^0.8.9;
 
 import '../Schemas.sol';
 import '../proxy/UUPSAccess.sol';
-import '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 import './RentalityInvestmentNft.sol';
 
     struct Income {

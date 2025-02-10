@@ -281,7 +281,7 @@ contract RentalityReferralProgram is
     return hashToOwnerV2[hash] != address(0);
   }
 
-  function createReferralHash(address user) internal view returns (bytes4) {
+  function createReferralHash(address user) internal pure returns (bytes4) {
     return bytes4(keccak256(abi.encode(this.generateReferralHash.selector, user)));
   }
   function getMyRefferalInfo() public view returns(Schemas.MyRefferalInfoDTO memory) {
