@@ -126,5 +126,11 @@
     "RentalityGateway": "0xF57bBa938f5eD700648819971A13757e8064e40e",
     "RentalityChatHelper": "0xb1576942d42196a5448eA93105122E4F2Bc26eb4",
     "RentalityAiDamageAnalyze": "0x86f76B4C305d05057899E54594cc9ad8eBF48C96"
+  },
+  {
+    "name": "opBNB",
+    "chainId": 204,
+    "EthToUsdPriceFeedAddress": "0x2cAE4a97fC8AB1BD2703b56231ED662Cc4E76133",
+    "UsdtToUsdPriceFeedAddress": "0xD2852dCbEc372aaeDb13E4fa4863fcB17fD89496"
   }
 ]
