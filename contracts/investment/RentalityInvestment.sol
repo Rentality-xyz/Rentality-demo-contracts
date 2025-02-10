@@ -10,6 +10,7 @@ import '../RentalityCarToken.sol';
 import '../Schemas.sol';
 import {RentalityInsurance} from '../payments/RentalityInsurance.sol';
 import {RentalityViewLib} from '../libs/RentalityViewLib.sol';
+import {RentalityUserService} from '../RentalityUserService.sol';
 
 
 /// @dev SAFETY: The linked library is not supported yet because it can modify the state or call
@@ -30,6 +31,7 @@ contract RentalityInvestment is Initializable, UUPSAccess {
   mapping(uint => uint) private carIdToInvestId;
 
   function createCarInvestment(Schemas.CarInvestment memory car, string memory name_) public {
+    require(RentalityUserService(address(userService)).isInvestorManager(msg.sender),"only Manager");
     require(carToken.isUniqueVinNumber(car.car.carVinNumber), 'Car with this VIN number already exists');
 
     investmentId += 1;

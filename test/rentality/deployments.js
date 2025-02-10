@@ -51,6 +51,22 @@ async function deployDefaultFixture() {
 
   await rentalityUserService.waitForDeployment()
 
+  const RentalityEth = await ethers.getContractFactory('RentalityETHConvertor')
+
+
+  const ethContract = await upgrades.deployProxy(RentalityEth, [
+    await rentalityUserService.getAddress(),
+    ethToken,
+    await rentalityMockPriceFeed.getAddress(),
+  ])
+  await ethContract.waitForDeployment()
+
+  const TestUsdt = await ethers.getContractFactory('RentalityTestUSDT')
+  const usdtContract = await TestUsdt.deploy()
+  await usdtContract.waitForDeployment()
+
+
+
   const RentalityNotificationService = await ethers.getContractFactory('RentalityNotificationService')
 
   const rentalityNotificationService = await upgrades.deployProxy(RentalityNotificationService, [
@@ -109,43 +125,6 @@ async function deployDefaultFixture() {
     await ethContract.getAddress(),
   ])
   await rentalityCurrencyConverter.waitForDeployment()
-  let investorsService = await upgrades.deployProxy(InvestFactory, [
-      await rentalityUserService.getAddress(),
-      await rentalityCurrencyConverter.getAddress(),
-      await rentalityCarToken.getAddress(),
-      await insuranceService.getAddress(),
-  ])
-  await investorsService.waitForDeployment()
-  const rentalityPaymentService = await upgrades.deployProxy(RentalityPaymentService, [
-    await rentalityUserService.getAddress(),
-    await rentalityFloridaTaxes.getAddress(),
-    await rentalityBaseDiscount.getAddress(),
-    await investorsService.getAddress(),
-  ])
-
-  const RentalityEth = await ethers.getContractFactory('RentalityETHConvertor')
-
-  const ethContract = await upgrades.deployProxy(RentalityEth, [
-    await rentalityUserService.getAddress(),
-    ethToken,
-    await rentalityMockPriceFeed.getAddress(),
-  ])
-  await ethContract.waitForDeployment()
-
-  const TestUsdt = await ethers.getContractFactory('RentalityTestUSDT')
-  const usdtContract = await TestUsdt.deploy()
-  await usdtContract.waitForDeployment()
-
- 
-
-  await rentalityCurrencyConverter.waitForDeployment()
-  await rentalityPaymentService.waitForDeployment()
-  await rentalityMockPriceFeed.waitForDeployment()
-
-  await rentalityUserService.connect(owner).grantAdminRole(admin.address)
-  await rentalityUserService.connect(owner).grantManagerRole(manager.address)
-  await rentalityUserService.connect(owner).grantHostRole(host.address)
-  await rentalityUserService.connect(owner).grantGuestRole(guest.address)
 
   const patrolEngine = await ethers.getContractFactory('RentalityPetrolEngine')
   const pEngine = await patrolEngine.deploy(await rentalityUserService.getAddress())
@@ -179,6 +158,31 @@ async function deployDefaultFixture() {
     await rentalityCarToken.getAddress(),
   ])
   await insuranceService.waitForDeployment()
+
+  let investorsService = await upgrades.deployProxy(InvestFactory, [
+      await rentalityUserService.getAddress(),
+      await rentalityCurrencyConverter.getAddress(),
+      await rentalityCarToken.getAddress(),
+      await insuranceService.getAddress(),
+  ])
+  await investorsService.waitForDeployment()
+  const rentalityPaymentService = await upgrades.deployProxy(RentalityPaymentService, [
+    await rentalityUserService.getAddress(),
+    await rentalityFloridaTaxes.getAddress(),
+    await rentalityBaseDiscount.getAddress(),
+    await investorsService.getAddress(),
+  ])
+
+ 
+
+  await rentalityCurrencyConverter.waitForDeployment()
+  await rentalityPaymentService.waitForDeployment()
+  await rentalityMockPriceFeed.waitForDeployment()
+
+  await rentalityUserService.connect(owner).grantAdminRole(admin.address)
+  await rentalityUserService.connect(owner).grantManagerRole(manager.address)
+  await rentalityUserService.connect(owner).grantHostRole(host.address)
+  await rentalityUserService.connect(owner).grantGuestRole(guest.address)
 
 
   await rentalityCurrencyConverter.waitForDeployment()
