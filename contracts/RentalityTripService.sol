@@ -88,10 +88,6 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     uint msgValue
   ) public returns (uint) {
     require(addresses.userService.isManager(msg.sender), 'Only from manager contract.');
-
-    if (!addresses.userService.isGuest(tx.origin)) {
-      addresses.userService.grantGuestRole(tx.origin);
-    }
     _tripIdCounter.increment();
     uint256 newTripId = _tripIdCounter.current();
     if (milesIncludedPerDay == 0) {

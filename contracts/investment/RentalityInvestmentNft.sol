@@ -10,7 +10,7 @@ contract RentalityInvestmentNft is ERC721, Ownable {
   mapping(uint => uint) public tokenIdToPriceInEth;
 
   string private _tokenUri;
-  
+
   uint private totalHolders;
 
   constructor(
@@ -25,15 +25,15 @@ contract RentalityInvestmentNft is ERC721, Ownable {
     
    _transferOwnership(msg.sender);
   }
-  function mint(uint priceInEth) public onlyOwner {
+  function mint(uint priceInEth, address user) public onlyOwner {
     tokenId += 1;
-      
-      if(balanceOf(tx.origin) == 0)
+    _mint(user, tokenId);
+
+      if(balanceOf(user) == 0)
       totalHolders += 1;
 
-    _mint(tx.origin, tokenId);
+    _mint(user, tokenId);
     tokenIdToPriceInEth[tokenId] = priceInEth;
- 
   }
 
   function tokenURI(uint256 id) public view virtual override returns (string memory) {

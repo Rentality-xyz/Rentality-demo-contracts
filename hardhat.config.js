@@ -25,6 +25,7 @@ module.exports = {
     },
     localhost: {
       chainId: 1337,
+      timeout: 1_000_000,
     },
     ganache: {
       url: process.env.GANACHE_LOCALHOST_URL,
@@ -62,10 +63,6 @@ module.exports = {
       chainId: 5611,
     },
   },
-  tenderly: {
-    project: 'rentality',
-    username: 'gleborg',
-  },
   loggingEnabled: true,
   solidity: {
     version: '0.8.19',
@@ -86,5 +83,7 @@ module.exports = {
       baseSepolia: process.env.BASE_API_TOKEN,
       base: process.env.BASE_API_TOKEN,
     }, // command to run: npx hardhat verify --network <contract address>
+
+   
   },
 }

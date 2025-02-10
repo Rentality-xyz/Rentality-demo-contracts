@@ -68,12 +68,12 @@ describe('RentalityUserService: KYC management', function () {
     const guestSignature = await signTCMessage(guest)
     await rentalityGateway.connect(guest).setKYCInfo('name', 'phoneNumber', 'profilePicture',"", guestSignature,zeroHash)
 
-    const kycInfo = await rentalityUserService.connect(guest).getMyKYCInfo()
+    const kycInfo = await rentalityGateway.connect(guest).getMyFullKYCInfo()
 
-    expect(kycInfo.name).to.equal('name')
-    expect(kycInfo.surname).to.equal('')
-    expect(kycInfo.mobilePhoneNumber).to.equal('phoneNumber')
-    expect(kycInfo.profilePhoto).to.equal('profilePicture')
+    expect(kycInfo.kyc.name).to.equal('name')
+    expect(kycInfo.kyc.surname).to.equal('')
+    expect(kycInfo.kyc.mobilePhoneNumber).to.equal('phoneNumber')
+    expect(kycInfo.kyc.profilePhoto).to.equal('profilePicture')
   })
 
   it.skip('User cannot get other users KYCInfo', async function () {

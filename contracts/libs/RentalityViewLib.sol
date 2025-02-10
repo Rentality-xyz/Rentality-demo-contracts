@@ -196,8 +196,8 @@ library RentalityViewLib {
         return result;
     }
 
-    function validatePayClaim(Schemas.Trip memory trip, Schemas.Claim memory claim) public view {
-        require((claim.isHostClaims && tx.origin == trip.guest) || tx.origin == trip.host, 'Guest or host.');
+    function validatePayClaim(Schemas.Trip memory trip, Schemas.Claim memory claim, address user) public view {
+        require((claim.isHostClaims && user == trip.guest) || user == trip.host, 'Guest or host.');
         require(claim.status != Schemas.ClaimStatus.Paid && claim.status != Schemas.ClaimStatus.Cancel, 'Wrong Status.');
     }
 
