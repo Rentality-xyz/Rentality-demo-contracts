@@ -18,7 +18,7 @@ module.exports = {
                     * 'items': one page per item
                    'files': one page per input Solidity file  */,
   },
-  defaultNetwork: 'hardhat',
+  defaultNetwork: 'localhost',
   networks: {
     hardhat: {
       chainId: 1337,

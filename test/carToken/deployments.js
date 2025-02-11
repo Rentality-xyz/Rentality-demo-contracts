@@ -382,6 +382,7 @@ async function deployDefaultFixture() {
   await rentalityUserService.connect(owner).grantHostRole(await rentalityPlatform.getAddress())
 
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityCarToken.getAddress())
+  await rentalityUserService.connect(owner).grantManagerRole(await refferalProgram.getAddress())
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityView.getAddress())
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityAdminGateway.getAddress())
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityGateway.getAddress())

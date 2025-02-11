@@ -1,1 +1,100 @@
-{"abi":[{"type":"function","name":"checkCoordinates","constant":true,"stateMutability":"pure","payable":false,"inputs":[{"type":"string","name":"locationLat"},{"type":"string","name":"locationLng"},{"type":"string","name":"northeastLat"},{"type":"string","name":"northeastLng"},{"type":"string","name":"southwestLat"},{"type":"string","name":"southwestLng"}],"outputs":[{"type":"bool","name":""}]},{"type":"function","name":"containWord","constant":true,"stateMutability":"pure","payable":false,"inputs":[{"type":"string","name":"where"},{"type":"string","name":"what"}],"outputs":[{"type":"bool","name":"found"}]},{"type":"function","name":"isCarAvailableForUser","constant":true,"stateMutability":"view","payable":false,"inputs":[{"type":"uint256","name":"carId"},{"type":"tuple","name":"searchCarParams","components":[{"type":"string","name":"country"},{"type":"string","name":"state"},{"type":"string","name":"city"},{"type":"string","name":"brand"},{"type":"string","name":"model"},{"type":"uint32","name":"yearOfProductionFrom"},{"type":"uint32","name":"yearOfProductionTo"},{"type":"uint64","name":"pricePerDayInUsdCentsFrom"},{"type":"uint64","name":"pricePerDayInUsdCentsTo"},{"type":"tuple","name":"userLocation","components":[{"type":"string","name":"userAddress"},{"type":"string","name":"country"},{"type":"string","name":"state"},{"type":"string","name":"city"},{"type":"string","name":"latitude"},{"type":"string","name":"longitude"},{"type":"string","name":"timeZoneId"}]}]},{"type":"address","name":"carServiceAddress"},{"type":"address","name":"geoServiceAddress"}],"outputs":[{"type":"bool","name":""}]},{"type":"function","name":"parseInt","constant":true,"stateMutability":"pure","payable":false,"inputs":[{"type":"string","name":"_a"}],"outputs":[{"type":"int256","name":""}]},{"type":"function","name":"toBytes","constant":true,"stateMutability":"pure","payable":false,"inputs":[{"type":"bytes32","name":"_data"}],"outputs":[{"type":"bytes","name":""}]},{"type":"function","name":"toLower","constant":true,"stateMutability":"pure","payable":false,"inputs":[{"type":"string","name":"str"}],"outputs":[{"type":"string","name":""}]}]}
+{
+  "abi": [
+    {
+      "type": "function",
+      "name": "checkCoordinates",
+      "constant": true,
+      "stateMutability": "pure",
+      "payable": false,
+      "inputs": [
+        { "type": "string", "name": "locationLat" },
+        { "type": "string", "name": "locationLng" },
+        { "type": "string", "name": "northeastLat" },
+        { "type": "string", "name": "northeastLng" },
+        { "type": "string", "name": "southwestLat" },
+        { "type": "string", "name": "southwestLng" }
+      ],
+      "outputs": [{ "type": "bool", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "containWord",
+      "constant": true,
+      "stateMutability": "pure",
+      "payable": false,
+      "inputs": [
+        { "type": "string", "name": "where" },
+        { "type": "string", "name": "what" }
+      ],
+      "outputs": [{ "type": "bool", "name": "found" }]
+    },
+    {
+      "type": "function",
+      "name": "isCarAvailableForUser",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        { "type": "uint256", "name": "carId" },
+        {
+          "type": "tuple",
+          "name": "searchCarParams",
+          "components": [
+            { "type": "string", "name": "country" },
+            { "type": "string", "name": "state" },
+            { "type": "string", "name": "city" },
+            { "type": "string", "name": "brand" },
+            { "type": "string", "name": "model" },
+            { "type": "uint32", "name": "yearOfProductionFrom" },
+            { "type": "uint32", "name": "yearOfProductionTo" },
+            { "type": "uint64", "name": "pricePerDayInUsdCentsFrom" },
+            { "type": "uint64", "name": "pricePerDayInUsdCentsTo" },
+            {
+              "type": "tuple",
+              "name": "userLocation",
+              "components": [
+                { "type": "string", "name": "userAddress" },
+                { "type": "string", "name": "country" },
+                { "type": "string", "name": "state" },
+                { "type": "string", "name": "city" },
+                { "type": "string", "name": "latitude" },
+                { "type": "string", "name": "longitude" },
+                { "type": "string", "name": "timeZoneId" }
+              ]
+            }
+          ]
+        },
+        { "type": "address", "name": "carServiceAddress" },
+        { "type": "address", "name": "geoServiceAddress" }
+      ],
+      "outputs": [{ "type": "bool", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "parseInt",
+      "constant": true,
+      "stateMutability": "pure",
+      "payable": false,
+      "inputs": [{ "type": "string", "name": "_a" }],
+      "outputs": [{ "type": "int256", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "toBytes",
+      "constant": true,
+      "stateMutability": "pure",
+      "payable": false,
+      "inputs": [{ "type": "bytes32", "name": "_data" }],
+      "outputs": [{ "type": "bytes", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "toLower",
+      "constant": true,
+      "stateMutability": "pure",
+      "payable": false,
+      "inputs": [{ "type": "string", "name": "str" }],
+      "outputs": [{ "type": "string", "name": "" }]
+    }
+  ]
+}

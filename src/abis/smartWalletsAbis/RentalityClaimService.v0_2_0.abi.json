@@ -1,1 +1,239 @@
-{"abi":[{"type":"event","anonymous":false,"name":"AdminChanged","inputs":[{"type":"address","name":"previousAdmin","indexed":false},{"type":"address","name":"newAdmin","indexed":false}]},{"type":"event","anonymous":false,"name":"BeaconUpgraded","inputs":[{"type":"address","name":"beacon","indexed":true}]},{"type":"event","anonymous":false,"name":"Initialized","inputs":[{"type":"uint8","name":"version","indexed":false}]},{"type":"event","anonymous":false,"name":"Upgraded","inputs":[{"type":"address","name":"implementation","indexed":true}]},{"type":"event","anonymous":false,"name":"WaitingTimeChanged","inputs":[{"type":"uint256","name":"newWaitingTime","indexed":false}]},{"type":"function","name":"claimIdToCurrencyRate","constant":true,"stateMutability":"view","payable":false,"inputs":[{"type":"uint256","name":""}],"outputs":[{"type":"int256","name":"rate"},{"type":"uint8","name":"decimals"}]},{"type":"function","name":"createClaim","constant":false,"payable":false,"inputs":[{"type":"tuple","name":"request","components":[{"type":"uint256","name":"tripId"},{"type":"uint8","name":"claimType"},{"type":"string","name":"description"},{"type":"uint64","name":"amountInUsdCents"},{"type":"string","name":"photosUrl"}]},{"type":"address","name":"host"},{"type":"address","name":"guest"},{"type":"address","name":"user"}],"outputs":[]},{"type":"function","name":"exists","constant":true,"stateMutability":"view","payable":false,"inputs":[{"type":"uint256","name":"_claimId"}],"outputs":[{"type":"bool","name":""}]},{"type":"function","name":"getClaim","constant":true,"stateMutability":"view","payable":false,"inputs":[{"type":"uint256","name":"_claimId"}],"outputs":[{"type":"tuple","name":"","components":[{"type":"uint256","name":"tripId"},{"type":"uint256","name":"claimId"},{"type":"uint256","name":"deadlineDateInSec"},{"type":"uint8","name":"claimType"},{"type":"uint8","name":"status"},{"type":"string","name":"description"},{"type":"uint64","name":"amountInUsdCents"},{"type":"uint256","name":"payDateInSec"},{"type":"address","name":"rejectedBy"},{"type":"uint256","name":"rejectedDateInSec"},{"type":"string","name":"photosUrl"},{"type":"bool","name":"isHostClaims"}]}]},{"type":"function","name":"getClaimsAmount","constant":true,"stateMutability":"view","payable":false,"inputs":[],"outputs":[{"type":"uint256","name":""}]},{"type":"function","name":"getPlatformFeeFrom","constant":true,"stateMutability":"view","payable":false,"inputs":[{"type":"uint256","name":"value"}],"outputs":[{"type":"uint256","name":""}]},{"type":"function","name":"getWaitingTime","constant":true,"stateMutability":"view","payable":false,"inputs":[],"outputs":[{"type":"uint256","name":""}]},{"type":"function","name":"initialize","constant":false,"payable":false,"inputs":[{"type":"address","name":"_userService"},{"type":"address","name":"_eventManager"}],"outputs":[]},{"type":"function","name":"payClaim","constant":false,"payable":false,"inputs":[{"type":"uint256","name":"_claimId"},{"type":"address","name":"host"},{"type":"address","name":"guest"},{"type":"int256","name":"rate"},{"type":"uint8","name":"dec"}],"outputs":[]},{"type":"function","name":"proxiableUUID","constant":true,"stateMutability":"view","payable":false,"inputs":[],"outputs":[{"type":"bytes32","name":""}]},{"type":"function","name":"rejectClaim","constant":false,"payable":false,"inputs":[{"type":"uint256","name":"_claimId"},{"type":"address","name":"rejectedBy"},{"type":"address","name":"host"},{"type":"address","name":"guest"}],"outputs":[]},{"type":"function","name":"setPlatformFee","constant":false,"payable":false,"inputs":[{"type":"uint256","name":"value"}],"outputs":[]},{"type":"function","name":"setWaitingTime","constant":false,"payable":false,"inputs":[{"type":"uint256","name":"newWaitingTimeInSec"}],"outputs":[]},{"type":"function","name":"updateClaim","constant":false,"payable":false,"inputs":[{"type":"uint256","name":"_claimId"},{"type":"address","name":"host"},{"type":"address","name":"guest"}],"outputs":[]},{"type":"function","name":"updateEventServiceAddress","constant":false,"payable":false,"inputs":[{"type":"address","name":"_eventManager"}],"outputs":[]},{"type":"function","name":"upgradeTo","constant":false,"payable":false,"inputs":[{"type":"address","name":"newImplementation"}],"outputs":[]},{"type":"function","name":"upgradeToAndCall","constant":false,"stateMutability":"payable","payable":true,"inputs":[{"type":"address","name":"newImplementation"},{"type":"bytes","name":"data"}],"outputs":[]}]}
+{
+  "abi": [
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "AdminChanged",
+      "inputs": [
+        { "type": "address", "name": "previousAdmin", "indexed": false },
+        { "type": "address", "name": "newAdmin", "indexed": false }
+      ]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "BeaconUpgraded",
+      "inputs": [{ "type": "address", "name": "beacon", "indexed": true }]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "Initialized",
+      "inputs": [{ "type": "uint8", "name": "version", "indexed": false }]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "Upgraded",
+      "inputs": [{ "type": "address", "name": "implementation", "indexed": true }]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "WaitingTimeChanged",
+      "inputs": [{ "type": "uint256", "name": "newWaitingTime", "indexed": false }]
+    },
+    {
+      "type": "function",
+      "name": "claimIdToCurrencyRate",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "" }],
+      "outputs": [
+        { "type": "int256", "name": "rate" },
+        { "type": "uint8", "name": "decimals" }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "createClaim",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "tuple",
+          "name": "request",
+          "components": [
+            { "type": "uint256", "name": "tripId" },
+            { "type": "uint8", "name": "claimType" },
+            { "type": "string", "name": "description" },
+            { "type": "uint64", "name": "amountInUsdCents" },
+            { "type": "string", "name": "photosUrl" }
+          ]
+        },
+        { "type": "address", "name": "host" },
+        { "type": "address", "name": "guest" },
+        { "type": "address", "name": "user" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "exists",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "_claimId" }],
+      "outputs": [{ "type": "bool", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getClaim",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "_claimId" }],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "",
+          "components": [
+            { "type": "uint256", "name": "tripId" },
+            { "type": "uint256", "name": "claimId" },
+            { "type": "uint256", "name": "deadlineDateInSec" },
+            { "type": "uint8", "name": "claimType" },
+            { "type": "uint8", "name": "status" },
+            { "type": "string", "name": "description" },
+            { "type": "uint64", "name": "amountInUsdCents" },
+            { "type": "uint256", "name": "payDateInSec" },
+            { "type": "address", "name": "rejectedBy" },
+            { "type": "uint256", "name": "rejectedDateInSec" },
+            { "type": "string", "name": "photosUrl" },
+            { "type": "bool", "name": "isHostClaims" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getClaimsAmount",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "uint256", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getPlatformFeeFrom",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "value" }],
+      "outputs": [{ "type": "uint256", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getWaitingTime",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "uint256", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "initialize",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "_userService" },
+        { "type": "address", "name": "_eventManager" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "payClaim",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint256", "name": "_claimId" },
+        { "type": "address", "name": "host" },
+        { "type": "address", "name": "guest" },
+        { "type": "int256", "name": "rate" },
+        { "type": "uint8", "name": "dec" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "proxiableUUID",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "bytes32", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "rejectClaim",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint256", "name": "_claimId" },
+        { "type": "address", "name": "rejectedBy" },
+        { "type": "address", "name": "host" },
+        { "type": "address", "name": "guest" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "setPlatformFee",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "value" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "setWaitingTime",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "newWaitingTimeInSec" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "updateClaim",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint256", "name": "_claimId" },
+        { "type": "address", "name": "host" },
+        { "type": "address", "name": "guest" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "updateEventServiceAddress",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "_eventManager" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "upgradeTo",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "newImplementation" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "upgradeToAndCall",
+      "constant": false,
+      "stateMutability": "payable",
+      "payable": true,
+      "inputs": [
+        { "type": "address", "name": "newImplementation" },
+        { "type": "bytes", "name": "data" }
+      ],
+      "outputs": []
+    }
+  ]
+}

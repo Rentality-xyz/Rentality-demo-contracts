@@ -220,11 +220,11 @@ describe('Rentality: trips', function () {
       )
     ).not.to.be.reverted
 
-    await expect(rentalityPlatform.connect(host).approveTripRequest(1)).not.to.be.reverted
-    await expect(rentalityTripService.connect(host).checkInByHost(1, [0, 0], '', '')).not.to.be.reverted
-    await expect(rentalityTripService.connect(guest).checkInByGuest(1, [0, 0])).not.to.be.reverted
-    await expect(rentalityTripService.connect(guest).checkOutByGuest(1, [0, 0])).not.to.be.reverted
-    await expect(rentalityTripService.connect(host).checkOutByHost(1, [0, 0])).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0], '', '')).not.to.be.reverted
+    await expect(rentalityGateway.connect(guest).checkInByGuest(1, [0, 0])).not.to.be.reverted
+    await expect(rentalityGateway.connect(guest).checkOutByGuest(1, [0, 0])).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).checkOutByHost(1, [0, 0])).not.to.be.reverted
 
     const depositValue = await rentalityCurrencyConverter.getFromUsd(
       ethToken,

@@ -1,1 +1,500 @@
-{"abi":[{"type":"event","anonymous":false,"name":"AdminChanged","inputs":[{"type":"address","name":"previousAdmin","indexed":false},{"type":"address","name":"newAdmin","indexed":false}]},{"type":"event","anonymous":false,"name":"BeaconUpgraded","inputs":[{"type":"address","name":"beacon","indexed":true}]},{"type":"event","anonymous":false,"name":"Initialized","inputs":[{"type":"uint8","name":"version","indexed":false}]},{"type":"event","anonymous":false,"name":"Upgraded","inputs":[{"type":"address","name":"implementation","indexed":true}]},{"type":"function","name":"addOneTimeProgram","constant":false,"payable":false,"inputs":[{"type":"uint8","name":"selector"},{"type":"int256","name":"points"},{"type":"int256","name":"refPoints"},{"type":"bytes4","name":"calback"}],"outputs":[]},{"type":"function","name":"addPermanentProgram","constant":false,"payable":false,"inputs":[{"type":"uint8","name":"selector"},{"type":"int256","name":"points"},{"type":"bytes4","name":"calback"}],"outputs":[]},{"type":"function","name":"addressToPoints","constant":true,"stateMutability":"view","payable":false,"inputs":[{"type":"address","name":""}],"outputs":[{"type":"uint256","name":""}]},{"type":"function","name":"claimPoints","constant":false,"payable":false,"inputs":[{"type":"address","name":"user"}],"outputs":[]},{"type":"function","name":"claimRefferalPoints","constant":false,"payable":false,"inputs":[{"type":"address","name":"user"}],"outputs":[]},{"type":"function","name":"generateReferralHash","constant":false,"payable":false,"inputs":[{"type":"address","name":"user"}],"outputs":[]},{"type":"function","name":"getAllTearsInfo","constant":true,"stateMutability":"view","payable":false,"inputs":[],"outputs":[{"type":"tuple[]","name":"","components":[{"type":"tuple","name":"points","components":[{"type":"uint256","name":"from"},{"type":"uint256","name":"to"}]},{"type":"uint8","name":"tear"}]}]},{"type":"function","name":"getCarDailyClaimedTime","constant":true,"stateMutability":"view","payable":false,"inputs":[{"type":"uint256","name":"carId"}],"outputs":[{"type":"uint256","name":""}]},{"type":"function","name":"getDiscount","constant":true,"stateMutability":"view","payable":false,"inputs":[{"type":"uint8","name":"selector"},{"type":"uint8","name":"tear"}],"outputs":[{"type":"uint256","name":""},{"type":"uint256","name":""}]},{"type":"function","name":"getEmptyToClaim","constant":true,"stateMutability":"view","payable":false,"inputs":[],"outputs":[{"type":"tuple[]","name":"","components":[{"type":"uint256","name":"points"},{"type":"uint8","name":"refType"},{"type":"bool","name":"oneTime"}]}]},{"type":"function","name":"getMyRefferalInfo","constant":true,"stateMutability":"view","payable":false,"inputs":[],"outputs":[{"type":"tuple","name":"","components":[{"type":"bytes4","name":"myHash"},{"type":"bytes4","name":"savedHash"}]}]},{"type":"function","name":"getMyStartDiscount","constant":true,"stateMutability":"view","payable":false,"inputs":[{"type":"address","name":"user"}],"outputs":[{"type":"uint256","name":""}]},{"type":"function","name":"getPointsHistory","constant":true,"stateMutability":"view","payable":false,"inputs":[],"outputs":[{"type":"tuple[]","name":"","components":[{"type":"int256","name":"points"},{"type":"uint256","name":"date"},{"type":"uint8","name":"method"},{"type":"bool","name":"oneTime"}]}]},{"type":"function","name":"getReadyToClaim","constant":true,"stateMutability":"view","payable":false,"inputs":[{"type":"address","name":"user"}],"outputs":[{"type":"tuple","name":"","components":[{"type":"tuple[]","name":"toClaim","components":[{"type":"uint256","name":"points"},{"type":"uint8","name":"refType"},{"type":"bool","name":"oneTime"}]},{"type":"uint256","name":"totalPoints"},{"type":"uint256","name":"toNextDailyClaim"}]}]},{"type":"function","name":"getReadyToClaimFromRefferalHash","constant":true,"stateMutability":"view","payable":false,"inputs":[{"type":"address","name":"user"}],"outputs":[{"type":"tuple","name":"","components":[{"type":"tuple[]","name":"toClaim","components":[{"type":"uint256","name":"points"},{"type":"uint8","name":"refType"},{"type":"bool","name":"oneTime"},{"type":"bool","name":"claimed"},{"type":"address","name":"user"}]},{"type":"uint256","name":"totalPoints"},{"type":"bytes4","name":"hash"}]}]},{"type":"function","name":"getRefferalPointsInfo","constant":true,"stateMutability":"view","payable":false,"inputs":[],"outputs":[{"type":"tuple","name":"","components":[{"type":"tuple[]","name":"programPoints","components":[{"type":"uint8","name":"refferalType"},{"type":"uint8","name":"method"},{"type":"int256","name":"points"}]},{"type":"tuple[]","name":"hashPoints","components":[{"type":"uint8","name":"method"},{"type":"uint256","name":"points"}]},{"type":"tuple[]","name":"discounts","components":[{"type":"uint8","name":"method"},{"type":"uint8","name":"tear"},{"type":"tuple","name":"discount","components":[{"type":"uint256","name":"pointsCosts"},{"type":"uint256","name":"percents"}]}]},{"type":"tuple[]","name":"tear","components":[{"type":"tuple","name":"points","components":[{"type":"uint256","name":"from"},{"type":"uint256","name":"to"}]},{"type":"uint8","name":"tear"}]}]}]},{"type":"function","name":"getTearTypeByPoints","constant":true,"stateMutability":"view","payable":false,"inputs":[{"type":"uint256","name":"points"}],"outputs":[{"type":"uint8","name":""}]},{"type":"function","name":"getUserService","constant":true,"stateMutability":"view","payable":false,"inputs":[],"outputs":[{"type":"address","name":""}]},{"type":"function","name":"hashExists","constant":true,"stateMutability":"view","payable":false,"inputs":[{"type":"bytes4","name":"hash"}],"outputs":[{"type":"bool","name":""}]},{"type":"function","name":"initialize","constant":false,"payable":false,"inputs":[{"type":"address","name":"_userService"},{"type":"address","name":"_refferalLib"},{"type":"address","name":"carServiceAddress"}],"outputs":[]},{"type":"function","name":"manageRefHashesProgram","constant":false,"payable":false,"inputs":[{"type":"uint8","name":"selector"},{"type":"uint256","name":"points"}],"outputs":[]},{"type":"function","name":"manageRefferalDiscount","constant":false,"payable":false,"inputs":[{"type":"uint8","name":"selector"},{"type":"uint8","name":"tear"},{"type":"uint256","name":"points"},{"type":"uint256","name":"percents"}],"outputs":[]},{"type":"function","name":"manageTearInfo","constant":false,"payable":false,"inputs":[{"type":"uint8","name":"tear"},{"type":"uint256","name":"from"},{"type":"uint256","name":"to"}],"outputs":[]},{"type":"function","name":"passReferralProgram","constant":false,"payable":false,"inputs":[{"type":"uint8","name":"selector"},{"type":"bytes","name":"callbackArgs"},{"type":"address","name":"user"},{"type":"address","name":"promoService"}],"outputs":[]},{"type":"function","name":"proxiableUUID","constant":true,"stateMutability":"view","payable":false,"inputs":[],"outputs":[{"type":"bytes32","name":""}]},{"type":"function","name":"referralHash","constant":true,"stateMutability":"view","payable":false,"inputs":[{"type":"address","name":""}],"outputs":[{"type":"bytes32","name":""}]},{"type":"function","name":"referralHashV2","constant":true,"stateMutability":"view","payable":false,"inputs":[{"type":"address","name":""}],"outputs":[{"type":"bytes4","name":""}]},{"type":"function","name":"saveRefferalHash","constant":false,"payable":false,"inputs":[{"type":"bytes4","name":"hash"},{"type":"bool","name":"isGuest"},{"type":"address","name":"sender"}],"outputs":[]},{"type":"function","name":"updateDaily","constant":false,"payable":false,"inputs":[{"type":"address","name":"user"}],"outputs":[{"type":"uint256","name":""}]},{"type":"function","name":"updateLib","constant":false,"payable":false,"inputs":[{"type":"address","name":"refLib"}],"outputs":[]},{"type":"function","name":"upgradeTo","constant":false,"payable":false,"inputs":[{"type":"address","name":"newImplementation"}],"outputs":[]},{"type":"function","name":"upgradeToAndCall","constant":false,"stateMutability":"payable","payable":true,"inputs":[{"type":"address","name":"newImplementation"},{"type":"bytes","name":"data"}],"outputs":[]},{"type":"function","name":"useDiscount","constant":false,"payable":false,"inputs":[{"type":"uint8","name":"selector"},{"type":"bool","name":"host"},{"type":"uint256","name":"tripId"},{"type":"address","name":"user"}],"outputs":[{"type":"uint256","name":""}]}]}
+{
+  "abi": [
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "AdminChanged",
+      "inputs": [
+        { "type": "address", "name": "previousAdmin", "indexed": false },
+        { "type": "address", "name": "newAdmin", "indexed": false }
+      ]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "BeaconUpgraded",
+      "inputs": [{ "type": "address", "name": "beacon", "indexed": true }]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "Initialized",
+      "inputs": [{ "type": "uint8", "name": "version", "indexed": false }]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "Upgraded",
+      "inputs": [{ "type": "address", "name": "implementation", "indexed": true }]
+    },
+    {
+      "type": "function",
+      "name": "addOneTimeProgram",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint8", "name": "selector" },
+        { "type": "int256", "name": "points" },
+        { "type": "int256", "name": "refPoints" },
+        { "type": "bytes4", "name": "calback" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "addPermanentProgram",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint8", "name": "selector" },
+        { "type": "int256", "name": "points" },
+        { "type": "bytes4", "name": "calback" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "addressToPoints",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "" }],
+      "outputs": [{ "type": "uint256", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "claimPoints",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "user" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "claimRefferalPoints",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "user" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "generateReferralHash",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "user" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "getAllTearsInfo",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "tuple[]",
+          "name": "",
+          "components": [
+            {
+              "type": "tuple",
+              "name": "points",
+              "components": [
+                { "type": "uint256", "name": "from" },
+                { "type": "uint256", "name": "to" }
+              ]
+            },
+            { "type": "uint8", "name": "tear" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getCarDailyClaimedTime",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "carId" }],
+      "outputs": [{ "type": "uint256", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getDiscount",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        { "type": "uint8", "name": "selector" },
+        { "type": "uint8", "name": "tear" }
+      ],
+      "outputs": [
+        { "type": "uint256", "name": "" },
+        { "type": "uint256", "name": "" }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getEmptyToClaim",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "tuple[]",
+          "name": "",
+          "components": [
+            { "type": "uint256", "name": "points" },
+            { "type": "uint8", "name": "refType" },
+            { "type": "bool", "name": "oneTime" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getMyRefferalInfo",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "",
+          "components": [
+            { "type": "bytes4", "name": "myHash" },
+            { "type": "bytes4", "name": "savedHash" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getMyStartDiscount",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "user" }],
+      "outputs": [{ "type": "uint256", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getPointsHistory",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "tuple[]",
+          "name": "",
+          "components": [
+            { "type": "int256", "name": "points" },
+            { "type": "uint256", "name": "date" },
+            { "type": "uint8", "name": "method" },
+            { "type": "bool", "name": "oneTime" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getReadyToClaim",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "user" }],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "",
+          "components": [
+            {
+              "type": "tuple[]",
+              "name": "toClaim",
+              "components": [
+                { "type": "uint256", "name": "points" },
+                { "type": "uint8", "name": "refType" },
+                { "type": "bool", "name": "oneTime" }
+              ]
+            },
+            { "type": "uint256", "name": "totalPoints" },
+            { "type": "uint256", "name": "toNextDailyClaim" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getReadyToClaimFromRefferalHash",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "user" }],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "",
+          "components": [
+            {
+              "type": "tuple[]",
+              "name": "toClaim",
+              "components": [
+                { "type": "uint256", "name": "points" },
+                { "type": "uint8", "name": "refType" },
+                { "type": "bool", "name": "oneTime" },
+                { "type": "bool", "name": "claimed" },
+                { "type": "address", "name": "user" }
+              ]
+            },
+            { "type": "uint256", "name": "totalPoints" },
+            { "type": "bytes4", "name": "hash" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getRefferalPointsInfo",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "",
+          "components": [
+            {
+              "type": "tuple[]",
+              "name": "programPoints",
+              "components": [
+                { "type": "uint8", "name": "refferalType" },
+                { "type": "uint8", "name": "method" },
+                { "type": "int256", "name": "points" }
+              ]
+            },
+            {
+              "type": "tuple[]",
+              "name": "hashPoints",
+              "components": [
+                { "type": "uint8", "name": "method" },
+                { "type": "uint256", "name": "points" }
+              ]
+            },
+            {
+              "type": "tuple[]",
+              "name": "discounts",
+              "components": [
+                { "type": "uint8", "name": "method" },
+                { "type": "uint8", "name": "tear" },
+                {
+                  "type": "tuple",
+                  "name": "discount",
+                  "components": [
+                    { "type": "uint256", "name": "pointsCosts" },
+                    { "type": "uint256", "name": "percents" }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "tuple[]",
+              "name": "tear",
+              "components": [
+                {
+                  "type": "tuple",
+                  "name": "points",
+                  "components": [
+                    { "type": "uint256", "name": "from" },
+                    { "type": "uint256", "name": "to" }
+                  ]
+                },
+                { "type": "uint8", "name": "tear" }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getTearTypeByPoints",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "points" }],
+      "outputs": [{ "type": "uint8", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getUserService",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "hashExists",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "bytes4", "name": "hash" }],
+      "outputs": [{ "type": "bool", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "initialize",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "_userService" },
+        { "type": "address", "name": "_refferalLib" },
+        { "type": "address", "name": "carServiceAddress" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "manageRefHashesProgram",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint8", "name": "selector" },
+        { "type": "uint256", "name": "points" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "manageRefferalDiscount",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint8", "name": "selector" },
+        { "type": "uint8", "name": "tear" },
+        { "type": "uint256", "name": "points" },
+        { "type": "uint256", "name": "percents" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "manageTearInfo",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint8", "name": "tear" },
+        { "type": "uint256", "name": "from" },
+        { "type": "uint256", "name": "to" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "passReferralProgram",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint8", "name": "selector" },
+        { "type": "bytes", "name": "callbackArgs" },
+        { "type": "address", "name": "user" },
+        { "type": "address", "name": "promoService" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "proxiableUUID",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "bytes32", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "referralHash",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "" }],
+      "outputs": [{ "type": "bytes32", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "referralHashV2",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "" }],
+      "outputs": [{ "type": "bytes4", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "saveRefferalHash",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "bytes4", "name": "hash" },
+        { "type": "bool", "name": "isGuest" },
+        { "type": "address", "name": "sender" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "updateDaily",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "user" }],
+      "outputs": [{ "type": "uint256", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "updateLib",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "refLib" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "upgradeTo",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "newImplementation" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "upgradeToAndCall",
+      "constant": false,
+      "stateMutability": "payable",
+      "payable": true,
+      "inputs": [
+        { "type": "address", "name": "newImplementation" },
+        { "type": "bytes", "name": "data" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "useDiscount",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint8", "name": "selector" },
+        { "type": "bool", "name": "host" },
+        { "type": "uint256", "name": "tripId" },
+        { "type": "address", "name": "user" }
+      ],
+      "outputs": [{ "type": "uint256", "name": "" }]
+    }
+  ]
+}
