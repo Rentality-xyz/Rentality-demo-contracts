@@ -121,6 +121,12 @@ abstract contract ARentalityUpgradableCurrencyType is Initializable, UUPSAccess 
   function getCurrentRate() public view returns (int, uint8) {
     return (currentToUsdRate, currentToUsdDecimals);
   }
+  function setRateFeed(address _rateFeed) public {
+    require(userService.isAdmin(msg.sender), "only Admin");
+    
+    rateFeed = AggregatorV3Interface(_rateFeed);
+    (currentToUsdRate, currentToUsdDecimals) = getRate();
+  }
 
   /// @notice Initializes the contract with the specified parameters
   /// @param _userService The address of the Rentality user service contract
@@ -130,7 +136,9 @@ abstract contract ARentalityUpgradableCurrencyType is Initializable, UUPSAccess 
     userService = IRentalityAccessControl(_userService);
     tokenAddress = IERC20(_tokenAddress);
 
+    if(_rateFeed != address(0)) {
     rateFeed = AggregatorV3Interface(_rateFeed);
     (currentToUsdRate, currentToUsdDecimals) = getRate();
+    }
   }
 }
