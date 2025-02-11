@@ -18,6 +18,9 @@ module.exports = {
                     * 'items': one page per item
                    'files': one page per input Solidity file  */,
   },
+  mocha: {
+    timeout: 1000000,
+  },
   defaultNetwork: 'localhost',
   networks: {
     hardhat: {
@@ -57,6 +60,11 @@ module.exports = {
       accounts: [process.env.PRIVATE_KEY],
       chainId: 11155420,
     },
+    opBNB: {
+      url: process.env.OP_BNB_URL ?? '',
+      accounts: [process.env.PRIVATE_KEY],
+      chainId: 204,
+    },
     opBNB_testnet: {
       url: process.env.OP_BNB_TESTNET_URL ?? '',
       accounts: [process.env.PRIVATE_KEY],
@@ -84,6 +92,6 @@ module.exports = {
       base: process.env.BASE_API_TOKEN,
     }, // command to run: npx hardhat verify --network <contract address>
 
-   
+
   },
 }
