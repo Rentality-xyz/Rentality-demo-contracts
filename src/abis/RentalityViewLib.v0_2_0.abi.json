@@ -8,18 +8,6 @@
       "payable": false,
       "inputs": [{ "type": "uint256", "name": "tokenId" }],
       "outputs": [{ "type": "string", "name": "" }]
-    },
-    {
-      "type": "function",
-      "name": "getTotalIncomeByNFTs",
-      "constant": true,
-      "stateMutability": "view",
-      "payable": false,
-      "inputs": [
-        { "type": "address", "name": "pool" },
-        { "type": "uint256[]", "name": "tokens" }
-      ],
-      "outputs": [{ "type": "uint256", "name": "" }]
     }
   ]
 }

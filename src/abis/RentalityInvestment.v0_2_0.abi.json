@@ -92,7 +92,8 @@
                 { "type": "bool", "name": "currentlyListed" },
                 { "type": "bool", "name": "insuranceRequired" },
                 { "type": "uint256", "name": "insurancePriceInUsdCents" },
-                { "type": "uint256", "name": "dimoTokenId" }
+                { "type": "uint256", "name": "dimoTokenId" },
+                { "type": "bytes", "name": "signedDimoTokenId" }
               ]
             },
             { "type": "uint256", "name": "priceInUsd" },
@@ -114,7 +115,7 @@
       "outputs": [
         {
           "type": "tuple[]",
-          "name": "",
+          "name": "cars",
           "components": [
             {
               "type": "tuple",
@@ -159,7 +160,8 @@
                     { "type": "bool", "name": "currentlyListed" },
                     { "type": "bool", "name": "insuranceRequired" },
                     { "type": "uint256", "name": "insurancePriceInUsdCents" },
-                    { "type": "uint256", "name": "dimoTokenId" }
+                    { "type": "uint256", "name": "dimoTokenId" },
+                    { "type": "bytes", "name": "signedDimoTokenId" }
                   ]
                 },
                 { "type": "uint256", "name": "priceInUsd" },
@@ -192,8 +194,8 @@
       "payable": false,
       "inputs": [{ "type": "uint256", "name": "carId" }],
       "outputs": [
-        { "type": "uint256", "name": "" },
-        { "type": "address", "name": "" }
+        { "type": "uint256", "name": "percents" },
+        { "type": "address", "name": "pool" }
       ]
     },
     {

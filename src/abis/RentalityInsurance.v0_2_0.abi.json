@@ -36,7 +36,8 @@
       "inputs": [
         { "type": "uint256", "name": "carId" },
         { "type": "uint64", "name": "startDateTime" },
-        { "type": "uint64", "name": "endDateTime" }
+        { "type": "uint64", "name": "endDateTime" },
+        { "type": "address", "name": "user" }
       ],
       "outputs": [{ "type": "uint256", "name": "" }]
     },
@@ -44,7 +45,7 @@
       "type": "function",
       "name": "findActualInsurance",
       "constant": true,
-      "stateMutability": "view",
+      "stateMutability": "pure",
       "payable": false,
       "inputs": [
         {
@@ -193,7 +194,8 @@
             { "type": "string", "name": "comment" },
             { "type": "uint8", "name": "insuranceType" }
           ]
-        }
+        },
+        { "type": "address", "name": "user" }
       ],
       "outputs": []
     },
@@ -205,7 +207,8 @@
       "inputs": [
         { "type": "uint256", "name": "tripId" },
         { "type": "uint256", "name": "carId" },
-        { "type": "uint256", "name": "totalSum" }
+        { "type": "uint256", "name": "totalSum" },
+        { "type": "address", "name": "user" }
       ],
       "outputs": []
     },
@@ -217,7 +220,8 @@
       "inputs": [
         { "type": "uint256", "name": "carId" },
         { "type": "uint256", "name": "priceInUsdCents" },
-        { "type": "bool", "name": "required" }
+        { "type": "bool", "name": "required" },
+        { "type": "address", "name": "user" }
       ],
       "outputs": []
     },
@@ -238,7 +242,8 @@
             { "type": "string", "name": "comment" },
             { "type": "uint8", "name": "insuranceType" }
           ]
-        }
+        },
+        { "type": "address", "name": "user" }
       ],
       "outputs": []
     },

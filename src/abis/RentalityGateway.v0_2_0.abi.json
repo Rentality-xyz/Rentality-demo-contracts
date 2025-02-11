@@ -44,7 +44,9 @@
             },
             { "type": "bool", "name": "currentlyListed" },
             { "type": "bool", "name": "insuranceRequired" },
-            { "type": "uint256", "name": "insurancePriceInUsdCents" }
+            { "type": "uint256", "name": "insurancePriceInUsdCents" },
+            { "type": "uint256", "name": "dimoTokenId" },
+            { "type": "bytes", "name": "signedDimoTokenId" }
           ]
         }
       ],
@@ -282,7 +284,8 @@
             { "type": "uint64", "name": "salesTax" },
             { "type": "uint64", "name": "governmentTax" },
             { "type": "int128", "name": "distance" },
-            { "type": "bool", "name": "isGuestHasInsurance" }
+            { "type": "bool", "name": "isGuestHasInsurance" },
+            { "type": "uint256", "name": "dimoTokenId" }
           ]
         }
       ]
@@ -596,7 +599,8 @@
               ]
             },
             { "type": "string", "name": "carVinNumber" },
-            { "type": "string", "name": "carMetadataURI" }
+            { "type": "string", "name": "carMetadataURI" },
+            { "type": "uint256", "name": "dimoTokenId" }
           ]
         }
       ]
@@ -813,6 +817,15 @@
     },
     {
       "type": "function",
+      "name": "getDimoVihicles",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "uint256[]", "name": "" }]
+    },
+    {
+      "type": "function",
       "name": "getDiscount",
       "constant": true,
       "stateMutability": "view",
@@ -934,7 +947,8 @@
               ]
             },
             { "type": "string", "name": "metadataURI" },
-            { "type": "bool", "name": "isEditable" }
+            { "type": "bool", "name": "isEditable" },
+            { "type": "uint256", "name": "dimoTokenId" }
           ]
         }
       ]
@@ -1200,7 +1214,8 @@
             },
             { "type": "uint256", "name": "paidForInsuranceInUsdCents" },
             { "type": "string", "name": "guestDrivingLicenseIssueCountry" },
-            { "type": "uint256", "name": "promoDiscount" }
+            { "type": "uint256", "name": "promoDiscount" },
+            { "type": "uint256", "name": "dimoTokenId" }
           ]
         }
       ]
@@ -1389,7 +1404,8 @@
             },
             { "type": "uint256", "name": "paidForInsuranceInUsdCents" },
             { "type": "string", "name": "guestDrivingLicenseIssueCountry" },
-            { "type": "uint256", "name": "promoDiscount" }
+            { "type": "uint256", "name": "promoDiscount" },
+            { "type": "uint256", "name": "dimoTokenId" }
           ]
         }
       ]
@@ -1463,6 +1479,17 @@
       "constant": false,
       "payable": false,
       "inputs": [{ "type": "uint256", "name": "tripId" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "saveDimoTokenIds",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint256[]", "name": "" },
+        { "type": "uint256[]", "name": "" }
+      ],
       "outputs": []
     },
     {
@@ -1621,7 +1648,8 @@
                     { "type": "uint256", "name": "priceInUsdCents" }
                   ]
                 },
-                { "type": "bool", "name": "isGuestHasInsurance" }
+                { "type": "bool", "name": "isGuestHasInsurance" },
+                { "type": "uint256", "name": "dimoTokenId" }
               ]
             },
             { "type": "int256", "name": "distance" }

@@ -125,9 +125,12 @@
             },
             { "type": "bool", "name": "currentlyListed" },
             { "type": "bool", "name": "insuranceRequired" },
-            { "type": "uint256", "name": "insurancePriceInUsdCents" }
+            { "type": "uint256", "name": "insurancePriceInUsdCents" },
+            { "type": "uint256", "name": "dimoTokenId" },
+            { "type": "bytes", "name": "signedDimoTokenId" }
           ]
-        }
+        },
+        { "type": "address", "name": "user" }
       ],
       "outputs": [{ "type": "uint256", "name": "" }]
     },
@@ -667,7 +670,8 @@
             { "type": "string", "name": "timeZoneId" }
           ]
         },
-        { "type": "bool", "name": "updateLocation" }
+        { "type": "bool", "name": "updateLocation" },
+        { "type": "address", "name": "user" }
       ],
       "outputs": []
     },
@@ -678,7 +682,8 @@
       "payable": false,
       "inputs": [
         { "type": "uint256", "name": "carId" },
-        { "type": "string", "name": "tokenUri" }
+        { "type": "string", "name": "tokenUri" },
+        { "type": "address", "name": "user" }
       ],
       "outputs": []
     },
