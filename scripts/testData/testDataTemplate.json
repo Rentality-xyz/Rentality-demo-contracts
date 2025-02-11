@@ -60,7 +60,9 @@
       },
       "currentlyListed": true,
       "insuranceRequired": false,
-      "insurancePriceInUsdCents": 0
+      "insurancePriceInUsdCents": 0,
+      "dimoTokenId": 0,
+      "signedDimoTokenId": "0x"
     },
     {
       "tokenUri": "",
@@ -89,7 +91,9 @@
       },
       "currentlyListed": true,
       "insuranceRequired": false,
-      "insurancePriceInUsdCents": 0
+      "insurancePriceInUsdCents": 0,
+      "dimoTokenId": 0,
+      "signedDimoTokenId": "0x"
     },
     {
       "tokenUri": "",
@@ -118,7 +122,9 @@
       },
       "currentlyListed": true,
       "insuranceRequired": false,
-      "insurancePriceInUsdCents": 0
+      "insurancePriceInUsdCents": 0,
+      "dimoTokenId": 0,
+      "signedDimoTokenId": "0x"
     }
   ]
 }

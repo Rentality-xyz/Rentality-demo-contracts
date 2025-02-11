@@ -8,6 +8,8 @@ const { bigIntReplacer } = require('./utils/json')
 const { error } = require('console')
 const { signTCMessage } = require('../test/utils')
 
+const DEFAULT_HARDHAT_ADDRESS = '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+
 const checkInitialization = async () => {
   const { chainId, deployer } = await startDeploy('')
   if (chainId < 0) throw new Error('chainId is not set')
@@ -55,9 +57,9 @@ const checkInitialization = async () => {
   const admin = new ethers.Wallet(ADMIN_PRIVATE_KEY, ethers.provider)
 
   if (chainId === 1337n) {
-    const hardhatAccount = new ethers.Wallet(deployer, ethers.provider)
+    const hardhatAccount = new ethers.Wallet(DEFAULT_HARDHAT_ADDRESS, ethers.provider)
     if ((await ethers.provider.getBalance(hardhatAccount.address)) > 0) {
-      console.log('Transfering ETH for host and guest fot the Hardhat node')
+      console.log('Transfering ETH for host and guest for the Hardhat node')
 
       const txHost = await hardhatAccount.sendTransaction({
         to: host.address,
@@ -234,7 +236,7 @@ async function createPendingTrip(tripIndex, carId, host, guest, gateway) {
 
   const paymentsNeeded = await gateway
     .connect(guest)
-    .calculatePaymentsWithDelivery(carId, 1, ethAddress, carLocationInfo, carLocationInfo, '')
+    .calculatePaymentsWithDelivery(carId, 1, ethAddress, emptyContractLocationInfo, emptyContractLocationInfo, '')
   const request = {
     carId: carId,
     startDateTime: Math.ceil(new Date().getTime() / 1000 + tripIndex * 3),
@@ -249,7 +251,7 @@ async function createPendingTrip(tripIndex, carId, host, guest, gateway) {
       signature: '0x',
     },
   }
-  await gateway.connect(guest).createTripRequestWithDelivery(request, {
+  await gateway.connect(guest).createTripRequestWithDelivery(request, '', {
     value: paymentsNeeded.totalPrice,
   })
 
