@@ -15,7 +15,7 @@ module.exports = {
                    'files': one page per input Solidity file  */,
   },
   mocha: {
-  timeout: 1000000
+    timeout: 1000000,
   },
   defaultNetwork: 'localhost',
   networks: {
@@ -54,6 +54,7 @@ module.exports = {
       url: process.env.OP_BNB_URL ?? '',
       accounts: [process.env.PRIVATE_KEY],
       chainId: 204,
+      timeout: 1_000_000,
     },
     opBNB_testnet: {
       url: process.env.OP_BNB_TESTNET_URL ?? '',
