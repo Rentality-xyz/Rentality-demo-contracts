@@ -1,5 +1,5 @@
 const RentalityGatewayJSON_ABI = require('../src/abis/RentalityGateway.v0_2_0.abi.json')
-const testData = require('./testData/testDataTemplate.json')
+const testData = require('./testData/testData.json')
 const { ethers, network } = require('hardhat')
 const { buildPath } = require('./utils/pathBuilder')
 const { readFileSync } = require('fs')
@@ -55,10 +55,7 @@ const checkInitialization = async () => {
   const admin = new ethers.Wallet(ADMIN_PRIVATE_KEY, ethers.provider)
 
   if (chainId === 1337n) {
-    const hardhatAccount = new ethers.Wallet(
-      deployer,
-      ethers.provider
-    )
+    const hardhatAccount = new ethers.Wallet(deployer, ethers.provider)
     if ((await ethers.provider.getBalance(hardhatAccount.address)) > 0) {
       console.log('Transfering ETH for host and guest fot the Hardhat node')
 
@@ -133,7 +130,14 @@ async function setHostKycIfNotSet(host, kycManager, gateway) {
   if (!kyc.name) {
     await gateway
       .connect(host)
-      .setKYCInfo(data.nickname, data.mobilePhoneNumber, data.profilePhoto, email, await signTCMessage(host), '0x00000000')
+      .setKYCInfo(
+        data.nickname,
+        data.mobilePhoneNumber,
+        data.profilePhoto,
+        email,
+        await signTCMessage(host),
+        '0x00000000'
+      )
     console.log('KYC for host was set')
   }
   if (!kyc.licenseNumber) {
