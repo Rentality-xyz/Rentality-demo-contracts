@@ -215,8 +215,7 @@ library RentalityTripsQuery {
   function getTripContactInfo(
     uint256 tripId,
     address tripService,
-    address userService,
-    address user
+    address userService
   ) public view returns (string memory guestPhoneNumber, string memory hostPhoneNumber) {
 
     Schemas.Trip memory trip = RentalityTripService(tripService).getTrip(tripId);
@@ -266,7 +265,7 @@ library RentalityTripsQuery {
 
     for (uint i = 1; i <= tripService.totalTripCount(); i++) {
       if (tripService.getTrip(i).guest == guest) {
-        result[currentIndex] = getTripDTO(contracts, insuranceService, i, promoService, dimoService);
+        result[currentIndex] = getTripDTO(contracts, insuranceService, i, promoService, dimoService, guest);
         currentIndex += 1;
       }
     }
@@ -300,7 +299,7 @@ library RentalityTripsQuery {
 
     for (uint i = 1; i <= tripService.totalTripCount(); i++) {
       if (tripService.getTrip(i).host == host) {
-        result[currentIndex] = getTripDTO(contracts, insuranceService, i, promoService, dimoService);
+        result[currentIndex] = getTripDTO(contracts, insuranceService, i, promoService, dimoService, host);
         currentIndex += 1;
       }
     }
@@ -318,7 +317,8 @@ library RentalityTripsQuery {
     RentalityInsurance insuranceService,
     uint tripId,
     RentalityPromoService promoService,
-    RentalityDimoService dimoService
+    RentalityDimoService dimoService,
+    address user
   ) public view returns (Schemas.TripDTO memory) {
     RentalityTripService tripService = contracts.tripService;
     RentalityCarToken carService = contracts.carService;
@@ -334,8 +334,7 @@ library RentalityTripsQuery {
     (string memory guestPhoneNumber, string memory hostPhoneNumber) = getTripContactInfo(
       tripId,
       address(tripService),
-      address(userService),
-      tx.origin
+      address(userService)
     );
     trip.guestInsuranceCompanyName = '';
     trip.guestInsurancePolicyNumber = '';
@@ -363,7 +362,7 @@ library RentalityTripsQuery {
         hostPhoneNumber,
         insuranceService.getTripInsurances(tripId),
         insuranceService.getInsurancePriceByTrip(tripId),
-        userService.getMyFullKYCInfo().additionalKYC.issueCountry,
+        userService.getMyFullKYCInfo(user).additionalKYC.issueCountry,
         promoService.getTripDiscount(tripId),
         dimoService.getDimoTokenId(trip.carId)
       );
@@ -449,7 +448,7 @@ library RentalityTripsQuery {
         bool createdByHost,
         uint carId,
         address creator
-  ) internal view returns(Schemas.InsuranceDTO memory result) { 
+  ) internal view returns(Schemas.InsuranceDTO memory result) {
      Schemas.KYCInfo memory kyc = contracts.userService.getKYCInfo(creator);
           Schemas.CarInfo memory car = contracts.carService.getCarInfoById(carId);
           result.tripId = tripId;

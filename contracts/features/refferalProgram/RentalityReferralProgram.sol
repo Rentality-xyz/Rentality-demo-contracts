@@ -61,7 +61,7 @@ contract RentalityReferralProgram is
     require(userService.isManager(msg.sender), 'only Manager');
     bytes4 hash = userToSavedHash[user];
   
-    (address owner, uint hashPoints) = _getHashProgramInfoIfExists(selector, hash);
+    (address owner, uint hashPoints) = _getHashProgramInfoIfExists(selector, hash, user);
    
 
     (int points, bool isOneTime) = _setPassedIfExists(selector, callbackArgs, owner != address(0), user);
@@ -84,15 +84,15 @@ contract RentalityReferralProgram is
     }
   }
 
-  function useDiscount(Schemas.RefferalProgram selector, bool host, uint tripId) public returns (uint) {
+  function useDiscount(Schemas.RefferalProgram selector, bool host, uint tripId, address user) public returns (uint) {
     require(userService.isManager(msg.sender), 'only Manager');
-    uint userPoints = addressToPoints[tx.origin];
+    uint userPoints = addressToPoints[user];
     Schemas.Tear tear = getTearTypeByPoints(userPoints);
     uint percents = 0;
     if (Schemas.Tear.Tear1 != tear) {
       (uint possibleDiscount, uint points) = getDiscount(selector, tear);
       require(points > 0 && userPoints >= points, 'Not enough tokens');
-      addressToPoints[tx.origin] -= points;
+      addressToPoints[user] -= points;
       percents = possibleDiscount;
     }
     if (percents > 0) {
@@ -271,32 +271,35 @@ contract RentalityReferralProgram is
     return userProgramHistory[msg.sender];
   }
 
-    function generateReferralHash() public {
-    bytes4 hash = createReferralHash();
-    hashToOwnerV2[hash] = tx.origin;
-    referralHashV2[tx.origin] = hash;
+    function generateReferralHash(address user) public {
+      require(userService.isManager(msg.sender), 'only Manager');
+    bytes4 hash = createReferralHash(user);
+    hashToOwnerV2[hash] = user;
+    referralHashV2[user] = hash;
   }
   function hashExists(bytes4 hash) public view returns (bool) {
     return hashToOwnerV2[hash] != address(0);
   }
 
-  function createReferralHash() internal view returns (bytes4) {
-    return bytes4(keccak256(abi.encode(this.generateReferralHash.selector, tx.origin)));
+  function createReferralHash(address user) internal pure returns (bytes4) {
+    return bytes4(keccak256(abi.encode(this.generateReferralHash.selector, user)));
   }
   function getMyRefferalInfo() public view returns(Schemas.MyRefferalInfoDTO memory) {
     return Schemas.MyRefferalInfoDTO(referralHashV2[msg.sender], userToSavedHash[msg.sender]);
   }
-  function saveRefferalHash(bytes4 hash, bool isGuest) public {
+  function saveRefferalHash(bytes4 hash, bool isGuest, address sender) public {
+    require(userService.isManager(msg.sender), 'only Manager');
     address user = hashToOwnerV2[hash];
-   if(!isGuest && hash != bytes4('') && user != address(0) && tx.origin != user) {
-     userToSavedHash[tx.origin] = hash;
+   if(!isGuest && hash != bytes4('') && user != address(0) && user != sender) {
+     userToSavedHash[sender] = hash;
   }
   }
   function _getHashProgramInfoIfExists(
     Schemas.RefferalProgram programSelector,
-    bytes4 hash
+    bytes4 hash,
+    address user
   ) internal view returns (address, uint) {
-    require(createReferralHash() != hash, 'own hash');
+    require(createReferralHash(user) != hash, 'own hash');
     (address resultAddress, uint resultPoints) = (address(0), 0);
     if (selectorHashToPoints[programSelector] > 0) {
       (resultAddress, resultPoints) = (hashToOwnerV2[hash], selectorHashToPoints[programSelector]);

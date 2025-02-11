@@ -1,11 +1,12 @@
 const RentalityGatewayJSON_ABI = require('../src/abis/RentalityGateway.v0_2_0.abi.json')
-const testData = require('./testData/testData.json')
+const testData = require('./testData/testDataTemplate.json')
 const { ethers, network } = require('hardhat')
 const { buildPath } = require('./utils/pathBuilder')
 const { readFileSync } = require('fs')
 const { checkNotNull, startDeploy } = require('./utils/deployHelper')
 const { bigIntReplacer } = require('./utils/json')
 const { error } = require('console')
+const { signTCMessage } = require('../test/utils')
 
 const checkInitialization = async () => {
   const { chainId, deployer } = await startDeploy('')
@@ -55,7 +56,7 @@ const checkInitialization = async () => {
 
   if (chainId === 1337n) {
     const hardhatAccount = new ethers.Wallet(
-      '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
+      deployer,
       ethers.provider
     )
     if ((await ethers.provider.getBalance(hardhatAccount.address)) > 0) {
@@ -129,14 +130,12 @@ async function setHostKycIfNotSet(host, kycManager, gateway) {
 
   const data = testData.hostProfileInfo
   const email = `${data.name}${data.surname}@gmail.com`
-
   if (!kyc.name) {
     await gateway
       .connect(host)
-      .setKYCInfo(data.nickname, data.mobilePhoneNumber, data.profilePhoto, email, data.tcSignature, '0x00000000')
+      .setKYCInfo(data.nickname, data.mobilePhoneNumber, data.profilePhoto, email, await signTCMessage(host), '0x00000000')
     console.log('KYC for host was set')
   }
-
   if (!kyc.licenseNumber) {
     await gateway.connect(kycManager).setCivicKYCInfo(host, {
       fullName: `${data.name} ${data.surname}`,

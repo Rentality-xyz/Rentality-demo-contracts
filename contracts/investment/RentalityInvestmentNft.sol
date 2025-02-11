@@ -2,9 +2,8 @@
 pragma solidity ^0.8.9;
 
 import '@openzeppelin/contracts/token/ERC721/ERC721.sol';
-import '@openzeppelin/contracts/access/Ownable.sol';
 
-contract RentalityInvestmentNft is ERC721, Ownable {
+contract RentalityInvestmentNft is ERC721 {
   uint private tokenId;
   uint private immutable investId;
   mapping(uint => uint) public tokenIdToPriceInEth;
@@ -12,6 +11,7 @@ contract RentalityInvestmentNft is ERC721, Ownable {
   string private _tokenUri;
   
   uint private totalHolders;
+  address private immutable creator;
 
   constructor(
     string memory name_,
@@ -23,15 +23,16 @@ contract RentalityInvestmentNft is ERC721, Ownable {
     investId = investId_;
     _tokenUri = tokenUri_;
     
-   _transferOwnership(msg.sender);
+  creator = msg.sender;
   }
-  function mint(uint priceInEth) public onlyOwner {
+  function mint(uint priceInEth, address user) public {
+    require(msg.sender == creator, "only Owner");
     tokenId += 1;
       
-      if(balanceOf(tx.origin) == 0)
+      if(balanceOf(user) == 0)
       totalHolders += 1;
 
-    _mint(tx.origin, tokenId);
+    _mint(user, tokenId);
     tokenIdToPriceInEth[tokenId] = priceInEth;
  
   }
@@ -41,17 +42,8 @@ contract RentalityInvestmentNft is ERC721, Ownable {
     return _tokenUri;
   }
 
-  function getAllMyTokensWithTotalPrice(address user) public view returns (uint[] memory, uint, uint, uint) {
-    uint[] memory result = new uint[](balanceOf(user));
-    uint counter = 0;
-    uint totalPrice = 0;
-    for (uint i = 1; i <= tokenId; i++)
-      if (_ownerOf(i) == user) {
-        result[counter] = i;
-        counter += 1;
-        totalPrice += tokenIdToPriceInEth[i];
-      }
-    return (result, totalPrice, totalHolders, tokenId);
+  function totalSupplyWithTotalHolders() public view returns(uint, uint) {
+    return (tokenId,totalHolders);
   }
 
 }

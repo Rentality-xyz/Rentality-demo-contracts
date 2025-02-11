@@ -24,6 +24,7 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
   bytes32 public constant GUEST_ROLE = keccak256('GUEST_ROLE');
   bytes32 public constant KYC_COMMISSION_MANAGER_ROLE = keccak256('KYC_MANAGER_ROLE');
   bytes32 public constant ADMIN_VIEW_ROLE = keccak256('ADMIN_VIEW_ROLE');
+  bytes32 public constant INVESTMENT_MANAGER_ROLE = keccak256('INVESTMENT_MANAGER_ROLE');
 
   // Mapping to store KYC information for each user address
   mapping(address => Schemas.KYCInfo) private kycInfos;
@@ -43,19 +44,23 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
     string memory mobilePhoneNumber,
     string memory profilePhoto,
     string memory email,
-    bytes memory TCSignature
+    bytes memory TCSignature,
+    address user
   ) public {
-    if (!isGuest(tx.origin)) {
-      _grantRole(GUEST_ROLE, tx.origin);
+    require(isManager(msg.sender),"only Manager");
+    if (!isGuest(user)) {
+      _grantRole(GUEST_ROLE, user);
     }
-    bool isTCPassed = ECDSA.recover(TCMessageHash, TCSignature) == tx.origin;
+    bool isTCPassed = ECDSA.recover(TCMessageHash, TCSignature) == user;
 
     require(isTCPassed, 'Wrong signature.');
-    Schemas.KYCInfo storage kycInfo = kycInfos[tx.origin];
-    if (kycInfo.createDate == 0 || !_alreadyInPlatformUsersList(tx.origin)) platformUsers.push(tx.origin);
+    Schemas.KYCInfo storage kycInfo = kycInfos[user];
+    if(kycInfo.createDate == 0 || !_alreadyInPlatformUsersList(user))
+      platformUsers.push(user);
 
-    string memory oldEmail = additionalKycInfo[tx.origin].email;
-    if (bytes(oldEmail).length == 0 || !hasPassedKYC(tx.origin)) additionalKycInfo[tx.origin].email = email;
+    string memory oldEmail = additionalKycInfo[user].email;
+    if(bytes(oldEmail).length == 0 || !hasPassedKYC(user))
+    additionalKycInfo[user].email = email;
 
     kycInfo.name = nickName;
     kycInfo.mobilePhoneNumber = mobilePhoneNumber;
@@ -99,12 +104,13 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
   }
   /// @notice Retrieves KYC information for the caller.
   /// @return kycInfo KYCInfo structure containing caller's KYC information.
-  function getMyKYCInfo() external view returns (Schemas.KYCInfo memory kycInfo) {
-    return kycInfos[tx.origin];
+  function getMyKYCInfo(address user) external view returns (Schemas.KYCInfo memory kycInfo) {
+    require(isManager(msg.sender),"only Manager");
+    return kycInfos[user];
   }
 
-  function getMyFullKYCInfo() public view returns (Schemas.FullKYCInfoDTO memory) {
-    return Schemas.FullKYCInfoDTO(kycInfos[tx.origin], additionalKycInfo[tx.origin]);
+  function getMyFullKYCInfo(address user) public view returns (Schemas.FullKYCInfoDTO memory) {
+    return Schemas.FullKYCInfoDTO(kycInfos[user], additionalKycInfo[user]);
   }
   function getPlatformUsersKYCInfos() public view returns (Schemas.AdminKYCInfoDTO[] memory result) {
     require(hasRole(ADMIN_VIEW_ROLE, tx.origin), 'Only Admin');
@@ -286,6 +292,7 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
     else if (newRole == Schemas.Role.Admin) role = DEFAULT_ADMIN_ROLE;
     else if (newRole == Schemas.Role.KYCManager) role = KYC_COMMISSION_MANAGER_ROLE;
     else if (newRole == Schemas.Role.AdminView) role = ADMIN_VIEW_ROLE;
+    else if (newRole == Schemas.Role.InvestmentManager) role = INVESTMENT_MANAGER_ROLE;
     else revert('Invalid role');
     if (grant) _grantRole(role, user);
     else {
@@ -307,6 +314,9 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
   }
   function isSignatureManager(address user) public view returns (bool) {
     return hasRole(MANAGER_ROLE, user);
+  }
+  function isInvestorManager(address user) public view returns(bool) {
+    return hasRole(INVESTMENT_MANAGER_ROLE, user);
   }
 
   /// @notice Initializes the contract with the specified Civic verifier address and gatekeeper network ID, and sets the default admin role.

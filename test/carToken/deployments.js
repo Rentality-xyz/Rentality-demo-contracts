@@ -372,12 +372,17 @@ async function deployDefaultFixture() {
     await rentalityView.getAddress(),
   ])
   await rentalityGateway.waitForDeployment()
+  await rentalityPlatform.setTrustedForwarder(await rentalityGateway.getAddress())
+  await rentalityView.setTrustedForwarder(await rentalityGateway.getAddress())
+  await rentalityTripsView.setTrustedForwarder(await rentalityGateway.getAddress())
+  await rentalityPlatformHelper.setTrustedForwarder(await rentalityGateway.getAddress())
 
   rentalityGateway = await ethers.getContractAt('IRentalityGateway', await rentalityGateway.getAddress())
 
   await rentalityUserService.connect(owner).grantHostRole(await rentalityPlatform.getAddress())
 
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityCarToken.getAddress())
+  await rentalityUserService.connect(owner).grantManagerRole(await refferalProgram.getAddress())
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityView.getAddress())
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityAdminGateway.getAddress())
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityGateway.getAddress())
@@ -388,6 +393,7 @@ async function deployDefaultFixture() {
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityPlatform.getAddress())
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityPaymentService.getAddress())
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityTripsView.getAddress())
+  await rentalityPlatform.set
 
   const hostSignature = await signTCMessage(host)
   const guestSignature = await signTCMessage(guest)
