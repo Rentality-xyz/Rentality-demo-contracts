@@ -2,7 +2,11 @@ const fs = require('fs')
 const package = require('../../package.json')
 const { readFileSync, existsSync } = require('fs')
 const { network } = require('hardhat')
-const pathToSave = './src/abis/dimo'
+
+const basePathToSave = './src/abis'
+let featureName = process.env.FEATURE_NAME?.trim()
+let pathToSave = featureName ? `${basePathToSave}/${featureName}` : basePathToSave
+
 var saveJsonAbi = async function (fileName, chainId, contract) {
   let skip = process.env.SKIP_ABI
 

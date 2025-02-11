@@ -1,6 +1,9 @@
 const package = require('../../package.json')
 
-const pathToAddressFile = 'scripts/addressesContractsTestnets'
+const basePathToAddressFile = 'scripts/addressesContractsTestnets'
+let featureName = process.env.FEATURE_NAME?.trim()
+let pathToAddressFile = featureName ? `${basePathToAddressFile}.${featureName}` : basePathToAddressFile
+
 const version = extractVersion()
 const format = '.json'
 
