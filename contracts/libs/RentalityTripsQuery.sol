@@ -251,20 +251,14 @@ library RentalityTripsQuery {
     RentalityTripService tripService = contracts.tripService;
     uint itemCount = 0;
 
-    for (uint i = 1; i <= tripService.totalTripCount(); i++) {
-      if (tripService.getTrip(i).guest == guest) {
-        itemCount += 1;
-      }
-    }
+    uint[] memory guestTrips = tripService.getTripsByUser(guest);
 
-    Schemas.TripDTO[] memory result = new Schemas.TripDTO[](itemCount);
+    Schemas.TripDTO[] memory result = new Schemas.TripDTO[](guestTrips.length);
     uint currentIndex = 0;
 
-    for (uint i = 1; i <= tripService.totalTripCount(); i++) {
-      if (tripService.getTrip(i).guest == guest) {
-        result[currentIndex] = getTripDTO(contracts, insuranceService, i, promoService);
+    for (uint i = 0; i < guestTrips.length; i++) {
+      result[currentIndex] = getTripDTO(contracts, insuranceService, guestTrips[i], promoService);
         currentIndex += 1;
-      }
     }
 
     return result;
@@ -282,22 +276,16 @@ library RentalityTripsQuery {
     RentalityPromoService promoService
   ) private view returns (Schemas.TripDTO[] memory) {
     RentalityTripService tripService = contracts.tripService;
-    uint itemCount = 0;
+    uint[] memory hostTrips = tripService.getTripsByUser(host);  
 
-    for (uint i = 1; i <= tripService.totalTripCount(); i++) {
-      if (tripService.getTrip(i).host == host) {
-        itemCount += 1;
-      }
-    }
 
-    Schemas.TripDTO[] memory result = new Schemas.TripDTO[](itemCount);
+    Schemas.TripDTO[] memory result = new Schemas.TripDTO[](hostTrips.length);
     uint currentIndex = 0;
 
-    for (uint i = 1; i <= tripService.totalTripCount(); i++) {
-      if (tripService.getTrip(i).host == host) {
-        result[currentIndex] = getTripDTO(contracts, insuranceService, i, promoService);
+    for (uint i = 0; i < hostTrips.length; i++) {
+      
+        result[currentIndex] = getTripDTO(contracts, insuranceService, hostTrips[i], promoService);
         currentIndex += 1;
-      }
     }
 
     return result;
@@ -379,46 +367,82 @@ library RentalityTripsQuery {
   ) internal view returns (Schemas.InsuranceDTO[] memory) {
     RentalityTripService tripService = contracts.tripService;
     uint itemCount = 0;
-
-    for (uint i = 1; i <= tripService.totalTripCount(); i++) {
-      if (tripService.getTrip(i).guest == guest) {
-        itemCount += insuranceService.getTripInsurances(i).length;
-      }
-    }
-    bool guestHasInsurance = insuranceService.isGuestHasInsurance(guest);
-    if (guestHasInsurance)
-          itemCount += 1;
+    uint[] memory userTrips = tripService.getTripsByUser(guest);
+       for (uint i = 0; i < userTrips.length; i++) {
+       itemCount += insuranceService.getTripInsurances(userTrips[i]).length;
+     }
+    Schemas.InsuranceInfo[] memory guestInsurances = insuranceService.getMyInsurancesAsGuest(guest);
+    uint itemCountWithoutGuestInsurances = itemCount;
+    itemCount += guestInsurances.length;
 
     Schemas.InsuranceDTO[] memory insurances = new Schemas.InsuranceDTO[](itemCount);
     uint counter = 0;
-    for (uint i = 1; i <= tripService.totalTripCount(); i++) {
-      Schemas.Trip memory trip = tripService.getTrip(i);
-      if (trip.guest == guest) {
-        Schemas.InsuranceInfo[] memory tripInsurances = insuranceService.getTripInsurances(i);
-        (uint oneTimeActual, uint generalActual) = insuranceService.findActualInsurance(tripInsurances);
+    uint lastGeneralTimeStamp = 0;
+    for (uint i = 0; i < userTrips.length; i++) {
+      Schemas.Trip memory trip = tripService.getTrip(userTrips[i]);
+        Schemas.InsuranceInfo[] memory tripInsurances = insuranceService.getTripInsurances(userTrips[i]);
         for (uint j = 0; j < tripInsurances.length; j++) {
           insurances[counter] = fullFillInsuranceDTO(
             contracts,
             tripInsurances[j],
-            j == oneTimeActual || j == generalActual,
+            false,
             trip.startDateTime,
             trip.endDateTime,
-            i,
+            userTrips[i],
             tripInsurances[j].createdBy == trip.host,
             trip.carId,
             tripInsurances[j].createdBy
             );
 
           counter += 1;
+      
         }
-      }
     }
-        if(guestHasInsurance) {
-          Schemas.InsuranceInfo[] memory guestInsurances = insuranceService.getMyInsurancesAsGuest(guest);
-        insurances[counter] = fullFillInsuranceDTO(
+   
+      return _addGuestInsurances(insurances, guestInsurances,contracts, guest, itemCountWithoutGuestInsurances);
+  }
+
+  function _addGuestInsurances(
+    Schemas.InsuranceDTO[] memory insurances,
+     Schemas.InsuranceInfo[] memory guestInsurances,
+     RentalityContract memory contracts,
+     address guest,
+     uint currentCount) internal view returns(Schemas.InsuranceDTO[] memory result) {
+      uint lastOneTimeTimestamp = 0;
+      uint lastGeneralTimestamp = 0;
+      uint lastOneTimeIndex = 0;
+      uint lastGeneralIndex = 0;
+      uint counter = currentCount;
+    
+         for (uint i = 0; i < guestInsurances.length; i++) {
+        bool alreadyExists = false;
+        for (uint j = 0; j < currentCount; j++) {
+          if (insurances[j].insuranceInfo.insuranceType == Schemas.InsuranceType.OneTime) {
+                if(lastOneTimeTimestamp < insurances[j].insuranceInfo.createdTime) {
+                  lastOneTimeTimestamp = insurances[j].insuranceInfo.createdTime;
+                  lastOneTimeIndex = j;
+                }
+          }
+          if(insurances[j].insuranceInfo.insuranceType == Schemas.InsuranceType.General) { 
+             if(lastGeneralTimestamp < insurances[j].insuranceInfo.createdTime) {
+                  lastGeneralTimestamp = insurances[j].insuranceInfo.createdTime;
+                  lastGeneralIndex = j;
+                }
+          if(guestInsurances[i].createdTime == insurances[j].insuranceInfo.createdTime) {
+          alreadyExists = true;
+          break;
+          }
+        }
+        }
+        if(!alreadyExists) {
+        if(lastGeneralTimestamp < guestInsurances[i].createdTime) {
+           lastGeneralTimestamp = guestInsurances[i].createdTime;
+           lastGeneralIndex = counter;
+        }
+          insurances[counter] = fullFillInsuranceDTO(
           contracts,
-          guestInsurances[guestInsurances.length - 1],
-          true,
+          guestInsurances[i],
+          false,
           0,
           0,
           0,
@@ -426,11 +450,24 @@ library RentalityTripsQuery {
           type(uint).max,
           guest
           );
+          counter += 1;
         }
+      }
+      
+     if (currentCount > 0 || counter > 0) {
+        if (lastGeneralIndex < insurances.length) {
+            insurances[lastGeneralIndex].isActual = true;
+        }
+        if (lastOneTimeIndex < insurances.length) {
+            insurances[lastOneTimeIndex].isActual = true;
+        }
+    }
+      assembly("memory-safe") {
+        mstore(insurances, counter)
+      }
+      return insurances;
 
-    return insurances;
   }
-
   function fullFillInsuranceDTO(
         RentalityContract memory contracts,
         Schemas.InsuranceInfo memory insuranceInfo,
@@ -466,23 +503,21 @@ library RentalityTripsQuery {
     RentalityTripService tripService = contracts.tripService;
     uint itemCount = 0;
 
-    for (uint i = 1; i <= tripService.totalTripCount(); i++) {
-      if (tripService.getTrip(i).host == host) {
-        itemCount += insuranceService.getTripInsurances(i).length;
-      }
-    }
+    uint[] memory userTrips = tripService.getTripsByUser(host);
+     for (uint i = 0; i < userTrips.length; i++) {
+       itemCount += insuranceService.getTripInsurances(userTrips[i]).length;
+     }
     Schemas.InsuranceDTO[] memory insurances = new Schemas.InsuranceDTO[](itemCount);
     uint counter = 0;
-    for (uint i = 1; i <= tripService.totalTripCount(); i++) {
-      Schemas.Trip memory trip = tripService.getTrip(i);
-      if (trip.host == host) {
-        Schemas.InsuranceInfo[] memory tripInsurances = insuranceService.getTripInsurances(i);
+    for (uint i = 0; i < userTrips.length; i++) {
+      Schemas.Trip memory trip = tripService.getTrip(userTrips[i]);
+        Schemas.InsuranceInfo[] memory tripInsurances = insuranceService.getTripInsurances(userTrips[i]);
         (uint oneTimeActual, uint generalActual) = insuranceService.findActualInsurance(tripInsurances);
         for (uint j = 0; j < tripInsurances.length; j++) {
           Schemas.KYCInfo memory kyc = contracts.userService.getKYCInfo(tripInsurances[j].createdBy);
 
           Schemas.CarInfo memory car = contracts.carService.getCarInfoById(trip.carId);
-          insurances[counter].tripId = i;
+          insurances[counter].tripId = userTrips[i];
           insurances[counter].carBrand = car.brand;
           insurances[counter].carModel = car.model;
           insurances[counter].carYear = car.yearOfProduction;
@@ -492,10 +527,11 @@ library RentalityTripsQuery {
           insurances[counter].creatorFullName = kyc.surname;
           insurances[counter].startDateTime = trip.startDateTime;
           insurances[counter].endDateTime = trip.endDateTime;
-          insurances[counter].isActual = (j == oneTimeActual || j == generalActual);
+          insurances[counter].isActual =
+           (j == oneTimeActual && tripInsurances[j].insuranceType == Schemas.InsuranceType.OneTime)
+            || (j == generalActual && tripInsurances[j].insuranceType == Schemas.InsuranceType.General);
           counter += 1;
         }
-      }
     }
 
     return insurances;
