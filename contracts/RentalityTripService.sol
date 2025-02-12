@@ -42,6 +42,8 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
   RentalityNotificationService private eventManager;
   mapping(uint => uint[]) private carIdToActiveTrips;
   mapping(uint => uint[]) private carIdToTrips;
+  mapping(address => uint[]) private userToTrips;
+  mapping(address => uint[]) private userToActiveTrips;
 
   /// @dev Updates the address of the RentalityEventManager contract.
   /// @param _eventManager The address of the new RentalityEventManager contract.
@@ -50,13 +52,6 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     eventManager = RentalityNotificationService(_eventManager);
   }
 
-  /// @dev Updates the address of the RentalityEnginesService contract.
-  /// @param _engineService The address of the new RentalityEnginesService contract.
-  function updateEngineServiceAddress(address _engineService) public {
-    require(addresses.userService.isAdmin(msg.sender), 'Only admin.');
-
-    engineService = RentalityEnginesService(_engineService);
-  }
   /// @dev Get the total number of trips created.
   /// @return The total number of trips.
   function totalTripCount() public view returns (uint) {
@@ -95,6 +90,10 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     }
     carIdToActiveTrips[carId].push(newTripId);
     carIdToTrips[carId].push(newTripId);
+    userToTrips[host].push(newTripId);
+    userToActiveTrips[host].push(newTripId);
+    userToTrips[guest].push(newTripId);
+    userToActiveTrips[guest].push(newTripId);
 
     paymentInfo.tripId = newTripId;
 
@@ -191,7 +190,9 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
         controversialSituation,
       'The trip is not in status Created, Approved'
     );
-    _removeAcriveTrip(idToTripInfo[tripId].carId, tripId);
+    _removeActiveTrip(idToTripInfo[tripId].carId, tripId);
+    _removeActiveTripFromUser(tripId, idToTripInfo[tripId].host);
+    _removeActiveTripFromUser(tripId, idToTripInfo[tripId].guest);
     idToTripInfo[tripId].status = Schemas.TripStatus.Canceled;
     idToTripInfo[tripId].rejectedDateTime = block.timestamp;
     idToTripInfo[tripId].rejectedBy = user;
@@ -226,8 +227,9 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     Schemas.Trip memory trip = getTrip(tripId);
     require(trip.host == user, 'For host only');
 
-    for (uint i = 1; i <= totalTripCount(); i++) {
-      Schemas.Trip memory check_trip = getTrip(i);
+    uint[] memory totalTrips = carIdToActiveTrips[trip.carId];
+    for (uint i = 0; i < totalTrips.length; i++) {
+      Schemas.Trip memory check_trip = getTrip(totalTrips[i]);
 
       if (
         check_trip.carId == trip.carId &&
@@ -414,7 +416,9 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
 
     trip.status = Schemas.TripStatus.Finished;
 
-    _removeAcriveTrip(idToTripInfo[tripId].carId, tripId);
+    _removeActiveTrip(trip.carId, tripId);
+    _removeActiveTripFromUser(tripId, trip.host);
+    _removeActiveTripFromUser(tripId, trip.guest);
     trip.finishDateTime = block.timestamp;
     completedByAdmin[tripId] = addresses.userService.isAdmin(user) && trip.host != user && trip.guest != user;
 
@@ -482,7 +486,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
   function getAddressesByTripId(uint256 tripId) external view returns (address hostAddress, address guestAddress) {
     return (idToTripInfo[tripId].host, idToTripInfo[tripId].guest);
   }
-  function _removeAcriveTrip(uint carId, uint tripId) private {
+  function _removeActiveTrip(uint carId, uint tripId) private {
     uint[] memory activeTrips = carIdToActiveTrips[carId];
     for (uint i = 0; i < activeTrips.length; i++) {
       if (activeTrips[i] == tripId) {
@@ -493,11 +497,29 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
       }
     }
   }
+
+    function _removeActiveTripFromUser(uint tripId, address user) private {
+    uint[] memory activeTrips = userToActiveTrips[user];
+    for (uint i = 0; i < activeTrips.length; i++) {
+      if (activeTrips[i] == tripId) {
+        for (uint j = i; j < activeTrips.length - 1; j++) activeTrips[j] = activeTrips[j + 1];
+
+        userToActiveTrips[user] = activeTrips;
+        break;
+      }
+    }
+  }
   function getActiveTrips(uint carId) public view returns (uint[] memory) {
     return carIdToActiveTrips[carId];
   }
   function getCarTrips(uint carId) public view returns (uint[] memory) {
     return carIdToTrips[carId];
+  }
+   function getActiveTripsByUser(address host) public view returns (uint[] memory) {
+    return userToActiveTrips[host];
+  }
+    function getTripsByUser(address host) public view returns (uint[] memory) {
+    return userToTrips[host];
   }
 
   /// @param currencyConverterServiceAddress The address of the currency converter service.

@@ -180,6 +180,14 @@
     },
     {
       "type": "function",
+      "name": "setRateFeed",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "_rateFeed" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
       "name": "tokenAddress",
       "constant": true,
       "stateMutability": "view",
