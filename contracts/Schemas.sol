@@ -400,6 +400,7 @@ interface Schemas {
   struct FullKYCInfoDTO {
     KYCInfo kyc;
     AdditionalKYCInfo additionalKYC;
+    bool isPhoneVerified;
   }
   struct AdminKYCInfoDTO {
     KYCInfo kyc;

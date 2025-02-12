@@ -15,6 +15,7 @@ import {RentalityView} from './RentalityView.sol';
 import {ARentalityContext} from './abstract/ARentalityContext.sol';
 
 import {RentalityDimoService} from './features/RentalityDimoService.sol';
+import {RentalityViewLib} from './libs/RentalityViewLib.sol';
 
 error FunctionNotFound();
 /// @dev SAFETY: The linked library is not supported yet because it can modify the state or call
@@ -92,6 +93,13 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
    function checkPromo(string memory promo, uint startDateTime, uint endDateTime) public view returns (Schemas.CheckPromoDTO memory) {
     return promoService.checkPromo(promo, startDateTime, endDateTime);
   }
+
+ function getUniqCarsBrand() public view returns(string[] memory brandsArray) {
+  return RentalityViewLib.getUniqCarsBrand(addresses.carService);
+ }
+ function getUniqModelsByBrand(string memory brand) public view returns(string[] memory modelsArray) {
+  return RentalityViewLib.getUniqModelsByBrand(addresses.carService, brand);
+ }
 
     function trustedForwarder() internal view override returns (address) {
       return trustedForwarderAddress;

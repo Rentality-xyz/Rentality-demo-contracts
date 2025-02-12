@@ -94,6 +94,10 @@ contract RentalityPlatformHelper is UUPSOwnable, ARentalityContext {
     return addresses.carService.updateCarInfo(request, location.locationInfo, location.signature.length > 0, _msgGatewaySender());
   }
 
+  function setPhoneNumber(address user, string memory phone, bool isVerified) public {
+    addresses.userService.setPhoneNumber(user, phone, isVerified);
+  }
+
   function trustedForwarder() internal view override returns (address) {
       return trustedForwarderAddress;
 

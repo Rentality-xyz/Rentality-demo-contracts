@@ -35,6 +35,8 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
   mapping(address => Schemas.KycCommissionData[]) private userToKYCCommission;
   mapping(address => Schemas.AdditionalKYCInfo) private additionalKycInfo;
   address[] private platformUsers;
+  mapping(address => bool) private userToPhoneVerified;
+
 
   /// @notice Sets KYC information for the caller (host or guest).
   /// Requirements:
@@ -63,6 +65,9 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
     additionalKycInfo[user].email = email;
 
     kycInfo.name = nickName;
+    if(!_comparePhones(mobilePhoneNumber, kycInfo.mobilePhoneNumber))
+    userToPhoneVerified[user] = false;
+
     kycInfo.mobilePhoneNumber = mobilePhoneNumber;
     kycInfo.profilePhoto = profilePhoto;
 
@@ -93,6 +98,17 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
     additionalKycInfo[user].email = civicKycInfo.email;
     additionalKycInfo[user].issueCountry = civicKycInfo.issueCountry;
   }
+
+     function setPhoneNumber(address user, string memory phone, bool isVerified) public {
+    require(hasRole(KYC_COMMISSION_MANAGER_ROLE, tx.origin), 'Only KYC manager');
+    require(_comparePhones(phone, kycInfos[user].mobilePhoneNumber), 'Wrong phone');
+
+    userToPhoneVerified[user] = isVerified;
+  }
+
+  function _comparePhones(string memory p1, string memory p2) private pure returns(bool) {
+    return keccak256(abi.encodePacked(p1)) == keccak256(abi.encodePacked(p2));
+   }
   /// @notice Retrieves KYC information for a specified user.
   /// @param user The address of the user for whom to retrieve KYC information.
   /// @return kycInfo KYCInfo structure containing user's KYC information.
@@ -110,7 +126,7 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
   }
 
   function getMyFullKYCInfo(address user) public view returns (Schemas.FullKYCInfoDTO memory) {
-    return Schemas.FullKYCInfoDTO(kycInfos[user], additionalKycInfo[user]);
+    return Schemas.FullKYCInfoDTO(kycInfos[user], additionalKycInfo[user], userToPhoneVerified[user]);
   }
   function getPlatformUsersKYCInfos() public view returns (Schemas.AdminKYCInfoDTO[] memory result) {
     require(hasRole(ADMIN_VIEW_ROLE, tx.origin), 'Only Admin');
