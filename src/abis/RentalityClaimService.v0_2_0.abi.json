@@ -63,7 +63,8 @@
           ]
         },
         { "type": "address", "name": "host" },
-        { "type": "address", "name": "guest" }
+        { "type": "address", "name": "guest" },
+        { "type": "address", "name": "user" }
       ],
       "outputs": []
     },

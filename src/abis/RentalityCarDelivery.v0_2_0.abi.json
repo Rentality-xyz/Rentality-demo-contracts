@@ -176,7 +176,8 @@
       "payable": false,
       "inputs": [
         { "type": "uint64", "name": "underTwentyFiveMilesInUsdCents" },
-        { "type": "uint64", "name": "aboveTwentyFiveMilesInUsdCents" }
+        { "type": "uint64", "name": "aboveTwentyFiveMilesInUsdCents" },
+        { "type": "address", "name": "user" }
       ],
       "outputs": []
     },
@@ -233,7 +234,8 @@
                 { "type": "uint256", "name": "priceInUsdCents" }
               ]
             },
-            { "type": "bool", "name": "isGuestHasInsurance" }
+            { "type": "bool", "name": "isGuestHasInsurance" },
+            { "type": "uint256", "name": "dimoTokenId" }
           ]
         },
         {
@@ -301,7 +303,8 @@
                     { "type": "uint256", "name": "priceInUsdCents" }
                   ]
                 },
-                { "type": "bool", "name": "isGuestHasInsurance" }
+                { "type": "bool", "name": "isGuestHasInsurance" },
+                { "type": "uint256", "name": "dimoTokenId" }
               ]
             },
             { "type": "int256", "name": "distance" }

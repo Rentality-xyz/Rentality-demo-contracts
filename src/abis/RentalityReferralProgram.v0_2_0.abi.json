@@ -82,7 +82,7 @@
       "name": "generateReferralHash",
       "constant": false,
       "payable": false,
-      "inputs": [],
+      "inputs": [{ "type": "address", "name": "user" }],
       "outputs": []
     },
     {
@@ -122,7 +122,8 @@
     {
       "type": "function",
       "name": "getDiscount",
-      "constant": false,
+      "constant": true,
+      "stateMutability": "view",
       "payable": false,
       "inputs": [
         { "type": "uint8", "name": "selector" },
@@ -441,7 +442,8 @@
       "payable": false,
       "inputs": [
         { "type": "bytes4", "name": "hash" },
-        { "type": "bool", "name": "isGuest" }
+        { "type": "bool", "name": "isGuest" },
+        { "type": "address", "name": "sender" }
       ],
       "outputs": []
     },
@@ -489,7 +491,8 @@
       "inputs": [
         { "type": "uint8", "name": "selector" },
         { "type": "bool", "name": "host" },
-        { "type": "uint256", "name": "tripId" }
+        { "type": "uint256", "name": "tripId" },
+        { "type": "address", "name": "user" }
       ],
       "outputs": [{ "type": "uint256", "name": "" }]
     }
