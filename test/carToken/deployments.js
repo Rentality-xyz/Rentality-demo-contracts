@@ -141,9 +141,12 @@ async function deployDefaultFixture() {
   const rentalityCurrencyConverter = await upgrades.deployProxy(RentalityCurrencyConverter, [
     await rentalityUserService.getAddress(),
     await ethContract.getAddress(),
+    'ETH'
   ])
   await rentalityCurrencyConverter.waitForDeployment()
 
+  let InvestDeployer = await ethers.getContractFactory('RentalityInvestDeployer')
+  let investDeployer = await upgrades.deployProxy(InvestDeployer, [ await rentalityUserService.getAddress()])
 
   let InvestFactory = await ethers.getContractFactory('RentalityInvestment',{
     libraries: {
@@ -155,6 +158,7 @@ async function deployDefaultFixture() {
       await rentalityCurrencyConverter.getAddress(),
       await rentalityCarToken.getAddress(),
       await insuranceService.getAddress(),
+      await investDeployer.getAddress()
   ])
   await investorsService.waitForDeployment()
 
@@ -243,6 +247,7 @@ async function deployDefaultFixture() {
   let RentalityTripsView = await ethers.getContractFactory('RentalityTripsView', {
     libraries: {
       RentalityTripsQuery: await tripsQuery.getAddress(),
+      RentalityViewLib: await viewLib.getAddress()
     },
   })
 
@@ -393,7 +398,7 @@ async function deployDefaultFixture() {
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityPlatform.getAddress())
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityPaymentService.getAddress())
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityTripsView.getAddress())
-  await rentalityPlatform.set
+  await rentalityUserService.connect(owner).grantManagerRole(await rentalityPlatformHelper.getAddress())
 
   const hostSignature = await signTCMessage(host)
   const guestSignature = await signTCMessage(guest)

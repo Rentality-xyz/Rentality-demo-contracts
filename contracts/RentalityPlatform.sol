@@ -128,7 +128,7 @@ contract RentalityPlatform is UUPSOwnable, ARentalityContext {
         insurance
       );
 
-    addresses.paymentService.payCreateTrip{value: msg.value}(request.currencyType, valueSumInCurrency,sender);
+    addresses.paymentService.payCreateTrip{value: msg.value}(request.currencyType, valueSumInCurrency, sender, request.carId);
 
     uint tripId = addresses.tripService.createNewTrip(
       request.carId,

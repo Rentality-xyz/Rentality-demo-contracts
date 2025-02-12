@@ -1,7 +1,7 @@
 const { expect } = require('chai')
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 
-const { getMockCarRequest, locationInfo, emptySignedLocationInfo } = require('../utils')
+const { getMockCarRequest, locationInfo, emptySignedLocationInfo, signLocationInfo } = require('../utils')
 const { deployFixtureWith1Car, deployDefaultFixture } = require('./deployments')
 
 describe('RentalityCarToken: deployment and update', function () {
@@ -74,7 +74,7 @@ it('Update car with location, but without api should revert', async function () 
     tokenUri: 'uri',
   }
 
-  await expect(rentalityGateway.updateCarInfoWithLocation(update_params, locationInfo)).to.be.reverted
+  await expect(rentalityGateway.updateCarInfoWithLocation(update_params, emptySignedLocationInfo)).to.be.reverted
 })
 //unused
 it.skip('Update with location should pass locationVarification param to false', async function () {

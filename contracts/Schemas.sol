@@ -341,6 +341,11 @@ interface Schemas {
     uint128 dropOfFee;
   }
 
+  struct Currency {
+    address currency;
+    string name;
+  }
+
   struct TripReceiptDTO {
     uint64 totalDayPriceInUsdCents;
     uint64 totalTripDays;
@@ -400,6 +405,7 @@ interface Schemas {
   struct FullKYCInfoDTO {
     KYCInfo kyc;
     AdditionalKYCInfo additionalKYC;
+    bool isPhoneVerified;
   }
   struct AdminKYCInfoDTO {
     KYCInfo kyc;
@@ -594,6 +600,7 @@ interface Schemas {
     uint myPart;
     uint totalHolders;
     uint totalTokens;
+    address currency;
   }
 
   struct TripFilter {

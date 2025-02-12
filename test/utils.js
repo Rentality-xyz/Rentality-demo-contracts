@@ -426,6 +426,7 @@ async function deployDefaultFixture() {
   const rentalityCurrencyConverter = await upgrades.deployProxy(RentalityCurrencyConverter, [
     await rentalityUserService.getAddress(),
     await ethContract.getAddress(),
+    'ETH'
   ])
   await rentalityCurrencyConverter.waitForDeployment()
 
@@ -497,16 +498,21 @@ async function deployDefaultFixture() {
   ])
   await insuranceService.waitForDeployment()
 
+  let InvestDeployer = await ethers.getContractFactory('RentalityInvestDeployer')
+  let investDeployer = await upgrades.deployProxy(InvestDeployer, [ await rentalityUserService.getAddress()])
+
   let InvestFactory = await ethers.getContractFactory('RentalityInvestment',{
     libraries: {
       RentalityViewLib: await viewLib.getAddress()
     }
   })
+
   let investorsService = await upgrades.deployProxy(InvestFactory, [
       await rentalityUserService.getAddress(),
       await rentalityCurrencyConverter.getAddress(),
       await rentalityCarToken.getAddress(),
       await insuranceService.getAddress(),
+      await investDeployer.getAddress()
   ])
   await investorsService.waitForDeployment()
 
@@ -549,6 +555,7 @@ async function deployDefaultFixture() {
   let RentalityTripsView = await ethers.getContractFactory('RentalityTripsView', {
     libraries: {
       RentalityTripsQuery: await tripsQuery.getAddress(),
+      RentalityViewLib: await viewLib.getAddress()
     },
   })
 
@@ -724,7 +731,8 @@ async function deployDefaultFixture() {
 
   await rentalityCurrencyConverter.addCurrencyType(
     await usdtContract.getAddress(),
-    await usdtPaymentContract.getAddress()
+    await usdtPaymentContract.getAddress(),
+    'USDT'
   )
 
   const insurancePriceInCents = 2500

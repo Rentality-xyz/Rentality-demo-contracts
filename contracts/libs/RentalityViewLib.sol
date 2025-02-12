@@ -310,5 +310,49 @@ library RentalityViewLib {
         return convertedAmount;
     }
 
+    function getUniqCarsBrand(RentalityCarToken carService) public view returns(string[] memory) {
+      uint totalSupply = carService.totalSupply();
+      uint realAmount = 0;
+      string[] memory brandsArray = new string[](totalSupply);
+      for (uint i = 1; i <= totalSupply; i++) {
+        string memory carBrand = carService.getCarInfoById(i).brand;
+        if(_isUniqInStringInArray(brandsArray, carBrand, realAmount)) {
+          brandsArray[realAmount] = carBrand;
+          realAmount += 1;
+        }
+      }
+      assembly("memory-safe") {
+        mstore(brandsArray, realAmount)
+      }
+      return brandsArray;
+}
+
+ function getUniqModelsByBrand(RentalityCarToken carService, string memory brand) public view returns(string[] memory modelsArray) {
+      uint totalSupply = carService.totalSupply();
+      uint realAmount = 0;
+      bytes32 hashedBrand = keccak256(abi.encodePacked(brand));
+      modelsArray = new string[](totalSupply);
+      for (uint i = 1; i <= totalSupply; i++) {
+        Schemas.CarInfo memory car = carService.getCarInfoById(i);
+        if(keccak256(abi.encodePacked(car.brand)) == hashedBrand)
+        if(_isUniqInStringInArray(modelsArray, car.model, realAmount)) {
+          modelsArray[realAmount] = car.model;
+          realAmount += 1;
+        }
+      }
+      assembly("memory-safe") {
+        mstore(modelsArray, realAmount)
+      }
+}
+    function _isUniqInStringInArray(string[] memory ar, string memory toCompare, uint arrayLen) private pure returns(bool) {
+      bytes32 hashedString = keccak256(abi.encodePacked(toCompare));
+      for (uint i = 0; i < arrayLen; i++) {
+        if(keccak256(abi.encodePacked(ar[i])) == hashedString) {
+          return false;
+        }
+      }
+      return true;
+    }
+
   
 }
