@@ -13,7 +13,7 @@ const {
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 const { ethers } = require('hardhat')
 
-describe.only('All brands, models by brand filters', function () {
+describe('All brands, models by brand filters', function () {
   let rentalityGateway,
     rentalityMockPriceFeed,
     rentalityUserService,

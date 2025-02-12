@@ -187,12 +187,19 @@ RentalityInvestment private investmentService;
     require(userService.isManager(msg.sender), 'Only manager');
     bool successHost;
     bool successGuest;
-     (uint hostPercents, RentalityCarInvestmentPool pool) = investmentService.getPaymentsInfo(trip.carId);
+     (uint hostPercents, RentalityCarInvestmentPool pool, address currency) = investmentService.getPaymentsInfo(trip.carId);
     if (address(pool) != address(0)) {
       uint valueToPay = totalIncome - (totalIncome * 20 / 100);
       uint depositToPool = valueToPay - ((valueToPay * hostPercents) / 100);
       valueToHost = valueToHost - depositToPool;
-      pool.deposit{value: depositToPool}(totalIncome);
+      if(currency == address(0))
+      pool.deposit{value: depositToPool}(totalIncome, depositToPool);
+    
+    else {
+      bool success = IERC20(currency).transfer(address(pool) ,depositToPool);
+          require(success, 'fail to deposit to pool');
+         pool.deposit(totalIncome, depositToPool);
+    }
     }
     if (trip.paymentInfo.currencyType == address(0)) {
       // Handle payment in native currency (ETH)
@@ -239,8 +246,11 @@ RentalityInvestment private investmentService;
   /// @dev This function can only be called by a manager. The function handles both native currency (ETH) and ERC20 tokens.
   /// @param currencyType The type of currency used for payment (address of the ERC20 token or address(0) for ETH).
   /// @param valueSumInCurrency The total amount to be paid, which includes price, discount, taxes, deposit, and delivery fees.
-  function payCreateTrip(address currencyType, uint valueSumInCurrency, address user) public payable {
+  function payCreateTrip(address currencyType, uint valueSumInCurrency, address user, uint carId) public payable {
     require(userService.isManager(msg.sender), 'only manager');
+    (, RentalityCarInvestmentPool pool, address currency) = investmentService.getPaymentsInfo(carId);
+    if (address(pool) != address(0))
+    require(currency == currencyType,'wrong currency type');
 
     if (currencyType == address(0)) {
       // Handle payment in native currency (ETH)

@@ -101,6 +101,10 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
   return RentalityViewLib.getUniqModelsByBrand(addresses.carService, brand);
  }
 
+  function getAvaibleCurrencies() public view returns(Schemas.Currency[] memory) {
+    return addresses.currencyConverterService.getAllCurrencies();
+  }
+
     function trustedForwarder() internal view override returns (address) {
       return trustedForwarderAddress;
 

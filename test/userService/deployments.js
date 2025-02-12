@@ -113,6 +113,7 @@ async function deployDefaultFixture() {
   const rentalityCurrencyConverter = await upgrades.deployProxy(RentalityCurrencyConverter, [
     await rentalityUserService.getAddress(),
     await ethContract.getAddress(),
+    'ETH'
   ])
   await rentalityCurrencyConverter.waitForDeployment()
 
@@ -182,6 +183,9 @@ async function deployDefaultFixture() {
   const rentalityBaseDiscount = await upgrades.deployProxy(RentalityBaseDiscount, [
     await rentalityUserService.getAddress(),
   ])
+  let InvestDeployer = await ethers.getContractFactory('RentalityInvestDeployer')
+  let investDeployer = await upgrades.deployProxy(InvestDeployer, [ await rentalityUserService.getAddress()])
+
   let InvestFactory = await ethers.getContractFactory('RentalityInvestment',{
     libraries: {
       RentalityViewLib: await viewLib.getAddress()
@@ -192,6 +196,7 @@ async function deployDefaultFixture() {
       await rentalityCurrencyConverter.getAddress(),
       await rentalityCarToken.getAddress(),
       await insuranceService.getAddress(),
+      await investDeployer.getAddress()
   ])
   await investorsService.waitForDeployment()
 

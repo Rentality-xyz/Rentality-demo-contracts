@@ -17,13 +17,14 @@ contract RentalityInvestmentNft is ERC721 {
     string memory name_,
     string memory symbol_,
     uint investId_,
-    string memory tokenUri_
+    string memory tokenUri_,
+    address creator_
   ) ERC721(name_, symbol_) {
     tokenId = 0;
     investId = investId_;
     _tokenUri = tokenUri_;
     
-  creator = msg.sender;
+  creator = creator_;
   }
   function mint(uint priceInEth, address user) public {
     require(msg.sender == creator, "only Owner");

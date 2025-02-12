@@ -686,7 +686,7 @@ describe('Rentality promoService Service', function () {
       )
     expect(availableCars.length).to.equal(1)
 
-    await promoService.generateNumbers(1, 10000, 10, Math.floor(new Date().getTime() / 1000), Math.floor(new Date().getTime() / 1000) + (86400 * 10), 'D')
+    await promoService.generateNumbers(1, 10000, 10, Math.floor(new Date().getTime() / 1000), Math.floor(new Date().getTime() / 1000) + (86400 * 10), 'WAGMI2025')
     const promos = await promoService.getPromoCodes()
     const result = await rentalityGateway
       .connect(guest)

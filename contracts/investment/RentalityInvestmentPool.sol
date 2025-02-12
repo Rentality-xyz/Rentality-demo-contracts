@@ -4,6 +4,7 @@ pragma solidity ^0.8.9;
 import '../Schemas.sol';
 import '../proxy/UUPSAccess.sol';
 import './RentalityInvestmentNft.sol';
+import {IERC20} from '../payments/abstract/IERC20.sol';
 
     struct Income {
         uint income;
@@ -20,17 +21,19 @@ contract RentalityCarInvestmentPool {
 
     mapping(uint => uint) private nftIdToLastIncomeNumber;
     uint public creationDate;
+    address private currency;
 
-    constructor(uint _investmentId, address _nft, uint totalPrice, address _userService) {
+    constructor(uint _investmentId, address _nft, uint totalPrice, address _userService, address _currency) {
         nft = RentalityInvestmentNft(_nft);
         investmentID = _investmentId;
         totalPriceInEth = totalPrice;
         userService = IRentalityAccessControl(_userService);
         creationDate = block.timestamp;
+        currency = _currency;
     }
-    function deposit(uint totalProfit) public payable {
+    function deposit(uint totalProfit, uint amount) public payable {
        require(userService.isManager(msg.sender),"only Manager"); 
-        incomes.push(Income(msg.value, totalProfit));
+        incomes.push(Income(amount, totalProfit));
     }
 
     function claimAllMy(address user, uint[] memory tokens) public {
@@ -52,8 +55,14 @@ contract RentalityCarInvestmentPool {
         }
 
         if (toClaim > 0) {
+            if(currency == address(0)) {
             (bool successRefund,) = payable(user).call{value: toClaim}('');
             require(successRefund, 'payment failed.');
+            }
+            else {
+                bool success = IERC20(currency).transfer(user, toClaim);
+                require(success, "investment: tranfer fail");
+            }
         }
     }
 
