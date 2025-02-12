@@ -3,6 +3,7 @@ const { ethers, upgrades } = require('hardhat')
 const { getContractAddress } = require('./utils/contractAddress')
 const addressSaver = require('./utils/addressSaver')
 const { checkNotNull, startDeploy } = require('./utils/deployHelper')
+const getNativeSymbol = require('./utils/loadNativeNatworkToken')
 
 async function main() {
   const { contractName, chainId } = await startDeploy('RentalityCurrencyConverter')

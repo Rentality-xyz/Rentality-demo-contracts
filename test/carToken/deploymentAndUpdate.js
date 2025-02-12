@@ -72,10 +72,9 @@ it('Update car with location, but without api should revert', async function () 
     insurancePriceInUsdCents: 0,
     engineType: 1,
     tokenUri: 'uri',
-    locationInfo: signLocationInfo
   }
 
-  await expect(rentalityGateway.updateCarInfoWithLocation(update_params, locationInfo)).to.be.reverted
+  await expect(rentalityGateway.updateCarInfoWithLocation(update_params, emptySignedLocationInfo)).to.be.reverted
 })
 //unused
 it.skip('Update with location should pass locationVarification param to false', async function () {
