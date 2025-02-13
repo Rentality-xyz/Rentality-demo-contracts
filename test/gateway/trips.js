@@ -1213,4 +1213,95 @@ signedDimoTokenId: '0x'
       [value, -value]
     )
   })
+
+  it('Migration test', async function () {
+    const mockCreateCarRequest = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
+    await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest)).not.to.be.reverted
+    const myCars = await rentalityGateway.connect(host).getMyCars()
+    expect(myCars.length).to.equal(1)
+
+    const availableCars = await rentalityGateway
+      .connect(guest)
+      .searchAvailableCarsWithDelivery(
+        0,
+        new Date().getSeconds() + 86400,
+        getEmptySearchCarParams(1),
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
+    expect(availableCars.length).to.equal(1)
+
+    let dayInSeconds = 86400
+    let tripDays = 4
+    const result = await rentalityGateway.calculatePaymentsWithDelivery(
+      1,
+      tripDays,
+      ethToken,
+      emptyLocationInfo,
+      emptyLocationInfo,
+      ' '
+    )
+    await expect(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
+        {
+          carId: 1,
+          startDateTime: Date.now(),
+          endDateTime: Date.now() + dayInSeconds * tripDays,
+          currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
+        },
+        ' ',
+        { value: result.totalPrice }
+      )
+    ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
+    await expect(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
+        {
+          carId: 1,
+          startDateTime: Date.now(),
+          endDateTime: Date.now() + dayInSeconds * tripDays,
+          currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
+        },
+        ' ',
+        { value: result.totalPrice }
+      )
+    ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
+    await expect(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
+        {
+          carId: 1,
+          startDateTime: Date.now(),
+          endDateTime: Date.now() + dayInSeconds * tripDays,
+          currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
+        },
+        ' ',
+        { value: result.totalPrice }
+      )
+    ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
+let guestTrips = await rentalityTripService.getTripsByUser(guest.address)
+let hostTrips = await rentalityTripService.getTripsByUser(host.address)
+
+let guestActiveTrips = await rentalityTripService.getActiveTripsByUser(guest.address)
+let hostActiveTrips = await rentalityTripService.getActiveTripsByUser(host.address)
+ expect(guestTrips.length).to.be.eq(3)
+ expect(hostTrips.length).to.be.eq(3)
+ expect(guestActiveTrips.length).to.be.eq(3)
+ expect(hostActiveTrips.length).to.be.eq(3)
+
+ await rentalityTripService.setUserTrips(1,0)
+  guestTrips = await rentalityTripService.getTripsByUser(guest.address)
+ hostTrips = await rentalityTripService.getTripsByUser(host.address)
+
+ guestActiveTrips = await rentalityTripService.getActiveTripsByUser(guest.address)
+ hostActiveTrips = await rentalityTripService.getActiveTripsByUser(host.address)
+ expect(guestTrips.length).to.be.eq(6)
+ expect(hostTrips.length).to.be.eq(6)
+ expect(guestActiveTrips.length).to.be.eq(6)
+ expect(hostActiveTrips.length).to.be.eq(6)
+  })
 })

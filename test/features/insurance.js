@@ -527,6 +527,26 @@ describe('Rentality insurance', function () {
 
     await expect(rentalityGateway.connect(guest).saveGuestInsurance(insurance)).to.not.reverted
 
+    let insurance_ = {
+      companyName: 'myCo',
+      policyNumber: '12124-124-124',
+      photo: 'url',
+      comment: 'comment',
+      insuranceType: InsuranceType.General,
+    }
+
+    await expect(rentalityGateway.connect(guest).saveGuestInsurance(insurance_)).to.not.reverted
+
+    let insurance__ = {
+      companyName: 'myCo',
+      policyNumber: '12124-124-124111',
+      photo: 'url',
+      comment: 'comment',
+      insuranceType: InsuranceType.General,
+    }
+
+    await expect(rentalityGateway.connect(guest).saveGuestInsurance(insurance__)).to.not.reverted
+
     const result = await rentalityGateway
       .connect(guest)
       .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
@@ -558,7 +578,7 @@ describe('Rentality insurance', function () {
 
     let insurances = await rentalityGateway.connect(guest).getInsurancesBy(false)
 
-    expect(insurances.length).to.be.eq(3)
+    expect(insurances.length).to.be.eq(4)
     let res = await insuranceService.getTripInsurances(1)
     expect(insurances[0].tripId).to.be.eq(1)
     expect(insurances[1].tripId).to.be.eq(1)
@@ -636,7 +656,7 @@ describe('Rentality insurance', function () {
     await expect(
       rentalityGateway.connect(host).saveTripInsuranceInfo(2, {
         companyName: 'myCo',
-        policyNumber: '12124-124-1241214',
+        policyNumber: '1211224-124-1241214',
         photo: 'url',
         comment: 'comment',
         insuranceType: InsuranceType.OneTime,
@@ -649,22 +669,41 @@ describe('Rentality insurance', function () {
         policyNumber: '12124-124-124124',
         photo: 'url',
         comment: 'comment',
-        insuranceType: InsuranceType.General,
+        insuranceType: InsuranceType.OneTime,
       })
     ).to.not.reverted
+    insurances = await rentalityGateway.connect(guest).getInsurancesBy(false)
+    let generalActaul = insurances.find(i => i.isActual === true && Number(i.insuranceInfo.insuranceType) === 1)
+    expect(generalActaul.insuranceInfo.policyNumber).to.be.eq(insurance__.policyNumber)
+    expect(insurances.filter(i => i.isActual === true && Number(i.insuranceInfo.insuranceType) === 1).length).to.be.eq(1)
 
-    insurances = await rentalityGateway.connect(host).getInsurancesBy(true)
+    let oneTime = insurances.find(i => i.isActual === true && Number(i.insuranceInfo.insuranceType) === 2)
+    expect(oneTime.insuranceInfo.policyNumber).to.be.eq('12124-124-124124')
+    expect(insurances.filter(i => i.isActual === true && Number(i.insuranceInfo.insuranceType) === 2).length).to.be.eq(1)
 
-    expect(insurances.length).to.be.eq(10)
-    expect(insurances[2].tripId).to.be.eq(2)
-    expect(insurances[3].tripId).to.be.eq(2)
-    expect(insurances[2].carBrand).to.be.eq(mockRequestWithInsurance.brand)
-    expect(insurances[3].carBrand).to.be.eq(mockRequestWithInsurance.brand)
-    expect(insurances[2].carModel).to.be.eq(mockRequestWithInsurance.model)
-    expect(insurances[2].createdByHost).to.be.eq(false)
-    expect(insurances[3].createdByHost).to.be.eq(true)
-    expect(insurances[3].insuranceInfo.companyName).to.be.eq(insurance2.companyName)
-    expect(insurances[3].insuranceInfo.policyNumber).to.be.eq(insurance2.policyNumber)
+
+    
+    let _insurance = {
+      companyName: 'myCo',
+      policyNumber: '11112124-124-124',
+      photo: 'url',
+      comment: 'comment',
+      insuranceType: InsuranceType.General,
+    }
+
+    await expect(rentalityGateway.connect(guest).saveGuestInsurance(_insurance)).to.not.reverted
+    insurances = await rentalityGateway.connect(guest).getInsurancesBy(false)
+
+    generalActaul = insurances.find(i => i.isActual === true && Number(i.insuranceInfo.insuranceType) === 1)
+    expect(generalActaul.insuranceInfo.policyNumber).to.be.eq(_insurance.policyNumber)
+    expect(insurances.filter(i => i.isActual === true && Number(i.insuranceInfo.insuranceType) === 1).length).to.be.eq(1)
+
+    expect(insurances.length).to.be.eq(13)
+    expect(insurances[5].tripId).to.be.eq(2)
+    expect(insurances[6].tripId).to.be.eq(2)
+    expect(insurances[5].carBrand).to.be.eq(mockRequestWithInsurance.brand)
+    expect(insurances[6].carBrand).to.be.eq(mockRequestWithInsurance.brand)
+    expect(insurances[5].carModel).to.be.eq(mockRequestWithInsurance.model)
   })
   it('check in by host add insurance to list', async function () {
     await expect(rentalityGateway.connect(host).addCar(mockRequestWithInsurance)).not.to.be.reverted
