@@ -353,6 +353,13 @@ library RentalityViewLib {
       }
       return true;
     }
+      function checkAmount(uint amount, uint value) public view {
+        if (amount > value) {
+        uint diff = amount - value;
+        require(diff <= type(uint).max / 1000, "Overflow risk");
+        require(diff * 1000 <= value, "Exceeds 0.1% tolerance");
+    }
+      }
 
   
 }
