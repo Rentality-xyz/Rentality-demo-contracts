@@ -160,6 +160,15 @@
     },
     {
       "type": "function",
+      "name": "getActiveTripsByUser",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "host" }],
+      "outputs": [{ "type": "uint256[]", "name": "" }]
+    },
+    {
+      "type": "function",
       "name": "getAddressesByTripId",
       "constant": true,
       "stateMutability": "view",
@@ -341,6 +350,15 @@
           ]
         }
       ]
+    },
+    {
+      "type": "function",
+      "name": "getTripsByUser",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "host" }],
+      "outputs": [{ "type": "uint256[]", "name": "" }]
     },
     {
       "type": "function",
