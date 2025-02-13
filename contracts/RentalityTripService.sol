@@ -434,7 +434,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     uint8 eType,
     Schemas.Trip memory tripInfo,
     uint64[] memory engineParams
-  ) public view returns (uint64, uint64) {
+  ) private view returns (uint64, uint64) {
     uint64 duration = tripInfo.endDateTime - tripInfo.startDateTime;
     uint64 tripDays = uint64(Math.ceilDiv(duration, 1 days));
 
@@ -479,13 +479,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     return idToTripInfo[tripId];
   }
 
-  ///  @dev Retrieves the addresses of the host and guest associated with a specific trip ID.
-  ///  @param tripId The ID of the trip.
-  ///  @return hostAddress The address of the host.
-  ///  @return guestAddress The address of the guest.
-  function getAddressesByTripId(uint256 tripId) external view returns (address hostAddress, address guestAddress) {
-    return (idToTripInfo[tripId].host, idToTripInfo[tripId].guest);
-  }
+
   function _removeActiveTrip(uint carId, uint tripId) private {
     uint[] memory activeTrips = carIdToActiveTrips[carId];
     for (uint i = 0; i < activeTrips.length; i++) {
@@ -508,6 +502,24 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
         break;
       }
     }
+  }
+
+  function setUserTrips(uint start, uint end) public {
+    require(addresses.userService.isAdmin(msg.sender),"only Admin");
+    if (end == 0)
+     end = totalTripCount();
+  for(uint i = start; i <= end; i++) {
+    Schemas.Trip memory trip = idToTripInfo[i];
+    userToTrips[trip.guest].push(i);
+    userToTrips[trip.host].push(i);
+    if( trip.status != Schemas.TripStatus.Finished &&
+        trip.status != Schemas.TripStatus.Canceled
+      ) {
+        userToActiveTrips[trip.guest].push(i);
+        userToActiveTrips[trip.host].push(i);
+      }
+  }
+
   }
   function getActiveTrips(uint carId) public view returns (uint[] memory) {
     return carIdToActiveTrips[carId];
