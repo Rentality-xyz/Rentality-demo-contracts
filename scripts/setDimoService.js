@@ -6,7 +6,7 @@ const { emptyLocationInfo, getEmptySearchCarParams, zeroHash } = require('../tes
 const { getContractAddress } = require('./utils/contractAddress')
 
 async function main() {
-  const { contractName, chainId } = await startDeploy('RentalityGateway')
+  const { contractName, chainId } = await startDeploy('')
 
   if (chainId < 0) throw new Error('chainId is not set')
 
