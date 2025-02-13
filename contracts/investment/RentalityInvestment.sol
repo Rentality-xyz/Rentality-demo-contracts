@@ -60,9 +60,12 @@ contract RentalityInvestment is Initializable, UUPSAccess {
 
     (uint amountAfterInvestment,,) = converter.getToUsdLatest(investmentIdToCurrency[investId], investmentIdToPayedInETH[investId] + amount);
 
-    if (amountAfterInvestment >= investment.priceInUsd) {
+    require(amountAfterInvestment <= investment.priceInUsd, "invest: price less then paid");
+    if (amountAfterInvestment == investment.priceInUsd) {
       investment.inProgress = false;
     }
+ 
+    
     address currency = investmentIdToCurrency[investmentId];
     if (currency == address(0)) {
     investmentIdToPayedInETH[investId] += msg.value;
