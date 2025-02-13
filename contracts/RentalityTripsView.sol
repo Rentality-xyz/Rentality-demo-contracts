@@ -63,7 +63,8 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
   /// @param tripId The ID of the trip.
   /// @return Trip information.
   function getTrip(uint256 tripId) public view returns (Schemas.TripDTO memory) {
-    return RentalityTripsQuery.getTripDTO(addresses, insuranceService, tripId, promoService, dimoService,_msgGatewaySender());
+    Schemas.Trip memory trip = addresses.tripService.getTrip(tripId);
+    return RentalityTripsQuery.getTripDTO(addresses, insuranceService, tripId, promoService, dimoService,_msgGatewaySender(), trip);
   }
 
   /// @notice Retrieves information about trips where the caller is the guest.
