@@ -59,6 +59,15 @@
     },
     {
       "type": "function",
+      "name": "ADMIN_VIEW_ROLE",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "bytes32", "name": "" }]
+    },
+    {
+      "type": "function",
       "name": "DEFAULT_ADMIN_ROLE",
       "constant": true,
       "stateMutability": "view",
@@ -78,6 +87,15 @@
     {
       "type": "function",
       "name": "HOST_ROLE",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "bytes32", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "INVESTMENT_MANAGER_ROLE",
       "constant": true,
       "stateMutability": "view",
       "payable": false,
@@ -142,7 +160,7 @@
       "constant": true,
       "stateMutability": "view",
       "payable": false,
-      "inputs": [],
+      "inputs": [{ "type": "address", "name": "user" }],
       "outputs": [
         {
           "type": "tuple",
@@ -181,7 +199,7 @@
       "constant": true,
       "stateMutability": "view",
       "payable": false,
-      "inputs": [],
+      "inputs": [{ "type": "address", "name": "user" }],
       "outputs": [
         {
           "type": "tuple",
@@ -398,6 +416,15 @@
     },
     {
       "type": "function",
+      "name": "isInvestorManager",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "user" }],
+      "outputs": [{ "type": "bool", "name": "" }]
+    },
+    {
+      "type": "function",
       "name": "isManager",
       "constant": true,
       "stateMutability": "view",
@@ -426,7 +453,14 @@
       ],
       "outputs": []
     },
-    { "type": "function", "name": "payCommission", "constant": false, "payable": false, "inputs": [], "outputs": [] },
+    {
+      "type": "function",
+      "name": "payCommission",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "user" }],
+      "outputs": []
+    },
     {
       "type": "function",
       "name": "proxiableUUID",
@@ -532,7 +566,8 @@
         { "type": "string", "name": "mobilePhoneNumber" },
         { "type": "string", "name": "profilePhoto" },
         { "type": "string", "name": "email" },
-        { "type": "bytes", "name": "TCSignature" }
+        { "type": "bytes", "name": "TCSignature" },
+        { "type": "address", "name": "user" }
       ],
       "outputs": []
     },

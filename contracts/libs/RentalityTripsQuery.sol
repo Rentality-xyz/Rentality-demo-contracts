@@ -19,6 +19,7 @@ import '@openzeppelin/contracts/utils/math/Math.sol';
 import {RentalityInsurance} from '../payments/RentalityInsurance.sol';
 import '../engine/RentalityEnginesService.sol';
 import '../payments/RentalityBaseDiscount.sol';
+import {RentalityDimoService} from '../features/RentalityDimoService.sol';
 
 library RentalityTripsQuery {
   /// @notice Checks if a trip intersects with the specified time interval.
@@ -216,7 +217,6 @@ library RentalityTripsQuery {
     address tripService,
     address userService
   ) public view returns (string memory guestPhoneNumber, string memory hostPhoneNumber) {
-    require(RentalityUserService(userService).isHostOrGuest(tx.origin), 'User is not a host or guest');
 
     Schemas.Trip memory trip = RentalityTripService(tripService).getTrip(tripId);
 
@@ -231,10 +231,12 @@ library RentalityTripsQuery {
     RentalityInsurance insuranceService,
     address user,
     bool host,
-    RentalityPromoService promoService
+    RentalityPromoService promoService,
+    RentalityDimoService dimoService
   ) public view returns (Schemas.TripDTO[] memory) {
     return
-      host ? getTripsByHost(contracts, insuranceService, user, promoService) : getTripsByGuest(contracts, insuranceService, user, promoService);
+      host ? getTripsByHost(contracts, insuranceService, user, promoService, dimoService) :
+       getTripsByGuest(contracts, insuranceService, user, promoService, dimoService);
   }
 
   /// @notice Retrieves all trips associated with a specific guest.
@@ -246,10 +248,10 @@ library RentalityTripsQuery {
     RentalityContract memory contracts,
     RentalityInsurance insuranceService,
     address guest,
-    RentalityPromoService promoService
+    RentalityPromoService promoService,
+     RentalityDimoService dimoService
   ) private view returns (Schemas.TripDTO[] memory) {
     RentalityTripService tripService = contracts.tripService;
-    uint itemCount = 0;
 
     uint[] memory guestTrips = tripService.getTripsByUser(guest);
 
@@ -257,7 +259,7 @@ library RentalityTripsQuery {
     uint currentIndex = 0;
 
     for (uint i = 0; i < guestTrips.length; i++) {
-      result[currentIndex] = getTripDTO(contracts, insuranceService, guestTrips[i], promoService);
+      result[currentIndex] = getTripDTO(contracts, insuranceService, guestTrips[i], promoService, dimoService, guest);
         currentIndex += 1;
     }
 
@@ -273,19 +275,21 @@ library RentalityTripsQuery {
     RentalityContract memory contracts,
     RentalityInsurance insuranceService,
     address host,
-    RentalityPromoService promoService
+    RentalityPromoService promoService,
+     RentalityDimoService dimoService
   ) private view returns (Schemas.TripDTO[] memory) {
     RentalityTripService tripService = contracts.tripService;
-    uint[] memory hostTrips = tripService.getTripsByUser(host);  
+    uint[] memory hostTrips = tripService.getTripsByUser(host);
 
 
     Schemas.TripDTO[] memory result = new Schemas.TripDTO[](hostTrips.length);
     uint currentIndex = 0;
 
     for (uint i = 0; i < hostTrips.length; i++) {
-      
-        result[currentIndex] = getTripDTO(contracts, insuranceService, hostTrips[i], promoService);
+      if (tripService.getTrip(hostTrips[i]).host == host) {
+        result[currentIndex] = getTripDTO(contracts, insuranceService, hostTrips[i], promoService, dimoService, host);
         currentIndex += 1;
+    }
     }
 
     return result;
@@ -300,7 +304,9 @@ library RentalityTripsQuery {
     RentalityContract memory contracts,
     RentalityInsurance insuranceService,
     uint tripId,
-    RentalityPromoService promoService
+    RentalityPromoService promoService,
+    RentalityDimoService dimoService,
+    address user
   ) public view returns (Schemas.TripDTO memory) {
     RentalityTripService tripService = contracts.tripService;
     RentalityCarToken carService = contracts.carService;
@@ -308,7 +314,7 @@ library RentalityTripsQuery {
 
     Schemas.Trip memory trip = tripService.getTrip(tripId);
     Schemas.CarInfo memory car = carService.getCarInfoById(trip.carId);
-    
+
     Schemas.LocationInfo memory pickUpLocation = IRentalityGeoService(carService.getGeoServiceAddress())
       .getLocationInfo(trip.pickUpHash);
     Schemas.LocationInfo memory returnLocation = IRentalityGeoService(carService.getGeoServiceAddress())
@@ -344,8 +350,9 @@ library RentalityTripsQuery {
         hostPhoneNumber,
         insuranceService.getTripInsurances(tripId),
         insuranceService.getInsurancePriceByTrip(tripId),
-        userService.getMyFullKYCInfo().additionalKYC.issueCountry,
-        promoService.getTripDiscount(tripId)
+        userService.getMyFullKYCInfo(user).additionalKYC.issueCountry,
+        promoService.getTripDiscount(tripId),
+        dimoService.getDimoTokenId(trip.carId)
       );
   }
   function getTripInsurancesBy(
@@ -377,7 +384,6 @@ library RentalityTripsQuery {
 
     Schemas.InsuranceDTO[] memory insurances = new Schemas.InsuranceDTO[](itemCount);
     uint counter = 0;
-    uint lastGeneralTimeStamp = 0;
     for (uint i = 0; i < userTrips.length; i++) {
       Schemas.Trip memory trip = tripService.getTrip(userTrips[i]);
         Schemas.InsuranceInfo[] memory tripInsurances = insuranceService.getTripInsurances(userTrips[i]);
@@ -395,10 +401,10 @@ library RentalityTripsQuery {
             );
 
           counter += 1;
-      
+
         }
     }
-   
+
       return _addGuestInsurances(insurances, guestInsurances,contracts, guest, itemCountWithoutGuestInsurances);
   }
 
@@ -413,7 +419,7 @@ library RentalityTripsQuery {
       uint lastOneTimeIndex = 0;
       uint lastGeneralIndex = 0;
       uint counter = currentCount;
-    
+
          for (uint i = 0; i < guestInsurances.length; i++) {
         bool alreadyExists = false;
         for (uint j = 0; j < currentCount; j++) {
@@ -423,7 +429,7 @@ library RentalityTripsQuery {
                   lastOneTimeIndex = j;
                 }
           }
-          if(insurances[j].insuranceInfo.insuranceType == Schemas.InsuranceType.General) { 
+          if(insurances[j].insuranceInfo.insuranceType == Schemas.InsuranceType.General) {
              if(lastGeneralTimestamp < insurances[j].insuranceInfo.createdTime) {
                   lastGeneralTimestamp = insurances[j].insuranceInfo.createdTime;
                   lastGeneralIndex = j;
@@ -453,7 +459,7 @@ library RentalityTripsQuery {
           counter += 1;
         }
       }
-      
+
      if (currentCount > 0 || counter > 0) {
         if (lastGeneralIndex < insurances.length) {
             insurances[lastGeneralIndex].isActual = true;
@@ -478,7 +484,7 @@ library RentalityTripsQuery {
         bool createdByHost,
         uint carId,
         address creator
-  ) internal view returns(Schemas.InsuranceDTO memory result) { 
+  ) internal view returns(Schemas.InsuranceDTO memory result) {
      Schemas.KYCInfo memory kyc = contracts.userService.getKYCInfo(creator);
           Schemas.CarInfo memory car = contracts.carService.getCarInfoById(carId);
           result.tripId = tripId;
@@ -545,9 +551,10 @@ library RentalityTripsQuery {
     RentalityInsurance insuranceService,
     address user,
     bool host,
-    RentalityPromoService promoService
+    RentalityPromoService promoService,
+    RentalityDimoService dimoService
   ) public view returns (Schemas.ChatInfo[] memory) {
-    Schemas.TripDTO[] memory trips = getTripsAs(addresses, insuranceService, user, host, promoService);
+    Schemas.TripDTO[] memory trips = getTripsAs(addresses, insuranceService, user, host, promoService, dimoService);
 
     RentalityUserService userService = addresses.userService;
     RentalityCarToken carService = addresses.carService;
@@ -591,5 +598,5 @@ library RentalityTripsQuery {
     Schemas.Trip memory trip = contracts.tripService.getTrip(tripId);
     return (trip.carId == carId) && (trip.endDateTime > startDateTime) && (trip.startDateTime < endDateTime);
   }
-  
+
 }

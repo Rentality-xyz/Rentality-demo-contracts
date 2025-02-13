@@ -128,12 +128,13 @@ contract RentalityPromoService is Initializable, UUPSAccess {
   }
 
   function getDiscountByPromo(string memory promoCode, address user) public view returns (uint) {
+    if(bytes(promoCode).length == 0)
+        return 0;
     Schemas.Promo memory promo = promoToPromoData[promoCode];
     if (promo.createdAt != 0 && promo.status == Schemas.PromoStatus.Active) {
       return promoPrefixToDisctount[_getPrefix(promoCode)];
     } else if (keccak256(abi.encode(promoCode)) == keccak256(abi.encode(generalCode.code))) {
       Schemas.PromoUsedInfo[] memory usedPromos = userPromo[user];
-      bool used = false;
       for (uint i = 0; i < usedPromos.length; i++) {
         if (keccak256(abi.encode(usedPromos[i].promoCode)) == keccak256(abi.encode(generalCode.code))) {
           return 0;

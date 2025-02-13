@@ -19,6 +19,8 @@ import '@openzeppelin/contracts/utils/math/Math.sol';
 import {RentalityInsurance} from '../payments/RentalityInsurance.sol';
 import '../engine/RentalityEnginesService.sol';
 import '../payments/RentalityBaseDiscount.sol';
+import '../investment/RentalityInvestment.sol';
+import {RentalityCarInvestmentPool} from '../investment/RentalityInvestmentPool.sol';
 
 library RentalityViewLib {
     // @notice Retrieves all trips based on the provided filter and pagination.
@@ -158,4 +160,206 @@ library RentalityViewLib {
           trip.status == Schemas.TripStatus.Finished &&
           contracts.tripService.completedByAdmin(trip.tripId))));
   }
+
+
+    function getFilterInfo(
+        RentalityContract memory contracts,
+        uint64 duration
+    ) public view returns (Schemas.FilterInfoDTO memory) {
+        uint64 maxCarPrice = 0;
+        RentalityCarToken carService = contracts.carService;
+        uint minCarYearOfProduction = carService.getCarInfoById(1).yearOfProduction;
+
+        for (uint i = 2; i <= carService.totalSupply(); i++) {
+            Schemas.CarInfo memory car = carService.getCarInfoById(i);
+
+            uint64 sumWithDiscount = contracts.paymentService.calculateSumWithDiscount(
+                carService.ownerOf(i),
+                duration,
+                car.pricePerDayInUsdCents
+            );
+            if (sumWithDiscount > maxCarPrice) maxCarPrice = sumWithDiscount;
+            if (car.yearOfProduction < minCarYearOfProduction) minCarYearOfProduction = car.yearOfProduction;
+        }
+        return Schemas.FilterInfoDTO(maxCarPrice, minCarYearOfProduction);
+    }
+    function calculateClaimValue(RentalityContract memory addresses, uint claimId) public view returns (uint) {
+        Schemas.Claim memory claim = addresses.claimService.getClaim(claimId);
+        if (claim.status == Schemas.ClaimStatus.Paid || claim.status == Schemas.ClaimStatus.Cancel) return 0;
+
+        uint commission = addresses.claimService.getPlatformFeeFrom(claim.amountInUsdCents);
+        (uint result, , ) = addresses.currencyConverterService.getFromUsdLatest(
+            addresses.tripService.getTrip(claim.tripId).paymentInfo.currencyType,
+            claim.amountInUsdCents + commission
+        );
+
+        return result;
+    }
+
+    function validatePayClaim(Schemas.Trip memory trip, Schemas.Claim memory claim, address user) public pure {
+        require((claim.isHostClaims && user == trip.guest) || user == trip.host, 'Guest or host.');
+        require(claim.status != Schemas.ClaimStatus.Paid && claim.status != Schemas.ClaimStatus.Cancel, 'Wrong Status.');
+    }
+
+    function createSumbol(uint tokenId) public view returns(string memory) {
+      (uint month, uint year) = getMonthAndYear();
+        string memory monthResult;
+            
+        if(month < 10) 
+        monthResult = string.concat('0',Strings.toString(month));
+        else monthResult = Strings.toString(month);
+
+       return string.concat(
+      string.concat(
+      string.concat('RENTALITY','-00000'),
+      Strings.toString(tokenId)),
+      string.concat('-',
+      string.concat(string.concat(monthResult, Strings.toString(year % 100)))));
+} 
+      function getMonthAndYear() internal view returns (uint month, uint year) {
+
+            uint timestamp = block.timestamp;
+            int256 z = int256(timestamp / 86400 + 719468);
+
+            int256 era = (z >= 0 ? z : z - 146096) / 146097;
+
+            int256 doe = z - era * 146097;
+
+            int256 yoe = (doe - doe/1460 + doe/36524 - doe/146096) / 365;
+
+            year = uint256(yoe) + uint256(era) * 400;
+
+            int256 doy = doe - (365 * yoe + yoe/4 - yoe/100);
+
+            int256 mp = (5 * doy + 2)/153;
+
+            month = uint256(mp + 3);
+
+            if (month > 12) {
+
+            month -= 12;
+
+            year += 1;
+
+            }
+         
+  }
+
+     function calculatePercentage(uint invested, uint totalPrice, RentalityCurrencyConverter converter) public view returns (uint, uint) {
+     (uint totalPriceInEth, , ) = converter.getFromUsdLatest(address(0),totalPrice);
+      uint percentages = invested == 0 ? 0 : Math.ceilDiv(invested * 100, totalPriceInEth);
+      (uint investInUsd,,) = converter.getToUsdLatest(address(0), invested);
+        return(percentages, investInUsd);
+    }
+
+    function getTotalIncomeByNFTs(
+     uint[] memory tokens,
+     RentalityCarInvestmentPool pool,
+     RentalityInvestmentNft nft
+     ) public view returns (uint) {
+        uint totalIncome = 0;
+        for (uint i = 0; i < tokens.length; i++) {
+            totalIncome += getIncomesByNftId(tokens[i], pool, nft); 
+        }
+        return totalIncome;
+    }
+      function getAllMyTokensWithTotalPrice(address user, RentalityInvestmentNft nftContract) public view returns (uint[] memory, uint, uint, uint) {
+          uint[] memory result = new uint[](nftContract.balanceOf(user));
+          uint counter = 0;
+          uint totalPrice = 0;
+          (uint totalSupply, uint totalHolders) = nftContract.totalSupplyWithTotalHolders();
+          for (uint i = 1; i <= totalSupply; i++)
+            if (nftContract.ownerOf(i) == user) {
+              result[counter] = i;
+              counter += 1;
+              totalPrice += nftContract.tokenIdToPriceInEth(i);
+            }
+          return (result, totalPrice, totalHolders, totalSupply);
+  }
+
+  function getIncomesByNftId(uint id, RentalityCarInvestmentPool pool, RentalityInvestmentNft nft) private view returns(uint) {
+       (Income[] memory incomes, uint lastIncomeClaimed, uint totalPriceInEth) = pool.getIncomeInfoByNft(id);
+        uint tokenPrice = nft.tokenIdToPriceInEth(id);
+        uint part = (tokenPrice * 100_000) / totalPriceInEth;
+
+        uint result = 0;
+        for (uint i = lastIncomeClaimed; i < incomes.length; i++) {
+            result += incomes[i].income;
+        }
+        return (result * part) / 100_000;
+  }
+  
+    function getTotalIncome(RentalityCarInvestmentPool pool) public view returns (uint) {
+        (Income[] memory incomes,,) = pool.getIncomeInfoByNft(0);
+        uint result = 0;
+        for (uint i = 0; i < incomes.length; i++) {
+            result += incomes[i].totalProfit;
+        }
+        return result;
+    }
+
+    function verifyInvestment(address user, address sender, RentalityCarInvestmentPool pool, Schemas.CarInvestment memory investment) public pure {
+       require(sender == user, 'Only for creator');
+       require(address(pool) == address(0), 'Claimed');
+       require(!investment.inProgress, 'In progress');
+
+}
+
+    function getConvertedAmount(RentalityCurrencyConverter converter , uint amount) public view returns (uint) {
+        (uint convertedAmount, , ) = converter.getToUsdLatest(address(0), amount);
+        return convertedAmount;
+    }
+
+    function getUniqCarsBrand(RentalityCarToken carService) public view returns(string[] memory) {
+      uint totalSupply = carService.totalSupply();
+      uint realAmount = 0;
+      string[] memory brandsArray = new string[](totalSupply);
+      for (uint i = 1; i <= totalSupply; i++) {
+        string memory carBrand = carService.getCarInfoById(i).brand;
+        if(_isUniqInStringInArray(brandsArray, carBrand, realAmount)) {
+          brandsArray[realAmount] = carBrand;
+          realAmount += 1;
+        }
+      }
+      assembly("memory-safe") {
+        mstore(brandsArray, realAmount)
+      }
+      return brandsArray;
+}
+
+ function getUniqModelsByBrand(RentalityCarToken carService, string memory brand) public view returns(string[] memory modelsArray) {
+      uint totalSupply = carService.totalSupply();
+      uint realAmount = 0;
+      bytes32 hashedBrand = keccak256(abi.encodePacked(brand));
+      modelsArray = new string[](totalSupply);
+      for (uint i = 1; i <= totalSupply; i++) {
+        Schemas.CarInfo memory car = carService.getCarInfoById(i);
+        if(keccak256(abi.encodePacked(car.brand)) == hashedBrand)
+        if(_isUniqInStringInArray(modelsArray, car.model, realAmount)) {
+          modelsArray[realAmount] = car.model;
+          realAmount += 1;
+        }
+      }
+      assembly("memory-safe") {
+        mstore(modelsArray, realAmount)
+      }
+}
+    function _isUniqInStringInArray(string[] memory ar, string memory toCompare, uint arrayLen) private pure returns(bool) {
+      bytes32 hashedString = keccak256(abi.encodePacked(toCompare));
+      for (uint i = 0; i < arrayLen; i++) {
+        if(keccak256(abi.encodePacked(ar[i])) == hashedString) {
+          return false;
+        }
+      }
+      return true;
+    }
+      function checkAmount(uint amount, uint value) public view {
+        if (amount > value) {
+        uint diff = amount - value;
+        require(diff <= type(uint).max / 1000, "Overflow risk");
+        require(diff * 1000 <= value, "Exceeds 0.1% tolerance");
+    }
+      }
+
+  
 }

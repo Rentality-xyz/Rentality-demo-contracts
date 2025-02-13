@@ -44,6 +44,7 @@ interface Schemas {
     CarInfo carInfo;
     string metadataURI;
     bool isEditable;
+    uint dimoTokenId;
   }
 
   /// @notice Struct to store input parameters for creating a new car.
@@ -64,6 +65,8 @@ interface Schemas {
     bool currentlyListed;
     bool insuranceRequired;
     uint insurancePriceInUsdCents;
+    uint dimoTokenId;
+    bytes signedDimoTokenId;
   }
 
   /// @notice Struct to store input parameters for updating car information.
@@ -194,6 +197,7 @@ interface Schemas {
     uint paidForInsuranceInUsdCents;
     string guestDrivingLicenseIssueCountry;
     uint promoDiscount;
+    uint dimoTokenId;
   }
 
   /// CHAT LOGIC
@@ -337,6 +341,11 @@ interface Schemas {
     uint128 dropOfFee;
   }
 
+  struct Currency {
+    address currency;
+    string name;
+  }
+
   struct TripReceiptDTO {
     uint64 totalDayPriceInUsdCents;
     uint64 totalTripDays;
@@ -396,6 +405,7 @@ interface Schemas {
   struct FullKYCInfoDTO {
     KYCInfo kyc;
     AdditionalKYCInfo additionalKYC;
+    bool isPhoneVerified;
   }
   struct AdminKYCInfoDTO {
     KYCInfo kyc;
@@ -434,6 +444,7 @@ interface Schemas {
     LocationInfo locationInfo;
     InsuranceCarInfo insuranceInfo;
     bool isGuestHasInsurance;
+    uint dimoTokenId;
   }
   struct AvailableCarDTO {
     uint carId;
@@ -465,6 +476,7 @@ interface Schemas {
     uint64 governmentTax;
     int128 distance;
     bool isGuestHasInsurance;
+    uint dimoTokenId;
   }
 
   struct GeoData {
@@ -495,6 +507,7 @@ interface Schemas {
     LocationInfo locationInfo;
     string carVinNumber;
     string carMetadataURI;
+    uint dimoTokenId;
   }
 
   // Taxes
@@ -557,6 +570,38 @@ interface Schemas {
     uint paidTime;
     bool commissionPaid;
   }
+  // investment
+
+  struct CarInvestment {
+    CreateCarRequest car;
+    uint priceInUsd;
+    bool inProgress;
+    uint creatorPercents;
+  }
+
+  struct ClaimInvestmentDTO {
+    string tokenURI;
+    uint income;
+    uint myIncome;
+  }
+
+  struct InvestmentDTO {
+    CarInvestment investment;
+    address nft;
+    uint investmentId;
+    uint payedInUsd;
+    address creator;
+    bool isCarBought;
+    uint income;
+    uint myIncome;
+    uint myInvestingSum;
+    uint listingDate;
+    uint myTokens;
+    uint myPart;
+    uint totalHolders;
+    uint totalTokens;
+    address currency;
+  }
 
   struct TripFilter {
     PaymentStatus paymentStatus;
@@ -616,7 +661,9 @@ interface Schemas {
     Host,
     Manager,
     Admin,
-    KYCManager
+    KYCManager,
+    AdminView,
+    InvestmentManager
   }
   enum RefferalProgram {
     SetKYC,
@@ -830,9 +877,15 @@ interface Schemas {
     uint value;
   }
 
+  struct DimoTokensData {
+    uint dimoTokenId;
+    uint rentalityTokenId;
+}
+
   struct PromoDTO {
     string promoCode;
     uint promoCodeValueInPercents;
     uint promoCodeEnterDate;
   }
+
 }

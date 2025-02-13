@@ -43,12 +43,12 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
   using RentalityQuery for RentalityContract;
 
   fallback(bytes calldata data) external payable returns (bytes memory) {
-    require(msg.sender == tx.origin, 'Smart wallets not allowed now');
-    (bool ok_view, bytes memory res_view) = address(addresses.viewService).call(data);
+    bytes memory dataToSend = _forward(data);
+    (bool ok_view, bytes memory res_view) = address(addresses.viewService).call(dataToSend);
     bytes4 errorSign = 0x403e7fa6;
 
     if (!ok_view && bytes4(res_view) == errorSign) {
-      (bool ok, bytes memory res) = address(addresses.rentalityPlatform).call{value: msg.value}(data);
+      (bool ok, bytes memory res) = address(addresses.rentalityPlatform).call{value: msg.value}(dataToSend);
       return _parseResult(ok, res);
     }
     return _parseResult(ok_view, res_view);
@@ -62,6 +62,9 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
     return result;
   }
 
+  function _forward(bytes calldata data) private view  returns(bytes memory result) {
+    result = abi.encodePacked(data, msg.sender);
+} 
   // @dev Updates the addresses of various services used in the Rentality platform.
   //
   // This function retrieves the actual service addresses from the `adminService` and updates

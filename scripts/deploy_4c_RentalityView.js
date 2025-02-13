@@ -22,6 +22,11 @@ async function main() {
     'RentalityTripsQuery'
   )
 
+  const rentalityViewLib = checkNotNull(
+    getContractAddress('RentalityViewLib', 'scripts/deploy_1g_RentalityViewLib.js', chainId),
+    'RentalityViewLib'
+  )
+
   const rentalityUserServiceAddress = checkNotNull(
     getContractAddress('RentalityUserService', 'scripts/deploy_1b_RentalityUserService.js', chainId),
     'RentalityUserService'
@@ -75,11 +80,17 @@ async function main() {
     'RentalityPromoService'
   )
 
+
+  const dimoService = checkNotNull(
+    getContractAddress('RentalityDimoService', 'scripts/deploy_3e_RentalityDimoService.js', chainId),
+    'RentalityDimoService'
+  )
   const contractFactory = await ethers.getContractFactory(contractName, {
     libraries: {
       RentalityUtils: rentalityUtilsAddress,
       RentalityQuery: rentalityQueryAddress,
       RentalityTripsQuery: rentalityTripsQueryAddress,
+      RentalityViewLib: rentalityViewLib
     },
   })
   const contract = await upgrades.deployProxy(contractFactory, [
@@ -94,6 +105,7 @@ async function main() {
     rentalityTripsView,
     rentalityReferralService,
     rentalityPromoService,
+    dimoService
   ])
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()

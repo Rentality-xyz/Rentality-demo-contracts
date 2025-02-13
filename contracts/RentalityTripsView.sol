@@ -12,24 +12,36 @@ import '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 import '@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol';
 import './libs/RentalityTripsQuery.sol';
 import {RentalityView} from './RentalityView.sol';
+import {ARentalityContext} from './abstract/ARentalityContext.sol';
+
+import {RentalityDimoService} from './features/RentalityDimoService.sol';
+import {RentalityViewLib} from './libs/RentalityViewLib.sol';
 
 error FunctionNotFound();
 /// @dev SAFETY: The linked library is not supported yet because it can modify the state or call
 ///  selfdestruct, as far as RentalityTripsQuery doesn't has this logic,
 /// it's completely safe for upgrade
 /// @custom:oz-upgrades-unsafe-allow external-library-linking
-contract RentalityTripsView is UUPSUpgradeable, Initializable {
+contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext {
   RentalityContract private addresses;
   using RentalityTripsQuery for RentalityContract;
 
   RentalityInsurance private insuranceService;
   RentalityPromoService private promoService;
+  RentalityDimoService private dimoService;
+    address private trustedForwarderAddress;
 
-  function updateServiceAddresses(RentalityContract memory contracts, address insurance, address promoServiceAddress) public {
+  function updateServiceAddresses(
+    RentalityContract memory contracts,
+     address insurance,
+      address promoServiceAddress,
+      address dimoServiceAddress
+      ) public {
     require(addresses.userService.isAdmin(tx.origin), 'only Admin.');
     addresses = contracts;
     insuranceService = RentalityInsurance(insurance);
     promoService = RentalityPromoService(promoServiceAddress);
+    dimoService = RentalityDimoService(dimoServiceAddress);
   }
   fallback(bytes calldata) external returns (bytes memory) {
     revert FunctionNotFound();
@@ -51,13 +63,13 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable {
   /// @param tripId The ID of the trip.
   /// @return Trip information.
   function getTrip(uint256 tripId) public view returns (Schemas.TripDTO memory) {
-    return RentalityTripsQuery.getTripDTO(addresses, insuranceService, tripId, promoService);
+    return RentalityTripsQuery.getTripDTO(addresses, insuranceService, tripId, promoService, dimoService,_msgGatewaySender());
   }
 
   /// @notice Retrieves information about trips where the caller is the guest.
   /// @return An array of trip information.
   function getTripsAs(bool host) public view returns (Schemas.TripDTO[] memory) {
-    return RentalityTripsQuery.getTripsAs(addresses, insuranceService, tx.origin, host, promoService);
+    return RentalityTripsQuery.getTripsAs(addresses, insuranceService,  _msgGatewaySender(), host, promoService, dimoService);
   }
 
   /// @notice Calculates the KYC commission in a specific currency based on the current exchange rate.
@@ -78,6 +90,35 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable {
     addresses.viewService = viewService;
   }
 
+   function checkPromo(string memory promo, uint startDateTime, uint endDateTime) public view returns (Schemas.CheckPromoDTO memory) {
+    return promoService.checkPromo(promo, startDateTime, endDateTime);
+  }
+
+ function getUniqCarsBrand() public view returns(string[] memory brandsArray) {
+  return RentalityViewLib.getUniqCarsBrand(addresses.carService);
+ }
+ function getUniqModelsByBrand(string memory brand) public view returns(string[] memory modelsArray) {
+  return RentalityViewLib.getUniqModelsByBrand(addresses.carService, brand);
+ }
+
+  function getAvaibleCurrencies() public view returns(Schemas.Currency[] memory) {
+    return addresses.currencyConverterService.getAllCurrencies();
+  }
+
+    function trustedForwarder() internal view override returns (address) {
+      return trustedForwarderAddress;
+
+     }
+
+    function isTrustedForwarder(address forwarder) internal view override returns (bool) {
+      return forwarder == trustedForwarderAddress;
+    }
+    function setTrustedForwarder(address forwarder) public {
+      require(addresses.userService.isAdmin(tx.origin), 'Only for Admin.');
+      trustedForwarderAddress = forwarder;
+    }
+
+
   function initialize(
     address carServiceAddress,
     address currencyConverterServiceAddress,
@@ -87,7 +128,8 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable {
     address claimServiceAddress,
     address carDeliveryAddress,
     address insuranceAddress,
-    address promoServiceAddress
+    address promoServiceAddress,
+    address dimoServiceAddress
   ) public initializer {
     addresses = RentalityContract(
       RentalityCarToken(carServiceAddress),
@@ -103,6 +145,7 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable {
     );
     insuranceService = RentalityInsurance(insuranceAddress);
     promoService = RentalityPromoService(promoServiceAddress);
+    dimoService = RentalityDimoService(dimoServiceAddress);
   }
 
   function _authorizeUpgrade(address /*newImplementation*/) internal view override {

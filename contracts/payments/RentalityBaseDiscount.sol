@@ -89,12 +89,16 @@ contract RentalityBaseDiscount is IRentalityDiscount, Initializable, UUPSAccess 
   function verifyPercentagesValidity(uint value) private pure {
     require(value <= 1_000_000, 'Incorrect value');
   }
+  function setDefaultDiscountToFalse() public {
+    require(userService.isAdmin(msg.sender),'only Admin');
+    defaultDiscount.initialized = false;
+  }
 
   /// @notice Initializes the RentalityBaseDiscount contract.
   /// @param _userService The address of the RentalityUserService contract.
   function initialize(address _userService) public initializer {
     userService = IRentalityAccessControl(_userService);
 
-    defaultDiscount = Schemas.BaseDiscount(20_000, 100_000, 150_000, true); // Default discount values
+    defaultDiscount = Schemas.BaseDiscount(20_000, 100_000, 150_000, false); // Default discount values
   }
 }

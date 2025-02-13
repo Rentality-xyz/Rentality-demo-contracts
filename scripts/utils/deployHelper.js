@@ -4,6 +4,7 @@ async function startDeploy(contractName) {
   console.log(`Start deploying ${contractName}`)
 
   const [deployer] = await ethers.getSigners()
+
   const balance = await ethers.provider.getBalance(deployer.address)
   console.log(`Deployer address is:${await deployer.getAddress()} with balance:${balance}`)
 

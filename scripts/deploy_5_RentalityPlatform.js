@@ -18,6 +18,11 @@ async function main() {
     'RentalityQuery'
   )
 
+  const rentalityViewLib = checkNotNull(
+    getContractAddress('RentalityViewLib', 'scripts/deploy_1g_RentalityViewLib.js', chainId),
+    'RentalityViewLib'
+  )
+
   const rentalityUserServiceAddress = checkNotNull(
     getContractAddress('RentalityUserService', 'scripts/deploy_1b_RentalityUserService.js', chainId),
     'RentalityUserService'
@@ -70,6 +75,15 @@ async function main() {
     getContractAddress('RentalityPromoService', 'scripts/deploy_4f_RentalityPromo.js', chainId),
     'RentalityPromoService'
   )
+  const dimoService = checkNotNull(
+    getContractAddress('RentalityDimoService', 'scripts/deploy_3e_RentalityDimoService.js', chainId),
+    'RentalityDimoService'
+  )
+
+  const rentalityPlatformHelper = checkNotNull(
+    getContractAddress('RentalityPlatformHelper', 'scripts/deploy_4g_RentalityPlatformHelper.js', chainId),
+    'RentalityPlatformHelper'
+  )
 
   const contractFactory = await ethers.getContractFactory(contractName, {
     libraries: {
@@ -89,6 +103,8 @@ async function main() {
     rentalityInsurance,
     rentalityReferralService,
     rentalityPromoService,
+    dimoService,
+    rentalityPlatformHelper
   ])
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()

@@ -18,7 +18,7 @@ abstract contract ARentalityRefferalDiscountProvider is ARentalityRefferal {
     require(getUserService().isManager(msg.sender), 'only Manager');
     selectorToDiscountsPercentsToConstInPoints[selector][tear] = Schemas.RefferalDiscount(points, percents);
   }
-  function getDiscount(Schemas.RefferalProgram selector, Schemas.Tear tear) public returns (uint, uint) {
+  function getDiscount(Schemas.RefferalProgram selector, Schemas.Tear tear) public view returns (uint, uint) {
     Schemas.RefferalDiscount memory discount = selectorToDiscountsPercentsToConstInPoints[selector][tear];
     return (discount.percents, discount.pointsCosts);
   }

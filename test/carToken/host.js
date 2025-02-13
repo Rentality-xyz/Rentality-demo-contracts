@@ -6,12 +6,12 @@ const { deployFixtureWith1Car, deployDefaultFixture } = require('./deployments')
 
 describe('RentalityCarToken: host functions', function () {
   it('Adding car should emit CarAddedSuccess event', async function () {
-    const { rentalityCarToken, host, rentalityLocationVerifier, admin, rentalityNotificationService } =
+    const { rentalityGateway, host, rentalityLocationVerifier, admin, rentalityNotificationService } =
       await loadFixture(deployDefaultFixture)
 
     const request = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
 
-    await expect(rentalityCarToken.connect(host).addCar(request))
+    await expect(rentalityGateway.connect(host).addCar(request))
       .to.emit(rentalityNotificationService, 'RentalityEvent')
       .withArgs(0, 1, 0, host.address, host.address, (await time.latest()) + 1)
   })

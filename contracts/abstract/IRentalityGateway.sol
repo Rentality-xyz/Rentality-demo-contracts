@@ -29,9 +29,10 @@ interface IRentalityGateway {
     string memory email,
     bytes memory TCSignature,
     bytes4 hash
- ) external;
+  ) external;
 
- 
+  function setPhoneNumber(address user, string memory phone, bool isVerified) external;
+
   /// @notice Set KYC information for a specific user based on Civic identity
   /// @param user The address of the user whose Civic KYC information is being set
   /// @param civicKycInfo The Civic KYC information structure containing the user's data
@@ -139,6 +140,10 @@ interface IRentalityGateway {
   /// @param carId The ID of the car for which delivery data is requested.
   /// @return deliveryData The delivery data including location details and delivery prices.
   function getDeliveryData(uint carId) external view returns (Schemas.DeliveryData memory);
+
+   function getUniqCarsBrand() external view returns(string[] memory brandsArray);
+ 
+  function getUniqModelsByBrand(string memory brand) external view returns(string[] memory modelsArray); 
 
   /// ------------------------------
   /// TRIPS functions
@@ -337,6 +342,7 @@ interface IRentalityGateway {
   /// @param insuranceInfo A struct containing the details of the insurance requested by the guest
   function saveGuestInsurance(Schemas.SaveInsuranceRequest memory insuranceInfo) external;
 
+
   /// ------------------------------
   /// GENERAL functions
   /// ------------------------------
@@ -382,6 +388,14 @@ interface IRentalityGateway {
   /// @return An array of available car information for the specified user.
   function getAvailableCarsForUser(address user) external view returns (Schemas.CarInfo[] memory);
 
- function checkPromo(string memory promo, uint startDateTime, uint endDateTime) external view returns (Schemas.CheckPromoDTO memory);
+  function checkPromo(
+    string memory promo,
+    uint startDateTime,
+    uint endDateTime
+  ) external view returns (Schemas.CheckPromoDTO memory);
 
+  function getDimoVihicles() external view returns (uint[] memory);
+  function saveDimoTokenIds(uint[] memory, uint[] memory) external;
+
+   function getAvaibleCurrencies() external view returns(Schemas.Currency[] memory);
 }

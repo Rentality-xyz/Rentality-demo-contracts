@@ -40,6 +40,30 @@
     },
     {
       "type": "function",
+      "name": "checkPromo",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        { "type": "string", "name": "promo" },
+        { "type": "uint256", "name": "startDateTime" },
+        { "type": "uint256", "name": "endDateTime" }
+      ],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "",
+          "components": [
+            { "type": "bool", "name": "isFound" },
+            { "type": "bool", "name": "isValid" },
+            { "type": "bool", "name": "isDiscount" },
+            { "type": "uint256", "name": "value" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
       "name": "getTrip",
       "constant": true,
       "stateMutability": "view",
@@ -173,7 +197,8 @@
             },
             { "type": "uint256", "name": "paidForInsuranceInUsdCents" },
             { "type": "string", "name": "guestDrivingLicenseIssueCountry" },
-            { "type": "uint256", "name": "promoDiscount" }
+            { "type": "uint256", "name": "promoDiscount" },
+            { "type": "uint256", "name": "dimoTokenId" }
           ]
         }
       ]
@@ -325,7 +350,8 @@
             },
             { "type": "uint256", "name": "paidForInsuranceInUsdCents" },
             { "type": "string", "name": "guestDrivingLicenseIssueCountry" },
-            { "type": "uint256", "name": "promoDiscount" }
+            { "type": "uint256", "name": "promoDiscount" },
+            { "type": "uint256", "name": "dimoTokenId" }
           ]
         }
       ]
@@ -344,7 +370,8 @@
         { "type": "address", "name": "claimServiceAddress" },
         { "type": "address", "name": "carDeliveryAddress" },
         { "type": "address", "name": "insuranceAddress" },
-        { "type": "address", "name": "promoServiceAddress" }
+        { "type": "address", "name": "promoServiceAddress" },
+        { "type": "address", "name": "dimoServiceAddress" }
       ],
       "outputs": []
     },
@@ -356,6 +383,14 @@
       "payable": false,
       "inputs": [],
       "outputs": [{ "type": "bytes32", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "setTrustedForwarder",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "forwarder" }],
+      "outputs": []
     },
     {
       "type": "function",
@@ -380,7 +415,8 @@
           ]
         },
         { "type": "address", "name": "insurance" },
-        { "type": "address", "name": "promoServiceAddress" }
+        { "type": "address", "name": "promoServiceAddress" },
+        { "type": "address", "name": "dimoServiceAddress" }
       ],
       "outputs": []
     },
