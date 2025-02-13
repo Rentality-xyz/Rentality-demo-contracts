@@ -174,7 +174,7 @@ describe('Rentality Delivery', function () {
       timeZoneId: 'id',
     }
 
-    await rentalityPlatform.connect(host).addUserDeliveryPrices(500, 500)
+    await rentalityGateway.connect(host).addUserDeliveryPrices(500, 500)
     let result = await deliveryService
       .connect(host)
       .calculatePriceByDeliveryDataInUsdCents(locationInfo, locationInfo2, homeLat, homeLon, host)
@@ -220,6 +220,8 @@ describe('Rentality Delivery', function () {
       currentlyListed: true,
       insuranceRequired: false,
       insurancePriceInUsdCents: 0,
+dimoTokenId: 0,
+signedDimoTokenId: '0x',
       insuranceIncluded: true,
     }
 
@@ -365,6 +367,8 @@ describe('Rentality Delivery', function () {
       currentlyListed: true,
       insuranceRequired: false,
       insurancePriceInUsdCents: 0,
+dimoTokenId: 0,
+signedDimoTokenId: '0x'
     }
     await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest)).not.to.be.reverted
 
@@ -386,6 +390,8 @@ describe('Rentality Delivery', function () {
       currentlyListed: true,
       insuranceRequired: false,
       insurancePriceInUsdCents: 0,
+dimoTokenId: 0,
+signedDimoTokenId: '0x'
     }
     await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest1)).not.to.be.reverted
 
@@ -407,6 +413,8 @@ describe('Rentality Delivery', function () {
       currentlyListed: true,
       insuranceRequired: false,
       insurancePriceInUsdCents: 0,
+dimoTokenId: 0,
+signedDimoTokenId: '0x'
     }
     await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest2)).not.to.be.reverted
     let loc = {
@@ -437,6 +445,8 @@ describe('Rentality Delivery', function () {
       currentlyListed: true,
       insuranceRequired: false,
       insurancePriceInUsdCents: 0,
+dimoTokenId: 0,
+signedDimoTokenId: '0x'
     }
     const mockCreateCarRequest3 = {
       tokenUri: 'uri',
@@ -456,6 +466,8 @@ describe('Rentality Delivery', function () {
       currentlyListed: true,
       insuranceRequired: false,
       insurancePriceInUsdCents: 0,
+dimoTokenId: 0,
+signedDimoTokenId: '0x'
     }
     const mockCreateCarRequest4 = {
       tokenUri: 'uri',
@@ -475,6 +487,8 @@ describe('Rentality Delivery', function () {
       currentlyListed: true,
       insuranceRequired: false,
       insurancePriceInUsdCents: 0,
+dimoTokenId: 0,
+signedDimoTokenId: '0x'
     }
     await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest4)).not.to.be.reverted
     await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest5)).not.to.be.reverted

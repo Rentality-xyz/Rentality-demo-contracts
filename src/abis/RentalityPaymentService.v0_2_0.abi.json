@@ -176,7 +176,8 @@
       "inputs": [
         { "type": "address", "name": "_userService" },
         { "type": "address", "name": "_floridaTaxes" },
-        { "type": "address", "name": "_baseDiscount" }
+        { "type": "address", "name": "_baseDiscount" },
+        { "type": "address", "name": "_investorService" }
       ],
       "outputs": []
     },
@@ -267,7 +268,8 @@
         },
         { "type": "uint256", "name": "valueToPay" },
         { "type": "uint256", "name": "feeInCurrency" },
-        { "type": "uint256", "name": "commission" }
+        { "type": "uint256", "name": "commission" },
+        { "type": "address", "name": "user" }
       ],
       "outputs": []
     },
@@ -279,7 +281,8 @@
       "payable": true,
       "inputs": [
         { "type": "address", "name": "currencyType" },
-        { "type": "uint256", "name": "valueSumInCurrency" }
+        { "type": "uint256", "name": "valueSumInCurrency" },
+        { "type": "address", "name": "user" }
       ],
       "outputs": []
     },
@@ -360,7 +363,8 @@
           ]
         },
         { "type": "uint256", "name": "valueToHost" },
-        { "type": "uint256", "name": "valueToGuest" }
+        { "type": "uint256", "name": "valueToGuest" },
+        { "type": "uint256", "name": "totalIncome" }
       ],
       "outputs": []
     },
@@ -372,7 +376,8 @@
       "payable": true,
       "inputs": [
         { "type": "uint256", "name": "valueInCurrency" },
-        { "type": "address", "name": "currencyType" }
+        { "type": "address", "name": "currencyType" },
+        { "type": "address", "name": "user" }
       ],
       "outputs": []
     },
@@ -478,6 +483,14 @@
       "constant": false,
       "payable": false,
       "inputs": [{ "type": "uint256", "name": "_taxId" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "setInvestmentService",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "investAddress" }],
       "outputs": []
     },
     {

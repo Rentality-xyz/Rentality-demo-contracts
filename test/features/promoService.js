@@ -686,11 +686,10 @@ describe('Rentality promoService Service', function () {
       )
     expect(availableCars.length).to.equal(1)
 
-    await promoService.generateNumbers(1, 10000, 10, Math.floor(new Date().getTime() / 1000), Math.floor(new Date().getTime() / 1000) + (86400 * 10), 'D')
     const promos = await promoService.getPromoCodes()
     const result = await rentalityGateway
       .connect(guest)
-      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, promos[0])
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, 'WAGMI2025')
 
     const priceWithoutDiscount = await rentalityGateway
       .connect(guest)
@@ -716,7 +715,7 @@ describe('Rentality promoService Service', function () {
           insurancePaid: false,
           photo: '',
         },
-        promos[0],
+       'WAGMI2025',
         { value: result.totalPrice }
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])

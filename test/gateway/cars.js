@@ -124,6 +124,8 @@ describe('RentalityGateway: car', function () {
       tokenUri: 'uri',
       insuranceRequired: false,
       insurancePriceInUsdCents: 0,
+dimoTokenId: 0,
+signedDimoTokenId: '0x'
     }
     let locationInfo = {
       locationInfo: emptyLocationInfo,
@@ -192,6 +194,8 @@ describe('RentalityGateway: car', function () {
       currentlyListed: true,
       insuranceRequired: false,
       insurancePriceInUsdCents: 0,
+dimoTokenId: 0,
+signedDimoTokenId: '0x'
     }
     const oneDayInSec = 86400
     const totalTripDays = 7
@@ -250,6 +254,8 @@ describe('RentalityGateway: car', function () {
       currentlyListed: true,
       insuranceRequired: false,
       insurancePriceInUsdCents: 0,
+dimoTokenId: 0,
+signedDimoTokenId: '0x'
     }
     await expect(await rentalityGateway.connect(host).addCar(addCarRequest)).not.be.reverted
     const result = await rentalityGateway.connect(guest).getCarDetails(1)

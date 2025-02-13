@@ -31,7 +31,7 @@ const existingLibs = [
   },
   {
     name: 'RentalityViewLib',
-    pathToDeploy: './scripts/scripts/deploy_1g_RentalityViewLib.js',
+    pathToDeploy: './scripts/deploy_1g_RentalityViewLib.js',
   },
 ]
 
@@ -75,7 +75,7 @@ function searchPatternInFile(filePath, pattern) {
     const fileContent = fs.readFileSync(filePath, 'utf-8')
 
     let match = fileContent.match(new RegExp(pattern + '\\.([a-zA-Z_$][a-zA-Z_$0-9]*)', 'g'))
-    
+
 
     if (match) {
       let result = match

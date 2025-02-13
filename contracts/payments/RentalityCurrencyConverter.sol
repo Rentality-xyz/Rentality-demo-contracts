@@ -16,13 +16,19 @@ import {RentalityPromoService} from '../features/RentalityPromo.sol';
 contract RentalityCurrencyConverter is Initializable, UUPSAccess {
   mapping(address => ARentalityUpgradableCurrencyType) private tokenAddressToPaymentMethod;
 
+  Schemas.Currency[] private availableCurrencies;
+
   /// @notice Adds a new currency type with its associated Rentality token service contract address
   /// @param tokenAddress The address of the new currency type
   /// @param rentalityTokenService The address of the Rentality token service contract
-  function addCurrencyType(address tokenAddress, address rentalityTokenService) public {
+  function addCurrencyType(address tokenAddress, address rentalityTokenService, string memory name) public {
     require(userService.isManager(msg.sender), 'From manager contract only.');
 
     tokenAddressToPaymentMethod[tokenAddress] = ARentalityUpgradableCurrencyType(rentalityTokenService);
+    availableCurrencies.push(Schemas.Currency(
+      tokenAddress,
+      name
+    ));
   }
 
   /// @notice Converts the specified amount from USD to the specified currency type
@@ -142,11 +148,10 @@ contract RentalityCurrencyConverter is Initializable, UUPSAccess {
     uint256 rentalityFee,
     uint insurancePriceInUsdCents,
     RentalityPromoService promoService
-  ) public view returns (uint, uint, uint, uint) {
-    Schemas.PromoTripData memory tripData = promoService.getTripPromoData(paymentInfo.tripId);
+  ) public view returns (uint, uint, uint, uint, uint) {
     uint discount = promoService.getPromoDiscountByTrip(paymentInfo.tripId);
-    
-  
+
+
     uint256 valueToHostInUsdCents = paymentInfo.priceWithDiscount +
       paymentInfo.pickUpFee +
       paymentInfo.dropOfFee +
@@ -168,11 +173,17 @@ contract RentalityCurrencyConverter is Initializable, UUPSAccess {
       paymentInfo.currencyRate,
       paymentInfo.currencyDecimals
     );
-    if(discount == 100) {
-      valueToGuest = 0;
-      valueToGuestInUsdCents = 0;
-    }
-    return (valueToHost, valueToGuest, valueToHostInUsdCents, valueToGuestInUsdCents);
+    uint256 totalIncome = getFromUsd(
+      paymentInfo.currencyType,
+      valueToHostInUsdCents - paymentInfo.resolveAmountInUsdCents + rentalityFee,
+      paymentInfo.currencyRate,
+      paymentInfo.currencyDecimals
+    );
+      if(discount == 100) {
+          valueToGuest = 0;
+          valueToGuestInUsdCents = 0;
+      }
+    return (valueToHost, valueToGuest, valueToHostInUsdCents, valueToGuestInUsdCents, totalIncome);
   }
 
   function calculateTripReject(Schemas.PaymentInfo memory paymentInfo, uint insurance) public pure returns (uint) {
@@ -194,11 +205,19 @@ contract RentalityCurrencyConverter is Initializable, UUPSAccess {
     return tokenAddress == address(0);
   }
 
+  function getAllCurrencies() public view returns(Schemas.Currency[] memory) {
+    return availableCurrencies;
+  }
+  
   /// @notice Initializes the contract with the specified parameters
   /// @param _userService The address of the Rentality user service contract
   /// @param ethPaymentAddress The address of the ETH payment contract
-  function initialize(address _userService, address ethPaymentAddress) public virtual initializer {
+  function initialize(address _userService, address ethPaymentAddress, string memory nativeCurrencyName) public virtual initializer {
     tokenAddressToPaymentMethod[address(0)] = ARentalityUpgradableCurrencyType(ethPaymentAddress);
     userService = IRentalityAccessControl(_userService);
+     availableCurrencies.push(Schemas.Currency(
+      address(0),
+      nativeCurrencyName
+    ));
   }
 }

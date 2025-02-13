@@ -1,25 +1,35 @@
 {
   "hostWalletPrivateKey": "",
   "guestWalletPrivateKey": "",
+  "adminWalletPrivateKey": "",
+  "kycManagerWalletPrivateKey": "",
 
   "hostProfileInfo": {
-    "name": "",
-    "surname": "",
+    "nickname": "",
     "mobilePhoneNumber": "",
     "profilePhoto": "",
+    "tcSignature": "",
+    "privateKey": "",
+    "publicKey": "",
+
+    "name": "",
+    "surname": "",
     "licenseNumber": "",
-    "expirationDate": 0,
-    "tcSignature": ""
+    "expirationDate": 0
   },
 
   "guestProfileInfo": {
-    "name": "",
-    "surname": "",
+    "nickname": "",
     "mobilePhoneNumber": "",
     "profilePhoto": "",
+    "tcSignature": "",
+    "privateKey": "",
+    "publicKey": "",
+
+    "name": "",
+    "surname": "",
     "licenseNumber": "",
-    "expirationDate": 0,
-    "tcSignature": ""
+    "expirationDate": 0
   },
 
   "carInfos": [
@@ -31,14 +41,28 @@
       "yearOfProduction": 0,
       "pricePerDayInUsdCents": 0,
       "securityDepositPerTripInUsdCents": 0,
-      "milesIncludedPerDay": 0,
-      "geoApiKey": "",
-      "engineType": 0,
       "engineParams": [0, 0],
-      "locationAddress": "",
-      "timeBufferBetweenTripsInSec": "",
-      "locationLatitude": "",
-      "locationLongitude": ""
+      "engineType": 1,
+      "milesIncludedPerDay": 0,
+      "timeBufferBetweenTripsInSec": "0",
+      "geoApiKey": "",
+      "locationInfo": {
+        "locationInfo": {
+          "userAddress": "",
+          "country": "",
+          "state": "",
+          "city": "",
+          "latitude": "",
+          "longitude": "",
+          "timeZoneId": ""
+        },
+        "signature": ""
+      },
+      "currentlyListed": true,
+      "insuranceRequired": false,
+      "insurancePriceInUsdCents": 0,
+      "dimoTokenId": 0,
+      "signedDimoTokenId": "0x"
     },
     {
       "tokenUri": "",
@@ -48,14 +72,28 @@
       "yearOfProduction": 0,
       "pricePerDayInUsdCents": 0,
       "securityDepositPerTripInUsdCents": 0,
-      "milesIncludedPerDay": 0,
-      "geoApiKey": "",
-      "engineType": 0,
       "engineParams": [0, 0],
-      "locationAddress": "",
-      "timeBufferBetweenTripsInSec": "",
-      "locationLatitude": "",
-      "locationLongitude": ""
+      "engineType": 1,
+      "milesIncludedPerDay": 0,
+      "timeBufferBetweenTripsInSec": "0",
+      "geoApiKey": "",
+      "locationInfo": {
+        "locationInfo": {
+          "userAddress": "",
+          "country": "",
+          "state": "",
+          "city": "",
+          "latitude": "",
+          "longitude": "",
+          "timeZoneId": ""
+        },
+        "signature": ""
+      },
+      "currentlyListed": true,
+      "insuranceRequired": false,
+      "insurancePriceInUsdCents": 0,
+      "dimoTokenId": 0,
+      "signedDimoTokenId": "0x"
     },
     {
       "tokenUri": "",
@@ -65,48 +103,28 @@
       "yearOfProduction": 0,
       "pricePerDayInUsdCents": 0,
       "securityDepositPerTripInUsdCents": 0,
-      "milesIncludedPerDay": 0,
-      "geoApiKey": "",
-      "engineType": 0,
       "engineParams": [0, 0],
-      "locationAddress": "",
-      "timeBufferBetweenTripsInSec": "",
-      "locationLatitude": "",
-      "locationLongitude": ""
-    },
-    {
-      "tokenUri": "",
-      "carVinNumber": "",
-      "brand": "",
-      "model": "",
-      "yearOfProduction": 0,
-      "pricePerDayInUsdCents": 0,
-      "securityDepositPerTripInUsdCents": 0,
+      "engineType": 1,
       "milesIncludedPerDay": 0,
+      "timeBufferBetweenTripsInSec": "0",
       "geoApiKey": "",
-      "engineType": 0,
-      "engineParams": [0, 0],
-      "locationAddress": "",
-      "timeBufferBetweenTripsInSec": "",
-      "locationLatitude": "",
-      "locationLongitude": ""
-    },
-    {
-      "tokenUri": "",
-      "carVinNumber": "",
-      "brand": "",
-      "model": "",
-      "yearOfProduction": 0,
-      "pricePerDayInUsdCents": 0,
-      "securityDepositPerTripInUsdCents": 0,
-      "milesIncludedPerDay": 0,
-      "geoApiKey": "",
-      "engineType": 0,
-      "engineParams": [0, 0],
-      "locationAddress": "",
-      "timeBufferBetweenTripsInSec": "",
-      "locationLatitude": "",
-      "locationLongitude": ""
+      "locationInfo": {
+        "locationInfo": {
+          "userAddress": "",
+          "country": "",
+          "state": "",
+          "city": "",
+          "latitude": "",
+          "longitude": "",
+          "timeZoneId": ""
+        },
+        "signature": ""
+      },
+      "currentlyListed": true,
+      "insuranceRequired": false,
+      "insurancePriceInUsdCents": 0,
+      "dimoTokenId": 0,
+      "signedDimoTokenId": "0x"
     }
   ]
 }

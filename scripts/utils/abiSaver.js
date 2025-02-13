@@ -2,6 +2,11 @@ const fs = require('fs')
 const package = require('../../package.json')
 const { readFileSync, existsSync } = require('fs')
 const { network } = require('hardhat')
+
+const basePathToSave = './src/abis'
+let featureName = process.env.FEATURE_NAME?.trim()
+let pathToSave = featureName ? `${basePathToSave}/${featureName}` : basePathToSave
+
 var saveJsonAbi = async function (fileName, chainId, contract) {
   let skip = process.env.SKIP_ABI
 
@@ -14,11 +19,11 @@ var saveJsonAbi = async function (fileName, chainId, contract) {
     abi: JSON.parse(contract.interface.formatJson()),
   }
 
-  fs.mkdirSync('./src/abis', { recursive: true }, (err) => {
+  fs.mkdirSync(pathToSave, { recursive: true }, (err) => {
     if (err) throw err
   })
 
-  let filePath = './src/abis/' + fileName + '.' + version + '.abi.' + 'json'
+  let filePath = pathToSave + '/' + fileName + '.' + version + '.abi.' + 'json'
   fs.writeFileSync(filePath, JSON.stringify(onlyAbiJsonData))
   console.log('JSON abi saved to ' + filePath)
 
@@ -36,7 +41,7 @@ function updateAddress(contractName, newAddress, chain) {
   let chainId = Number.parseInt(chain.toString())
   console.log(chainId)
   const v = extractVersion()
-  const path = './src/abis/' + contractName + '.' + v + '.addresses.json'
+  const path = pathToSave + '/' + contractName + '.' + v + '.addresses.json'
 
   let dataToSave
 
