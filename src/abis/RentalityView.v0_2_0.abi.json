@@ -746,7 +746,8 @@
                 { "type": "string", "name": "issueCountry" },
                 { "type": "string", "name": "email" }
               ]
-            }
+            },
+            { "type": "bool", "name": "isPhoneVerified" }
           ]
         }
       ]

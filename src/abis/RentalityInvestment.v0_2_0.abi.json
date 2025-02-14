@@ -101,7 +101,8 @@
             { "type": "uint256", "name": "creatorPercents" }
           ]
         },
-        { "type": "string", "name": "name_" }
+        { "type": "string", "name": "name_" },
+        { "type": "address", "name": "currency" }
       ],
       "outputs": []
     },
@@ -181,7 +182,8 @@
             { "type": "uint256", "name": "myTokens" },
             { "type": "uint256", "name": "myPart" },
             { "type": "uint256", "name": "totalHolders" },
-            { "type": "uint256", "name": "totalTokens" }
+            { "type": "uint256", "name": "totalTokens" },
+            { "type": "address", "name": "currency" }
           ]
         }
       ]
@@ -195,7 +197,8 @@
       "inputs": [{ "type": "uint256", "name": "carId" }],
       "outputs": [
         { "type": "uint256", "name": "percents" },
-        { "type": "address", "name": "pool" }
+        { "type": "address", "name": "pool" },
+        { "type": "address", "name": "currency" }
       ]
     },
     {
@@ -207,7 +210,8 @@
         { "type": "address", "name": "_userService" },
         { "type": "address", "name": "_currencyConverter" },
         { "type": "address", "name": "_carService" },
-        { "type": "address", "name": "_insuranceServce" }
+        { "type": "address", "name": "_insuranceServce" },
+        { "type": "address", "name": "_investDeployer" }
       ],
       "outputs": []
     },
@@ -217,7 +221,10 @@
       "constant": false,
       "stateMutability": "payable",
       "payable": true,
-      "inputs": [{ "type": "uint256", "name": "investId" }],
+      "inputs": [
+        { "type": "uint256", "name": "investId" },
+        { "type": "uint256", "name": "amount" }
+      ],
       "outputs": []
     },
     {

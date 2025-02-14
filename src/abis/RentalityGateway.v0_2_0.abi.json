@@ -493,6 +493,24 @@
     },
     {
       "type": "function",
+      "name": "getAvaibleCurrencies",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "tuple[]",
+          "name": "",
+          "components": [
+            { "type": "address", "name": "currency" },
+            { "type": "string", "name": "name" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
       "name": "getAvailableCars",
       "constant": true,
       "stateMutability": "view",
@@ -1051,7 +1069,8 @@
                 { "type": "string", "name": "issueCountry" },
                 { "type": "string", "name": "email" }
               ]
-            }
+            },
+            { "type": "bool", "name": "isPhoneVerified" }
           ]
         }
       ]
@@ -1412,6 +1431,24 @@
     },
     {
       "type": "function",
+      "name": "getUniqCarsBrand",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "string[]", "name": "brandsArray" }]
+    },
+    {
+      "type": "function",
+      "name": "getUniqModelsByBrand",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "string", "name": "brand" }],
+      "outputs": [{ "type": "string[]", "name": "modelsArray" }]
+    },
+    {
+      "type": "function",
       "name": "getUserDeliveryPrices",
       "constant": true,
       "stateMutability": "view",
@@ -1710,6 +1747,18 @@
             { "type": "string", "name": "email" }
           ]
         }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "setPhoneNumber",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "user" },
+        { "type": "string", "name": "phone" },
+        { "type": "bool", "name": "isVerified" }
       ],
       "outputs": []
     },

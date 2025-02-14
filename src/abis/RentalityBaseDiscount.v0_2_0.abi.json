@@ -113,6 +113,14 @@
     },
     {
       "type": "function",
+      "name": "setDefaultDiscountToFalse",
+      "constant": false,
+      "payable": false,
+      "inputs": [],
+      "outputs": []
+    },
+    {
+      "type": "function",
       "name": "setDiscount",
       "constant": false,
       "payable": false,

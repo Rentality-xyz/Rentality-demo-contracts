@@ -176,6 +176,18 @@
     },
     {
       "type": "function",
+      "name": "setPhoneNumber",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "user" },
+        { "type": "string", "name": "phone" },
+        { "type": "bool", "name": "isVerified" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
       "name": "setTrustedForwarder",
       "constant": false,
       "payable": false,
