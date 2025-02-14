@@ -95,7 +95,7 @@ async function main() {
   console.log(await contract2.updateServiceAddresses(adminService, rentalityPlatformHelper))
   const userContract = await ethers.getContractAt('RentalityUserService', rentalityContract.userService)
 
-  let tripsView = await ethers.getContractAt('RentalityTripsView', tripsView)
+  let tripsView = await ethers.getContractAt('RentalityTripsView', rentalityTripsView)
   console.log(await tripsView.updateServiceAddresses(rentalityContract, rentalityInsurance, rentalityPromoService, dimoService))
   console.log(await userContract.grantManagerRole(rentalityPlatformHelper))
 
