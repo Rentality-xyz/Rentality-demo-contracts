@@ -32,7 +32,7 @@ async function main() {
     const adminService = await ethers.getContractAt('RentalityAdminGateway',adminGateway)
         await adminService.updateInvestmentAddress(investService)
     const userContract = await ethers.getContractAt('RentalityUserService', userService)
-        await userContract.grantManagerRole(grantManagerRole)
+        await userContract.grantManagerRole(investService)
 
 }
 

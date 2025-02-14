@@ -5,10 +5,13 @@ const { startDeploy } = require('./utils/deployHelper')
 const getNativeSymbol = require('./utils/loadNativeNatworkToken')
 
 async function main() {
-    console.log("TOKEN",await getNativeSymbol(5611))
-//  const contract = await ethers.getContractAt('RentalityPaymentService','0xC2AF429e5E8B2bA14a5b448923cb2e512f879Cd9')
+ const contract = await ethers.getContractAt('IRentalityGateway','0xB257FE9D206b60882691a24d5dfF8Aa24929cB73')
 
-//  console.log(await contract.setInvestmentService('0xb572D0C0b306305aa845397F72Dc480F6796c49F'))
+//  const res = await contract.getTripsByUser('0x2729226a14B02D5726821d5a83d7563aCD6D3760')
+//  for (let i = 0; i < res.length; i++) {
+  const trips = await contract.getTripsAs(true)
+  console.log(trips)
+//  }
 }
 
 main()
