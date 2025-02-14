@@ -34,7 +34,8 @@
       "payable": false,
       "inputs": [
         { "type": "address", "name": "tokenAddress" },
-        { "type": "address", "name": "rentalityTokenService" }
+        { "type": "address", "name": "rentalityTokenService" },
+        { "type": "string", "name": "name" }
       ],
       "outputs": []
     },
@@ -138,6 +139,24 @@
       "payable": false,
       "inputs": [{ "type": "address", "name": "tokenAddress" }],
       "outputs": [{ "type": "bool", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getAllCurrencies",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "tuple[]",
+          "name": "",
+          "components": [
+            { "type": "address", "name": "currency" },
+            { "type": "string", "name": "name" }
+          ]
+        }
+      ]
     },
     {
       "type": "function",
@@ -272,7 +291,8 @@
       "payable": false,
       "inputs": [
         { "type": "address", "name": "_userService" },
-        { "type": "address", "name": "ethPaymentAddress" }
+        { "type": "address", "name": "ethPaymentAddress" },
+        { "type": "string", "name": "nativeCurrencyName" }
       ],
       "outputs": []
     },

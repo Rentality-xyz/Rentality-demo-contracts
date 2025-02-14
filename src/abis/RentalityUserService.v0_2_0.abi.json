@@ -188,7 +188,8 @@
                 { "type": "string", "name": "issueCountry" },
                 { "type": "string", "name": "email" }
               ]
-            }
+            },
+            { "type": "bool", "name": "isPhoneVerified" }
           ]
         }
       ]
@@ -606,6 +607,18 @@
       "constant": false,
       "payable": false,
       "inputs": [{ "type": "string", "name": "message" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "setPhoneNumber",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "user" },
+        { "type": "string", "name": "phone" },
+        { "type": "bool", "name": "isVerified" }
+      ],
       "outputs": []
     },
     {

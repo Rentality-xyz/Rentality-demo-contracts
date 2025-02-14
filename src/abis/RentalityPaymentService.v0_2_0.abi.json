@@ -282,7 +282,8 @@
       "inputs": [
         { "type": "address", "name": "currencyType" },
         { "type": "uint256", "name": "valueSumInCurrency" },
-        { "type": "address", "name": "user" }
+        { "type": "address", "name": "user" },
+        { "type": "uint256", "name": "carId" }
       ],
       "outputs": []
     },
