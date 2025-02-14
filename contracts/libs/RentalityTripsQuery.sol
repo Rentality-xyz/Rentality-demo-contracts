@@ -265,6 +265,9 @@ library RentalityTripsQuery {
         currentIndex += 1;
     }
     }
+    assembly('memory-safe') {
+      mstore(result, currentIndex)
+    }
 
     return result;
   }
@@ -294,6 +297,9 @@ library RentalityTripsQuery {
         result[currentIndex] = getTripDTO(contracts, insuranceService, hostTrips[i], promoService, dimoService, host, trip);
         currentIndex += 1;
     }
+    }
+    assembly('memory-safe') {
+      mstore(result, currentIndex)
     }
 
     return result;
