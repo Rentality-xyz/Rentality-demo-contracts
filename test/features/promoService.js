@@ -524,7 +524,7 @@ describe('Rentality promoService Service', function () {
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
 
     await expect(
-      await rentalityPlatform.connect(admin).createTripRequestWithDelivery(
+      await rentalityGateway.connect(admin).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Date.now(),
@@ -588,7 +588,7 @@ describe('Rentality promoService Service', function () {
     expect(resultWithoutPromo.totalPrice).to.be.not.eq(result.totalPrice)
 
     await expect(
-      await rentalityPlatform.connect(admin).createTripRequestWithDelivery(
+      await rentalityGateway.connect(admin).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Date.now(),

@@ -9,33 +9,20 @@ interface IRentalityAdminGateway {
   /// @return The address of the RentalityCarToken contract.
   function getCarServiceAddress() external view returns (address);
 
-  /// @notice Updates the address of the RentalityCarToken contract. Only callable by admins.
-  /// @param contractAddress The new address of the RentalityCarToken contract.
-  function updateCarService(address contractAddress) external;
 
   /// @notice Retrieves the address of the RentalityPayment contract.
   /// @return The address of the RentalityPayment contract.
   function getPaymentService() external view returns (address);
 
-  /// @notice Updates the address of the RentalityCarToken contract. Only callable by admins.
-  /// @param contractAddress The new address of the RentalityPayment contract.
-  function updatePaymentService(address contractAddress) external;
 
   /// @notice Retrieves the address of the RentalityClaim contract.
   /// @return The address of the RentalityClaim contract.
   function getClaimServiceAddress() external view returns (address);
 
-  /// @notice Updates the address of the RentalityClaim contract. Only callable by admins.
-  /// @param contractAddress The new address of the RentalityClaim contract.
-  function updateClaimService(address contractAddress) external;
-
   /// @notice Retrieves the address of the RentalityPlatform contract.
   /// @return The address of the RentalityPlatform contract.
   function getRentalityPlatformAddress() external view returns (address);
 
-  /// @notice Updates the address of the RentalityPlatform contract. Only callable by admins.
-  /// @param contractAddress The new address of the RentalityPlatform contract.
-  function updateRentalityPlatform(address contractAddress) external;
 
   /// @notice Retrieves the address of the RentalityCurrencyConverter contract.
   /// @return The address of the RentalityCurrencyConverter contract.
