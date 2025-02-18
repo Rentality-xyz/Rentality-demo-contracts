@@ -64,6 +64,7 @@ describe('All brands, models by brand filters', function () {
     let request2 = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
     let request3 = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
     let request4 = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
+    let request5 = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
     request1.brand = 'bmw'
     request1.carVinNumber = "12"
     request2.brand = 'bmw'
@@ -71,11 +72,15 @@ describe('All brands, models by brand filters', function () {
     request3.brand = 'mercedez'
     request4.brand = 'audi'
     request4.carVinNumber = "1235"
+    request5.brand = 'alfa romeo'
+    request5.carVinNumber = "123124125"
+    request5.currentlyListed = false
 
     await expect(rentalityGateway.connect(host).addCar(request1)).not.to.be.reverted
     await expect(rentalityGateway.connect(host).addCar(request2)).not.to.be.reverted
     await expect(rentalityGateway.connect(host).addCar(request3)).not.to.be.reverted
     await expect(rentalityGateway.connect(host).addCar(request4)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(request5)).not.to.be.reverted
 
     const brands = await rentalityGateway.getUniqCarsBrand()
     console.log("BRANDS",brands)
@@ -91,6 +96,7 @@ it('can get all models by brand', async function () {
     let request2 = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
     let request3 = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
     let request4 = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
+    let request5 = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
     request1.brand = 'bmw'
     request1.model = 'z3'
     request2.carVinNumber = "123"
@@ -102,6 +108,9 @@ it('can get all models by brand', async function () {
     request4.brand = 'audi'
     request4.model = 'q7'
     request4.carVinNumber = "1235"
+    request5.brand = 'bmw'
+    request5.carVinNumber = "z5"
+    request5.currentlyListed = false
 
     await expect(rentalityGateway.connect(host).addCar(request1)).not.to.be.reverted
     await expect(rentalityGateway.connect(host).addCar(request2)).not.to.be.reverted
