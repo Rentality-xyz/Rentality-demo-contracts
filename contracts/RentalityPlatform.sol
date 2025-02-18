@@ -395,7 +395,7 @@ contract RentalityPlatform is UUPSOwnable, ARentalityContext {
      }
 
     function isTrustedForwarder(address forwarder) internal view override returns (bool) {
-      return forwarder == trustedForwarderAddress;
+      return addresses.userService.isManager(forwarder);
     }
     function setTrustedForwarder(address forwarder) public onlyOwner {
       trustedForwarderAddress = forwarder;
