@@ -7,6 +7,7 @@ import {AccessControlUpgradeable} from '@openzeppelin/contracts-upgradeable/acce
 import './Schemas.sol';
 import '@openzeppelin/contracts/utils/cryptography/ECDSA.sol';
 import {IRentalityAccessControl} from './abstract/IRentalityAccessControl.sol';
+import {IERC1271} from "@openzeppelin/contracts/interfaces/IERC1271.sol";
 
 /// @title RentalityUserService Contract
 /// @notice
@@ -53,7 +54,7 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
     if (!isGuest(user)) {
       _grantRole(GUEST_ROLE, user);
     }
-    bool isTCPassed = ECDSA.recover(TCMessageHash, TCSignature) == user;
+    bool isTCPassed = isValidSignatureNow(user, TCMessageHash, TCSignature);
 
     require(isTCPassed, 'Wrong signature.');
     Schemas.KYCInfo storage kycInfo = kycInfos[user];
@@ -76,6 +77,28 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
     kycInfo.isTCPassed = isTCPassed;
     kycInfo.TCSignature = TCSignature;
   }
+
+   function isValidSignatureNow(address signer, bytes32 hash, bytes memory signature) internal view returns (bool) {
+        if (signer.code.length == 0) {
+            (address recovered, ECDSA.RecoverError err ) = ECDSA.tryRecover(hash, signature);
+            return err == ECDSA.RecoverError.NoError && recovered == signer;
+        } else {
+            return isValidERC1271SignatureNow(signer, hash, signature);
+        }
+    }
+
+    function isValidERC1271SignatureNow(
+        address signer,
+        bytes32 hash,
+        bytes memory signature
+    ) internal view returns (bool) {
+        (bool success, bytes memory result) = signer.staticcall(
+            abi.encodeCall(IERC1271.isValidSignature, (hash, signature))
+        );
+        return (success &&
+            result.length >= 32 &&
+            abi.decode(result, (bytes32)) == bytes32(IERC1271.isValidSignature.selector));
+    }
 
   function setMyCivicKYCInfo(address user, Schemas.CivicKYCInfo memory civicKycInfo) public {
     require(hasRole(MANAGER_ROLE, msg.sender), 'Only manager');
