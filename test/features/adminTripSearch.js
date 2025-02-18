@@ -631,4 +631,83 @@ describe('Admin trip searching', function () {
 
     await expect(rentalityAdminGateway.connect(host).manageRole(3, admin.address, false)).to.be.reverted
   })
+
+  it('Admin can refund to guest and pay to host ', async function () {
+    let request = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
+    request.locationInfo.locationInfo = {
+      latitude: '',
+      longitude: '',
+      userAddress: 'Miami Riverwalk, Miami, Florida, USA',
+      country: 'USA',
+      state: 'Florida',
+      city: 'Miami',
+
+      timeZoneId: 'id',
+    }
+    request.locationInfo.signature = signLocationInfo(
+      await rentalityLocationVerifier.getAddress(),
+      admin,
+      request.locationInfo.locationInfo
+    )
+    await expect(rentalityGateway.connect(host).addCar(request)).not.to.be.reverted
+    const myCars = await rentalityGateway.connect(host).getMyCars()
+    expect(myCars.length).to.equal(1)
+
+  
+
+    const oneDayInSeconds = 86400
+
+    const resultPayments = await rentalityGateway.calculatePaymentsWithDelivery(
+      1,
+      2,
+      ethToken,
+      emptyLocationInfo,
+      emptyLocationInfo,
+      ' '
+    )
+    let startDateTime = Date.now() - 10
+    let endDateTime = Date.now() + oneDayInSeconds * 2
+    let searchFiler = filter
+    searchFiler.paymentStatus = PaymentStatus.Prepayment
+    searchFiler.status = AdminTripStatus.Created
+
+    await expect(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
+        {
+          carId: 1,
+          startDateTime: Date.now(),
+          endDateTime: Date.now() + oneDayInSeconds + 10,
+          currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
+        },
+        ' ',
+        { value: resultPayments.totalPrice }
+      )
+    ).to.changeEtherBalances([guest, rentalityPaymentService], [-resultPayments.totalPrice, resultPayments.totalPrice])
+    await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0], '', '')).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).checkOutByHost(1, [0, 0])).not.to.be.reverted
+    await expect(rentalityAdminGateway.connect(admin).payToHost(1)).not.to.be.reverted
+
+
+    await expect(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
+        {
+          carId: 1,
+          startDateTime: Date.now(),
+          endDateTime: Date.now() + oneDayInSeconds + 10,
+          currencyType: ethToken,
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
+        },
+        ' ',
+        { value: resultPayments.totalPrice }
+      )
+    ).to.changeEtherBalances([guest, rentalityPaymentService], [-resultPayments.totalPrice, resultPayments.totalPrice])
+    await expect(rentalityGateway.connect(host).approveTripRequest(2)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).checkInByHost(2, [0, 0], '', '')).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).checkOutByHost(2, [0, 0])).not.to.be.reverted
+    await expect(rentalityAdminGateway.connect(admin).refundToGuest(2)).not.to.be.reverted
+})
 })

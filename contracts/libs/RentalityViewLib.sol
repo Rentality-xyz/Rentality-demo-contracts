@@ -315,8 +315,9 @@ library RentalityViewLib {
       uint realAmount = 0;
       string[] memory brandsArray = new string[](totalSupply);
       for (uint i = 1; i <= totalSupply; i++) {
-        string memory carBrand = carService.getCarInfoById(i).brand;
-        if(_isUniqInStringInArray(brandsArray, carBrand, realAmount)) {
+        Schemas.CarInfo memory car = carService.getCarInfoById(i);
+        string memory carBrand = car.brand;
+        if(car.currentlyListed && _isUniqInStringInArray(brandsArray, carBrand, realAmount)) {
           brandsArray[realAmount] = carBrand;
           realAmount += 1;
         }
@@ -334,7 +335,7 @@ library RentalityViewLib {
       modelsArray = new string[](totalSupply);
       for (uint i = 1; i <= totalSupply; i++) {
         Schemas.CarInfo memory car = carService.getCarInfoById(i);
-        if(keccak256(abi.encodePacked(car.brand)) == hashedBrand)
+        if(keccak256(abi.encodePacked(car.brand)) == hashedBrand && car.currentlyListed)
         if(_isUniqInStringInArray(modelsArray, car.model, realAmount)) {
           modelsArray[realAmount] = car.model;
           realAmount += 1;

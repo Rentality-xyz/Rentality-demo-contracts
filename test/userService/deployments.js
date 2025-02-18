@@ -355,6 +355,7 @@ async function deployDefaultFixture() {
   await rentalityView.setTrustedForwarder(await rentalityGateway.getAddress())
   await rentalityTripsView.setTrustedForwarder(await rentalityGateway.getAddress())
   await rentalityPlatformHelper.setTrustedForwarder(await rentalityGateway.getAddress())
+  await rentalityUserService.connect(owner).grantManagerRole(await rentalityGateway.getAddress())
 
   rentalityGateway = await ethers.getContractAt('IRentalityGateway', await rentalityGateway.getAddress())
 
