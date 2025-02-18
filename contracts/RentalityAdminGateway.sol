@@ -87,44 +87,22 @@ function updateDimoService(address dimoServiceAddress) public onlyAdmin {
     return address(carService);
   }
 
-  /// @notice Updates the address of the RentalityCarToken contract. Only callable by admins.
-  /// @param contractAddress The new address of the RentalityCarToken contract.
-  function updateCarService(address contractAddress) public onlyAdmin {
-    carService = RentalityCarToken(contractAddress);
-  }
   /// @notice Retrieves the address of the RentalityPayment contract.
   /// @return The address of the RentalityPayment contract.
   function getPaymentService() public view returns (address) {
     return address(paymentService);
   }
 
-  /// @notice Updates the address of the RentalityCarToken contract. Only callable by admins.
-  /// @param contractAddress The new address of the RentalityPayment contract.
-  function updatePaymentService(address contractAddress) public onlyAdmin {
-    paymentService = RentalityPaymentService(payable(contractAddress));
-  }
   /// @notice Retrieves the address of the RentalityClaim contract.
   /// @return The address of the RentalityClaim contract.
   function getClaimServiceAddress() public view returns (address) {
     return address(claimService);
   }
 
-  /// @notice Updates the address of the RentalityClaim contract. Only callable by admins.
-  /// @param contractAddress The new address of the RentalityClaim contract.
-  function updateClaimService(address contractAddress) public onlyAdmin {
-    claimService = RentalityClaimService(contractAddress);
-  }
-
   /// @notice Retrieves the address of the RentalityPlatform contract.
   /// @return The address of the RentalityPlatform contract.
   function getRentalityPlatformAddress() public view returns (address) {
     return address(rentalityPlatform);
-  }
-
-  /// @notice Updates the address of the RentalityPlatform contract. Only callable by admins.
-  /// @param contractAddress The new address of the RentalityPlatform contract.
-  function updateRentalityPlatform(address contractAddress) public onlyAdmin {
-    rentalityPlatform = RentalityPlatform(contractAddress);
   }
 
   /// @notice Retrieves the address of the RentalityCurrencyConverter contract.
@@ -263,13 +241,13 @@ function updateDimoService(address dimoServiceAddress) public onlyAdmin {
   /// @notice Confirms check-out for a trip.
   /// @param tripId The ID of the trip.
   function payToHost(uint256 tripId) public {
-    rentalityPlatform.confirmCheckOut(tripId);
+    _callWithForwarding(abi.encodeWithSignature('confirmCheckOut(uint256)', tripId));
   }
 
   /// @notice Rejects a trip request. Only callable by hosts.
   /// @param tripId The ID of the trip to reject.
   function refundToGuest(uint256 tripId) public {
-    return rentalityPlatform.rejectTripRequest(tripId);
+    _callWithForwarding(abi.encodeWithSignature('rejectTripRequest(uint256)', tripId));
   }
   /// @dev Sets the Civic verifier and gatekeeper network for identity verification.
   /// @param _civicVerifier The address of the Civic verifier contract.
@@ -320,6 +298,23 @@ function updateDimoService(address dimoServiceAddress) public onlyAdmin {
     userService.manageRole(role, user, grant);
   }
 
+  function _callWithForwarding(bytes memory data) private returns (bytes memory) {
+    bytes memory dataToSend = _forward(data);
+    (bool ok, bytes memory res) = address(rentalityPlatform).call{value: 0}(dataToSend);
+      return _parseResult(ok, res);
+  }
+
+ function _forward(bytes memory data) private view  returns(bytes memory result) {
+    result = abi.encodePacked(data, msg.sender);
+} 
+
+  function _parseResult(bool flag, bytes memory result) internal pure returns (bytes memory) {
+    if (!flag)
+      assembly ('memory-safe') {
+        revert(add(32, result), mload(result))
+      }
+    return result;
+  }
   // @notice Retrieves all cars based on the pagination parameters.
   /// @param page The current page number.
   /// @param itemsPerPage The number of items per page.

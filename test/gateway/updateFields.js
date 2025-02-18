@@ -52,7 +52,7 @@ describe('RentalityGateway: update fields', function () {
     expect(await rentalityGateway.owner()).to.equal(owner.address)
   })
 
-  it('should allow only admin to update car service address', async function () {
+  it.skip('should allow only admin to update car service address', async function () {
     await expect(rentalityAdminGateway.connect(guest).updateCarService(await rentalityCarToken.getAddress())).to.be
       .reverted
 
@@ -65,7 +65,7 @@ describe('RentalityGateway: update fields', function () {
     await expect(rentalityAdminGateway.connect(admin).updateCarService(await rentalityCarToken.getAddress())).not.be
       .reverted
   })
-  it('should allow only admin to update rentality platform address', async function () {
+  it.skip('should allow only admin to update rentality platform address', async function () {
     await expect(rentalityAdminGateway.connect(guest).updateRentalityPlatform(await rentalityPlatform.getAddress())).to
       .be.reverted
 
