@@ -44,10 +44,10 @@ contract RentalityReferralProgram is
   mapping(bytes4 => address) private hashToOwnerV2; 
 
 
-  function getCarDailyClaimedTime(uint carId) public view returns (uint) {
+  function getCarDailyClaimedTime(uint carId) public view returns (uint carDailyClaimedTime) {
     return carIdToDailyClaimed[carId];
   }
-  function getMyStartDiscount(address user) public view returns (uint) {
+  function getMyStartDiscount(address user) public view returns (uint startDiscount) {
     Schemas.Tear tear = getTearTypeByPoints(addressToPoints[user]);
     return selectorToDiscountsPercentsToConstInPoints[Schemas.RefferalProgram.CreateTrip][tear].percents;
   }
@@ -103,7 +103,7 @@ contract RentalityReferralProgram is
 
     return percents;
   }
-  function getUserService() public view override(ARentalityRefferal) returns (IRentalityAccessControl) {
+  function getUserService() public view override(ARentalityRefferal) returns (IRentalityAccessControl userServiceAddress) {
     return userService;
   }
 
@@ -147,7 +147,7 @@ contract RentalityReferralProgram is
     
   }
 
-  function getReadyToClaim(address user) public view returns (Schemas.ReadyToClaimDTO memory) {
+  function getReadyToClaim(address user) public view returns (Schemas.ReadyToClaimDTO memory readyToClaimDTO) {
     Schemas.ReadyToClaim[] memory availableToClaim = addressToReadyToClaim[user];
     uint len = availableToClaim.length;
     uint daily = _checkDaily(user);
@@ -186,7 +186,7 @@ contract RentalityReferralProgram is
     return RentalityRefferalLib.formatReadyToClaim(Schemas.ReadyToClaimDTO(result, counter, toNextDaily), this);
   }
 
-  function getReadyToClaimFromRefferalHash(address user) public view returns (Schemas.RefferalHashDTO memory) {
+  function getReadyToClaimFromRefferalHash(address user) public view returns (Schemas.RefferalHashDTO memory refferalHashDTO) {
     Schemas.ReadyToClaimFromHash[] memory availableToClaim = userToReadyToClaimFromHash[user];
     uint counter = 0;
     for (uint i = 0; i < availableToClaim.length; i++) {
@@ -210,7 +210,7 @@ contract RentalityReferralProgram is
     }
   }
 
-  function getRefferalPointsInfo() public view returns (Schemas.AllRefferalInfoDTO memory) {
+  function getRefferalPointsInfo() public view returns (Schemas.AllRefferalInfoDTO memory allRefferalInfoDTO) {
     uint pointsCounter = 0;
     uint hashCounter = 0;
     uint discountCounter = 0;
@@ -267,8 +267,8 @@ contract RentalityReferralProgram is
     }
     return Schemas.AllRefferalInfoDTO(refferalPoints, hashPoints, discounts, getAllTearsInfo());
   }
-  function getPointsHistory() public view returns (Schemas.ProgramHistory[] memory) {
-    return userProgramHistory[msg.sender];
+  function getPointsHistory() public view returns (Schemas.ProgramHistory[] memory programHistory) {
+    return userProgramHistory[msg.sender]; 
   }
 
     function generateReferralHash(address user) public {
@@ -281,10 +281,10 @@ contract RentalityReferralProgram is
     return hashToOwnerV2[hash] != address(0);
   }
 
-  function createReferralHash(address user) internal pure returns (bytes4) {
+  function createReferralHash(address user) internal pure returns (bytes4 createdHash) {
     return bytes4(keccak256(abi.encode(this.generateReferralHash.selector, user)));
   }
-  function getMyRefferalInfo() public view returns(Schemas.MyRefferalInfoDTO memory) {
+  function getMyRefferalInfo() public view returns(Schemas.MyRefferalInfoDTO memory myRefferalInfoDTO) {
     return Schemas.MyRefferalInfoDTO(referralHashV2[msg.sender], userToSavedHash[msg.sender]);
   }
   function saveRefferalHash(bytes4 hash, bool isGuest, address sender) public {

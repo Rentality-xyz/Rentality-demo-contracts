@@ -30,11 +30,11 @@ contract RentalityAiDamageAnalyze is UUPSAccess, EIP712Upgradeable {
           tripIdToInsuranceCase[tripId] = hash;
           caseToTripId[hash] = tripId;
     } 
-    function getInsuranceCaseUrlByTrip(uint tripId) public view returns(string memory) {
+    function getInsuranceCaseUrlByTrip(uint tripId) public view returns(string memory insuranceCaseUrl) {
         return insuranceCaseToUrl[tripIdToInsuranceCase[tripId]];
     }
 
-    function isCaseExists(string memory iCase) public view returns(bool) {
+    function isCaseExists(string memory iCase) public view returns(bool isExists) {
         return caseExists[keccak256(abi.encodePacked(iCase))];
     }
 
