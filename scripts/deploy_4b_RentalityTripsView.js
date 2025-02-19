@@ -69,6 +69,12 @@ async function main() {
     getContractAddress('RentalityDimoService', 'scripts/deploy_3e_RentalityDimoService.js', chainId),
     'RentalityDimoService'
   )
+  const aiDamageAnalyze = checkNotNull(
+    getContractAddress('RentalityAiDamageAnalyze', 'scripts/deploy_3f_RentalityAiDamageAnalyze.js', chainId),
+    'RentalityAiDamageAnalyze'
+  )
+
+
   const rentalityViewLib = checkNotNull(
     getContractAddress('RentalityViewLib', 'scripts/deploy_1g_RentalityViewLib.js', chainId),
     'RentalityViewLib'
@@ -89,7 +95,8 @@ async function main() {
     rentalityCarDelivery,
     rentalityInsurance,
     rentalityPromoService,
-    dimoService
+    dimoService,
+    aiDamageAnalyze
   ])
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()
