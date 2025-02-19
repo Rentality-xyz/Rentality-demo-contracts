@@ -38,7 +38,7 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
     );
     _;
   }
-  function getRentalityContracts() public view returns (RentalityContract memory) {
+  function getRentalityContracts() public view returns (RentalityContract memory contracts) {
     return
       RentalityContract(
         carService,
@@ -63,10 +63,10 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
 function updateDimoService(address dimoServiceAddress) public onlyAdmin {
     dimoService = RentalityDimoService(dimoServiceAddress);
 }
-  function getDimoService() public view returns (RentalityDimoService) {
+  function getDimoService() public view returns (RentalityDimoService dimoServiceAddress) {
     return dimoService;
   }
-  function getInsuranceService() public view returns (RentalityInsurance) {
+  function getInsuranceService() public view returns (RentalityInsurance rentalityInsuranceAddress) {
     return insuranceService;
   }
 
@@ -78,36 +78,36 @@ function updateDimoService(address dimoServiceAddress) public onlyAdmin {
     investment = RentalityInvestment(investmentAddress);
   }
 
-  function getInvestmentAddress() public view returns (address) {
+  function getInvestmentAddress() public view returns (address investmentAddress) {
     return address(investment);
   }
   /// @notice Retrieves the address of the RentalityCarToken contract.
-  /// @return The address of the RentalityCarToken contract.
-  function getCarServiceAddress() public view returns (address) {
+  /// @return carServiceAddress The address of the RentalityCarToken contract.
+  function getCarServiceAddress() public view returns (address carServiceAddress) {
     return address(carService);
   }
 
   /// @notice Retrieves the address of the RentalityPayment contract.
-  /// @return The address of the RentalityPayment contract.
-  function getPaymentService() public view returns (address) {
+  /// @return paymentServiceAddress The address of the RentalityPayment contract.
+  function getPaymentService() public view returns (address paymentServiceAddress) {
     return address(paymentService);
   }
 
   /// @notice Retrieves the address of the RentalityClaim contract.
-  /// @return The address of the RentalityClaim contract.
-  function getClaimServiceAddress() public view returns (address) {
+  /// @return claimServiceAddress The address of the RentalityClaim contract.
+  function getClaimServiceAddress() public view returns (address claimServiceAddress) {
     return address(claimService);
   }
 
   /// @notice Retrieves the address of the RentalityPlatform contract.
-  /// @return The address of the RentalityPlatform contract.
-  function getRentalityPlatformAddress() public view returns (address) {
+  /// @return rentalityPlatformAddress The address of the RentalityPlatform contract.
+  function getRentalityPlatformAddress() public view returns (address rentalityPlatformAddress) {
     return address(rentalityPlatform);
   }
 
   /// @notice Retrieves the address of the RentalityCurrencyConverter contract.
-  /// @return The address of the RentalityCurrencyConverter contract.
-  function getCurrencyConverterServiceAddress() public view returns (address) {
+  /// @return currencyConverterServiceAddress The address of the RentalityCurrencyConverter contract.
+  function getCurrencyConverterServiceAddress() public view returns (address currencyConverterServiceAddress) {
     return address(currencyConverterService);
   }
 
@@ -118,8 +118,8 @@ function updateDimoService(address dimoServiceAddress) public onlyAdmin {
   }
 
   /// @notice Retrieves the address of the RentalityTripService contract.
-  /// @return The address of the RentalityTripService contract.
-  function getTripServiceAddress() public view returns (address) {
+  /// @return tripServiceAddress The address of the RentalityTripService contract.
+  function getTripServiceAddress() public view returns (address tripServiceAddress) {
     return address(tripService);
   }
 
@@ -130,8 +130,8 @@ function updateDimoService(address dimoServiceAddress) public onlyAdmin {
   }
 
   /// @notice Retrieves the address of the RentalityUserService contract.
-  /// @return The address of the RentalityUserService contract.
-  function getUserServiceAddress() public view returns (address) {
+  /// @return userServiceAddress The address of the RentalityUserService contract.
+  function getUserServiceAddress() public view returns (address userServiceAddress) {
     return address(userService);
   }
 
@@ -148,8 +148,8 @@ function updateDimoService(address dimoServiceAddress) public onlyAdmin {
   }
 
   /// @notice Retrieves the address of the RentalityCarDelivery contract.
-  /// @return The address of the RentalityCarDelivery contract.
-  function getDeliveryServiceAddress() public view returns (address) {
+  /// @return deliveryServiceAddress The address of the RentalityCarDelivery contract.
+  function getDeliveryServiceAddress() public view returns (address deliveryServiceAddress) {
     return address(deliveryService);
   }
 
@@ -159,8 +159,8 @@ function updateDimoService(address dimoServiceAddress) public onlyAdmin {
     deliveryService = RentalityCarDelivery(contractAddress);
   }
   /// @notice Retrieves the address of the RentalityRefferalProgram contract.
-  /// @return The address of the RentalityRefferalProgram contract.
-  function getRefferalServiceAddress() public view returns (RentalityReferralProgram) {
+  /// @return refferalServiceAddress The address of the RentalityRefferalProgram contract.
+  function getRefferalServiceAddress() public view returns (RentalityReferralProgram refferalServiceAddress) {
     return RentalityReferralProgram(refferalProgram);
   }
   /// @notice Updates the address of the RentalityReferralProgram contract. Only callable by admins.
@@ -202,21 +202,21 @@ function updateDimoService(address dimoServiceAddress) public onlyAdmin {
   }
 
   /// @dev get waiting time to approval
-  /// @return waiting time to approval in sec
-  function getClaimWaitingTime() public view returns (uint) {
+  /// @return claimWaitingTime waiting time to approval in sec
+  function getClaimWaitingTime() public view returns (uint claimWaitingTime) {
     return claimService.getWaitingTime();
   }
 
   /// @notice Retrieves the platform fee in parts per million (PPM).
-  /// @return The platform fee in PPM.
-  function getPlatformFeeInPPM() public view returns (uint32) {
+  /// @return platformFeeInPPM The platform fee in PPM.
+  function getPlatformFeeInPPM() public view returns (uint32 platformFeeInPPM) {
     return paymentService.getPlatformFeeInPPM();
   }
 
   /// @notice Retrieves the platform fee calculated from the given value.
   /// @param value The value from which to calculate the platform fee.
-  /// @return The calculated platform fee.
-  function getPlatformFeeFrom(uint256 value) private view returns (uint256) {
+  /// @return platformFee The calculated platform fee.
+  function getPlatformFeeFrom(uint256 value) private view returns (uint256 platformFee) {
     return paymentService.getPlatformFeeFrom(value);
   }
 
@@ -224,8 +224,8 @@ function updateDimoService(address dimoServiceAddress) public onlyAdmin {
   /// @param daysOfTrip The duration of the trip in days.
   /// @param value The original value of the trip.
   /// @param user the address of discount provider
-  /// @return The total cost after applying the discount.
-  function calculateSumWithDiscount(address user, uint64 daysOfTrip, uint64 value) public view returns (uint64) {
+  /// @return sumWithDiscount The total cost after applying the discount.
+  function calculateSumWithDiscount(address user, uint64 daysOfTrip, uint64 value) public view returns (uint64 sumWithDiscount) {
     return paymentService.calculateSumWithDiscount(user, daysOfTrip, value);
   }
 
@@ -233,8 +233,8 @@ function updateDimoService(address dimoServiceAddress) public onlyAdmin {
   /// @param taxesId The ID of the taxes contract.
   /// @param daysOfTrip The duration of the trip in days.
   /// @param value The original value of the trip.
-  /// @return The total taxes for the trip.
-  function calculateTaxes(uint taxesId, uint64 daysOfTrip, uint64 value) public view returns (uint64, uint64) {
+  /// @return salesTax The total taxes for the trip.
+  function calculateTaxes(uint taxesId, uint64 daysOfTrip, uint64 value) public view returns (uint64 salesTax, uint64 govTax) {
     return paymentService.calculateTaxes(taxesId, daysOfTrip, value);
   }
 
@@ -271,8 +271,8 @@ function updateDimoService(address dimoServiceAddress) public onlyAdmin {
   }
 
   // @notice Retrieves the current KYC commission value.
-  /// @return The current KYC commission as a uint.
-  function getKycCommission() public view returns (uint) {
+  /// @return kycCommission The current KYC commission as a uint.
+  function getKycCommission() public view returns (uint kycCommission) {
     return userService.getKycCommission();
   }
 
@@ -280,12 +280,12 @@ function updateDimoService(address dimoServiceAddress) public onlyAdmin {
   /// @param filter The filter to apply to the trips.
   /// @param page The current page number.
   /// @param itemsPerPage The number of items per page.
-  /// @return A structure containing the filtered trips and total page count.
+  /// @return allTrips A structure containing the filtered trips and total page count.
   function getAllTrips(
     Schemas.TripFilter memory filter,
     uint page,
     uint itemsPerPage
-  ) public view returns (Schemas.AllTripsDTO memory) {
+  ) public view returns (Schemas.AllTripsDTO memory allTrips) {
     return RentalityViewLib.getAllTrips(getRentalityContracts(), filter,promoService, page, itemsPerPage);
   }
 
@@ -318,8 +318,8 @@ function updateDimoService(address dimoServiceAddress) public onlyAdmin {
   // @notice Retrieves all cars based on the pagination parameters.
   /// @param page The current page number.
   /// @param itemsPerPage The number of items per page.
-  /// @return A structure containing the cars on the current page and total page count.
-  function getAllCars(uint page, uint itemsPerPage) public view returns (Schemas.AllCarsDTO memory) {
+  /// @return allCars structure containing the cars on the current page and total page count.
+  function getAllCars(uint page, uint itemsPerPage) public view returns (Schemas.AllCarsDTO memory allCars) {
     uint totalCarsAmount = carService.totalSupply();
 
     uint totalPageCount = (totalCarsAmount + itemsPerPage - 1) / itemsPerPage;
