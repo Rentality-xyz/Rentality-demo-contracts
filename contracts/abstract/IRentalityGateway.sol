@@ -398,4 +398,7 @@ interface IRentalityGateway {
   function saveDimoTokenIds(uint[] memory, uint[] memory) external;
 
    function getAvaibleCurrencies() external view returns(Schemas.Currency[] memory);
+
+
+   function getMotionsCloudCaseData(uint) external view returns(Schemas.MotionsCloudCaseDataDTO memory motionsCloudCaseData);
 }
