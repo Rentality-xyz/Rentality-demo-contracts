@@ -26,6 +26,9 @@ contract RentalityClaimService is Initializable, UUPSAccess {
 
   event WaitingTimeChanged(uint256 newWaitingTime);
 
+  Schemas.ClaimTypeV2[] private guestClaimTypes;
+  Schemas.ClaimTypeV2[] private hostClaimTypes;
+
   // Modifier to restrict access to only managers contracts
   modifier onlyManager() {
     require(userService.isManager(msg.sender), 'Only manager.');
@@ -164,6 +167,44 @@ contract RentalityClaimService is Initializable, UUPSAccess {
   function setPlatformFee(uint value) public {
     require(userService.isAdmin(tx.origin), 'Only admin.');
     platformFeeInPPM = value;
+  }
+
+  function addClaimType(Schemas.ClaimTypeV2 memory claimType, bool forHost) public {
+    require(userService.isAdmin(tx.origin), 'Only admin.');
+    require(claimType.claimType > 0, 'Claim type can not be null.');
+    require(!_findClaimType(claimType.claimType, forHost), 'Claim type already exists.');
+    if (forHost) {
+      hostClaimTypes.push(claimType);
+    } else {
+      guestClaimTypes.push(claimType);
+    }
+  }
+  function removeClaimType(uint8 claimType, bool forHost) public {
+    Schemas.ClaimTypeV2[] memory claimTypes = forHost ? hostClaimTypes : guestClaimTypes;
+    for (uint i = 0; i < claimTypes.length; i++) {
+      if (claimTypes[i].claimType == claimType) {
+        delete claimTypes[i];
+        break;
+      }
+    }
+  }
+  function getClaimTypesForGuest() public view returns (Schemas.ClaimTypeV2[] memory) {
+    return guestClaimTypes;
+  }
+  function getClaimTypesForHost() public view returns (Schemas.ClaimTypeV2[] memory) {
+    return hostClaimTypes;
+  }
+  function claimTypeExists(uint8 claimType, bool forHost) public view returns (bool) {
+    return _findClaimType(claimType, forHost);
+  }
+  function _findClaimType(uint8 claimType, bool forHost) private view returns (bool) {
+    Schemas.ClaimTypeV2[] memory claimTypes = forHost ? hostClaimTypes : guestClaimTypes;
+    for (uint i = 0; i < claimTypes.length; i++) {
+      if (claimTypes[i].claimType == claimType) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /// @dev constructor to initialize proxy contract
