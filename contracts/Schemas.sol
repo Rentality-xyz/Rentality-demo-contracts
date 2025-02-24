@@ -252,7 +252,7 @@ interface Schemas {
     uint256 tripId;
     uint256 claimId;
     uint256 deadlineDateInSec;
-    ClaimType claimType;
+    uint8 claimType;
     ClaimStatus status;
     string description;
     uint64 amountInUsdCents;
@@ -266,7 +266,7 @@ interface Schemas {
   // Struct to represent a request to create a new claim
   struct CreateClaimRequest {
     uint256 tripId;
-    ClaimType claimType;
+    uint8 claimType;
     string description;
     uint64 amountInUsdCents;
     string photosUrl;
@@ -286,6 +286,10 @@ interface Schemas {
     ListingMismatch
   }
 
+  struct ClaimTypeV2 {
+    uint8 claimType;
+    string claimName;
+  }
   // Enumeration for claim statuses
   enum ClaimStatus {
     NotPaid,
