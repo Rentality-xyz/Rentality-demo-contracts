@@ -54,8 +54,7 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
     if (!isGuest(user)) {
       _grantRole(GUEST_ROLE, user);
     }
-    // bool isTCPassed = isValidSignatureNow(user, TCMessageHash, TCSignature);
-    bool isTCPassed = true;
+    bool isTCPassed = isValidSignatureNow(user, TCMessageHash, TCSignature);
 
     require(isTCPassed, 'Wrong signature.');
     Schemas.KYCInfo storage kycInfo = kycInfos[user];
