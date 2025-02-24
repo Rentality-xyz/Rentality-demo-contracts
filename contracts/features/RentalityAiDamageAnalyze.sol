@@ -13,8 +13,10 @@ contract RentalityAiDamageAnalyze is UUPSAccess, EIP712Upgradeable {
 
     mapping(bytes32 => string) private insuranceCaseToUrl;
     mapping(bytes32 => bool) private caseExists;
-    mapping(uint => bytes32) private tripIdToInsuranceCase;
+    mapping(uint => string) private tripIdToInsuranceCase;
     mapping(bytes32 => uint) private caseToTripId;
+    mapping (uint => string) private caseNumberToCase;
+    uint private caseCounter;
 
     function saveInsuranceCaseUrl(string memory iCase, string memory url) public {
             // require(RentalityUserService(address(userService)).isSignatureManager(tx.origin),"only platform Manager");
@@ -27,15 +29,25 @@ contract RentalityAiDamageAnalyze is UUPSAccess, EIP712Upgradeable {
         //   require(userService.isManager(msg.sender), "only Manager");
           bytes32 hash = keccak256(abi.encodePacked(iCase));
           caseExists[hash] = true;
-          tripIdToInsuranceCase[tripId] = hash;
+          tripIdToInsuranceCase[tripId] = iCase;
           caseToTripId[hash] = tripId;
-    } 
-    function getInsuranceCaseUrlByTrip(uint tripId) public view returns(string memory insuranceCaseUrl) {
-        return insuranceCaseToUrl[tripIdToInsuranceCase[tripId]];
+          caseCounter += 1;
+          caseNumberToCase[caseCounter] = iCase;
+    }
+    function getInsuranceCaseUrlByTrip(uint tripId) public view returns(string memory caseUrl) {
+        string memory iCase = tripIdToInsuranceCase[tripId];
+        return insuranceCaseToUrl[keccak256(abi.encodePacked(iCase))];
+    }
+    function getInsuranceCaseByTrip(uint tripId) public view returns(string memory iCase) {
+        return tripIdToInsuranceCase[tripId];
     }
 
     function isCaseExists(string memory iCase) public view returns(bool isExists) {
         return caseExists[keccak256(abi.encodePacked(iCase))];
+    }
+
+    function getCurrentCaseNumber() public view returns(uint currentCaseNumber) {
+        return caseCounter;
     }
 
 
