@@ -33,7 +33,7 @@ contract RentalityAiDamageAnalyze is UUPSAccess, EIP712Upgradeable {
           caseToTripId[hash] = tripId;
           caseCounter += 1;
           caseNumberToCase[caseCounter] = iCase;
-    } 
+    }
     function getInsuranceCaseUrlByTrip(uint tripId) public view returns(string memory caseUrl) {
         string memory iCase = tripIdToInsuranceCase[tripId];
         return insuranceCaseToUrl[keccak256(abi.encodePacked(iCase))];

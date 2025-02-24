@@ -117,8 +117,8 @@ contract RentalityInvestment is Initializable, UUPSAccess {
     currency = investmentIdToCurrency[invesment];
   }
  
-  function getAllInvestments() public view returns (Schemas.InvestmentDTO[] memory cars) {
-    cars = new Schemas.InvestmentDTO[](investmentId);
+  function getAllInvestments() public view returns (Schemas.InvestmentDTO[] memory investments) {
+    investments = new Schemas.InvestmentDTO[](investmentId);
     for (uint i = 1; i <= investmentId; i++) {
       uint income = 0;
       uint myIncomeInUsdCents = 0;
@@ -133,7 +133,7 @@ contract RentalityInvestment is Initializable, UUPSAccess {
         (myIncomeInUsdCents, , ) = converter.getToUsdLatest(currency, myIncome);
       }
       (uint percentages, uint investInUsd) = RentalityViewLib.calculatePercentage(iInvested,investmentIdToCarInfo[i].priceInUsd, converter);
-      cars[i - 1] = Schemas.InvestmentDTO(
+      investments[i - 1] = Schemas.InvestmentDTO(
         investmentIdToCarInfo[i],
         address(investIdToNft[i]),
         i,
