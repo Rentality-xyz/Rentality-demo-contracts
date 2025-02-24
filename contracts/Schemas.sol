@@ -888,4 +888,12 @@ interface Schemas {
     uint promoCodeEnterDate;
   }
 
+  struct MotionsCloudCaseDataDTO {
+      uint caseNumber;
+      string email;
+      string name;
+      string iCase;
+      string vin;
+ }
+
 }

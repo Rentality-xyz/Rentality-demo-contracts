@@ -558,6 +558,8 @@ async function deployDefaultFixture() {
       RentalityViewLib: await viewLib.getAddress()
     },
   })
+  const RentalityMotionsCloud = await ethers.getContractFactory('RentalityMotionsCloud')
+  const rentalityMotionsCloud = await upgrades.deployProxy(RentalityMotionsCloud,[await rentalityUserService.getAddress()])
 
   const rentalityTripsView = await upgrades.deployProxy(RentalityTripsView, [
     await rentalityCarToken.getAddress(),
@@ -570,6 +572,7 @@ async function deployDefaultFixture() {
     await insuranceService.getAddress(),
     await promoService.getAddress(),
     await rentalityDimo.getAddress(),
+    await rentalityMotionsCloud.getAddress()
   ])
   await rentalityTripsView.waitForDeployment()
 
