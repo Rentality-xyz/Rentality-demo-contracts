@@ -62,18 +62,14 @@ describe('RentalityGateway: car', function () {
 
   it('Host can add car to gateway', async function () {
     await expect(
-      rentalityGateway
-        .connect(host)
-        .addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+      rentalityGateway.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
     ).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
   })
   it('Host dont see own cars as available', async function () {
     await expect(
-      rentalityGateway
-        .connect(host)
-        .addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+      rentalityGateway.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
     ).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
@@ -90,9 +86,7 @@ describe('RentalityGateway: car', function () {
   })
   it('Guest see cars as available', async function () {
     await expect(
-      rentalityGateway
-        .connect(host)
-        .addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+      rentalityGateway.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
     ).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
@@ -124,8 +118,8 @@ describe('RentalityGateway: car', function () {
       tokenUri: 'uri',
       insuranceRequired: false,
       insurancePriceInUsdCents: 0,
-dimoTokenId: 0,
-signedDimoTokenId: '0x'
+      dimoTokenId: 0,
+      signedDimoTokenId: '0x',
     }
     let locationInfo = {
       locationInfo: emptyLocationInfo,
@@ -173,7 +167,7 @@ signedDimoTokenId: '0x'
       locationInfo,
       signature: signLocationInfo(await rentalityLocationVerifier.getAddress(), admin),
     }
-    await expect(rentalityGateway.connect(host).setKYCInfo(name, number, photo,"", hostSignature, zeroHash)).to.not
+    await expect(rentalityGateway.connect(host).setKYCInfo(name, number, photo, '', hostSignature, zeroHash)).to.not
       .reverted
 
     let addCarRequest = {
@@ -194,8 +188,8 @@ signedDimoTokenId: '0x'
       currentlyListed: true,
       insuranceRequired: false,
       insurancePriceInUsdCents: 0,
-dimoTokenId: 0,
-signedDimoTokenId: '0x'
+      dimoTokenId: 0,
+      signedDimoTokenId: '0x',
     }
     const oneDayInSec = 86400
     const totalTripDays = 7
@@ -233,7 +227,7 @@ signedDimoTokenId: '0x'
       locationInfo,
       signature: signLocationInfo(await rentalityLocationVerifier.getAddress(), admin),
     }
-    await expect(await rentalityGateway.connect(host).setKYCInfo(name, '', photo,"", hostSignature, zeroHash)).to.not
+    await expect(await rentalityGateway.connect(host).setKYCInfo(name, '', photo, '', hostSignature, zeroHash)).to.not
       .reverted
 
     let addCarRequest = {
@@ -254,8 +248,8 @@ signedDimoTokenId: '0x'
       currentlyListed: true,
       insuranceRequired: false,
       insurancePriceInUsdCents: 0,
-dimoTokenId: 0,
-signedDimoTokenId: '0x'
+      dimoTokenId: 0,
+      signedDimoTokenId: '0x',
     }
     await expect(await rentalityGateway.connect(host).addCar(addCarRequest)).not.be.reverted
     const result = await rentalityGateway.connect(guest).getCarDetails(1)
@@ -285,7 +279,7 @@ signedDimoTokenId: '0x'
     let expirationDate = 10
 
     const hostSignature = await signTCMessage(host)
-    await expect(await rentalityGateway.connect(host).setKYCInfo(name, '', photo,"", hostSignature, zeroHash)).to.not
+    await expect(await rentalityGateway.connect(host).setKYCInfo(name, '', photo, '', hostSignature, zeroHash)).to.not
       .reverted
     let locationInfo1 = {
       locationInfo,
@@ -371,7 +365,7 @@ signedDimoTokenId: '0x'
     let expirationDate = 10
 
     const hostSignature = await signTCMessage(host)
-    await expect(await rentalityGateway.connect(host).setKYCInfo(name, '', photo,"", hostSignature, zeroHash)).to.not
+    await expect(await rentalityGateway.connect(host).setKYCInfo(name, '', photo, '', hostSignature, zeroHash)).to.not
       .reverted
 
     let locationInfo1 = {

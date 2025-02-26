@@ -64,9 +64,7 @@ describe('RentalityGateway: trips', function () {
 
   it('createTripRequest', async function () {
     await expect(
-      rentalityGateway
-        .connect(host)
-        .addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+      rentalityGateway.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
     ).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
@@ -236,8 +234,8 @@ describe('RentalityGateway: trips', function () {
       currentlyListed: true,
       insuranceRequired: false,
       insurancePriceInUsdCents: 0,
-dimoTokenId: 0,
-signedDimoTokenId: '0x'
+      dimoTokenId: 0,
+      signedDimoTokenId: '0x',
     }
 
     await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest)).not.to.be.reverted
@@ -289,8 +287,8 @@ signedDimoTokenId: '0x'
       currentlyListed: true,
       insuranceRequired: false,
       insurancePriceInUsdCents: 0,
-dimoTokenId: 0,
-signedDimoTokenId: '0x'
+      dimoTokenId: 0,
+      signedDimoTokenId: '0x',
     }
     await expect(rentalityGateway.connect(host).addCar(mockPatrolCreateCarRequest)).not.to.be.reverted
     const resultPatrol = await rentalityGateway.calculatePaymentsWithDelivery(
@@ -323,9 +321,7 @@ signedDimoTokenId: '0x'
 
   it('Host can not create trip request for own car ', async function () {
     await expect(
-      rentalityGateway
-        .connect(host)
-        .addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+      rentalityGateway.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
     ).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
@@ -378,9 +374,7 @@ signedDimoTokenId: '0x'
 
   it('host can reject created trip', async function () {
     await expect(
-      rentalityGateway
-        .connect(host)
-        .addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+      rentalityGateway.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
     ).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
@@ -428,9 +422,7 @@ signedDimoTokenId: '0x'
 
   it('guest can reject created trip', async function () {
     await expect(
-      rentalityGateway
-        .connect(host)
-        .addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+      rentalityGateway.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
     ).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
@@ -477,9 +469,7 @@ signedDimoTokenId: '0x'
 
   it('Only host or guest can reject trip', async function () {
     await expect(
-      rentalityGateway
-        .connect(host)
-        .addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+      rentalityGateway.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
     ).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
@@ -531,9 +521,7 @@ signedDimoTokenId: '0x'
 
   it('Only host can approve the trip', async function () {
     await expect(
-      rentalityGateway
-        .connect(host)
-        .addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+      rentalityGateway.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
     ).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
@@ -593,9 +581,7 @@ signedDimoTokenId: '0x'
 
   it('Host can not cheng status before approve', async function () {
     await expect(
-      rentalityGateway
-        .connect(host)
-        .addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+      rentalityGateway.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
     ).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
@@ -647,9 +633,7 @@ signedDimoTokenId: '0x'
 
   it('Only host can checkin after approve', async function () {
     await expect(
-      rentalityGateway
-        .connect(host)
-        .addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+      rentalityGateway.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
     ).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
@@ -711,9 +695,7 @@ signedDimoTokenId: '0x'
 
   it('Only guest can checkin after host', async function () {
     await expect(
-      rentalityGateway
-        .connect(host)
-        .addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+      rentalityGateway.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
     ).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
@@ -777,9 +759,7 @@ signedDimoTokenId: '0x'
 
   it('Only guest can checkout after checkin', async function () {
     await expect(
-      rentalityGateway
-        .connect(host)
-        .addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+      rentalityGateway.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
     ).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
@@ -842,9 +822,7 @@ signedDimoTokenId: '0x'
 
   it('Only host can checkout after guest checkout', async function () {
     await expect(
-      rentalityGateway
-        .connect(host)
-        .addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+      rentalityGateway.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
     ).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
@@ -1045,9 +1023,7 @@ signedDimoTokenId: '0x'
 
   it('Can not checkInBy host while car on the trip', async function () {
     await expect(
-      rentalityGateway
-        .connect(host)
-        .addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+      rentalityGateway.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
     ).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
@@ -1163,9 +1139,7 @@ signedDimoTokenId: '0x'
 
   it('Return in reject same value as in trip start', async function () {
     await expect(
-      rentalityGateway
-        .connect(host)
-        .addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+      rentalityGateway.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
     ).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
@@ -1283,26 +1257,26 @@ signedDimoTokenId: '0x'
         { value: result.totalPrice }
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
-let guestTrips = await rentalityTripService.getTripsByUser(guest.address)
-let hostTrips = await rentalityTripService.getTripsByUser(host.address)
+    let guestTrips = await rentalityTripService.getTripsByUser(guest.address)
+    let hostTrips = await rentalityTripService.getTripsByUser(host.address)
 
-let guestActiveTrips = await rentalityTripService.getActiveTripsByUser(guest.address)
-let hostActiveTrips = await rentalityTripService.getActiveTripsByUser(host.address)
- expect(guestTrips.length).to.be.eq(3)
- expect(hostTrips.length).to.be.eq(3)
- expect(guestActiveTrips.length).to.be.eq(3)
- expect(hostActiveTrips.length).to.be.eq(3)
+    let guestActiveTrips = await rentalityTripService.getActiveTripsByUser(guest.address)
+    let hostActiveTrips = await rentalityTripService.getActiveTripsByUser(host.address)
+    expect(guestTrips.length).to.be.eq(3)
+    expect(hostTrips.length).to.be.eq(3)
+    expect(guestActiveTrips.length).to.be.eq(3)
+    expect(hostActiveTrips.length).to.be.eq(3)
 
- await rentalityTripService.setUserTrips(1,0)
-  guestTrips = await rentalityTripService.getTripsByUser(guest.address)
- hostTrips = await rentalityTripService.getTripsByUser(host.address)
+    await rentalityTripService.setUserTrips(1, 0)
+    guestTrips = await rentalityTripService.getTripsByUser(guest.address)
+    hostTrips = await rentalityTripService.getTripsByUser(host.address)
 
- guestActiveTrips = await rentalityTripService.getActiveTripsByUser(guest.address)
- hostActiveTrips = await rentalityTripService.getActiveTripsByUser(host.address)
- expect(guestTrips.length).to.be.eq(6)
- expect(hostTrips.length).to.be.eq(6)
- expect(guestActiveTrips.length).to.be.eq(6)
- expect(hostActiveTrips.length).to.be.eq(6)
+    guestActiveTrips = await rentalityTripService.getActiveTripsByUser(guest.address)
+    hostActiveTrips = await rentalityTripService.getActiveTripsByUser(host.address)
+    expect(guestTrips.length).to.be.eq(6)
+    expect(hostTrips.length).to.be.eq(6)
+    expect(guestActiveTrips.length).to.be.eq(6)
+    expect(hostActiveTrips.length).to.be.eq(6)
   })
   it('Get only host trips', async function () {
     const mockCreateCarRequest = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
@@ -1345,8 +1319,9 @@ let hostActiveTrips = await rentalityTripService.getActiveTripsByUser(host.addre
         { value: result.totalPrice }
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
-    
-     await expect(await rentalityGateway.connect(guest).createTripRequestWithDelivery(
+
+    await expect(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Date.now(),
@@ -1357,7 +1332,8 @@ let hostActiveTrips = await rentalityTripService.getActiveTripsByUser(host.addre
         },
         ' ',
         { value: result.totalPrice }
-      )).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
+      )
+    ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
     await expect(
       await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
@@ -1373,7 +1349,7 @@ let hostActiveTrips = await rentalityTripService.getActiveTripsByUser(host.addre
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
     const mockCreateCarRequest2 = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
-    mockCreateCarRequest2.carVinNumber = "my vin number"
+    mockCreateCarRequest2.carVinNumber = 'my vin number'
     await expect(rentalityGateway.connect(guest).addCar(mockCreateCarRequest2)).not.to.be.reverted
 
     await expect(
@@ -1426,5 +1402,4 @@ let hostActiveTrips = await rentalityTripService.getActiveTripsByUser(host.addre
     expect(asGuestTrips.length).to.be.eq(3)
     expect(asHostTrips.length).to.be.eq(3)
   })
- 
 })

@@ -80,7 +80,6 @@ async function main() {
     'RentalityPromoService'
   )
 
-
   const dimoService = checkNotNull(
     getContractAddress('RentalityDimoService', 'scripts/deploy_3e_RentalityDimoService.js', chainId),
     'RentalityDimoService'
@@ -90,7 +89,7 @@ async function main() {
       RentalityUtils: rentalityUtilsAddress,
       RentalityQuery: rentalityQueryAddress,
       RentalityTripsQuery: rentalityTripsQueryAddress,
-      RentalityViewLib: rentalityViewLib
+      RentalityViewLib: rentalityViewLib,
     },
   })
   const contract = await upgrades.deployProxy(contractFactory, [
@@ -105,7 +104,7 @@ async function main() {
     rentalityTripsView,
     rentalityReferralService,
     rentalityPromoService,
-    dimoService
+    dimoService,
   ])
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()

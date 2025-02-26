@@ -89,7 +89,12 @@ contract RentalityInsurance is Initializable, UUPSAccess {
     }
   }
 
-  function calculateInsuranceForTrip(uint carId, uint64 startDateTime, uint64 endDateTime, address user) public view returns (uint) {
+  function calculateInsuranceForTrip(
+    uint carId,
+    uint64 startDateTime,
+    uint64 endDateTime,
+    address user
+  ) public view returns (uint) {
     uint price = getInsurancePriceByCar(carId);
     Schemas.InsuranceInfo[] memory insurances = guestToInsuranceInfo[user];
     if (

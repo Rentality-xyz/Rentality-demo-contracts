@@ -29,7 +29,7 @@ contract RentalityPromoService is Initializable, UUPSAccess {
 
   function generateGeneralCode(uint startDateTime, uint endDateTime) public {
     require(userService.isAdmin(msg.sender), 'only admin');
-    string memory generalCodeString = string("WAGMI2025");
+    string memory generalCodeString = string('WAGMI2025');
     promoPrefixes[2] = string('W');
     promoPrefixToDisctount[string('W')] = 20;
     promoPrefixToDisctount[string('D')] = 0;
@@ -105,13 +105,19 @@ contract RentalityPromoService is Initializable, UUPSAccess {
       }
     }
   }
-  function checkPromo(string memory promo, uint startDateTime, uint endDateTime) public view returns (Schemas.CheckPromoDTO memory) {
+  function checkPromo(
+    string memory promo,
+    uint startDateTime,
+    uint endDateTime
+  ) public view returns (Schemas.CheckPromoDTO memory) {
     Schemas.Promo memory promoData = promoToPromoData[promo];
     string memory prefix = _getPrefix(promo);
     uint promoValue = promoPrefixToDisctount[prefix];
-    if (promoData.createdAt == 0 && keccak256(abi.encodePacked(promo)) == keccak256(abi.encodePacked(generalCode.code))) {
-        promoData = generalCode;
-    } 
+    if (
+      promoData.createdAt == 0 && keccak256(abi.encodePacked(promo)) == keccak256(abi.encodePacked(generalCode.code))
+    ) {
+      promoData = generalCode;
+    }
     return
       Schemas.CheckPromoDTO(
         promoData.createdAt > 0,
@@ -128,8 +134,7 @@ contract RentalityPromoService is Initializable, UUPSAccess {
   }
 
   function getDiscountByPromo(string memory promoCode, address user) public view returns (uint) {
-    if(bytes(promoCode).length == 0)
-        return 0;
+    if (bytes(promoCode).length == 0) return 0;
     Schemas.Promo memory promo = promoToPromoData[promoCode];
     if (promo.createdAt != 0 && promo.status == Schemas.PromoStatus.Active) {
       return promoPrefixToDisctount[_getPrefix(promoCode)];
@@ -149,11 +154,10 @@ contract RentalityPromoService is Initializable, UUPSAccess {
     return tripToPromoData[tripId];
   }
 
-   function getTripDiscount(uint tripId) public view returns (uint) {
-   string memory promo = getTripPromoData(tripId).promo;
-   if(bytes(promo).length == 0)
-    return 0;
-    
+  function getTripDiscount(uint tripId) public view returns (uint) {
+    string memory promo = getTripPromoData(tripId).promo;
+    if (bytes(promo).length == 0) return 0;
+
     return promoPrefixToDisctount[_getPrefix(promo)];
   }
   function getGeneralPromoCode() public view returns (string memory) {
@@ -180,9 +184,11 @@ contract RentalityPromoService is Initializable, UUPSAccess {
       userPromo[user].push(Schemas.PromoUsedInfo(promo, promoCode, block.timestamp));
       promoToPromoData[promoCode].status = Schemas.PromoStatus.Used;
       return true;
-    } else if (keccak256(abi.encode(promoCode)) == keccak256(abi.encode(generalCode.code)) &&
-     generalCode.startDate <= startTripDate &&
-      generalCode.expireDate >= endTripData) {
+    } else if (
+      keccak256(abi.encode(promoCode)) == keccak256(abi.encode(generalCode.code)) &&
+      generalCode.startDate <= startTripDate &&
+      generalCode.expireDate >= endTripData
+    ) {
       Schemas.PromoUsedInfo[] memory usedPromos = userPromo[user];
       bool used = false;
       for (uint i = 0; i < usedPromos.length; i++) {
@@ -196,32 +202,30 @@ contract RentalityPromoService is Initializable, UUPSAccess {
         return true;
       }
     }
-     revert("Promo is not valid for the date range");
+    revert('Promo is not valid for the date range');
   }
   function rejectDiscountByTrip(uint tripId, address user) public {
     require(userService.isManager(msg.sender), 'Only for Manager.');
     string memory promoCode = tripToPromoData[tripId].promo;
-    if(bytes(promoCode).length == 0)
-    return;
+    if (bytes(promoCode).length == 0) return;
 
     Schemas.Promo memory promo = promoToPromoData[promoCode];
     if (promo.createdAt != 0 && promo.status == Schemas.PromoStatus.Used) {
       promoToPromoData[promoCode].status = Schemas.PromoStatus.Active;
-    }    
-      delete tripToPromoData[tripId];
-      Schemas.PromoUsedInfo[] memory userUsedPromo = userPromo[user];
-      for (uint i = 0; i < userUsedPromo.length; i++) {
-        if (keccak256(abi.encode(promoCode)) == keccak256(abi.encode(userUsedPromo[i].promoCode))) {
-          if (i == userUsedPromo.length - 1) userPromo[user].pop();
-          else {
-            for (uint j = i; j < userUsedPromo.length - 1; j++) 
-             userUsedPromo[j] = userUsedPromo[j + 1];
+    }
+    delete tripToPromoData[tripId];
+    Schemas.PromoUsedInfo[] memory userUsedPromo = userPromo[user];
+    for (uint i = 0; i < userUsedPromo.length; i++) {
+      if (keccak256(abi.encode(promoCode)) == keccak256(abi.encode(userUsedPromo[i].promoCode))) {
+        if (i == userUsedPromo.length - 1) userPromo[user].pop();
+        else {
+          for (uint j = i; j < userUsedPromo.length - 1; j++) userUsedPromo[j] = userUsedPromo[j + 1];
 
-            userPromo[user] = userUsedPromo;
-            userPromo[user].pop();
-            }
-          break;
+          userPromo[user] = userUsedPromo;
+          userPromo[user].pop();
         }
+        break;
+      }
     }
   }
 
@@ -247,13 +251,12 @@ contract RentalityPromoService is Initializable, UUPSAccess {
     return promoCodes;
   }
   function getPromoDiscountByTrip(uint tripId) public view returns (uint) {
-   Schemas.PromoTripData memory tripData = tripToPromoData[tripId];
-   if(bytes(tripData.promo).length == 0) {
-     return 0;
-   }
-   else {
-     return promoPrefixToDisctount[_getPrefix(tripData.promo)];
-   }
+    Schemas.PromoTripData memory tripData = tripToPromoData[tripId];
+    if (bytes(tripData.promo).length == 0) {
+      return 0;
+    } else {
+      return promoPrefixToDisctount[_getPrefix(tripData.promo)];
+    }
   }
 
   function random(uint min, uint max, uint nonce) internal view returns (uint) {
@@ -262,23 +265,23 @@ contract RentalityPromoService is Initializable, UUPSAccess {
     return randomnumber;
   }
 
-function getPromoTripInfo(uint tripId, address user) public view returns (Schemas.PromoDTO memory result) {
+  function getPromoTripInfo(uint tripId, address user) public view returns (Schemas.PromoDTO memory result) {
     Schemas.PromoTripData memory tripData = tripToPromoData[tripId];
-    if(bytes(tripData.promo).length == 0) {
+    if (bytes(tripData.promo).length == 0) {
       return result;
     }
-  Schemas.PromoUsedInfo[] memory promoInfo = userPromo[user];
-  for (uint i = 0; i < promoInfo.length; i++) {
-    if (keccak256(abi.encode(promoInfo[i].promoCode)) == keccak256(abi.encode(tripData.promo))) {
-      result.promoCodeEnterDate = promoInfo[i].usedAt;
-      break;
+    Schemas.PromoUsedInfo[] memory promoInfo = userPromo[user];
+    for (uint i = 0; i < promoInfo.length; i++) {
+      if (keccak256(abi.encode(promoInfo[i].promoCode)) == keccak256(abi.encode(tripData.promo))) {
+        result.promoCodeEnterDate = promoInfo[i].usedAt;
+        break;
+      }
     }
-  }
     result.promoCode = tripData.promo;
     result.promoCodeValueInPercents = promoPrefixToDisctount[_getPrefix(tripData.promo)];
-}
+  }
 
-function getUserPromoData() public view returns (Schemas.PromoUsedInfo[] memory) {
+  function getUserPromoData() public view returns (Schemas.PromoUsedInfo[] memory) {
     return userPromo[msg.sender];
   }
 
@@ -310,6 +313,5 @@ function getUserPromoData() public view returns (Schemas.PromoUsedInfo[] memory)
 
     promoPrefixes.push(string('D'));
     promoPrefixToDisctount[string('D')] = 20;
-
   }
 }

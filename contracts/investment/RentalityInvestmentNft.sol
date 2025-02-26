@@ -9,7 +9,7 @@ contract RentalityInvestmentNft is ERC721 {
   mapping(uint => uint) public tokenIdToPriceInEth;
 
   string private _tokenUri;
-  
+
   uint private totalHolders;
   address private immutable creator;
 
@@ -23,19 +23,17 @@ contract RentalityInvestmentNft is ERC721 {
     tokenId = 0;
     investId = investId_;
     _tokenUri = tokenUri_;
-    
-  creator = creator_;
+
+    creator = creator_;
   }
   function mint(uint priceInEth, address user) public {
-    require(msg.sender == creator, "only Owner");
+    require(msg.sender == creator, 'only Owner');
     tokenId += 1;
-      
-      if(balanceOf(user) == 0)
-      totalHolders += 1;
+
+    if (balanceOf(user) == 0) totalHolders += 1;
 
     _mint(user, tokenId);
     tokenIdToPriceInEth[tokenId] = priceInEth;
- 
   }
 
   function tokenURI(uint256 id) public view virtual override returns (string memory) {
@@ -43,8 +41,7 @@ contract RentalityInvestmentNft is ERC721 {
     return _tokenUri;
   }
 
-  function totalSupplyWithTotalHolders() public view returns(uint, uint) {
-    return (tokenId,totalHolders);
+  function totalSupplyWithTotalHolders() public view returns (uint, uint) {
+    return (tokenId, totalHolders);
   }
-
 }

@@ -20,13 +20,19 @@ async function main() {
   const endDate = new Date('2024-01-26T00:00:01Z')
   const endDateTime = Math.floor(endDate.getTime() / 1000)
 
-  const dataB = fs.readFileSync('./promo/nintyPromo.txt', 'utf8');
-  
-  const promoCodesB = dataB.split('\n').map(code => code.trim()).filter(code => code !== '');
+  const dataB = fs.readFileSync('./promo/nintyPromo.txt', 'utf8')
 
-  const dataC = fs.readFileSync('./promo/refPromo.txt', 'utf8');
-  
-  const promoCodesC = dataC.split('\n').map(code => code.trim()).filter(code => code !== '');
+  const promoCodesB = dataB
+    .split('\n')
+    .map((code) => code.trim())
+    .filter((code) => code !== '')
+
+  const dataC = fs.readFileSync('./promo/refPromo.txt', 'utf8')
+
+  const promoCodesC = dataC
+    .split('\n')
+    .map((code) => code.trim())
+    .filter((code) => code !== '')
 
   console.log(await contract.generateNumbers(1000, 9999, 5, startDateTime, endDateTime, 'B'))
   console.log(await contract.generateNumbers(1000, 9999, 5, startDateTime, endDateTime, 'C'))

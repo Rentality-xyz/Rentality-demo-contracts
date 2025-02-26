@@ -62,13 +62,14 @@ describe('Referral program', function () {
   })
 
   it('should be able to setKyc with referral code', async function () {
-    expect(await rentalityGateway.connect(hashCreator).setKYCInfo(' ', ' ', ' ', ' ',signTCMessage(hashCreator),zeroHash)).to.not
-    .reverted
+    expect(
+      await rentalityGateway.connect(hashCreator).setKYCInfo(' ', ' ', ' ', ' ', signTCMessage(hashCreator), zeroHash)
+    ).to.not.reverted
 
     let hash = await refferalProgram.referralHashV2(hashCreator.address)
-   
-    expect(await rentalityGateway.connect(anonymous).setKYCInfo(' ', ' ', ' ', ' ',signTCMessage(anonymous),hash)).to.not
-      .reverted
+
+    expect(await rentalityGateway.connect(anonymous).setKYCInfo(' ', ' ', ' ', ' ', signTCMessage(anonymous), hash)).to
+      .not.reverted
 
     const readyToClaim = await refferalProgram.getReadyToClaim(anonymous.address)
 
@@ -88,12 +89,13 @@ describe('Referral program', function () {
     expect(await refferalProgram.addressToPoints(hashCreator.address)).to.be.eq(10)
   })
   it('should be able to add car with referral code', async function () {
-    expect(await rentalityGateway.connect(hashCreator).setKYCInfo(' ', ' ', ' ', ' ',signTCMessage(hashCreator),zeroHash)).to.not
-    .reverted
+    expect(
+      await rentalityGateway.connect(hashCreator).setKYCInfo(' ', ' ', ' ', ' ', signTCMessage(hashCreator), zeroHash)
+    ).to.not.reverted
 
     let hash = await refferalProgram.referralHashV2(hashCreator.address)
-    expect(await rentalityGateway.connect(anonymous).setKYCInfo(' ', ' ', ' ', ' ',signTCMessage(anonymous),hash)).to.not
-      .reverted
+    expect(await rentalityGateway.connect(anonymous).setKYCInfo(' ', ' ', ' ', ' ', signTCMessage(anonymous), hash)).to
+      .not.reverted
 
     const readyToClaim = await refferalProgram.getReadyToClaim(anonymous.address)
 
@@ -124,10 +126,9 @@ describe('Referral program', function () {
       (obj) => obj.refType === BigInt(RefferalProgram.AddCar) && obj.oneTime
     ).points
     expect(amountCar).to.be.eq(2000)
-    
-    await time.increase(86400);
-    await expect(refferalProgram.claimPoints(anonymous.address)).to.not.reverted
 
+    await time.increase(86400)
+    await expect(refferalProgram.claimPoints(anonymous.address)).to.not.reverted
 
     await expect(refferalProgram.claimRefferalPoints(hashCreator.address)).to.not.reverted
 
@@ -135,13 +136,14 @@ describe('Referral program', function () {
     expect(await refferalProgram.addressToPoints(hashCreator.address)).to.be.eq(260)
   })
   it('update car should deacrease points', async function () {
-    expect(await rentalityGateway.connect(hashCreator).setKYCInfo(' ', ' ', ' ', ' ',signTCMessage(hashCreator),zeroHash)).to.not
-    .reverted
+    expect(
+      await rentalityGateway.connect(hashCreator).setKYCInfo(' ', ' ', ' ', ' ', signTCMessage(hashCreator), zeroHash)
+    ).to.not.reverted
 
     let hash = await refferalProgram.referralHashV2(hashCreator.address)
-   
-    expect(await rentalityGateway.connect(anonymous).setKYCInfo(' ', ' ', ' ', ' ',signTCMessage(anonymous),hash)).to.not
-      .reverted
+
+    expect(await rentalityGateway.connect(anonymous).setKYCInfo(' ', ' ', ' ', ' ', signTCMessage(anonymous), hash)).to
+      .not.reverted
 
     const readyToClaim = await refferalProgram.getReadyToClaim(anonymous.address)
 
@@ -193,8 +195,8 @@ describe('Referral program', function () {
       tokenUri: '',
       insuranceRequired: false,
       insurancePriceInUsdCents: 0,
-dimoTokenId: 0,
-signedDimoTokenId: '0x'
+      dimoTokenId: 0,
+      signedDimoTokenId: '0x',
     }
 
     let locationInfo = {
@@ -210,13 +212,14 @@ signedDimoTokenId: '0x'
     expect(await refferalProgram.addressToPoints(anonymous.address)).to.be.eq(1645)
   })
   it('should be able to pass civic with referral code', async function () {
-    expect(await rentalityGateway.connect(hashCreator).setKYCInfo(' ', ' ', ' ', ' ',signTCMessage(hashCreator),zeroHash)).to.not
-    .reverted
+    expect(
+      await rentalityGateway.connect(hashCreator).setKYCInfo(' ', ' ', ' ', ' ', signTCMessage(hashCreator), zeroHash)
+    ).to.not.reverted
 
     let hash = await refferalProgram.referralHashV2(hashCreator.address)
-   
-    expect(await rentalityGateway.connect(anonymous).setKYCInfo(' ', ' ', ' ', ' ',signTCMessage(anonymous),hash)).to.not
-      .reverted
+
+    expect(await rentalityGateway.connect(anonymous).setKYCInfo(' ', ' ', ' ', ' ', signTCMessage(anonymous), hash)).to
+      .not.reverted
 
     const readyToClaim = await refferalProgram.getReadyToClaim(anonymous.address)
 
@@ -262,13 +265,14 @@ signedDimoTokenId: '0x'
   })
 
   it('should have points with refferal hash after trip finish as guest', async function () {
-    expect(await rentalityGateway.connect(hashCreator).setKYCInfo(' ', ' ', ' ', ' ',signTCMessage(hashCreator),zeroHash)).to.not
-    .reverted
+    expect(
+      await rentalityGateway.connect(hashCreator).setKYCInfo(' ', ' ', ' ', ' ', signTCMessage(hashCreator), zeroHash)
+    ).to.not.reverted
 
     let hash = await refferalProgram.referralHashV2(hashCreator.address)
-   
-    expect(await rentalityGateway.connect(anonymous).setKYCInfo(' ', ' ', ' ', ' ',signTCMessage(anonymous),hash)).to.not
-      .reverted
+
+    expect(await rentalityGateway.connect(anonymous).setKYCInfo(' ', ' ', ' ', ' ', signTCMessage(anonymous), hash)).to
+      .not.reverted
 
     expect(
       await rentalityGateway
@@ -327,13 +331,14 @@ signedDimoTokenId: '0x'
   })
 
   it('should have points with refferal hash after trip finish as guest', async function () {
-    expect(await rentalityGateway.connect(hashCreator).setKYCInfo(' ', ' ', ' ', ' ',signTCMessage(hashCreator),zeroHash)).to.not
-    .reverted
+    expect(
+      await rentalityGateway.connect(hashCreator).setKYCInfo(' ', ' ', ' ', ' ', signTCMessage(hashCreator), zeroHash)
+    ).to.not.reverted
 
     let hash = await refferalProgram.referralHashV2(hashCreator.address)
-   
-    expect(await rentalityGateway.connect(anonymous).setKYCInfo(' ', ' ', ' ', ' ',signTCMessage(anonymous),hash)).to.not
-      .reverted
+
+    expect(await rentalityGateway.connect(anonymous).setKYCInfo(' ', ' ', ' ', ' ', signTCMessage(anonymous), hash)).to
+      .not.reverted
 
     expect(
       await rentalityGateway
@@ -355,14 +360,14 @@ signedDimoTokenId: '0x'
     expect(await refferalProgram.addressToPoints(anonymous.address)).to.be.eq(2645)
   })
   it('should be able to get permanent guest trip bonus for 10 days', async function () {
-    expect(await rentalityGateway.connect(hashCreator).setKYCInfo(' ', ' ', ' ', ' ',signTCMessage(hashCreator),zeroHash)).to.not
-    .reverted
-
+    expect(
+      await rentalityGateway.connect(hashCreator).setKYCInfo(' ', ' ', ' ', ' ', signTCMessage(hashCreator), zeroHash)
+    ).to.not.reverted
 
     let hash = await refferalProgram.referralHashV2(hashCreator.address)
-   
-    expect(await rentalityGateway.connect(anonymous).setKYCInfo(' ', ' ', ' ', ' ',signTCMessage(anonymous),hash)).to.not
-      .reverted
+
+    expect(await rentalityGateway.connect(anonymous).setKYCInfo(' ', ' ', ' ', ' ', signTCMessage(anonymous), hash)).to
+      .not.reverted
 
     expect(
       await rentalityGateway
@@ -444,7 +449,7 @@ signedDimoTokenId: '0x'
 
     let hash = await refferalProgram.referralHashV2(hashCreator.address)
 
-    expect(await rentalityGateway.connect(anonymous).setKYCInfo(' ', ' ', ' ', ' ',signTCMessage(anonymous),hash)).to
+    expect(await rentalityGateway.connect(anonymous).setKYCInfo(' ', ' ', ' ', ' ', signTCMessage(anonymous), hash)).to
       .not.reverted
     expect(
       await rentalityGateway
@@ -525,12 +530,11 @@ signedDimoTokenId: '0x'
     expect(await refferalProgram.addressToPoints(host.address)).to.be.eq(2640)
   })
   it('Can use hash a lot of time', async function () {
-
     let hash = await refferalProgram.referralHashV2(host.address)
-   
-    await expect(rentalityGateway.connect(anonymous).setKYCInfo(' ', ' ', ' ', ' ',signTCMessage(anonymous),hash)).to.not
-      .reverted
-    await expect(rentalityGateway.connect(manager).setKYCInfo(' ', ' ', ' ', ' ',signTCMessage(manager),hash)).to.not
+
+    await expect(rentalityGateway.connect(anonymous).setKYCInfo(' ', ' ', ' ', ' ', signTCMessage(anonymous), hash)).to
+      .not.reverted
+    await expect(rentalityGateway.connect(manager).setKYCInfo(' ', ' ', ' ', ' ', signTCMessage(manager), hash)).to.not
       .reverted
 
     const hashPoints = await refferalProgram.getReadyToClaimFromRefferalHash(host.address)
@@ -544,17 +548,16 @@ signedDimoTokenId: '0x'
     expect(await refferalProgram.addressToPoints(host.address)).to.be.eq(20)
   })
   it('Already pass program, use code again: do nothing', async function () {
-
     let hash = await refferalProgram.referralHashV2(host.address)
-   
-    await expect(rentalityGateway.connect(anonymous).setKYCInfo(' ', ' ', ' ', ' ',signTCMessage(anonymous),hash)).to.not
-      .reverted
+
+    await expect(rentalityGateway.connect(anonymous).setKYCInfo(' ', ' ', ' ', ' ', signTCMessage(anonymous), hash)).to
+      .not.reverted
 
     await expect(refferalProgram.claimPoints(anonymous.address)).to.not.reverted
     expect(await refferalProgram.addressToPoints(anonymous.address)).to.be.eq(145)
 
-    await expect(rentalityGateway.connect(anonymous).setKYCInfo(' ', ' ', ' ', ' ',signTCMessage(anonymous),hash)).to.not
-      .reverted
+    await expect(rentalityGateway.connect(anonymous).setKYCInfo(' ', ' ', ' ', ' ', signTCMessage(anonymous), hash)).to
+      .not.reverted
 
     await expect(refferalProgram.claimPoints(anonymous.address)).to.not.reverted
     expect(await refferalProgram.addressToPoints(anonymous.address)).to.be.eq(145)
@@ -574,14 +577,14 @@ signedDimoTokenId: '0x'
 
     await expect(rentalityAdminGateway.connect(owner).manageRefferalHashPoints(RefferalProgram.SetKYC, 500)).to.not
       .reverted
-      expect(await rentalityGateway.connect(hashCreator).setKYCInfo(' ', ' ', ' ', ' ',signTCMessage(hashCreator),zeroHash)).to.not
-      .reverted
+    expect(
+      await rentalityGateway.connect(hashCreator).setKYCInfo(' ', ' ', ' ', ' ', signTCMessage(hashCreator), zeroHash)
+    ).to.not.reverted
 
     let hash = await refferalProgram.referralHashV2(hashCreator.address)
-   
-    expect(await rentalityGateway.connect(anonymous).setKYCInfo(' ', ' ', ' ', ' ',signTCMessage(anonymous),hash)).to.not
-      .reverted
-  
+
+    expect(await rentalityGateway.connect(anonymous).setKYCInfo(' ', ' ', ' ', ' ', signTCMessage(anonymous), hash)).to
+      .not.reverted
 
     const readyToClaim = await refferalProgram.getReadyToClaim(anonymous.address)
 

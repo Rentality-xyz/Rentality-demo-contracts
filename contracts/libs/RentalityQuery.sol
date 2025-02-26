@@ -108,7 +108,7 @@ library RentalityQuery {
     uint256 arraySize = 0;
 
     for (uint256 i = 1; i <= claimService.getClaimsAmount(); i++) {
-      Schemas.Claim memory claim = claimService.getClaim(i);
+      Schemas.ClaimV2 memory claim = claimService.getClaim(i);
       Schemas.Trip memory trip = tripService.getTrip(claim.tripId);
 
       if (trip.host == host) {
@@ -120,7 +120,7 @@ library RentalityQuery {
     uint256 counter = 0;
 
     for (uint256 i = 1; i <= claimService.getClaimsAmount(); i++) {
-      Schemas.Claim memory claim = claimService.getClaim(i);
+      Schemas.ClaimV2 memory claim = claimService.getClaim(i);
       Schemas.Trip memory trip = tripService.getTrip(claim.tripId);
 
       if (trip.host == host) {
@@ -141,7 +141,8 @@ library RentalityQuery {
           valueInEth,
           IRentalityGeoService(contracts.carService.getGeoServiceAddress()).getCarTimeZoneId(
             carService.getCarInfoById(trip.carId).locationHash
-          )
+          ),
+          claimService.getClaimTypeInfo(claim.claimType)
         );
       }
     }
@@ -167,7 +168,7 @@ library RentalityQuery {
     uint256 arraySize = 0;
 
     for (uint256 i = 1; i <= claimService.getClaimsAmount(); i++) {
-      Schemas.Claim memory claim = claimService.getClaim(i);
+      Schemas.ClaimV2 memory claim = claimService.getClaim(i);
       Schemas.Trip memory trip = tripService.getTrip(claim.tripId);
 
       if (trip.guest == guest) {
@@ -178,7 +179,7 @@ library RentalityQuery {
     Schemas.FullClaimInfo[] memory claimInfos = new Schemas.FullClaimInfo[](arraySize);
     uint256 counter = 0;
     for (uint256 i = 1; i <= claimService.getClaimsAmount(); i++) {
-      Schemas.Claim memory claim = claimService.getClaim(i);
+      Schemas.ClaimV2 memory claim = claimService.getClaim(i);
       Schemas.Trip memory trip = tripService.getTrip(claim.tripId);
       if (trip.guest == guest) {
         uint valueInEth = _getClaimValueInCurrency(
@@ -199,7 +200,8 @@ library RentalityQuery {
           valueInEth,
           IRentalityGeoService(contracts.carService.getGeoServiceAddress()).getCarTimeZoneId(
             carService.getCarInfoById(trip.carId).locationHash
-          )
+          ),
+          claimService.getClaimTypeInfo(claim.claimType)
         );
       }
     }
@@ -210,7 +212,7 @@ library RentalityQuery {
   function _getClaimValueInCurrency(
     address currency,
     uint amount,
-    Schemas.Claim memory claim,
+    Schemas.ClaimV2 memory claim,
     RentalityClaimService claimService,
     RentalityCurrencyConverter currencyConverterService
   ) private view returns (uint) {
@@ -351,104 +353,6 @@ library RentalityQuery {
       );
     }
     return result;
-  }
-
-  function checkCarAvailabilityWithDelivery(
-    RentalityContract memory contracts,
-    uint carId,
-    address user,
-    uint64 startDateTime,
-    uint64 endDateTime,
-    Schemas.SearchCarParams memory searchParams,
-    Schemas.LocationInfo memory pickUpInfo,
-    Schemas.LocationInfo memory returnInfo,
-    address deliveryServiceAddress,
-    address insuranceServiceAddress,
-    address dimoService
-  ) public view returns (Schemas.AvailableCarDTO memory) {
-    Schemas.CarInfo memory temp = contracts.carService.getCarInfoById(carId);
-    RentalityEnginesService engineService = contracts.carService.getEngineService();
-    RentalityBaseDiscount discountService = contracts.paymentService.getBaseDiscount();
-    RentalityInsurance insuranceService = RentalityInsurance(insuranceServiceAddress);
-    RentalityCarToken carService = contracts.carService;
-
-    uint fuelPrice = engineService.getFuelPriceFromEngineParams(temp.engineType, temp.engineParams);
-
-    uint64 totalTripDays = uint64(Math.ceilDiv(endDateTime - startDateTime, 1 days));
-    totalTripDays = totalTripDays == 0 ? 1 : totalTripDays;
-
-    Schemas.DeliveryPrices memory deliveryPrices = RentalityCarDelivery(deliveryServiceAddress).getUserDeliveryPrices(
-      temp.createdBy
-    );
-    Schemas.LocationInfo memory location = IRentalityGeoService(carService.getGeoServiceAddress()).getLocationInfo(
-      temp.locationHash
-    );
-    int128 distance = RentalityCarDelivery(deliveryServiceAddress).calculateDistance(
-      location.latitude,
-      location.longitude,
-      pickUpInfo.latitude,
-      pickUpInfo.longitude
-    );
-    uint64 priceWithDiscount = contracts.paymentService.calculateSumWithDiscount(
-      carService.ownerOf(carId),
-      totalTripDays,
-      temp.pricePerDayInUsdCents
-    );
-    uint64 pickUp = 0;
-    uint64 dropOf = 0;
-    if (bytes(pickUpInfo.latitude).length != 0 || bytes(returnInfo.longitude).length != 0) {
-      (pickUp, dropOf) = RentalityCarDelivery(deliveryServiceAddress).calculatePricesByDeliveryDataInUsdCents(
-        pickUpInfo,
-        returnInfo,
-        IRentalityGeoService(carService.getGeoServiceAddress()).getCarLocationLatitude(
-          carService.getCarInfoById(temp.carId).locationHash
-        ),
-        IRentalityGeoService(carService.getGeoServiceAddress()).getCarLocationLongitude(
-          carService.getCarInfoById(temp.carId).locationHash
-        ),
-        temp.createdBy
-      );
-    }
-
-    uint taxId = contracts.paymentService.defineTaxesType(address(contracts.carService), carId);
-
-    (uint64 salesTaxes, uint64 govTax) = taxId == 0
-      ? (0, 0)
-      : contracts.paymentService.calculateTaxes(taxId, totalTripDays, priceWithDiscount + pickUp + dropOf);
-
-    return
-      Schemas.AvailableCarDTO(
-        carId,
-        temp.brand,
-        temp.model,
-        temp.yearOfProduction,
-        temp.pricePerDayInUsdCents,
-        priceWithDiscount / totalTripDays,
-        totalTripDays,
-        priceWithDiscount,
-        salesTaxes + govTax,
-        temp.securityDepositPerTripInUsdCents,
-        temp.engineType,
-        temp.milesIncludedPerDay,
-        temp.createdBy,
-        contracts.userService.getKYCInfo(temp.createdBy).name,
-        contracts.userService.getKYCInfo(temp.createdBy).profilePhoto,
-        carService.tokenURI(temp.carId),
-        deliveryPrices.underTwentyFiveMilesInUsdCents,
-        deliveryPrices.aboveTwentyFiveMilesInUsdCents,
-        pickUp,
-        dropOf,
-        temp.insuranceIncluded,
-        IRentalityGeoService(carService.getGeoServiceAddress()).getLocationInfo(temp.locationHash),
-        insuranceService.getCarInsuranceInfo(temp.carId),
-        fuelPrice,
-        discountService.getParsedDiscount(contracts.carService.ownerOf(carId)),
-        salesTaxes,
-        govTax,
-        distance,
-        insuranceService.isGuestHasInsurance(user),
-        RentalityDimoService(dimoService).getDimoTokenId(temp.carId)
-      );
   }
 
   /// @notice Searches for available cars and sorts them by distance from the user.

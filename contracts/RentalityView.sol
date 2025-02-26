@@ -20,7 +20,6 @@ import {RentalityPromoService} from './features/RentalityPromo.sol';
 import {RentalityDimoService} from './features/RentalityDimoService.sol';
 import {ARentalityContext} from './abstract/ARentalityContext.sol';
 
-
 /// @dev SAFETY: The linked library is not supported yet because it can modify the state or call
 ///  selfdestruct, as far as RentalityTripsQuery doesn't has this logic,
 /// it's completely safe for upgrade
@@ -37,9 +36,9 @@ contract RentalityView is UUPSUpgradeable, Initializable, ARentalityContext {
 
   RentalityPromoService private promoService;
 
-    RentalityDimoService private dimoService;
+  RentalityDimoService private dimoService;
 
-    address private trustedForwarderAddress;
+  address private trustedForwarderAddress;
 
   function updateServiceAddresses(
     RentalityContract memory contracts,
@@ -135,7 +134,8 @@ contract RentalityView is UUPSUpgradeable, Initializable, ARentalityContext {
     Schemas.LocationInfo memory returnInfo
   ) public view returns (Schemas.AvailableCarDTO memory) {
     return
-      addresses.checkCarAvailabilityWithDelivery(
+      RentalityViewLib.checkCarAvailabilityWithDelivery(
+        addresses,
         carId,
         _msgGatewaySender(),
         startDateTime,
@@ -188,9 +188,9 @@ contract RentalityView is UUPSUpgradeable, Initializable, ARentalityContext {
   function getMyCars() public view returns (Schemas.CarInfoDTO[] memory) {
     return RentalityUtils.getCarsOwnedByUserWithEditability(addresses, dimoService, _msgGatewaySender());
   }
-function getDimoVihicles() public view returns(uint[] memory) {
-  return dimoService.getDimoVihicles();
-}
+  function getDimoVihicles() public view returns (uint[] memory) {
+    return dimoService.getDimoVihicles();
+  }
   /// @notice Retrieves detailed information about a car.
   /// @param carId The ID of the car for which details are requested.
   /// @return details An instance of `Schemas.CarDetails` containing the details of the specified car.
@@ -286,7 +286,15 @@ function getDimoVihicles() public view returns(uint[] memory) {
   /// @notice Get chat information for trips hosted by the caller on the Rentality platform.
   /// @return chatInfo An array of chat information for trips hosted by the caller.
   function getChatInfoFor(bool host) public view returns (Schemas.ChatInfo[] memory) {
-    return RentalityTripsQuery.populateChatInfo(addresses, insuranceService, _msgGatewaySender(), host, promoService, dimoService);
+    return
+      RentalityTripsQuery.populateChatInfo(
+        addresses,
+        insuranceService,
+        _msgGatewaySender(),
+        host,
+        promoService,
+        dimoService
+      );
   }
 
   /// @dev Retrieves delivery data for a given car.
@@ -332,24 +340,17 @@ function getDimoVihicles() public view returns(uint[] memory) {
     return insuranceService.getMyInsurancesAsGuest(_msgGatewaySender());
   }
 
-  function getFilterInfo(uint64 duration) public view returns (Schemas.FilterInfoDTO memory) {
-    return RentalityViewLib.getFilterInfo(addresses, duration);
+  function trustedForwarder() internal view override returns (address) {
+    return trustedForwarderAddress;
   }
 
-
-    function trustedForwarder() internal view override returns (address) {
-      return trustedForwarderAddress;
-
-     }
-
-    function isTrustedForwarder(address forwarder) internal view override returns (bool) {
-      return forwarder == trustedForwarderAddress;
-    }
-    function setTrustedForwarder(address forwarder) public {
-      require(addresses.userService.isAdmin(tx.origin), 'Only for Admin.');
-      trustedForwarderAddress = forwarder;
-    }
-
+  function isTrustedForwarder(address forwarder) internal view override returns (bool) {
+    return forwarder == trustedForwarderAddress;
+  }
+  function setTrustedForwarder(address forwarder) public {
+    require(addresses.userService.isAdmin(tx.origin), 'Only for Admin.');
+    trustedForwarderAddress = forwarder;
+  }
 
   function initialize(
     address carServiceAddress,

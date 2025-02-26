@@ -54,7 +54,7 @@ library RentalityRefferalLib {
           uint updateTime = refferalProgram.getCarDailyClaimedTime(i);
           if (updateTime > listingMoment) listingMoment = updateTime;
           uint duration = block.timestamp - listingMoment;
-           uint pointsToGet = duration == 0 ? 0 : uint(points) * (duration / 1 days);
+          uint pointsToGet = duration == 0 ? 0 : uint(points) * (duration / 1 days);
           if (pointsToGet > 0) {
             carIds[index] = i;
             index += 1;
