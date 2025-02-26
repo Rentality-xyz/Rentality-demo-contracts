@@ -111,7 +111,7 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
     return addresses.currencyConverterService.getAllCurrencies();
   }
 
-  function getAiDamageAnalyzeCaseData(uint tripId) public view returns(Schemas.AiDamageAnalyzeCaseDataDTO memory) {
+  function getAiDamageAnalyzeCaseData(uint tripId, bool pre) public view returns(Schemas.AiDamageAnalyzeCaseDataDTO memory) {
     Schemas.CarInfo memory car = addresses.carService.getCarInfoById(addresses.tripService.getTrip(tripId).carId);
     Schemas.FullKYCInfoDTO memory kyc = addresses.userService.getMyFullKYCInfo(_msgGatewaySender());
     
@@ -119,7 +119,7 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
       aiDamageAnalyzeService.getCurrentCaseNumber(),
       kyc.additionalKYC.email,
       kyc.kyc.surname,
-      aiDamageAnalyzeService.getInsuranceCaseByTrip(tripId),
+      aiDamageAnalyzeService.getInsuranceCaseByTrip(tripId, pre),
       car.carVinNumber
     );
 
