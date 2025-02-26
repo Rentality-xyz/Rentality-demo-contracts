@@ -90,7 +90,7 @@ contract RentalityBaseDiscount is IRentalityDiscount, Initializable, UUPSAccess 
     require(value <= 1_000_000, 'Incorrect value');
   }
   function setDefaultDiscountToFalse() public {
-    require(userService.isAdmin(msg.sender),'only Admin');
+    require(userService.isAdmin(msg.sender), 'only Admin');
     defaultDiscount.initialized = false;
   }
 

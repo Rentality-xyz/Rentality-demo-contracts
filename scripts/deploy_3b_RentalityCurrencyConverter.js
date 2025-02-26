@@ -31,7 +31,7 @@ async function main() {
   const contractFactory = await ethers.getContractFactory(contractName)
 
   const nativeSymbol = await getNativeSymbol(Number(chainId))
-  const contract = await upgrades.deployProxy(contractFactory, [userService, rentalityEthService,nativeSymbol])
+  const contract = await upgrades.deployProxy(contractFactory, [userService, rentalityEthService, nativeSymbol])
   await contract.waitForDeployment()
 
   await contract.addCurrencyType(usdtToken, rentalityUsdtService, 'USDT')

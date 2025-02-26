@@ -32,7 +32,7 @@ contract RentalityDimoService is UUPSAccess, EIP712Upgradeable {
   }
 
   function saveButch(uint[] memory dimoTokenIds, uint[] memory carIds, address user) public {
-    require(userService.isManager(msg.sender), "only Manager");
+    require(userService.isManager(msg.sender), 'only Manager');
     require(dimoTokenIds.length == carIds.length, 'Wrong length');
     for (uint i = 0; i < dimoTokenIds.length; i++) {
       require(carToken.ownerOf(carIds[i]) == user, 'Not car owner');

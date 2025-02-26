@@ -220,8 +220,8 @@ describe('Rentality Delivery', function () {
       currentlyListed: true,
       insuranceRequired: false,
       insurancePriceInUsdCents: 0,
-dimoTokenId: 0,
-signedDimoTokenId: '0x',
+      dimoTokenId: 0,
+      signedDimoTokenId: '0x',
       insuranceIncluded: true,
     }
 
@@ -367,8 +367,8 @@ signedDimoTokenId: '0x',
       currentlyListed: true,
       insuranceRequired: false,
       insurancePriceInUsdCents: 0,
-dimoTokenId: 0,
-signedDimoTokenId: '0x'
+      dimoTokenId: 0,
+      signedDimoTokenId: '0x',
     }
     await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest)).not.to.be.reverted
 
@@ -390,8 +390,8 @@ signedDimoTokenId: '0x'
       currentlyListed: true,
       insuranceRequired: false,
       insurancePriceInUsdCents: 0,
-dimoTokenId: 0,
-signedDimoTokenId: '0x'
+      dimoTokenId: 0,
+      signedDimoTokenId: '0x',
     }
     await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest1)).not.to.be.reverted
 
@@ -413,8 +413,8 @@ signedDimoTokenId: '0x'
       currentlyListed: true,
       insuranceRequired: false,
       insurancePriceInUsdCents: 0,
-dimoTokenId: 0,
-signedDimoTokenId: '0x'
+      dimoTokenId: 0,
+      signedDimoTokenId: '0x',
     }
     await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest2)).not.to.be.reverted
     let loc = {
@@ -445,8 +445,8 @@ signedDimoTokenId: '0x'
       currentlyListed: true,
       insuranceRequired: false,
       insurancePriceInUsdCents: 0,
-dimoTokenId: 0,
-signedDimoTokenId: '0x'
+      dimoTokenId: 0,
+      signedDimoTokenId: '0x',
     }
     const mockCreateCarRequest3 = {
       tokenUri: 'uri',
@@ -466,8 +466,8 @@ signedDimoTokenId: '0x'
       currentlyListed: true,
       insuranceRequired: false,
       insurancePriceInUsdCents: 0,
-dimoTokenId: 0,
-signedDimoTokenId: '0x'
+      dimoTokenId: 0,
+      signedDimoTokenId: '0x',
     }
     const mockCreateCarRequest4 = {
       tokenUri: 'uri',
@@ -487,8 +487,8 @@ signedDimoTokenId: '0x'
       currentlyListed: true,
       insuranceRequired: false,
       insurancePriceInUsdCents: 0,
-dimoTokenId: 0,
-signedDimoTokenId: '0x'
+      dimoTokenId: 0,
+      signedDimoTokenId: '0x',
     }
     await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest4)).not.to.be.reverted
     await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest5)).not.to.be.reverted

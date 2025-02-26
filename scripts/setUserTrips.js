@@ -9,16 +9,14 @@ async function main() {
 
   if (chainId < 0) throw new Error('chainId is not set')
 
-    const rentalityTripServiceAddress = checkNotNull(
-        getContractAddress('RentalityTripService', 'scripts/deploy_4_RentalityTripService.js', chainId),
-        'RentalityTripService'
-      )
+  const rentalityTripServiceAddress = checkNotNull(
+    getContractAddress('RentalityTripService', 'scripts/deploy_4_RentalityTripService.js', chainId),
+    'RentalityTripService'
+  )
 
-      const contract = await ethers.getContractAt('RentalityTripService',rentalityTripServiceAddress)
-      console.log('Total trips count: ', await contract.totalTripCount())
-      console.log(await contract.setUserTrips(1, 0))
-    
-  
+  const contract = await ethers.getContractAt('RentalityTripService', rentalityTripServiceAddress)
+  console.log('Total trips count: ', await contract.totalTripCount())
+  console.log(await contract.setUserTrips(1, 0))
 }
 main()
   .then(() => process.exit(0))

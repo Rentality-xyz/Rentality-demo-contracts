@@ -25,10 +25,7 @@ contract RentalityCurrencyConverter is Initializable, UUPSAccess {
     require(userService.isManager(msg.sender), 'From manager contract only.');
 
     tokenAddressToPaymentMethod[tokenAddress] = ARentalityUpgradableCurrencyType(rentalityTokenService);
-    availableCurrencies.push(Schemas.Currency(
-      tokenAddress,
-      name
-    ));
+    availableCurrencies.push(Schemas.Currency(tokenAddress, name));
   }
 
   /// @notice Converts the specified amount from USD to the specified currency type
@@ -75,7 +72,10 @@ contract RentalityCurrencyConverter is Initializable, UUPSAccess {
   /// @param tokenAddress The address of the currency type
   /// @param amount The amount in the specified currency type
   /// @return usdLatest The equivalent amount in USD cents, the corresponding currency rate, and decimals
-  function getToUsdLatest(address tokenAddress, uint256 amount) public view returns (uint256 usdLatest, int256 rate, uint8 decimals) {
+  function getToUsdLatest(
+    address tokenAddress,
+    uint256 amount
+  ) public view returns (uint256 usdLatest, int256 rate, uint8 decimals) {
     return tokenAddressToPaymentMethod[tokenAddress].getUsdFromLatest(amount);
   }
 
@@ -106,7 +106,10 @@ contract RentalityCurrencyConverter is Initializable, UUPSAccess {
   /// @param tokenAddress The address of the currency type
   /// @param valueInUsdCents The value in USD cents to convert
   /// @return cachedValueInCurrency The equivalent amount in the specified currency type
-  function getFromUsdWithCache(address tokenAddress, uint256 valueInUsdCents) public returns (uint256 cachedValueInCurrency) {
+  function getFromUsdWithCache(
+    address tokenAddress,
+    uint256 valueInUsdCents
+  ) public returns (uint256 cachedValueInCurrency) {
     return tokenAddressToPaymentMethod[tokenAddress].getFromUsdWithCache(valueInUsdCents);
   }
 
@@ -152,7 +155,6 @@ contract RentalityCurrencyConverter is Initializable, UUPSAccess {
   ) public view returns (uint toHost, uint toGuest, uint toHostInUsd, uint toGuestInUsd, uint total) {
     uint discount = promoService.getPromoDiscountByTrip(paymentInfo.tripId);
 
-
     uint256 valueToHostInUsdCents = paymentInfo.priceWithDiscount +
       paymentInfo.pickUpFee +
       paymentInfo.dropOfFee +
@@ -180,14 +182,17 @@ contract RentalityCurrencyConverter is Initializable, UUPSAccess {
       paymentInfo.currencyRate,
       paymentInfo.currencyDecimals
     );
-      if(discount == 100) {
-          valueToGuest = 0;
-          valueToGuestInUsdCents = 0;
-      }
+    if (discount == 100) {
+      valueToGuest = 0;
+      valueToGuestInUsdCents = 0;
+    }
     return (valueToHost, valueToGuest, valueToHostInUsdCents, valueToGuestInUsdCents, totalIncome);
   }
 
-  function calculateTripReject(Schemas.PaymentInfo memory paymentInfo, uint insurance) public pure returns (uint tripRejectValue) {
+  function calculateTripReject(
+    Schemas.PaymentInfo memory paymentInfo,
+    uint insurance
+  ) public pure returns (uint tripRejectValue) {
     uint64 valueToReturnInUsdCents = paymentInfo.priceWithDiscount +
       paymentInfo.salesTax +
       paymentInfo.governmentTax +
@@ -206,19 +211,20 @@ contract RentalityCurrencyConverter is Initializable, UUPSAccess {
     return tokenAddress == address(0);
   }
 
-  function getAllCurrencies() public view returns(Schemas.Currency[] memory availableOnPlatformCurrencies) {
+  function getAllCurrencies() public view returns (Schemas.Currency[] memory availableOnPlatformCurrencies) {
     return availableCurrencies;
   }
-  
+
   /// @notice Initializes the contract with the specified parameters
   /// @param _userService The address of the Rentality user service contract
   /// @param ethPaymentAddress The address of the ETH payment contract
-  function initialize(address _userService, address ethPaymentAddress, string memory nativeCurrencyName) public virtual initializer {
+  function initialize(
+    address _userService,
+    address ethPaymentAddress,
+    string memory nativeCurrencyName
+  ) public virtual initializer {
     tokenAddressToPaymentMethod[address(0)] = ARentalityUpgradableCurrencyType(ethPaymentAddress);
     userService = IRentalityAccessControl(_userService);
-     availableCurrencies.push(Schemas.Currency(
-      address(0),
-      nativeCurrencyName
-    ));
+    availableCurrencies.push(Schemas.Currency(address(0), nativeCurrencyName));
   }
 }

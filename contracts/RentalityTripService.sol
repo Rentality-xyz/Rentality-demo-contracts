@@ -169,14 +169,19 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
   ///   - Only the host or guest of the trip can reject it.
   ///   - The trip must be in status Created, Approved, or CheckedInByHost.
   ///  @param tripId The ID of the trip to be Rejected
-  function rejectTrip(uint256 tripId, uint256 rentalityFee, uint256 depositRefund, uint256 tripEarnings, address user) public {
+  function rejectTrip(
+    uint256 tripId,
+    uint256 rentalityFee,
+    uint256 depositRefund,
+    uint256 tripEarnings,
+    address user
+  ) public {
     require(addresses.userService.isManager(msg.sender), 'Only from manager contract.');
     Schemas.TripStatus status = idToTripInfo[tripId].status;
 
     address host = idToTripInfo[tripId].host;
     address guest = idToTripInfo[tripId].guest;
-    bool controversialSituation = addresses.userService.isAdmin(user) &&
-      status == Schemas.TripStatus.CheckedOutByHost;
+    bool controversialSituation = addresses.userService.isAdmin(user) && status == Schemas.TripStatus.CheckedOutByHost;
 
     require(
       idToTripInfo[tripId].host == user || idToTripInfo[tripId].guest == user || controversialSituation,
@@ -479,7 +484,6 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     return idToTripInfo[tripId];
   }
 
-
   function _removeActiveTrip(uint carId, uint tripId) private {
     uint[] memory activeTrips = carIdToActiveTrips[carId];
     for (uint i = 0; i < activeTrips.length; i++) {
@@ -492,7 +496,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     }
   }
 
-    function _removeActiveTripFromUser(uint tripId, address user) private {
+  function _removeActiveTripFromUser(uint tripId, address user) private {
     uint[] memory activeTrips = userToActiveTrips[user];
     for (uint i = 0; i < activeTrips.length; i++) {
       if (activeTrips[i] == tripId) {
@@ -505,21 +509,17 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
   }
 
   function setUserTrips(uint start, uint end) public {
-    require(addresses.userService.isAdmin(msg.sender),"only Admin");
-    if (end == 0)
-     end = totalTripCount();
-  for(uint i = start; i <= end; i++) {
-    Schemas.Trip memory trip = idToTripInfo[i];
-    userToTrips[trip.guest].push(i);
-    userToTrips[trip.host].push(i);
-    if( trip.status != Schemas.TripStatus.Finished &&
-        trip.status != Schemas.TripStatus.Canceled
-      ) {
+    require(addresses.userService.isAdmin(msg.sender), 'only Admin');
+    if (end == 0) end = totalTripCount();
+    for (uint i = start; i <= end; i++) {
+      Schemas.Trip memory trip = idToTripInfo[i];
+      userToTrips[trip.guest].push(i);
+      userToTrips[trip.host].push(i);
+      if (trip.status != Schemas.TripStatus.Finished && trip.status != Schemas.TripStatus.Canceled) {
         userToActiveTrips[trip.guest].push(i);
         userToActiveTrips[trip.host].push(i);
       }
-  }
-
+    }
   }
   function getActiveTrips(uint carId) public view returns (uint[] memory) {
     return carIdToActiveTrips[carId];
@@ -527,10 +527,10 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
   function getCarTrips(uint carId) public view returns (uint[] memory) {
     return carIdToTrips[carId];
   }
-   function getActiveTripsByUser(address host) public view returns (uint[] memory) {
+  function getActiveTripsByUser(address host) public view returns (uint[] memory) {
     return userToActiveTrips[host];
   }
-    function getTripsByUser(address host) public view returns (uint[] memory) {
+  function getTripsByUser(address host) public view returns (uint[] memory) {
     return userToTrips[host];
   }
 

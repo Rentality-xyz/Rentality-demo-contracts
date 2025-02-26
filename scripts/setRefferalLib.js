@@ -9,24 +9,23 @@ async function main() {
   const { contractName, chainId } = await startDeploy('RentalityGateway')
 
   if (chainId < 0) throw new Error('chainId is not set')
-    const rentalityRefferalProgram = checkNotNull(
-        getContractAddress('RentalityReferralProgram', 'scripts/deploy_3e_RentalityReferralProgram.js', chainId),
-        'RentalityReferralProgram'
-      )
+  const rentalityRefferalProgram = checkNotNull(
+    getContractAddress('RentalityReferralProgram', 'scripts/deploy_3e_RentalityReferralProgram.js', chainId),
+    'RentalityReferralProgram'
+  )
 
-      const refferalLibAddress = checkNotNull(
-        getContractAddress('RentalityRefferalLib', 'scripts/deploy_1f_RentalityRefferalLib.js', chainId),
-        'RentalityRefferalLib'
-      )
-      const contract = await ethers.getContractAt('RentalityReferralProgram',rentalityRefferalProgram)
+  const refferalLibAddress = checkNotNull(
+    getContractAddress('RentalityRefferalLib', 'scripts/deploy_1f_RentalityRefferalLib.js', chainId),
+    'RentalityRefferalLib'
+  )
+  const contract = await ethers.getContractAt('RentalityReferralProgram', rentalityRefferalProgram)
 
-      console.log(await contract.updateLib(refferalLibAddress))
+  console.log(await contract.updateLib(refferalLibAddress))
 
-      console.log("Done!")
+  console.log('Done!')
+}
 
-  }
-
-  main()
+main()
   .then(() => process.exit(0))
   .catch((error) => {
     console.error(error)
