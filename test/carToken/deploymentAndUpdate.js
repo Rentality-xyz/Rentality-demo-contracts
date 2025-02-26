@@ -44,7 +44,7 @@ it('Update car without location should work fine', async function () {
     engineType: 1,
   }
 
-  await expect(rentalityGateway.updateCarInfoWithLocation(update_params,emptySignedLocationInfo)).not.be.reverted
+  await expect(rentalityGateway.updateCarInfoWithLocation(update_params, emptySignedLocationInfo)).not.be.reverted
 
   let car_info = await rentalityCarToken.getCarInfoById(2)
 

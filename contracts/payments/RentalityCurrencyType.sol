@@ -122,8 +122,8 @@ abstract contract ARentalityUpgradableCurrencyType is Initializable, UUPSAccess 
     return (currentToUsdRate, currentToUsdDecimals);
   }
   function setRateFeed(address _rateFeed) public {
-    require(userService.isAdmin(msg.sender), "only Admin");
-    
+    require(userService.isAdmin(msg.sender), 'only Admin');
+
     rateFeed = AggregatorV3Interface(_rateFeed);
     (currentToUsdRate, currentToUsdDecimals) = getRate();
   }
@@ -136,9 +136,9 @@ abstract contract ARentalityUpgradableCurrencyType is Initializable, UUPSAccess 
     userService = IRentalityAccessControl(_userService);
     tokenAddress = IERC20(_tokenAddress);
 
-    if(_rateFeed != address(0)) {
-    rateFeed = AggregatorV3Interface(_rateFeed);
-    (currentToUsdRate, currentToUsdDecimals) = getRate();
+    if (_rateFeed != address(0)) {
+      rateFeed = AggregatorV3Interface(_rateFeed);
+      (currentToUsdRate, currentToUsdDecimals) = getRate();
     }
   }
 }

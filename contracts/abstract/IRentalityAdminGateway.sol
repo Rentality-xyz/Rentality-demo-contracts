@@ -9,11 +9,9 @@ interface IRentalityAdminGateway {
   /// @return The address of the RentalityCarToken contract.
   function getCarServiceAddress() external view returns (address);
 
-
   /// @notice Retrieves the address of the RentalityPayment contract.
   /// @return The address of the RentalityPayment contract.
   function getPaymentService() external view returns (address);
-
 
   /// @notice Retrieves the address of the RentalityClaim contract.
   /// @return The address of the RentalityClaim contract.
@@ -22,7 +20,6 @@ interface IRentalityAdminGateway {
   /// @notice Retrieves the address of the RentalityPlatform contract.
   /// @return The address of the RentalityPlatform contract.
   function getRentalityPlatformAddress() external view returns (address);
-
 
   /// @notice Retrieves the address of the RentalityCurrencyConverter contract.
   /// @return The address of the RentalityCurrencyConverter contract.

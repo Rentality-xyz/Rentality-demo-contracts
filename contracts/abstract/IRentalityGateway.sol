@@ -110,7 +110,9 @@ interface IRentalityGateway {
   /// @notice Get information about a specific car by ID.
   /// @param carId The ID of the car.
   /// @return carInfoWithInsurance structure containing details about the specified car.
-  function getCarInfoById(uint256 carId) external view returns (Schemas.CarInfoWithInsurance memory carInfoWithInsurance);
+  function getCarInfoById(
+    uint256 carId
+  ) external view returns (Schemas.CarInfoWithInsurance memory carInfoWithInsurance);
 
   /// @notice Retrieves detailed information about a car.
   /// @param carId The ID of the car for which details are requested.
@@ -141,9 +143,9 @@ interface IRentalityGateway {
   /// @return deliveryData The delivery data including location details and delivery prices.
   function getDeliveryData(uint carId) external view returns (Schemas.DeliveryData memory deliveryData);
 
-   function getUniqCarsBrand() external view returns(string[] memory brandsArray);
- 
-  function getUniqModelsByBrand(string memory brand) external view returns(string[] memory modelsArray); 
+  function getUniqCarsBrand() external view returns (string[] memory brandsArray);
+
+  function getUniqModelsByBrand(string memory brand) external view returns (string[] memory modelsArray);
 
   /// ------------------------------
   /// TRIPS functions
@@ -342,7 +344,6 @@ interface IRentalityGateway {
   /// @param insuranceInfo A struct containing the details of the insurance requested by the guest
   function saveGuestInsurance(Schemas.SaveInsuranceRequest memory insuranceInfo) external;
 
-
   /// ------------------------------
   /// GENERAL functions
   /// ------------------------------
@@ -397,5 +398,5 @@ interface IRentalityGateway {
   function getDimoVihicles() external view returns (uint[] memory dimoVihicles);
   function saveDimoTokenIds(uint[] memory, uint[] memory) external;
 
-   function getAvaibleCurrencies() external view returns(Schemas.Currency[] memory avaibleCurrencies);
+  function getAvaibleCurrencies() external view returns (Schemas.Currency[] memory avaibleCurrencies);
 }

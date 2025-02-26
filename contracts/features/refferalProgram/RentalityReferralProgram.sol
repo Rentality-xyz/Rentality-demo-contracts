@@ -39,10 +39,9 @@ contract RentalityReferralProgram is
 
   mapping(address => Schemas.ReadyToClaimFromHash[]) private userToReadyToClaimFromHash;
 
-    mapping(address => bytes4) internal userToSavedHash;
-    mapping(address => bytes4) public referralHashV2; 
-  mapping(bytes4 => address) private hashToOwnerV2; 
-
+  mapping(address => bytes4) internal userToSavedHash;
+  mapping(address => bytes4) public referralHashV2;
+  mapping(bytes4 => address) private hashToOwnerV2;
 
   function getCarDailyClaimedTime(uint carId) public view returns (uint carDailyClaimedTime) {
     return carIdToDailyClaimed[carId];
@@ -60,9 +59,8 @@ contract RentalityReferralProgram is
   ) public {
     require(userService.isManager(msg.sender), 'only Manager');
     bytes4 hash = userToSavedHash[user];
-  
+
     (address owner, uint hashPoints) = _getHashProgramInfoIfExists(selector, hash, user);
-   
 
     (int points, bool isOneTime) = _setPassedIfExists(selector, callbackArgs, owner != address(0), user);
     if (points > 0) {
@@ -103,7 +101,12 @@ contract RentalityReferralProgram is
 
     return percents;
   }
-  function getUserService() public view override(ARentalityRefferal) returns (IRentalityAccessControl userServiceAddress) {
+  function getUserService()
+    public
+    view
+    override(ARentalityRefferal)
+    returns (IRentalityAccessControl userServiceAddress)
+  {
     return userService;
   }
 
@@ -111,22 +114,22 @@ contract RentalityReferralProgram is
     Schemas.ReadyToClaim[] memory toClaim = addressToReadyToClaim[user];
     uint daily = updateDaily(user);
     (uint dailiListingPoints, uint[] memory cars) = RentalityRefferalLib.calculateListedCarsPoints(
-        permanentSelectorToPoints[Schemas.RefferalProgram.DailyListing].points,
-        user,
-        carService,
-        this
-      );
-      uint total = 0;
-       if (dailiListingPoints > 0) {
-        uint time = block.timestamp;
-        for (uint i = 0; i < cars.length; i++) {
-          carIdToDailyClaimed[cars[i]] = time;
-        }
-        userProgramHistory[user].push(
-          Schemas.ProgramHistory(int(dailiListingPoints), block.timestamp, Schemas.RefferalProgram.DailyListing, false)
-        );
-        total += dailiListingPoints;
+      permanentSelectorToPoints[Schemas.RefferalProgram.DailyListing].points,
+      user,
+      carService,
+      this
+    );
+    uint total = 0;
+    if (dailiListingPoints > 0) {
+      uint time = block.timestamp;
+      for (uint i = 0; i < cars.length; i++) {
+        carIdToDailyClaimed[cars[i]] = time;
       }
+      userProgramHistory[user].push(
+        Schemas.ProgramHistory(int(dailiListingPoints), block.timestamp, Schemas.RefferalProgram.DailyListing, false)
+      );
+      total += dailiListingPoints;
+    }
     if (toClaim.length > 0) {
       addressToReadyToClaim[user] = new Schemas.ReadyToClaim[](0);
       for (uint i = 0; i < toClaim.length; i++) {
@@ -136,15 +139,14 @@ contract RentalityReferralProgram is
         );
       }
     }
-      if(daily > 0) {
-         userProgramHistory[user].push(
-          Schemas.ProgramHistory(int(daily), block.timestamp, Schemas.RefferalProgram.Daily, false)
-        );
+    if (daily > 0) {
+      userProgramHistory[user].push(
+        Schemas.ProgramHistory(int(daily), block.timestamp, Schemas.RefferalProgram.Daily, false)
+      );
       total += daily;
-      }
+    }
 
-        addressToPoints[user] += total;
-    
+    addressToPoints[user] += total;
   }
 
   function getReadyToClaim(address user) public view returns (Schemas.ReadyToClaimDTO memory readyToClaimDTO) {
@@ -186,7 +188,9 @@ contract RentalityReferralProgram is
     return RentalityRefferalLib.formatReadyToClaim(Schemas.ReadyToClaimDTO(result, counter, toNextDaily), this);
   }
 
-  function getReadyToClaimFromRefferalHash(address user) public view returns (Schemas.RefferalHashDTO memory refferalHashDTO) {
+  function getReadyToClaimFromRefferalHash(
+    address user
+  ) public view returns (Schemas.RefferalHashDTO memory refferalHashDTO) {
     Schemas.ReadyToClaimFromHash[] memory availableToClaim = userToReadyToClaimFromHash[user];
     uint counter = 0;
     for (uint i = 0; i < availableToClaim.length; i++) {
@@ -268,11 +272,11 @@ contract RentalityReferralProgram is
     return Schemas.AllRefferalInfoDTO(refferalPoints, hashPoints, discounts, getAllTearsInfo());
   }
   function getPointsHistory() public view returns (Schemas.ProgramHistory[] memory programHistory) {
-    return userProgramHistory[msg.sender]; 
+    return userProgramHistory[msg.sender];
   }
 
-    function generateReferralHash(address user) public {
-      require(userService.isManager(msg.sender), 'only Manager');
+  function generateReferralHash(address user) public {
+    require(userService.isManager(msg.sender), 'only Manager');
     bytes4 hash = createReferralHash(user);
     hashToOwnerV2[hash] = user;
     referralHashV2[user] = hash;
@@ -284,15 +288,15 @@ contract RentalityReferralProgram is
   function createReferralHash(address user) internal pure returns (bytes4 createdHash) {
     return bytes4(keccak256(abi.encode(this.generateReferralHash.selector, user)));
   }
-  function getMyRefferalInfo() public view returns(Schemas.MyRefferalInfoDTO memory myRefferalInfoDTO) {
+  function getMyRefferalInfo() public view returns (Schemas.MyRefferalInfoDTO memory myRefferalInfoDTO) {
     return Schemas.MyRefferalInfoDTO(referralHashV2[msg.sender], userToSavedHash[msg.sender]);
   }
   function saveRefferalHash(bytes4 hash, bool isGuest, address sender) public {
     require(userService.isManager(msg.sender), 'only Manager');
     address user = hashToOwnerV2[hash];
-   if(!isGuest && hash != bytes4('') && user != address(0) && user != sender) {
-     userToSavedHash[sender] = hash;
-  }
+    if (!isGuest && hash != bytes4('') && user != address(0) && user != sender) {
+      userToSavedHash[sender] = hash;
+    }
   }
   function _getHashProgramInfoIfExists(
     Schemas.RefferalProgram programSelector,
@@ -308,10 +312,9 @@ contract RentalityReferralProgram is
   }
 
   function updateLib(address refLib) public {
-    require(userService.isAdmin(msg.sender),"only Admin");
+    require(userService.isAdmin(msg.sender), 'only Admin');
     refferalLib = refLib;
   }
-
 
   function initialize(
     address _userService,

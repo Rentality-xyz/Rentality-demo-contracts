@@ -21,23 +21,22 @@ async function main() {
     return
   }
 
+  const rentalityAdminGatewayAddress = checkNotNull(addresses['RentalityAdminGateway'], 'rentalityAdminGatewayAddress')
 
-    const rentalityAdminGatewayAddress = checkNotNull(addresses['RentalityAdminGateway'], 'rentalityAdminGatewayAddress')
+  const rentalityInsurance = checkNotNull(
+    getContractAddress('RentalityInsurance', 'scripts/deploy_3d_RentalityInsurance.js', chainId),
+    'RentalityInsurance'
+  )
 
-    const rentalityInsurance = checkNotNull(
-        getContractAddress('RentalityInsurance', 'scripts/deploy_3d_RentalityInsurance.js', chainId),
-        'RentalityInsurance'
-      )
+  const rentalityPlatformAddress = checkNotNull(
+    getContractAddress('RentalityPlatform', 'scripts/deploy_5_RentalityPlatform.js', chainId),
+    'RentalityPlatform'
+  )
+  const adminService = await ethers.getContractAt('RentalityAdminGateway', rentalityAdminGatewayAddress)
+  console.log(await adminService.setInsuranceService(rentalityInsurance))
 
-      const rentalityPlatformAddress = checkNotNull(
-        getContractAddress('RentalityPlatform', 'scripts/deploy_5_RentalityPlatform.js', chainId),
-        'RentalityPlatform'
-      )
-    const adminService = await ethers.getContractAt('RentalityAdminGateway',rentalityAdminGatewayAddress)
-    console.log(await adminService.setInsuranceService(rentalityInsurance))
-
-    const platform = await ethers.getContractAt('RentalityPlatform',rentalityPlatformAddress)
-    console.log(await platform.updateServiceAddresses(rentalityAdminGatewayAddress))
+  const platform = await ethers.getContractAt('RentalityPlatform', rentalityPlatformAddress)
+  console.log(await platform.updateServiceAddresses(rentalityAdminGatewayAddress))
 }
 
 main()

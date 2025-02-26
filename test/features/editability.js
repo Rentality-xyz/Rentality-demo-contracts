@@ -57,9 +57,7 @@ describe('Ability to update car during trip', function () {
 
   it('should has editable: false, if car on the trip', async function () {
     await expect(
-      rentalityGateway
-        .connect(host)
-        .addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+      rentalityGateway.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
     ).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
@@ -102,9 +100,7 @@ describe('Ability to update car during trip', function () {
   })
   it('should not be able to edit car, if it on the trip', async function () {
     await expect(
-      rentalityGateway
-        .connect(host)
-        .addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+      rentalityGateway.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
     ).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
@@ -158,8 +154,8 @@ describe('Ability to update car during trip', function () {
       tokenUri: 'uri',
       insuranceRequired: false,
       insurancePriceInUsdCents: 0,
-dimoTokenId: 0,
-signedDimoTokenId: '0x'
+      dimoTokenId: 0,
+      signedDimoTokenId: '0x',
     }
 
     let locationInfo = {
@@ -173,9 +169,7 @@ signedDimoTokenId: '0x'
 
   it('should be again editable after cancellation', async function () {
     await expect(
-      rentalityGateway
-        .connect(host)
-        .addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+      rentalityGateway.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
     ).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)

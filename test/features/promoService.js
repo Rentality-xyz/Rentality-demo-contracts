@@ -138,7 +138,7 @@ describe('Rentality promoService Service', function () {
       )
     expect(availableCars.length).to.equal(1)
 
-    await promoService.generateNumbers(1, 10000, 10, 0, (Math.floor(new Date().getTime() / 1000)) + (86400 * 10), 'A')
+    await promoService.generateNumbers(1, 10000, 10, 0, Math.floor(new Date().getTime() / 1000) + 86400 * 10, 'A')
     const promos = await promoService.getPromoCodes()
 
     const result = await rentalityGateway
@@ -150,12 +150,11 @@ describe('Rentality promoService Service', function () {
       .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, '')
     expect(result.totalPrice).to.be.not.eq(resultWithoutPromo.totalPrice)
 
-
     await expect(
       rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
-          startDateTime:Math.floor(new Date().getTime() / 1000),
+          startDateTime: Math.floor(new Date().getTime() / 1000),
           endDateTime: Math.floor(new Date().getTime() / 1000) + 86400,
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
@@ -172,7 +171,7 @@ describe('Rentality promoService Service', function () {
       await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
-          startDateTime:Math.floor(new Date().getTime() / 1000),
+          startDateTime: Math.floor(new Date().getTime() / 1000),
           endDateTime: Math.floor(new Date().getTime() / 1000) + 86400,
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
@@ -202,9 +201,15 @@ describe('Rentality promoService Service', function () {
       )
     expect(availableCars.length).to.equal(1)
 
-
     await promoService.generateNumbers(1, 10000, 10, Math.floor(new Date().getTime() / 1000), new Date().getTime(), 'A')
-    await promoService.generateNumbers(1, 10000, 10, Math.floor(new Date().getTime() / 1000), Math.floor(new Date().getTime() / 1000) + (86400 * 10), 'B')
+    await promoService.generateNumbers(
+      1,
+      10000,
+      10,
+      Math.floor(new Date().getTime() / 1000),
+      Math.floor(new Date().getTime() / 1000) + 86400 * 10,
+      'B'
+    )
     const promos = await promoService.getPromoCodes()
 
     const result = await rentalityGateway
@@ -215,7 +220,7 @@ describe('Rentality promoService Service', function () {
       await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
-          startDateTime:Math.floor(new Date().getTime() / 1000),
+          startDateTime: Math.floor(new Date().getTime() / 1000),
           endDateTime: Math.floor(new Date().getTime() / 1000) + 86400,
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
@@ -246,9 +251,22 @@ describe('Rentality promoService Service', function () {
       )
     expect(availableCars.length).to.equal(1)
 
-
-    await promoService.generateNumbers(1, 10000, 10, Math.floor(new Date().getTime() / 1000),Math.floor(new Date().getTime() / 1000) + (86400 * 10), 'A')
-    await promoService.generateNumbers(1, 10000, 10, Math.floor(new Date().getTime() / 1000), Math.floor(new Date().getTime() / 1000) + (86400 * 10), 'B')
+    await promoService.generateNumbers(
+      1,
+      10000,
+      10,
+      Math.floor(new Date().getTime() / 1000),
+      Math.floor(new Date().getTime() / 1000) + 86400 * 10,
+      'A'
+    )
+    await promoService.generateNumbers(
+      1,
+      10000,
+      10,
+      Math.floor(new Date().getTime() / 1000),
+      Math.floor(new Date().getTime() / 1000) + 86400 * 10,
+      'B'
+    )
     const promos = await promoService.getPromoCodes()
 
     const jsPrice = await calculateTripPriceWithCurrencyConversion(
@@ -267,7 +285,7 @@ describe('Rentality promoService Service', function () {
       await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
-          startDateTime:Math.floor(new Date().getTime() / 1000),
+          startDateTime: Math.floor(new Date().getTime() / 1000),
           endDateTime: Math.floor(new Date().getTime() / 1000) + 86400,
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
@@ -359,10 +377,10 @@ describe('Rentality promoService Service', function () {
       .connect(guest)
       .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, generalPromo)
 
-      const resultWithoutPromo = await rentalityGateway
+    const resultWithoutPromo = await rentalityGateway
       .connect(guest)
-      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, "")
-      expect(result.totalPrice).to.not.eq(resultWithoutPromo.totalPrice)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, '')
+    expect(result.totalPrice).to.not.eq(resultWithoutPromo.totalPrice)
 
     await expect(
       await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
@@ -383,7 +401,6 @@ describe('Rentality promoService Service', function () {
 
     await expect(rentalityGateway.connect(guest).rejectTripRequest(1)).to.not.reverted
 
-    
     await expect(
       await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
@@ -416,11 +433,11 @@ describe('Rentality promoService Service', function () {
         generalPromo,
         { value: resultWithoutPromo.totalPrice }
       )
-    ).to.changeEtherBalances([guest, rentalityPaymentService], [-resultWithoutPromo.totalPrice, resultWithoutPromo.totalPrice])
-
-
+    ).to.changeEtherBalances(
+      [guest, rentalityPaymentService],
+      [-resultWithoutPromo.totalPrice, resultWithoutPromo.totalPrice]
+    )
   })
-
 
   it('use general promo twice do nothing', async function () {
     const mockCarRequest = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
@@ -448,7 +465,7 @@ describe('Rentality promoService Service', function () {
       await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
-          startDateTime:Math.floor(new Date().getTime() / 1000),
+          startDateTime: Math.floor(new Date().getTime() / 1000),
           endDateTime: Math.floor(new Date().getTime() / 1000) + 86400,
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
@@ -471,7 +488,7 @@ describe('Rentality promoService Service', function () {
       await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
-          startDateTime:Math.floor(new Date().getTime() / 1000),
+          startDateTime: Math.floor(new Date().getTime() / 1000),
           endDateTime: Math.floor(new Date().getTime() / 1000) + 86400,
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
@@ -557,8 +574,15 @@ describe('Rentality promoService Service', function () {
         emptyLocationInfo
       )
     expect(availableCars.length).to.equal(1)
- 
-    await promoService.generateNumbers(1, 10000, 10, Math.floor(new Date().getTime() / 1000), Math.floor(new Date().getTime() / 1000) + (86400 * 10), 'A')
+
+    await promoService.generateNumbers(
+      1,
+      10000,
+      10,
+      Math.floor(new Date().getTime() / 1000),
+      Math.floor(new Date().getTime() / 1000) + 86400 * 10,
+      'A'
+    )
     const promos = await promoService.getPromoCodes()
     const result = await rentalityGateway
       .connect(guest)
@@ -568,7 +592,7 @@ describe('Rentality promoService Service', function () {
       await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
-          startDateTime:Math.floor(new Date().getTime() / 1000),
+          startDateTime: Math.floor(new Date().getTime() / 1000),
           endDateTime: Math.floor(new Date().getTime() / 1000) + 86400,
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
@@ -625,8 +649,14 @@ describe('Rentality promoService Service', function () {
       )
     expect(availableCars.length).to.equal(1)
 
-    
-    await promoService.generateNumbers(1, 10000, 10, Math.floor(new Date().getTime() / 1000), Math.floor(new Date().getTime() / 1000) + (86400 * 10), 'A')
+    await promoService.generateNumbers(
+      1,
+      10000,
+      10,
+      Math.floor(new Date().getTime() / 1000),
+      Math.floor(new Date().getTime() / 1000) + 86400 * 10,
+      'A'
+    )
     const promos = await promoService.getPromoCodes()
     const result = await rentalityGateway
       .connect(guest)
@@ -636,7 +666,7 @@ describe('Rentality promoService Service', function () {
       await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
-          startDateTime:Math.floor(new Date().getTime() / 1000),
+          startDateTime: Math.floor(new Date().getTime() / 1000),
           endDateTime: Math.floor(new Date().getTime() / 1000) + 86400,
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
@@ -655,7 +685,7 @@ describe('Rentality promoService Service', function () {
       await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
-          startDateTime:Math.floor(new Date().getTime() / 1000),
+          startDateTime: Math.floor(new Date().getTime() / 1000),
           endDateTime: Math.floor(new Date().getTime() / 1000) + 86400,
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
@@ -707,7 +737,7 @@ describe('Rentality promoService Service', function () {
       await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
-          startDateTime:Math.floor(new Date().getTime() / 1000),
+          startDateTime: Math.floor(new Date().getTime() / 1000),
           endDateTime: Math.floor(new Date().getTime() / 1000) + 86400,
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
@@ -715,7 +745,7 @@ describe('Rentality promoService Service', function () {
           insurancePaid: false,
           photo: '',
         },
-       'WAGMI2025',
+        'WAGMI2025',
         { value: result.totalPrice }
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
@@ -768,7 +798,14 @@ describe('Rentality promoService Service', function () {
       )
     expect(availableCars.length).to.equal(1)
 
-    await promoService.generateNumbers(1, 10000, 10, Math.floor(new Date().getTime() / 1000), Math.floor(new Date().getTime() / 1000) + (86400 * 10), 'A')
+    await promoService.generateNumbers(
+      1,
+      10000,
+      10,
+      Math.floor(new Date().getTime() / 1000),
+      Math.floor(new Date().getTime() / 1000) + 86400 * 10,
+      'A'
+    )
     const promos = await promoService.getPromoCodes()
     const result = await rentalityGateway
       .connect(guest)
@@ -790,7 +827,7 @@ describe('Rentality promoService Service', function () {
       await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
-          startDateTime:Math.floor(new Date().getTime() / 1000),
+          startDateTime: Math.floor(new Date().getTime() / 1000),
           endDateTime: Math.floor(new Date().getTime() / 1000) + 86400,
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
@@ -799,7 +836,7 @@ describe('Rentality promoService Service', function () {
           photo: '',
         },
         promos[0],
-        { value: 0}
+        { value: 0 }
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
 
@@ -828,10 +865,7 @@ describe('Rentality promoService Service', function () {
       value: ethers.parseEther('1.0'),
     })
 
-    await expect(rentalityGateway.connect(host).finishTrip(1)).to.changeEtherBalances(
-      [host, guest],
-      [returnToHost, 0]
-    )
+    await expect(rentalityGateway.connect(host).finishTrip(1)).to.changeEtherBalances([host, guest], [returnToHost, 0])
   })
 
   it.skip('Set KYC INFO with promo give ref points', async function () {
@@ -885,24 +919,30 @@ describe('Rentality promoService Service', function () {
       )
     expect(availableCars.length).to.equal(1)
 
-
     await promoService.generateNumbers(1, 10000, 10, Math.floor(new Date().getTime() / 1000), new Date().getTime(), 'A')
-    await promoService.generateNumbers(1, 10000, 10, Math.floor(new Date().getTime() / 1000), Math.floor(new Date().getTime() / 1000) + (86400 * 10), 'B')
+    await promoService.generateNumbers(
+      1,
+      10000,
+      10,
+      Math.floor(new Date().getTime() / 1000),
+      Math.floor(new Date().getTime() / 1000) + 86400 * 10,
+      'B'
+    )
     const promos = await promoService.getPromoCodes()
 
     const result = await rentalityGateway
       .connect(guest)
       .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, promos[promos.length - 1])
 
-      const resultWithoutPromo = await rentalityGateway
+    const resultWithoutPromo = await rentalityGateway
       .connect(guest)
-      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo,"")
-      expect(result.totalPrice).to.be.not.eq(resultWithoutPromo.totalPrice)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, '')
+    expect(result.totalPrice).to.be.not.eq(resultWithoutPromo.totalPrice)
     await expect(
       await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
-          startDateTime:Math.floor(new Date().getTime() / 1000),
+          startDateTime: Math.floor(new Date().getTime() / 1000),
           endDateTime: Math.floor(new Date().getTime() / 1000) + 86400,
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
@@ -915,12 +955,11 @@ describe('Rentality promoService Service', function () {
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
 
-
     await expect(
       await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
-          startDateTime:Math.floor(new Date().getTime() / 1000),
+          startDateTime: Math.floor(new Date().getTime() / 1000),
           endDateTime: Math.floor(new Date().getTime() / 1000) + 86400,
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
@@ -931,9 +970,11 @@ describe('Rentality promoService Service', function () {
         promos[promos.length - 1],
         { value: resultWithoutPromo.totalPrice }
       )
-    ).to.changeEtherBalances([guest, rentalityPaymentService], [-resultWithoutPromo.totalPrice, resultWithoutPromo.totalPrice])
+    ).to.changeEtherBalances(
+      [guest, rentalityPaymentService],
+      [-resultWithoutPromo.totalPrice, resultWithoutPromo.totalPrice]
+    )
   })
-
 
   it('Trip with promo has promo info', async function () {
     const mockCarRequest = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
@@ -952,7 +993,6 @@ describe('Rentality promoService Service', function () {
       )
     expect(availableCars.length).to.equal(1)
 
-
     await promoService.generateNumbers(1, 10000, 10, Math.floor(new Date().getTime() / 1000), new Date().getTime(), 'A')
     const promos = await promoService.getPromoCodes()
 
@@ -960,15 +1000,15 @@ describe('Rentality promoService Service', function () {
       .connect(guest)
       .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, promos[promos.length - 1])
 
-      const resultWithoutPromo = await rentalityGateway
+    const resultWithoutPromo = await rentalityGateway
       .connect(guest)
-      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo,"")
-      expect(result.totalPrice).to.be.not.eq(resultWithoutPromo.totalPrice)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, '')
+    expect(result.totalPrice).to.be.not.eq(resultWithoutPromo.totalPrice)
     await expect(
       await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
-          startDateTime:Math.floor(new Date().getTime() / 1000),
+          startDateTime: Math.floor(new Date().getTime() / 1000),
           endDateTime: Math.floor(new Date().getTime() / 1000) + 86400,
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
@@ -981,12 +1021,11 @@ describe('Rentality promoService Service', function () {
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
 
-
     await expect(
       await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
-          startDateTime:Math.floor(new Date().getTime() / 1000),
+          startDateTime: Math.floor(new Date().getTime() / 1000),
           endDateTime: Math.floor(new Date().getTime() / 1000) + 86400,
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
@@ -997,7 +1036,10 @@ describe('Rentality promoService Service', function () {
         promos[promos.length - 1],
         { value: resultWithoutPromo.totalPrice }
       )
-    ).to.changeEtherBalances([guest, rentalityPaymentService], [-resultWithoutPromo.totalPrice, resultWithoutPromo.totalPrice])
+    ).to.changeEtherBalances(
+      [guest, rentalityPaymentService],
+      [-resultWithoutPromo.totalPrice, resultWithoutPromo.totalPrice]
+    )
     const filter = {
       paymentStatus: PaymentStatus.Any,
       status: AdminTripStatus.Any,
@@ -1012,9 +1054,5 @@ describe('Rentality promoService Service', function () {
     console.log(await promoService.connect(guest).getUserPromoData())
     console.log(totalTrips[0])
     console.log(totalTrips[1])
-
   })
-
-
-
 })

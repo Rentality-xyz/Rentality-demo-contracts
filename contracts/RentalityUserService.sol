@@ -7,7 +7,7 @@ import {AccessControlUpgradeable} from '@openzeppelin/contracts-upgradeable/acce
 import './Schemas.sol';
 import '@openzeppelin/contracts/utils/cryptography/ECDSA.sol';
 import {IRentalityAccessControl} from './abstract/IRentalityAccessControl.sol';
-import {IERC1271} from "@openzeppelin/contracts/interfaces/IERC1271.sol";
+import {IERC1271} from '@openzeppelin/contracts/interfaces/IERC1271.sol';
 
 /// @title RentalityUserService Contract
 /// @notice
@@ -38,7 +38,6 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
   address[] private platformUsers;
   mapping(address => bool) private userToPhoneVerified;
 
-
   /// @notice Sets KYC information for the caller (host or guest).
   /// Requirements:
   /// - Caller must be a host or guest.
@@ -50,7 +49,7 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
     bytes memory TCSignature,
     address user
   ) public {
-    require(isManager(msg.sender),"only Manager");
+    require(isManager(msg.sender), 'only Manager');
     if (!isGuest(user)) {
       _grantRole(GUEST_ROLE, user);
     }
@@ -58,16 +57,13 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
 
     require(isTCPassed, 'Wrong signature.');
     Schemas.KYCInfo storage kycInfo = kycInfos[user];
-    if(kycInfo.createDate == 0 || !_alreadyInPlatformUsersList(user))
-      platformUsers.push(user);
+    if (kycInfo.createDate == 0 || !_alreadyInPlatformUsersList(user)) platformUsers.push(user);
 
     string memory oldEmail = additionalKycInfo[user].email;
-    if(bytes(oldEmail).length == 0 || !hasPassedKYC(user))
-    additionalKycInfo[user].email = email;
+    if (bytes(oldEmail).length == 0 || !hasPassedKYC(user)) additionalKycInfo[user].email = email;
 
     kycInfo.name = nickName;
-    if(!_comparePhones(mobilePhoneNumber, kycInfo.mobilePhoneNumber))
-    userToPhoneVerified[user] = false;
+    if (!_comparePhones(mobilePhoneNumber, kycInfo.mobilePhoneNumber)) userToPhoneVerified[user] = false;
 
     kycInfo.mobilePhoneNumber = mobilePhoneNumber;
     kycInfo.profilePhoto = profilePhoto;
@@ -78,27 +74,27 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
     kycInfo.TCSignature = TCSignature;
   }
 
-   function isValidSignatureNow(address signer, bytes32 hash, bytes memory signature) internal view returns (bool) {
-        if (signer.code.length == 0) {
-            (address recovered, ECDSA.RecoverError err ) = ECDSA.tryRecover(hash, signature);
-            return err == ECDSA.RecoverError.NoError && recovered == signer;
-        } else {
-            return isValidERC1271SignatureNow(signer, hash, signature);
-        }
+  function isValidSignatureNow(address signer, bytes32 hash, bytes memory signature) internal view returns (bool) {
+    if (signer.code.length == 0) {
+      (address recovered, ECDSA.RecoverError err) = ECDSA.tryRecover(hash, signature);
+      return err == ECDSA.RecoverError.NoError && recovered == signer;
+    } else {
+      return isValidERC1271SignatureNow(signer, hash, signature);
     }
+  }
 
-    function isValidERC1271SignatureNow(
-        address signer,
-        bytes32 hash,
-        bytes memory signature
-    ) internal view returns (bool) {
-        (bool success, bytes memory result) = signer.staticcall(
-            abi.encodeCall(IERC1271.isValidSignature, (hash, signature))
-        );
-        return (success &&
-            result.length >= 32 &&
-            abi.decode(result, (bytes32)) == bytes32(IERC1271.isValidSignature.selector));
-    }
+  function isValidERC1271SignatureNow(
+    address signer,
+    bytes32 hash,
+    bytes memory signature
+  ) internal view returns (bool) {
+    (bool success, bytes memory result) = signer.staticcall(
+      abi.encodeCall(IERC1271.isValidSignature, (hash, signature))
+    );
+    return (success &&
+      result.length >= 32 &&
+      abi.decode(result, (bytes32)) == bytes32(IERC1271.isValidSignature.selector));
+  }
 
   function setMyCivicKYCInfo(address user, Schemas.CivicKYCInfo memory civicKycInfo) public {
     require(hasRole(MANAGER_ROLE, msg.sender), 'Only manager');
@@ -122,16 +118,16 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
     additionalKycInfo[user].issueCountry = civicKycInfo.issueCountry;
   }
 
-     function setPhoneNumber(address user, string memory phone, bool isVerified) public {
+  function setPhoneNumber(address user, string memory phone, bool isVerified) public {
     require(hasRole(KYC_COMMISSION_MANAGER_ROLE, tx.origin), 'Only KYC manager');
     require(_comparePhones(phone, kycInfos[user].mobilePhoneNumber), 'Wrong phone');
 
     userToPhoneVerified[user] = isVerified;
   }
 
-  function _comparePhones(string memory p1, string memory p2) private pure returns(bool) {
+  function _comparePhones(string memory p1, string memory p2) private pure returns (bool) {
     return keccak256(abi.encodePacked(p1)) == keccak256(abi.encodePacked(p2));
-   }
+  }
   /// @notice Retrieves KYC information for a specified user.
   /// @param user The address of the user for whom to retrieve KYC information.
   /// @return kycInfo KYCInfo structure containing user's KYC information.
@@ -144,7 +140,7 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
   /// @notice Retrieves KYC information for the caller.
   /// @return kycInfo KYCInfo structure containing caller's KYC information.
   function getMyKYCInfo(address user) external view returns (Schemas.KYCInfo memory kycInfo) {
-    require(isManager(msg.sender),"only Manager");
+    require(isManager(msg.sender), 'only Manager');
     return kycInfos[user];
   }
 
@@ -354,7 +350,7 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
   function isSignatureManager(address user) public view returns (bool) {
     return hasRole(MANAGER_ROLE, user);
   }
-  function isInvestorManager(address user) public view returns(bool) {
+  function isInvestorManager(address user) public view returns (bool) {
     return hasRole(INVESTMENT_MANAGER_ROLE, user);
   }
 

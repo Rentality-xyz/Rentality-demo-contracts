@@ -104,7 +104,7 @@ async function main() {
     rentalityReferralService,
     rentalityPromoService,
     dimoService,
-    rentalityPlatformHelper
+    rentalityPlatformHelper,
   ])
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()

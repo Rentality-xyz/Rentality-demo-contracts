@@ -25,15 +25,14 @@ async function main() {
     getContractAddress('RentalityCurrencyConverter', 'scripts/deploy_3b_RentalityCurrencyConverter.js', chainId),
     'RentalityCurrencyConverter'
   )
-  const contract = await ethers.getContractAt('RentalityCurrencyConverter',rentalityCurrencyConverterAddress)
+  const contract = await ethers.getContractAt('RentalityCurrencyConverter', rentalityCurrencyConverterAddress)
   await contract.addCurrencyType(usdtToken, rentalityUsdtService, 'USDT')
 
   const nativeSymbol = await getNativeSymbol(Number(chainId))
   await contract.addCurrencyType(ethToken, rentalityEthService, nativeSymbol)
 
-  console.log("DONE!")
+  console.log('DONE!')
 }
-
 
 main()
   .then(() => process.exit(0))

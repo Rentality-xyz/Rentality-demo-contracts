@@ -15,12 +15,9 @@ async function main() {
   )
 
   const contractFactory = await ethers.getContractFactory(contractName, {
-    libraries: {
-    }
+    libraries: {},
   })
-  const contract = await upgrades.deployProxy(contractFactory, [
-    userService,
-  ])
+  const contract = await upgrades.deployProxy(contractFactory, [userService])
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()
 
@@ -28,9 +25,8 @@ async function main() {
   addressSaver(contractAddress, contractName, true, chainId)
   await saveJsonAbi(contractName, chainId, contract)
   console.log()
-
 }
-  main()
+main()
   .then(() => process.exit(0))
   .catch((error) => {
     console.error(error)

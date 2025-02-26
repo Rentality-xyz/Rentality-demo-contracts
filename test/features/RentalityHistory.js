@@ -47,9 +47,7 @@ describe('Rentality History Service', function () {
 
   it('should create history in case of cancellation', async function () {
     await expect(
-      rentalityGateway
-        .connect(host)
-        .addCar(getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin))
+      rentalityGateway.connect(host).addCar(getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin))
     ).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)

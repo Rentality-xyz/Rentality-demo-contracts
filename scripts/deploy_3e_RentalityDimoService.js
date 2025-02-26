@@ -14,8 +14,6 @@ async function main() {
     'RentalityUserService'
   )
 
-
-
   const rentalityCarTokenAddress = checkNotNull(
     getContractAddress('RentalityCarToken', 'scripts/deploy_3_RentalityCarToken.js', chainId),
     'RentalityCarToken'
@@ -26,10 +24,7 @@ async function main() {
     libraries: {},
   })
 
-  const contract = await upgrades.deployProxy(contractFactory, [
-    rentalityUserServiceAddress,
-    rentalityCarTokenAddress,
-  ])
+  const contract = await upgrades.deployProxy(contractFactory, [rentalityUserServiceAddress, rentalityCarTokenAddress])
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()
 

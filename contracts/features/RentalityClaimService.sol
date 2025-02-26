@@ -26,8 +26,9 @@ contract RentalityClaimService is Initializable, UUPSAccess {
 
   event WaitingTimeChanged(uint256 newWaitingTime);
 
-  Schemas.ClaimTypeV2[] private guestClaimTypes;
-  Schemas.ClaimTypeV2[] private hostClaimTypes;
+  mapping(uint256 => Schemas.ClaimV2) private claimIdToClaimV2;
+  mapping(uint8 => Schemas.ClaimTypeV2) private claimTypeNumberToClaimType;
+  uint8 private claimTypeNumber;
 
   // Modifier to restrict access to only managers contracts
   modifier onlyManager() {
@@ -57,7 +58,12 @@ contract RentalityClaimService is Initializable, UUPSAccess {
 
   /// @dev Creates a new claim, only callable by managers contracts.
   /// @param request Details of the claim to be created.
-  function createClaim(Schemas.CreateClaimRequest memory request, address host, address guest, address user) public onlyManager {
+  function createClaim(
+    Schemas.CreateClaimRequest memory request,
+    address host,
+    address guest,
+    address user
+  ) public onlyManager {
     require(request.amountInUsdCents > 0, 'Amount can not be null.');
 
     claimId += 1;
@@ -65,7 +71,7 @@ contract RentalityClaimService is Initializable, UUPSAccess {
 
     uint256 deadline = block.timestamp + waitingTimeForApproveInSec;
 
-    Schemas.Claim memory newClaim = Schemas.Claim(
+    Schemas.ClaimV2 memory newClaim = Schemas.ClaimV2(
       request.tripId,
       newClaimId,
       deadline,
@@ -79,7 +85,7 @@ contract RentalityClaimService is Initializable, UUPSAccess {
       request.photosUrl,
       user == host ? true : false
     );
-    claimIdToClaim[newClaimId] = newClaim;
+    claimIdToClaimV2[newClaimId] = newClaim;
 
     eventManager.emitEvent(
       Schemas.EventType.Claim,
@@ -94,7 +100,7 @@ contract RentalityClaimService is Initializable, UUPSAccess {
   /// @param _claimId ID of the claim to be rejected.
   /// @param rejectedBy Address of the user rejecting the claim.
   function rejectClaim(uint256 _claimId, address rejectedBy, address host, address guest) public onlyManager {
-    Schemas.Claim storage claim = claimIdToClaim[_claimId];
+    Schemas.ClaimV2 storage claim = claimIdToClaimV2[_claimId];
     require(
       claim.status != Schemas.ClaimStatus.Paid && claim.status != Schemas.ClaimStatus.Cancel,
       'Wrong claim status.'
@@ -116,7 +122,7 @@ contract RentalityClaimService is Initializable, UUPSAccess {
   /// @dev Pays a claim, only callable by managers contracts.
   /// @param _claimId ID of the claim to be paid.
   function payClaim(uint256 _claimId, address host, address guest, int rate, uint8 dec) public onlyManager {
-    Schemas.Claim storage claim = claimIdToClaim[_claimId];
+    Schemas.ClaimV2 storage claim = claimIdToClaimV2[_claimId];
 
     uint256 time = block.timestamp;
 
@@ -130,7 +136,7 @@ contract RentalityClaimService is Initializable, UUPSAccess {
   /// @dev Updates the status of a claim based on the current timestamp.
   /// @param _claimId ID of the claim to be updated.
   function updateClaim(uint256 _claimId, address host, address guest) public {
-    Schemas.Claim storage claim = claimIdToClaim[_claimId];
+    Schemas.ClaimV2 storage claim = claimIdToClaimV2[_claimId];
 
     uint256 time = block.timestamp;
 
@@ -140,11 +146,15 @@ contract RentalityClaimService is Initializable, UUPSAccess {
     }
   }
 
+  function getClaimTypeInfo(uint8 claimType) public view returns (Schemas.ClaimTypeV2 memory) {
+    return claimTypeNumberToClaimType[claimType];
+  }
+
   /// @dev Gets the details of a claim by its ID.
   /// @param _claimId ID of the claim.
   /// @return Details of the claim.
-  function getClaim(uint256 _claimId) public view returns (Schemas.Claim memory) {
-    return claimIdToClaim[_claimId];
+  function getClaim(uint256 _claimId) public view returns (Schemas.ClaimV2 memory) {
+    return claimIdToClaimV2[_claimId];
   }
 
   /// @dev Gets the total number of claims.
@@ -157,7 +167,7 @@ contract RentalityClaimService is Initializable, UUPSAccess {
   /// @param _claimId ID of the claim.
   /// @return True if the claim exists, false otherwise.
   function exists(uint256 _claimId) public view returns (bool) {
-    return claimIdToClaim[_claimId].deadlineDateInSec > 0;
+    return claimIdToClaimV2[_claimId].deadlineDateInSec > 0;
   }
 
   function getPlatformFeeFrom(uint256 value) public view returns (uint256) {
@@ -169,44 +179,136 @@ contract RentalityClaimService is Initializable, UUPSAccess {
     platformFeeInPPM = value;
   }
 
-  function addClaimType(Schemas.ClaimTypeV2 memory claimType, bool forHost) public {
+  function addClaimType(string memory name, Schemas.ClaimCreator creator) public {
     require(userService.isAdmin(tx.origin), 'Only admin.');
-    require(claimType.claimType > 0, 'Claim type can not be null.');
-    require(!_findClaimType(claimType.claimType, forHost), 'Claim type already exists.');
-    if (forHost) {
-      hostClaimTypes.push(claimType);
-    } else {
-      guestClaimTypes.push(claimType);
-    }
+    claimTypeNumber += 1;
+    claimTypeNumberToClaimType[claimTypeNumber] = Schemas.ClaimTypeV2(claimTypeNumber, name, creator);
   }
-  function removeClaimType(uint8 claimType, bool forHost) public {
-    Schemas.ClaimTypeV2[] memory claimTypes = forHost ? hostClaimTypes : guestClaimTypes;
-    for (uint i = 0; i < claimTypes.length; i++) {
-      if (claimTypes[i].claimType == claimType) {
-        delete claimTypes[i];
-        break;
-      }
-    }
+  function removeClaimType(uint8 claimType) public {
+    require(userService.isAdmin(tx.origin), 'Only admin');
+    delete claimTypeNumberToClaimType[claimType];
   }
   function getClaimTypesForGuest() public view returns (Schemas.ClaimTypeV2[] memory) {
-    return guestClaimTypes;
-  }
-  function getClaimTypesForHost() public view returns (Schemas.ClaimTypeV2[] memory) {
-    return hostClaimTypes;
-  }
-  function claimTypeExists(uint8 claimType, bool forHost) public view returns (bool) {
-    return _findClaimType(claimType, forHost);
-  }
-  function _findClaimType(uint8 claimType, bool forHost) private view returns (bool) {
-    Schemas.ClaimTypeV2[] memory claimTypes = forHost ? hostClaimTypes : guestClaimTypes;
-    for (uint i = 0; i < claimTypes.length; i++) {
-      if (claimTypes[i].claimType == claimType) {
-        return true;
+    Schemas.ClaimTypeV2[] memory claims = new Schemas.ClaimTypeV2[](uint(claimTypeNumber));
+    uint counter = 0;
+    for (uint8 i = 0; i <= claimTypeNumber; i++) {
+      Schemas.ClaimTypeV2 memory claimType = claimTypeNumberToClaimType[i];
+      if (
+        bytes(claimType.claimName).length > 0 &&
+        (Schemas.ClaimCreator.Guest == claimType.creator || Schemas.ClaimCreator.Both == claimType.creator)
+      ) {
+        claims[counter] = claimTypeNumberToClaimType[i];
+        counter++;
       }
     }
-    return false;
+    assembly ('memory-safe') {
+      mstore(claims, counter)
+    }
+    return claims;
+  }
+  function getClaimTypesForHost() public view returns (Schemas.ClaimTypeV2[] memory) {
+    Schemas.ClaimTypeV2[] memory claims = new Schemas.ClaimTypeV2[](uint(claimTypeNumber));
+    uint counter = 0;
+    for (uint8 i = 0; i <= claimTypeNumber; i++) {
+      Schemas.ClaimTypeV2 memory claimType = claimTypeNumberToClaimType[i];
+      if (
+        bytes(claimType.claimName).length > 0 &&
+        (Schemas.ClaimCreator.Host == claimType.creator || Schemas.ClaimCreator.Both == claimType.creator)
+      ) {
+        claims[counter] = claimTypeNumberToClaimType[i];
+        counter++;
+      }
+    }
+    assembly ('memory-safe') {
+      mstore(claims, counter)
+    }
+    return claims;
+  }
+  function claimTypeExists(uint8 claimType, bool forHost) public view returns (bool) {
+    Schemas.ClaimTypeV2 memory claimTypeInfo = claimTypeNumberToClaimType[claimType];
+    Schemas.ClaimCreator creator = forHost ? Schemas.ClaimCreator.Host : Schemas.ClaimCreator.Guest;
+    return
+      bytes(claimTypeInfo.claimName).length > 0 &&
+      (claimTypeInfo.creator == creator || claimTypeInfo.creator == Schemas.ClaimCreator.Both);
+  }
+  function _findClaimType(uint8 claimType) private view returns (bool) {
+    return bytes(claimTypeNumberToClaimType[claimType].claimName).length == 0;
   }
 
+  function migrateFromV1() public {
+    require(userService.isAdmin(tx.origin), 'Only admin');
+    claimTypeNumberToClaimType[uint8(Schemas.ClaimType.Tolls)] = Schemas.ClaimTypeV2(
+      uint8(Schemas.ClaimType.Tolls),
+      'Tolls',
+      Schemas.ClaimCreator.Host
+    );
+    claimTypeNumberToClaimType[uint8(Schemas.ClaimType.Tickets)] = Schemas.ClaimTypeV2(
+      uint8(Schemas.ClaimType.Tickets),
+      'Tickets',
+      Schemas.ClaimCreator.Host
+    );
+    claimTypeNumberToClaimType[uint8(Schemas.ClaimType.LateReturn)] = Schemas.ClaimTypeV2(
+      uint8(Schemas.ClaimType.LateReturn),
+      'LateReturn',
+      Schemas.ClaimCreator.Host
+    );
+
+    claimTypeNumberToClaimType[uint8(Schemas.ClaimType.Smoking)] = Schemas.ClaimTypeV2(
+      uint8(Schemas.ClaimType.Smoking),
+      'Smoking',
+      Schemas.ClaimCreator.Both
+    );
+    claimTypeNumberToClaimType[uint8(Schemas.ClaimType.Cleanliness)] = Schemas.ClaimTypeV2(
+      uint8(Schemas.ClaimType.Cleanliness),
+      'Cleanliness',
+      Schemas.ClaimCreator.Both
+    );
+    claimTypeNumberToClaimType[uint8(Schemas.ClaimType.ExteriorDamage)] = Schemas.ClaimTypeV2(
+      uint8(Schemas.ClaimType.ExteriorDamage),
+      'ExteriorDamage',
+      Schemas.ClaimCreator.Both
+    );
+    claimTypeNumberToClaimType[uint8(Schemas.ClaimType.InteriorDamage)] = Schemas.ClaimTypeV2(
+      uint8(Schemas.ClaimType.InteriorDamage),
+      'InteriorDamage',
+      Schemas.ClaimCreator.Both
+    );
+    claimTypeNumberToClaimType[uint8(Schemas.ClaimType.Other)] = Schemas.ClaimTypeV2(
+      uint8(Schemas.ClaimType.Other),
+      'Other',
+      Schemas.ClaimCreator.Both
+    );
+
+    claimTypeNumberToClaimType[uint8(Schemas.ClaimType.FaultyVehicle)] = Schemas.ClaimTypeV2(
+      uint8(Schemas.ClaimType.FaultyVehicle),
+      'FaultyVehicle',
+      Schemas.ClaimCreator.Guest
+    );
+    claimTypeNumberToClaimType[uint8(Schemas.ClaimType.ListingMismatch)] = Schemas.ClaimTypeV2(
+      uint8(Schemas.ClaimType.ListingMismatch),
+      'ListingMismatch',
+      Schemas.ClaimCreator.Guest
+    );
+    claimTypeNumber = 9;
+    uint totalClaimsCount = claimId;
+    for (uint i = 1; i <= totalClaimsCount; i++) {
+      Schemas.Claim memory oldClaim = claimIdToClaim[i];
+      claimIdToClaimV2[i] = Schemas.ClaimV2({
+        tripId: oldClaim.tripId,
+        claimId: oldClaim.claimId,
+        deadlineDateInSec: oldClaim.deadlineDateInSec,
+        claimType: uint8(oldClaim.claimType),
+        status: oldClaim.status,
+        description: oldClaim.description,
+        amountInUsdCents: oldClaim.amountInUsdCents,
+        payDateInSec: oldClaim.payDateInSec,
+        rejectedBy: oldClaim.rejectedBy,
+        rejectedDateInSec: oldClaim.rejectedDateInSec,
+        photosUrl: oldClaim.photosUrl,
+        isHostClaims: oldClaim.isHostClaims
+      });
+    }
+  }
   /// @dev constructor to initialize proxy contract
   /// @param _userService, contract for access control
   function initialize(address _userService, address _eventManager) public initializer {

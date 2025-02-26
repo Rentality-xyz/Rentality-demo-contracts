@@ -28,7 +28,8 @@ describe('RentalityClaim', function () {
     host,
     guest,
     anonymous,
-    rentalityLocationVerifier
+    rentalityLocationVerifier,
+    rentalityAdminGateway
 
   beforeEach(async function () {
     ;({
@@ -48,14 +49,13 @@ describe('RentalityClaim', function () {
       guest,
       anonymous,
       rentalityLocationVerifier,
+      rentalityAdminGateway,
     } = await loadFixture(deployDefaultFixture))
   })
 
   it('Host can not create claim before approve', async function () {
     await expect(
-      rentalityGateway
-        .connect(host)
-        .addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+      rentalityGateway.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
     ).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
@@ -99,9 +99,7 @@ describe('RentalityClaim', function () {
   })
   it('Only host can create claim ', async function () {
     await expect(
-      rentalityGateway
-        .connect(host)
-        .addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+      rentalityGateway.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
     ).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
@@ -160,9 +158,7 @@ describe('RentalityClaim', function () {
 
   it('Only host and guest can reject claim', async function () {
     await expect(
-      rentalityGateway
-        .connect(host)
-        .addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+      rentalityGateway.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
     ).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
@@ -449,9 +445,7 @@ describe('RentalityClaim', function () {
   })
   it('Only host and guest can reject claim', async function () {
     await expect(
-      rentalityGateway
-        .connect(host)
-        .addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+      rentalityGateway.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
     ).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
@@ -730,5 +724,216 @@ describe('RentalityClaim', function () {
     let value = await rentalityGateway.calculateClaimValue(1)
 
     await expect(rentalityGateway.connect(host).payClaim(1, { value })).to.not.reverted
+  })
+  it('Can get all claim types for host', async function () {
+    const claimTypesForHost = await rentalityAdminGateway.getAllClaimTypes(true)
+    expect(claimTypesForHost.length).to.be.eq(8)
+  })
+  it('Can get all claim types for guest', async function () {
+    const claimTypesForGuest = await rentalityAdminGateway.getAllClaimTypes(false)
+    expect(claimTypesForGuest.length).to.be.eq(7)
+  })
+  it('Can add claim type for host', async function () {
+    let claimTypesForHost = await rentalityAdminGateway.getAllClaimTypes(true)
+    expect(claimTypesForHost.length).to.be.eq(8)
+    await expect(rentalityAdminGateway.addClaimType('NewClaim', 0)).to.not.reverted
+
+    claimTypesForHost = await rentalityAdminGateway.getAllClaimTypes(true)
+    expect(claimTypesForHost.length).to.be.eq(9)
+    expect(claimTypesForHost.find((c) => c.claimName === 'NewClaim')).to.not.be.undefined
+
+    const claimTypesForGuest = await rentalityAdminGateway.getAllClaimTypes(false)
+    expect(claimTypesForGuest.length).to.be.eq(7)
+    const createCarRequest = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
+
+    await expect(rentalityGateway.connect(host).addCar(createCarRequest)).not.to.be.reverted
+    const myCars = await rentalityGateway.connect(host).getMyCars()
+    expect(myCars.length).to.equal(1)
+
+    const availableCars = await rentalityGateway
+      .connect(guest)
+      .searchAvailableCarsWithDelivery(
+        0,
+        new Date().getSeconds() + 86400,
+        getEmptySearchCarParams(1),
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
+    expect(availableCars.length).to.equal(1)
+
+    const oneDayInSeconds = 86400
+
+    const dailyPriceInUsdCents = 1000
+
+    const result = await rentalityGateway
+      .connect(guest)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
+    await expect(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
+        {
+          carId: 1,
+          startDateTime: Date.now(),
+          endDateTime: Date.now() + oneDayInSeconds,
+          currencyType: ethToken,
+          insurancePaid: false,
+          photo: '',
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
+        },
+        ' ',
+        { value: result.totalPrice }
+      )
+    ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
+    let mockClaimRequest = {
+      tripId: 1,
+      claimType: 10,
+      description: 'Some des',
+      amountInUsdCents: 10,
+      photosUrl: '',
+    }
+    await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).createClaim(mockClaimRequest)).to.not.reverted
+    await expect(rentalityGateway.connect(guest).createClaim(mockClaimRequest)).to.be.reverted
+  })
+  it('Can add claim type for guest', async function () {
+    let claimTypesForHost = await rentalityAdminGateway.getAllClaimTypes(false)
+    expect(claimTypesForHost.length).to.be.eq(7)
+    await expect(rentalityAdminGateway.addClaimType('NewClaim', 1)).to.not.reverted
+
+    claimTypesForHost = await rentalityAdminGateway.getAllClaimTypes(false)
+    expect(claimTypesForHost.length).to.be.eq(8)
+    expect(claimTypesForHost.find((c) => c.claimName === 'NewClaim')).to.not.be.undefined
+
+    const claimTypesForGuest = await rentalityAdminGateway.getAllClaimTypes(true)
+    expect(claimTypesForGuest.length).to.be.eq(8)
+
+    const createCarRequest = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
+
+    await expect(rentalityGateway.connect(host).addCar(createCarRequest)).not.to.be.reverted
+    const myCars = await rentalityGateway.connect(host).getMyCars()
+    expect(myCars.length).to.equal(1)
+
+    const availableCars = await rentalityGateway
+      .connect(guest)
+      .searchAvailableCarsWithDelivery(
+        0,
+        new Date().getSeconds() + 86400,
+        getEmptySearchCarParams(1),
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
+    expect(availableCars.length).to.equal(1)
+
+    const oneDayInSeconds = 86400
+
+    const dailyPriceInUsdCents = 1000
+
+    const result = await rentalityGateway
+      .connect(guest)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
+    await expect(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
+        {
+          carId: 1,
+          startDateTime: Date.now(),
+          endDateTime: Date.now() + oneDayInSeconds,
+          currencyType: ethToken,
+          insurancePaid: false,
+          photo: '',
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
+        },
+        ' ',
+        { value: result.totalPrice }
+      )
+    ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
+    let mockClaimRequest = {
+      tripId: 1,
+      claimType: 10,
+      description: 'Some des',
+      amountInUsdCents: 10,
+      photosUrl: '',
+    }
+    await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
+    await expect(rentalityGateway.connect(guest).createClaim(mockClaimRequest)).to.not.reverted
+    await expect(rentalityGateway.connect(host).createClaim(mockClaimRequest)).to.be.reverted
+  })
+  it('Can add claim type for both', async function () {
+    let claimTypesForHost = await rentalityAdminGateway.getAllClaimTypes(false)
+    expect(claimTypesForHost.length).to.be.eq(7)
+    await expect(rentalityAdminGateway.addClaimType('NewClaim', 2)).to.not.reverted
+
+    claimTypesForHost = await rentalityAdminGateway.getAllClaimTypes(false)
+    expect(claimTypesForHost.length).to.be.eq(8)
+    expect(claimTypesForHost.find((c) => c.claimName === 'NewClaim')).to.not.be.undefined
+
+    const claimTypesForGuest = await rentalityAdminGateway.getAllClaimTypes(true)
+    expect(claimTypesForGuest.length).to.be.eq(9)
+
+    const createCarRequest = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
+
+    await expect(rentalityGateway.connect(host).addCar(createCarRequest)).not.to.be.reverted
+    const myCars = await rentalityGateway.connect(host).getMyCars()
+    expect(myCars.length).to.equal(1)
+
+    const availableCars = await rentalityGateway
+      .connect(guest)
+      .searchAvailableCarsWithDelivery(
+        0,
+        new Date().getSeconds() + 86400,
+        getEmptySearchCarParams(1),
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
+    expect(availableCars.length).to.equal(1)
+
+    const oneDayInSeconds = 86400
+
+    const dailyPriceInUsdCents = 1000
+
+    const result = await rentalityGateway
+      .connect(guest)
+      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
+    await expect(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
+        {
+          carId: 1,
+          startDateTime: Date.now(),
+          endDateTime: Date.now() + oneDayInSeconds,
+          currencyType: ethToken,
+          insurancePaid: false,
+          photo: '',
+          pickUpInfo: emptySignedLocationInfo,
+          returnInfo: emptySignedLocationInfo,
+        },
+        ' ',
+        { value: result.totalPrice }
+      )
+    ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
+    let mockClaimRequest = {
+      tripId: 1,
+      claimType: 10,
+      description: 'Some des',
+      amountInUsdCents: 10,
+      photosUrl: '',
+    }
+    await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
+    await expect(rentalityGateway.connect(guest).createClaim(mockClaimRequest)).to.not.reverted
+    await expect(rentalityGateway.connect(host).createClaim(mockClaimRequest)).to.not.reverted
+  })
+  it('Can remove claim type', async function () {
+    let claimTypesForGuest = await rentalityAdminGateway.getAllClaimTypes(false)
+    expect(claimTypesForGuest.length).to.be.eq(7)
+
+    let claimTypesForHost = await rentalityAdminGateway.getAllClaimTypes(true)
+    expect(claimTypesForHost.length).to.be.eq(8)
+
+    await rentalityAdminGateway.removeClaimType(3)
+
+    claimTypesForGuest = await rentalityAdminGateway.getAllClaimTypes(false)
+    expect(claimTypesForGuest.length).to.be.eq(6)
+
+    claimTypesForHost = await rentalityAdminGateway.getAllClaimTypes(true)
+    expect(claimTypesForHost.length).to.be.eq(7)
   })
 })
