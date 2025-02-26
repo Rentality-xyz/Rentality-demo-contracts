@@ -932,8 +932,10 @@ describe('RentalityClaim', function () {
 
     claimTypesForGuest = await rentalityAdminGateway.getAllClaimTypes(false)
     expect(claimTypesForGuest.length).to.be.eq(6)
+    expect(claimTypesForGuest.find((c) => c.claimName === "")).to.be.undefined
 
     claimTypesForHost = await rentalityAdminGateway.getAllClaimTypes(true)
+    expect(claimTypesForHost.find((c) => c.claimName === "")).to.be.undefined
     expect(claimTypesForHost.length).to.be.eq(7)
   })
 })

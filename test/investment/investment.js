@@ -1,13 +1,6 @@
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 const { expect } = require('chai')
-const {
-  getMockCarRequest,
-  deployDefaultFixture,
-  ethToken,
-  getEmptySearchCarParams,
-  emptyLocationInfo,
-  emptySignedLocationInfo,
-} = require('../utils')
+const { getMockCarRequest, deployDefaultFixture, ethToken, getEmptySearchCarParams, emptyLocationInfo, emptySignedLocationInfo } = require('../utils')
 const { ethers } = require('hardhat')
 
 describe('Rentality investment', function () {
@@ -55,17 +48,19 @@ describe('Rentality investment', function () {
       anonymous,
       investorsService,
       rentalityLocationVerifier,
-      rentalityView,
+      rentalityView
     } = await loadFixture(deployDefaultFixture))
-  })
+
+})
   it('Host can create investment', async function () {
+
     let mockCarInvestment = {
       car: getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin),
       priceInUsd: 10000,
       inProgress: true,
       creatorPercents: 10,
     }
-    await expect(await investorsService.connect(host).createCarInvestment(mockCarInvestment, 'name', ethToken)).to.not
+    await expect(await investorsService.connect(host).createCarInvestment(mockCarInvestment, 'name',ethToken)).to.not
       .reverted
   })
   it('Guest can invest', async function () {
@@ -75,7 +70,7 @@ describe('Rentality investment', function () {
       inProgress: true,
       creatorPercents: 10,
     }
-    await expect(await investorsService.connect(host).createCarInvestment(mockCarInvestment, 'name', ethToken)).to.not
+    await expect(await investorsService.connect(host).createCarInvestment(mockCarInvestment, 'name',ethToken)).to.not
       .reverted
 
     await expect(investorsService.connect(guest).invest(1, 10000, { value: 10000 })).to.not.reverted
@@ -88,7 +83,7 @@ describe('Rentality investment', function () {
       inProgress: true,
       creatorPercents: 10,
     }
-    await expect(await investorsService.connect(host).createCarInvestment(mockCarInvestment, 'name', ethToken)).to.not
+    await expect(await investorsService.connect(host).createCarInvestment(mockCarInvestment, 'name',ethToken)).to.not
       .reverted
 
     let fromUsd = await rentalityCurrencyConverter.getFromUsdLatest(ethToken, mockCarInvestment.priceInUsd)
@@ -96,14 +91,14 @@ describe('Rentality investment', function () {
 
     await expect(investorsService.connect(host).claimAndCreatePool(1)).to.not.reverted
     let cars = await rentalityView
-      .connect(guest)
-      .searchAvailableCarsWithDelivery(
-        0,
-        new Date().getSeconds() + 86400,
-        getEmptySearchCarParams(1),
-        emptyLocationInfo,
-        emptyLocationInfo
-      )
+    .connect(guest)
+    .searchAvailableCarsWithDelivery(
+      0,
+      new Date().getSeconds() + 86400,
+      getEmptySearchCarParams(1),
+      emptyLocationInfo,
+      emptyLocationInfo
+    )
     expect(cars.length).to.be.eq(1)
   })
 
@@ -114,7 +109,7 @@ describe('Rentality investment', function () {
       inProgress: true,
       creatorPercents: 10,
     }
-    await expect(await investorsService.connect(host).createCarInvestment(mockCarInvestment, 'name', ethToken)).to.not
+    await expect(await investorsService.connect(host).createCarInvestment(mockCarInvestment, 'name',ethToken)).to.not
       .reverted
 
     let fromUsd = await rentalityCurrencyConverter.getFromUsdLatest(ethToken, mockCarInvestment.priceInUsd)
@@ -133,14 +128,14 @@ describe('Rentality investment', function () {
       inProgress: true,
       creatorPercents: 10,
     }
-    await expect(await investorsService.connect(host).createCarInvestment(mockCarInvestment, 'name', ethToken)).to.not
+    await expect(await investorsService.connect(host).createCarInvestment(mockCarInvestment, 'name',ethToken)).to.not
       .reverted
 
     let fromUsd = await rentalityCurrencyConverter.getFromUsdLatest(ethToken, mockCarInvestment.priceInUsd)
     await expect(investorsService.connect(guest).invest(1, fromUsd[0], { value: fromUsd[0] })).to.not.reverted
 
     await expect(investorsService.connect(host).claimAndCreatePool(1)).to.not.reverted
-    let cars = await rentalityView
+    let cars =  await rentalityView
       .connect(guest)
       .searchAvailableCarsWithDelivery(
         0,
@@ -152,14 +147,7 @@ describe('Rentality investment', function () {
     expect(cars.length).to.be.eq(1)
 
     const oneDayInSeconds = 86400
-    let result = await rentalityGateway.calculatePaymentsWithDelivery(
-      1,
-      1,
-      ethToken,
-      emptyLocationInfo,
-      emptyLocationInfo,
-      ' '
-    )
+    let result = await rentalityGateway.calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
     await expect(
       await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
@@ -170,8 +158,8 @@ describe('Rentality investment', function () {
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
         },
-        ' ',
-        { value: result[0] }
+" ",
+        { value: result[0]}
       )
     ).to.not.reverted
     await expect(rentalityPlatform.connect(host).approveTripRequest(1)).not.to.be.reverted
@@ -193,14 +181,14 @@ describe('Rentality investment', function () {
       inProgress: true,
       creatorPercents: 10,
     }
-    await expect(await investorsService.connect(host).createCarInvestment(mockCarInvestment, 'name', ethToken)).to.not
+    await expect(await investorsService.connect(host).createCarInvestment(mockCarInvestment, 'name',ethToken)).to.not
       .reverted
 
     let fromUsd = await rentalityCurrencyConverter.getFromUsdLatest(ethToken, mockCarInvestment.priceInUsd)
     await expect(investorsService.connect(guest).invest(1, fromUsd[0], { value: fromUsd[0] })).to.not.reverted
 
     await expect(investorsService.connect(host).claimAndCreatePool(1)).to.not.reverted
-    let cars = await rentalityView
+    let cars =  await rentalityView
       .connect(guest)
       .searchAvailableCarsWithDelivery(
         0,
@@ -213,14 +201,7 @@ describe('Rentality investment', function () {
 
     const oneDayInSeconds = 86400
 
-    let result = await rentalityGateway.calculatePaymentsWithDelivery(
-      1,
-      1,
-      ethToken,
-      emptyLocationInfo,
-      emptyLocationInfo,
-      ' '
-    )
+    let result = await rentalityGateway.calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
 
     await expect(
       await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
@@ -231,8 +212,7 @@ describe('Rentality investment', function () {
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
-        },
-        '',
+        },"",
         { value: result[0] }
       )
     ).to.not.reverted
@@ -257,14 +237,14 @@ describe('Rentality investment', function () {
       inProgress: true,
       creatorPercents: 10,
     }
-    await expect(await investorsService.connect(host).createCarInvestment(mockCarInvestment, 'name', ethToken)).to.not
+    await expect(await investorsService.connect(host).createCarInvestment(mockCarInvestment, 'name',ethToken)).to.not
       .reverted
 
     let fromUsd = await rentalityCurrencyConverter.getFromUsdLatest(ethToken, mockCarInvestment.priceInUsd)
     await expect(investorsService.connect(guest).invest(1, fromUsd[0], { value: fromUsd[0] })).to.not.reverted
 
     await expect(investorsService.connect(host).claimAndCreatePool(1)).to.not.reverted
-    let cars = await rentalityView
+    let cars =  await rentalityView
       .connect(guest)
       .searchAvailableCarsWithDelivery(
         0,
@@ -277,26 +257,19 @@ describe('Rentality investment', function () {
 
     const oneDayInSeconds = 86400
 
-    let result = await rentalityGateway.calculatePaymentsWithDelivery(
-      1,
-      1,
-      ethToken,
-      emptyLocationInfo,
-      emptyLocationInfo,
-      ' '
-    )
+    let result = await rentalityGateway.calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
 
     await expect(
       await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Date.now(),
-          endDateTime: Date.now() + oneDayInSeconds,
+          endDateTime: Date.now() + oneDayInSeconds ,
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
         },
-        '',
+        "",
         { value: result[0] }
       )
     ).to.not.reverted
@@ -323,18 +296,16 @@ describe('Rentality investment', function () {
       creatorPercents: 10,
     }
     mockCarInvestment.car.pricePerDayInUsdCents = 10000
-    await expect(await investorsService.connect(host).createCarInvestment(mockCarInvestment, 'name', ethToken)).to.not
+    await expect(await investorsService.connect(host).createCarInvestment(mockCarInvestment, 'name',ethToken)).to.not
       .reverted
 
     let fromUsd = await rentalityCurrencyConverter.getFromUsdLatest(ethToken, mockCarInvestment.priceInUsd)
-    await expect(investorsService.connect(guest).invest(1, fromUsd[0] / BigInt(2), { value: fromUsd[0] / BigInt(2) }))
-      .to.not.reverted
+    await expect(investorsService.connect(guest).invest(1, fromUsd[0] / BigInt(2), { value: fromUsd[0] / BigInt(2) })).to.not.reverted
 
-    await expect(investorsService.connect(guest).invest(1, fromUsd[0] / BigInt(2), { value: fromUsd[0] / BigInt(2) }))
-      .to.not.reverted
+    await expect(investorsService.connect(guest).invest(1, fromUsd[0] / BigInt(2), { value: fromUsd[0] / BigInt(2) })).to.not.reverted
 
     await expect(investorsService.connect(host).claimAndCreatePool(1)).to.not.reverted
-    let cars = await rentalityView
+    let cars =  await rentalityView
       .connect(guest)
       .searchAvailableCarsWithDelivery(
         0,
@@ -352,14 +323,7 @@ describe('Rentality investment', function () {
 
     const oneDayInSeconds = 86400
 
-    let result = await rentalityGateway.calculatePaymentsWithDelivery(
-      1,
-      1,
-      ethToken,
-      emptyLocationInfo,
-      emptyLocationInfo,
-      ' '
-    )
+    let result = await rentalityGateway.calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
 
     await expect(
       await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
@@ -371,8 +335,8 @@ describe('Rentality investment', function () {
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
         },
-        ' ',
-        { value: result[0] }
+" ",
+        { value: result[0]}
       )
     ).to.not.reverted
 
@@ -400,18 +364,16 @@ describe('Rentality investment', function () {
       creatorPercents: 10,
     }
     mockCarInvestment.car.pricePerDayInUsdCents = 10000
-    await expect(await investorsService.connect(host).createCarInvestment(mockCarInvestment, 'name', ethToken)).to.not
+    await expect(await investorsService.connect(host).createCarInvestment(mockCarInvestment, 'name',ethToken)).to.not
       .reverted
 
     let fromUsd = await rentalityCurrencyConverter.getFromUsdLatest(ethToken, mockCarInvestment.priceInUsd)
-    await expect(investorsService.connect(guest).invest(1, fromUsd[0] / BigInt(2), { value: fromUsd[0] / BigInt(2) }))
-      .to.not.reverted
+    await expect(investorsService.connect(guest).invest(1, fromUsd[0] / BigInt(2), { value: fromUsd[0] / BigInt(2) })).to.not.reverted
 
-    await expect(investorsService.connect(guest).invest(1, fromUsd[0] / BigInt(2), { value: fromUsd[0] / BigInt(2) }))
-      .to.not.reverted
+    await expect(investorsService.connect(guest).invest(1, fromUsd[0] / BigInt(2), { value: fromUsd[0] / BigInt(2) })).to.not.reverted
 
     await expect(investorsService.connect(host).claimAndCreatePool(1)).to.not.reverted
-    let cars = await rentalityView
+    let cars =  await rentalityView
       .connect(guest)
       .searchAvailableCarsWithDelivery(
         0,
@@ -429,14 +391,7 @@ describe('Rentality investment', function () {
 
     const oneDayInSeconds = 86400
 
-    let result = await rentalityGateway.calculatePaymentsWithDelivery(
-      1,
-      1,
-      ethToken,
-      emptyLocationInfo,
-      emptyLocationInfo,
-      ' '
-    )
+    let result = await rentalityGateway.calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
 
     await expect(
       await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
@@ -448,8 +403,8 @@ describe('Rentality investment', function () {
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
         },
-        ' ',
-        { value: result[0] }
+" ",
+        { value: result[0]}
       )
     ).to.not.reverted
 
@@ -473,8 +428,8 @@ describe('Rentality investment', function () {
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
         },
-        ' ',
-        { value: result[0] }
+" ",
+        { value: result[0]}
       )
     ).to.not.reverted
 
@@ -499,8 +454,8 @@ describe('Rentality investment', function () {
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
         },
-        ' ',
-        { value: result[0] }
+" ",
+        { value: result[0]}
       )
     ).to.not.reverted
 
@@ -528,22 +483,18 @@ describe('Rentality investment', function () {
       creatorPercents: 10,
     }
     mockCarInvestment.car.pricePerDayInUsdCents = 10000
-    await expect(await investorsService.connect(host).createCarInvestment(mockCarInvestment, 'name', ethToken)).to.not
+    await expect(await investorsService.connect(host).createCarInvestment(mockCarInvestment, 'name',ethToken)).to.not
       .reverted
 
     let fromUsd = await rentalityCurrencyConverter.getFromUsdLatest(ethToken, mockCarInvestment.priceInUsd)
-    await expect(investorsService.connect(guest).invest(1, fromUsd[0] / BigInt(2), { value: fromUsd[0] / BigInt(2) }))
-      .to.not.reverted
+    await expect(investorsService.connect(guest).invest(1, fromUsd[0] / BigInt(2), { value: fromUsd[0] / BigInt(2) })).to.not.reverted
 
-    await expect(
-      investorsService.connect(anonymous).invest(1, fromUsd[0] / BigInt(4), { value: fromUsd[0] / BigInt(4) })
-    ).to.not.reverted
+    await expect(investorsService.connect(anonymous).invest(1, fromUsd[0] / BigInt(4), { value: fromUsd[0] / BigInt(4) })).to.not.reverted
 
-    await expect(investorsService.connect(manager).invest(1, fromUsd[0] / BigInt(4), { value: fromUsd[0] / BigInt(4) }))
-      .to.not.reverted
+    await expect(investorsService.connect(manager).invest(1, fromUsd[0] / BigInt(4), { value: fromUsd[0] / BigInt(4) })).to.not.reverted
 
     await expect(investorsService.connect(host).claimAndCreatePool(1)).to.not.reverted
-    let cars = await rentalityView
+    let cars =  await rentalityView
       .connect(guest)
       .searchAvailableCarsWithDelivery(
         0,
@@ -561,14 +512,7 @@ describe('Rentality investment', function () {
 
     const oneDayInSeconds = 86400
 
-    let result = await rentalityGateway.calculatePaymentsWithDelivery(
-      1,
-      1,
-      ethToken,
-      emptyLocationInfo,
-      emptyLocationInfo,
-      ' '
-    )
+    let result = await rentalityGateway.calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
 
     await expect(
       await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
@@ -580,8 +524,8 @@ describe('Rentality investment', function () {
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
         },
-        ' ',
-        { value: result[0] }
+" ",
+        { value: result[0]}
       )
     ).to.not.reverted
 
@@ -605,8 +549,8 @@ describe('Rentality investment', function () {
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
         },
-        ' ',
-        { value: result[0] }
+" ",
+        { value: result[0]}
       )
     ).to.not.reverted
 
@@ -631,8 +575,8 @@ describe('Rentality investment', function () {
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
         },
-        ' ',
-        { value: result[0] }
+        " ",
+        { value: result[0]}
       )
     ).to.not.reverted
 
@@ -670,14 +614,14 @@ describe('Rentality investment', function () {
       inProgress: true,
       creatorPercents: 10,
     }
-    await expect(await investorsService.connect(host).createCarInvestment(mockCarInvestment, 'name', ethToken)).to.not
+    await expect(await investorsService.connect(host).createCarInvestment(mockCarInvestment, 'name',ethToken)).to.not
       .reverted
 
     let fromUsd = await rentalityCurrencyConverter.getFromUsdLatest(ethToken, mockCarInvestment.priceInUsd)
     await expect(investorsService.connect(guest).invest(1, fromUsd[0], { value: fromUsd[0] })).to.not.reverted
 
     await expect(investorsService.connect(host).claimAndCreatePool(1)).to.not.reverted
-    let cars = await rentalityView
+    let cars =  await rentalityView
       .connect(guest)
       .searchAvailableCarsWithDelivery(
         0,
@@ -690,14 +634,7 @@ describe('Rentality investment', function () {
 
     const oneDayInSeconds = 86400
 
-    let result = await rentalityGateway.calculatePaymentsWithDelivery(
-      1,
-      1,
-      ethToken,
-      emptyLocationInfo,
-      emptyLocationInfo,
-      ' '
-    )
+    let result = await rentalityGateway.calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
 
     await expect(
       await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
@@ -709,8 +646,8 @@ describe('Rentality investment', function () {
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
         },
-        ' ',
-        { value: result[0] }
+" ",
+        { value: result[0]}
       )
     ).to.not.reverted
 

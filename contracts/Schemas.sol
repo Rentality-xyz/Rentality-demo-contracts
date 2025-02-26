@@ -914,4 +914,13 @@ interface Schemas {
     uint promoCodeValueInPercents;
     uint promoCodeEnterDate;
   }
+
+  struct MotionsCloudCaseDataDTO {
+      uint caseNumber;
+      string email;
+      string name;
+      string iCase;
+      string vin;
+ }
+
 }

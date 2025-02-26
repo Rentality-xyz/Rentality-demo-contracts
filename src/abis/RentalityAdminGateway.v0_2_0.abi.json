@@ -739,22 +739,6 @@
     },
     {
       "type": "function",
-      "name": "updateCarService",
-      "constant": false,
-      "payable": false,
-      "inputs": [{ "type": "address", "name": "contractAddress" }],
-      "outputs": []
-    },
-    {
-      "type": "function",
-      "name": "updateClaimService",
-      "constant": false,
-      "payable": false,
-      "inputs": [{ "type": "address", "name": "contractAddress" }],
-      "outputs": []
-    },
-    {
-      "type": "function",
       "name": "updateCurrencyConverterService",
       "constant": false,
       "payable": false,
@@ -795,14 +779,6 @@
     },
     {
       "type": "function",
-      "name": "updatePaymentService",
-      "constant": false,
-      "payable": false,
-      "inputs": [{ "type": "address", "name": "contractAddress" }],
-      "outputs": []
-    },
-    {
-      "type": "function",
       "name": "updatePromoData",
       "constant": false,
       "payable": false,
@@ -815,14 +791,6 @@
     {
       "type": "function",
       "name": "updateRefferalProgramService",
-      "constant": false,
-      "payable": false,
-      "inputs": [{ "type": "address", "name": "contractAddress" }],
-      "outputs": []
-    },
-    {
-      "type": "function",
-      "name": "updateRentalityPlatform",
       "constant": false,
       "payable": false,
       "inputs": [{ "type": "address", "name": "contractAddress" }],

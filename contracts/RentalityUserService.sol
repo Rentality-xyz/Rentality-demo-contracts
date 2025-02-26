@@ -120,9 +120,9 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
 
   function setPhoneNumber(address user, string memory phone, bool isVerified) public {
     require(hasRole(KYC_COMMISSION_MANAGER_ROLE, tx.origin), 'Only KYC manager');
-    require(_comparePhones(phone, kycInfos[user].mobilePhoneNumber), 'Wrong phone');
 
     userToPhoneVerified[user] = isVerified;
+    kycInfos[user].mobilePhoneNumber = phone;
   }
 
   function _comparePhones(string memory p1, string memory p2) private pure returns (bool) {
