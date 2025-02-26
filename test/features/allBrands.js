@@ -83,7 +83,6 @@ describe('All brands, models by brand filters', function () {
     await expect(rentalityGateway.connect(host).addCar(request5)).not.to.be.reverted
 
     const brands = await rentalityGateway.getUniqCarsBrand()
-    console.log('BRANDS', brands)
     expect(brands.length).to.be.eq(3)
     expect(brands.find((b) => b === 'bmw')).to.not.be.eq(undefined)
     expect(brands.find((b) => b === 'mercedez')).to.not.be.eq(undefined)

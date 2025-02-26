@@ -914,4 +914,13 @@ interface Schemas {
     uint promoCodeValueInPercents;
     uint promoCodeEnterDate;
   }
+
+  struct AiDamageAnalyzeCaseDataDTO {
+      uint caseNumber;
+      string email;
+      string name;
+      string iCase;
+      string vin;
+ }
+
 }

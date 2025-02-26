@@ -239,6 +239,5 @@ describe('RentalityUserService: KYC management', function () {
 
     expect(platformUsers3.length).to.be.eq(3)
 
-    console.log(await rentalityUserService.getPlatformUsersKYCInfos())
   })
 })

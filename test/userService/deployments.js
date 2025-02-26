@@ -231,10 +231,14 @@ async function deployDefaultFixture() {
   })
   const deliveryService = await upgrades.deployProxy(DeliveryService, [await rentalityUserService.getAddress()])
 
+  const RentalityAiDamageAnalyze = await ethers.getContractFactory('RentalityAiDamageAnalyze')
+  const rentalityAiDamageAnalyze = await upgrades.deployProxy(RentalityAiDamageAnalyze,[await rentalityUserService.getAddress()])
+
+
   let RentalityTripsView = await ethers.getContractFactory('RentalityTripsView', {
     libraries: {
       RentalityTripsQuery: await tripsQuery.getAddress(),
-      RentalityViewLib: await viewLib.getAddress(),
+      RentalityViewLib: await viewLib.getAddress()
     },
   })
 
@@ -249,6 +253,7 @@ async function deployDefaultFixture() {
     await insuranceService.getAddress(),
     await promoService.getAddress(),
     await dimoService.getAddress(),
+    await rentalityAiDamageAnalyze.getAddress()
   ])
   await rentalityTripsView.waitForDeployment()
 

@@ -1051,8 +1051,5 @@ describe('Rentality promoService Service', function () {
     filter.location.state = mockCarRequest.locationInfo.locationInfo.state
     filter.location.country = mockCarRequest.locationInfo.locationInfo.country
     const totalTrips = await rentalityAdminGateway.getAllTrips(filter, 1, 10)
-    console.log(await promoService.connect(guest).getUserPromoData())
-    console.log(totalTrips[0])
-    console.log(totalTrips[1])
   })
 })
