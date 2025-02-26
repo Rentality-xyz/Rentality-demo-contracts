@@ -14,7 +14,6 @@ import {RentalityUserService} from '../RentalityUserService.sol';
 import {IERC20} from '../payments/abstract/IERC20.sol';
 import {RentalityInvestDeployer} from './RentalityInvestDeployer.sol';
 
-
 /// @dev SAFETY: The linked library is not supported yet because it can modify the state or call
 ///  selfdestruct, as far as RentalityUtils doesn't has this logic,
 /// it's completely safe for upgrade
@@ -35,21 +34,18 @@ contract RentalityInvestment is Initializable, UUPSAccess {
   mapping(uint => address) private investmentIdToCurrency;
 
   function createCarInvestment(Schemas.CarInvestment memory car, string memory name_, address currency) public {
-    require(RentalityUserService(address(userService)).isInvestorManager(msg.sender),"only Manager");
+    require(RentalityUserService(address(userService)).isInvestorManager(msg.sender), 'only Manager');
     require(carToken.isUniqueVinNumber(car.car.carVinNumber), 'Car with this VIN number already exists');
-    require(converter.currencyTypeIsAvailable(currency),"currency type is not available");
-  
+    require(converter.currencyTypeIsAvailable(currency), 'currency type is not available');
+
     investmentId += 1;
-   string memory sym = RentalityViewLib.createSumbol(investmentId);
-   investmentIdToCurrency[investmentId] = currency;
+    string memory sym = RentalityViewLib.createSumbol(investmentId);
+    investmentIdToCurrency[investmentId] = currency;
 
     investmentIdToCarInfo[investmentId] = car;
-    investIdToNft[investmentId] = RentalityInvestmentNft(investDeployer.createNewNft(
-      name_,
-      sym,
-      investmentId,
-      car.car.tokenUri
-    ));
+    investIdToNft[investmentId] = RentalityInvestmentNft(
+      investDeployer.createNewNft(name_, sym, investmentId, car.car.tokenUri)
+    );
     investmentIdToCreator[investmentId] = msg.sender;
   }
 
@@ -58,28 +54,33 @@ contract RentalityInvestment is Initializable, UUPSAccess {
 
     require(investment.inProgress, 'Not available');
 
-    (uint amountAfterInvestment,,) = converter.getToUsdLatest(investmentIdToCurrency[investId], investmentIdToPayedInETH[investId] + amount);
+    (uint amountAfterInvestment, , ) = converter.getToUsdLatest(
+      investmentIdToCurrency[investId],
+      investmentIdToPayedInETH[investId] + amount
+    );
 
-    RentalityViewLib.checkAmount(amountAfterInvestment, investment.priceInUsd);
+    _checkAmount(amountAfterInvestment, investment.priceInUsd);
     if (amountAfterInvestment == investment.priceInUsd) {
       investment.inProgress = false;
     }
- 
-    
+
     address currency = investmentIdToCurrency[investmentId];
     if (currency == address(0)) {
-    investmentIdToPayedInETH[investId] += msg.value;
-    investIdToNft[investId].mint(msg.value, msg.sender);
+      investmentIdToPayedInETH[investId] += msg.value;
+      investIdToNft[investId].mint(msg.value, msg.sender);
+    } else {
+      require(IERC20(currency).allowance(msg.sender, address(this)) >= amount, 'Investment: wrong allowance');
+      bool success = IERC20(currency).transferFrom(msg.sender, address(this), amount);
+      require(success, 'Transfer failed.');
+      investmentIdToPayedInETH[investId] += amount;
+      investIdToNft[investId].mint(amount, msg.sender);
     }
-    else {
-       require(
-        IERC20(currency).allowance(msg.sender, address(this)) >= amount,
-        'Investment: wrong allowance'
-      );
-           bool success = IERC20(currency).transferFrom(msg.sender, address(this), amount);
-          require(success, 'Transfer failed.');
-          investmentIdToPayedInETH[investId] += amount;
-          investIdToNft[investId].mint(amount, msg.sender);
+  }
+  function _checkAmount(uint amount, uint value) private view {
+    if (amount > value) {
+      uint diff = amount - value;
+      require(diff <= type(uint).max / 1000, 'Overflow risk');
+      require(diff * 1000 <= value, 'Exceeds 0.1% tolerance');
     }
   }
 
@@ -89,34 +90,41 @@ contract RentalityInvestment is Initializable, UUPSAccess {
 
     Schemas.CarInvestment storage investment = investmentIdToCarInfo[investId];
     require(!investment.inProgress, 'In progress');
-    investIdToPool[investId] = RentalityCarInvestmentPool(investDeployer.createNewPool(
-      investId,
-      address(investIdToNft[investId]),
-      investmentIdToPayedInETH[investId],
-      investmentIdToCurrency[investId]
-    ));
+    investIdToPool[investId] = RentalityCarInvestmentPool(
+      investDeployer.createNewPool(
+        investId,
+        address(investIdToNft[investId]),
+        investmentIdToPayedInETH[investId],
+        investmentIdToCurrency[investId]
+      )
+    );
 
     uint carId = carToken.addCar(investment.car, msg.sender);
-     insuranceService.saveInsuranceRequired(carId, investment.car.insurancePriceInUsdCents, investment.car.insuranceRequired, msg.sender);
+    insuranceService.saveInsuranceRequired(
+      carId,
+      investment.car.insurancePriceInUsdCents,
+      investment.car.insuranceRequired,
+      msg.sender
+    );
     carIdToInvestId[carId] = investId;
-    if(investmentIdToCurrency[investId] == address(0)) {
-    (bool success, ) = payable(msg.sender).call{value: investmentIdToPayedInETH[investId]}('');
-    require(success, 'Fail to transfer.');
-    }
-    else {
-        bool success = IERC20(investmentIdToCurrency[investId]).transfer(msg.sender,investmentIdToPayedInETH[investId]);
-        require(success, 'Transfer failed.');
+    if (investmentIdToCurrency[investId] == address(0)) {
+      (bool success, ) = payable(msg.sender).call{value: investmentIdToPayedInETH[investId]}('');
+      require(success, 'Fail to transfer.');
+    } else {
+      bool success = IERC20(investmentIdToCurrency[investId]).transfer(msg.sender, investmentIdToPayedInETH[investId]);
+      require(success, 'Transfer failed.');
     }
   }
 
-
-  function getPaymentsInfo(uint carId) public view returns (uint percents, RentalityCarInvestmentPool pool, address currency) {
+  function getPaymentsInfo(
+    uint carId
+  ) public view returns (uint percents, RentalityCarInvestmentPool pool, address currency) {
     uint invesment = carIdToInvestId[carId];
     percents = investmentIdToCarInfo[invesment].creatorPercents;
     pool = investIdToPool[invesment];
     currency = investmentIdToCurrency[invesment];
   }
- 
+
   function getAllInvestments() public view returns (Schemas.InvestmentDTO[] memory investments) {
     investments = new Schemas.InvestmentDTO[](investmentId);
     for (uint i = 1; i <= investmentId; i++) {
@@ -124,15 +132,20 @@ contract RentalityInvestment is Initializable, UUPSAccess {
       uint myIncomeInUsdCents = 0;
       bool isBought = address(investIdToPool[i]) != address(0);
       address currency = investmentIdToCurrency[i];
-       (uint[] memory tokens, uint iInvested, uint totalHolders, uint totalTokens) = RentalityViewLib.getAllMyTokensWithTotalPrice(msg.sender, investIdToNft[i]);
-       (uint payed,,) = converter.getToUsdLatest(currency, investmentIdToPayedInETH[i]);
+      (uint[] memory tokens, uint iInvested, uint totalHolders, uint totalTokens) = RentalityViewLib
+        .getAllMyTokensWithTotalPrice(msg.sender, investIdToNft[i]);
+      (uint payed, , ) = converter.getToUsdLatest(currency, investmentIdToPayedInETH[i]);
       if (isBought) {
-        (income, , ) = converter.getToUsdLatest(currency, RentalityViewLib.getTotalIncome(investIdToPool[i]));
-        uint myIncome = RentalityViewLib.getTotalIncomeByNFTs(tokens,investIdToPool[i],investIdToNft[i]);
-       
+        (income, , ) = converter.getToUsdLatest(currency, _getTotalIncome(investIdToPool[i]));
+        uint myIncome = _getTotalIncomeByNFTs(tokens, investIdToPool[i], investIdToNft[i]);
+
         (myIncomeInUsdCents, , ) = converter.getToUsdLatest(currency, myIncome);
       }
-      (uint percentages, uint investInUsd) = RentalityViewLib.calculatePercentage(iInvested,investmentIdToCarInfo[i].priceInUsd, converter);
+      (uint percentages, uint investInUsd) = RentalityViewLib.calculatePercentage(
+        iInvested,
+        investmentIdToCarInfo[i].priceInUsd,
+        converter
+      );
       investments[i - 1] = Schemas.InvestmentDTO(
         investmentIdToCarInfo[i],
         address(investIdToNft[i]),
@@ -154,10 +167,44 @@ contract RentalityInvestment is Initializable, UUPSAccess {
   }
 
   function claimAllMy(uint investId) public {
-    (uint[] memory tokens,,,) = RentalityViewLib.getAllMyTokensWithTotalPrice(msg.sender, investIdToNft[investId]);
-    investIdToPool[investId].claimAllMy(msg.sender,tokens);
+    (uint[] memory tokens, , , ) = RentalityViewLib.getAllMyTokensWithTotalPrice(msg.sender, investIdToNft[investId]);
+    investIdToPool[investId].claimAllMy(msg.sender, tokens);
   }
 
+  function _getTotalIncome(RentalityCarInvestmentPool pool) private view returns (uint) {
+    (Income[] memory incomes, , ) = pool.getIncomeInfoByNft(0);
+    uint result = 0;
+    for (uint i = 0; i < incomes.length; i++) {
+      result += incomes[i].totalProfit;
+    }
+    return result;
+  }
+  function _getTotalIncomeByNFTs(
+    uint[] memory tokens,
+    RentalityCarInvestmentPool pool,
+    RentalityInvestmentNft nft
+  ) private view returns (uint) {
+    uint totalIncome = 0;
+    for (uint i = 0; i < tokens.length; i++) {
+      totalIncome += _getIncomesByNftId(tokens[i], pool, nft);
+    }
+    return totalIncome;
+  }
+  function _getIncomesByNftId(
+    uint id,
+    RentalityCarInvestmentPool pool,
+    RentalityInvestmentNft nft
+  ) private view returns (uint) {
+    (Income[] memory incomes, uint lastIncomeClaimed, uint totalPriceInEth) = pool.getIncomeInfoByNft(id);
+    uint tokenPrice = nft.tokenIdToPriceInEth(id);
+    uint part = (tokenPrice * 100_000) / totalPriceInEth;
+
+    uint result = 0;
+    for (uint i = lastIncomeClaimed; i < incomes.length; i++) {
+      result += incomes[i].income;
+    }
+    return (result * part) / 100_000;
+  }
 
   /// @notice Initializes the contract with the specified addresses
 
@@ -167,7 +214,7 @@ contract RentalityInvestment is Initializable, UUPSAccess {
     address _carService,
     address _insuranceServce,
     address _investDeployer
-    ) public initializer {
+  ) public initializer {
     userService = IRentalityAccessControl(_userService);
     converter = RentalityCurrencyConverter(_currencyConverter);
     carToken = RentalityCarToken(_carService);

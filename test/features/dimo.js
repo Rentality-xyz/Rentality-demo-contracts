@@ -1,4 +1,4 @@
-const { getEmptySearchCarParams, signDimoToken } = require("../utils")
+const { getEmptySearchCarParams, signDimoToken } = require('../utils')
 
 const { expect } = require('chai')
 const {
@@ -61,9 +61,8 @@ describe('Rentality dimo', function () {
     } = await loadFixture(deployDefaultFixture))
   })
 
-it('should be able to save dimo token with signature only', async function () {
-
-    const dimoSign = await signDimoToken(owner,17)
+  it('should be able to save dimo token with signature only', async function () {
+    const dimoSign = await signDimoToken(owner, 17)
 
     let addCarRequest = {
       tokenUri: 'uri',
@@ -83,14 +82,13 @@ it('should be able to save dimo token with signature only', async function () {
       currentlyListed: true,
       insuranceRequired: false,
       insurancePriceInUsdCents: 0,
-dimoTokenId: 17,
-signedDimoTokenId: dimoSign
+      dimoTokenId: 17,
+      signedDimoTokenId: dimoSign,
     }
     const oneDayInSec = 86400
     const totalTripDays = 7
     const searchParams = getEmptySearchCarParams()
     await expect(rentalityGateway.connect(host).addCar(addCarRequest)).not.be.reverted
-
 
     let addCarRequest2 = {
       tokenUri: 'uri',
@@ -110,8 +108,8 @@ signedDimoTokenId: dimoSign
       currentlyListed: true,
       insuranceRequired: false,
       insurancePriceInUsdCents: 0,
-dimoTokenId: 7,
-signedDimoTokenId: dimoSign
+      dimoTokenId: 7,
+      signedDimoTokenId: dimoSign,
     }
     await expect(rentalityGateway.connect(host).addCar(addCarRequest2)).to.be.revertedWith('dimo: wrong signature')
 
@@ -122,5 +120,5 @@ signedDimoTokenId: dimoSign
       emptyLocationInfo,
       emptyLocationInfo
     )
-})
+  })
 })

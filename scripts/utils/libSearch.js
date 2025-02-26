@@ -61,7 +61,7 @@ function findContractFile(contractName, folderPath) {
         return result
       }
     } else {
-      if (file.match(contractName  + '.sol') && !file.match('I' + contractName) && !file.match('A' + contractName)) {
+      if (file.match(contractName + '.sol') && !file.match('I' + contractName) && !file.match('A' + contractName)) {
         return '.' + path.sep + filePath
       }
     }
@@ -75,7 +75,6 @@ function searchPatternInFile(filePath, pattern) {
     const fileContent = fs.readFileSync(filePath, 'utf-8')
 
     let match = fileContent.match(new RegExp(pattern + '\\.([a-zA-Z_$][a-zA-Z_$0-9]*)', 'g'))
-
 
     if (match) {
       let result = match

@@ -8,7 +8,6 @@ import './abstract/IRentalityDiscount.sol';
 import './abstract/IRentalityTaxes.sol';
 import '../investment/RentalityInvestment.sol';
 
-
 /// @title Rentality Payment Service Contract
 /// @notice This contract manages platform fees and allows the adjustment of the platform fee by the manager.
 /// @dev It is connected to RentalityUserService to check if the caller is an admin.
@@ -23,7 +22,7 @@ contract RentalityPaymentService is UUPSOwnable {
   uint private taxesId;
   uint private defaultTax;
 
-RentalityInvestment private investmentService;
+  RentalityInvestment private investmentService;
 
   modifier onlyAdmin() {
     require(userService.isAdmin(tx.origin), 'Only admin.');
@@ -31,7 +30,7 @@ RentalityInvestment private investmentService;
   }
 
   function setInvestmentService(address investAddress) public {
-    require(userService.isAdmin(msg.sender), "only admin");
+    require(userService.isAdmin(msg.sender), 'only admin');
     investmentService = RentalityInvestment(investAddress);
   }
   function getBaseDiscount() public view returns (RentalityBaseDiscount) {
@@ -182,24 +181,29 @@ RentalityInvestment private investmentService;
   /// @param trip The trip data structure containing details about the trip.
   /// @param valueToHost The amount to be transferred to the host.
   /// @param valueToGuest The amount to be transferred to the guest.
-   /// TODO: add erc20 investment payments
-  function payFinishTrip(Schemas.Trip memory trip, uint valueToHost, uint valueToGuest, uint totalIncome) public payable {
+  /// TODO: add erc20 investment payments
+  function payFinishTrip(
+    Schemas.Trip memory trip,
+    uint valueToHost,
+    uint valueToGuest,
+    uint totalIncome
+  ) public payable {
     require(userService.isManager(msg.sender), 'Only manager');
     bool successHost;
     bool successGuest;
-     (uint hostPercents, RentalityCarInvestmentPool pool, address currency) = investmentService.getPaymentsInfo(trip.carId);
+    (uint hostPercents, RentalityCarInvestmentPool pool, address currency) = investmentService.getPaymentsInfo(
+      trip.carId
+    );
     if (address(pool) != address(0)) {
-      uint valueToPay = totalIncome - (totalIncome * 20 / 100);
+      uint valueToPay = totalIncome - ((totalIncome * 20) / 100);
       uint depositToPool = valueToPay - ((valueToPay * hostPercents) / 100);
       valueToHost = valueToHost - depositToPool;
-      if(currency == address(0))
-      pool.deposit{value: depositToPool}(totalIncome, depositToPool);
-    
-    else {
-      bool success = IERC20(currency).transfer(address(pool) ,depositToPool);
-          require(success, 'fail to deposit to pool');
-         pool.deposit(totalIncome, depositToPool);
-    }
+      if (currency == address(0)) pool.deposit{value: depositToPool}(totalIncome, depositToPool);
+      else {
+        bool success = IERC20(currency).transfer(address(pool), depositToPool);
+        require(success, 'fail to deposit to pool');
+        pool.deposit(totalIncome, depositToPool);
+      }
     }
     if (trip.paymentInfo.currencyType == address(0)) {
       // Handle payment in native currency (ETH)
@@ -249,8 +253,7 @@ RentalityInvestment private investmentService;
   function payCreateTrip(address currencyType, uint valueSumInCurrency, address user, uint carId) public payable {
     require(userService.isManager(msg.sender), 'only manager');
     (, RentalityCarInvestmentPool pool, address currency) = investmentService.getPaymentsInfo(carId);
-    if (address(pool) != address(0))
-    require(currency == currencyType,'wrong currency type');
+    if (address(pool) != address(0)) require(currency == currencyType, 'wrong currency type');
 
     if (currencyType == address(0)) {
       // Handle payment in native currency (ETH)
@@ -366,7 +369,12 @@ RentalityInvestment private investmentService;
   receive() external payable {}
   /// @notice Constructor to initialize the RentalityPaymentService.
   /// @param _userService The address of the RentalityUserService contract
-  function initialize(address _userService, address _floridaTaxes, address _baseDiscount,address _investorService) public initializer {
+  function initialize(
+    address _userService,
+    address _floridaTaxes,
+    address _baseDiscount,
+    address _investorService
+  ) public initializer {
     userService = IRentalityAccessControl(_userService);
     platformFeeInPPM = 200_000;
 
@@ -377,7 +385,7 @@ RentalityInvestment private investmentService;
     defaultTax = 1;
     taxesIdToTaxesContract[taxesId] = IRentalityTaxes(_floridaTaxes);
 
-  investmentService = RentalityInvestment(_investorService);
+    investmentService = RentalityInvestment(_investorService);
     __Ownable_init();
   }
 }

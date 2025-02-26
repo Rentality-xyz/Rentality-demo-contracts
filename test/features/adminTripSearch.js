@@ -589,9 +589,7 @@ describe('Admin trip searching', function () {
   it('All cars pagination test', async function () {
     for (let i = 0; i < 10; i++)
       await expect(
-        rentalityGateway
-          .connect(host)
-          .addCar(getMockCarRequest(i, await rentalityLocationVerifier.getAddress(), admin))
+        rentalityGateway.connect(host).addCar(getMockCarRequest(i, await rentalityLocationVerifier.getAddress(), admin))
       ).not.to.be.reverted
 
     let result = await rentalityAdminGateway.getAllCars(1, 3)
@@ -653,8 +651,6 @@ describe('Admin trip searching', function () {
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
-  
-
     const oneDayInSeconds = 86400
 
     const resultPayments = await rentalityGateway.calculatePaymentsWithDelivery(
@@ -690,7 +686,6 @@ describe('Admin trip searching', function () {
     await expect(rentalityGateway.connect(host).checkOutByHost(1, [0, 0])).not.to.be.reverted
     await expect(rentalityAdminGateway.connect(admin).payToHost(1)).not.to.be.reverted
 
-
     await expect(
       await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
@@ -709,5 +704,5 @@ describe('Admin trip searching', function () {
     await expect(rentalityGateway.connect(host).checkInByHost(2, [0, 0], '', '')).not.to.be.reverted
     await expect(rentalityGateway.connect(host).checkOutByHost(2, [0, 0])).not.to.be.reverted
     await expect(rentalityAdminGateway.connect(admin).refundToGuest(2)).not.to.be.reverted
-})
+  })
 })

@@ -673,16 +673,18 @@ describe('Rentality insurance', function () {
       })
     ).to.not.reverted
     insurances = await rentalityGateway.connect(guest).getInsurancesBy(false)
-    let generalActaul = insurances.find(i => i.isActual === true && Number(i.insuranceInfo.insuranceType) === 1)
+    let generalActaul = insurances.find((i) => i.isActual === true && Number(i.insuranceInfo.insuranceType) === 1)
     expect(generalActaul.insuranceInfo.policyNumber).to.be.eq(insurance__.policyNumber)
-    expect(insurances.filter(i => i.isActual === true && Number(i.insuranceInfo.insuranceType) === 1).length).to.be.eq(1)
+    expect(
+      insurances.filter((i) => i.isActual === true && Number(i.insuranceInfo.insuranceType) === 1).length
+    ).to.be.eq(1)
 
-    let oneTime = insurances.find(i => i.isActual === true && Number(i.insuranceInfo.insuranceType) === 2)
+    let oneTime = insurances.find((i) => i.isActual === true && Number(i.insuranceInfo.insuranceType) === 2)
     expect(oneTime.insuranceInfo.policyNumber).to.be.eq('12124-124-124124')
-    expect(insurances.filter(i => i.isActual === true && Number(i.insuranceInfo.insuranceType) === 2).length).to.be.eq(1)
+    expect(
+      insurances.filter((i) => i.isActual === true && Number(i.insuranceInfo.insuranceType) === 2).length
+    ).to.be.eq(1)
 
-
-    
     let _insurance = {
       companyName: 'myCo',
       policyNumber: '11112124-124-124',
@@ -694,9 +696,11 @@ describe('Rentality insurance', function () {
     await expect(rentalityGateway.connect(guest).saveGuestInsurance(_insurance)).to.not.reverted
     insurances = await rentalityGateway.connect(guest).getInsurancesBy(false)
 
-    generalActaul = insurances.find(i => i.isActual === true && Number(i.insuranceInfo.insuranceType) === 1)
+    generalActaul = insurances.find((i) => i.isActual === true && Number(i.insuranceInfo.insuranceType) === 1)
     expect(generalActaul.insuranceInfo.policyNumber).to.be.eq(_insurance.policyNumber)
-    expect(insurances.filter(i => i.isActual === true && Number(i.insuranceInfo.insuranceType) === 1).length).to.be.eq(1)
+    expect(
+      insurances.filter((i) => i.isActual === true && Number(i.insuranceInfo.insuranceType) === 1).length
+    ).to.be.eq(1)
 
     expect(insurances.length).to.be.eq(13)
     expect(insurances[5].tripId).to.be.eq(2)
@@ -745,5 +749,4 @@ describe('Rentality insurance', function () {
     expect(insurances[0].insuranceInfo.companyName).to.be.eq(insurance.companyName)
     expect(insurances[0].insuranceInfo.policyNumber).to.be.eq(insurance.policyNumber)
   })
-
 })

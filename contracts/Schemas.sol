@@ -237,7 +237,7 @@ interface Schemas {
 
   // Struct to represent additional information about a claim
   struct FullClaimInfo {
-    Claim claim;
+    ClaimV2 claim;
     address host;
     address guest;
     string guestPhoneNumber;
@@ -245,6 +245,23 @@ interface Schemas {
     CarInfo carInfo;
     uint amountInEth;
     string timeZoneId;
+    ClaimTypeV2 claimType;
+  }
+
+  // Struct to represent a claim
+  struct ClaimV2 {
+    uint256 tripId;
+    uint256 claimId;
+    uint256 deadlineDateInSec;
+    uint8 claimType;
+    ClaimStatus status;
+    string description;
+    uint64 amountInUsdCents;
+    uint256 payDateInSec;
+    address rejectedBy;
+    uint256 rejectedDateInSec;
+    string photosUrl;
+    bool isHostClaims;
   }
 
   // Struct to represent a claim
@@ -266,7 +283,7 @@ interface Schemas {
   // Struct to represent a request to create a new claim
   struct CreateClaimRequest {
     uint256 tripId;
-    ClaimType claimType;
+    uint8 claimType;
     string description;
     uint64 amountInUsdCents;
     string photosUrl;
@@ -286,6 +303,16 @@ interface Schemas {
     ListingMismatch
   }
 
+  struct ClaimTypeV2 {
+    uint8 claimType;
+    string claimName;
+    ClaimCreator creator;
+  }
+  enum ClaimCreator {
+    Host,
+    Guest,
+    Both
+  }
   // Enumeration for claim statuses
   enum ClaimStatus {
     NotPaid,
@@ -880,7 +907,7 @@ interface Schemas {
   struct DimoTokensData {
     uint dimoTokenId;
     uint rentalityTokenId;
-}
+  }
 
   struct PromoDTO {
     string promoCode;

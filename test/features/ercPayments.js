@@ -148,9 +148,7 @@ describe('ERC20 payments', function () {
   it('should not be able to create trip with wrong currency type', async function () {
     let usdt = await usdtContract.getAddress()
     await expect(
-      rentalityGateway
-        .connect(host)
-        .addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+      rentalityGateway.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
     ).not.to.be.reverted
     const rentPriceInUsdCents = 1000
 
@@ -196,9 +194,7 @@ describe('ERC20 payments', function () {
   it('should correctly pay claim with usdt', async function () {
     let usdt = await usdtContract.getAddress()
     await expect(
-      rentalityGateway
-        .connect(host)
-        .addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+      rentalityGateway.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
     ).not.to.be.reverted
 
     await mintTo(usdtContract, guest.address, 10000)

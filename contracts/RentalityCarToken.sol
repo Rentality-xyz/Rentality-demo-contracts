@@ -210,13 +210,7 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
 
     if (!listed && request.currentlyListed) carIdToListingMoment[request.carId] = block.timestamp;
 
-    eventManager.emitEvent(
-      Schemas.EventType.Car,
-      request.carId,
-      uint8(Schemas.CarUpdateStatus.Update),
-      user,
-      user
-    );
+    eventManager.emitEvent(Schemas.EventType.Car, request.carId, uint8(Schemas.CarUpdateStatus.Update), user, user);
   }
 
   function getListingMoment(uint carId) public view returns (uint) {

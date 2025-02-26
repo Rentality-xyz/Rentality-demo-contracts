@@ -69,13 +69,23 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
   /// @return Trip information.
   function getTrip(uint256 tripId) public view returns (Schemas.TripDTO memory) {
     Schemas.Trip memory trip = addresses.tripService.getTrip(tripId);
-    return RentalityTripsQuery.getTripDTO(addresses, insuranceService, tripId, promoService, dimoService,_msgGatewaySender(), trip);
+    return
+      RentalityTripsQuery.getTripDTO(
+        addresses,
+        insuranceService,
+        tripId,
+        promoService,
+        dimoService,
+        _msgGatewaySender(),
+        trip
+      );
   }
 
   /// @notice Retrieves information about trips where the caller is the guest.
   /// @return An array of trip information.
   function getTripsAs(bool host) public view returns (Schemas.TripDTO[] memory) {
-    return RentalityTripsQuery.getTripsAs(addresses, insuranceService,  _msgGatewaySender(), host, promoService, dimoService);
+    return
+      RentalityTripsQuery.getTripsAs(addresses, insuranceService, _msgGatewaySender(), host, promoService, dimoService);
   }
 
   /// @notice Calculates the KYC commission in a specific currency based on the current exchange rate.
@@ -96,25 +106,29 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
     addresses.viewService = viewService;
   }
 
-   function checkPromo(string memory promo, uint startDateTime, uint endDateTime) public view returns (Schemas.CheckPromoDTO memory) {
+  function checkPromo(
+    string memory promo,
+    uint startDateTime,
+    uint endDateTime
+  ) public view returns (Schemas.CheckPromoDTO memory) {
     return promoService.checkPromo(promo, startDateTime, endDateTime);
   }
 
- function getUniqCarsBrand() public view returns(string[] memory brandsArray) {
-  return RentalityViewLib.getUniqCarsBrand(addresses.carService);
- }
- function getUniqModelsByBrand(string memory brand) public view returns(string[] memory modelsArray) {
-  return RentalityViewLib.getUniqModelsByBrand(addresses.carService, brand);
- }
+  function getUniqCarsBrand() public view returns (string[] memory brandsArray) {
+    return RentalityViewLib.getUniqCarsBrand(addresses.carService);
+  }
+  function getUniqModelsByBrand(string memory brand) public view returns (string[] memory modelsArray) {
+    return RentalityViewLib.getUniqModelsByBrand(addresses.carService, brand);
+  }
 
-  function getAvaibleCurrencies() public view returns(Schemas.Currency[] memory) {
+  function getAvaibleCurrencies() public view returns (Schemas.Currency[] memory) {
     return addresses.currencyConverterService.getAllCurrencies();
   }
 
   function getAiDamageAnalyzeCaseData(uint tripId, bool pre) public view returns(Schemas.AiDamageAnalyzeCaseDataDTO memory) {
     Schemas.CarInfo memory car = addresses.carService.getCarInfoById(addresses.tripService.getTrip(tripId).carId);
     Schemas.FullKYCInfoDTO memory kyc = addresses.userService.getMyFullKYCInfo(_msgGatewaySender());
-    
+
     return Schemas.AiDamageAnalyzeCaseDataDTO(
       aiDamageAnalyzeService.getCurrentCaseNumber(),
       kyc.additionalKYC.email,
@@ -124,21 +138,20 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
     );
 
   }
-  
+
 
     function trustedForwarder() internal view override returns (address) {
       return trustedForwarderAddress;
 
      }
 
-    function isTrustedForwarder(address forwarder) internal view override returns (bool) {
-      return forwarder == trustedForwarderAddress;
-    }
-    function setTrustedForwarder(address forwarder) public {
-      require(addresses.userService.isAdmin(tx.origin), 'Only for Admin.');
-      trustedForwarderAddress = forwarder;
-    }
-
+  function isTrustedForwarder(address forwarder) internal view override returns (bool) {
+    return forwarder == trustedForwarderAddress;
+  }
+  function setTrustedForwarder(address forwarder) public {
+    require(addresses.userService.isAdmin(tx.origin), 'Only for Admin.');
+    trustedForwarderAddress = forwarder;
+  }
 
   function initialize(
     address carServiceAddress,

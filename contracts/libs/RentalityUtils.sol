@@ -413,8 +413,8 @@ library RentalityUtils {
     Schemas.CarInfo memory car = addresses.carService.getCarInfoById(carId);
 
     uint64 discount = uint64(promoService.getDiscountByPromo(promo, user));
-     uint64 priceWithDiscount;
-     priceWithDiscount = addresses.paymentService.calculateSumWithDiscount(
+    uint64 priceWithDiscount;
+    priceWithDiscount = addresses.paymentService.calculateSumWithDiscount(
       addresses.carService.ownerOf(carId),
       daysOfTrip,
       car.pricePerDayInUsdCents
@@ -451,7 +451,7 @@ library RentalityUtils {
       currency,
       totalPrice
     );
-    if(discount == 100) {
+    if (discount == 100) {
       valueSumInCurrency = 0;
     }
 
@@ -483,8 +483,8 @@ library RentalityUtils {
     uint64 startDateTime,
     uint64 endDateTime
   ) private view returns (bool) {
-       uint [] memory activeTrips = addresses.tripService.getCarTrips(carId);
-        for (uint256 i = 0; i < activeTrips.length; i++) {
+    uint[] memory activeTrips = addresses.tripService.getCarTrips(carId);
+    for (uint256 i = 0; i < activeTrips.length; i++) {
       Schemas.Trip memory trip = addresses.tripService.getTrip(activeTrips[i]);
       Schemas.CarInfo memory car = addresses.carService.getCarInfoById(trip.carId);
 
@@ -540,15 +540,13 @@ library RentalityUtils {
 
     uint64 daysOfTrip = getCeilDays(startDateTime, endDateTime);
 
-     uint64 discount = uint64(promoService.getDiscountByPromo(promo, user));
+    uint64 discount = uint64(promoService.getDiscountByPromo(promo, user));
 
-
- uint64 priceWithDiscount = addresses.paymentService.calculateSumWithDiscount(
+    uint64 priceWithDiscount = addresses.paymentService.calculateSumWithDiscount(
       addresses.carService.ownerOf(carId),
       daysOfTrip,
       carInfo.pricePerDayInUsdCents
     );
-
 
     uint taxId = addresses.paymentService.defineTaxesType(address(addresses.carService), carId);
 
@@ -610,8 +608,7 @@ library RentalityUtils {
       pickUp,
       dropOf
     );
-    if(discount == 100)
-    valueSumInCurrency = 0;
+    if (discount == 100) valueSumInCurrency = 0;
 
     return (paymentInfo, valueSumInCurrency, valueSumInCurrencyBeforePromo, priceWithPromo, usePromo);
   }
@@ -670,7 +667,7 @@ library RentalityUtils {
     RentalityUserService userService = contracts.userService;
     RentalityCurrencyConverter currencyConverterService = contracts.currencyConverterService;
 
-    Schemas.Claim memory claim = claimService.getClaim(claimId);
+    Schemas.ClaimV2 memory claim = claimService.getClaim(claimId);
     Schemas.Trip memory trip = tripService.getTrip(claim.tripId);
     Schemas.CarInfo memory car = carService.getCarInfoById(trip.carId);
 
@@ -693,7 +690,8 @@ library RentalityUtils {
         hostPhoneNumber,
         car,
         valueInCurrency,
-        IRentalityGeoService(contracts.carService.getGeoServiceAddress()).getCarTimeZoneId(car.locationHash)
+        IRentalityGeoService(contracts.carService.getGeoServiceAddress()).getCarTimeZoneId(car.locationHash),
+        claimService.getClaimTypeInfo(claim.claimType)
       );
   }
 
@@ -790,8 +788,8 @@ library RentalityUtils {
     Schemas.Trip memory trip = addresses.tripService.getTrip(request.tripId);
 
     require(
-      (trip.host == user && uint8(request.claimType) <= 7) ||
-        (trip.guest == user && ((uint8(request.claimType) <= 9) && (uint8(request.claimType) >= 3))),
+      (trip.host == user && addresses.claimService.claimTypeExists(request.claimType, true)) ||
+        (trip.guest == user && addresses.claimService.claimTypeExists(request.claimType, false)),
       'Only for trip host or guest, or wrong claim type.'
     );
 
@@ -809,5 +807,4 @@ library RentalityUtils {
     require(trip.host == trip.tripFinishedBy, 'No needs to confirm.');
     require(trip.status == Schemas.TripStatus.CheckedOutByHost, 'The trip is not in status CheckedOutByHost');
   }
-
 }

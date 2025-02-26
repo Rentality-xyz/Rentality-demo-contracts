@@ -60,9 +60,9 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
     promoService = RentalityPromoService(promoServiceAddress);
   }
 
-function updateDimoService(address dimoServiceAddress) public onlyAdmin {
+  function updateDimoService(address dimoServiceAddress) public onlyAdmin {
     dimoService = RentalityDimoService(dimoServiceAddress);
-}
+  }
   function getDimoService() public view returns (RentalityDimoService dimoServiceAddress) {
     return dimoService;
   }
@@ -225,7 +225,11 @@ function updateDimoService(address dimoServiceAddress) public onlyAdmin {
   /// @param value The original value of the trip.
   /// @param user the address of discount provider
   /// @return sumWithDiscount The total cost after applying the discount.
-  function calculateSumWithDiscount(address user, uint64 daysOfTrip, uint64 value) public view returns (uint64 sumWithDiscount) {
+  function calculateSumWithDiscount(
+    address user,
+    uint64 daysOfTrip,
+    uint64 value
+  ) public view returns (uint64 sumWithDiscount) {
     return paymentService.calculateSumWithDiscount(user, daysOfTrip, value);
   }
 
@@ -234,7 +238,11 @@ function updateDimoService(address dimoServiceAddress) public onlyAdmin {
   /// @param daysOfTrip The duration of the trip in days.
   /// @param value The original value of the trip.
   /// @return salesTax The total taxes for the trip.
-  function calculateTaxes(uint taxesId, uint64 daysOfTrip, uint64 value) public view returns (uint64 salesTax, uint64 govTax) {
+  function calculateTaxes(
+    uint taxesId,
+    uint64 daysOfTrip,
+    uint64 value
+  ) public view returns (uint64 salesTax, uint64 govTax) {
     return paymentService.calculateTaxes(taxesId, daysOfTrip, value);
   }
 
@@ -286,7 +294,7 @@ function updateDimoService(address dimoServiceAddress) public onlyAdmin {
     uint page,
     uint itemsPerPage
   ) public view returns (Schemas.AllTripsDTO memory allTrips) {
-    return RentalityViewLib.getAllTrips(getRentalityContracts(), filter,promoService, page, itemsPerPage);
+    return RentalityViewLib.getAllTrips(getRentalityContracts(), filter, promoService, page, itemsPerPage);
   }
 
   // @notice Manages user roles by granting or revoking specific roles.
@@ -301,12 +309,12 @@ function updateDimoService(address dimoServiceAddress) public onlyAdmin {
   function _callWithForwarding(bytes memory data) private returns (bytes memory) {
     bytes memory dataToSend = _forward(data);
     (bool ok, bytes memory res) = address(rentalityPlatform).call{value: 0}(dataToSend);
-      return _parseResult(ok, res);
+    return _parseResult(ok, res);
   }
 
- function _forward(bytes memory data) private view  returns(bytes memory result) {
+  function _forward(bytes memory data) private view returns (bytes memory result) {
     result = abi.encodePacked(data, msg.sender);
-} 
+  }
 
   function _parseResult(bool flag, bytes memory result) internal pure returns (bytes memory) {
     if (!flag)
@@ -377,8 +385,19 @@ function updateDimoService(address dimoServiceAddress) public onlyAdmin {
   function getRefferalPointsInfo() public view returns (Schemas.AllRefferalInfoDTO memory) {
     return refferalProgram.getRefferalPointsInfo();
   }
-  function getPlatformUsersInfo() public view returns(Schemas.AdminKYCInfoDTO[] memory result) {
+  function getPlatformUsersInfo() public view returns (Schemas.AdminKYCInfoDTO[] memory result) {
     return userService.getPlatformUsersKYCInfos();
+  }
+
+  function getAllClaimTypes(bool byHost) public view returns (Schemas.ClaimTypeV2[] memory claimTypes) {
+    return byHost ? claimService.getClaimTypesForHost() : claimService.getClaimTypesForGuest();
+  }
+
+  function addClaimType(string memory name, Schemas.ClaimCreator creator) public {
+    claimService.addClaimType(name, creator);
+  }
+  function removeClaimType(uint8 claimType) public {
+    claimService.removeClaimType(claimType);
   }
 
   ///------------------------------------
@@ -459,7 +478,7 @@ function updateDimoService(address dimoServiceAddress) public onlyAdmin {
       rentalityTripsViewAddress,
       promoServiceAddress,
       address(dimoService)
-);
+    );
     refferalProgram = RentalityReferralProgram(refferalProgramAddress);
     insuranceService = RentalityInsurance(insuranceServiceAddress);
     investment = RentalityInvestment(investmentAddress);

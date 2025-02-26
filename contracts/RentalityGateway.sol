@@ -62,9 +62,9 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
     return result;
   }
 
-  function _forward(bytes calldata data) private view  returns(bytes memory result) {
+  function _forward(bytes calldata data) private view returns (bytes memory result) {
     result = abi.encodePacked(data, msg.sender);
-} 
+  }
   // @dev Updates the addresses of various services used in the Rentality platform.
   //
   // This function retrieves the actual service addresses from the `adminService` and updates
