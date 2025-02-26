@@ -5,6 +5,7 @@ import {UUPSAccess} from '../proxy/UUPSAccess.sol';
 import {EIP712Upgradeable} from '@openzeppelin/contracts-upgradeable/utils/cryptography/EIP712Upgradeable.sol';
 import {IRentalityAccessControl} from '../abstract/IRentalityAccessControl.sol';
 import {RentalityUserService} from '../RentalityUserService.sol';
+import '../Schemas.sol';
 
 
 
@@ -13,9 +14,10 @@ contract RentalityAiDamageAnalyze is UUPSAccess, EIP712Upgradeable {
 
     mapping(bytes32 => string) private insuranceCaseToUrl;
     mapping(bytes32 => bool) private caseExists;
-    mapping(uint => string) private tripIdToInsuranceCase;
-    mapping(bytes32 => uint) private caseToTripId;
-    mapping (uint => string) private caseNumberToCase;
+    mapping(bytes32 => uint) private caseToCaseCounter;
+    mapping (uint => Schemas.InsuranceCase) private caseCounterToCase;
+    mapping(uint => uint) private caseCounterToTripId;
+    mapping(uint => Schemas.TripInsuranceCases) private tripIdsToTripCases;
     uint private caseCounter;
 
     function saveInsuranceCaseUrl(string memory iCase, string memory url) public {
@@ -25,21 +27,56 @@ contract RentalityAiDamageAnalyze is UUPSAccess, EIP712Upgradeable {
             insuranceCaseToUrl[hash] = url;
     }
 
-    function saveInsuranceCase(string memory iCase, uint tripId) public {
+    function saveInsuranceCase(string memory iCase, uint tripId, bool pre) public {
         //   require(userService.isManager(msg.sender), "only Manager");
           bytes32 hash = keccak256(abi.encodePacked(iCase));
           caseExists[hash] = true;
-          tripIdToInsuranceCase[tripId] = iCase;
-          caseToTripId[hash] = tripId;
+        
           caseCounter += 1;
-          caseNumberToCase[caseCounter] = iCase;
+          caseCounterToCase[caseCounter] = Schemas.InsuranceCase(iCase, pre);
+          caseCounterToTripId[caseCounter] = tripId;
+          if(pre)
+          tripIdsToTripCases[tripId].pre = caseCounter;
+          else 
+          tripIdsToTripCases[tripId].post = caseCounter;
     }
-    function getInsuranceCaseUrlByTrip(uint tripId) public view returns(string memory caseUrl) {
-        string memory iCase = tripIdToInsuranceCase[tripId];
-        return insuranceCaseToUrl[keccak256(abi.encodePacked(iCase))];
+    function getInsuranceCasesUrlByTrip(uint tripId) public view returns(Schemas.InsuranceCaseDTO[] memory caseUrls) {
+        uint insuranceCasesByTrip = 0;
+        Schemas.TripInsuranceCases memory tripInsurances = tripIdsToTripCases[tripId];
+        if(tripInsurances.pre > 0)
+        insuranceCasesByTrip += 1;
+        if(tripInsurances.post > 0)
+         insuranceCasesByTrip += 1;
+
+        Schemas.InsuranceCaseDTO[] memory cases = new Schemas.InsuranceCaseDTO[](insuranceCasesByTrip);
+
+        uint withUrlCounter = 0;
+           if(tripInsurances.pre > 0)
+       {
+        Schemas.InsuranceCase memory insuranceCase = caseCounterToCase[tripInsurances.pre];
+                cases[withUrlCounter] = Schemas.InsuranceCaseDTO(
+                  insuranceCase,
+                  insuranceCase.iCase
+                  );
+                withUrlCounter += 1;
+       }
+        if(tripInsurances.post > 0)
+      {
+        Schemas.InsuranceCase memory insuranceCase = caseCounterToCase[tripInsurances.post];
+                cases[withUrlCounter] = Schemas.InsuranceCaseDTO(
+                  insuranceCase,
+                  insuranceCase.iCase
+                  );
+                withUrlCounter += 1;
+       }
+
+        return cases;
     }
-    function getInsuranceCaseByTrip(uint tripId) public view returns(string memory iCase) {
-        return tripIdToInsuranceCase[tripId];
+    function getInsuranceCaseByTrip(uint tripId, bool pre) public view returns(string memory iCases) {
+     Schemas.TripInsuranceCases memory tripInsurances = tripIdsToTripCases[tripId];
+     return pre ? caseCounterToCase[tripInsurances.pre].iCase :
+                 caseCounterToCase[tripInsurances.post].iCase;
+    
     }
 
     function isCaseExists(string memory iCase) public view returns(bool isExists) {
