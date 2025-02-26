@@ -111,7 +111,7 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
     return addresses.currencyConverterService.getAllCurrencies();
   }
 
-  function getMotionsCloudCaseData(uint tripId) public view returns(Schemas.MotionsCloudCaseDataDTO memory) {
+  function getMotionsCloudCaseData(uint tripId, bool pre) public view returns(Schemas.MotionsCloudCaseDataDTO memory) {
     Schemas.CarInfo memory car = addresses.carService.getCarInfoById(addresses.tripService.getTrip(tripId).carId);
     Schemas.FullKYCInfoDTO memory kyc = addresses.userService.getMyFullKYCInfo(_msgGatewaySender());
     
@@ -119,7 +119,7 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
       motionCloudService.getCurrentCaseNumber(),
       kyc.additionalKYC.email,
       kyc.kyc.surname,
-      motionCloudService.getInsuranceCaseByTrip(tripId),
+      motionCloudService.getInsuranceCaseByTrip(tripId, pre),
       car.carVinNumber
     );
 

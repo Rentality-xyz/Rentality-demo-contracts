@@ -895,5 +895,17 @@ interface Schemas {
       string iCase;
       string vin;
  }
+ struct InsuranceCase {
+  string iCase;
+  bool pre;
+}
+struct InsuranceCaseDTO {
+  InsuranceCase iCase;
+  string url;
+}
+struct TripInsuranceCases {
+  uint pre;
+  uint post;
+}
 
 }
