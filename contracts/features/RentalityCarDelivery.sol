@@ -222,13 +222,13 @@ contract RentalityCarDelivery is Initializable, UUPSAccess {
 
   function setDefaultPrices(uint64 underTwentyFiveMilesInUsdCents, uint64 aboveTwentyFiveMilesInUsdCents) public {
     require(userService.isAdmin(msg.sender), 'only admin.');
-    defaultPrices = Schemas.DeliveryPrices(underTwentyFiveMilesInUsdCents, aboveTwentyFiveMilesInUsdCents, true);
+    defaultPrices = Schemas.DeliveryPrices(underTwentyFiveMilesInUsdCents, aboveTwentyFiveMilesInUsdCents, false);
   }
 
   /// @notice Initializes the contract with the provided user service address
   /// @param _userService Address of the user service contract
   function initialize(address _userService) public initializer {
     userService = IRentalityAccessControl(_userService);
-    defaultPrices = Schemas.DeliveryPrices(300, 250, true);
+    defaultPrices = Schemas.DeliveryPrices(300, 250, false);
   }
 }
