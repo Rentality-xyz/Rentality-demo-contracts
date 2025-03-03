@@ -51,10 +51,10 @@
         { "type": "uint256", "name": "commission" }
       ],
       "outputs": [
-        { "type": "uint256", "name": "" },
-        { "type": "uint256", "name": "" },
-        { "type": "int256", "name": "" },
-        { "type": "uint8", "name": "" }
+        { "type": "uint256", "name": "toPay" },
+        { "type": "uint256", "name": "fee" },
+        { "type": "int256", "name": "currencyRate" },
+        { "type": "uint8", "name": "decimals" }
       ]
     },
     {
@@ -91,11 +91,11 @@
         { "type": "address", "name": "promoService" }
       ],
       "outputs": [
-        { "type": "uint256", "name": "" },
-        { "type": "uint256", "name": "" },
-        { "type": "uint256", "name": "" },
-        { "type": "uint256", "name": "" },
-        { "type": "uint256", "name": "" }
+        { "type": "uint256", "name": "toHost" },
+        { "type": "uint256", "name": "toGuest" },
+        { "type": "uint256", "name": "toHostInUsd" },
+        { "type": "uint256", "name": "toGuestInUsd" },
+        { "type": "uint256", "name": "total" }
       ]
     },
     {
@@ -129,7 +129,7 @@
         },
         { "type": "uint256", "name": "insurance" }
       ],
-      "outputs": [{ "type": "uint256", "name": "" }]
+      "outputs": [{ "type": "uint256", "name": "tripRejectValue" }]
     },
     {
       "type": "function",
@@ -138,7 +138,7 @@
       "stateMutability": "view",
       "payable": false,
       "inputs": [{ "type": "address", "name": "tokenAddress" }],
-      "outputs": [{ "type": "bool", "name": "" }]
+      "outputs": [{ "type": "bool", "name": "isAvailable" }]
     },
     {
       "type": "function",
@@ -150,7 +150,7 @@
       "outputs": [
         {
           "type": "tuple[]",
-          "name": "",
+          "name": "availableOnPlatformCurrencies",
           "components": [
             { "type": "address", "name": "currency" },
             { "type": "string", "name": "name" }
@@ -165,8 +165,8 @@
       "payable": false,
       "inputs": [{ "type": "address", "name": "tokenAddress" }],
       "outputs": [
-        { "type": "int256", "name": "" },
-        { "type": "uint8", "name": "" }
+        { "type": "int256", "name": "cachedRate" },
+        { "type": "uint8", "name": "decimals" }
       ]
     },
     {
@@ -177,8 +177,8 @@
       "payable": false,
       "inputs": [{ "type": "address", "name": "tokenAddress" }],
       "outputs": [
-        { "type": "int256", "name": "" },
-        { "type": "uint8", "name": "" }
+        { "type": "int256", "name": "rate" },
+        { "type": "uint8", "name": "decimals" }
       ]
     },
     {
@@ -193,7 +193,7 @@
         { "type": "int256", "name": "currencyRate" },
         { "type": "uint8", "name": "decimals" }
       ],
-      "outputs": [{ "type": "uint256", "name": "" }]
+      "outputs": [{ "type": "uint256", "name": "amountInCurrency" }]
     },
     {
       "type": "function",
@@ -206,9 +206,9 @@
         { "type": "uint256", "name": "valueInUsdCents" }
       ],
       "outputs": [
-        { "type": "uint256", "name": "" },
-        { "type": "int256", "name": "" },
-        { "type": "uint8", "name": "" }
+        { "type": "uint256", "name": "valueInCurrency" },
+        { "type": "int256", "name": "rate" },
+        { "type": "uint8", "name": "decimals" }
       ]
     },
     {
@@ -220,7 +220,7 @@
         { "type": "address", "name": "tokenAddress" },
         { "type": "uint256", "name": "valueInUsdCents" }
       ],
-      "outputs": [{ "type": "uint256", "name": "" }]
+      "outputs": [{ "type": "uint256", "name": "cachedValueInCurrency" }]
     },
     {
       "type": "function",
@@ -229,7 +229,7 @@
       "stateMutability": "view",
       "payable": false,
       "inputs": [{ "type": "address", "name": "tokenAddress" }],
-      "outputs": [{ "type": "int256", "name": "" }]
+      "outputs": [{ "type": "int256", "name": "latestRate" }]
     },
     {
       "type": "function",
@@ -239,8 +239,8 @@
       "payable": false,
       "inputs": [{ "type": "address", "name": "tokenAddress" }],
       "outputs": [
-        { "type": "int256", "name": "" },
-        { "type": "uint8", "name": "" }
+        { "type": "int256", "name": "rate" },
+        { "type": "uint8", "name": "decimals" }
       ]
     },
     {
@@ -255,7 +255,7 @@
         { "type": "int256", "name": "tokenToUsd" },
         { "type": "uint8", "name": "decimals" }
       ],
-      "outputs": [{ "type": "uint256", "name": "" }]
+      "outputs": [{ "type": "uint256", "name": "valueInUsd" }]
     },
     {
       "type": "function",
@@ -268,9 +268,9 @@
         { "type": "uint256", "name": "amount" }
       ],
       "outputs": [
-        { "type": "uint256", "name": "" },
-        { "type": "int256", "name": "" },
-        { "type": "uint8", "name": "" }
+        { "type": "uint256", "name": "usdLatest" },
+        { "type": "int256", "name": "rate" },
+        { "type": "uint8", "name": "decimals" }
       ]
     },
     {
@@ -282,7 +282,7 @@
         { "type": "address", "name": "tokenAddress" },
         { "type": "uint256", "name": "amount" }
       ],
-      "outputs": [{ "type": "uint256", "name": "" }]
+      "outputs": [{ "type": "uint256", "name": "cachedValueInUsd" }]
     },
     {
       "type": "function",
@@ -303,7 +303,7 @@
       "stateMutability": "pure",
       "payable": false,
       "inputs": [{ "type": "address", "name": "tokenAddress" }],
-      "outputs": [{ "type": "bool", "name": "" }]
+      "outputs": [{ "type": "bool", "name": "isEthCurrency" }]
     },
     {
       "type": "function",
