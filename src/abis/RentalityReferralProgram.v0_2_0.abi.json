@@ -117,7 +117,7 @@
       "stateMutability": "view",
       "payable": false,
       "inputs": [{ "type": "uint256", "name": "carId" }],
-      "outputs": [{ "type": "uint256", "name": "" }]
+      "outputs": [{ "type": "uint256", "name": "carDailyClaimedTime" }]
     },
     {
       "type": "function",
@@ -163,7 +163,7 @@
       "outputs": [
         {
           "type": "tuple",
-          "name": "",
+          "name": "myRefferalInfoDTO",
           "components": [
             { "type": "bytes4", "name": "myHash" },
             { "type": "bytes4", "name": "savedHash" }
@@ -178,7 +178,7 @@
       "stateMutability": "view",
       "payable": false,
       "inputs": [{ "type": "address", "name": "user" }],
-      "outputs": [{ "type": "uint256", "name": "" }]
+      "outputs": [{ "type": "uint256", "name": "startDiscount" }]
     },
     {
       "type": "function",
@@ -190,7 +190,7 @@
       "outputs": [
         {
           "type": "tuple[]",
-          "name": "",
+          "name": "programHistory",
           "components": [
             { "type": "int256", "name": "points" },
             { "type": "uint256", "name": "date" },
@@ -210,7 +210,7 @@
       "outputs": [
         {
           "type": "tuple",
-          "name": "",
+          "name": "readyToClaimDTO",
           "components": [
             {
               "type": "tuple[]",
@@ -237,7 +237,7 @@
       "outputs": [
         {
           "type": "tuple",
-          "name": "",
+          "name": "refferalHashDTO",
           "components": [
             {
               "type": "tuple[]",
@@ -266,7 +266,7 @@
       "outputs": [
         {
           "type": "tuple",
-          "name": "",
+          "name": "allRefferalInfoDTO",
           "components": [
             {
               "type": "tuple[]",
@@ -336,7 +336,7 @@
       "stateMutability": "view",
       "payable": false,
       "inputs": [],
-      "outputs": [{ "type": "address", "name": "" }]
+      "outputs": [{ "type": "address", "name": "userServiceAddress" }]
     },
     {
       "type": "function",
