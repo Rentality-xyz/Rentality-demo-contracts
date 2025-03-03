@@ -116,7 +116,7 @@
       "outputs": [
         {
           "type": "tuple[]",
-          "name": "cars",
+          "name": "investments",
           "components": [
             {
               "type": "tuple",

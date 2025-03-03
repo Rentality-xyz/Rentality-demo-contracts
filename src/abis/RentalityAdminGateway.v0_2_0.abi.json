@@ -38,6 +38,17 @@
     },
     {
       "type": "function",
+      "name": "addClaimType",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "string", "name": "name" },
+        { "type": "uint8", "name": "creator" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
       "name": "calculateSumWithDiscount",
       "constant": true,
       "stateMutability": "view",
@@ -47,7 +58,7 @@
         { "type": "uint64", "name": "daysOfTrip" },
         { "type": "uint64", "name": "value" }
       ],
-      "outputs": [{ "type": "uint64", "name": "" }]
+      "outputs": [{ "type": "uint64", "name": "sumWithDiscount" }]
     },
     {
       "type": "function",
@@ -61,8 +72,8 @@
         { "type": "uint64", "name": "value" }
       ],
       "outputs": [
-        { "type": "uint64", "name": "" },
-        { "type": "uint64", "name": "" }
+        { "type": "uint64", "name": "salesTax" },
+        { "type": "uint64", "name": "govTax" }
       ]
     },
     {
@@ -78,7 +89,7 @@
       "outputs": [
         {
           "type": "tuple",
-          "name": "",
+          "name": "allCars",
           "components": [
             {
               "type": "tuple[]",
@@ -130,6 +141,25 @@
     },
     {
       "type": "function",
+      "name": "getAllClaimTypes",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "bool", "name": "byHost" }],
+      "outputs": [
+        {
+          "type": "tuple[]",
+          "name": "claimTypes",
+          "components": [
+            { "type": "uint8", "name": "claimType" },
+            { "type": "string", "name": "claimName" },
+            { "type": "uint8", "name": "creator" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
       "name": "getAllTrips",
       "constant": true,
       "stateMutability": "view",
@@ -164,7 +194,7 @@
       "outputs": [
         {
           "type": "tuple",
-          "name": "",
+          "name": "allTrips",
           "components": [
             {
               "type": "tuple[]",
@@ -276,7 +306,7 @@
       "stateMutability": "view",
       "payable": false,
       "inputs": [],
-      "outputs": [{ "type": "address", "name": "" }]
+      "outputs": [{ "type": "address", "name": "carServiceAddress" }]
     },
     {
       "type": "function",
@@ -285,7 +315,7 @@
       "stateMutability": "view",
       "payable": false,
       "inputs": [],
-      "outputs": [{ "type": "address", "name": "" }]
+      "outputs": [{ "type": "address", "name": "claimServiceAddress" }]
     },
     {
       "type": "function",
@@ -294,7 +324,7 @@
       "stateMutability": "view",
       "payable": false,
       "inputs": [],
-      "outputs": [{ "type": "uint256", "name": "" }]
+      "outputs": [{ "type": "uint256", "name": "claimWaitingTime" }]
     },
     {
       "type": "function",
@@ -303,7 +333,7 @@
       "stateMutability": "view",
       "payable": false,
       "inputs": [],
-      "outputs": [{ "type": "address", "name": "" }]
+      "outputs": [{ "type": "address", "name": "currencyConverterServiceAddress" }]
     },
     {
       "type": "function",
@@ -312,7 +342,7 @@
       "stateMutability": "view",
       "payable": false,
       "inputs": [],
-      "outputs": [{ "type": "address", "name": "" }]
+      "outputs": [{ "type": "address", "name": "deliveryServiceAddress" }]
     },
     {
       "type": "function",
@@ -321,7 +351,7 @@
       "stateMutability": "view",
       "payable": false,
       "inputs": [],
-      "outputs": [{ "type": "address", "name": "" }]
+      "outputs": [{ "type": "address", "name": "dimoServiceAddress" }]
     },
     {
       "type": "function",
@@ -330,7 +360,7 @@
       "stateMutability": "view",
       "payable": false,
       "inputs": [],
-      "outputs": [{ "type": "address", "name": "" }]
+      "outputs": [{ "type": "address", "name": "rentalityInsuranceAddress" }]
     },
     {
       "type": "function",
@@ -339,7 +369,7 @@
       "stateMutability": "view",
       "payable": false,
       "inputs": [],
-      "outputs": [{ "type": "address", "name": "" }]
+      "outputs": [{ "type": "address", "name": "investmentAddress" }]
     },
     {
       "type": "function",
@@ -348,7 +378,7 @@
       "stateMutability": "view",
       "payable": false,
       "inputs": [],
-      "outputs": [{ "type": "uint256", "name": "" }]
+      "outputs": [{ "type": "uint256", "name": "kycCommission" }]
     },
     {
       "type": "function",
@@ -357,7 +387,7 @@
       "stateMutability": "view",
       "payable": false,
       "inputs": [],
-      "outputs": [{ "type": "address", "name": "" }]
+      "outputs": [{ "type": "address", "name": "paymentServiceAddress" }]
     },
     {
       "type": "function",
@@ -366,7 +396,7 @@
       "stateMutability": "view",
       "payable": false,
       "inputs": [],
-      "outputs": [{ "type": "uint32", "name": "" }]
+      "outputs": [{ "type": "uint32", "name": "platformFeeInPPM" }]
     },
     {
       "type": "function",
@@ -488,7 +518,7 @@
       "stateMutability": "view",
       "payable": false,
       "inputs": [],
-      "outputs": [{ "type": "address", "name": "" }]
+      "outputs": [{ "type": "address", "name": "refferalServiceAddress" }]
     },
     {
       "type": "function",
@@ -500,7 +530,7 @@
       "outputs": [
         {
           "type": "tuple",
-          "name": "",
+          "name": "contracts",
           "components": [
             { "type": "address", "name": "carService" },
             { "type": "address", "name": "currencyConverterService" },
@@ -523,7 +553,7 @@
       "stateMutability": "view",
       "payable": false,
       "inputs": [],
-      "outputs": [{ "type": "address", "name": "" }]
+      "outputs": [{ "type": "address", "name": "rentalityPlatformAddress" }]
     },
     {
       "type": "function",
@@ -532,7 +562,7 @@
       "stateMutability": "view",
       "payable": false,
       "inputs": [],
-      "outputs": [{ "type": "address", "name": "" }]
+      "outputs": [{ "type": "address", "name": "tripServiceAddress" }]
     },
     {
       "type": "function",
@@ -541,7 +571,7 @@
       "stateMutability": "view",
       "payable": false,
       "inputs": [],
-      "outputs": [{ "type": "address", "name": "" }]
+      "outputs": [{ "type": "address", "name": "userServiceAddress" }]
     },
     {
       "type": "function",
@@ -660,6 +690,14 @@
       "constant": false,
       "payable": false,
       "inputs": [{ "type": "uint256", "name": "tripId" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "removeClaimType",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "uint8", "name": "claimType" }],
       "outputs": []
     },
     {

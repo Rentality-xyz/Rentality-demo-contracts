@@ -47,12 +47,49 @@
     },
     {
       "type": "function",
-      "name": "getInsuranceCaseUrlByTrip",
+      "name": "getCurrentCaseNumber",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "uint256", "name": "currentCaseNumber" }]
+    },
+    {
+      "type": "function",
+      "name": "getInsuranceCaseByTrip",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        { "type": "uint256", "name": "tripId" },
+        { "type": "bool", "name": "pre" }
+      ],
+      "outputs": [{ "type": "string", "name": "iCases" }]
+    },
+    {
+      "type": "function",
+      "name": "getInsuranceCasesUrlByTrip",
       "constant": true,
       "stateMutability": "view",
       "payable": false,
       "inputs": [{ "type": "uint256", "name": "tripId" }],
-      "outputs": [{ "type": "string", "name": "" }]
+      "outputs": [
+        {
+          "type": "tuple[]",
+          "name": "caseUrls",
+          "components": [
+            {
+              "type": "tuple",
+              "name": "iCase",
+              "components": [
+                { "type": "string", "name": "iCase" },
+                { "type": "bool", "name": "pre" }
+              ]
+            },
+            { "type": "string", "name": "url" }
+          ]
+        }
+      ]
     },
     {
       "type": "function",
@@ -69,7 +106,7 @@
       "stateMutability": "view",
       "payable": false,
       "inputs": [{ "type": "string", "name": "iCase" }],
-      "outputs": [{ "type": "bool", "name": "" }]
+      "outputs": [{ "type": "bool", "name": "isExists" }]
     },
     {
       "type": "function",
@@ -87,7 +124,8 @@
       "payable": false,
       "inputs": [
         { "type": "string", "name": "iCase" },
-        { "type": "uint256", "name": "tripId" }
+        { "type": "uint256", "name": "tripId" },
+        { "type": "bool", "name": "pre" }
       ],
       "outputs": []
     },

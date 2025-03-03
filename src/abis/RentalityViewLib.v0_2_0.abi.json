@@ -2,18 +2,6 @@
   "abi": [
     {
       "type": "function",
-      "name": "checkAmount",
-      "constant": true,
-      "stateMutability": "view",
-      "payable": false,
-      "inputs": [
-        { "type": "uint256", "name": "amount" },
-        { "type": "uint256", "name": "value" }
-      ],
-      "outputs": []
-    },
-    {
-      "type": "function",
       "name": "createSumbol",
       "constant": true,
       "stateMutability": "view",
