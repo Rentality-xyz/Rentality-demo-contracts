@@ -35,6 +35,17 @@
     },
     {
       "type": "function",
+      "name": "addClaimType",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "string", "name": "name" },
+        { "type": "uint8", "name": "creator" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
       "name": "claimIdToCurrencyRate",
       "constant": true,
       "stateMutability": "view",
@@ -44,6 +55,18 @@
         { "type": "int256", "name": "rate" },
         { "type": "uint8", "name": "decimals" }
       ]
+    },
+    {
+      "type": "function",
+      "name": "claimTypeExists",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        { "type": "uint8", "name": "claimType" },
+        { "type": "bool", "name": "forHost" }
+      ],
+      "outputs": [{ "type": "bool", "name": "" }]
     },
     {
       "type": "function",
@@ -107,6 +130,63 @@
     },
     {
       "type": "function",
+      "name": "getClaimTypeInfo",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "uint8", "name": "claimType" }],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "",
+          "components": [
+            { "type": "uint8", "name": "claimType" },
+            { "type": "string", "name": "claimName" },
+            { "type": "uint8", "name": "creator" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getClaimTypesForGuest",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "tuple[]",
+          "name": "",
+          "components": [
+            { "type": "uint8", "name": "claimType" },
+            { "type": "string", "name": "claimName" },
+            { "type": "uint8", "name": "creator" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getClaimTypesForHost",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "tuple[]",
+          "name": "",
+          "components": [
+            { "type": "uint8", "name": "claimType" },
+            { "type": "string", "name": "claimName" },
+            { "type": "uint8", "name": "creator" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
       "name": "getClaimsAmount",
       "constant": true,
       "stateMutability": "view",
@@ -143,6 +223,7 @@
       ],
       "outputs": []
     },
+    { "type": "function", "name": "migrateFromV1", "constant": false, "payable": false, "inputs": [], "outputs": [] },
     {
       "type": "function",
       "name": "payClaim",
@@ -177,6 +258,14 @@
         { "type": "address", "name": "host" },
         { "type": "address", "name": "guest" }
       ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "removeClaimType",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "uint8", "name": "claimType" }],
       "outputs": []
     },
     {

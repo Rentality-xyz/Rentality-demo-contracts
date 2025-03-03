@@ -82,6 +82,30 @@
     },
     {
       "type": "function",
+      "name": "getAiDamageAnalyzeCaseData",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        { "type": "uint256", "name": "tripId" },
+        { "type": "bool", "name": "pre" }
+      ],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "",
+          "components": [
+            { "type": "uint256", "name": "caseNumber" },
+            { "type": "string", "name": "email" },
+            { "type": "string", "name": "name" },
+            { "type": "string", "name": "iCase" },
+            { "type": "string", "name": "vin" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
       "name": "getTrip",
       "constant": true,
       "stateMutability": "view",
@@ -407,7 +431,8 @@
         { "type": "address", "name": "carDeliveryAddress" },
         { "type": "address", "name": "insuranceAddress" },
         { "type": "address", "name": "promoServiceAddress" },
-        { "type": "address", "name": "dimoServiceAddress" }
+        { "type": "address", "name": "dimoServiceAddress" },
+        { "type": "address", "name": "aiDamageAnalyzeServiceAddress" }
       ],
       "outputs": []
     },
@@ -452,7 +477,8 @@
         },
         { "type": "address", "name": "insurance" },
         { "type": "address", "name": "promoServiceAddress" },
-        { "type": "address", "name": "dimoServiceAddress" }
+        { "type": "address", "name": "dimoServiceAddress" },
+        { "type": "address", "name": "aiDamageAnalyzeServiceAddress" }
       ],
       "outputs": []
     },
