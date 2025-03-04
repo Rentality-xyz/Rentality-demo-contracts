@@ -50,7 +50,7 @@
           ]
         }
       ],
-      "outputs": [{ "type": "uint256", "name": "newTokenId" }]
+      "outputs": [{ "type": "uint256", "name": "" }]
     },
     {
       "type": "function",
@@ -97,7 +97,7 @@
       "stateMutability": "view",
       "payable": false,
       "inputs": [{ "type": "uint256", "name": "claimId" }],
-      "outputs": [{ "type": "uint256", "name": "calculatedClaimValue" }]
+      "outputs": [{ "type": "uint256", "name": "" }]
     },
     {
       "type": "function",
@@ -106,7 +106,7 @@
       "stateMutability": "view",
       "payable": false,
       "inputs": [{ "type": "address", "name": "currency" }],
-      "outputs": [{ "type": "uint256", "name": "kycCommision" }]
+      "outputs": [{ "type": "uint256", "name": "" }]
     },
     {
       "type": "function",
@@ -149,7 +149,7 @@
       "outputs": [
         {
           "type": "tuple",
-          "name": "calculatePaymentsDTO",
+          "name": "",
           "components": [
             { "type": "uint256", "name": "totalPrice" },
             { "type": "int256", "name": "currencyRate" },
@@ -226,7 +226,7 @@
       "outputs": [
         {
           "type": "tuple",
-          "name": "availableCarDTO",
+          "name": "",
           "components": [
             { "type": "uint256", "name": "carId" },
             { "type": "string", "name": "brand" },
@@ -350,7 +350,7 @@
       "outputs": [
         {
           "type": "tuple",
-          "name": "checkPromoDTO",
+          "name": "",
           "components": [
             { "type": "bool", "name": "isFound" },
             { "type": "bool", "name": "isValid" },
@@ -467,7 +467,7 @@
       "outputs": [
         {
           "type": "tuple[]",
-          "name": "carInfos",
+          "name": "",
           "components": [
             { "type": "uint256", "name": "carId" },
             { "type": "string", "name": "carVinNumber" },
@@ -501,7 +501,7 @@
       "outputs": [
         {
           "type": "tuple[]",
-          "name": "avaibleCurrencies",
+          "name": "",
           "components": [
             { "type": "address", "name": "currency" },
             { "type": "string", "name": "name" }
@@ -519,7 +519,7 @@
       "outputs": [
         {
           "type": "tuple[]",
-          "name": "carInfo",
+          "name": "",
           "components": [
             { "type": "uint256", "name": "carId" },
             { "type": "string", "name": "carVinNumber" },
@@ -553,7 +553,7 @@
       "outputs": [
         {
           "type": "tuple[]",
-          "name": "carInfo",
+          "name": "",
           "components": [
             { "type": "uint256", "name": "carId" },
             { "type": "string", "name": "carVinNumber" },
@@ -587,7 +587,7 @@
       "outputs": [
         {
           "type": "tuple",
-          "name": "carDetails",
+          "name": "",
           "components": [
             { "type": "uint256", "name": "carId" },
             { "type": "string", "name": "hostName" },
@@ -633,7 +633,7 @@
       "outputs": [
         {
           "type": "tuple",
-          "name": "carInfoWithInsurance",
+          "name": "",
           "components": [
             {
               "type": "tuple",
@@ -679,7 +679,7 @@
       "stateMutability": "view",
       "payable": false,
       "inputs": [{ "type": "uint256", "name": "carId" }],
-      "outputs": [{ "type": "string", "name": "metadataURI" }]
+      "outputs": [{ "type": "string", "name": "" }]
     },
     {
       "type": "function",
@@ -691,7 +691,7 @@
       "outputs": [
         {
           "type": "tuple[]",
-          "name": "publicHostCarDTO",
+          "name": "",
           "components": [
             { "type": "uint256", "name": "carId" },
             { "type": "string", "name": "metadataURI" },
@@ -716,7 +716,7 @@
       "outputs": [
         {
           "type": "tuple[]",
-          "name": "chatInfo",
+          "name": "",
           "components": [
             { "type": "uint256", "name": "tripId" },
             { "type": "address", "name": "guestAddress" },
@@ -747,7 +747,7 @@
       "outputs": [
         {
           "type": "tuple",
-          "name": "fullClaimInfo",
+          "name": "",
           "components": [
             {
               "type": "tuple",
@@ -796,16 +796,7 @@
               ]
             },
             { "type": "uint256", "name": "amountInEth" },
-            { "type": "string", "name": "timeZoneId" },
-            {
-              "type": "tuple",
-              "name": "claimType",
-              "components": [
-                { "type": "uint8", "name": "claimType" },
-                { "type": "string", "name": "claimName" },
-                { "type": "uint8", "name": "creator" }
-              ]
-            }
+            { "type": "string", "name": "timeZoneId" }
           ]
         }
       ]
@@ -820,7 +811,7 @@
       "outputs": [
         {
           "type": "tuple",
-          "name": "deliveryData",
+          "name": "",
           "components": [
             {
               "type": "tuple",
@@ -849,7 +840,7 @@
       "stateMutability": "view",
       "payable": false,
       "inputs": [],
-      "outputs": [{ "type": "uint256[]", "name": "dimoVihicles" }]
+      "outputs": [{ "type": "uint256[]", "name": "" }]
     },
     {
       "type": "function",
@@ -861,7 +852,7 @@
       "outputs": [
         {
           "type": "tuple",
-          "name": "baseDiscount",
+          "name": "",
           "components": [
             { "type": "uint32", "name": "threeDaysDiscount" },
             { "type": "uint32", "name": "sevenDaysDiscount" },
@@ -881,7 +872,7 @@
       "outputs": [
         {
           "type": "tuple",
-          "name": "filterInfoDTO",
+          "name": "",
           "components": [
             { "type": "uint64", "name": "maxCarPrice" },
             { "type": "uint256", "name": "minCarYearOfProduction" }
@@ -899,7 +890,7 @@
       "outputs": [
         {
           "type": "tuple[]",
-          "name": "insuranceDTO",
+          "name": "",
           "components": [
             { "type": "uint256", "name": "tripId" },
             { "type": "string", "name": "carBrand" },
@@ -935,31 +926,7 @@
       "stateMutability": "view",
       "payable": false,
       "inputs": [],
-      "outputs": [{ "type": "uint256", "name": "kycCommision" }]
-    },
-    {
-      "type": "function",
-      "name": "getAiDamageAnalyzeCaseData",
-      "constant": true,
-      "stateMutability": "view",
-      "payable": false,
-      "inputs": [
-        { "type": "uint256", "name": "" },
-        { "type": "bool", "name": "" }
-      ],
-      "outputs": [
-        {
-          "type": "tuple",
-          "name": "aiDamageAnalyzeCaseData",
-          "components": [
-            { "type": "uint256", "name": "caseNumber" },
-            { "type": "string", "name": "email" },
-            { "type": "string", "name": "name" },
-            { "type": "string", "name": "iCase" },
-            { "type": "string", "name": "vin" }
-          ]
-        }
-      ]
+      "outputs": [{ "type": "uint256", "name": "" }]
     },
     {
       "type": "function",
@@ -971,7 +938,7 @@
       "outputs": [
         {
           "type": "tuple[]",
-          "name": "myCars",
+          "name": "",
           "components": [
             {
               "type": "tuple",
@@ -1014,7 +981,7 @@
       "outputs": [
         {
           "type": "tuple[]",
-          "name": "fullClaimInfos",
+          "name": "",
           "components": [
             {
               "type": "tuple",
@@ -1063,16 +1030,7 @@
               ]
             },
             { "type": "uint256", "name": "amountInEth" },
-            { "type": "string", "name": "timeZoneId" },
-            {
-              "type": "tuple",
-              "name": "claimType",
-              "components": [
-                { "type": "uint8", "name": "claimType" },
-                { "type": "string", "name": "claimName" },
-                { "type": "uint8", "name": "creator" }
-              ]
-            }
+            { "type": "string", "name": "timeZoneId" }
           ]
         }
       ]
@@ -1087,7 +1045,7 @@
       "outputs": [
         {
           "type": "tuple",
-          "name": "fullKYCInfo",
+          "name": "",
           "components": [
             {
               "type": "tuple",
@@ -1127,7 +1085,7 @@
       "outputs": [
         {
           "type": "tuple[]",
-          "name": "insuranceInfo",
+          "name": "",
           "components": [
             { "type": "string", "name": "companyName" },
             { "type": "string", "name": "policyNumber" },
@@ -1150,7 +1108,7 @@
       "outputs": [
         {
           "type": "tuple",
-          "name": "tripDTO",
+          "name": "",
           "components": [
             {
               "type": "tuple",
@@ -1303,7 +1261,7 @@
       "outputs": [
         {
           "type": "tuple",
-          "name": "tripReceiptDTO",
+          "name": "",
           "components": [
             { "type": "uint64", "name": "totalDayPriceInUsdCents" },
             { "type": "uint64", "name": "totalTripDays" },
@@ -1340,7 +1298,7 @@
       "outputs": [
         {
           "type": "tuple[]",
-          "name": "tripDTO",
+          "name": "",
           "components": [
             {
               "type": "tuple",
@@ -1499,7 +1457,7 @@
       "outputs": [
         {
           "type": "tuple",
-          "name": "deliveryPrices",
+          "name": "",
           "components": [
             { "type": "uint64", "name": "underTwentyFiveMilesInUsdCents" },
             { "type": "uint64", "name": "aboveTwentyFiveMilesInUsdCents" },
@@ -1515,7 +1473,7 @@
       "stateMutability": "view",
       "payable": false,
       "inputs": [{ "type": "address", "name": "user" }],
-      "outputs": [{ "type": "bool", "name": "isPaid" }]
+      "outputs": [{ "type": "bool", "name": "" }]
     },
     {
       "type": "function",
@@ -1524,7 +1482,7 @@
       "stateMutability": "view",
       "payable": false,
       "inputs": [],
-      "outputs": [{ "type": "address", "name": "owner" }]
+      "outputs": [{ "type": "address", "name": "" }]
     },
     {
       "type": "function",
@@ -1679,7 +1637,7 @@
       "outputs": [
         {
           "type": "tuple[]",
-          "name": "foundCarsWithDistance",
+          "name": "",
           "components": [
             {
               "type": "tuple",
