@@ -377,9 +377,9 @@ library RentalityViewLib {
 
     uint taxId = contracts.paymentService.defineTaxesType(address(contracts.carService), carId);
 
-    (uint64 salesTaxes, uint64 govTax) = taxId == 0
-      ? (0, 0)
-      : contracts.paymentService.calculateTaxes(taxId, totalTripDays, priceWithDiscount + pickUp + dropOf);
+    Schemas.TaxesDTO memory taxes = taxId == 0
+      ? Schemas.TaxesDTO(bytes(''), string(''), 0, 0)
+      : contracts.paymentService.calculateTaxesDTO(taxId, totalTripDays, priceWithDiscount + pickUp + dropOf);
 
     return
       Schemas.AvailableCarDTO(
@@ -391,7 +391,6 @@ library RentalityViewLib {
         priceWithDiscount / totalTripDays,
         totalTripDays,
         priceWithDiscount,
-        salesTaxes + govTax,
         temp.securityDepositPerTripInUsdCents,
         temp.engineType,
         temp.milesIncludedPerDay,
@@ -408,11 +407,10 @@ library RentalityViewLib {
         insuranceService.getCarInsuranceInfo(temp.carId),
         fuelPrice,
         discountService.getParsedDiscount(contracts.carService.ownerOf(carId)),
-        salesTaxes,
-        govTax,
         distance,
         insuranceService.isGuestHasInsurance(user),
-        RentalityDimoService(dimoService).getDimoTokenId(temp.carId)
+        RentalityDimoService(dimoService).getDimoTokenId(temp.carId),
+        taxes
       );
   }
 }

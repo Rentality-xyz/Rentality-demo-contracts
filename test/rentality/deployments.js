@@ -399,6 +399,7 @@ async function deployDefaultFixture() {
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityPaymentService.getAddress())
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityView.getAddress())
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityTripsView.getAddress())
+  await rentalityUserService.connect(owner).grantManagerRole(await rentalityPlatformHelper.getAddress())
 
   const hostSignature = await signTCMessage(host)
   const guestSignature = await signTCMessage(guest)

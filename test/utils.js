@@ -482,6 +482,12 @@ async function deployDefaultFixture() {
     await rentalityUserService.getAddress(),
   ])
 
+  const PennsylvaniaTaxes = await ethers.getContractFactory('RentalityPennsylvaniaTaxes')
+
+  const rentalityPennsylvaniaTaxes = await upgrades.deployProxy(PennsylvaniaTaxes, [
+    await rentalityUserService.getAddress(),
+  ])
+
   const RentalityBaseDiscount = await ethers.getContractFactory('RentalityBaseDiscount')
 
   const rentalityBaseDiscount = await upgrades.deployProxy(RentalityBaseDiscount, [
@@ -713,6 +719,7 @@ async function deployDefaultFixture() {
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityView.getAddress())
   await rentalityUserService.connect(owner).grantManagerRole(await rentalityTripsView.getAddress())
   await rentalityUserService.connect(owner).grantManagerRole(await refferalProgram.getAddress())
+  await rentalityUserService.connect(owner).grantManagerRole(await rentalityPlatformHelper.getAddress())
   await rentalityUserService.connect(owner).manageRole(6, anonymous.address, true)
   await rentalityUserService.connect(owner).manageRole(6, host.address, true)
   await rentalityUserService.connect(owner).manageRole(6, guest.address, true)
@@ -777,6 +784,7 @@ async function deployDefaultFixture() {
     refferalProgram,
     hashCreator,
     promoService,
+    rentalityPennsylvaniaTaxes,
   }
 }
 

@@ -75,9 +75,24 @@ contract RentalityPaymentService is UUPSOwnable {
   /// @param daysOfTrip The duration of the trip in days.
   /// @param value The total value of the trip.
   /// @return The calculated taxes.
-  function calculateTaxes(uint taxId, uint64 daysOfTrip, uint64 value) public view returns (uint64, uint64) {
-    return taxesIdToTaxesContract[taxId].calculateTaxes(daysOfTrip, value);
+  function calculateAndSaveTaxes(uint taxId, uint64 daysOfTrip, uint64 value, uint tripId) public returns (uint64) {
+    return taxesIdToTaxesContract[taxId].calculateAndSaveTaxes(daysOfTrip, value, tripId);
   }
+     function calculateTaxes(uint taxId,uint64 tripDays, uint64 totalCost) public view returns (uint64) {
+    return taxesIdToTaxesContract[taxId].calculateTaxes(tripDays, totalCost);
+  }
+    function getTotalTripTax(uint taxId, uint tripId) public view returns(uint64) {
+    return taxesIdToTaxesContract[taxId].getTotalTripTax(tripId);
+  }
+     function getTripTaxesDTO(uint taxId, uint tripId) public view returns(Schemas.TaxesDTO memory) {
+        (bytes memory data, string memory dataName, uint64 totalTax) = taxesIdToTaxesContract[taxId].getTripTaxesDTO(tripId);
+        return Schemas.TaxesDTO(data, dataName, taxId, totalTax);
+  }
+  function calculateTaxesDTO(uint taxId, uint64 tripDays, uint64 totalCost) public view returns(Schemas.TaxesDTO memory) {
+    (bytes memory data, string memory dataName, uint64 totalTax) = taxesIdToTaxesContract[taxId].calculateTaxesDTO(tripDays, totalCost);
+    return Schemas.TaxesDTO(data, dataName, taxId, totalTax);
+  }
+
 
   /// @notice Defines the type of taxes based on the location of a car.
   /// @param carService The address of the car service contract.
