@@ -191,11 +191,11 @@ contract RentalityCurrencyConverter is Initializable, UUPSAccess {
 
   function calculateTripReject(
     Schemas.PaymentInfo memory paymentInfo,
-    uint insurance
+    uint insurance,
+    uint64 totalTax
   ) public pure returns (uint tripRejectValue) {
     uint64 valueToReturnInUsdCents = paymentInfo.priceWithDiscount +
-      paymentInfo.salesTax +
-      paymentInfo.governmentTax +
+      totalTax +
       uint64(paymentInfo.pickUpFee) +
       uint64(paymentInfo.dropOfFee) +
       paymentInfo.depositInUsdCents +

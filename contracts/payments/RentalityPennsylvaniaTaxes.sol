@@ -8,14 +8,14 @@ import '../Schemas.sol';
 
 /// @title RentalityFloridaTaxes
 /// @notice This contract implements tax calculation specific to the state of Florida.
-contract RentalityFloridaTaxes is IRentalityTaxes, Initializable, UUPSAccess {
-  Schemas.FloridaTaxes public taxes;
-  mapping(uint => Schemas.FloridaTaxes) private tripIdToFloridaTax;
+contract RentalityPennsylvaniaTaxes is IRentalityTaxes, Initializable, UUPSAccess {
+  Schemas.PennsylvaniaTaxes public taxes;
+  mapping(uint => Schemas.PennsylvaniaTaxes) private tripIdToPennsylvaniaTaxes;
 
   /// @notice Retrieves the location hash and type for Florida taxes.
   /// @return The location hash for Florida and the taxes location type (State).
   function getLocation() public pure returns (bytes32, Schemas.TaxesLocationType) {
-    return (keccak256(abi.encode('Florida')), Schemas.TaxesLocationType.State);
+    return (keccak256(abi.encode('Pennsylvania')), Schemas.TaxesLocationType.State);
   }
 
   /// @notice Sets the taxes for Florida.
@@ -24,41 +24,41 @@ contract RentalityFloridaTaxes is IRentalityTaxes, Initializable, UUPSAccess {
   function setTaxes(bytes memory newTaxes) public {
     require(userService.isAdmin(tx.origin), 'Only admin.');
 
-    taxes = abi.decode(newTaxes, (Schemas.FloridaTaxes));
+    taxes = abi.decode(newTaxes, (Schemas.PennsylvaniaTaxes));
   }
 
-  /// @notice Calculates the total taxes for a trip based on trip duration and total cost.
-  /// @param tripDays The duration of the trip in days.
-  /// @param totalCost The total cost of the trip.
-  /// @return The total taxes for the trip.
-  function calculateAndSaveTaxes(uint64 tripDays, uint64 totalCost, uint tripId) public returns (uint64) {
+   function calculateAndSaveTaxes(uint64 tripDays, uint64 totalCost, uint tripId) public returns (uint64) {
     uint64 salesTax = getSalesTaxFrom(totalCost);
     uint64 govTax = getGovernmentTaxPerDayFrom(tripDays);
-    tripIdToFloridaTax[tripId] = Schemas.FloridaTaxes(uint32(salesTax), uint32(govTax));
-    return salesTax + govTax;
+    uint64 rentTax = getRentalTaxFrom(totalCost);
+    tripIdToPennsylvaniaTaxes[tripId] = Schemas.PennsylvaniaTaxes(uint32(salesTax), uint32(govTax), uint32(rentTax));
+    return salesTax + govTax + rentTax; 
   }
    function calculateTaxes(uint64 tripDays, uint64 totalCost) public view returns (uint64) {
     uint64 salesTax = getSalesTaxFrom(totalCost);
     uint64 govTax = getGovernmentTaxPerDayFrom(tripDays);
-    return salesTax + govTax;
-  }
-    function getTripTaxesDTO(uint tripId) public view returns (bytes memory data, string memory dataName, uint64 totalTax) {
-   Schemas.FloridaTaxes memory floridaTaxes = tripIdToFloridaTax[tripId];
-    data = abi.encode(floridaTaxes);
-    totalTax = floridaTaxes.salesTaxPPM + floridaTaxes.governmentTaxPerDayInUsdCents;
-    dataName = "FloridaTaxes";
-  }
-   function calculateTaxesDTO(uint64 tripDays, uint64 totalCost) public view returns (bytes memory data, string memory dataName, uint64 totalTax) {
-    uint64 salesTax = getSalesTaxFrom(totalCost);
-    uint64 govTax = getGovernmentTaxPerDayFrom(tripDays);
-    data = abi.encode(Schemas.FloridaTaxes(uint32(salesTax), uint32(govTax)));
-    totalTax = salesTax + govTax;
-    dataName = "FloridaTaxes";
+    uint64 rentTax = getRentalTaxFrom(totalCost);
+    return salesTax + govTax + rentTax; 
   }
 
-  function getTotalTripTax(uint tripId) public view returns(uint64) {
-    Schemas.FloridaTaxes memory tripTaxes = tripIdToFloridaTax[tripId]; 
-    return tripTaxes.salesTaxPPM + tripTaxes.governmentTaxPerDayInUsdCents;
+  function calculateTaxesDTO(uint64 tripDays, uint64 totalCost) public view returns (bytes memory data, string memory dataName, uint64 totalTax) {
+    uint64 salesTax = getSalesTaxFrom(totalCost);
+    uint64 govTax = getGovernmentTaxPerDayFrom(tripDays);
+    uint64 rentTax = getRentalTaxFrom(totalCost);
+    data = abi.encode(Schemas.PennsylvaniaTaxes(uint32(salesTax), uint32(govTax), uint32(rentTax)));
+    totalTax = salesTax + govTax + rentTax;
+    dataName = "PennsylvaniaTaxes";
+  }
+
+      function getTripTaxesDTO(uint tripId) public view returns (bytes memory data, string memory dataName, uint64 totalTax) {
+   Schemas.PennsylvaniaTaxes memory pTaxes = tripIdToPennsylvaniaTaxes[tripId];
+    data = abi.encode(pTaxes);
+    totalTax = pTaxes.salesTaxPPM + pTaxes.governmentTaxPerDayInUsdCents + pTaxes.rentalTax;
+    dataName = "FloridaTaxes";
+  }
+    function getTotalTripTax(uint tripId) public view returns(uint64) {
+    Schemas.PennsylvaniaTaxes memory tripTaxes = tripIdToPennsylvaniaTaxes[tripId]; 
+    return tripTaxes.salesTaxPPM + tripTaxes.governmentTaxPerDayInUsdCents + tripTaxes.rentalTax;
   }
   /// @notice Retrieves the current sales tax in parts per million (PPM).
   /// @return The current sales tax in PPM.
@@ -86,11 +86,15 @@ contract RentalityFloridaTaxes is IRentalityTaxes, Initializable, UUPSAccess {
     return uint64(taxes.governmentTaxPerDayInUsdCents) * daysAmount;
   }
 
-  /// @notice Initializes the RentalityFloridaTaxes contract.
+  function getRentalTaxFrom(uint64 value) public view returns(uint64) {
+     return (value * taxes.rentalTax) / 1_000_000;
+  }
+
+  /// @notice Initializes the RentalityPennsylvaniaTaxes contract.
   /// @param _userService The address of the RentalityUserService contract.
   function initialize(address _userService) public initializer {
     userService = IRentalityAccessControl(_userService);
 
-    taxes = Schemas.FloridaTaxes(70_000, 200); // Default tax values for Florida
+    taxes = Schemas.PennsylvaniaTaxes(60_000, 2 , 20_000); // Default tax values for Pennsylvania
   }
 }

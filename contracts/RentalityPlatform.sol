@@ -21,6 +21,16 @@ import {RentalityPromoService} from './features/RentalityPromo.sol';
 import {RentalityPlatformHelper} from './RentalityPlatformHelper.sol';
 import {ARentalityContext} from './abstract/ARentalityContext.sol';
 
+struct CreateTripRequestParams {
+    Schemas.CreateTripRequestWithDelivery request;
+    uint64 pickUp;
+    uint64 dropOf;
+    bytes32 pickUpHash;
+    bytes32 returnHash;
+    string promo;
+}
+
+
 /// @title Rentality Platform Contract
 /// @notice This contract manages various services related to the Rentality platform, including cars, trips, users, and payments.
 /// @dev It allows updating service contracts, creating and managing trips, handling payments, and more.
@@ -73,105 +83,115 @@ contract RentalityPlatform is UUPSOwnable, ARentalityContext {
     platformHelper = platformHelperAddress;
   }
 
-  /// @notice Creates a trip request with delivery.
-  /// @param request The trip request with delivery details.
-  function createTripRequestWithDelivery(
+function createTripRequestWithDelivery(
     Schemas.CreateTripRequestWithDelivery memory request,
     string memory promo
-  ) public payable {
+) public payable {
     (uint64 pickUp, uint64 dropOf) = RentalityUtils.calculateDelivery(addresses, request);
     bytes32 pickUpHash = IRentalityGeoService(addresses.carService.getGeoServiceAddress()).createSignedLocationInfo(
-      request.pickUpInfo
+        request.pickUpInfo
     );
     bytes32 returnHash = IRentalityGeoService(addresses.carService.getGeoServiceAddress()).createSignedLocationInfo(
-      request.returnInfo
+        request.returnInfo
     );
-    _createTripRequest(request, pickUp, dropOf, pickUpHash, returnHash, promo);
-  }
+    // Create the struct and pass it
+    CreateTripRequestParams memory params = CreateTripRequestParams({
+        request: request,
+        pickUp: pickUp,
+        dropOf: dropOf,
+        pickUpHash: pickUpHash,
+        returnHash: returnHash,
+        promo: promo
+    });
+    _createTripRequest(params);
+}
 
   /// @notice Creates a trip request with specified details.
   /// @dev This function is private and should only be called internally.
-  /// @param pickUp Fee for delivery associated with the trip request.
-  /// @param dropOf Fee for delivery associated with the trip request.
-  function _createTripRequest(
-    Schemas.CreateTripRequestWithDelivery memory request,
-    uint64 pickUp,
-    uint64 dropOf,
-    bytes32 pickUpHash,
-    bytes32 returnHash,
-    string memory promo
-  ) private {
+   function _createTripRequest(
+    CreateTripRequestParams memory params // Single struct parameter
+) private {
     address sender = _msgGatewaySender();
     RentalityUtils.validateTripRequest(
-      addresses,
-      request.currencyType,
-      request.carId,
-      request.startDateTime,
-      request.endDateTime,
-      sender
+        addresses,
+        params.request.currencyType,
+        params.request.carId,
+        params.request.startDateTime,
+        params.request.endDateTime,
+        sender
     );
-    // uint discount = 0;
-    //    if(useRefferalDiscount)
-    //  discount = refferalProgram.useDiscount(Schemas.RefferalProgram.CreateTrip, false, addresses.tripService.totalTripCount() + 1);
 
     uint insurance = insuranceService.calculateInsuranceForTrip(
-      request.carId,
-      request.startDateTime,
-      request.endDateTime,
-      sender
+        params.request.carId,
+        params.request.startDateTime,
+        params.request.endDateTime,
+        sender
     );
+    uint64 priceWithDiscount = addresses.paymentService.calculateSumWithDiscount(
+        addresses.carService.ownerOf(params.request.carId),
+        RentalityUtils.getCeilDays(params.request.startDateTime, params.request.endDateTime),
+        addresses.carService.getCarInfoById(params.request.carId).pricePerDayInUsdCents
+    );
+    uint tripId = addresses.tripService.totalTripCount() + 1;
+
     (
-      Schemas.PaymentInfo memory paymentInfo,
-      uint valueSumInCurrency,
-      uint hostEarningsInCurrency,
-      uint hostEarnings,
-      bool usePromo
+        Schemas.PaymentInfo memory paymentInfo,
+        uint valueSumInCurrency,
+        uint hostEarningsInCurrency,
+        uint hostEarnings,
+        bool usePromo
     ) = RentalityUtils.createPaymentInfo(
         addresses,
-        request.carId,
-        request.startDateTime,
-        request.endDateTime,
-        request.currencyType,
-        pickUp,
-        dropOf,
+        params.request.carId,
+        params.request.currencyType,
+        params.pickUp,
+        params.dropOf,
         promoService,
-        promo,
+        params.promo,
         sender,
-        insurance
-      );
+        insurance,
+        addresses.paymentService.calculateAndSaveTaxes(
+            addresses.paymentService.defineTaxesType(address(addresses.carService), params.request.carId),
+            RentalityUtils.getCeilDays(params.request.startDateTime, params.request.endDateTime),
+            priceWithDiscount + params.pickUp + params.dropOf,
+            tripId
+        ),
+        RentalityUtils.getCeilDays(params.request.startDateTime, params.request.endDateTime),
+        priceWithDiscount
+    );
 
     addresses.paymentService.payCreateTrip{value: msg.value}(
-      request.currencyType,
-      valueSumInCurrency,
-      sender,
-      request.carId
+        params.request.currencyType,
+        valueSumInCurrency,
+        sender,
+        params.request.carId
     );
 
-    uint tripId = addresses.tripService.createNewTrip(
-      request.carId,
-      sender,
-      addresses.carService.ownerOf(request.carId),
-      addresses.carService.getCarInfoById(request.carId).pricePerDayInUsdCents,
-      request.startDateTime,
-      request.endDateTime,
-      pickUpHash,
-      returnHash,
-      addresses.carService.getCarInfoById(request.carId).milesIncludedPerDay,
-      paymentInfo,
-      msg.value
-    );
-    insuranceService.saveGuestinsurancePayment(tripId, request.carId, insurance, sender);
-    if (usePromo)
-      promoService.usePromo(
-        promo,
-        tripId,
+    addresses.tripService.createNewTrip(
+        params.request.carId,
         sender,
-        hostEarningsInCurrency,
-        hostEarnings,
-        uint(request.startDateTime),
-        uint(request.endDateTime)
-      );
-  }
+        addresses.carService.ownerOf(params.request.carId),
+        addresses.carService.getCarInfoById(params.request.carId).pricePerDayInUsdCents,
+        params.request.startDateTime,
+        params.request.endDateTime,
+        params.pickUpHash,
+        params.returnHash,
+        addresses.carService.getCarInfoById(params.request.carId).milesIncludedPerDay,
+        paymentInfo,
+        msg.value
+    );
+    insuranceService.saveGuestinsurancePayment(tripId, params.request.carId, insurance, sender);
+    if (usePromo)
+        promoService.usePromo(
+            params.promo,
+            tripId,
+            sender,
+            hostEarningsInCurrency,
+            hostEarnings,
+            uint(params.request.startDateTime),
+            uint(params.request.endDateTime)
+        );
+}
 
   /// @notice Approve a trip request on the Rentality platform.
   /// @param tripId The ID of the trip to approve.
@@ -198,7 +218,9 @@ contract RentalityPlatform is UUPSOwnable, ARentalityContext {
     Schemas.Trip memory trip = addresses.tripService.getTrip(tripId);
 
     uint insurance = insuranceService.getInsurancePriceByTrip(tripId);
-    uint valueToReturnInUsdCents = addresses.currencyConverterService.calculateTripReject(trip.paymentInfo, insurance);
+    uint taxId = addresses.paymentService.defineTaxesType(address(addresses.carService), trip.carId);
+    uint64 totalTax = addresses.paymentService.getTotalTripTax(taxId,tripId);
+    uint valueToReturnInUsdCents = addresses.currencyConverterService.calculateTripReject(trip.paymentInfo, insurance, totalTax);
 
     /* you should not recalculate the value with convertor,
      for return during rejection,
@@ -316,27 +338,7 @@ contract RentalityPlatform is UUPSOwnable, ARentalityContext {
   //   addresses.claimService.updateClaim(claimId, trip.host, trip.guest);
   // }
 
-  /// @notice Sets Know Your Customer (KYC) information for the caller.
-  function setKYCInfo(
-    string memory nickName,
-    string memory mobilePhoneNumber,
-    string memory profilePhoto,
-    string memory email,
-    bytes memory TCSignature,
-    bytes4 hash
-  ) public {
-    address sender = _msgGatewaySender();
-    refferalProgram.generateReferralHash(sender);
-    bool isGuest = addresses.userService.isGuest(sender);
-    refferalProgram.saveRefferalHash(hash, isGuest, sender);
-    refferalProgram.passReferralProgram(Schemas.RefferalProgram.SetKYC, bytes(''), sender, promoService);
-    addresses.userService.setKYCInfo(nickName, mobilePhoneNumber, profilePhoto, email, TCSignature, sender);
-  }
 
-  function setCivicKYCInfo(address user, Schemas.CivicKYCInfo memory civicKycInfo) public {
-    refferalProgram.passReferralProgram(Schemas.RefferalProgram.PassCivic, bytes(''), user, promoService);
-    addresses.userService.setCivicKYCInfo(user, civicKycInfo);
-  }
   // function setMyCivicKYCInfo(Schemas.CivicKYCInfo memory civicKycInfo) public {
   // addresses.userService.setMyCivicKYCInfo(tx.origin, civicKycInfo);
   // }
