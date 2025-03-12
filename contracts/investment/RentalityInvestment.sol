@@ -59,8 +59,9 @@ contract RentalityInvestment is Initializable, UUPSAccess {
       investmentIdToPayedInETH[investId] + amount
     );
 
+
     _checkAmount(amountAfterInvestment, investment.priceInUsd);
-    if (amountAfterInvestment == investment.priceInUsd) {
+    if (amountAfterInvestment >= investment.priceInUsd) {
       investment.inProgress = false;
     }
 
@@ -89,6 +90,13 @@ contract RentalityInvestment is Initializable, UUPSAccess {
     require(address(investIdToPool[investId]) == address(0), 'Claimed');
 
     Schemas.CarInvestment storage investment = investmentIdToCarInfo[investId];
+     (uint amountInvested, , ) = converter.getToUsdLatest(
+      investmentIdToCurrency[investId],
+      investmentIdToPayedInETH[investId]
+    );
+    if (investment.priceInUsd <= amountInvested && !investment.inProgress)
+        investment.inProgress = false;
+
     require(!investment.inProgress, 'In progress');
     investIdToPool[investId] = RentalityCarInvestmentPool(
       investDeployer.createNewPool(
