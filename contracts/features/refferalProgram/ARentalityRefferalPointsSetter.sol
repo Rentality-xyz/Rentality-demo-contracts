@@ -42,7 +42,7 @@ abstract contract ARentalityRefferalPointsSetter is ARentalityRefferal {
     return result;
   }
   function addPermanentProgram(Schemas.RefferalProgram selector, int points, bytes4 calback) public {
-    require(getUserService().isManager(msg.sender), 'only Manager');
+    require(getUserService().isRentalityPlatform(msg.sender), 'only Manager');
 
     Points storage oldPoints = permanentSelectorToPoints[selector];
 
@@ -50,7 +50,7 @@ abstract contract ARentalityRefferalPointsSetter is ARentalityRefferal {
     oldPoints.points = points;
   }
   function addOneTimeProgram(Schemas.RefferalProgram selector, int points, int refPoints, bytes4 calback) public {
-    require(getUserService().isManager(msg.sender), 'only Manager');
+    require(getUserService().isRentalityPlatform(msg.sender), 'only Manager');
     Points storage oldPoints = selectorToPoints[selector];
 
     oldPoints.callback = calback;

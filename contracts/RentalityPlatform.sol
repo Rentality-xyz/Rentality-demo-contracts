@@ -218,8 +218,7 @@ function createTripRequestWithDelivery(
     Schemas.Trip memory trip = addresses.tripService.getTrip(tripId);
 
     uint insurance = insuranceService.getInsurancePriceByTrip(tripId);
-    uint taxId = addresses.paymentService.defineTaxesType(address(addresses.carService), trip.carId);
-    uint64 totalTax = addresses.paymentService.getTotalTripTax(taxId,tripId);
+    uint64 totalTax = addresses.paymentService.getTotalTripTax(tripId);
     uint valueToReturnInUsdCents = addresses.currencyConverterService.calculateTripReject(trip.paymentInfo, insurance, totalTax);
 
     /* you should not recalculate the value with convertor,
@@ -422,7 +421,7 @@ function createTripRequestWithDelivery(
   }
 
   function isTrustedForwarder(address forwarder) internal view override returns (bool) {
-    return addresses.userService.isManager(forwarder);
+    return addresses.userService.isRentalityPlatform(forwarder);
   }
   function setTrustedForwarder(address forwarder) public onlyOwner {
     trustedForwarderAddress = forwarder;

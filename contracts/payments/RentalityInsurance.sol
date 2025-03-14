@@ -16,14 +16,14 @@ contract RentalityInsurance is Initializable, UUPSAccess {
   RentalityCarToken private carService;
 
   function saveInsuranceRequired(uint carId, uint priceInUsdCents, bool required, address user) public {
-    require(userService.isManager(msg.sender), 'Only Manager');
+    require(userService.isRentalityPlatform(msg.sender), 'Only Manager');
     require(carService.ownerOf(carId) == user, 'For car owner');
 
     carIdToInsuranceRequired[carId] = Schemas.InsuranceCarInfo(required, priceInUsdCents);
   }
 
   function saveGuestInsurance(Schemas.SaveInsuranceRequest memory insuranceInfo, address user) public {
-    require(userService.isManager(msg.sender), 'Only Manager');
+    require(userService.isRentalityPlatform(msg.sender), 'Only Manager');
 
     require(insuranceInfo.insuranceType != Schemas.InsuranceType.OneTime, 'Wrong Insurance type');
     Schemas.InsuranceInfo[] storage insurances = guestToInsuranceInfo[user];
@@ -50,7 +50,7 @@ contract RentalityInsurance is Initializable, UUPSAccess {
   }
 
   function saveTripInsuranceInfo(uint tripId, Schemas.SaveInsuranceRequest memory insuranceInfo, address user) public {
-    require(userService.isManager(msg.sender), 'Only Manager');
+    require(userService.isRentalityPlatform(msg.sender), 'Only Manager');
     require(insuranceInfo.insuranceType != Schemas.InsuranceType.None, 'Wrong insurance type');
     Schemas.InsuranceInfo[] storage insurances = tripIdToInsuranceInfo[tripId];
 
@@ -72,7 +72,7 @@ contract RentalityInsurance is Initializable, UUPSAccess {
     return info.required ? info.priceInUsdCents : 0;
   }
   function saveGuestinsurancePayment(uint tripId, uint carId, uint totalSum, address user) public {
-    require(userService.isManager(msg.sender), 'Only Manager');
+    require(userService.isRentalityPlatform(msg.sender), 'Only Manager');
 
     if (carIdToInsuranceRequired[carId].required) {
       Schemas.InsuranceInfo[] memory insurances = guestToInsuranceInfo[user];

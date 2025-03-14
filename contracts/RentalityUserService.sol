@@ -26,6 +26,8 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
   bytes32 public constant KYC_COMMISSION_MANAGER_ROLE = keccak256('KYC_MANAGER_ROLE');
   bytes32 public constant ADMIN_VIEW_ROLE = keccak256('ADMIN_VIEW_ROLE');
   bytes32 public constant INVESTMENT_MANAGER_ROLE = keccak256('INVESTMENT_MANAGER_ROLE');
+  
+  bytes32 public constant RENTALITY_PLATFORM = keccak256('RENTALITY_PLATFORM_ROLE');
 
   // Mapping to store KYC information for each user address
   mapping(address => Schemas.KYCInfo) private kycInfos;
@@ -49,7 +51,7 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
     bytes memory TCSignature,
     address user
   ) public {
-    require(isManager(msg.sender), 'only Manager');
+    require(isRentalityPlatform(msg.sender), 'only Manager');
     if (!isGuest(user)) {
       _grantRole(GUEST_ROLE, user);
     }
@@ -134,13 +136,13 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
   /// Requirements:
   /// - Caller must be a manager.
   function getKYCInfo(address user) external view returns (Schemas.KYCInfo memory kycInfo) {
-    // require(isManager(msg.sender), 'Only the manager can get other users KYC info');
+    // require(isRentalityPlatform(msg.sender), 'Only the manager can get other users KYC info');
     return kycInfos[user];
   }
   /// @notice Retrieves KYC information for the caller.
   /// @return kycInfo KYCInfo structure containing caller's KYC information.
   function getMyKYCInfo(address user) external view returns (Schemas.KYCInfo memory kycInfo) {
-    require(isManager(msg.sender), 'only Manager');
+    require(isRentalityPlatform(msg.sender), 'only Manager');
     return kycInfos[user];
   }
 
@@ -185,6 +187,10 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
   function grantManagerRole(address user) public onlyRole(DEFAULT_ADMIN_ROLE) {
     grantRole(MANAGER_ROLE, user);
   }
+
+    function grantPlatformRole(address user) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    grantRole(RENTALITY_PLATFORM, user);
+  }
   /// @notice Revokes manager role from a specified user.
   /// Requirements:
   /// - Caller must have DEFAULT_ADMIN_ROLE.
@@ -196,28 +202,28 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
   /// Requirements:
   /// - Caller must have MANAGER_ROLE.
   /// @param user The address of the user to grant host role.
-  function grantHostRole(address user) public onlyRole(MANAGER_ROLE) {
+  function grantHostRole(address user) public onlyRole(RENTALITY_PLATFORM) {
     _grantRole(HOST_ROLE, user);
   }
   /// @notice Revokes host role from a specified user.
   /// Requirements:
   /// - Caller must have MANAGER_ROLE.
   /// @param user The address of the user to revoke host role.
-  function revokeHostRole(address user) public onlyRole(MANAGER_ROLE) {
+  function revokeHostRole(address user) public onlyRole(RENTALITY_PLATFORM) {
     revokeRole(HOST_ROLE, user);
   }
   /// @notice Grants guest role to a specified user.
   /// Requirements:
   /// - Caller must have MANAGER_ROLE.
   /// @param user The address of the user to grant guest role.
-  function grantGuestRole(address user) public onlyRole(MANAGER_ROLE) {
+  function grantGuestRole(address user) public onlyRole(RENTALITY_PLATFORM) {
     _grantRole(GUEST_ROLE, user);
   }
   /// @notice Revokes guest role from a specified user.
   /// Requirements:
   /// - Caller must have MANAGER_ROLE.
   /// @param user The address of the user to revoke guest role.
-  function revokeGuestRole(address user) public onlyRole(MANAGER_ROLE) {
+  function revokeGuestRole(address user) public onlyRole(RENTALITY_PLATFORM) {
     revokeRole(GUEST_ROLE, user);
   }
 
@@ -247,6 +253,10 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
   /// @return isManager A boolean indicating whether the user has manager role.
   function isManager(address user) public view returns (bool) {
     return hasRole(MANAGER_ROLE, user);
+  }
+
+   function isRentalityPlatform(address user) public view returns (bool) {
+    return hasRole(RENTALITY_PLATFORM, user);
   }
   /// @notice Checks if a user has host role.
   /// @param user The address of the user to check for host role.
@@ -307,14 +317,14 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
   }
 
   function isCommissionPaidForUser(address user) public view returns (bool) {
-    require(isManager(user) || tx.origin == user, 'Not allowed');
+    require(isRentalityPlatform(user) || tx.origin == user, 'Not allowed');
     Schemas.KycCommissionData[] memory commissions = userToKYCCommission[user];
     if (commissions.length == 0) return false;
     return commissions[commissions.length - 1].commissionPaid;
   }
 
   function payCommission(address user) public {
-    require(isManager(msg.sender), 'only manager.');
+    require(isRentalityPlatform(msg.sender), 'only manager.');
     userToKYCCommission[user].push(Schemas.KycCommissionData(block.timestamp, true));
   }
 
@@ -365,6 +375,7 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
     grantRole(MANAGER_ROLE, msg.sender);
     grantRole(HOST_ROLE, msg.sender);
     grantRole(GUEST_ROLE, msg.sender);
+    grantRole(RENTALITY_PLATFORM, msg.sender);
     _setRoleAdmin(HOST_ROLE, MANAGER_ROLE);
     _setRoleAdmin(GUEST_ROLE, MANAGER_ROLE);
 

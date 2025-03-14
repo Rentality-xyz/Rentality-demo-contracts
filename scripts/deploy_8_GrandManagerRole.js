@@ -41,27 +41,24 @@ async function main() {
   const rentalityReferralProgram = checkNotNull(addresses['RentalityReferralProgram'], 'RentalityReferralProgram')
   const rentalityInvestment = checkNotNull(addresses['RentalityInvestment'], 'RentalityInvestment')
 
-  let rentalityUserServiceContract = new ethers.Contract(
-    rentalityUserServiceAddress,
-    RentalityUserServiceJSON_ABI.abi,
-    deployer
-  )
+  let rentalityUserServiceContract = await ethers.getContractAt('RentalityUserService',rentalityUserServiceAddress)
 
-  await rentalityUserServiceContract.grantManagerRole(rentalityView)
-  await rentalityUserServiceContract.grantManagerRole(rentalityGatewayAddress)
-  await rentalityUserServiceContract.grantManagerRole(rentalityTripServiceAddress)
-  await rentalityUserServiceContract.grantManagerRole(rentalityPlatformAddress)
-  await rentalityUserServiceContract.grantManagerRole(rentalityCarTokenAddress)
-  await rentalityUserServiceContract.grantManagerRole(rentalityAdminGatewayAddress)
-  await rentalityUserServiceContract.grantManagerRole(rentalityEngineAddress)
-  await rentalityUserServiceContract.grantManagerRole(rentalityPaymentServiceAddress)
-  await rentalityUserServiceContract.grantManagerRole(rentalityCarDelivery)
-  await rentalityUserServiceContract.grantManagerRole(rentalityTripsView)
-  await rentalityUserServiceContract.grantManagerRole(rentalityClaimService)
-  await rentalityUserServiceContract.grantManagerRole(refferalProgram)
-  await rentalityUserServiceContract.grantManagerRole(rentalityPlatformHelper)
-  await rentalityUserServiceContract.grantManagerRole(rentalityReferralProgram)
-  await rentalityUserServiceContract.grantManagerRole(rentalityInvestment)
+  await rentalityUserServiceContract.grantPlatformRole(deployer.address)
+  await rentalityUserServiceContract.grantPlatformRole(rentalityView)
+  await rentalityUserServiceContract.grantPlatformRole(rentalityGatewayAddress)
+  await rentalityUserServiceContract.grantPlatformRole(rentalityTripServiceAddress)
+  await rentalityUserServiceContract.grantPlatformRole(rentalityPlatformAddress)
+  await rentalityUserServiceContract.grantPlatformRole(rentalityCarTokenAddress)
+  await rentalityUserServiceContract.grantPlatformRole(rentalityAdminGatewayAddress)
+  await rentalityUserServiceContract.grantPlatformRole(rentalityEngineAddress)
+  await rentalityUserServiceContract.grantPlatformRole(rentalityPaymentServiceAddress)
+  await rentalityUserServiceContract.grantPlatformRole(rentalityCarDelivery)
+  await rentalityUserServiceContract.grantPlatformRole(rentalityTripsView)
+  await rentalityUserServiceContract.grantPlatformRole(rentalityClaimService)
+  await rentalityUserServiceContract.grantPlatformRole(refferalProgram)
+  await rentalityUserServiceContract.grantPlatformRole(rentalityPlatformHelper)
+  await rentalityUserServiceContract.grantPlatformRole(rentalityReferralProgram)
+  await rentalityUserServiceContract.grantPlatformRole(rentalityInvestment)
   console.log('manager role was granded')
 }
 

@@ -249,7 +249,7 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
     uint taxesId,
     uint64 daysOfTrip,
     uint64 value
-  ) public view returns (Schemas.TaxesDTO memory taxesDTO) {
+  ) public view returns (uint64 totalTax, Schemas.TaxValue[] memory taxValues) {
     return paymentService.calculateTaxesDTO(taxesId, daysOfTrip, value);
   }
 

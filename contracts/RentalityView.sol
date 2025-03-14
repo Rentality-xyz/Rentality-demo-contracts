@@ -129,7 +129,6 @@ contract RentalityView is UUPSUpgradeable, Initializable, ARentalityContext {
     uint carId,
     uint64 startDateTime,
     uint64 endDateTime,
-    Schemas.SearchCarParams memory searchParams,
     Schemas.LocationInfo memory pickUpInfo,
     Schemas.LocationInfo memory returnInfo
   ) public view returns (Schemas.AvailableCarDTO memory) {
@@ -140,7 +139,6 @@ contract RentalityView is UUPSUpgradeable, Initializable, ARentalityContext {
         _msgGatewaySender(),
         startDateTime,
         endDateTime,
-        searchParams,
         pickUpInfo,
         returnInfo,
         addresses.adminService.getDeliveryServiceAddress(),
@@ -188,9 +186,7 @@ contract RentalityView is UUPSUpgradeable, Initializable, ARentalityContext {
   function getMyCars() public view returns (Schemas.CarInfoDTO[] memory) {
     return RentalityUtils.getCarsOwnedByUserWithEditability(addresses, dimoService, _msgGatewaySender());
   }
-  function getDimoVihicles() public view returns (uint[] memory) {
-    return dimoService.getDimoVihicles();
-  }
+
   /// @notice Retrieves detailed information about a car.
   /// @param carId The ID of the car for which details are requested.
   /// @return details An instance of `Schemas.CarDetails` containing the details of the specified car.

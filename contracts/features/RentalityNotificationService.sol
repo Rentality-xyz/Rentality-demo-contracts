@@ -20,7 +20,7 @@ contract RentalityNotificationService is UUPSAccess, Initializable {
   );
 
   function emitEvent(Schemas.EventType eType, uint256 id, uint8 objectStatus, address from, address to) public {
-    require(userService.isManager(msg.sender), 'only Manager');
+    require(userService.isRentalityPlatform(msg.sender), 'only Manager');
     emit RentalityEvent(eType, id, objectStatus, from, to, block.timestamp);
   }
 
