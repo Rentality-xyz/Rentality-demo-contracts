@@ -113,7 +113,7 @@
           ]
         }
       ],
-      "outputs": [{ "type": "address", "name": "user" }]
+      "outputs": [{ "type": "address", "name": "" }]
     },
     {
       "type": "function",
