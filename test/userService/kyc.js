@@ -107,8 +107,6 @@ describe('RentalityUserService: KYC management', function () {
       .connect(guest)
       .setKYCInfo('name', 'phoneNumber', 'profilePicture', '', guestSignature, zeroHash)
 
-    const isManager = await rentalityUserService.isManager(manager.address)
-    expect(isManager).to.equal(true)
 
     await expect(
       await rentalityUserService.connect(owner).manageRole(UserRole.KYCManager, await anonymous.getAddress(), true)

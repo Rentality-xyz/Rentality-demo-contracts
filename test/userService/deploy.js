@@ -16,7 +16,6 @@ describe('RentalityUserService: deployment', function () {
     const { rentalityUserService, admin, manager, host, guest } = await loadFixture(deployFixtureWithUsers)
 
     expect(await rentalityUserService.isAdmin(admin.address)).to.equal(true)
-    expect(await rentalityUserService.isManager(manager.address)).to.equal(true)
     expect(await rentalityUserService.isHost(host.address)).to.equal(true)
     expect(await rentalityUserService.isGuest(guest.address)).to.equal(true)
   })

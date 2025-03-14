@@ -9,7 +9,7 @@ import {RentalityInvestmentNft} from './RentalityInvestmentNft.sol';
 
 contract RentalityInvestDeployer is Initializable, UUPSAccess {
   function createNewPool(uint id, address nft, uint totalPayed, address currency) public returns (address) {
-    require(userService.isManager(msg.sender), 'only Manager');
+    require(userService.isRentalityPlatform(msg.sender), 'only Manager');
     return address(new RentalityCarInvestmentPool(id, nft, totalPayed, address(userService), currency));
   }
   function createNewNft(
@@ -18,7 +18,7 @@ contract RentalityInvestDeployer is Initializable, UUPSAccess {
     uint id,
     string memory tokenUri
   ) public returns (address) {
-    require(userService.isManager(msg.sender), 'only Manager');
+    require(userService.isRentalityPlatform(msg.sender), 'only Manager');
     return address(new RentalityInvestmentNft(name, sym, id, tokenUri, msg.sender));
   }
 

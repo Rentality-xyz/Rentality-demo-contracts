@@ -10,6 +10,7 @@ import '../Schemas.sol';
 /// @notice This contract implements tax calculation specific to the state of Florida.
 contract RentalityFloridaTaxes is IRentalityTaxes, Initializable, UUPSAccess {
   Schemas.FloridaTaxes public taxes;
+  mapping(uint => Schemas.FloridaTaxes) private tripIdToFloridaTax;
 
   /// @notice Retrieves the location hash and type for Florida taxes.
   /// @return The location hash for Florida and the taxes location type (State).
@@ -30,8 +31,34 @@ contract RentalityFloridaTaxes is IRentalityTaxes, Initializable, UUPSAccess {
   /// @param tripDays The duration of the trip in days.
   /// @param totalCost The total cost of the trip.
   /// @return The total taxes for the trip.
-  function calculateTaxes(uint64 tripDays, uint64 totalCost) public view returns (uint64, uint64) {
-    return (getSalesTaxFrom(totalCost), getGovernmentTaxPerDayFrom(tripDays));
+  function calculateAndSaveTaxes(uint64 tripDays, uint64 totalCost, uint tripId) public returns (uint64) {
+    uint64 salesTax = getSalesTaxFrom(totalCost);
+    uint64 govTax = getGovernmentTaxPerDayFrom(tripDays);
+    tripIdToFloridaTax[tripId] = Schemas.FloridaTaxes(uint32(salesTax), uint32(govTax));
+    return salesTax + govTax;
+  }
+   function calculateTaxes(uint64 tripDays, uint64 totalCost) public view returns (uint64) {
+    uint64 salesTax = getSalesTaxFrom(totalCost);
+    uint64 govTax = getGovernmentTaxPerDayFrom(tripDays);
+    return salesTax + govTax;
+  }
+    function getTripTaxesDTO(uint tripId) public view returns (bytes memory data, string memory dataName, uint64 totalTax) {
+   Schemas.FloridaTaxes memory floridaTaxes = tripIdToFloridaTax[tripId];
+    data = abi.encode(floridaTaxes);
+    totalTax = floridaTaxes.salesTaxPPM + floridaTaxes.governmentTaxPerDayInUsdCents;
+    dataName = "FloridaTaxes";
+  }
+   function calculateTaxesDTO(uint64 tripDays, uint64 totalCost) public view returns (bytes memory data, string memory dataName, uint64 totalTax) {
+    uint64 salesTax = getSalesTaxFrom(totalCost);
+    uint64 govTax = getGovernmentTaxPerDayFrom(tripDays);
+    data = abi.encode(Schemas.FloridaTaxes(uint32(salesTax), uint32(govTax)));
+    totalTax = salesTax + govTax;
+    dataName = "FloridaTaxes";
+  }
+
+  function getTotalTripTax(uint tripId) public view returns(uint64) {
+    Schemas.FloridaTaxes memory tripTaxes = tripIdToFloridaTax[tripId]; 
+    return tripTaxes.salesTaxPPM + tripTaxes.governmentTaxPerDayInUsdCents;
   }
   /// @notice Retrieves the current sales tax in parts per million (PPM).
   /// @return The current sales tax in PPM.
