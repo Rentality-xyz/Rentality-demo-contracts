@@ -87,7 +87,7 @@ async function main() {
     getContractAddress('RentalityReferralProgram', 'scripts/deploy_3e_RentalityReferralProgram.js', chainId),
     'RentalityReferralProgram'
   )
-  await userService.grantManagerRole(rentalityReferralService)
+  await userService.grantPlatformRole(rentalityReferralService)
   const promoService = await ethers.getContractAt('RentalityPromoService', rentalityPromoService)
 
   const date = new Date('2025-01-15T00:00:01Z')

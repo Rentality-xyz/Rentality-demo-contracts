@@ -6,36 +6,9 @@ const getNativeSymbol = require('./utils/loadNativeNatworkToken')
 const { emptyLocationInfo } = require('../test/utils')
 
 async function main() {
-  const contract = await ethers.getContractAt('IRentalityGateway', '0xB257FE9D206b60882691a24d5dfF8Aa24929cB73')
+  const contract = await ethers.getContractAt('RentalityTripService', '0xDB00B0aaD3D43590232280d056DCA49d017A10c2')
 
-  //  const res = await contract.getTripsByUser('0x2729226a14B02D5726821d5a83d7563aCD6D3760')
-  //  for (let i = 0; i < res.length; i++) {
-  console.log("contractData: ", contract.interface.encodeFunctionData('searchAvailableCarsWithDelivery',[0, 99999999999, {
-    country: '',
-    state: '',
-    city: '',
-    brand: '',
-    model: '',
-    yearOfProductionFrom: 0,
-    yearOfProductionTo: 0,
-    pricePerDayInUsdCentsFrom: 0,
-    pricePerDayInUsdCentsTo: 0,
-    userLocation: emptyLocationInfo,
-  }, emptyLocationInfo, emptyLocationInfo]))
-  const trips = await contract.searchAvailableCarsWithDelivery(0, 99999999999, {
-      country: '',
-      state: 'Florida',
-      city: '',
-      brand: '',
-      model: '',
-      yearOfProductionFrom: 0,
-      yearOfProductionTo: 0,
-      pricePerDayInUsdCentsFrom: 0,
-      pricePerDayInUsdCentsTo: 0,
-      userLocation: emptyLocationInfo,
-    }, emptyLocationInfo, emptyLocationInfo)
-  console.log(trips)
-  //  }
+ console.log(await contract.getTripsByUser('0xe4496a60CB382F7e71f47692098BcC8b4655cC38'))
 }
 
 main()

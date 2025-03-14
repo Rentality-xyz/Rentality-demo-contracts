@@ -172,7 +172,7 @@ contract RentalityPromoService is Initializable, UUPSAccess {
     uint startTripDate,
     uint endTripData
   ) public returns (bool) {
-    require(userService.isManager(msg.sender), 'Only for Manager.');
+    require(userService.isRentalityPlatform(msg.sender), 'Only for Manager.');
     Schemas.Promo memory promo = promoToPromoData[promoCode];
     if (
       promo.createdAt != 0 &&
@@ -205,7 +205,7 @@ contract RentalityPromoService is Initializable, UUPSAccess {
     revert('Promo is not valid for the date range');
   }
   function rejectDiscountByTrip(uint tripId, address user) public {
-    require(userService.isManager(msg.sender), 'Only for Manager.');
+    require(userService.isRentalityPlatform(msg.sender), 'Only for Manager.');
     string memory promoCode = tripToPromoData[tripId].promo;
     if (bytes(promoCode).length == 0) return;
 
@@ -230,7 +230,7 @@ contract RentalityPromoService is Initializable, UUPSAccess {
   }
 
   function useRefferalPromo(bytes32 promoHash, address user) public returns (uint) {
-    require(userService.isManager(msg.sender), 'Only for Manager.');
+    require(userService.isRentalityPlatform(msg.sender), 'Only for Manager.');
     string memory promoCode = bytes32ToString(promoHash);
     Schemas.Promo memory promo = promoToPromoData[promoCode];
     if (

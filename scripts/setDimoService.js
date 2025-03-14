@@ -107,7 +107,7 @@ async function main() {
   console.log(
     await tripsView.updateServiceAddresses(rentalityContract, rentalityInsurance, rentalityPromoService, dimoService)
   )
-  console.log(await userContract.grantManagerRole(rentalityPlatformHelper))
+  console.log(await userContract.grantPlatformRole(rentalityPlatformHelper))
 
   console.log('updated!')
 }

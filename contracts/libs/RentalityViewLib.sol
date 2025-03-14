@@ -324,7 +324,6 @@ library RentalityViewLib {
     address user,
     uint64 startDateTime,
     uint64 endDateTime,
-    Schemas.SearchCarParams memory searchParams,
     Schemas.LocationInfo memory pickUpInfo,
     Schemas.LocationInfo memory returnInfo,
     address deliveryServiceAddress,
@@ -332,12 +331,9 @@ library RentalityViewLib {
     address dimoService
   ) public view returns (Schemas.AvailableCarDTO memory) {
     Schemas.CarInfo memory temp = contracts.carService.getCarInfoById(carId);
-    RentalityEnginesService engineService = contracts.carService.getEngineService();
-    RentalityBaseDiscount discountService = contracts.paymentService.getBaseDiscount();
-    RentalityInsurance insuranceService = RentalityInsurance(insuranceServiceAddress);
     RentalityCarToken carService = contracts.carService;
 
-    uint fuelPrice = engineService.getFuelPriceFromEngineParams(temp.engineType, temp.engineParams);
+    uint fuelPrice = contracts.carService.getEngineService().getFuelPriceFromEngineParams(temp.engineType, temp.engineParams);
 
     uint64 totalTripDays = uint64(Math.ceilDiv(endDateTime - startDateTime, 1 days));
     totalTripDays = totalTripDays == 0 ? 1 : totalTripDays;
@@ -377,8 +373,8 @@ library RentalityViewLib {
 
     uint taxId = contracts.paymentService.defineTaxesType(address(contracts.carService), carId);
 
-    Schemas.TaxesDTO memory taxes = taxId == 0
-      ? Schemas.TaxesDTO(bytes(''), string(''), 0, 0)
+    (uint64 totalTax, Schemas.TaxValue[] memory taxes) = taxId == 0
+      ? (0,new Schemas.TaxValue[](0))
       : contracts.paymentService.calculateTaxesDTO(taxId, totalTripDays, priceWithDiscount + pickUp + dropOf);
 
     return
@@ -404,13 +400,14 @@ library RentalityViewLib {
         dropOf,
         temp.insuranceIncluded,
         IRentalityGeoService(carService.getGeoServiceAddress()).getLocationInfo(temp.locationHash),
-        insuranceService.getCarInsuranceInfo(temp.carId),
+        RentalityInsurance(insuranceServiceAddress).getCarInsuranceInfo(temp.carId),
         fuelPrice,
-        discountService.getParsedDiscount(contracts.carService.ownerOf(carId)),
+        contracts.paymentService.getBaseDiscount().getParsedDiscount(contracts.carService.ownerOf(carId)),
         distance,
-        insuranceService.isGuestHasInsurance(user),
+        RentalityInsurance(insuranceServiceAddress).isGuestHasInsurance(user),
         RentalityDimoService(dimoService).getDimoTokenId(temp.carId),
-        taxes
+        taxes,
+        totalTax
       );
   }
 }

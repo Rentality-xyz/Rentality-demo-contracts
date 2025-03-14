@@ -10,7 +10,7 @@ abstract contract ARentalityRefferalTear is ARentalityRefferal {
   mapping(Schemas.Tear => Schemas.TearPoints) private tearTypeToTearPoints;
 
   function manageTearInfo(Schemas.Tear tear, uint from, uint to) public {
-    require(getUserService().isManager(msg.sender), 'only Manager');
+    require(getUserService().isRentalityPlatform(msg.sender), 'only Manager');
     tearTypeToTearPoints[tear] = Schemas.TearPoints(from, to);
   }
 

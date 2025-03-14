@@ -28,7 +28,7 @@ contract RentalityAiDamageAnalyze is UUPSAccess, EIP712Upgradeable {
     }
 
     function saveInsuranceCase(string memory iCase, uint tripId, bool pre) public {
-        //   require(userService.isManager(msg.sender), "only Manager");
+        //   require(userService.isRentalityPlatform(msg.sender), "only Manager");
           bytes32 hash = keccak256(abi.encodePacked(iCase));
           caseExists[hash] = true;
         

@@ -9,6 +9,9 @@ const {
   emptyLocationInfo,
   emptySignedLocationInfo,
   signLocationInfo,
+  taxesGOVConst,
+  encodeTaxes,
+  taxesWithoutRentSign,
 } = require('../utils')
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 const { ethers } = require('hardhat')
@@ -61,25 +64,53 @@ describe('Rentality taxes & discounts', function () {
       rentalityPennsylvaniaTaxes
     } = await loadFixture(deployDefaultFixture))
   })
-  it('shoukd be able to add taxes contract', async function () {
-    const interface = await ethers.getContractAt('IRentalityGateway',await rentalityGateway.getAddress())
-    const coder = ethers.AbiCoder.defaultAbiCoder
-
-await expect(rentalityPaymentService.connect(admin).addTaxesContract(await rentalityPennsylvaniaTaxes.getAddress())).to.not.reverted
-await expect(rentalityPaymentService.connect(owner).addTaxesContract(await rentalityPennsylvaniaTaxes.getAddress())).to.be.reverted   
-  })
+ 
 
   it('should correctly calculate taxes', async function () {
+    await rentalityPaymentService.addTaxes(
+      'Massachusetts',
+      [
+        {name:"governmentTax",value:1000, tType:0},
+      ]
+    )
 
-
-    await expect(rentalityPaymentService.connect(admin).addTaxesContract(await rentalityPennsylvaniaTaxes.getAddress())).to.not.reverted
+    
     let sumToPayInUsdCents = 19500
     let dayInTrip = 3
-    let totalTaxes = (sumToPayInUsdCents * 2) / 100
+    let totalTaxes = (dayInTrip * 1000)
 
-    let [sales, gov] = await rentalityPaymentService.calculateTaxes(2, dayInTrip, sumToPayInUsdCents)
+    let totalTax = await rentalityPaymentService.calculateTaxes(3, dayInTrip, sumToPayInUsdCents)
 
-    expect(totalTaxes).to.be.eq(sales + gov)
+    expect(totalTaxes).to.be.eq(totalTax)
+  })
+  it('should correctly calculate taxes with gov static', async function () {
+
+
+    await rentalityPaymentService.addTaxes(
+      'Massachusetts',
+      [{name:"salesTax",value:70_000, tType:2},
+        {name:"governmentTax",value:1000, tType:1},
+      ]
+    )
+   
+    let sumToPayInUsdCents = 19500
+    let dayInTrip = 3
+    let totalTaxes = ((sumToPayInUsdCents * 7) / 100) + 1000
+
+    let totalTax = await rentalityPaymentService.calculateTaxes(3, dayInTrip, sumToPayInUsdCents)
+    expect(Math.ceil(totalTaxes )).to.be.eq(totalTax)
+  })
+  it('should correctly calculate taxes with gov only', async function () {
+
+
+    
+    let sumToPayInUsdCents = 19500
+    let dayInTrip = 3
+    let totalTaxes = (sumToPayInUsdCents * 8) / 100 + (dayInTrip * 200)
+
+    let totalTax = await rentalityPaymentService.calculateTaxes(2, dayInTrip, sumToPayInUsdCents)
+
+    expect(totalTaxes).to.be.eq(totalTax)
   })
 
   it('guest payed correct value with taxes', async function () {
@@ -95,7 +126,7 @@ await expect(rentalityPaymentService.connect(owner).addTaxesContract(await renta
       }
       const signedLocation = {
         locationInfo: location,
-        signature: signLocationInfo(rentalityLocationVerifier, admin, location)
+        signature: await signLocationInfo(await rentalityLocationVerifier.getAddress(), admin, location)
       }
     let addCarRequest = {
         tokenUri: 'uri',
@@ -115,10 +146,10 @@ await expect(rentalityPaymentService.connect(owner).addTaxesContract(await renta
         currentlyListed: true,
         insuranceRequired: false,
         insurancePriceInUsdCents: 0,
-        dimoTokenId: 17,
-        signedDimoTokenId: dimoSign,
+        dimoTokenId: 0,
+        signedDimoTokenId: '0x',
       }
-    await expect(rentalityPaymentService.connect(admin).addTaxesContract(await rentalityPennsylvaniaTaxes.getAddress())).to.not.reverted
+    
     await expect(rentalityGateway.connect(host).addCar(addCarRequest)).not.to.be.reverted
     const myCars = await rentalityCarToken.connect(host).getCarsOwnedByUser(host.address)
     expect(myCars.length).to.equal(1)
@@ -167,7 +198,7 @@ await expect(rentalityPaymentService.connect(owner).addTaxesContract(await renta
       }
       const signedLocation = {
         locationInfo: location,
-        signature: signLocationInfo(rentalityLocationVerifier, admin, location)
+        signature: await signLocationInfo(await rentalityLocationVerifier.getAddress(), admin, location)
       }
     let addCarRequest = {
         tokenUri: 'uri',
@@ -187,20 +218,19 @@ await expect(rentalityPaymentService.connect(owner).addTaxesContract(await renta
         currentlyListed: true,
         insuranceRequired: false,
         insurancePriceInUsdCents: 0,
-        dimoTokenId: 17,
-        signedDimoTokenId: dimoSign,
+        dimoTokenId: 0,
+        signedDimoTokenId: '0x',
       }
 
-    await expect(rentalityPaymentService.connect(admin).addTaxesContract(await rentalityPennsylvaniaTaxes.getAddress())).to.not.reverted
-
-    await expect(rentalityGateway.connect(host).addCar(addCarRequest)).not.to.be.reverted
-    const myCars = await rentalityCarToken.connect(host).getCarsOwnedByUser(host.address)
-    expect(myCars.length).to.equal(1)
-
+    
+      await expect(rentalityGateway.connect(host).addCar(addCarRequest)).not.to.be.reverted
+      const myCars = await rentalityCarToken.connect(host).getCarsOwnedByUser(host.address)
+     
+      expect(myCars.length).to.equal(1)
     const availableCars = await rentalityCarToken.connect(guest).getAvailableCarsForUser(guest.address)
     expect(availableCars.length).to.equal(1)
 
-    let sumToPayInUsdCents = request.pricePerDayInUsdCents
+    let sumToPayInUsdCents = addCarRequest.pricePerDayInUsdCents
     let dayInTrip = 1
 
     const { rentalityFee, taxes } = await calculatePayments(
@@ -208,7 +238,9 @@ await expect(rentalityPaymentService.connect(owner).addTaxesContract(await renta
       rentalityPaymentService,
       sumToPayInUsdCents,
       dayInTrip,
-      request.securityDepositPerTripInUsdCents
+      addCarRequest.securityDepositPerTripInUsdCents,
+      ethToken,
+      2
     )
 
     let oneDayInSec = 86400
@@ -221,7 +253,7 @@ await expect(rentalityPaymentService.connect(owner).addTaxesContract(await renta
       ' '
     )
     const value = result[0]
-
+   
     await expect(
       await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
         {
@@ -245,7 +277,7 @@ await expect(rentalityPaymentService.connect(owner).addTaxesContract(await renta
 
     const [deposit, ,] = await rentalityCurrencyConverter.getFromUsdLatest(
       ethToken,
-      request.securityDepositPerTripInUsdCents
+      addCarRequest.securityDepositPerTripInUsdCents
     )
 
     const returnToHost = value - deposit - rentalityFee - taxes

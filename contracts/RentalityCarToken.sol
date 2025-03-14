@@ -119,7 +119,7 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
   /// @param request The input parameters for creating the new car.
   /// @return The ID of the newly added car.
   function addCar(Schemas.CreateCarRequest memory request, address user) public returns (uint) {
-    require(userService.isManager(msg.sender), 'only Manager');
+    require(userService.isRentalityPlatform(msg.sender), 'only Manager');
     require(userService.hasPassedKYCAndTC(user), 'KYC or TC has not passed.');
     require(request.pricePerDayInUsdCents > 0, "Make sure the price isn't negative");
     require(request.milesIncludedPerDay > 0, "Make sure the included distance isn't negative");
@@ -180,7 +180,7 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     bool updateLocation,
     address user
   ) public {
-    require(userService.isManager(msg.sender), 'Only from manager contract.');
+    require(userService.isRentalityPlatform(msg.sender), 'Only from manager contract.');
     require(_exists(request.carId), 'Token does not exist');
     require(ownerOf(request.carId) == user, 'Only the owner of the car can update car info');
     require(request.pricePerDayInUsdCents > 0, "Make sure the price isn't negative");
