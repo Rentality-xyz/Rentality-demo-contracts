@@ -1,5 +1,5 @@
 const { ethers, upgrades } = require('hardhat')
-const { getMockCarRequest, ethToken, signTCMessage, signKycInfo, emptyKyc, zeroHash } = require('../utils')
+const { getMockCarRequest, ethToken, signTCMessage, signKycInfo, emptyKyc, zeroHash, taxesWithoutRentSign, encodeTaxes } = require('../utils')
 
 async function deployDefaultFixture() {
   const [owner, admin, manager, host, guest, anonymous] = await ethers.getSigners()
@@ -45,6 +45,7 @@ async function deployDefaultFixture() {
   const rentalityUserService = await upgrades.deployProxy(RentalityUserService, [await mockCivic.getAddress(), 0])
 
   await rentalityUserService.waitForDeployment()
+  await rentalityUserService.grantPlatformRole(owner.address)
 
   const RentalityNotificationService = await ethers.getContractFactory('RentalityNotificationService')
   const rentalityNotificationService = await upgrades.deployProxy(RentalityNotificationService, [
@@ -79,12 +80,14 @@ async function deployDefaultFixture() {
       RentalityRefferalLib: await refferalLib.getAddress(),
     },
   })
+  
 
-  const RentalityFloridaTaxes = await ethers.getContractFactory('RentalityFloridaTaxes')
+  const RentalityTaxes = await ethers.getContractFactory('RentalityTaxes')
 
-  const rentalityFloridaTaxes = await upgrades.deployProxy(RentalityFloridaTaxes, [
-    await rentalityUserService.getAddress(),
+  const rentalityTaxes = await upgrades.deployProxy(RentalityTaxes, [
+    await rentalityUserService.getAddress()
   ])
+
 
   const RentalityBaseDiscount = await ethers.getContractFactory('RentalityBaseDiscount')
 
@@ -162,11 +165,17 @@ async function deployDefaultFixture() {
 
   const rentalityPaymentService = await upgrades.deployProxy(RentalityPaymentService, [
     await rentalityUserService.getAddress(),
-    await rentalityFloridaTaxes.getAddress(),
+    await rentalityTaxes.getAddress(),
     await rentalityBaseDiscount.getAddress(),
     await investorsService.getAddress(),
   ])
-
+  
+  await rentalityPaymentService.addTaxes(
+    'Florida',
+    [{name:"salesTax",value:70_000, tType:2},
+      {name:"governmentTax",value:200, tType:0} 
+    ]
+ )
   const TestUsdt = await ethers.getContractFactory('RentalityTestUSDT')
   const usdtContract = await TestUsdt.deploy()
   await usdtContract.waitForDeployment()
@@ -176,7 +185,7 @@ async function deployDefaultFixture() {
   await rentalityMockPriceFeed.waitForDeployment()
 
   await rentalityUserService.connect(owner).grantAdminRole(admin.address)
-  await rentalityUserService.connect(owner).grantManagerRole(manager.address)
+  await rentalityUserService.connect(owner).grantPlatformRole(manager.address)
   await rentalityUserService.connect(owner).grantHostRole(host.address)
   await rentalityUserService.connect(owner).grantGuestRole(guest.address)
 
@@ -371,26 +380,26 @@ async function deployDefaultFixture() {
   await rentalityGateway.waitForDeployment()
   await rentalityPlatform.setTrustedForwarder(await rentalityGateway.getAddress())
   await rentalityView.setTrustedForwarder(await rentalityGateway.getAddress())
-  await rentalityTripsView.setTrustedForwarder(await rentalityGateway.getAddress())
-  await rentalityPlatformHelper.setTrustedForwarder(await rentalityGateway.getAddress())
+  await rentalityTripsView.setTrustedForwarder(await rentalityView.getAddress())
+  await rentalityPlatformHelper.setTrustedForwarder(await rentalityPlatform.getAddress())
 
   rentalityGateway = await ethers.getContractAt('IRentalityGateway', await rentalityGateway.getAddress())
 
   await rentalityUserService.connect(owner).grantHostRole(await rentalityPlatform.getAddress())
 
-  await rentalityUserService.connect(owner).grantManagerRole(await rentalityCarToken.getAddress())
-  await rentalityUserService.connect(owner).grantManagerRole(await refferalProgram.getAddress())
-  await rentalityUserService.connect(owner).grantManagerRole(await rentalityView.getAddress())
-  await rentalityUserService.connect(owner).grantManagerRole(await rentalityAdminGateway.getAddress())
-  await rentalityUserService.connect(owner).grantManagerRole(await rentalityGateway.getAddress())
+  await rentalityUserService.connect(owner).grantPlatformRole(await rentalityCarToken.getAddress())
+  await rentalityUserService.connect(owner).grantPlatformRole(await refferalProgram.getAddress())
+  await rentalityUserService.connect(owner).grantPlatformRole(await rentalityView.getAddress())
+  await rentalityUserService.connect(owner).grantPlatformRole(await rentalityAdminGateway.getAddress())
+  await rentalityUserService.connect(owner).grantPlatformRole(await rentalityGateway.getAddress())
   await rentalityUserService.connect(owner).grantAdminRole(await rentalityGateway.getAddress())
   await rentalityUserService.connect(owner).grantAdminRole(await rentalityAdminGateway.getAddress())
-  await rentalityUserService.connect(owner).grantManagerRole(await rentalityCarToken.getAddress())
-  await rentalityUserService.connect(owner).grantManagerRole(await engineService.getAddress())
-  await rentalityUserService.connect(owner).grantManagerRole(await rentalityPlatform.getAddress())
-  await rentalityUserService.connect(owner).grantManagerRole(await rentalityPaymentService.getAddress())
-  await rentalityUserService.connect(owner).grantManagerRole(await rentalityTripsView.getAddress())
-  await rentalityUserService.connect(owner).grantManagerRole(await rentalityPlatformHelper.getAddress())
+  await rentalityUserService.connect(owner).grantPlatformRole(await rentalityCarToken.getAddress())
+  await rentalityUserService.connect(owner).grantPlatformRole(await engineService.getAddress())
+  await rentalityUserService.connect(owner).grantPlatformRole(await rentalityPlatform.getAddress())
+  await rentalityUserService.connect(owner).grantPlatformRole(await rentalityPaymentService.getAddress())
+  await rentalityUserService.connect(owner).grantPlatformRole(await rentalityTripsView.getAddress())
+  await rentalityUserService.connect(owner).grantPlatformRole(await rentalityPlatformHelper.getAddress())
 
   const hostSignature = await signTCMessage(host)
   const guestSignature = await signTCMessage(guest)

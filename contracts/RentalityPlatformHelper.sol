@@ -108,6 +108,27 @@ contract RentalityPlatformHelper is UUPSOwnable, ARentalityContext {
   function setPhoneNumber(address user, string memory phone, bool isVerified) public {
     addresses.userService.setPhoneNumber(user, phone, isVerified);
   }
+    function setCivicKYCInfo(address user, Schemas.CivicKYCInfo memory civicKycInfo) public {
+    refferalProgram.passReferralProgram(Schemas.RefferalProgram.PassCivic, bytes(''), user, promoService);
+    addresses.userService.setCivicKYCInfo(user, civicKycInfo);
+  }
+    /// @notice Sets Know Your Customer (KYC) information for the caller.
+  function setKYCInfo(
+    string memory nickName,
+    string memory mobilePhoneNumber,
+    string memory profilePhoto,
+    string memory email,
+    bytes memory TCSignature,
+    bytes4 hash
+  ) public {
+    address sender = _msgGatewaySender();
+    refferalProgram.generateReferralHash(sender);
+    bool isGuest = addresses.userService.isGuest(sender);
+    refferalProgram.saveRefferalHash(hash, isGuest, sender);
+    refferalProgram.passReferralProgram(Schemas.RefferalProgram.SetKYC, bytes(''), sender, promoService);
+    addresses.userService.setKYCInfo(nickName, mobilePhoneNumber, profilePhoto, email, TCSignature, sender);
+  }
+
 
   function trustedForwarder() internal view override returns (address) {
     return trustedForwarderAddress;

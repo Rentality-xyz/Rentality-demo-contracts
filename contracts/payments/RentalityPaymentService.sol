@@ -7,6 +7,7 @@ import '../RentalityTripService.sol';
 import './abstract/IRentalityDiscount.sol';
 import './abstract/IRentalityTaxes.sol';
 import '../investment/RentalityInvestment.sol';
+import './RentalityTaxes.sol';
 
 /// @title Rentality Payment Service Contract
 /// @notice This contract manages platform fees and allows the adjustment of the platform fee by the manager.
@@ -23,6 +24,7 @@ contract RentalityPaymentService is UUPSOwnable {
   uint private defaultTax;
 
   RentalityInvestment private investmentService;
+  RentalityTaxes private rentalityTaxes;
 
   modifier onlyAdmin() {
     require(userService.isAdmin(tx.origin), 'Only admin.');
@@ -75,9 +77,23 @@ contract RentalityPaymentService is UUPSOwnable {
   /// @param daysOfTrip The duration of the trip in days.
   /// @param value The total value of the trip.
   /// @return The calculated taxes.
-  function calculateTaxes(uint taxId, uint64 daysOfTrip, uint64 value) public view returns (uint64, uint64) {
-    return taxesIdToTaxesContract[taxId].calculateTaxes(daysOfTrip, value);
+  function calculateAndSaveTaxes(uint taxId, uint64 daysOfTrip, uint64 value, uint tripId) public returns (uint64) {
+    return rentalityTaxes.calculateAndSaveTaxes(taxId,daysOfTrip, value, tripId);
   }
+     function calculateTaxes(uint taxId,uint64 tripDays, uint64 totalCost) public view returns (uint64) {
+    return rentalityTaxes.calculateTaxes(taxId, tripDays, totalCost);
+  }
+    function getTotalTripTax(uint tripId) public view returns(uint64) {
+    return rentalityTaxes.getTotalTripTax(tripId);
+  }
+     function getTripTaxesDTO(uint tripId) public view returns(Schemas.TaxValue[] memory) {
+        return rentalityTaxes.getTripTaxesDTO(tripId);
+  }
+  function calculateTaxesDTO(uint taxId, uint64 tripDays, uint64 totalCost) public view returns(uint64 totalTax, Schemas.TaxValue[] memory) {
+    return rentalityTaxes.calculateTaxesDTO(taxId, tripDays, totalCost);
+  }
+
+
 
   /// @notice Defines the type of taxes based on the location of a car.
   /// @param carService The address of the car service contract.
@@ -91,20 +107,19 @@ contract RentalityPaymentService is UUPSOwnable {
     bytes32 stateHash = keccak256(abi.encode(geoService.getCarState(carLocationHash)));
     bytes32 countryHash = keccak256(abi.encode(geoService.getCarCountry(carLocationHash)));
 
-    for (uint i = 1; i <= taxesId; i++) {
-      IRentalityTaxes taxContract = taxesIdToTaxesContract[i];
-      (bytes32 locationHash, Schemas.TaxesLocationType taxesLocationType) = taxContract.getLocation();
-
-      if (taxesLocationType == Schemas.TaxesLocationType.City) {
-        if (locationHash == cityHash) return i;
+    uint taxId = rentalityTaxes.getTaxesIdByHash(cityHash);
+      if (taxId > 0) {
+       return taxId;
       }
-      if (taxesLocationType == Schemas.TaxesLocationType.State) {
-        if (locationHash == stateHash) return i;
+      taxId = rentalityTaxes.getTaxesIdByHash(stateHash);
+      if (taxId > 0) {
+         return taxId;
       }
-      if (taxesLocationType == Schemas.TaxesLocationType.Country) {
-        if (locationHash == countryHash) return i;
-      }
-    }
+       taxId = rentalityTaxes.getTaxesIdByHash(countryHash);
+        if (taxId > 0) {
+          return taxId;
+        }
+      
 
     return defaultTax;
   }
@@ -112,7 +127,7 @@ contract RentalityPaymentService is UUPSOwnable {
   /// @notice Adds a user discount.
   /// @param data The discount data.
   function addBaseDiscount(address user, Schemas.BaseDiscount memory data) public {
-    require(userService.isManager(msg.sender), 'Manager only.');
+    require(userService.isRentalityPlatform(msg.sender), 'Manager only.');
     if (!userService.isHost(user)) {
       RentalityUserService(address(userService)).grantHostRole(user);
     }
@@ -130,9 +145,19 @@ contract RentalityPaymentService is UUPSOwnable {
   /// @notice Adds a taxes contract to the system.
   /// @param taxesContactAddress The address of the taxes contract.
   function addTaxesContract(address taxesContactAddress) public onlyAdmin {
-    taxesId += 1;
-    taxesIdToTaxesContract[taxesId] = IRentalityTaxes(taxesContactAddress);
+    rentalityTaxes = RentalityTaxes(taxesContactAddress);
   }
+   function addTaxes(
+   string memory location,
+     Schemas.TaxValue[] memory taxes
+      ) public onlyAdmin {
+        taxesId += 1;
+        rentalityTaxes.addTaxes(
+                      taxesId,
+                      location,
+                      taxes
+                  );
+      }
 
   /// @notice Adds a discount contract to the system.
   /// @param discountContactAddress The address of the discount contract.
@@ -188,7 +213,7 @@ contract RentalityPaymentService is UUPSOwnable {
     uint valueToGuest,
     uint totalIncome
   ) public payable {
-    require(userService.isManager(msg.sender), 'Only manager');
+    require(userService.isRentalityPlatform(msg.sender), 'only Rentality platform');
     bool successHost;
     bool successGuest;
     (uint hostPercents, RentalityCarInvestmentPool pool, address currency) = investmentService.getPaymentsInfo(
@@ -231,7 +256,7 @@ contract RentalityPaymentService is UUPSOwnable {
   /// @param valueInCurrency The amount to be paid as the KYC commission.
   /// @param currencyType The type of currency used for payment (address of the ERC20 token or address(0) for ETH).
   function payKycCommission(uint valueInCurrency, address currencyType, address user) public payable {
-    require(userService.isManager(msg.sender), 'Only manager');
+    require(userService.isRentalityPlatform(msg.sender), 'only Rentality platform');
     require(!RentalityUserService(address(userService)).isCommissionPaidForUser(user), 'Commission paid');
 
     if (currencyType == address(0)) {
@@ -251,7 +276,7 @@ contract RentalityPaymentService is UUPSOwnable {
   /// @param currencyType The type of currency used for payment (address of the ERC20 token or address(0) for ETH).
   /// @param valueSumInCurrency The total amount to be paid, which includes price, discount, taxes, deposit, and delivery fees.
   function payCreateTrip(address currencyType, uint valueSumInCurrency, address user, uint carId) public payable {
-    require(userService.isManager(msg.sender), 'only manager');
+    require(userService.isRentalityPlatform(msg.sender), 'only Rentality platform');
     (, RentalityCarInvestmentPool pool, address currency) = investmentService.getPaymentsInfo(carId);
     if (address(pool) != address(0)) require(currency == currencyType, 'wrong currency type');
 
@@ -283,7 +308,7 @@ contract RentalityPaymentService is UUPSOwnable {
     uint commission,
     address user
   ) public payable {
-    require(userService.isManager(msg.sender), 'Only manager');
+    require(userService.isRentalityPlatform(msg.sender), 'only Rentality platform');
 
     bool successHost;
     address to = user == trip.host ? trip.guest : trip.host;
@@ -316,7 +341,7 @@ contract RentalityPaymentService is UUPSOwnable {
   /// @param trip The trip data structure containing details about the trip.
   /// @param valueToReturnInToken The amount to be returned to the guest.
   function payRejectTrip(Schemas.Trip memory trip, uint valueToReturnInToken) public {
-    require(userService.isManager(msg.sender), 'only Manager');
+    require(userService.isRentalityPlatform(msg.sender), 'only Rentality platform');
     bool successGuest;
 
     if (trip.paymentInfo.currencyType == address(0)) {
@@ -339,20 +364,19 @@ contract RentalityPaymentService is UUPSOwnable {
     bytes32 stateHash = keccak256(abi.encode(locationInfo.state));
     bytes32 countryHash = keccak256(abi.encode(locationInfo.country));
 
-    for (uint i = 1; i <= taxesId; i++) {
-      IRentalityTaxes taxContract = taxesIdToTaxesContract[i];
-      (bytes32 locationHash, Schemas.TaxesLocationType taxesLocationType) = taxContract.getLocation();
-
-      if (taxesLocationType == Schemas.TaxesLocationType.City) {
-        if (locationHash == cityHash) return i;
+       uint taxId = rentalityTaxes.getTaxesIdByHash(cityHash);
+      if (taxId > 0) {
+       return taxId;
       }
-      if (taxesLocationType == Schemas.TaxesLocationType.State) {
-        if (locationHash == stateHash) return i;
+      taxId = rentalityTaxes.getTaxesIdByHash(stateHash);
+      if (taxId > 0) {
+         return taxId;
       }
-      if (taxesLocationType == Schemas.TaxesLocationType.Country) {
-        if (locationHash == countryHash) return i;
-      }
-    }
+       taxId = rentalityTaxes.getTaxesIdByHash(countryHash);
+        if (taxId > 0) {
+          return taxId;
+        }
+      
 
     return 0;
   }
@@ -371,7 +395,7 @@ contract RentalityPaymentService is UUPSOwnable {
   /// @param _userService The address of the RentalityUserService contract
   function initialize(
     address _userService,
-    address _floridaTaxes,
+    address _rentalityTaxes,
     address _baseDiscount,
     address _investorService
   ) public initializer {
@@ -381,9 +405,9 @@ contract RentalityPaymentService is UUPSOwnable {
     currentDiscount = _baseDiscount;
     discountAddressToDiscountContract[_baseDiscount] = IRentalityDiscount(_baseDiscount);
 
-    taxesId = 1;
+    taxesId = 0;
     defaultTax = 1;
-    taxesIdToTaxesContract[taxesId] = IRentalityTaxes(_floridaTaxes);
+    rentalityTaxes = RentalityTaxes(_rentalityTaxes);
 
     investmentService = RentalityInvestment(_investorService);
     __Ownable_init();

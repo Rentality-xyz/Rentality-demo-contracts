@@ -1,5 +1,5 @@
 const { ethers, upgrades } = require('hardhat')
-const { ethToken, signTCMessage, signKycInfo, emptyKyc, zeroHash } = require('../utils')
+const { ethToken, signTCMessage, signKycInfo, emptyKyc, zeroHash, taxesWithoutRentSign, encodeTaxes } = require('../utils')
 
 // We define a fixture to reuse the same setup in every test.
 // We use loadFixture to run this setup once, snapshot that state,
@@ -58,6 +58,8 @@ async function deployDefaultFixture() {
 
   const rentalityUserService = await upgrades.deployProxy(RentalityUserService, [await mockCivic.getAddress(), 0])
 
+  await rentalityUserService.grantPlatformRole(owner.address)
+  await rentalityUserService.grantPlatformRole(admin.address)
   const RentalityNotificationService = await ethers.getContractFactory('RentalityNotificationService')
 
   const rentalityNotificationService = await upgrades.deployProxy(RentalityNotificationService, [
@@ -84,7 +86,7 @@ async function deployDefaultFixture() {
   await engineService.waitForDeployment()
 
   await rentalityUserService.connect(owner).grantAdminRole(admin.address)
-  await rentalityUserService.connect(owner).grantManagerRole(manager.address)
+  await rentalityUserService.connect(owner).grantPlatformRole(manager.address)
   await rentalityUserService.connect(owner).grantHostRole(host.address)
   await rentalityUserService.connect(owner).grantGuestRole(guest.address)
 
@@ -162,11 +164,14 @@ async function deployDefaultFixture() {
   ])
   await refferalProgram.waitForDeployment()
 
-  const RentalityFloridaTaxes = await ethers.getContractFactory('RentalityFloridaTaxes')
+  
 
-  const rentalityFloridaTaxes = await upgrades.deployProxy(RentalityFloridaTaxes, [
+  const RentalityTaxes = await ethers.getContractFactory('RentalityTaxes')
+
+  const rentalityTaxes = await upgrades.deployProxy(RentalityTaxes, [
     await rentalityUserService.getAddress(),
   ])
+
   const RentalityInsurance = await ethers.getContractFactory('RentalityInsurance')
   const insuranceService = await upgrades.deployProxy(RentalityInsurance, [
     await rentalityUserService.getAddress(),
@@ -198,10 +203,16 @@ async function deployDefaultFixture() {
 
   const rentalityPaymentService = await upgrades.deployProxy(RentalityPaymentService, [
     await rentalityUserService.getAddress(),
-    await rentalityFloridaTaxes.getAddress(),
+    await rentalityTaxes.getAddress(),
     await rentalityBaseDiscount.getAddress(),
     await investorsService.getAddress(),
   ])
+  await rentalityPaymentService.addTaxes(
+    'Florida',
+    [{name:"salesTax",value:70_000, tType:2},
+      {name:"governmentTax",value:200, tType:0} 
+    ]
+ )
 
   const rentalityTripService = await upgrades.deployProxy(RentalityTripService, [
     await rentalityCurrencyConverter.getAddress(),
@@ -323,12 +334,12 @@ async function deployDefaultFixture() {
   await rentalityPlatform.waitForDeployment()
 
   await rentalityUserService.connect(owner).grantHostRole(await rentalityPlatform.getAddress())
-  await rentalityUserService.connect(owner).grantManagerRole(await rentalityPlatform.getAddress())
-  await rentalityUserService.connect(owner).grantManagerRole(await rentalityCarToken.getAddress())
-  await rentalityUserService.connect(owner).grantManagerRole(await rentalityUserService.getAddress())
-  await rentalityUserService.connect(owner).grantManagerRole(await rentalityTripService.getAddress())
-  await rentalityUserService.connect(owner).grantManagerRole(await rentalityCarToken.getAddress())
-  await rentalityUserService.connect(owner).grantManagerRole(await engineService.getAddress())
+  await rentalityUserService.connect(owner).grantPlatformRole(await rentalityPlatform.getAddress())
+  await rentalityUserService.connect(owner).grantPlatformRole(await rentalityCarToken.getAddress())
+  await rentalityUserService.connect(owner).grantPlatformRole(await rentalityUserService.getAddress())
+  await rentalityUserService.connect(owner).grantPlatformRole(await rentalityTripService.getAddress())
+  await rentalityUserService.connect(owner).grantPlatformRole(await rentalityCarToken.getAddress())
+  await rentalityUserService.connect(owner).grantPlatformRole(await engineService.getAddress())
 
   const hostSignature = await signTCMessage(host)
   const guestSignature = await signTCMessage(guest)
@@ -352,12 +363,13 @@ async function deployDefaultFixture() {
   await rentalityGateway.waitForDeployment()
   await rentalityPlatform.setTrustedForwarder(await rentalityGateway.getAddress())
   await rentalityView.setTrustedForwarder(await rentalityGateway.getAddress())
-  await rentalityTripsView.setTrustedForwarder(await rentalityGateway.getAddress())
-  await rentalityPlatformHelper.setTrustedForwarder(await rentalityGateway.getAddress())
-  await rentalityUserService.connect(owner).grantManagerRole(await rentalityGateway.getAddress())
+  await rentalityTripsView.setTrustedForwarder(await rentalityView.getAddress())
+  await rentalityPlatformHelper.setTrustedForwarder(await rentalityPlatform.getAddress())
+
+  await rentalityUserService.connect(owner).grantPlatformRole(await rentalityGateway.getAddress())
 
   rentalityGateway = await ethers.getContractAt('IRentalityGateway', await rentalityGateway.getAddress())
-
+  await rentalityUserService.connect(owner).grantPlatformRole(await rentalityPlatformHelper.getAddress())
   await rentalityGateway.connect(host).setKYCInfo(' ', ' ', ' ', ' ', hostSignature, zeroHash)
   await rentalityGateway.connect(guest).setKYCInfo(' ', ' ', ' ', ' ', guestSignature, zeroHash)
 
@@ -385,15 +397,17 @@ async function deployDefaultFixture() {
     await investorsService.getAddress(),
   ])
   await rentalityAdminGateway.waitForDeployment()
-  await rentalityUserService.connect(owner).grantManagerRole(await rentalityView.getAddress())
-  await rentalityUserService.connect(owner).grantManagerRole(await rentalityAdminGateway.getAddress())
-  await rentalityUserService.connect(owner).grantManagerRole(await rentalityGateway.getAddress())
+  await rentalityUserService.connect(owner).grantPlatformRole(await rentalityView.getAddress())
+  await rentalityUserService.connect(owner).grantPlatformRole(await rentalityAdminGateway.getAddress())
+  await rentalityUserService.connect(owner).grantPlatformRole(await rentalityGateway.getAddress())
   await rentalityUserService.connect(owner).grantAdminRole(await rentalityGateway.getAddress())
   await rentalityUserService.connect(owner).grantAdminRole(await rentalityAdminGateway.getAddress())
-  await rentalityUserService.connect(owner).grantManagerRole(await rentalityCarToken.getAddress())
-  await rentalityUserService.connect(owner).grantManagerRole(await engineService.getAddress())
-  await rentalityUserService.connect(owner).grantManagerRole(await rentalityPaymentService.getAddress())
-  await rentalityUserService.connect(owner).grantManagerRole(await rentalityTripsView.getAddress())
+  await rentalityUserService.connect(owner).grantPlatformRole(await rentalityCarToken.getAddress())
+  await rentalityUserService.connect(owner).grantPlatformRole(await engineService.getAddress())
+  await rentalityUserService.connect(owner).grantPlatformRole(await rentalityPaymentService.getAddress())
+  await rentalityUserService.connect(owner).grantPlatformRole(await rentalityTripsView.getAddress())
+  await rentalityUserService.connect(owner).grantPlatformRole(await rentalityPlatformHelper.getAddress())
+
   return {
     rentalityMockPriceFeed,
     rentalityUserService,
@@ -424,9 +438,11 @@ async function deployFixtureWithUsers() {
   await mockCivic.waitForDeployment()
 
   const rentalityUserService = await upgrades.deployProxy(RentalityUserService, [await mockCivic.getAddress(), 0])
+  await rentalityUserService.grantPlatformRole(owner.address)
+  await rentalityUserService.grantPlatformRole(admin.address)
 
   await rentalityUserService.connect(owner).grantAdminRole(admin.address)
-  await rentalityUserService.connect(owner).grantManagerRole(manager.address)
+  await rentalityUserService.connect(owner).grantPlatformRole(manager.address)
   await rentalityUserService.connect(owner).grantHostRole(host.address)
   await rentalityUserService.connect(owner).grantGuestRole(guest.address)
 

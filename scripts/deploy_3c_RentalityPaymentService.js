@@ -13,9 +13,9 @@ async function main() {
     getContractAddress('RentalityUserService', 'scripts/deploy_1b_RentalityUserService.js', chainId),
     'RentalityUserService'
   )
-  const floridaTaxes = checkNotNull(
-    getContractAddress('RentalityFloridaTaxes', 'scripts/deploy_2e_RentalityFloridaTaxes.js', chainId),
-    'RentalityFloridaTaxes'
+  const rentalityTaxes = checkNotNull(
+    getContractAddress('RentalityTaxes', 'scripts/deploy_2e_RentalityTaxes.js', chainId),
+    'RentalityTaxes'
   )
   const baseDiscount = checkNotNull(
     getContractAddress('RentalityBaseDiscount', 'scripts/deploy_2g_RentalityBaseDiscount.js', chainId),
@@ -26,8 +26,9 @@ async function main() {
     'RentalityInvestment'
   )
 
+
   const contractFactory = await ethers.getContractFactory(contractName)
-  const contract = await upgrades.deployProxy(contractFactory, [userService, floridaTaxes, baseDiscount, investService])
+  const contract = await upgrades.deployProxy(contractFactory, [userService, rentalityTaxes, baseDiscount, investService])
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()
 
@@ -35,6 +36,8 @@ async function main() {
   addressSaver(contractAddress, contractName, true, chainId)
   await saveJsonAbi(contractName, chainId, contract)
   console.log()
+
+
 }
 
 main()

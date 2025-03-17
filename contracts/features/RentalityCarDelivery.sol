@@ -26,7 +26,7 @@ contract RentalityCarDelivery is Initializable, UUPSAccess {
     uint64 aboveTwentyFiveMilesInUsdCents,
     address user
   ) public {
-    require(userService.isManager(msg.sender), 'only Manager');
+    require(userService.isRentalityPlatform(msg.sender), 'only Rentality platform');
     if (!userService.isHost(user)) {
       RentalityUserService(address(userService)).grantHostRole(user);
     }
