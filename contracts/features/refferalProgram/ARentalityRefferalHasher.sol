@@ -11,7 +11,7 @@ abstract contract ARentalityRefferalHasher is ARentalityRefferal {
   mapping(Schemas.RefferalProgram => uint) internal selectorHashToPoints;
 
   function manageRefHashesProgram(Schemas.RefferalProgram selector, uint points) public {
-    require(getUserService().isRentalityPlatform(msg.sender), 'only Manager');
+    require(getUserService().isRentalityPlatform(msg.sender), 'only Rentality platform');
     selectorHashToPoints[selector] = points;
   }
 }

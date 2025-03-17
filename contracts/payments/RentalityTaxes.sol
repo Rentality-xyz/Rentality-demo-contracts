@@ -31,7 +31,7 @@ contract RentalityTaxes is Initializable, UUPSAccess {
   /// @param totalCost The total cost of the trip.
   /// @return The total taxes for the trip.
   function calculateAndSaveTaxes(uint taxId, uint64 tripDays, uint64 totalCost, uint tripId) public returns (uint64) {
-    require(userService.isRentalityPlatform(msg.sender), "only Manager");
+    require(userService.isRentalityPlatform(msg.sender), "only Rentality platform");
    Schemas.TaxValue[] memory values = taxIdToTaxes[taxId];
    Schemas.TaxValue[] memory tripTaxes = new Schemas.TaxValue[](values.length);
       uint64 totalTax = 0;

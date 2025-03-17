@@ -543,11 +543,6 @@ interface Schemas {
     uint32 governmentTaxPerDayInUsdCents;
   }
 
-  struct PennsylvaniaTaxes {
-    uint32 salesTaxPPM;
-    uint32 governmentTaxPerDayInUsdCents;
-    uint32 rentalTax;
-  }
   struct TaxesDTO {
     bytes taxInfo;
     string dataType;

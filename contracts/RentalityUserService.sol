@@ -51,7 +51,7 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
     bytes memory TCSignature,
     address user
   ) public {
-    require(isRentalityPlatform(msg.sender), 'only Manager');
+    require(isRentalityPlatform(msg.sender), 'only Rentality platform');
     if (!isGuest(user)) {
       _grantRole(GUEST_ROLE, user);
     }
@@ -99,7 +99,7 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
   }
 
   function setMyCivicKYCInfo(address user, Schemas.CivicKYCInfo memory civicKycInfo) public {
-    require(hasRole(MANAGER_ROLE, msg.sender), 'Only manager');
+    require(hasRole(MANAGER_ROLE, msg.sender), 'only Rentality platform');
     Schemas.KYCInfo storage kycInfo = kycInfos[user];
 
     kycInfo.surname = civicKycInfo.fullName;
@@ -142,7 +142,7 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
   /// @notice Retrieves KYC information for the caller.
   /// @return kycInfo KYCInfo structure containing caller's KYC information.
   function getMyKYCInfo(address user) external view returns (Schemas.KYCInfo memory kycInfo) {
-    require(isRentalityPlatform(msg.sender), 'only Manager');
+    require(isRentalityPlatform(msg.sender), 'only Rentality platform');
     return kycInfos[user];
   }
 
@@ -305,7 +305,7 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
   }
 
   function useKycCommission(address user) public {
-    require(hasRole(KYC_COMMISSION_MANAGER_ROLE, tx.origin) || msg.sender == user, 'only Manager');
+    require(hasRole(KYC_COMMISSION_MANAGER_ROLE, tx.origin) || msg.sender == user, 'only Rentality platform');
 
     Schemas.KycCommissionData[] memory commissions = userToKYCCommission[user];
     if (commissions.length == 0) {
@@ -324,7 +324,7 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
   }
 
   function payCommission(address user) public {
-    require(isRentalityPlatform(msg.sender), 'only manager.');
+    require(isRentalityPlatform(msg.sender), 'only Rentality platform.');
     userToKYCCommission[user].push(Schemas.KycCommissionData(block.timestamp, true));
   }
 

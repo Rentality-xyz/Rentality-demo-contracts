@@ -213,7 +213,7 @@ contract RentalityPaymentService is UUPSOwnable {
     uint valueToGuest,
     uint totalIncome
   ) public payable {
-    require(userService.isRentalityPlatform(msg.sender), 'Only manager');
+    require(userService.isRentalityPlatform(msg.sender), 'only Rentality platform');
     bool successHost;
     bool successGuest;
     (uint hostPercents, RentalityCarInvestmentPool pool, address currency) = investmentService.getPaymentsInfo(
@@ -256,7 +256,7 @@ contract RentalityPaymentService is UUPSOwnable {
   /// @param valueInCurrency The amount to be paid as the KYC commission.
   /// @param currencyType The type of currency used for payment (address of the ERC20 token or address(0) for ETH).
   function payKycCommission(uint valueInCurrency, address currencyType, address user) public payable {
-    require(userService.isRentalityPlatform(msg.sender), 'Only manager');
+    require(userService.isRentalityPlatform(msg.sender), 'only Rentality platform');
     require(!RentalityUserService(address(userService)).isCommissionPaidForUser(user), 'Commission paid');
 
     if (currencyType == address(0)) {
@@ -276,7 +276,7 @@ contract RentalityPaymentService is UUPSOwnable {
   /// @param currencyType The type of currency used for payment (address of the ERC20 token or address(0) for ETH).
   /// @param valueSumInCurrency The total amount to be paid, which includes price, discount, taxes, deposit, and delivery fees.
   function payCreateTrip(address currencyType, uint valueSumInCurrency, address user, uint carId) public payable {
-    require(userService.isRentalityPlatform(msg.sender), 'only manager');
+    require(userService.isRentalityPlatform(msg.sender), 'only Rentality platform');
     (, RentalityCarInvestmentPool pool, address currency) = investmentService.getPaymentsInfo(carId);
     if (address(pool) != address(0)) require(currency == currencyType, 'wrong currency type');
 
@@ -308,7 +308,7 @@ contract RentalityPaymentService is UUPSOwnable {
     uint commission,
     address user
   ) public payable {
-    require(userService.isRentalityPlatform(msg.sender), 'Only manager');
+    require(userService.isRentalityPlatform(msg.sender), 'only Rentality platform');
 
     bool successHost;
     address to = user == trip.host ? trip.guest : trip.host;
@@ -341,7 +341,7 @@ contract RentalityPaymentService is UUPSOwnable {
   /// @param trip The trip data structure containing details about the trip.
   /// @param valueToReturnInToken The amount to be returned to the guest.
   function payRejectTrip(Schemas.Trip memory trip, uint valueToReturnInToken) public {
-    require(userService.isRentalityPlatform(msg.sender), 'only Manager');
+    require(userService.isRentalityPlatform(msg.sender), 'only Rentality platform');
     bool successGuest;
 
     if (trip.paymentInfo.currencyType == address(0)) {
