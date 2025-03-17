@@ -57,7 +57,7 @@ contract RentalityReferralProgram is
     address user,
     RentalityPromoService promoService
   ) public {
-    require(userService.isRentalityPlatform(msg.sender), 'only Manager');
+    require(userService.isRentalityPlatform(msg.sender), 'only Rentality platform');
     bytes4 hash = userToSavedHash[user];
 
     (address owner, uint hashPoints) = _getHashProgramInfoIfExists(selector, hash, user);
@@ -83,7 +83,7 @@ contract RentalityReferralProgram is
   }
 
   function useDiscount(Schemas.RefferalProgram selector, bool host, uint tripId, address user) public returns (uint) {
-    require(userService.isRentalityPlatform(msg.sender), 'only Manager');
+    require(userService.isRentalityPlatform(msg.sender), 'only Rentality platform');
     uint userPoints = addressToPoints[user];
     Schemas.Tear tear = getTearTypeByPoints(userPoints);
     uint percents = 0;
@@ -276,7 +276,7 @@ contract RentalityReferralProgram is
   }
 
   function generateReferralHash(address user) public {
-    require(userService.isRentalityPlatform(msg.sender), 'only Manager');
+    require(userService.isRentalityPlatform(msg.sender), 'only Rentality platform');
     bytes4 hash = createReferralHash(user);
     hashToOwnerV2[hash] = user;
     referralHashV2[user] = hash;
@@ -292,7 +292,7 @@ contract RentalityReferralProgram is
     return Schemas.MyRefferalInfoDTO(referralHashV2[msg.sender], userToSavedHash[msg.sender]);
   }
   function saveRefferalHash(bytes4 hash, bool isGuest, address sender) public {
-    require(userService.isRentalityPlatform(msg.sender), 'only Manager');
+    require(userService.isRentalityPlatform(msg.sender), 'only Rentality platform');
     address user = hashToOwnerV2[hash];
     if (!isGuest && hash != bytes4('') && user != address(0) && user != sender) {
       userToSavedHash[sender] = hash;

@@ -34,7 +34,7 @@ contract RentalityInvestment is Initializable, UUPSAccess {
   mapping(uint => address) private investmentIdToCurrency;
 
   function createCarInvestment(Schemas.CarInvestment memory car, string memory name_, address currency) public {
-    require(RentalityUserService(address(userService)).isInvestorManager(msg.sender), 'only Manager');
+    require(RentalityUserService(address(userService)).isInvestorManager(msg.sender), 'only Rentality platform');
     require(carToken.isUniqueVinNumber(car.car.carVinNumber), 'Car with this VIN number already exists');
     require(converter.currencyTypeIsAvailable(currency), 'currency type is not available');
 
