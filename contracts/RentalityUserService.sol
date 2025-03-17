@@ -305,7 +305,7 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
   }
 
   function useKycCommission(address user) public {
-    require(hasRole(KYC_COMMISSION_MANAGER_ROLE, tx.origin) || msg.sender == user, 'only Rentality platform');
+    require(hasRole(KYC_COMMISSION_MANAGER_ROLE, tx.origin) || msg.sender == user, 'only Commission manager');
 
     Schemas.KycCommissionData[] memory commissions = userToKYCCommission[user];
     if (commissions.length == 0) {
