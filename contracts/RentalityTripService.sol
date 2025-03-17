@@ -82,7 +82,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     Schemas.PaymentInfo memory paymentInfo,
     uint msgValue
   ) public returns (uint) {
-    require(addresses.userService.isManager(msg.sender), 'Only from manager contract.');
+    require(addresses.userService.isRentalityPlatform(msg.sender), 'only Rentality platform contract.');
     _tripIdCounter.increment();
     uint256 newTripId = _tripIdCounter.current();
     if (milesIncludedPerDay == 0) {
@@ -147,7 +147,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
   ///   - The trip must be in status Created.
   ///  @param tripId The ID of the trip to be approved.
   function approveTrip(uint256 tripId, address user) public {
-    require(addresses.userService.isManager(msg.sender), 'Only from manager contract.');
+    require(addresses.userService.isRentalityPlatform(msg.sender), 'only Rentality platform contract.');
     address host = idToTripInfo[tripId].host;
     require(host == user, 'Only host of the trip can approve it');
     require(idToTripInfo[tripId].status == Schemas.TripStatus.Created, 'The trip is not in status Created');
@@ -176,7 +176,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     uint256 tripEarnings,
     address user
   ) public {
-    require(addresses.userService.isManager(msg.sender), 'Only from manager contract.');
+    require(addresses.userService.isRentalityPlatform(msg.sender), 'only Rentality platform contract.');
     Schemas.TripStatus status = idToTripInfo[tripId].status;
 
     address host = idToTripInfo[tripId].host;
@@ -276,7 +276,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
   /// @param panelParams An array representing parameters related to fuel, odometer,
   /// and other relevant details depends on engine.
   function checkInByGuest(uint256 tripId, uint64[] memory panelParams, address user) public {
-    require(addresses.userService.isManager(msg.sender), 'only Manager');
+    require(addresses.userService.isRentalityPlatform(msg.sender), 'only Rentality platform');
     Schemas.Trip memory trip = getTrip(tripId);
 
     require(trip.guest == user, 'Only for guest');
@@ -310,7 +310,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
   /// @param panelParams An array representing parameters related to fuel, odometer,
   /// and other relevant details depends on engine.
   function checkOutByGuest(uint256 tripId, uint64[] memory panelParams, address user) public {
-    require(addresses.userService.isManager(msg.sender), 'only Manager');
+    require(addresses.userService.isRentalityPlatform(msg.sender), 'only Rentality platform');
     Schemas.Trip memory trip = getTrip(tripId);
 
     require(trip.guest == user, 'For trip guest only');
@@ -360,7 +360,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
   /// @param panelParams An array representing parameters related to fuel, odometer,
   /// and other relevant details depends on engine.
   function checkOutByHost(uint256 tripId, uint64[] memory panelParams, address user) public {
-    require(addresses.userService.isManager(msg.sender), 'only Manager');
+    require(addresses.userService.isRentalityPlatform(msg.sender), 'only Rentality platform');
     Schemas.Trip memory trip = getTrip(tripId);
     require(trip.host == user, 'For trip host only');
 
@@ -416,7 +416,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
   /// Emits a `TripStatusChanged` event with the new status Finished.
   function finishTrip(uint256 tripId, address user) public {
     //require(idToTripInfo[tripId].status != TripStatus.CheckedOutByHost,"The trip is not in status CheckedOutByHost");
-    require(addresses.userService.isManager(msg.sender), 'Only from manager contract.');
+    require(addresses.userService.isRentalityPlatform(msg.sender), 'only Rentality platform contract.');
     Schemas.Trip storage trip = idToTripInfo[tripId];
 
     trip.status = Schemas.TripStatus.Finished;
@@ -468,7 +468,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     uint256 depositRefund,
     uint256 tripEarnings
   ) public {
-    require(addresses.userService.isManager(msg.sender), 'Manager only.');
+    require(addresses.userService.isRentalityPlatform(msg.sender), 'Manager only.');
 
     idToTripInfo[tripId].transactionInfo.rentalityFee = rentalityFee;
     idToTripInfo[tripId].transactionInfo.depositRefund = depositRefund;

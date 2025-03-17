@@ -320,8 +320,8 @@ library RentalityQuery {
 
       uint taxId = contracts.paymentService.defineTaxesType(address(contracts.carService), temp[i].carId);
 
-      (uint64 salesTaxes, uint64 govTax) = taxId == 0
-        ? (0, 0)
+      uint64 totalTax = taxId == 0
+        ? 0
         : contracts.paymentService.calculateTaxes(taxId, totalTripDays, priceWithDiscount + pickUp + dropOf);
 
       result[i] = Schemas.SearchCar(
@@ -333,7 +333,7 @@ library RentalityQuery {
         priceWithDiscount / totalTripDays,
         totalTripDays,
         priceWithDiscount,
-        salesTaxes + govTax,
+        totalTax,
         temp[i].securityDepositPerTripInUsdCents,
         temp[i].engineType,
         temp[i].milesIncludedPerDay,

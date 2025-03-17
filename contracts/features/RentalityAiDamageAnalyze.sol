@@ -19,7 +19,10 @@ contract RentalityAiDamageAnalyze is UUPSAccess, EIP712Upgradeable {
     mapping(uint => uint) private caseCounterToTripId;
     mapping(uint => Schemas.TripInsuranceCases) private tripIdsToTripCases;
     uint private caseCounter;
+function getInsuranceCaseUrl(string memory iCase) public view returns(string memory url) {
 
+return insuranceCaseToUrl[keccak256(abi.encodePacked(iCase))];
+}
     function saveInsuranceCaseUrl(string memory iCase, string memory url) public {
             // require(RentalityUserService(address(userService)).isSignatureManager(tx.origin),"only platform Manager");
             bytes32 hash = keccak256(abi.encodePacked(iCase));
@@ -28,7 +31,7 @@ contract RentalityAiDamageAnalyze is UUPSAccess, EIP712Upgradeable {
     }
 
     function saveInsuranceCase(string memory iCase, uint tripId, bool pre) public {
-        //   require(userService.isManager(msg.sender), "only Manager");
+        //   require(userService.isRentalityPlatform(msg.sender), "only Rentality platform");
           bytes32 hash = keccak256(abi.encodePacked(iCase));
           caseExists[hash] = true;
         

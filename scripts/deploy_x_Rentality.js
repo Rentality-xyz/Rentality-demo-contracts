@@ -75,12 +75,12 @@ async function main() {
     deployer
   )
   try {
-    await rentalityUserServiceContract.grantManagerRole(contract.address)
+    await rentalityUserServiceContract.grantPlatformRole(contract.address)
     console.log('manager role granded')
   } catch (e) {
     console.log('grand manager role error:', e)
   }
-  //await rentalityUserServiceContract.connect(deployer).grantManagerRole(contract.address);
+  //await rentalityUserServiceContract.connect(deployer).grantPlatformRole(contract.address);
 
   saveJsonAbi(contractName, chainId, contract)
 }

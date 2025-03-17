@@ -30,9 +30,9 @@ contract RentalityClaimService is Initializable, UUPSAccess {
   mapping(uint8 => Schemas.ClaimTypeV2) private claimTypeNumberToClaimType;
   uint8 private claimTypeNumber;
 
-  // Modifier to restrict access to only managers contracts
+  // Modifier to restrict access to only Rentality platforms contracts
   modifier onlyManager() {
-    require(userService.isManager(msg.sender), 'Only manager.');
+    require(userService.isRentalityPlatform(msg.sender), 'only Rentality platform.');
     _;
   }
   /// @dev Updates the address of the RentalityEventManager contract.

@@ -237,13 +237,20 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
   /// @param taxesId The ID of the taxes contract.
   /// @param daysOfTrip The duration of the trip in days.
   /// @param value The original value of the trip.
-  /// @return salesTax The total taxes for the trip.
   function calculateTaxes(
     uint taxesId,
     uint64 daysOfTrip,
     uint64 value
-  ) public view returns (uint64 salesTax, uint64 govTax) {
+  ) public view returns (uint64 totalTax) {
     return paymentService.calculateTaxes(taxesId, daysOfTrip, value);
+  }
+
+    function calculateTaxesDTO(
+    uint taxesId,
+    uint64 daysOfTrip,
+    uint64 value
+  ) public view returns (uint64 totalTax, Schemas.TaxValue[] memory taxValues) {
+    return paymentService.calculateTaxesDTO(taxesId, daysOfTrip, value);
   }
 
   /// @notice Confirms check-out for a trip.

@@ -5,7 +5,7 @@ const addressSaver = require('./utils/addressSaver')
 const { checkNotNull, startDeploy } = require('./utils/deployHelper')
 
 async function main() {
-  const { contractName, chainId } = await startDeploy('RentalityFloridaTaxes')
+  const { contractName, chainId } = await startDeploy('RentalityTaxes')
 
   if (chainId < 0) throw new Error('chainId is not set')
 
@@ -13,6 +13,7 @@ async function main() {
     getContractAddress('RentalityUserService', 'scripts/deploy_1b_RentalityUserService.js', chainId),
     'RentalityUserService'
   )
+
 
   const contractFactory = await ethers.getContractFactory(contractName)
 

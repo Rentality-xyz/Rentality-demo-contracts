@@ -23,9 +23,9 @@ contract RentalityEnginesService is Initializable, UUPSAccess {
     _;
   }
 
-  /// @notice Modifier to restrict access to only managers.
+  /// @notice Modifier to restrict access to only Rentality platforms.
   modifier onlyManager() {
-    // require(userService.isManager(msg.sender), 'Only for Manager.');
+    // require(userService.isRentalityPlatform(msg.sender), 'Only for Manager.');
     _;
   }
 

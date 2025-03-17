@@ -154,56 +154,59 @@ library RentalityTripsQuery {
 
     return result;
   }
-  /// @notice Calculates the detailed receipt for a specific trip.
-  /// @dev This function computes various aspects of the trip receipt, including pricing, mileage, and fuel charges.
-  /// @param tripId The ID of the trip for which the receipt is calculated.
-  /// @param tripServiceAddress The address of the trip service contract.
-  /// @return An instance of `Schemas.TripReceiptDTO` containing the detailed trip receipt information.
-  function fullFillTripReceipt(
-    uint tripId,
-    address tripServiceAddress,
-    address insuranceAddress
-  ) public view returns (Schemas.TripReceiptDTO memory) {
-    RentalityTripService tripService = RentalityTripService(tripServiceAddress);
+  // /// @notice Calculates the detailed receipt for a specific trip.
+  // /// @dev This function computes various aspects of the trip receipt, including pricing, mileage, and fuel charges.
+  // /// @param tripId The ID of the trip for which the receipt is calculated.
+  // /// @param tripServiceAddress The address of the trip service contract.
+  // /// @return An instance of `Schemas.TripReceiptDTO` containing the detailed trip receipt information.
+  // function fullFillTripReceipt(
+  //   uint tripId,
+  //   address tripServiceAddress,
+  //   address insuranceAddress,
+  //   address paymentService,
+  //   address carService
+  // ) public view returns (Schemas.TripReceiptDTO memory) {
+  //   RentalityTripService tripService = RentalityTripService(tripServiceAddress);
 
-    Schemas.Trip memory trip = tripService.getTrip(tripId);
-    uint64 ceilDays = RentalityUtils.getCeilDays(trip.startDateTime, trip.endDateTime);
+  //   Schemas.Trip memory trip = tripService.getTrip(tripId);
+  //   uint64 ceilDays = RentalityUtils.getCeilDays(trip.startDateTime, trip.endDateTime);
 
-    uint64 allowedMiles = trip.milesIncludedPerDay * ceilDays;
+  //   uint64 allowedMiles = trip.milesIncludedPerDay * ceilDays;
 
-    uint64 totalMilesDriven = trip.endParamLevels[1] - trip.startParamLevels[1];
+  //   uint64 totalMilesDriven = trip.endParamLevels[1] - trip.startParamLevels[1];
 
-    uint64 overmiles = allowedMiles >= totalMilesDriven ? 0 : totalMilesDriven - allowedMiles;
+  //   uint64 overmiles = allowedMiles >= totalMilesDriven ? 0 : totalMilesDriven - allowedMiles;
 
-    uint insuranceFee = trip.status == Schemas.TripStatus.Canceled
-      ? 0
-      : uint64(RentalityInsurance(insuranceAddress).getInsurancePriceByTrip(trip.tripId));
+  //   uint insuranceFee = trip.status == Schemas.TripStatus.Canceled
+  //     ? 0
+  //     : uint64(RentalityInsurance(insuranceAddress).getInsurancePriceByTrip(trip.tripId));
+  //     uint taxId = RentalityPaymentService(payable(paymentService)).defineTaxesType(carService, trip.carId);
+  //     Schemas.TaxesDTO memory taxes = RentalityPaymentService(payable(paymentService)).getTripTaxesDTO(taxId, trip.tripId);
 
-    return
-      Schemas.TripReceiptDTO(
-        trip.paymentInfo.totalDayPriceInUsdCents,
-        ceilDays,
-        trip.paymentInfo.priceWithDiscount,
-        trip.paymentInfo.totalDayPriceInUsdCents - trip.paymentInfo.priceWithDiscount,
-        trip.paymentInfo.salesTax,
-        trip.paymentInfo.governmentTax,
-        trip.paymentInfo.depositInUsdCents,
-        trip.paymentInfo.resolveAmountInUsdCents,
-        trip.paymentInfo.depositInUsdCents - trip.paymentInfo.resolveAmountInUsdCents,
-        trip.startParamLevels[0] >= trip.endParamLevels[0] ? 0 : trip.endParamLevels[0] - trip.startParamLevels[0],
-        trip.fuelPrice,
-        trip.paymentInfo.resolveFuelAmountInUsdCents,
-        allowedMiles,
-        overmiles,
-        overmiles > 0 ? uint64(Math.ceilDiv(trip.paymentInfo.totalDayPriceInUsdCents, trip.milesIncludedPerDay)) : 0,
-        trip.paymentInfo.resolveMilesAmountInUsdCents,
-        trip.startParamLevels[0],
-        trip.endParamLevels[0],
-        trip.startParamLevels[1],
-        trip.endParamLevels[1],
-        insuranceFee
-      );
-  }
+  //   return
+  //     Schemas.TripReceiptDTO(
+  //       trip.paymentInfo.totalDayPriceInUsdCents,
+  //       ceilDays,
+  //       trip.paymentInfo.priceWithDiscount,
+  //       trip.paymentInfo.totalDayPriceInUsdCents - trip.paymentInfo.priceWithDiscount,
+  //       trip.paymentInfo.depositInUsdCents,
+  //       trip.paymentInfo.resolveAmountInUsdCents,
+  //       trip.paymentInfo.depositInUsdCents - trip.paymentInfo.resolveAmountInUsdCents,
+  //       trip.startParamLevels[0] >= trip.endParamLevels[0] ? 0 : trip.endParamLevels[0] - trip.startParamLevels[0],
+  //       trip.fuelPrice,
+  //       trip.paymentInfo.resolveFuelAmountInUsdCents,
+  //       allowedMiles,
+  //       overmiles,
+  //       overmiles > 0 ? uint64(Math.ceilDiv(trip.paymentInfo.totalDayPriceInUsdCents, trip.milesIncludedPerDay)) : 0,
+  //       trip.paymentInfo.resolveMilesAmountInUsdCents,
+  //       trip.startParamLevels[0],
+  //       trip.endParamLevels[0],
+  //       trip.startParamLevels[1],
+  //       trip.endParamLevels[1],
+  //       insuranceFee,
+  //       taxes
+  //     );
+  // }
 
   /// @notice Retrieves contact information for a specific trip.
   /// @dev This function returns the phone numbers of the guest and host for a given trip.
@@ -377,7 +380,8 @@ library RentalityTripsQuery {
         insuranceService.getInsurancePriceByTrip(tripId),
         userService.getMyFullKYCInfo(user).additionalKYC.issueCountry,
         promoService.getTripDiscount(tripId),
-        dimoService.getDimoTokenId(trip.carId)
+        dimoService.getDimoTokenId(trip.carId),
+        contracts.paymentService.getTripTaxesDTO(tripId)
       );
   }
   function getTripInsurancesBy(

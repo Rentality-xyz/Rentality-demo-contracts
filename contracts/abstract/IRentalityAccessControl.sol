@@ -9,7 +9,7 @@ interface IRentalityAccessControl {
   /// @notice Checks if a user has manager role.
   /// @param user The address of the user to check for manager role.
   /// @return isManager A boolean indicating whether the user has manager role.
-  function isManager(address user) external view returns (bool);
+  function isRentalityPlatform(address user) external view returns (bool);
   /// @notice Checks if a user has host role.
   /// @param user The address of the user to check for host role.
   /// @return isHost A boolean indicating whether the user has host role.
