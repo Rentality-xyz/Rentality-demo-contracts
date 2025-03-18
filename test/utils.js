@@ -1,6 +1,22 @@
 const { ethers, upgrades } = require('hardhat')
 const { keccak256 } = require('hardhat/internal/util/keccak')
 const ethToken = ethers.getAddress('0x0000000000000000000000000000000000000000')
+const taxesWithoutRentSign = '0x656b0a99'
+const taxesWithRentSign = '0x57ccc04e'
+const taxesWithGovePMM = '0x96746221'
+const taxesGOVConst = '0x05e92b7e'
+
+const encodeTaxes = (data) => {
+  const abiCoder = new ethers.AbiCoder();
+  const dataType = 'tuple(uint32, uint32, uint32)'
+  
+  const values =  [data.salesTax, data.governmentTax, data.rentTax]
+
+  return abiCoder.encode(
+    [dataType],  
+    [values]   
+  );
+}
 const UserRole = {
   Guest: 0,
   Host: 1,
@@ -78,23 +94,23 @@ const filter = {
   endDateTime: 0,
 }
 
-const calculatePayments = async (currencyConverter, paymentService, value, tripDays, deposit, token = ethToken) => {
+const calculatePayments = async (currencyConverter, paymentService, value, tripDays, deposit, token = ethToken, taxId = 1) => {
   let priceWithDiscount = await paymentService.calculateSumWithDiscount(
     '0x0000000000000000000000000000000000000000',
     tripDays,
     value
   )
-  let [salesTaxes, govTaxes] = await paymentService.calculateTaxes(1, tripDays, priceWithDiscount)
+  let totalTaxes = await paymentService.calculateTaxes(taxId, tripDays, priceWithDiscount)
 
   const [rate, decimals] = await currencyConverter.getCurrentRate(token)
 
   const rentPriceInEth = await currencyConverter.getFromUsd(
     token,
-    priceWithDiscount + salesTaxes + govTaxes + BigInt(deposit),
+    priceWithDiscount + totalTaxes + BigInt(deposit),
     rate,
     decimals
   )
-  const taxes = await currencyConverter.getFromUsd(token, salesTaxes + govTaxes, rate, decimals)
+  const taxes = await currencyConverter.getFromUsd(token, totalTaxes, rate, decimals)
 
   const feeInUsdCents = await paymentService.getPlatformFeeFrom(priceWithDiscount)
 
@@ -115,16 +131,16 @@ const calculatePaymentsFrom = async (currencyConverter, paymentService, value, t
     tripDays,
     value
   )
-  let [salesTaxes, govTaxes] = await paymentService.calculateTaxes(1, tripDays, priceWithDiscount)
+  let totalTaxes = await paymentService.calculateTaxes(1, tripDays, priceWithDiscount)
   const [rate, decimals] = await currencyConverter.getCurrentRate(token)
 
   const rentPriceInEth = await currencyConverter.getFromUsd(
     token,
-    priceWithDiscount + salesTaxes + govTaxes + BigInt(deposit),
+    priceWithDiscount + totalTaxes + BigInt(deposit),
     rate,
     decimals
   )
-  const taxes = await currencyConverter.getFromUsd(token, salesTaxes + govTaxes, rate, decimals)
+  const taxes = await currencyConverter.getFromUsd(token, totalTaxes, rate, decimals)
 
   const feeInUsdCents = await paymentService.getPlatformFeeFrom(priceWithDiscount)
 
@@ -364,6 +380,7 @@ async function deployDefaultFixture() {
   await rentalityUserService.waitForDeployment()
 
   await rentalityUserService.manageRole(4, owner.address, true)
+  await rentalityUserService.grantPlatformRole(owner.address)
 
   const RentalityNotificationService = await ethers.getContractFactory('RentalityNotificationService')
 
@@ -389,7 +406,7 @@ async function deployDefaultFixture() {
   await engineService.waitForDeployment()
 
   await rentalityUserService.connect(owner).grantAdminRole(admin.address)
-  await rentalityUserService.connect(owner).grantManagerRole(manager.address)
+  await rentalityUserService.connect(owner).grantPlatformRole(manager.address)
   await rentalityUserService.connect(owner).grantHostRole(host.address)
   await rentalityUserService.connect(owner).grantGuestRole(guest.address)
 
@@ -476,11 +493,14 @@ async function deployDefaultFixture() {
   ])
   await refferalProgram.waitForDeployment()
 
-  const RentalityFloridaTaxes = await ethers.getContractFactory('RentalityFloridaTaxes')
 
-  const rentalityFloridaTaxes = await upgrades.deployProxy(RentalityFloridaTaxes, [
+
+  const RentalityTaxes = await ethers.getContractFactory('RentalityTaxes')
+
+  const rentalityTaxes = await upgrades.deployProxy(RentalityTaxes, [
     await rentalityUserService.getAddress(),
   ])
+
 
   const RentalityBaseDiscount = await ethers.getContractFactory('RentalityBaseDiscount')
 
@@ -514,11 +534,29 @@ async function deployDefaultFixture() {
 
   const rentalityPaymentService = await upgrades.deployProxy(RentalityPaymentService, [
     await rentalityUserService.getAddress(),
-    await rentalityFloridaTaxes.getAddress(),
+    await rentalityTaxes.getAddress(),
     await rentalityBaseDiscount.getAddress(),
     await investorsService.getAddress(),
   ])
   await rentalityPaymentService.waitForDeployment()
+
+
+  await rentalityPaymentService.addTaxes(
+    'Florida',
+    [{name:"salesTax",value:70_000, tType:2},
+      {name:"governmentTax",value:200, tType:0} 
+    ]
+ )
+
+
+ await rentalityPaymentService.addTaxes(
+  'Pennsylvania',
+  [{name:"salesTax",value:60_000, tType:2},
+    {name:"governmentTax",value:20_000, tType:2},
+    {name:"rentTax",value:200, tType:0}
+  ]
+)
+
 
   const rentalityTripService = await upgrades.deployProxy(RentalityTripService, [
     await rentalityCurrencyConverter.getAddress(),
@@ -669,19 +707,19 @@ async function deployDefaultFixture() {
 
   await rentalityUserService.connect(owner).grantHostRole(await rentalityPlatform.getAddress())
 
-  await rentalityUserService.connect(owner).grantManagerRole(await rentalityPlatform.getAddress())
+  await rentalityUserService.connect(owner).grantPlatformRole(await rentalityPlatform.getAddress())
 
-  await rentalityUserService.connect(owner).grantManagerRole(await rentalityCarToken.getAddress())
+  await rentalityUserService.connect(owner).grantPlatformRole(await rentalityCarToken.getAddress())
+  await rentalityUserService.connect(owner).grantPlatformRole(await refferalProgram.getAddress())
+  await rentalityUserService.connect(owner).grantPlatformRole(await rentalityUserService.getAddress())
 
-  await rentalityUserService.connect(owner).grantManagerRole(await rentalityUserService.getAddress())
+  await rentalityUserService.connect(owner).grantPlatformRole(await rentalityTripService.getAddress())
 
-  await rentalityUserService.connect(owner).grantManagerRole(await rentalityTripService.getAddress())
+  await rentalityUserService.connect(owner).grantPlatformRole(await rentalityPlatform.getAddress())
 
-  await rentalityUserService.connect(owner).grantManagerRole(await rentalityPlatform.getAddress())
-
-  await rentalityUserService.connect(owner).grantManagerRole(await claimService.getAddress())
-  await rentalityUserService.connect(owner).grantManagerRole(await rentalityPlatformHelper.getAddress())
-  await rentalityUserService.connect(owner).grantManagerRole(await investorsService.getAddress())
+  await rentalityUserService.connect(owner).grantPlatformRole(await claimService.getAddress())
+  await rentalityUserService.connect(owner).grantPlatformRole(await rentalityPlatformHelper.getAddress())
+  await rentalityUserService.connect(owner).grantPlatformRole(await investorsService.getAddress())
 
   let rentalityGateway = await upgrades.deployProxy(RentalityGateway.connect(owner), [
     await rentalityCarToken.getAddress(),
@@ -703,16 +741,17 @@ async function deployDefaultFixture() {
 
   rentalityGateway = await ethers.getContractAt('IRentalityGateway', await rentalityGateway.getAddress())
 
-  await rentalityUserService.connect(owner).grantManagerRole(await rentalityAdminGateway.getAddress())
-  await rentalityUserService.connect(owner).grantManagerRole(await rentalityGateway.getAddress())
+  await rentalityUserService.connect(owner).grantPlatformRole(await rentalityAdminGateway.getAddress())
+  await rentalityUserService.connect(owner).grantPlatformRole(await rentalityGateway.getAddress())
   await rentalityUserService.connect(owner).grantAdminRole(await rentalityGateway.getAddress())
   await rentalityUserService.connect(owner).grantAdminRole(await rentalityAdminGateway.getAddress())
-  await rentalityUserService.connect(owner).grantManagerRole(await rentalityCarToken.getAddress())
-  await rentalityUserService.connect(owner).grantManagerRole(await engineService.getAddress())
-  await rentalityUserService.connect(owner).grantManagerRole(await rentalityPaymentService.getAddress())
-  await rentalityUserService.connect(owner).grantManagerRole(await rentalityView.getAddress())
-  await rentalityUserService.connect(owner).grantManagerRole(await rentalityTripsView.getAddress())
-  await rentalityUserService.connect(owner).grantManagerRole(await refferalProgram.getAddress())
+  await rentalityUserService.connect(owner).grantPlatformRole(await rentalityCarToken.getAddress())
+  await rentalityUserService.connect(owner).grantPlatformRole(await engineService.getAddress())
+  await rentalityUserService.connect(owner).grantPlatformRole(await rentalityPaymentService.getAddress())
+  await rentalityUserService.connect(owner).grantPlatformRole(await rentalityView.getAddress())
+  await rentalityUserService.connect(owner).grantPlatformRole(await rentalityTripsView.getAddress())
+  await rentalityUserService.connect(owner).grantPlatformRole(await refferalProgram.getAddress())
+  await rentalityUserService.connect(owner).grantPlatformRole(await rentalityPlatformHelper.getAddress())
   await rentalityUserService.connect(owner).manageRole(6, anonymous.address, true)
   await rentalityUserService.connect(owner).manageRole(6, host.address, true)
   await rentalityUserService.connect(owner).manageRole(6, guest.address, true)
@@ -763,7 +802,7 @@ async function deployDefaultFixture() {
     anonymous,
     usdtContract,
     geoParserMock,
-    rentalityFloridaTaxes,
+    rentalityTaxes,
     rentalityBaseDiscount,
     rentalityGeoService,
     rentalityLocationVerifier,
@@ -776,7 +815,7 @@ async function deployDefaultFixture() {
     tripsQuery,
     refferalProgram,
     hashCreator,
-    promoService,
+    promoService
   }
 }
 
@@ -805,4 +844,9 @@ module.exports = {
   emptySignedLocationInfo,
   InsuranceType,
   signDimoToken,
+  taxesWithGovePMM,
+  taxesWithRentSign,
+  taxesWithoutRentSign,
+  encodeTaxes,
+  taxesGOVConst
 }

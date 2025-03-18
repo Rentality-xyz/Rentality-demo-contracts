@@ -65,7 +65,7 @@ describe('RentalityGateway: trips', function () {
   it('createTripRequest', async function () {
     await expect(
       rentalityGateway.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
-    ).not.to.be.reverted
+    ).to.not.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
 
@@ -171,7 +171,7 @@ describe('RentalityGateway: trips', function () {
         await rentalityPlatform.getAddress(),
         BigInt(mockCreateCarRequest.pricePerDayInUsdCents),
         BigInt(0),
-        BigInt(200),
+        BigInt(0),
         BigInt(mockCreateCarRequest.pricePerDayInUsdCents),
         mockCreateCarRequest.securityDepositPerTripInUsdCents,
         0n,

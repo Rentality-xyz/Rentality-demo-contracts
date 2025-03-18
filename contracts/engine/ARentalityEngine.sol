@@ -25,7 +25,7 @@ abstract contract ARentalityEngine {
   // Modifiers
   /// @notice Ensures that only a manager can execute the function.
   modifier onlyManager() {
-    require(userService.isManager(msg.sender), 'Only for Manager.');
+    require(userService.isRentalityPlatform(msg.sender), 'Only for Manager.');
     _;
   }
 

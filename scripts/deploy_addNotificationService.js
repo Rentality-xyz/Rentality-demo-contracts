@@ -37,7 +37,7 @@ async function main() {
   await claimService.updateEventServiceAddress(notificationService)
   await carService.updateEventServiceAddress(notificationService)
   await tripService.updateEventServiceAddress(notificationService)
-  await userService.grantManagerRole(claimService)
+  await userService.grantPlatformRole(claimService)
 
   console.log('Event service added!')
 }

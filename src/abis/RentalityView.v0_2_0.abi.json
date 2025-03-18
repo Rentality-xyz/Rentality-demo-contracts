@@ -100,34 +100,6 @@
         { "type": "uint64", "name": "endDateTime" },
         {
           "type": "tuple",
-          "name": "searchParams",
-          "components": [
-            { "type": "string", "name": "country" },
-            { "type": "string", "name": "state" },
-            { "type": "string", "name": "city" },
-            { "type": "string", "name": "brand" },
-            { "type": "string", "name": "model" },
-            { "type": "uint32", "name": "yearOfProductionFrom" },
-            { "type": "uint32", "name": "yearOfProductionTo" },
-            { "type": "uint64", "name": "pricePerDayInUsdCentsFrom" },
-            { "type": "uint64", "name": "pricePerDayInUsdCentsTo" },
-            {
-              "type": "tuple",
-              "name": "userLocation",
-              "components": [
-                { "type": "string", "name": "userAddress" },
-                { "type": "string", "name": "country" },
-                { "type": "string", "name": "state" },
-                { "type": "string", "name": "city" },
-                { "type": "string", "name": "latitude" },
-                { "type": "string", "name": "longitude" },
-                { "type": "string", "name": "timeZoneId" }
-              ]
-            }
-          ]
-        },
-        {
-          "type": "tuple",
           "name": "pickUpInfo",
           "components": [
             { "type": "string", "name": "userAddress" },
@@ -166,7 +138,6 @@
             { "type": "uint64", "name": "pricePerDayWithDiscount" },
             { "type": "uint64", "name": "tripDays" },
             { "type": "uint64", "name": "totalPriceWithDiscount" },
-            { "type": "uint64", "name": "taxes" },
             { "type": "uint64", "name": "securityDepositPerTripInUsdCents" },
             { "type": "uint8", "name": "engineType" },
             { "type": "uint64", "name": "milesIncludedPerDay" },
@@ -211,11 +182,19 @@
                 { "type": "bool", "name": "initialized" }
               ]
             },
-            { "type": "uint64", "name": "salesTax" },
-            { "type": "uint64", "name": "governmentTax" },
             { "type": "int128", "name": "distance" },
             { "type": "bool", "name": "isGuestHasInsurance" },
-            { "type": "uint256", "name": "dimoTokenId" }
+            { "type": "uint256", "name": "dimoTokenId" },
+            {
+              "type": "tuple[]",
+              "name": "taxes",
+              "components": [
+                { "type": "string", "name": "name" },
+                { "type": "uint32", "name": "value" },
+                { "type": "uint8", "name": "tType" }
+              ]
+            },
+            { "type": "uint64", "name": "totalTax" }
           ]
         }
       ]
@@ -518,15 +497,6 @@
           ]
         }
       ]
-    },
-    {
-      "type": "function",
-      "name": "getDimoVihicles",
-      "constant": true,
-      "stateMutability": "view",
-      "payable": false,
-      "inputs": [],
-      "outputs": [{ "type": "uint256[]", "name": "" }]
     },
     {
       "type": "function",

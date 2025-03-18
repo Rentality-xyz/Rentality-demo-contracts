@@ -34,7 +34,7 @@ contract RentalityInvestment is Initializable, UUPSAccess {
   mapping(uint => address) private investmentIdToCurrency;
 
   function createCarInvestment(Schemas.CarInvestment memory car, string memory name_, address currency) public {
-    require(RentalityUserService(address(userService)).isInvestorManager(msg.sender), 'only Manager');
+    require(RentalityUserService(address(userService)).isInvestorManager(msg.sender), 'only Rentality platform');
     require(carToken.isUniqueVinNumber(car.car.carVinNumber), 'Car with this VIN number already exists');
     require(converter.currencyTypeIsAvailable(currency), 'currency type is not available');
 
@@ -59,8 +59,9 @@ contract RentalityInvestment is Initializable, UUPSAccess {
       investmentIdToPayedInETH[investId] + amount
     );
 
+
     _checkAmount(amountAfterInvestment, investment.priceInUsd);
-    if (amountAfterInvestment == investment.priceInUsd) {
+    if (amountAfterInvestment >= investment.priceInUsd) {
       investment.inProgress = false;
     }
 
@@ -89,6 +90,13 @@ contract RentalityInvestment is Initializable, UUPSAccess {
     require(address(investIdToPool[investId]) == address(0), 'Claimed');
 
     Schemas.CarInvestment storage investment = investmentIdToCarInfo[investId];
+     (uint amountInvested, , ) = converter.getToUsdLatest(
+      investmentIdToCurrency[investId],
+      investmentIdToPayedInETH[investId]
+    );
+    if (investment.priceInUsd <= amountInvested && !investment.inProgress)
+        investment.inProgress = false;
+
     require(!investment.inProgress, 'In progress');
     investIdToPool[investId] = RentalityCarInvestmentPool(
       investDeployer.createNewPool(
