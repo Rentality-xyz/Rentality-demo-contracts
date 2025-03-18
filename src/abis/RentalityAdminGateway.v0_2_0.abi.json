@@ -71,9 +71,30 @@
         { "type": "uint64", "name": "daysOfTrip" },
         { "type": "uint64", "name": "value" }
       ],
+      "outputs": [{ "type": "uint64", "name": "totalTax" }]
+    },
+    {
+      "type": "function",
+      "name": "calculateTaxesDTO",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        { "type": "uint256", "name": "taxesId" },
+        { "type": "uint64", "name": "daysOfTrip" },
+        { "type": "uint64", "name": "value" }
+      ],
       "outputs": [
-        { "type": "uint64", "name": "salesTax" },
-        { "type": "uint64", "name": "govTax" }
+        { "type": "uint64", "name": "totalTax" },
+        {
+          "type": "tuple[]",
+          "name": "taxValues",
+          "components": [
+            { "type": "string", "name": "name" },
+            { "type": "uint32", "name": "value" },
+            { "type": "uint8", "name": "tType" }
+          ]
+        }
       ]
     },
     {
