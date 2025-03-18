@@ -32,12 +32,12 @@ contract RentalityCarInvestmentPool {
     currency = _currency;
   }
   function deposit(uint totalProfit, uint amount) public payable {
-    require(userService.isManager(msg.sender), 'only Manager');
+    require(userService.isRentalityPlatform(msg.sender), 'only Rentality platform');
     incomes.push(Income(amount, totalProfit));
   }
 
   function claimAllMy(address user, uint[] memory tokens) public {
-    require(userService.isManager(msg.sender), 'only Manager');
+    require(userService.isRentalityPlatform(msg.sender), 'only Rentality platform');
     require(incomes.length > 0, 'no incomes');
     uint toClaim = 0;
     for (uint i = 0; i < tokens.length; i++) {

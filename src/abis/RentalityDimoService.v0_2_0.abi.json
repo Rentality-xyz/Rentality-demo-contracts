@@ -56,7 +56,7 @@
     },
     {
       "type": "function",
-      "name": "getDimoVihicles",
+      "name": "getDimoVehicles",
       "constant": true,
       "stateMutability": "view",
       "payable": false,

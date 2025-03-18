@@ -428,13 +428,13 @@ library RentalityUtils {
 
     uint taxId = addresses.paymentService.defineTaxesType(address(addresses.carService), carId);
 
-    (uint64 salesTaxes, uint64 govTax) = addresses.paymentService.calculateTaxes(
+    uint64 totalTaxes = addresses.paymentService.calculateTaxes(
       taxId,
       daysOfTrip,
       sumWithDiscount + deliveryFee
     );
 
-    uint64 priceBeforePromo = sumWithDiscount + salesTaxes + govTax + deliveryFee;
+    uint64 priceBeforePromo = sumWithDiscount + totalTaxes + deliveryFee;
 
     uint64 discountedPrice = priceBeforePromo;
     if (discount > 0) {
@@ -516,8 +516,6 @@ library RentalityUtils {
   /// It also converts the total amount to the specified currency using the current exchange rate.
   /// @param addresses The Rentality contract instance containing service addresses.
   /// @param carId The ID of the car being rented.
-  /// @param startDateTime The start time of the trip.
-  /// @param endDateTime The end time of the trip.
   /// @param currencyType The type of currency in which the payment will be made (e.g., ETH, ERC20 token).
   /// @param pickUp The pick-up fee for the car.
   /// @param dropOf The drop-off fee for the car.
@@ -525,40 +523,24 @@ library RentalityUtils {
   function createPaymentInfo(
     RentalityContract memory addresses,
     uint256 carId,
-    uint64 startDateTime,
-    uint64 endDateTime,
     address currencyType,
     uint64 pickUp,
     uint64 dropOf,
     RentalityPromoService promoService,
     string memory promo,
     address user,
-    uint insurance
+    uint insurance,
+    uint64 taxesSum,
+    uint64 daysOfTrip,
+    uint64 priceWithDiscount
   ) public view returns (Schemas.PaymentInfo memory, uint, uint, uint, bool) {
     bool usePromo = false;
     Schemas.CarInfo memory carInfo = addresses.carService.getCarInfoById(carId);
 
-    uint64 daysOfTrip = getCeilDays(startDateTime, endDateTime);
-
     uint64 discount = uint64(promoService.getDiscountByPromo(promo, user));
 
-    uint64 priceWithDiscount = addresses.paymentService.calculateSumWithDiscount(
-      addresses.carService.ownerOf(carId),
-      daysOfTrip,
-      carInfo.pricePerDayInUsdCents
-    );
-
-    uint taxId = addresses.paymentService.defineTaxesType(address(addresses.carService), carId);
-
-    (uint64 salesTaxes, uint64 govTax) = addresses.paymentService.calculateTaxes(
-      taxId,
-      daysOfTrip,
-      priceWithDiscount + pickUp + dropOf
-    );
-
     uint valueSum = priceWithDiscount +
-      salesTaxes +
-      govTax +
+      taxesSum +
       carInfo.securityDepositPerTripInUsdCents +
       pickUp +
       dropOf +
@@ -568,7 +550,7 @@ library RentalityUtils {
     if (discount > 0) {
       require(discount == 100 || (pickUp == 0 && pickUp == 0), 'PickUp and DropOf should be 0');
       usePromo = true;
-      uint sumBeforePromo = priceWithDiscount + salesTaxes + govTax + pickUp + dropOf;
+      uint sumBeforePromo = priceWithDiscount + taxesSum + pickUp + dropOf;
       priceWithPromo = (sumBeforePromo - ((sumBeforePromo * discount) / 100));
     }
 
@@ -595,8 +577,8 @@ library RentalityUtils {
       user,
       address(this),
       carInfo.pricePerDayInUsdCents * daysOfTrip,
-      salesTaxes,
-      govTax,
+      0,
+      0,
       priceWithDiscount,
       carInfo.securityDepositPerTripInUsdCents,
       0,

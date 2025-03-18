@@ -127,7 +127,8 @@
             { "type": "uint128", "name": "dropOfFee" }
           ]
         },
-        { "type": "uint256", "name": "insurance" }
+        { "type": "uint256", "name": "insurance" },
+        { "type": "uint64", "name": "totalTax" }
       ],
       "outputs": [{ "type": "uint256", "name": "" }]
     },

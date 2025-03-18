@@ -124,6 +124,26 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
   function getAvaibleCurrencies() public view returns (Schemas.Currency[] memory) {
     return addresses.currencyConverterService.getAllCurrencies();
   }
+  function getFilterInfo(
+    uint64 duration
+  ) public view returns (Schemas.FilterInfoDTO memory) {
+    uint64 maxCarPrice = 0;
+    RentalityCarToken carService = addresses.carService;
+    uint minCarYearOfProduction = carService.getCarInfoById(1).yearOfProduction;
+
+    for (uint i = 2; i <= carService.totalSupply(); i++) {
+      Schemas.CarInfo memory car = carService.getCarInfoById(i);
+
+      uint64 sumWithDiscount = addresses.paymentService.calculateSumWithDiscount(
+        carService.ownerOf(i),
+        duration,
+        car.pricePerDayInUsdCents
+      );
+      if (sumWithDiscount > maxCarPrice) maxCarPrice = sumWithDiscount;
+      if (car.yearOfProduction < minCarYearOfProduction) minCarYearOfProduction = car.yearOfProduction;
+    }
+    return Schemas.FilterInfoDTO(maxCarPrice, minCarYearOfProduction);
+  }
 
   function getAiDamageAnalyzeCaseData(uint tripId, bool pre) public view returns(Schemas.AiDamageAnalyzeCaseDataDTO memory) {
     Schemas.CarInfo memory car = addresses.carService.getCarInfoById(addresses.tripService.getTrip(tripId).carId);
@@ -137,6 +157,9 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
       car.carVinNumber
     );
 
+  }
+    function getDimoVehicles() public view returns (uint[] memory) {
+    return dimoService.getDimoVehicles();
   }
 
 

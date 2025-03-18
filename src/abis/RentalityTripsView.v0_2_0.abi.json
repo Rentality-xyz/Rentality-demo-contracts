@@ -82,6 +82,15 @@
     },
     {
       "type": "function",
+      "name": "getDimoVehicles",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "uint256[]", "name": "" }]
+    },
+    {
+      "type": "function",
       "name": "getFilterInfo",
       "constant": true,
       "stateMutability": "view",
@@ -258,7 +267,16 @@
             { "type": "uint256", "name": "paidForInsuranceInUsdCents" },
             { "type": "string", "name": "guestDrivingLicenseIssueCountry" },
             { "type": "uint256", "name": "promoDiscount" },
-            { "type": "uint256", "name": "dimoTokenId" }
+            { "type": "uint256", "name": "dimoTokenId" },
+            {
+              "type": "tuple[]",
+              "name": "taxesData",
+              "components": [
+                { "type": "string", "name": "name" },
+                { "type": "uint32", "name": "value" },
+                { "type": "uint8", "name": "tType" }
+              ]
+            }
           ]
         }
       ]
@@ -411,7 +429,16 @@
             { "type": "uint256", "name": "paidForInsuranceInUsdCents" },
             { "type": "string", "name": "guestDrivingLicenseIssueCountry" },
             { "type": "uint256", "name": "promoDiscount" },
-            { "type": "uint256", "name": "dimoTokenId" }
+            { "type": "uint256", "name": "dimoTokenId" },
+            {
+              "type": "tuple[]",
+              "name": "taxesData",
+              "components": [
+                { "type": "string", "name": "name" },
+                { "type": "uint32", "name": "value" },
+                { "type": "uint8", "name": "tType" }
+              ]
+            }
           ]
         }
       ]

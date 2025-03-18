@@ -198,6 +198,8 @@ interface Schemas {
     string guestDrivingLicenseIssueCountry;
     uint promoDiscount;
     uint dimoTokenId;
+    TaxValue[] taxesData;
+
   }
 
   /// CHAT LOGIC
@@ -377,8 +379,6 @@ interface Schemas {
     uint64 totalDayPriceInUsdCents;
     uint64 totalTripDays;
     uint64 tripPrice;
-    uint64 discountAmount;
-    uint64 salesTax;
     uint64 governmentTax;
     uint64 depositReceived;
     uint64 reimbursement;
@@ -395,6 +395,7 @@ interface Schemas {
     uint64 startOdometer;
     uint64 endOdometer;
     uint insuranceFee;
+    TaxValue[] taxes;
   }
 
   struct CalculatePaymentsDTO {
@@ -482,7 +483,6 @@ interface Schemas {
     uint64 pricePerDayWithDiscount;
     uint64 tripDays;
     uint64 totalPriceWithDiscount;
-    uint64 taxes;
     uint64 securityDepositPerTripInUsdCents;
     uint8 engineType;
     uint64 milesIncludedPerDay;
@@ -499,11 +499,11 @@ interface Schemas {
     InsuranceCarInfo insuranceInfo;
     uint fuelPrice;
     BaseDiscount carDiscounts;
-    uint64 salesTax;
-    uint64 governmentTax;
     int128 distance;
     bool isGuestHasInsurance;
     uint dimoTokenId;
+    TaxValue[] taxes;
+    uint64 totalTax;
   }
 
   struct GeoData {
@@ -541,6 +541,13 @@ interface Schemas {
   struct FloridaTaxes {
     uint32 salesTaxPPM;
     uint32 governmentTaxPerDayInUsdCents;
+  }
+
+  struct TaxesDTO {
+    bytes taxInfo;
+    string dataType;
+    uint taxId;
+    uint64 totalTax;
   }
 
   // Discounts
@@ -935,4 +942,16 @@ struct TripInsuranceCases {
   uint post;
 }
 
+
+struct TaxValue {
+    string name;
+    uint32 value;
+    TaxesType tType; 
+}
+
+enum TaxesType {
+  InUsdCentsPerDay,
+  InUsdCents,
+  PPM
+}
 }

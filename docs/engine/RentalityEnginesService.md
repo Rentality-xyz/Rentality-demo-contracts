@@ -39,7 +39,7 @@ Modifier to restrict access to only administrators.
 modifier onlyManager()
 ```
 
-Modifier to restrict access to only managers.
+Modifier to restrict access to only Rentality platforms.
 
 ### addEngineService
 
