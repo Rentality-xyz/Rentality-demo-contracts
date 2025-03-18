@@ -15,7 +15,6 @@
       "name": "BeaconUpgraded",
       "inputs": [{ "type": "address", "name": "beacon", "indexed": true }]
     },
-    { "type": "event", "anonymous": false, "name": "EIP712DomainChanged", "inputs": [] },
     {
       "type": "event",
       "anonymous": false,
@@ -30,54 +29,95 @@
     },
     {
       "type": "function",
-      "name": "eip712Domain",
-      "constant": true,
-      "stateMutability": "view",
+      "name": "addTaxes",
+      "constant": false,
       "payable": false,
-      "inputs": [],
-      "outputs": [
-        { "type": "bytes1", "name": "fields" },
-        { "type": "string", "name": "name" },
-        { "type": "string", "name": "version" },
-        { "type": "uint256", "name": "chainId" },
-        { "type": "address", "name": "verifyingContract" },
-        { "type": "bytes32", "name": "salt" },
-        { "type": "uint256[]", "name": "extensions" }
-      ]
+      "inputs": [
+        { "type": "uint256", "name": "taxId" },
+        { "type": "string", "name": "location" },
+        {
+          "type": "tuple[]",
+          "name": "taxes",
+          "components": [
+            { "type": "string", "name": "name" },
+            { "type": "uint32", "name": "value" },
+            { "type": "uint8", "name": "tType" }
+          ]
+        }
+      ],
+      "outputs": []
     },
     {
       "type": "function",
-      "name": "getCurrentCaseNumber",
-      "constant": true,
-      "stateMutability": "view",
+      "name": "calculateAndSaveTaxes",
+      "constant": false,
       "payable": false,
-      "inputs": [],
-      "outputs": [{ "type": "uint256", "name": "currentCaseNumber" }]
+      "inputs": [
+        { "type": "uint256", "name": "taxId" },
+        { "type": "uint64", "name": "tripDays" },
+        { "type": "uint64", "name": "totalCost" },
+        { "type": "uint256", "name": "tripId" }
+      ],
+      "outputs": [{ "type": "uint64", "name": "" }]
     },
     {
       "type": "function",
-      "name": "getInsuranceCaseByTrip",
+      "name": "calculateTaxes",
       "constant": true,
       "stateMutability": "view",
       "payable": false,
       "inputs": [
-        { "type": "uint256", "name": "tripId" },
-        { "type": "bool", "name": "pre" }
+        { "type": "uint256", "name": "taxId" },
+        { "type": "uint64", "name": "tripDays" },
+        { "type": "uint64", "name": "totalCost" }
       ],
-      "outputs": [{ "type": "string", "name": "iCases" }]
+      "outputs": [{ "type": "uint64", "name": "totalTax" }]
     },
     {
       "type": "function",
-      "name": "getInsuranceCaseUrl",
+      "name": "calculateTaxesDTO",
       "constant": true,
       "stateMutability": "view",
       "payable": false,
-      "inputs": [{ "type": "string", "name": "iCase" }],
-      "outputs": [{ "type": "string", "name": "url" }]
+      "inputs": [
+        { "type": "uint256", "name": "taxId" },
+        { "type": "uint64", "name": "tripDays" },
+        { "type": "uint64", "name": "totalCost" }
+      ],
+      "outputs": [
+        { "type": "uint64", "name": "totalTax" },
+        {
+          "type": "tuple[]",
+          "name": "",
+          "components": [
+            { "type": "string", "name": "name" },
+            { "type": "uint32", "name": "value" },
+            { "type": "uint8", "name": "tType" }
+          ]
+        }
+      ]
     },
     {
       "type": "function",
-      "name": "getInsuranceCasesUrlByTrip",
+      "name": "getTaxesIdByHash",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "bytes32", "name": "hash" }],
+      "outputs": [{ "type": "uint256", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getTotalTripTax",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "tripId" }],
+      "outputs": [{ "type": "uint64", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getTripTaxesDTO",
       "constant": true,
       "stateMutability": "view",
       "payable": false,
@@ -85,17 +125,11 @@
       "outputs": [
         {
           "type": "tuple[]",
-          "name": "caseUrls",
+          "name": "",
           "components": [
-            {
-              "type": "tuple",
-              "name": "iCase",
-              "components": [
-                { "type": "string", "name": "iCase" },
-                { "type": "bool", "name": "pre" }
-              ]
-            },
-            { "type": "string", "name": "url" }
+            { "type": "string", "name": "name" },
+            { "type": "uint32", "name": "value" },
+            { "type": "uint8", "name": "tType" }
           ]
         }
       ]
@@ -110,12 +144,11 @@
     },
     {
       "type": "function",
-      "name": "isCaseExists",
-      "constant": true,
-      "stateMutability": "view",
+      "name": "migration",
+      "constant": false,
       "payable": false,
-      "inputs": [{ "type": "string", "name": "iCase" }],
-      "outputs": [{ "type": "bool", "name": "isExists" }]
+      "inputs": [{ "type": "address", "name": "tripService" }],
+      "outputs": []
     },
     {
       "type": "function",
@@ -125,29 +158,6 @@
       "payable": false,
       "inputs": [],
       "outputs": [{ "type": "bytes32", "name": "" }]
-    },
-    {
-      "type": "function",
-      "name": "saveInsuranceCase",
-      "constant": false,
-      "payable": false,
-      "inputs": [
-        { "type": "string", "name": "iCase" },
-        { "type": "uint256", "name": "tripId" },
-        { "type": "bool", "name": "pre" }
-      ],
-      "outputs": []
-    },
-    {
-      "type": "function",
-      "name": "saveInsuranceCaseUrl",
-      "constant": false,
-      "payable": false,
-      "inputs": [
-        { "type": "string", "name": "iCase" },
-        { "type": "string", "name": "url" }
-      ],
-      "outputs": []
     },
     {
       "type": "function",
