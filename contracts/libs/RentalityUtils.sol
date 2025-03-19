@@ -643,18 +643,14 @@ library RentalityUtils {
     RentalityContract memory contracts,
     uint256 claimId
   ) public view returns (Schemas.FullClaimInfo memory) {
-    RentalityClaimService claimService = contracts.claimService;
-    RentalityTripService tripService = contracts.tripService;
-    RentalityCarToken carService = contracts.carService;
-    RentalityUserService userService = contracts.userService;
     RentalityCurrencyConverter currencyConverterService = contracts.currencyConverterService;
 
-    Schemas.ClaimV2 memory claim = claimService.getClaim(claimId);
-    Schemas.Trip memory trip = tripService.getTrip(claim.tripId);
-    Schemas.CarInfo memory car = carService.getCarInfoById(trip.carId);
+    Schemas.ClaimV2 memory claim = contracts.claimService.getClaim(claimId);
+    Schemas.Trip memory trip = contracts.tripService.getTrip(claim.tripId);
+    Schemas.CarInfo memory car = contracts.carService.getCarInfoById(trip.carId);
 
-    string memory guestPhoneNumber = userService.getKYCInfo(trip.guest).mobilePhoneNumber;
-    string memory hostPhoneNumber = userService.getKYCInfo(trip.host).mobilePhoneNumber;
+    string memory guestPhoneNumber = contracts.userService.getKYCInfo(trip.guest).mobilePhoneNumber;
+    string memory hostPhoneNumber = contracts.userService.getKYCInfo(trip.host).mobilePhoneNumber;
 
     uint valueInCurrency = currencyConverterService.getFromUsd(
       trip.paymentInfo.currencyType,
@@ -673,7 +669,8 @@ library RentalityUtils {
         car,
         valueInCurrency,
         IRentalityGeoService(contracts.carService.getGeoServiceAddress()).getCarTimeZoneId(car.locationHash),
-        claimService.getClaimTypeInfo(claim.claimType)
+         contracts.claimService.getClaimTypeInfo(claim.claimType),
+        contracts.currencyConverterService.getUserCurrency(trip.host).currency
       );
   }
 
