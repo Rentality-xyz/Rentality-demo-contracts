@@ -403,7 +403,7 @@ interface IRentalityGateway {
 
    function getAiDamageAnalyzeCaseData(uint, bool) external view returns(Schemas.AiDamageAnalyzeCaseDataDTO memory aiDamageAnalyzeCaseData);
 
-  function getUserCurrency() external view returns (Schemas.UserCurrency memory userCurrency);
+  function getUserCurrency(address user) external view returns (Schemas.UserCurrency memory userCurrency);
 
    function addUserCurrency(address currency) external;
 
