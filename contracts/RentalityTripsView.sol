@@ -162,6 +162,9 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
     return dimoService.getDimoVehicles();
   }
 
+  function getUserCurrency() public view returns (Schemas.UserCurrency memory userCurrency) {
+    return addresses.currencyConverterService.getUserCurrency(_msgGatewaySender());
+  }
 
     function trustedForwarder() internal view override returns (address) {
       return trustedForwarderAddress;

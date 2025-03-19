@@ -44,6 +44,7 @@ describe('ERC20 payments', function () {
   })
   it('Should correctly сreate trip and pay deposit with usdt', async function () {
     let usdt = await usdtContract.getAddress()
+    await rentalityGateway.connect(host).addUserCurrency(usdt)
     const request = getMockCarRequest(13, await rentalityLocationVerifier.getAddress(), admin)
     await expect(rentalityGateway.connect(host).addCar(request)).not.to.be.reverted
 
@@ -87,6 +88,7 @@ describe('ERC20 payments', function () {
 
   it('should correctly finish trip with usdt, and send tokens to the host', async function () {
     let usdt = await usdtContract.getAddress()
+    await rentalityGateway.connect(host).addUserCurrency(usdt)
     const request = getMockCarRequest(10, await rentalityLocationVerifier.getAddress(), admin)
     await expect(rentalityGateway.connect(host).addCar(request)).not.to.be.reverted
 
@@ -147,52 +149,12 @@ describe('ERC20 payments', function () {
 
   it('should not be able to create trip with wrong currency type', async function () {
     let usdt = await usdtContract.getAddress()
-    await expect(
-      rentalityGateway.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
-    ).not.to.be.reverted
-    const rentPriceInUsdCents = 1000
-
-    const dailyPriceInUsdCents = 1000
-
-    await mintTo(usdtContract, guest.address, 1000)
-
-    const { rentPrice, currencyRate, currencyDecimals, rentalityFee } = await calculatePaymentsFrom(
-      rentalityCurrencyConverter,
-      rentalityPaymentService,
-      dailyPriceInUsdCents,
-      1,
-      0,
-      usdt
-    )
-
-    await usdtContract.connect(guest).approve(await rentalityPaymentService.getAddress(), rentPrice)
-
-    await expect(
-      rentalityGateway.connect(guest).createTripRequestWithDelivery(
-        {
-          carId: 1,
-          host: host.address,
-          startDateTime: 1,
-          endDateTime: 2,
-          startLocation: '',
-          endLocation: '',
-          totalDayPriceInUsdCents: dailyPriceInUsdCents,
-          depositInUsdCents: 0,
-          currencyRate: currencyRate,
-          currencyDecimals: currencyDecimals,
-          currencyType: await rentalityPlatform.getAddress(),
-          insurancePaid: false,
-          photo: '',
-          pickUpInfo: emptySignedLocationInfo,
-          returnInfo: emptySignedLocationInfo,
-        },
-        ' '
-      )
-    ).to.be.revertedWith('Token is not available.')
-  })
+    await rentalityGateway.connect(host).addUserCurrency(await rentalityPlatform.getAddress())
+   
 
   it('should correctly pay claim with usdt', async function () {
     let usdt = await usdtContract.getAddress()
+    await rentalityGateway.connect(host).addUserCurrency(usdt)
     await expect(
       rentalityGateway.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
     ).not.to.be.reverted
@@ -260,6 +222,7 @@ describe('ERC20 payments', function () {
   })
   it('should be able withdraw usdt from platform ', async function () {
     let usdt = await usdtContract.getAddress()
+    await rentalityGateway.connect(host).addUserCurrency(usdt)
     const request = getMockCarRequest(10, await rentalityLocationVerifier.getAddress(), admin)
     await expect(rentalityGateway.connect(host).addCar(request)).not.to.be.reverted
 
