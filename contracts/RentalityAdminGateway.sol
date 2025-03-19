@@ -111,11 +111,6 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
     return address(currencyConverterService);
   }
 
-  /// @notice Updates the address of the RentalityCurrencyConverter contract. Only callable by admins.
-  /// @param contractAddress The new address of the RentalityCurrencyConverter contract.
-  function updateCurrencyConverterService(address contractAddress) public onlyAdmin {
-    currencyConverterService = RentalityCurrencyConverter(contractAddress);
-  }
 
   /// @notice Retrieves the address of the RentalityTripService contract.
   /// @return tripServiceAddress The address of the RentalityTripService contract.
@@ -123,11 +118,6 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
     return address(tripService);
   }
 
-  /// @notice Updates the address of the RentalityTripService contract. Only callable by admins.
-  /// @param contractAddress The new address of the RentalityTripService contract.
-  function updateTripService(address contractAddress) public onlyAdmin {
-    tripService = RentalityTripService(contractAddress);
-  }
 
   /// @notice Retrieves the address of the RentalityUserService contract.
   /// @return userServiceAddress The address of the RentalityUserService contract.
@@ -135,11 +125,7 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
     return address(userService);
   }
 
-  /// @notice Updates the address of the RentalityUserService contract. Only callable by admins.
-  /// @param contractAddress The new address of the RentalityUserService contract.
-  function updateUserService(address contractAddress) public onlyAdmin {
-    userService = RentalityUserService(contractAddress);
-  }
+
 
   /// @notice Updates the address of the GeoService contract.
   /// @param newGeoServiceAddress The new address of the GeoService contract.
@@ -405,6 +391,10 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
   }
   function removeClaimType(uint8 claimType) public {
     claimService.removeClaimType(claimType);
+  }
+
+  function setDefaultCurrencyType(address currency) public {
+    currencyConverterService.setDefaultCurrencyType(currency);
   }
 
   ///------------------------------------

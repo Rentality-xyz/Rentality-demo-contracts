@@ -349,7 +349,8 @@ library RentalityQuery {
         IRentalityGeoService(carService.getGeoServiceAddress()).getLocationInfo(temp[i].locationHash),
         insuranceService.getCarInsuranceInfo(temp[i].carId),
         isGuestHasInsurance,
-        RentalityDimoService(dimoService).getDimoTokenId(temp[i].carId)
+        RentalityDimoService(dimoService).getDimoTokenId(temp[i].carId),
+        contracts.currencyConverterService.getUserCurrency(temp[i].createdBy)
       );
     }
     return result;

@@ -402,4 +402,9 @@ interface IRentalityGateway {
 
 
    function getMotionsCloudCaseData(uint, bool) external view returns(Schemas.MotionsCloudCaseDataDTO memory motionsCloudCaseData);
+
+  function getUserCurrency() external view returns (Schemas.UserCurrency memory userCurrency);
+
+   function addUserCurrency(address currency) external;
+
 }

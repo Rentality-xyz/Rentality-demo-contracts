@@ -112,9 +112,10 @@ function createTripRequestWithDelivery(
     CreateTripRequestParams memory params // Single struct parameter
 ) private {
     address sender = _msgGatewaySender();
+    address currencyType =  addresses.currencyConverterService.getUserCurrency(addresses.carService.ownerOf(params.request.carId)).currency;
     RentalityUtils.validateTripRequest(
         addresses,
-        params.request.currencyType,
+        currencyType,
         params.request.carId,
         params.request.startDateTime,
         params.request.endDateTime,
@@ -143,7 +144,7 @@ function createTripRequestWithDelivery(
     ) = RentalityUtils.createPaymentInfo(
         addresses,
         params.request.carId,
-        params.request.currencyType,
+        currencyType,
         params.pickUp,
         params.dropOf,
         promoService,
@@ -161,7 +162,7 @@ function createTripRequestWithDelivery(
     );
 
     addresses.paymentService.payCreateTrip{value: msg.value}(
-        params.request.currencyType,
+        currencyType,
         valueSumInCurrency,
         sender,
         params.request.carId
