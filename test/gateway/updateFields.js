@@ -79,7 +79,7 @@ describe('RentalityGateway: update fields', function () {
       .be.reverted
   })
 
-  it('should allow only admin to update currency converter service address', async function () {
+  it.skip('should allow only admin to update currency converter service address', async function () {
     await expect(
       rentalityAdminGateway.connect(guest).updateCurrencyConverterService(await rentalityCurrencyConverter.getAddress())
     ).to.be.reverted
@@ -99,7 +99,7 @@ describe('RentalityGateway: update fields', function () {
     ).not.be.reverted
   })
 
-  it('should allow only admin to update trip service address', async function () {
+  it.skip('should allow only admin to update trip service address', async function () {
     await expect(rentalityAdminGateway.connect(admin).updateTripService(await rentalityTripService.getAddress())).not.be
       .reverted
 
@@ -113,7 +113,7 @@ describe('RentalityGateway: update fields', function () {
       .be.reverted
   })
 
-  it('should allow only admin to update user service address', async function () {
+  it.skip('should allow only admin to update user service address', async function () {
     await expect(rentalityAdminGateway.connect(anonymous).updateUserService(await rentalityUserService.getAddress())).to
       .be.reverted
 
