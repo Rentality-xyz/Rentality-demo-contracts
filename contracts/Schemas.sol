@@ -247,6 +247,7 @@ interface Schemas {
     uint amountInEth;
     string timeZoneId;
     ClaimTypeV2 claimType;
+    address currency;
   }
 
   // Struct to represent a claim

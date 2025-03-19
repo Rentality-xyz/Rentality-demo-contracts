@@ -149,8 +149,8 @@ describe('ERC20 payments', function () {
 
   it('should not be able to create trip with wrong currency type', async function () {
     let usdt = await usdtContract.getAddress()
-    await rentalityGateway.connect(host).addUserCurrency(await rentalityPlatform.getAddress())
-   
+    await expect(rentalityGateway.connect(host).addUserCurrency(await rentalityPlatform.getAddress())).to.be.rejectedWith('Currency not available.')
+  })
 
   it('should correctly pay claim with usdt', async function () {
     let usdt = await usdtContract.getAddress()

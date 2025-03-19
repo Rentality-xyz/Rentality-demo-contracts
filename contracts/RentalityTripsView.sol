@@ -162,8 +162,15 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
     return dimoService.getDimoVehicles();
   }
 
-  function getUserCurrency() public view returns (Schemas.UserCurrency memory userCurrency) {
-    return addresses.currencyConverterService.getUserCurrency(_msgGatewaySender());
+  function getUserCurrency(address user) public view returns (Schemas.UserCurrency memory userCurrency) {
+    return addresses.currencyConverterService.getUserCurrency(user);
+  }
+
+  /// @notice Retrieves the metadata URI of a car by its ID.
+  /// @param carId The ID of the car.
+  /// @return The metadata URI of the car.
+  function getCarMetadataURI(uint256 carId) public view returns (string memory) {
+    return addresses.carService.tokenURI(carId);
   }
 
     function trustedForwarder() internal view override returns (address) {
