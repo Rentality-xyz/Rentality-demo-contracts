@@ -169,7 +169,11 @@ contract RentalityInvestment is Initializable, UUPSAccess {
         percentages,
         totalHolders,
         totalTokens,
-        currency
+        currency,
+        investIdToPool[i].getTotalEarnings(),
+        investIdToPool[i].getTotalEarningsByUser(msg.sender),
+        investIdToNft[i].name(),
+        investIdToNft[i].symbol()
       );
     }
   }
