@@ -102,9 +102,15 @@ contract RentalityTaxes is Initializable, UUPSAccess {
       }
 
    
-      function migration(RentalityTripService tripService) public {
+      function migration(RentalityTripService tripService, uint from, uint to) public {
+        if (from == 0) {
+          from = 1;
+        }
         uint totalTrips = tripService.totalTripCount();
-        for (uint i = 1; i <= totalTrips; i++) {
+        if(to > totalTrips) {
+          to = totalTrips;
+        }
+        for (uint i = from; i <= to; i++) {
           Schemas.PaymentInfo memory paymentInfo = tripService.getTrip(i).paymentInfo;
           Schemas.TaxValue[] memory taxes = new Schemas.TaxValue[](2);
           taxes[0] = Schemas.TaxValue(
