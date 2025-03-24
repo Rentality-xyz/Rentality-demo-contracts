@@ -155,6 +155,17 @@ contract RentalityInvestment is Initializable, UUPSAccess {
         investmentIdToCarInfo[i].priceInUsd,
         converter
       );
+      uint totalEarnings = !isBought ? 0 : 
+      _calculatePriceInCurrency(
+      currency,
+       investIdToPool[i].getTotalEarnings()
+      );
+      uint totalEarningsByUser = !isBought ? 0 :
+       _calculatePriceInCurrency(
+        currency,
+        investIdToPool[i].getTotalEarningsByUser(msg.sender)
+      );
+    
       investments[i - 1] = Schemas.InvestmentDTO(
         investmentIdToCarInfo[i],
         address(investIdToNft[i]),
@@ -171,12 +182,19 @@ contract RentalityInvestment is Initializable, UUPSAccess {
         totalHolders,
         totalTokens,
         currency,
-        investIdToPool[i].getTotalEarnings(),
-        investIdToPool[i].getTotalEarningsByUser(msg.sender),
+        totalEarnings,
+        totalEarningsByUser,
         investIdToNft[i].name(),
         investIdToNft[i].symbol()
       );
     }
+  }
+  function _calculatePriceInCurrency(address currency, uint amount) private view returns(uint) {
+         (uint result, , ) = converter.getToUsdLatest(
+      currency,
+      amount
+    );
+    return result;
   }
 
   function claimAllMy(uint investId) public {
