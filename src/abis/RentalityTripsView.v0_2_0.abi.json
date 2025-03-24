@@ -82,6 +82,15 @@
     },
     {
       "type": "function",
+      "name": "getCarMetadataURI",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "carId" }],
+      "outputs": [{ "type": "string", "name": "" }]
+    },
+    {
+      "type": "function",
       "name": "getDimoVehicles",
       "constant": true,
       "stateMutability": "view",
@@ -460,6 +469,24 @@
       "payable": false,
       "inputs": [{ "type": "string", "name": "brand" }],
       "outputs": [{ "type": "string[]", "name": "modelsArray" }]
+    },
+    {
+      "type": "function",
+      "name": "getUserCurrency",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "user" }],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "userCurrency",
+          "components": [
+            { "type": "address", "name": "currency" },
+            { "type": "bool", "name": "initialized" }
+          ]
+        }
+      ]
     },
     {
       "type": "function",

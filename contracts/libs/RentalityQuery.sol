@@ -99,17 +99,14 @@ library RentalityQuery {
     RentalityContract memory contracts,
     address host
   ) private view returns (Schemas.FullClaimInfo[] memory) {
-    RentalityClaimService claimService = contracts.claimService;
-    RentalityTripService tripService = contracts.tripService;
-    RentalityCarToken carService = contracts.carService;
     RentalityUserService userService = contracts.userService;
     RentalityCurrencyConverter currencyConverterService = contracts.currencyConverterService;
 
     uint256 arraySize = 0;
 
-    for (uint256 i = 1; i <= claimService.getClaimsAmount(); i++) {
-      Schemas.ClaimV2 memory claim = claimService.getClaim(i);
-      Schemas.Trip memory trip = tripService.getTrip(claim.tripId);
+    for (uint256 i = 1; i <= contracts.claimService.getClaimsAmount(); i++) {
+      Schemas.ClaimV2 memory claim = contracts.claimService.getClaim(i);
+      Schemas.Trip memory trip = contracts.tripService.getTrip(claim.tripId);
 
       if (trip.host == host) {
         arraySize++;
@@ -119,16 +116,16 @@ library RentalityQuery {
     Schemas.FullClaimInfo[] memory claimInfos = new Schemas.FullClaimInfo[](arraySize);
     uint256 counter = 0;
 
-    for (uint256 i = 1; i <= claimService.getClaimsAmount(); i++) {
-      Schemas.ClaimV2 memory claim = claimService.getClaim(i);
-      Schemas.Trip memory trip = tripService.getTrip(claim.tripId);
+    for (uint256 i = 1; i <= contracts.claimService.getClaimsAmount(); i++) {
+      Schemas.ClaimV2 memory claim = contracts.claimService.getClaim(i);
+      Schemas.Trip memory trip = contracts.tripService.getTrip(claim.tripId);
 
       if (trip.host == host) {
         uint valueInEth = _getClaimValueInCurrency(
           trip.paymentInfo.currencyType,
           claim.amountInUsdCents,
           claim,
-          claimService,
+          contracts.claimService,
           currencyConverterService
         );
         claimInfos[counter++] = Schemas.FullClaimInfo(
@@ -137,12 +134,13 @@ library RentalityQuery {
           trip.guest,
           userService.getKYCInfo(trip.guest).mobilePhoneNumber,
           userService.getKYCInfo(host).mobilePhoneNumber,
-          carService.getCarInfoById(trip.carId),
+          contracts.carService.getCarInfoById(trip.carId),
           valueInEth,
           IRentalityGeoService(contracts.carService.getGeoServiceAddress()).getCarTimeZoneId(
-            carService.getCarInfoById(trip.carId).locationHash
+            contracts.carService.getCarInfoById(trip.carId).locationHash
           ),
-          claimService.getClaimTypeInfo(claim.claimType)
+          contracts.claimService.getClaimTypeInfo(claim.claimType),
+          contracts.currencyConverterService.getUserCurrency(trip.host).currency
         );
       }
     }
@@ -159,36 +157,26 @@ library RentalityQuery {
     RentalityContract memory contracts,
     address guest
   ) private view returns (Schemas.FullClaimInfo[] memory) {
-    RentalityClaimService claimService = contracts.claimService;
-    RentalityTripService tripService = contracts.tripService;
     RentalityCarToken carService = contracts.carService;
     RentalityUserService userService = contracts.userService;
     RentalityCurrencyConverter currencyConverterService = contracts.currencyConverterService;
 
     uint256 arraySize = 0;
 
-    for (uint256 i = 1; i <= claimService.getClaimsAmount(); i++) {
-      Schemas.ClaimV2 memory claim = claimService.getClaim(i);
-      Schemas.Trip memory trip = tripService.getTrip(claim.tripId);
+    for (uint256 i = 1; i <= contracts.claimService.getClaimsAmount(); i++) {
+      Schemas.ClaimV2 memory claim = contracts.claimService.getClaim(i);
 
-      if (trip.guest == guest) {
+      if (contracts.tripService.getTrip(claim.tripId).guest == guest) {
         arraySize++;
       }
     }
 
     Schemas.FullClaimInfo[] memory claimInfos = new Schemas.FullClaimInfo[](arraySize);
     uint256 counter = 0;
-    for (uint256 i = 1; i <= claimService.getClaimsAmount(); i++) {
-      Schemas.ClaimV2 memory claim = claimService.getClaim(i);
-      Schemas.Trip memory trip = tripService.getTrip(claim.tripId);
+    for (uint256 i = 1; i <= contracts.claimService.getClaimsAmount(); i++) {
+      Schemas.ClaimV2 memory claim = contracts.claimService.getClaim(i);
+      Schemas.Trip memory trip = contracts.tripService.getTrip(claim.tripId);
       if (trip.guest == guest) {
-        uint valueInEth = _getClaimValueInCurrency(
-          trip.paymentInfo.currencyType,
-          claim.amountInUsdCents,
-          claim,
-          claimService,
-          currencyConverterService
-        );
 
         claimInfos[counter++] = Schemas.FullClaimInfo(
           claim,
@@ -197,11 +185,18 @@ library RentalityQuery {
           userService.getKYCInfo(guest).mobilePhoneNumber,
           userService.getKYCInfo(trip.host).mobilePhoneNumber,
           carService.getCarInfoById(trip.carId),
-          valueInEth,
+          _getClaimValueInCurrency(
+          trip.paymentInfo.currencyType,
+          claim.amountInUsdCents,
+          claim,
+          contracts.claimService,
+          currencyConverterService
+        ),
           IRentalityGeoService(contracts.carService.getGeoServiceAddress()).getCarTimeZoneId(
             carService.getCarInfoById(trip.carId).locationHash
           ),
-          claimService.getClaimTypeInfo(claim.claimType)
+          contracts.claimService.getClaimTypeInfo(claim.claimType),
+          contracts.currencyConverterService.getUserCurrency(trip.host).currency
         );
       }
     }
@@ -349,7 +344,8 @@ library RentalityQuery {
         IRentalityGeoService(carService.getGeoServiceAddress()).getLocationInfo(temp[i].locationHash),
         insuranceService.getCarInsuranceInfo(temp[i].carId),
         isGuestHasInsurance,
-        RentalityDimoService(dimoService).getDimoTokenId(temp[i].carId)
+        RentalityDimoService(dimoService).getDimoTokenId(temp[i].carId),
+        contracts.currencyConverterService.getUserCurrency(temp[i].createdBy)
       );
     }
     return result;

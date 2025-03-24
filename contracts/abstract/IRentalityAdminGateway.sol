@@ -25,25 +25,17 @@ interface IRentalityAdminGateway {
   /// @return The address of the RentalityCurrencyConverter contract.
   function getCurrencyConverterServiceAddress() external view returns (address);
 
-  /// @notice Updates the address of the RentalityCurrencyConverter contract. Only callable by admins.
-  /// @param contractAddress The new address of the RentalityCurrencyConverter contract.
-  function updateCurrencyConverterService(address contractAddress) external;
+
 
   /// @notice Retrieves the address of the RentalityTripService contract.
   /// @return The address of the RentalityTripService contract.
   function getTripServiceAddress() external view returns (address);
 
-  /// @notice Updates the address of the RentalityTripService contract. Only callable by admins.
-  /// @param contractAddress The new address of the RentalityTripService contract.
-  function updateTripService(address contractAddress) external;
 
   /// @notice Retrieves the address of the RentalityUserService contract.
   /// @return The address of the RentalityUserService contract.
   function getUserServiceAddress() external view returns (address);
 
-  /// @notice Updates the address of the RentalityUserService contract. Only callable by admins.
-  /// @param contractAddress The new address of the RentalityUserService contract.
-  function updateUserService(address contractAddress) external;
 
   /// @notice Withdraws the specified amount from the RentalityPlatform contract.
   /// @param amount The amount to withdraw.

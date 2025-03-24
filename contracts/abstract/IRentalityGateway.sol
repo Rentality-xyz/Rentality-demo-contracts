@@ -376,7 +376,6 @@ interface IRentalityGateway {
     uint carId,
     uint64 startDateTime,
     uint64 endDateTime,
-    Schemas.SearchCarParams memory searchParams,
     Schemas.LocationInfo memory pickUpInfo,
     Schemas.LocationInfo memory returnInfo
   ) external view returns (Schemas.AvailableCarDTO memory availableCarDTO);
@@ -402,4 +401,9 @@ interface IRentalityGateway {
 
 
    function getAiDamageAnalyzeCaseData(uint, bool) external view returns(Schemas.AiDamageAnalyzeCaseDataDTO memory aiDamageAnalyzeCaseData);
+
+  function getUserCurrency(address user) external view returns (Schemas.UserCurrency memory userCurrency);
+
+   function addUserCurrency(address currency) external;
+
 }
