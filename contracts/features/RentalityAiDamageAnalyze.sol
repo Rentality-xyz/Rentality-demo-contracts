@@ -93,6 +93,7 @@ return insuranceCaseToUrl[keccak256(abi.encodePacked(iCase))];
 
       function initialize(address _userService) public initializer {
         userService = IRentalityAccessControl(_userService);
+        __EIP712_init("RentalityAiDamageAnalyze", "1");
      }
 }
 
