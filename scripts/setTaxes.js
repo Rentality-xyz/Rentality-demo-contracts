@@ -22,13 +22,25 @@ async function main() {
     getContractAddress('RentalityTripService', 'scripts/deploy_4_RentalityTripService.js', chainId),
     'RentalityTripService'
   )
+  const contract = await ethers.getContractAt('RentalityTripService', rentalityTripServiceAddress)
+  const totalTripsCount = await contract.totalTripCount()
+
+    
   const rentalityPaymentService = await ethers.getContractAt('RentalityPaymentService',paymentService)
   console.log(await rentalityPaymentService.addTaxesContract(taxesServiceAddress))
 
   const taxesContract = await ethers.getContractAt('RentalityTaxes',taxesServiceAddress)
 
-  console.log(await taxesContract.migration(rentalityTripServiceAddress))
 
+  for (let i = 1; i < totalTripsCount; i += 30) {
+    await taxesContract.migration(rentalityTripServiceAddress, i, i + 29)
+  }
+
+  // Florida
+await rentalityPaymentService.addTaxes('Florida', [
+  { name: "salesTax", value: 70_000, tType: 2 },
+  { name: "governmentTax", value: 200, tType: 0 }
+]);
 
 // Alabama
 await rentalityPaymentService.addTaxes('Alabama', [
@@ -76,11 +88,6 @@ await rentalityPaymentService.addTaxes('Delaware', [
   { name: "governmentTax", value: 19_900, tType: 2 }
 ]);
 
-// Florida
-await rentalityPaymentService.addTaxes('Florida', [
-  { name: "salesTax", value: 70_000, tType: 2 },
-  { name: "governmentTax", value: 200, tType: 0 }
-]);
 
 // Georgia
 await rentalityPaymentService.addTaxes('Georgia', [

@@ -750,6 +750,14 @@
     },
     {
       "type": "function",
+      "name": "setDefaultCurrencyType",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "currency" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
       "name": "setInsuranceService",
       "constant": false,
       "payable": false,
@@ -798,14 +806,6 @@
     },
     {
       "type": "function",
-      "name": "updateCurrencyConverterService",
-      "constant": false,
-      "payable": false,
-      "inputs": [{ "type": "address", "name": "contractAddress" }],
-      "outputs": []
-    },
-    {
-      "type": "function",
       "name": "updateDeliveryService",
       "constant": false,
       "payable": false,
@@ -850,22 +850,6 @@
     {
       "type": "function",
       "name": "updateRefferalProgramService",
-      "constant": false,
-      "payable": false,
-      "inputs": [{ "type": "address", "name": "contractAddress" }],
-      "outputs": []
-    },
-    {
-      "type": "function",
-      "name": "updateTripService",
-      "constant": false,
-      "payable": false,
-      "inputs": [{ "type": "address", "name": "contractAddress" }],
-      "outputs": []
-    },
-    {
-      "type": "function",
-      "name": "updateUserService",
       "constant": false,
       "payable": false,
       "inputs": [{ "type": "address", "name": "contractAddress" }],
