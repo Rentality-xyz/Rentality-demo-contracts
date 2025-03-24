@@ -1,1 +1,20 @@
-{"abi":[{"type":"function","name":"getTripContactInfo","constant":true,"stateMutability":"view","payable":false,"inputs":[{"type":"uint256","name":"tripId"},{"type":"address","name":"tripService"},{"type":"address","name":"userService"}],"outputs":[{"type":"string","name":"guestPhoneNumber"},{"type":"string","name":"hostPhoneNumber"}]}]}
+{
+  "abi": [
+    {
+      "type": "function",
+      "name": "getTripContactInfo",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        { "type": "uint256", "name": "tripId" },
+        { "type": "address", "name": "tripService" },
+        { "type": "address", "name": "userService" }
+      ],
+      "outputs": [
+        { "type": "string", "name": "guestPhoneNumber" },
+        { "type": "string", "name": "hostPhoneNumber" }
+      ]
+    }
+  ]
+}
