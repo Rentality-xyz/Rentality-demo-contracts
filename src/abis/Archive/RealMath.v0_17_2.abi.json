@@ -1,0 +1,304 @@
+{
+  "abi": [
+    {
+      "type": "function",
+      "name": "REAL_ONE",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "int128", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "RE_LN",
+      "constant": true,
+      "stateMutability": "pure",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "int128", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "abs",
+      "constant": true,
+      "stateMutability": "pure",
+      "payable": false,
+      "inputs": [{ "type": "int128", "name": "real_value" }],
+      "outputs": [{ "type": "int128", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "atan2",
+      "constant": true,
+      "stateMutability": "pure",
+      "payable": false,
+      "inputs": [
+        { "type": "int128", "name": "real_y" },
+        { "type": "int128", "name": "real_x" }
+      ],
+      "outputs": [{ "type": "int128", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "atanSmall",
+      "constant": true,
+      "stateMutability": "pure",
+      "payable": false,
+      "inputs": [{ "type": "int128", "name": "real_arg" }],
+      "outputs": [{ "type": "int128", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "cos",
+      "constant": true,
+      "stateMutability": "pure",
+      "payable": false,
+      "inputs": [{ "type": "int128", "name": "real_arg" }],
+      "outputs": [{ "type": "int128", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "div",
+      "constant": true,
+      "stateMutability": "pure",
+      "payable": false,
+      "inputs": [
+        { "type": "int128", "name": "real_numerator" },
+        { "type": "int128", "name": "real_denominator" }
+      ],
+      "outputs": [{ "type": "int128", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "exp",
+      "constant": true,
+      "stateMutability": "pure",
+      "payable": false,
+      "inputs": [{ "type": "int128", "name": "real_arg" }],
+      "outputs": [{ "type": "int128", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "expLimited",
+      "constant": true,
+      "stateMutability": "pure",
+      "payable": false,
+      "inputs": [
+        { "type": "int128", "name": "real_arg" },
+        { "type": "int256", "name": "max_iterations" }
+      ],
+      "outputs": [{ "type": "int128", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "findbit",
+      "constant": true,
+      "stateMutability": "pure",
+      "payable": false,
+      "inputs": [{ "type": "uint128", "name": "val" }],
+      "outputs": [{ "type": "uint8", "name": "index" }]
+    },
+    {
+      "type": "function",
+      "name": "fpart",
+      "constant": true,
+      "stateMutability": "pure",
+      "payable": false,
+      "inputs": [{ "type": "int128", "name": "real_value" }],
+      "outputs": [{ "type": "int128", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "fpartSigned",
+      "constant": true,
+      "stateMutability": "pure",
+      "payable": false,
+      "inputs": [{ "type": "int128", "name": "real_value" }],
+      "outputs": [{ "type": "int128", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "fraction",
+      "constant": true,
+      "stateMutability": "pure",
+      "payable": false,
+      "inputs": [
+        { "type": "int88", "name": "numerator" },
+        { "type": "int88", "name": "denominator" }
+      ],
+      "outputs": [{ "type": "int128", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "fractionalBits",
+      "constant": true,
+      "stateMutability": "pure",
+      "payable": false,
+      "inputs": [{ "type": "int128", "name": "real_value" }],
+      "outputs": [{ "type": "uint40", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "fromReal",
+      "constant": true,
+      "stateMutability": "pure",
+      "payable": false,
+      "inputs": [{ "type": "int128", "name": "real_value" }],
+      "outputs": [{ "type": "int88", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "hibit",
+      "constant": true,
+      "stateMutability": "pure",
+      "payable": false,
+      "inputs": [{ "type": "uint128", "name": "val" }],
+      "outputs": [{ "type": "uint128", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "ipart",
+      "constant": true,
+      "stateMutability": "pure",
+      "payable": false,
+      "inputs": [{ "type": "int128", "name": "real_value" }],
+      "outputs": [{ "type": "int128", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "ipow",
+      "constant": true,
+      "stateMutability": "pure",
+      "payable": false,
+      "inputs": [
+        { "type": "int128", "name": "real_base" },
+        { "type": "int88", "name": "exponent" }
+      ],
+      "outputs": [{ "type": "int128", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "ln",
+      "constant": true,
+      "stateMutability": "pure",
+      "payable": false,
+      "inputs": [{ "type": "int128", "name": "real_arg" }],
+      "outputs": [{ "type": "int128", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "lnLimited",
+      "constant": true,
+      "stateMutability": "pure",
+      "payable": false,
+      "inputs": [
+        { "type": "int128", "name": "real_arg" },
+        { "type": "int256", "name": "max_iterations" }
+      ],
+      "outputs": [{ "type": "int128", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "mul",
+      "constant": true,
+      "stateMutability": "pure",
+      "payable": false,
+      "inputs": [
+        { "type": "int128", "name": "real_a" },
+        { "type": "int128", "name": "real_b" }
+      ],
+      "outputs": [{ "type": "int128", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "pow",
+      "constant": true,
+      "stateMutability": "pure",
+      "payable": false,
+      "inputs": [
+        { "type": "int128", "name": "real_base" },
+        { "type": "int128", "name": "real_exponent" }
+      ],
+      "outputs": [{ "type": "int128", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "rescale",
+      "constant": true,
+      "stateMutability": "pure",
+      "payable": false,
+      "inputs": [{ "type": "int128", "name": "real_arg" }],
+      "outputs": [
+        { "type": "int128", "name": "real_scaled" },
+        { "type": "int88", "name": "shift" }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "round",
+      "constant": true,
+      "stateMutability": "pure",
+      "payable": false,
+      "inputs": [{ "type": "int128", "name": "real_value" }],
+      "outputs": [{ "type": "int128", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "sin",
+      "constant": true,
+      "stateMutability": "pure",
+      "payable": false,
+      "inputs": [{ "type": "int128", "name": "real_arg" }],
+      "outputs": [{ "type": "int128", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "sinLimited",
+      "constant": true,
+      "stateMutability": "pure",
+      "payable": false,
+      "inputs": [
+        { "type": "int128", "name": "real_arg" },
+        { "type": "int88", "name": "max_iterations" }
+      ],
+      "outputs": [{ "type": "int128", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "sqrt",
+      "constant": true,
+      "stateMutability": "pure",
+      "payable": false,
+      "inputs": [{ "type": "int128", "name": "real_arg" }],
+      "outputs": [{ "type": "int128", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "sqrt1",
+      "constant": true,
+      "stateMutability": "pure",
+      "payable": false,
+      "inputs": [{ "type": "uint128", "name": "x" }],
+      "outputs": [{ "type": "uint128", "name": "y" }]
+    },
+    {
+      "type": "function",
+      "name": "tan",
+      "constant": true,
+      "stateMutability": "pure",
+      "payable": false,
+      "inputs": [{ "type": "int128", "name": "real_arg" }],
+      "outputs": [{ "type": "int128", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "toReal",
+      "constant": true,
+      "stateMutability": "pure",
+      "payable": false,
+      "inputs": [{ "type": "int88", "name": "_ipart" }],
+      "outputs": [{ "type": "int128", "name": "" }]
+    }
+  ]
+}
