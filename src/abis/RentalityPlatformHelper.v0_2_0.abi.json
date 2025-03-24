@@ -38,6 +38,14 @@
     },
     {
       "type": "function",
+      "name": "addUserCurrency",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "currency" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
       "name": "addUserDeliveryPrices",
       "constant": false,
       "payable": false,
