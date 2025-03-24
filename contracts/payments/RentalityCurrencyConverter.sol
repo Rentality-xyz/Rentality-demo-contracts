@@ -10,6 +10,7 @@ import '../Schemas.sol';
 import './RentalityCurrencyType.sol';
 import {RentalityPromoService} from '../features/RentalityPromo.sol';
 
+
 /// @title RentalityCurrencygeter
 /// @notice A contract for getting between available on Rentality currency and United States Dollar (USD) using Chainlink rate feeds
 /// @dev Users can retrieve the latest Currency to USD rate, and cache the rate for efficiency.
@@ -17,6 +18,28 @@ contract RentalityCurrencyConverter is Initializable, UUPSAccess {
   mapping(address => ARentalityUpgradableCurrencyType) private tokenAddressToPaymentMethod;
 
   Schemas.Currency[] private availableCurrencies;
+
+  mapping(address =>  Schemas.UserCurrency) private userToCurrency;
+  Schemas.UserCurrency private defaultCurrency;
+
+  function addUserCurrency(address user, address currency) public {
+    require(userService.isRentalityPlatform(msg.sender), 'From platform contract only.');
+    require(address(tokenAddressToPaymentMethod[currency]) != address(0), 'Currency not available.');
+    userToCurrency[user] =  Schemas.UserCurrency(currency, true);
+  }
+  function getUserCurrency(address user) public view returns ( Schemas.UserCurrency memory currency) {
+      Schemas.UserCurrency memory userCurrency = userToCurrency[user];
+     if(userCurrency.initialized) {
+       return userCurrency;
+     }
+     return defaultCurrency;
+  }
+
+  function setDefaultCurrencyType(address currency) public {
+    require(userService.isAdmin(tx.origin), 'only for Admin');
+    require(address(tokenAddressToPaymentMethod[currency]) != address(0), 'Currency not available.');
+    defaultCurrency =  Schemas.UserCurrency(currency, false);
+  }
 
   /// @notice Adds a new currency type with its associated Rentality token service contract address
   /// @param tokenAddress The address of the new currency type
