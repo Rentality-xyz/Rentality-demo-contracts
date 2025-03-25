@@ -704,7 +704,8 @@ interface Schemas {
     Admin,
     KYCManager,
     AdminView,
-    InvestmentManager
+    InvestmentManager,
+    OracleManager
   }
   enum RefferalProgram {
     SetKYC,
@@ -961,4 +962,16 @@ enum TaxesType {
   InUsdCents,
   PPM
 }
+
+   struct Round {
+        int256 answer;
+        uint256 startedAt;
+        uint256 updatedAt;
+    }
+
+struct OracleUpdate {
+  address feed;
+  int answer;
+}
+
 }
