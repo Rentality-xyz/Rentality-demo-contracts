@@ -23,4 +23,6 @@ interface IRentalityAccessControl {
   /// @param user The address of the user to check for host or guest role.
   /// @return isHostOrGuest A boolean indicating whether the user has host or guest role.
   function isHostOrGuest(address user) external view returns (bool);
+
+  function isOracleManager(address user) external view returns (bool);
 }
