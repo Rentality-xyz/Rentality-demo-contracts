@@ -29,6 +29,8 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
   
   bytes32 public constant RENTALITY_PLATFORM = keccak256('RENTALITY_PLATFORM_ROLE');
 
+  bytes32 public constant ORACLE_MANAGER = keccak256('ORACLE_MANAGER');
+
   // Mapping to store KYC information for each user address
   mapping(address => Schemas.KYCInfo) private kycInfos;
   address private civicVerifier;
@@ -338,6 +340,7 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
     else if (newRole == Schemas.Role.KYCManager) role = KYC_COMMISSION_MANAGER_ROLE;
     else if (newRole == Schemas.Role.AdminView) role = ADMIN_VIEW_ROLE;
     else if (newRole == Schemas.Role.InvestmentManager) role = INVESTMENT_MANAGER_ROLE;
+    else if(newRole == Schemas.Role.OracleManager) role = ORACLE_MANAGER;
     else revert('Invalid role');
     if (grant) _grantRole(role, user);
     else {
@@ -362,6 +365,9 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
   }
   function isInvestorManager(address user) public view returns (bool) {
     return hasRole(INVESTMENT_MANAGER_ROLE, user);
+  }
+  function isOracleManager(address user) public view returns (bool) {
+    return hasRole(ORACLE_MANAGER, user);
   }
 
   /// @notice Initializes the contract with the specified Civic verifier address and gatekeeper network ID, and sets the default admin role.
