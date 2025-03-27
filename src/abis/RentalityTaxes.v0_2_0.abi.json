@@ -147,7 +147,11 @@
       "name": "migration",
       "constant": false,
       "payable": false,
-      "inputs": [{ "type": "address", "name": "tripService" }],
+      "inputs": [
+        { "type": "address", "name": "tripService" },
+        { "type": "uint256", "name": "from" },
+        { "type": "uint256", "name": "to" }
+      ],
       "outputs": []
     },
     {

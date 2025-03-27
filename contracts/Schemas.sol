@@ -642,6 +642,10 @@ interface Schemas {
     uint totalHolders;
     uint totalTokens;
     address currency;
+    uint totalEarnings;
+    uint userReceivedEarnings;
+    string name;
+    string symbol;
   }
 
   struct TripFilter {
