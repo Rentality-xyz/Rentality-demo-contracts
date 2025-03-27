@@ -59,7 +59,7 @@ return insuranceCaseToUrl[keccak256(abi.encodePacked(iCase))];
         Schemas.InsuranceCase memory insuranceCase = caseCounterToCase[tripInsurances.pre];
                 cases[withUrlCounter] = Schemas.InsuranceCaseDTO(
                   insuranceCase,
-                  insuranceCase.iCase
+                  insuranceCaseToUrl[keccak256(abi.encodePacked(insuranceCase.iCase))]
                   );
                 withUrlCounter += 1;
        }
@@ -68,7 +68,7 @@ return insuranceCaseToUrl[keccak256(abi.encodePacked(iCase))];
         Schemas.InsuranceCase memory insuranceCase = caseCounterToCase[tripInsurances.post];
                 cases[withUrlCounter] = Schemas.InsuranceCaseDTO(
                   insuranceCase,
-                  insuranceCase.iCase
+                  insuranceCaseToUrl[keccak256(abi.encodePacked(insuranceCase.iCase))]
                   );
                 withUrlCounter += 1;
        }
