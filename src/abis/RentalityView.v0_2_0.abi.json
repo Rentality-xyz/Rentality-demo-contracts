@@ -194,7 +194,15 @@
                 { "type": "uint8", "name": "tType" }
               ]
             },
-            { "type": "uint64", "name": "totalTax" }
+            { "type": "uint64", "name": "totalTax" },
+            {
+              "type": "tuple",
+              "name": "hostCurrency",
+              "components": [
+                { "type": "address", "name": "currency" },
+                { "type": "bool", "name": "initialized" }
+              ]
+            }
           ]
         }
       ]
@@ -330,15 +338,6 @@
     },
     {
       "type": "function",
-      "name": "getCarMetadataURI",
-      "constant": true,
-      "stateMutability": "view",
-      "payable": false,
-      "inputs": [{ "type": "uint256", "name": "carId" }],
-      "outputs": [{ "type": "string", "name": "" }]
-    },
-    {
-      "type": "function",
       "name": "getCarsOfHost",
       "constant": true,
       "stateMutability": "view",
@@ -461,7 +460,8 @@
                 { "type": "string", "name": "claimName" },
                 { "type": "uint8", "name": "creator" }
               ]
-            }
+            },
+            { "type": "address", "name": "currency" }
           ]
         }
       ]
@@ -677,7 +677,8 @@
                 { "type": "string", "name": "claimName" },
                 { "type": "uint8", "name": "creator" }
               ]
-            }
+            },
+            { "type": "address", "name": "currency" }
           ]
         }
       ]
@@ -919,7 +920,15 @@
                   ]
                 },
                 { "type": "bool", "name": "isGuestHasInsurance" },
-                { "type": "uint256", "name": "dimoTokenId" }
+                { "type": "uint256", "name": "dimoTokenId" },
+                {
+                  "type": "tuple",
+                  "name": "hostCurrency",
+                  "components": [
+                    { "type": "address", "name": "currency" },
+                    { "type": "bool", "name": "initialized" }
+                  ]
+                }
               ]
             },
             { "type": "int256", "name": "distance" }

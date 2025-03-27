@@ -235,7 +235,15 @@
               ]
             },
             { "type": "bool", "name": "isGuestHasInsurance" },
-            { "type": "uint256", "name": "dimoTokenId" }
+            { "type": "uint256", "name": "dimoTokenId" },
+            {
+              "type": "tuple",
+              "name": "hostCurrency",
+              "components": [
+                { "type": "address", "name": "currency" },
+                { "type": "bool", "name": "initialized" }
+              ]
+            }
           ]
         },
         {
@@ -304,7 +312,15 @@
                   ]
                 },
                 { "type": "bool", "name": "isGuestHasInsurance" },
-                { "type": "uint256", "name": "dimoTokenId" }
+                { "type": "uint256", "name": "dimoTokenId" },
+                {
+                  "type": "tuple",
+                  "name": "hostCurrency",
+                  "components": [
+                    { "type": "address", "name": "currency" },
+                    { "type": "bool", "name": "initialized" }
+                  ]
+                }
               ]
             },
             { "type": "int256", "name": "distance" }

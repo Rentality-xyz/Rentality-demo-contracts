@@ -41,6 +41,17 @@
     },
     {
       "type": "function",
+      "name": "addUserCurrency",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "user" },
+        { "type": "address", "name": "currency" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
       "name": "calculateLatestValueWithFee",
       "constant": true,
       "stateMutability": "view",
@@ -287,6 +298,24 @@
     },
     {
       "type": "function",
+      "name": "getUserCurrency",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "user" }],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "currency",
+          "components": [
+            { "type": "address", "name": "currency" },
+            { "type": "bool", "name": "initialized" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
       "name": "initialize",
       "constant": false,
       "payable": false,
@@ -314,6 +343,14 @@
       "payable": false,
       "inputs": [],
       "outputs": [{ "type": "bytes32", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "setDefaultCurrencyType",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "currency" }],
+      "outputs": []
     },
     {
       "type": "function",
