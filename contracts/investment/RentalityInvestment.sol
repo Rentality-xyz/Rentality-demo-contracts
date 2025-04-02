@@ -123,27 +123,6 @@ contract RentalityInvestment is Initializable, UUPSAccess {
     currency = investmentIdToCurrency[invesment];
   }
   
-  //   struct InvestmentDTO {
-  //   CarInvestment investment;
-  //   address nft;
-  //   uint investmentId;
-  //   uint payedInUsd;
-  //   address creator;
-  //   bool isCarBought;
-  //   uint income;
-  //   uint myIncome;
-  //   uint myInvestingSum;
-  //   uint listingDate;
-  //   uint myTokens;
-  //   uint myPart;
-  //   uint totalHolders;
-  //   uint totalTokens;
-  //   address currency;
-  //   uint totalEarnings;
-  //   uint userReceivedEarnings;
-  //   string name;
-  //   string symbol;
-  // }
   function getAllInvestments() public view returns (Schemas.InvestmentDTO[] memory investments) {
     investments = new Schemas.InvestmentDTO[](investmentId);
     for (uint i = 1; i <= investmentId; i++) {
