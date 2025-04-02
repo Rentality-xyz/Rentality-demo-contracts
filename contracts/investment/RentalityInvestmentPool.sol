@@ -22,6 +22,8 @@ contract RentalityCarInvestmentPool {
   mapping(uint => uint) private nftIdToLastIncomeNumber;
   uint public creationDate;
   address private currency;
+  uint private totalEarnings;
+  mapping(address => uint) private totalEarningsByUser;
 
   constructor(uint _investmentId, address _nft, uint totalPrice, address _userService, address _currency) {
     nft = RentalityInvestmentNft(_nft);
@@ -34,6 +36,7 @@ contract RentalityCarInvestmentPool {
   function deposit(uint totalProfit, uint amount) public payable {
     require(userService.isRentalityPlatform(msg.sender), 'only Rentality platform');
     incomes.push(Income(amount, totalProfit));
+    totalEarnings += amount;
   }
 
   function claimAllMy(address user, uint[] memory tokens) public {
@@ -55,6 +58,7 @@ contract RentalityCarInvestmentPool {
     }
 
     if (toClaim > 0) {
+      totalEarningsByUser[user] += toClaim;
       if (currency == address(0)) {
         (bool successRefund, ) = payable(user).call{value: toClaim}('');
         require(successRefund, 'payment failed.');
@@ -67,5 +71,12 @@ contract RentalityCarInvestmentPool {
 
   function getIncomeInfoByNft(uint id) public view returns (Income[] memory, uint, uint) {
     return (incomes, nftIdToLastIncomeNumber[id], totalPriceInEth);
+  }
+
+  function getTotalEarnings() public view returns (uint) {
+    return totalEarnings;
+  }
+  function getTotalEarningsByUser(address user) public view returns (uint) {
+    return totalEarningsByUser[user];
   }
 }

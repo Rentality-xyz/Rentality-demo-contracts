@@ -40,7 +40,52 @@
       "name": "claimAndCreatePool",
       "constant": false,
       "payable": false,
-      "inputs": [{ "type": "uint256", "name": "investId" }],
+      "inputs": [
+        { "type": "uint256", "name": "investId" },
+        {
+          "type": "tuple",
+          "name": "createCarRequest",
+          "components": [
+            { "type": "string", "name": "tokenUri" },
+            { "type": "string", "name": "carVinNumber" },
+            { "type": "string", "name": "brand" },
+            { "type": "string", "name": "model" },
+            { "type": "uint32", "name": "yearOfProduction" },
+            { "type": "uint64", "name": "pricePerDayInUsdCents" },
+            { "type": "uint64", "name": "securityDepositPerTripInUsdCents" },
+            { "type": "uint64[]", "name": "engineParams" },
+            { "type": "uint8", "name": "engineType" },
+            { "type": "uint64", "name": "milesIncludedPerDay" },
+            { "type": "uint32", "name": "timeBufferBetweenTripsInSec" },
+            { "type": "string", "name": "geoApiKey" },
+            {
+              "type": "tuple",
+              "name": "locationInfo",
+              "components": [
+                {
+                  "type": "tuple",
+                  "name": "locationInfo",
+                  "components": [
+                    { "type": "string", "name": "userAddress" },
+                    { "type": "string", "name": "country" },
+                    { "type": "string", "name": "state" },
+                    { "type": "string", "name": "city" },
+                    { "type": "string", "name": "latitude" },
+                    { "type": "string", "name": "longitude" },
+                    { "type": "string", "name": "timeZoneId" }
+                  ]
+                },
+                { "type": "bytes", "name": "signature" }
+              ]
+            },
+            { "type": "bool", "name": "currentlyListed" },
+            { "type": "bool", "name": "insuranceRequired" },
+            { "type": "uint256", "name": "insurancePriceInUsdCents" },
+            { "type": "uint256", "name": "dimoTokenId" },
+            { "type": "bytes", "name": "signedDimoTokenId" }
+          ]
+        }
+      ],
       "outputs": []
     },
     {
@@ -183,7 +228,11 @@
             { "type": "uint256", "name": "myPart" },
             { "type": "uint256", "name": "totalHolders" },
             { "type": "uint256", "name": "totalTokens" },
-            { "type": "address", "name": "currency" }
+            { "type": "address", "name": "currency" },
+            { "type": "uint256", "name": "totalEarnings" },
+            { "type": "uint256", "name": "userReceivedEarnings" },
+            { "type": "string", "name": "name" },
+            { "type": "string", "name": "symbol" }
           ]
         }
       ]
