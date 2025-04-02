@@ -75,7 +75,30 @@ contract RentalityTaxes is Initializable, UUPSAccess {
    return tripIdToTaxes[tripId];
   }
    function calculateTaxesDTO(uint taxId, uint64 tripDays, uint64 totalCost) public view returns ( uint64 totalTax, Schemas.TaxValue[] memory) {
-  return (calculateTaxes(taxId, tripDays, totalCost), taxIdToTaxes[taxId]);
+       Schemas.TaxValue[] memory values = taxIdToTaxes[taxId];
+         Schemas.TaxValue[] memory returnValues = new Schemas.TaxValue[](values.length);
+      totalTax = 0;
+      for(uint i = 0; i < values.length; i++) {
+         uint64 currentTax = 0;
+        if(values[i].tType == Schemas.TaxesType.PPM) {
+          currentTax = totalCost * values[i].value / 1_000_000;
+          totalTax += currentTax;
+        }
+        else if(values[i].tType == Schemas.TaxesType.InUsdCents) {
+          currentTax = values[i].value;
+          totalTax += currentTax;
+        }
+        else if(values[i].tType == Schemas.TaxesType.InUsdCentsPerDay) {
+          currentTax = tripDays * values[i].value;
+           totalTax += currentTax;
+        }
+        returnValues[i] = Schemas.TaxValue(
+          values[i].name,
+          uint32(currentTax),
+          Schemas.TaxesType.InUsdCents
+        );
+      }
+  return (totalTax, returnValues);
   }
 
   function getTotalTripTax(uint tripId) public view returns(uint64) {

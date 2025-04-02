@@ -11,6 +11,8 @@ const {
   zeroHash,
   emptyKyc,
   emptyLocationInfo,
+  calculatePayments,
+  rentalityPaymentService
 } = require('../utils')
 const { ethers } = require('hardhat')
 
@@ -409,5 +411,41 @@ describe('RentalityGateway: car', function () {
     await expect(tokenContract.connect(host).safeTransferFrom(host.address, guest.address, 1)).to.be.revertedWith(
       'Not implemented.'
     )
+  })
+  it('check available cars', async function () {
+    const request = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
+    await expect(rentalityGateway.connect(host).addCar(request)).not.to.be.reverted
+    const myCars = await rentalityGateway.connect(host).getMyCars()
+    expect(myCars.length).to.equal(1)
+
+    const availableCars = await rentalityGateway
+      .connect(guest)
+      .searchAvailableCarsWithDelivery(
+        0,
+        new Date().getSeconds() + 86400,
+        getEmptySearchCarParams(1),
+        emptyLocationInfo,
+        emptyLocationInfo
+      )
+    expect(availableCars.length).to.equal(1)
+
+    const oneDayInSeconds = 86400
+
+    let priceWithDiscount = await rentalityPaymentService.calculateSumWithDiscount(
+      '0x0000000000000000000000000000000000000000',
+      1,
+      request.pricePerDayInUsdCents
+    )
+    let totalTaxes = await rentalityPaymentService.calculateTaxes(1, 1, priceWithDiscount)
+
+    const taxesData = await rentalityGateway. checkCarAvailabilityWithDelivery(
+      1,
+      new Date().getSeconds(),
+      new Date().getSeconds() + oneDayInSeconds,
+      emptyLocationInfo,
+      emptyLocationInfo
+    )
+    const calculatedTax = taxesData.taxes.reduce((acc, t) => acc + t.value, BigInt(0));
+    expect(calculatedTax).to.be.equal(BigInt(totalTaxes))
   })
 })
