@@ -94,8 +94,8 @@
     "name": "opBNB_testnet",
     "chainId": 5611,
     "CivicGatewayTokenContract": "0xF65b6396dF6B7e2D8a6270E3AB6c7BB08BAEF22E",
-    "EthToUsdPriceFeedAddress": "0x879859c5170FBb1125F06EAAF651Df2CeaC79c23",
-    "UsdtToUsdPriceFeedAddress": "0xB541215585dD13ea75c3e7f9F1F3027a4b7B2C3a",
+    "EthToUsdPriceFeedAddress": "0x5256C5704E971B206e3Bc9DC2836e53eE865D84B",
+    "UsdtToUsdPriceFeedAddress": "0x67B57987923F3942569dB1cf8D7d3765c7a87909",
     "CivicMockVerifier": "0xefE8Abd0B2d7429cb07E682D764f68DD5e0e8e1d",
     "RentalityUserService": "0x3A45122816A284dC8f6250Cc3CaF7b0F1cF65e8C",
     "RentalityNotificationService": "0x1FDE15F97808Ceb425b152c3Ca447225d3048f6b",
@@ -137,7 +137,6 @@
     "RentalityAiDamageAnalyze": "0x2cC617D7c4e507fCA9fBA1aE4920e6A57A260A5F",
     "RentalityInvestDeployer": "0x8aF72E909Ff2B34d957e84793B391a99cA80636C",
     "RentalityTaxes": "0x5dFb58D2dc2FF33Ec3cb83Fd88f5A8432aF70DEc",
-    "RentalityAggregator": "0x67B57987923F3942569dB1cf8D7d3765c7a87909",
     "RentalityBatchPriceUpdater": "0x9AeDFD14eae95D23D0687Afb7754358A3C83cEc3"
   },
   {
