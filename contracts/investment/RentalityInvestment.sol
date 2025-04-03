@@ -165,7 +165,7 @@ contract RentalityInvestment is Initializable, UUPSAccess {
         isBought,
         income,
         myIncomeInUsdCents,
-        investInUsd,
+        iInvested,
         isBought ? investIdToPool[i].creationDate() : 0,
         tokens.length,
         percentages,
