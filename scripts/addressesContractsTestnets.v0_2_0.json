@@ -136,7 +136,9 @@
     "RentalityChatHelper": "0xb1576942d42196a5448eA93105122E4F2Bc26eb4",
     "RentalityAiDamageAnalyze": "0x2cC617D7c4e507fCA9fBA1aE4920e6A57A260A5F",
     "RentalityInvestDeployer": "0x8aF72E909Ff2B34d957e84793B391a99cA80636C",
-    "RentalityTaxes": "0x5dFb58D2dc2FF33Ec3cb83Fd88f5A8432aF70DEc"
+    "RentalityTaxes": "0x5dFb58D2dc2FF33Ec3cb83Fd88f5A8432aF70DEc",
+    "RentalityAggregator": "0x67B57987923F3942569dB1cf8D7d3765c7a87909",
+    "RentalityBatchPriceUpdater": "0x9AeDFD14eae95D23D0687Afb7754358A3C83cEc3"
   },
   {
     "name": "opBNB",
