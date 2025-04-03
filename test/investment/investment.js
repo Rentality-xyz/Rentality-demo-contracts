@@ -56,7 +56,7 @@ describe('Rentality investment', function () {
 
     let mockCarInvestment = {
       car: getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin),
-      priceInUsd: 10000,
+      priceInCurrency: 10000,
       inProgress: true,
       creatorPercents: 10,
     }
@@ -66,7 +66,7 @@ describe('Rentality investment', function () {
   it('Guest can invest', async function () {
     let mockCarInvestment = {
       car: getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin),
-      priceInUsd: 10000,
+      priceInCurrency: 10000,
       inProgress: true,
       creatorPercents: 10,
     }
@@ -79,17 +79,17 @@ describe('Rentality investment', function () {
   it('Possible to create car after investment', async function () {
     let mockCarInvestment = {
       car: getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin),
-      priceInUsd: 10000,
+      priceInCurrency: 10000,
       inProgress: true,
       creatorPercents: 10,
     }
     await expect(await investorsService.connect(host).createCarInvestment(mockCarInvestment, 'name',ethToken)).to.not
       .reverted
 
-    let fromUsd = await rentalityCurrencyConverter.getFromUsdLatest(ethToken, mockCarInvestment.priceInUsd)
+    let fromUsd = await rentalityCurrencyConverter.getFromUsdLatest(ethToken, mockCarInvestment.priceInCurrency)
     await expect(investorsService.connect(guest).invest(1, fromUsd[0], { value: fromUsd[0] })).to.not.reverted
 
-    await expect(investorsService.connect(host).claimAndCreatePool(1)).to.not.reverted
+    await expect(investorsService.connect(host).claimAndCreatePool(1,mockCarInvestment.car)).to.not.reverted
     let cars = await rentalityView
     .connect(guest)
     .searchAvailableCarsWithDelivery(
@@ -105,17 +105,17 @@ describe('Rentality investment', function () {
   it('Has claims after pool creating', async function () {
     let mockCarInvestment = {
       car: getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin),
-      priceInUsd: 10000,
+      priceInCurrency: 10000,
       inProgress: true,
       creatorPercents: 10,
     }
     await expect(await investorsService.connect(host).createCarInvestment(mockCarInvestment, 'name',ethToken)).to.not
       .reverted
 
-    let fromUsd = await rentalityCurrencyConverter.getFromUsdLatest(ethToken, mockCarInvestment.priceInUsd)
+    let fromUsd = await rentalityCurrencyConverter.getFromUsdLatest(ethToken, mockCarInvestment.priceInCurrency)
     await expect(investorsService.connect(guest).invest(1, fromUsd[0], { value: fromUsd[0] })).to.not.reverted
 
-    await expect(investorsService.connect(host).claimAndCreatePool(1)).to.not.reverted
+    await expect(investorsService.connect(host).claimAndCreatePool(1,mockCarInvestment.car)).to.not.reverted
 
     let claimsGuestCanDo = await investorsService.connect(guest).getAllInvestments()
     expect(claimsGuestCanDo[0].isCarBought).to.be.eq(true)
@@ -124,17 +124,16 @@ describe('Rentality investment', function () {
   it('Happy case with investors car', async function () {
     let mockCarInvestment = {
       car: getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin),
-      priceInUsd: 10000,
+      priceInCurrency: 10000,
       inProgress: true,
       creatorPercents: 10,
     }
     await expect(await investorsService.connect(host).createCarInvestment(mockCarInvestment, 'name',ethToken)).to.not
       .reverted
 
-    let fromUsd = await rentalityCurrencyConverter.getFromUsdLatest(ethToken, mockCarInvestment.priceInUsd)
-    await expect(investorsService.connect(guest).invest(1, fromUsd[0], { value: fromUsd[0] })).to.not.reverted
+    await expect(investorsService.connect(guest).invest(1, mockCarInvestment.priceInCurrency, { value: mockCarInvestment.priceInCurrency })).to.not.reverted
 
-    await expect(investorsService.connect(host).claimAndCreatePool(1)).to.not.reverted
+    await expect(investorsService.connect(host).claimAndCreatePool(1,mockCarInvestment.car)).to.not.reverted
     let cars =  await rentalityView
       .connect(guest)
       .searchAvailableCarsWithDelivery(
@@ -177,17 +176,17 @@ describe('Rentality investment', function () {
   it('Investor can claim after income', async function () {
     let mockCarInvestment = {
       car: getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin),
-      priceInUsd: 10000,
+      priceInCurrency: 10000,
       inProgress: true,
       creatorPercents: 10,
     }
     await expect(await investorsService.connect(host).createCarInvestment(mockCarInvestment, 'name',ethToken)).to.not
       .reverted
 
-    let fromUsd = await rentalityCurrencyConverter.getFromUsdLatest(ethToken, mockCarInvestment.priceInUsd)
-    await expect(investorsService.connect(guest).invest(1, fromUsd[0], { value: fromUsd[0] })).to.not.reverted
 
-    await expect(investorsService.connect(host).claimAndCreatePool(1)).to.not.reverted
+    await expect(investorsService.connect(guest).invest(1, mockCarInvestment.priceInCurrency, { value: mockCarInvestment.priceInCurrency })).to.not.reverted
+
+    await expect(investorsService.connect(host).claimAndCreatePool(1,mockCarInvestment.car)).to.not.reverted
     let cars =  await rentalityView
       .connect(guest)
       .searchAvailableCarsWithDelivery(
@@ -233,17 +232,17 @@ describe('Rentality investment', function () {
   it('Can not claim twice', async function () {
     let mockCarInvestment = {
       car: getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin),
-      priceInUsd: 10000,
+      priceInCurrency: 10000,
       inProgress: true,
       creatorPercents: 10,
     }
     await expect(await investorsService.connect(host).createCarInvestment(mockCarInvestment, 'name',ethToken)).to.not
       .reverted
 
-    let fromUsd = await rentalityCurrencyConverter.getFromUsdLatest(ethToken, mockCarInvestment.priceInUsd)
-    await expect(investorsService.connect(guest).invest(1, fromUsd[0], { value: fromUsd[0] })).to.not.reverted
 
-    await expect(investorsService.connect(host).claimAndCreatePool(1)).to.not.reverted
+    await expect(investorsService.connect(guest).invest(1, mockCarInvestment.priceInCurrency, { value: mockCarInvestment.priceInCurrency })).to.not.reverted
+
+    await expect(investorsService.connect(host).claimAndCreatePool(1,mockCarInvestment.car)).to.not.reverted
     let cars =  await rentalityView
       .connect(guest)
       .searchAvailableCarsWithDelivery(
@@ -291,7 +290,7 @@ describe('Rentality investment', function () {
   it('Calculation test: 1 investor has 2 investments', async function () {
     let mockCarInvestment = {
       car: getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin),
-      priceInUsd: 10000,
+      priceInCurrency: 10000,
       inProgress: true,
       creatorPercents: 10,
     }
@@ -299,12 +298,12 @@ describe('Rentality investment', function () {
     await expect(await investorsService.connect(host).createCarInvestment(mockCarInvestment, 'name',ethToken)).to.not
       .reverted
 
-    let fromUsd = await rentalityCurrencyConverter.getFromUsdLatest(ethToken, mockCarInvestment.priceInUsd)
+    let fromUsd = await rentalityCurrencyConverter.getFromUsdLatest(ethToken, mockCarInvestment.priceInCurrency)
     await expect(investorsService.connect(guest).invest(1, fromUsd[0] / BigInt(2), { value: fromUsd[0] / BigInt(2) })).to.not.reverted
 
     await expect(investorsService.connect(guest).invest(1, fromUsd[0] / BigInt(2), { value: fromUsd[0] / BigInt(2) })).to.not.reverted
 
-    await expect(investorsService.connect(host).claimAndCreatePool(1)).to.not.reverted
+    await expect(investorsService.connect(host).claimAndCreatePool(1,mockCarInvestment.car)).to.not.reverted
     let cars =  await rentalityView
       .connect(guest)
       .searchAvailableCarsWithDelivery(
@@ -359,7 +358,7 @@ describe('Rentality investment', function () {
   it('Calculation test: 1 investor has 2 investments and 3 finished trips', async function () {
     let mockCarInvestment = {
       car: getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin),
-      priceInUsd: 10000,
+      priceInCurrency: 10000,
       inProgress: true,
       creatorPercents: 10,
     }
@@ -367,12 +366,12 @@ describe('Rentality investment', function () {
     await expect(await investorsService.connect(host).createCarInvestment(mockCarInvestment, 'name',ethToken)).to.not
       .reverted
 
-    let fromUsd = await rentalityCurrencyConverter.getFromUsdLatest(ethToken, mockCarInvestment.priceInUsd)
+    let fromUsd = await rentalityCurrencyConverter.getFromUsdLatest(ethToken, mockCarInvestment.priceInCurrency)
     await expect(investorsService.connect(guest).invest(1, fromUsd[0] / BigInt(2), { value: fromUsd[0] / BigInt(2) })).to.not.reverted
 
     await expect(investorsService.connect(guest).invest(1, fromUsd[0] / BigInt(2), { value: fromUsd[0] / BigInt(2) })).to.not.reverted
 
-    await expect(investorsService.connect(host).claimAndCreatePool(1)).to.not.reverted
+    await expect(investorsService.connect(host).claimAndCreatePool(1,mockCarInvestment.car)).to.not.reverted
     let cars =  await rentalityView
       .connect(guest)
       .searchAvailableCarsWithDelivery(
@@ -478,7 +477,7 @@ describe('Rentality investment', function () {
   it('Calculation test: 3 investors has 1 investments and 3 finished trips', async function () {
     let mockCarInvestment = {
       car: getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin),
-      priceInUsd: 10000,
+      priceInCurrency: 10000,
       inProgress: true,
       creatorPercents: 10,
     }
@@ -486,14 +485,14 @@ describe('Rentality investment', function () {
     await expect(await investorsService.connect(host).createCarInvestment(mockCarInvestment, 'name',ethToken)).to.not
       .reverted
 
-    let fromUsd = await rentalityCurrencyConverter.getFromUsdLatest(ethToken, mockCarInvestment.priceInUsd)
+    let fromUsd = await rentalityCurrencyConverter.getFromUsdLatest(ethToken, mockCarInvestment.priceInCurrency)
     await expect(investorsService.connect(guest).invest(1, fromUsd[0] / BigInt(2), { value: fromUsd[0] / BigInt(2) })).to.not.reverted
 
     await expect(investorsService.connect(anonymous).invest(1, fromUsd[0] / BigInt(4), { value: fromUsd[0] / BigInt(4) })).to.not.reverted
 
     await expect(investorsService.connect(manager).invest(1, fromUsd[0] / BigInt(4), { value: fromUsd[0] / BigInt(4) })).to.not.reverted
 
-    await expect(investorsService.connect(host).claimAndCreatePool(1)).to.not.reverted
+    await expect(investorsService.connect(host).claimAndCreatePool(1,mockCarInvestment.car)).to.not.reverted
     let cars =  await rentalityView
       .connect(guest)
       .searchAvailableCarsWithDelivery(
@@ -610,17 +609,17 @@ describe('Rentality investment', function () {
   it('Nft transfer allow to claim for new owner', async function () {
     let mockCarInvestment = {
       car: getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin),
-      priceInUsd: 10000,
+      priceInCurrency: 10000,
       inProgress: true,
       creatorPercents: 10,
     }
     await expect(await investorsService.connect(host).createCarInvestment(mockCarInvestment, 'name',ethToken)).to.not
       .reverted
 
-    let fromUsd = await rentalityCurrencyConverter.getFromUsdLatest(ethToken, mockCarInvestment.priceInUsd)
+    let fromUsd = await rentalityCurrencyConverter.getFromUsdLatest(ethToken, mockCarInvestment.priceInCurrency)
     await expect(investorsService.connect(guest).invest(1, fromUsd[0], { value: fromUsd[0] })).to.not.reverted
 
-    await expect(investorsService.connect(host).claimAndCreatePool(1)).to.not.reverted
+    await expect(investorsService.connect(host).claimAndCreatePool(1,mockCarInvestment.car)).to.not.reverted
     let cars =  await rentalityView
       .connect(guest)
       .searchAvailableCarsWithDelivery(

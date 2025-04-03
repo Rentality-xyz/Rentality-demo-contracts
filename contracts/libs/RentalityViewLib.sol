@@ -206,8 +206,7 @@ library RentalityViewLib {
     uint totalPrice,
     RentalityCurrencyConverter converter
   ) public view returns (uint, uint) {
-    (uint totalPriceInEth, , ) = converter.getFromUsdLatest(address(0), totalPrice);
-    uint percentages = invested == 0 ? 0 : Math.ceilDiv(invested * 100, totalPriceInEth);
+    uint percentages = invested == 0 ? 0 : Math.ceilDiv(invested * 100, totalPrice);
     (uint investInUsd, , ) = converter.getToUsdLatest(address(0), invested);
     return (percentages, investInUsd);
   }
