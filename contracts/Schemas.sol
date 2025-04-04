@@ -615,7 +615,7 @@ interface Schemas {
 
   struct CarInvestment {
     CreateCarRequest car;
-    uint priceInUsd;
+    uint priceInCurrency;
     bool inProgress;
     uint creatorPercents;
   }
@@ -646,6 +646,8 @@ interface Schemas {
     uint userReceivedEarnings;
     string name;
     string symbol;
+    uint priceInUsdCents;
+    uint payedInCurrency;
   }
 
   struct TripFilter {

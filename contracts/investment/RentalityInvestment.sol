@@ -53,19 +53,16 @@ contract RentalityInvestment is Initializable, UUPSAccess {
 
     require(investment.inProgress, 'Not available');
 
-    (uint amountAfterInvestment, , ) = converter.getToUsdLatest(
-      investmentIdToCurrency[investId],
-      investmentIdToPayedInETH[investId] + amount
-    );
+    uint amountAfterInvestment = investmentIdToPayedInETH[investId] + amount;
 
 
-    _checkAmount(amountAfterInvestment, investment.priceInUsd);
-    if (amountAfterInvestment >= investment.priceInUsd) {
+    if (amountAfterInvestment == investment.priceInCurrency) {
       investment.inProgress = false;
     }
 
     address currency = investmentIdToCurrency[investmentId];
     if (currency == address(0)) {
+      require(msg.value == amount, "amount is not eq to msg.value");
       investmentIdToPayedInETH[investId] += msg.value;
       investIdToNft[investId].mint(msg.value, msg.sender);
     } else {
@@ -76,13 +73,6 @@ contract RentalityInvestment is Initializable, UUPSAccess {
       investIdToNft[investId].mint(amount, msg.sender);
     }
   }
-  function _checkAmount(uint amount, uint value) private view {
-    if (amount > value) {
-      uint diff = amount - value;
-      require(diff <= type(uint).max / 1000, 'Overflow risk');
-      require(diff * 1000 <= value, 'Exceeds 0.1% tolerance');
-    }
-  }
 
   function claimAndCreatePool(uint investId, Schemas.CreateCarRequest memory createCarRequest) public {
     require(investmentIdToCreator[investId] == msg.sender, 'Only for creator');
@@ -91,11 +81,10 @@ contract RentalityInvestment is Initializable, UUPSAccess {
 
     Schemas.CarInvestment storage investment = investmentIdToCarInfo[investId];
     investment.car = createCarRequest;
-     (uint amountInvested, , ) = converter.getToUsdLatest(
-      investmentIdToCurrency[investId],
-      investmentIdToPayedInETH[investId]
-    );
-    if (investment.priceInUsd <= amountInvested && !investment.inProgress)
+    
+    uint amountInvested = investmentIdToPayedInETH[investId];
+  
+    if (investment.priceInCurrency <= amountInvested || !investment.inProgress)
         investment.inProgress = false;
 
     require(!investment.inProgress, 'In progress');
@@ -133,7 +122,7 @@ contract RentalityInvestment is Initializable, UUPSAccess {
     pool = investIdToPool[invesment];
     currency = investmentIdToCurrency[invesment];
   }
-
+  
   function getAllInvestments() public view returns (Schemas.InvestmentDTO[] memory investments) {
     investments = new Schemas.InvestmentDTO[](investmentId);
     for (uint i = 1; i <= investmentId; i++) {
@@ -152,7 +141,7 @@ contract RentalityInvestment is Initializable, UUPSAccess {
       }
       (uint percentages, uint investInUsd) = RentalityViewLib.calculatePercentage(
         iInvested,
-        investmentIdToCarInfo[i].priceInUsd,
+        investmentIdToCarInfo[i].priceInCurrency,
         converter
       );
       uint totalEarnings = !isBought ? 0 : 
@@ -165,6 +154,7 @@ contract RentalityInvestment is Initializable, UUPSAccess {
         currency,
         investIdToPool[i].getTotalEarningsByUser(msg.sender)
       );
+      (uint priceInUsdCents, , ) = converter.getToUsdLatest(currency, investmentIdToCarInfo[i].priceInCurrency);
     
       investments[i - 1] = Schemas.InvestmentDTO(
         investmentIdToCarInfo[i],
@@ -175,7 +165,7 @@ contract RentalityInvestment is Initializable, UUPSAccess {
         isBought,
         income,
         myIncomeInUsdCents,
-        investInUsd,
+        iInvested,
         isBought ? investIdToPool[i].creationDate() : 0,
         tokens.length,
         percentages,
@@ -185,7 +175,9 @@ contract RentalityInvestment is Initializable, UUPSAccess {
         totalEarnings,
         totalEarningsByUser,
         investIdToNft[i].name(),
-        investIdToNft[i].symbol()
+        investIdToNft[i].symbol(),
+        priceInUsdCents,
+        investmentIdToPayedInETH[i]
       );
     }
   }
