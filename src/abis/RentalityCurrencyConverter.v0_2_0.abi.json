@@ -316,6 +316,24 @@
     },
     {
       "type": "function",
+      "name": "getUserCurrency",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "user" }],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "currency",
+          "components": [
+            { "type": "address", "name": "currency" },
+            { "type": "bool", "name": "initialized" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
       "name": "initialize",
       "constant": false,
       "payable": false,

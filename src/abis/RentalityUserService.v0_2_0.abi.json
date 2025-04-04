@@ -122,6 +122,15 @@
     },
     {
       "type": "function",
+      "name": "ORACLE_MANAGER",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "bytes32", "name": "" }]
+    },
+    {
+      "type": "function",
       "name": "RENTALITY_PLATFORM",
       "constant": true,
       "stateMutability": "view",
@@ -444,6 +453,15 @@
     {
       "type": "function",
       "name": "isManager",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "user" }],
+      "outputs": [{ "type": "bool", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "isOracleManager",
       "constant": true,
       "stateMutability": "view",
       "payable": false,
