@@ -59,7 +59,7 @@ return insuranceCaseToUrl[keccak256(abi.encodePacked(iCase))];
         Schemas.InsuranceCase memory insuranceCase = caseCounterToCase[tripInsurances.pre];
                 cases[withUrlCounter] = Schemas.InsuranceCaseDTO(
                   insuranceCase,
-                  insuranceCase.iCase
+                  insuranceCaseToUrl[keccak256(abi.encodePacked(insuranceCase.iCase))]
                   );
                 withUrlCounter += 1;
        }
@@ -68,7 +68,7 @@ return insuranceCaseToUrl[keccak256(abi.encodePacked(iCase))];
         Schemas.InsuranceCase memory insuranceCase = caseCounterToCase[tripInsurances.post];
                 cases[withUrlCounter] = Schemas.InsuranceCaseDTO(
                   insuranceCase,
-                  insuranceCase.iCase
+                  insuranceCaseToUrl[keccak256(abi.encodePacked(insuranceCase.iCase))]
                   );
                 withUrlCounter += 1;
        }
@@ -93,6 +93,7 @@ return insuranceCaseToUrl[keccak256(abi.encodePacked(iCase))];
 
       function initialize(address _userService) public initializer {
         userService = IRentalityAccessControl(_userService);
+        __EIP712_init('RentalityAiDamageAnalyze', '1');
      }
 }
 

@@ -615,7 +615,7 @@ interface Schemas {
 
   struct CarInvestment {
     CreateCarRequest car;
-    uint priceInUsd;
+    uint priceInCurrency;
     bool inProgress;
     uint creatorPercents;
   }
@@ -642,6 +642,12 @@ interface Schemas {
     uint totalHolders;
     uint totalTokens;
     address currency;
+    uint totalEarnings;
+    uint userReceivedEarnings;
+    string name;
+    string symbol;
+    uint priceInUsdCents;
+    uint payedInCurrency;
   }
 
   struct TripFilter {
@@ -704,7 +710,8 @@ interface Schemas {
     Admin,
     KYCManager,
     AdminView,
-    InvestmentManager
+    InvestmentManager,
+    OracleManager
   }
   enum RefferalProgram {
     SetKYC,
@@ -961,4 +968,16 @@ enum TaxesType {
   InUsdCents,
   PPM
 }
+
+   struct Round {
+        int256 answer;
+        uint256 startedAt;
+        uint256 updatedAt;
+    }
+
+struct OracleUpdate {
+  address feed;
+  int answer;
+}
+
 }

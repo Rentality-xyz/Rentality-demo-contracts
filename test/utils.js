@@ -380,6 +380,7 @@ async function deployDefaultFixture() {
   await rentalityUserService.waitForDeployment()
 
   await rentalityUserService.manageRole(4, owner.address, true)
+  await rentalityUserService.manageRole(7, owner.address, true)
   await rentalityUserService.grantPlatformRole(owner.address)
 
   const RentalityNotificationService = await ethers.getContractFactory('RentalityNotificationService')
@@ -815,7 +816,9 @@ async function deployDefaultFixture() {
     tripsQuery,
     refferalProgram,
     hashCreator,
-    promoService
+    promoService,
+    ethContract,
+    usdtPaymentContract
   }
 }
 

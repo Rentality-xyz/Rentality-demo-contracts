@@ -45,7 +45,7 @@ contract RentalityCurrencyConverter is Initializable, UUPSAccess {
   /// @param tokenAddress The address of the new currency type
   /// @param rentalityTokenService The address of the Rentality token service contract
   function addCurrencyType(address tokenAddress, address rentalityTokenService, string memory name) public {
-    require(userService.isRentalityPlatform(msg.sender), 'From manager contract only.');
+    require(userService.isAdmin(msg.sender), 'From manager contract only.');
 
     tokenAddressToPaymentMethod[tokenAddress] = ARentalityUpgradableCurrencyType(rentalityTokenService);
     availableCurrencies.push(Schemas.Currency(tokenAddress, name));
