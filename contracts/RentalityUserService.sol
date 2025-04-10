@@ -279,6 +279,16 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
     return isHost(user) || isGuest(user);
   }
 
+    function isSignatureManager(address user) public view returns (bool) {
+    return hasRole(MANAGER_ROLE, user);
+  }
+  function isInvestorManager(address user) public view returns (bool) {
+    return hasRole(INVESTMENT_MANAGER_ROLE, user);
+  }
+  function isOracleManager(address user) public view returns (bool) {
+    return hasRole(ORACLE_MANAGER, user);
+  }
+
   /// @dev Sets the Civic verifier and gatekeeper network for identity verification.
   /// @param _civicVerifier The address of the Civic verifier contract.
   /// @param _civicGatekeeperNetwork The identifier of the Civic gatekeeper network.
@@ -359,15 +369,6 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
       if (users[i] == user) return true;
     }
     return false;
-  }
-  function isSignatureManager(address user) public view returns (bool) {
-    return hasRole(MANAGER_ROLE, user);
-  }
-  function isInvestorManager(address user) public view returns (bool) {
-    return hasRole(INVESTMENT_MANAGER_ROLE, user);
-  }
-  function isOracleManager(address user) public view returns (bool) {
-    return hasRole(ORACLE_MANAGER, user);
   }
 
   /// @notice Initializes the contract with the specified Civic verifier address and gatekeeper network ID, and sets the default admin role.

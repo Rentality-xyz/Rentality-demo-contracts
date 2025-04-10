@@ -15,7 +15,23 @@ error InitializationFunctionReverted(address _initializationContractAddress, byt
 
 library LibDiamond {
     // 32 bytes keccak hash of a string to use as a diamond storage location.
-    bytes32 constant DIAMOND_STORAGE_POSITION = keccak256("diamond.standard.diamond.storage");
+    bytes32 public constant DIAMOND_STORAGE_POSITION = keccak256("diamond.standard.diamond.storage");
+
+    bytes32 public constant ACCESS_STORAGE_POSITION = 
+        keccak256("diamond.access.storage");
+
+    bytes32 public constant REFFERAL_STORAGE_POSSITION = 
+        keccak256("diamond.refferal.service.storage");
+
+    bytes32 public constant CAR_TOKEN_STORAGE_POSSITION = 
+        keccak256("diamond.car.token.storage");
+
+    bytes32 public constant GEO_SERVICE_STORAGE_POSITION = 
+        keccak256("diamond.geo.service.storage");
+
+
+    bytes32 public constant LOCATION_SERVICE_STORAGE_POSITION = 
+        keccak256("diamond.location.service.storage");
 
     struct FacetAddressAndPosition {
         address facetAddress;
@@ -45,8 +61,20 @@ library LibDiamond {
 
 
 
-        mapping(address => Schemas.KYCInfo) kycInfo;
+        UserServiceData userServiceData;
         mapping(uint => Schemas.CarInfo) carIdToCarInfo;
+    }
+
+    struct UserServiceData {
+        mapping(address => Schemas.KYCInfo) kycInfos;
+        address civicVerifier;
+        uint civicGatekeeperNetwork;
+        bytes32 TCMessageHash;
+        uint kycCommission;
+        mapping(address => Schemas.KycCommissionData[]) userToKYCCommission;
+        mapping(address => Schemas.AdditionalKYCInfo) additionalKycInfo;
+        address[] platformUsers;
+        mapping(address => bool) userToPhoneVerified;
     }
 
     function diamondStorage() internal pure returns (DiamondStorage storage ds) {
