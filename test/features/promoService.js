@@ -122,7 +122,7 @@ describe('Rentality promoService Service', function () {
   })
 
   it('should give 100 percents discount', async function () {
-    const mockCarRequest = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
+    const mockCarRequest = await getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
     await expect(rentalityGateway.connect(host).addCar(mockCarRequest)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
@@ -185,7 +185,7 @@ describe('Rentality promoService Service', function () {
     ).to.changeEtherBalances([guest, rentalityPaymentService], [0, 0])
   })
   it('90 percents promo works fine', async function () {
-    const mockCarRequest = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
+    const mockCarRequest = await getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
     await expect(rentalityGateway.connect(host).addCar(mockCarRequest)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
@@ -235,7 +235,7 @@ describe('Rentality promoService Service', function () {
   })
 
   it('should do nothing in case of wrong promo', async function () {
-    const mockCarRequest = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
+    const mockCarRequest = await getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
     await expect(rentalityGateway.connect(host).addCar(mockCarRequest)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
@@ -300,7 +300,7 @@ describe('Rentality promoService Service', function () {
   })
 
   it('general promo works fine', async function () {
-    const mockCarRequest = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
+    const mockCarRequest = await getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
     await expect(rentalityGateway.connect(host).addCar(mockCarRequest)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
@@ -347,7 +347,7 @@ describe('Rentality promoService Service', function () {
   })
 
   it('general promo works fine after reject', async function () {
-    const mockCarRequest = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
+    const mockCarRequest = await getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
     await expect(rentalityGateway.connect(host).addCar(mockCarRequest)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
@@ -440,7 +440,7 @@ describe('Rentality promoService Service', function () {
   })
 
   it('use general promo twice do nothing', async function () {
-    const mockCarRequest = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
+    const mockCarRequest = await getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
     await expect(rentalityGateway.connect(host).addCar(mockCarRequest)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
@@ -503,7 +503,7 @@ describe('Rentality promoService Service', function () {
   })
 
   it('two user use general code', async function () {
-    const mockCarRequest = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
+    const mockCarRequest = await getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
     await expect(rentalityGateway.connect(host).addCar(mockCarRequest)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
@@ -559,7 +559,7 @@ describe('Rentality promoService Service', function () {
   })
 
   it('use promo twice do nothing', async function () {
-    const mockCarRequest = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
+    const mockCarRequest = await getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
     await expect(rentalityGateway.connect(host).addCar(mockCarRequest)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
@@ -633,7 +633,7 @@ describe('Rentality promoService Service', function () {
   })
 
   it('reject trip make promo usable', async function () {
-    const mockCarRequest = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
+    const mockCarRequest = await getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
     await expect(rentalityGateway.connect(host).addCar(mockCarRequest)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
@@ -700,7 +700,7 @@ describe('Rentality promoService Service', function () {
   })
 
   it('Happy case ', async function () {
-    const mockCarRequest = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
+    const mockCarRequest = await getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
     await expect(rentalityGateway.connect(host).addCar(mockCarRequest)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
@@ -782,7 +782,7 @@ describe('Rentality promoService Service', function () {
   })
 
   it('Happy case 100 percents', async function () {
-    const mockCarRequest = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
+    const mockCarRequest = await getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
     await expect(rentalityGateway.connect(host).addCar(mockCarRequest)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
@@ -869,7 +869,7 @@ describe('Rentality promoService Service', function () {
   })
 
   it.skip('Set KYC INFO with promo give ref points', async function () {
-    const mockCarRequest = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
+    const mockCarRequest = await getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
     await expect(rentalityGateway.connect(host).addCar(mockCarRequest)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
@@ -903,7 +903,7 @@ describe('Rentality promoService Service', function () {
   })
 
   it('Promo is not working second time', async function () {
-    const mockCarRequest = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
+    const mockCarRequest = await getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
     await expect(rentalityGateway.connect(host).addCar(mockCarRequest)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
@@ -977,7 +977,7 @@ describe('Rentality promoService Service', function () {
   })
 
   it('Trip with promo has promo info', async function () {
-    const mockCarRequest = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
+    const mockCarRequest = await getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
     await expect(rentalityGateway.connect(host).addCar(mockCarRequest)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)

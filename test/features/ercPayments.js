@@ -45,7 +45,7 @@ describe('ERC20 payments', function () {
   it('Should correctly сreate trip and pay deposit with usdt', async function () {
     let usdt = await usdtContract.getAddress()
     await rentalityGateway.connect(host).addUserCurrency(usdt)
-    const request = getMockCarRequest(13, await rentalityLocationVerifier.getAddress(), admin)
+    const request = await getMockCarRequest(13, await rentalityLocationVerifier.getAddress(), admin)
     await expect(rentalityGateway.connect(host).addCar(request)).not.to.be.reverted
 
     const dailyPriceInUsdCents = 1000
@@ -89,7 +89,7 @@ describe('ERC20 payments', function () {
   it('should correctly finish trip with usdt, and send tokens to the host', async function () {
     let usdt = await usdtContract.getAddress()
     await rentalityGateway.connect(host).addUserCurrency(usdt)
-    const request = getMockCarRequest(10, await rentalityLocationVerifier.getAddress(), admin)
+    const request = await getMockCarRequest(10, await rentalityLocationVerifier.getAddress(), admin)
     await expect(rentalityGateway.connect(host).addCar(request)).not.to.be.reverted
 
     await mintTo(usdtContract, guest.address, 10000000)
@@ -156,7 +156,7 @@ describe('ERC20 payments', function () {
     let usdt = await usdtContract.getAddress()
     await rentalityGateway.connect(host).addUserCurrency(usdt)
     await expect(
-      rentalityGateway.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+      rentalityGateway.connect(host).addCar(await getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
     ).not.to.be.reverted
 
     await mintTo(usdtContract, guest.address, 10000)
@@ -223,7 +223,7 @@ describe('ERC20 payments', function () {
   it('should be able withdraw usdt from platform ', async function () {
     let usdt = await usdtContract.getAddress()
     await rentalityGateway.connect(host).addUserCurrency(usdt)
-    const request = getMockCarRequest(10, await rentalityLocationVerifier.getAddress(), admin)
+    const request = await getMockCarRequest(10, await rentalityLocationVerifier.getAddress(), admin)
     await expect(rentalityGateway.connect(host).addCar(request)).not.to.be.reverted
 
     await mintTo(usdtContract, guest.address, 1000)

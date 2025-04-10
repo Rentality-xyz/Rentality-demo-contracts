@@ -47,7 +47,7 @@ describe('Rentality History Service', function () {
 
   it('should create history in case of cancellation', async function () {
     await expect(
-      rentalityGateway.connect(host).addCar(getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin))
+      rentalityGateway.connect(host).addCar(await getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin))
     ).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
@@ -97,7 +97,7 @@ describe('Rentality History Service', function () {
     expect(details.transactionInfo.statusBeforeCancellation).to.be.eq(TripStatus.Created)
   })
   it('Happy case has history', async function () {
-    const request = getMockCarRequest(55, await rentalityLocationVerifier.getAddress(), admin)
+    const request = await getMockCarRequest(55, await rentalityLocationVerifier.getAddress(), admin)
     await expect(rentalityGateway.connect(host).addCar(request)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
@@ -182,7 +182,7 @@ describe('Rentality History Service', function () {
   })
   // unused method
   it.skip('Should have receipt after trip end', async function () {
-    const request = getMockCarRequest(51, await rentalityLocationVerifier.getAddress(), admin)
+    const request = await getMockCarRequest(51, await rentalityLocationVerifier.getAddress(), admin)
     await expect(rentalityGateway.connect(host).addCar(request)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)
