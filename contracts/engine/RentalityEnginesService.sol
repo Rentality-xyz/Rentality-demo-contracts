@@ -23,11 +23,6 @@ contract RentalityEnginesService is Initializable, UUPSAccess {
     _;
   }
 
-  /// @notice Modifier to restrict access to only Rentality platforms.
-  modifier onlyManager() {
-    // require(userService.isRentalityPlatform(msg.sender), 'Only for Manager.');
-    _;
-  }
 
   /// @notice Adds a new engine service contract to the system.
   /// @param engineService The address of the new engine service contract.
@@ -65,7 +60,7 @@ contract RentalityEnginesService is Initializable, UUPSAccess {
   /// @notice Verify engine params
   /// @param eType The engine type associated with the car.
   /// @param params An array of parameters required for adding the car.
-  function verifyCreateParams(uint8 eType, uint64[] memory params) public view onlyManager {
+  function verifyCreateParams(uint8 eType, uint64[] memory params) public view {
     engineTypeToEngineContract[eType].verifyCreateParams(params);
   }
 
@@ -77,7 +72,7 @@ contract RentalityEnginesService is Initializable, UUPSAccess {
     uint8 eType,
     uint64[] memory newParams,
     uint64[] memory oldParams
-  ) public view onlyManager returns (uint64[] memory) {
+  ) public view returns (uint64[] memory) {
     return engineTypeToEngineContract[eType].verifyUpdateParams(newParams, oldParams);
   }
 

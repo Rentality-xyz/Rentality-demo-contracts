@@ -27,7 +27,7 @@ it('Update car without location should work fine', async function () {
   const { rentalityCarToken, rentalityLocationVerifier, admin, rentalityGateway } =
     await loadFixture(deployFixtureWith1Car)
 
-  let request = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
+  let request = await getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
   await expect(rentalityGateway.addCar(request)).not.be.reverted
 
   let update_params = {
@@ -57,7 +57,7 @@ it('Update car with location, but without api should revert', async function () 
   const { rentalityCarToken, rentalityLocationVerifier, admin, rentalityGateway } =
     await loadFixture(deployFixtureWith1Car)
 
-  let request = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
+  let request = await getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
   await expect(rentalityGateway.addCar(request)).not.be.reverted
 
   let update_params = {
@@ -81,7 +81,7 @@ it.skip('Update with location should pass locationVarification param to false', 
   const { rentalityCarToken, rentalityGeoService, geoParserMock, rentalityLocationVerifier, admin, rentalityGateway } =
     await loadFixture(deployFixtureWith1Car)
 
-  let request = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
+  let request = await getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
   await expect(rentalityGateway.addCar(request)).not.be.reverted
 
   let update_params = {
