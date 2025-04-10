@@ -245,7 +245,7 @@ async function deployDefaultFixture() {
       RentalityUtils: await utils.getAddress(),
     },
   })
-  const RentalityMotionsCloud = await ethers.getContractFactory('RentalityMotionsCloud')
+  const RentalityMotionsCloud = await ethers.getContractFactory('RentalityMotionsCloudV2')
   const rentalityMotionsCloud = await upgrades.deployProxy(RentalityMotionsCloud,[await rentalityUserService.getAddress()])
 
   let RentalityTripsView = await ethers.getContractFactory('RentalityTripsView', {
@@ -444,7 +444,7 @@ async function deployFixtureWith1Car() {
     rentalityLocationVerifier,
   } = await deployDefaultFixture()
 
-  const request = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
+  const request = await getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
 
   await rentalityGateway.connect(host).addCar(request)
 

@@ -60,11 +60,11 @@ describe('All brands, models by brand filters', function () {
   })
 
   it('can get all brands correctly', async function () {
-    let request1 = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
-    let request2 = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
-    let request3 = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
-    let request4 = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
-    let request5 = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
+    let request1 = await getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
+    let request2 = await getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
+    let request3 = await getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
+    let request4 = await getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
+    let request5 = await getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
     request1.brand = 'bmw'
     request1.carVinNumber = '12'
     request2.brand = 'bmw'
@@ -89,11 +89,11 @@ describe('All brands, models by brand filters', function () {
     expect(brands.find((b) => b === 'audi')).to.not.be.eq(undefined)
   })
   it('can get all models by brand', async function () {
-    let request1 = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
-    let request2 = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
-    let request3 = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
-    let request4 = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
-    let request5 = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
+    let request1 = await getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
+    let request2 = await getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
+    let request3 = await getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
+    let request4 = await getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
+    let request5 = await getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
     request1.brand = 'bmw'
     request1.model = 'z3'
     request2.carVinNumber = '123'

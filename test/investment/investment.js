@@ -55,7 +55,7 @@ describe('Rentality investment', function () {
   it('Host can create investment', async function () {
 
     let mockCarInvestment = {
-      car: getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin),
+      car: await getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin),
       priceInCurrency: 10000,
       inProgress: true,
       creatorPercents: 10,
@@ -65,7 +65,7 @@ describe('Rentality investment', function () {
   })
   it('Guest can invest', async function () {
     let mockCarInvestment = {
-      car: getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin),
+      car: await getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin),
       priceInCurrency: 10000,
       inProgress: true,
       creatorPercents: 10,
@@ -78,7 +78,7 @@ describe('Rentality investment', function () {
   })
   it('Possible to create car after investment', async function () {
     let mockCarInvestment = {
-      car: getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin),
+      car: await getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin),
       priceInCurrency: 10000,
       inProgress: true,
       creatorPercents: 10,
@@ -104,7 +104,7 @@ describe('Rentality investment', function () {
 
   it('Has claims after pool creating', async function () {
     let mockCarInvestment = {
-      car: getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin),
+      car: await getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin),
       priceInCurrency: 10000,
       inProgress: true,
       creatorPercents: 10,
@@ -123,7 +123,7 @@ describe('Rentality investment', function () {
 
   it('Happy case with investors car', async function () {
     let mockCarInvestment = {
-      car: getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin),
+      car: await getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin),
       priceInCurrency: 10000,
       inProgress: true,
       creatorPercents: 10,
@@ -175,7 +175,7 @@ describe('Rentality investment', function () {
 
   it('Investor can claim after income', async function () {
     let mockCarInvestment = {
-      car: getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin),
+      car: await getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin),
       priceInCurrency: 10000,
       inProgress: true,
       creatorPercents: 10,
@@ -231,7 +231,7 @@ describe('Rentality investment', function () {
   })
   it('Can not claim twice', async function () {
     let mockCarInvestment = {
-      car: getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin),
+      car: await getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin),
       priceInCurrency: 10000,
       inProgress: true,
       creatorPercents: 10,
@@ -289,7 +289,7 @@ describe('Rentality investment', function () {
   })
   it('Calculation test: 1 investor has 2 investments', async function () {
     let mockCarInvestment = {
-      car: getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin),
+      car: await getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin),
       priceInCurrency: 10000,
       inProgress: true,
       creatorPercents: 10,
@@ -357,7 +357,7 @@ describe('Rentality investment', function () {
   })
   it('Calculation test: 1 investor has 2 investments and 3 finished trips', async function () {
     let mockCarInvestment = {
-      car: getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin),
+      car: await getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin),
       priceInCurrency: 10000,
       inProgress: true,
       creatorPercents: 10,
@@ -476,7 +476,7 @@ describe('Rentality investment', function () {
 
   it('Calculation test: 3 investors has 1 investments and 3 finished trips', async function () {
     let mockCarInvestment = {
-      car: getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin),
+      car: await getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin),
       priceInCurrency: 10000,
       inProgress: true,
       creatorPercents: 10,
@@ -608,7 +608,7 @@ describe('Rentality investment', function () {
   })
   it('Nft transfer allow to claim for new owner', async function () {
     let mockCarInvestment = {
-      car: getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin),
+      car: await getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin),
       priceInCurrency: 10000,
       inProgress: true,
       creatorPercents: 10,

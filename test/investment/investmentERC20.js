@@ -65,7 +65,7 @@ describe('Rentality investment with erc20', function () {
     await rentalityGateway.connect(host).addUserCurrency(usdt)
     await usdtContract.mint(guest.address, 100000000000000)
     let mockCarInvestment = {
-      car: getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin),
+      car: await getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin),
       priceInCurrency: 10000,
       inProgress: true,
       creatorPercents: 10,

@@ -257,7 +257,7 @@ async function deployDefaultFixture() {
   })
   let tripsQuery = await TripsQuery.deploy()
 
-  const RentalityMotionsCloud = await ethers.getContractFactory('RentalityMotionsCloud')
+  const RentalityMotionsCloud = await ethers.getContractFactory('RentalityMotionsCloudV2')
   const rentalityMotionsCloud = await upgrades.deployProxy(RentalityMotionsCloud,[await rentalityUserService.getAddress()])
   let RentalityTripsView = await ethers.getContractFactory('RentalityTripsView', {
     libraries: {
