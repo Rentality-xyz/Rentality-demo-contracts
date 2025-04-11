@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 import { Schemas } from "../../Schemas.sol";
 import { LibDiamond } from "./LibDiamond.sol";
 
+
 library UserServiceStorage {
 
      bytes32 constant ACCESS_STORAGE_POSITION = 
@@ -14,6 +15,15 @@ library UserServiceStorage {
     }
 
     struct UserFaucetStorage {
+
+    bytes32 MANAGER_ROLE;
+    bytes32 HOST_ROLE;
+    bytes32 GUEST_ROLE;
+    bytes32 KYC_COMMISSION_MANAGER_ROLE;
+    bytes32 ADMIN_VIEW_ROLE;
+    bytes32 INVESTMENT_MANAGER_ROLE;
+    bytes32 RENTALITY_PLATFORM;
+    bytes32 ORACLE_MANAGER;
 
     mapping(bytes32 role => RoleData) _roles;
 
@@ -34,6 +44,22 @@ library UserServiceStorage {
     UserServiceStorage.UserFaucetStorage storage s = UserServiceStorage.accessStorage();
     return s.kycInfos[user].isTCPassed;
   }
+
+   function isAdmin(address user) internal view returns (bool) {
+    UserServiceStorage.UserFaucetStorage storage s = UserServiceStorage.accessStorage();
+    return hasRole(s.DEFAULT_ADMIN_ROLE, user);
+  }
+  function isHost(address user) public view returns (bool) {
+    return hasRole(accessStorage().HOST_ROLE, user);
+  }
+
+   function hasRole(bytes32 role, address account) internal view returns (bool) {
+        UserServiceStorage.UserFaucetStorage storage s = UserServiceStorage.accessStorage();
+        return s._roles[role].hasRole[account];
+    }
+     function isSignatureManager(address user) internal view returns (bool) {
+        return hasRole(accessStorage().MANAGER_ROLE, user);
+   }
 
  function accessStorage() internal pure returns (UserFaucetStorage storage ds) {
         bytes32 position = LibDiamond.ACCESS_STORAGE_POSITION;

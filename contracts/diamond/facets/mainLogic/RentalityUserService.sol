@@ -10,14 +10,6 @@ import "@openzeppelin/contracts/access/IAccessControl.sol";
 import '@openzeppelin/contracts/utils/cryptography/ECDSA.sol';
 import {IERC1271} from '@openzeppelin/contracts/interfaces/IERC1271.sol';
  
-  bytes32 constant MANAGER_ROLE = keccak256('MANAGER_ROLE');
-  bytes32 constant HOST_ROLE = keccak256('HOST_ROLE');
-  bytes32 constant GUEST_ROLE = keccak256('GUEST_ROLE');
-  bytes32 constant KYC_COMMISSION_MANAGER_ROLE = keccak256('KYC_MANAGER_ROLE');
-  bytes32 constant ADMIN_VIEW_ROLE = keccak256('ADMIN_VIEW_ROLE');
-  bytes32 constant INVESTMENT_MANAGER_ROLE = keccak256('INVESTMENT_MANAGER_ROLE');
-  bytes32 constant RENTALITY_PLATFORM = keccak256('RENTALITY_PLATFORM_ROLE');
-  bytes32 constant ORACLE_MANAGER = keccak256('ORACLE_MANAGER');
 
 contract RentalityUserService is IAccessControl {
 
@@ -191,7 +183,7 @@ contract RentalityUserService is IAccessControl {
     UserServiceStorage.UserFaucetStorage storage s = UserServiceStorage.accessStorage();
 
      if (isGuest) {
-      _grantRole(GUEST_ROLE, sender);
+      _grantRole(s.GUEST_ROLE, sender);
     }
     bool isTCPassed = isValidSignatureNow(sender, s.TCMessageHash, TCSignature);
 
@@ -215,8 +207,8 @@ contract RentalityUserService is IAccessControl {
   }
 
     function setMyCivicKYCInfo(address user, Schemas.CivicKYCInfo memory civicKycInfo) public {
-    require(hasRole(MANAGER_ROLE, msg.sender), 'only Rentality platform');
     UserServiceStorage.UserFaucetStorage storage s = UserServiceStorage.accessStorage();
+    require(hasRole(s.MANAGER_ROLE, msg.sender), 'only Rentality platform');
     Schemas.KYCInfo storage kycInfo = s.kycInfos[user];
 
     kycInfo.surname = civicKycInfo.fullName;
@@ -227,8 +219,8 @@ contract RentalityUserService is IAccessControl {
   }
 
    function setPhoneNumber(address user, string memory phone, bool isVerified) public {
-    require(hasRole(KYC_COMMISSION_MANAGER_ROLE, msg.sender), 'Only KYC manager');
     UserServiceStorage.UserFaucetStorage storage s = UserServiceStorage.accessStorage();
+    require(hasRole(s.KYC_COMMISSION_MANAGER_ROLE, msg.sender), 'Only KYC manager');
     s.userToPhoneVerified[user] = isVerified;
     s.kycInfos[user].mobilePhoneNumber = phone;
   }
@@ -256,8 +248,8 @@ contract RentalityUserService is IAccessControl {
     return Schemas.FullKYCInfoDTO(s.kycInfos[user], s.additionalKycInfo[user], s.userToPhoneVerified[user]);
   }
   function getPlatformUsersKYCInfos() public view returns (Schemas.AdminKYCInfoDTO[] memory result) {
-    require(hasRole(ADMIN_VIEW_ROLE, msg.sender), 'Only Admin');
-      UserServiceStorage.UserFaucetStorage storage s = UserServiceStorage.accessStorage();
+    UserServiceStorage.UserFaucetStorage storage s = UserServiceStorage.accessStorage();
+    require(hasRole(s.ADMIN_VIEW_ROLE, msg.sender), 'Only Admin');
     address[] memory users = s.platformUsers;
     result = new Schemas.AdminKYCInfoDTO[](s.platformUsers.length);
     for (uint i = 0; i < result.length; i++) {
@@ -266,62 +258,36 @@ contract RentalityUserService is IAccessControl {
   }
 
     function grantAdminRole(address user) public onlyRole(UserServiceStorage.accessStorage().DEFAULT_ADMIN_ROLE) {
-    grantRole(UserServiceStorage.accessStorage().DEFAULT_ADMIN_ROLE, user);
-    grantRole(MANAGER_ROLE, user);
+    UserServiceStorage.UserFaucetStorage storage s = UserServiceStorage.accessStorage();
+    grantRole(s.DEFAULT_ADMIN_ROLE, user);
+    grantRole(s.MANAGER_ROLE, user);
   }
   /// @notice Revokes admin role from a specified user.
   /// Requirements:
   /// - Caller must have DEFAULT_ADMIN_ROLE.
   /// @param user The address of the user to revoke admin role.
   function revokeAdminRole(address user) public onlyRole(UserServiceStorage.accessStorage().DEFAULT_ADMIN_ROLE) {
-    revokeRole(UserServiceStorage.accessStorage().DEFAULT_ADMIN_ROLE, user);
-    revokeRole(MANAGER_ROLE, user);
+    UserServiceStorage.UserFaucetStorage storage s = UserServiceStorage.accessStorage();
+    revokeRole(s.DEFAULT_ADMIN_ROLE, user);
+    revokeRole(s.MANAGER_ROLE, user);
   }
   /// @notice Grants manager role to a specified user.
   /// Requirements:
   /// - Caller must have DEFAULT_ADMIN_ROLE.
   /// @param user The address of the user to grant manager role.
   function grantManagerRole(address user) public onlyRole(UserServiceStorage.accessStorage().DEFAULT_ADMIN_ROLE) {
-    grantRole(MANAGER_ROLE, user);
+    grantRole(UserServiceStorage.accessStorage().MANAGER_ROLE, user);
   }
 
     function grantPlatformRole(address user) public onlyRole(UserServiceStorage.accessStorage().DEFAULT_ADMIN_ROLE) {
-    grantRole(RENTALITY_PLATFORM, user);
+    grantRole(UserServiceStorage.accessStorage().RENTALITY_PLATFORM, user);
   }
   /// @notice Revokes manager role from a specified user.
   /// Requirements:
   /// - Caller must have DEFAULT_ADMIN_ROLE.
   /// @param user The address of the user to revoke manager role.
   function revokeManagerRole(address user) public onlyRole(UserServiceStorage.accessStorage().DEFAULT_ADMIN_ROLE) {
-    revokeRole(MANAGER_ROLE, user);
-  }
-  /// @notice Grants host role to a specified user.
-  /// Requirements:
-  /// - Caller must have MANAGER_ROLE.
-  /// @param user The address of the user to grant host role.
-  function grantHostRole(address user) public onlyRole(RENTALITY_PLATFORM) {
-    _grantRole(HOST_ROLE, user);
-  }
-  /// @notice Revokes host role from a specified user.
-  /// Requirements:
-  /// - Caller must have MANAGER_ROLE.
-  /// @param user The address of the user to revoke host role.
-  function revokeHostRole(address user) public onlyRole(RENTALITY_PLATFORM) {
-    revokeRole(HOST_ROLE, user);
-  }
-  /// @notice Grants guest role to a specified user.
-  /// Requirements:
-  /// - Caller must have MANAGER_ROLE.
-  /// @param user The address of the user to grant guest role.
-  function grantGuestRole(address user) public onlyRole(RENTALITY_PLATFORM) {
-    _grantRole(GUEST_ROLE, user);
-  }
-  /// @notice Revokes guest role from a specified user.
-  /// Requirements:
-  /// - Caller must have MANAGER_ROLE.
-  /// @param user The address of the user to revoke guest role.
-  function revokeGuestRole(address user) public onlyRole(RENTALITY_PLATFORM) {
-    revokeRole(GUEST_ROLE, user);
+    revokeRole(UserServiceStorage.accessStorage().MANAGER_ROLE, user);
   }
 
 
@@ -336,23 +302,23 @@ contract RentalityUserService is IAccessControl {
   /// @param user The address of the user to check for manager role.
   /// @return isManager A boolean indicating whether the user has manager role.
   function isManager(address user) public view returns (bool) {
-    return hasRole(MANAGER_ROLE, user);
+    return hasRole(UserServiceStorage.accessStorage().MANAGER_ROLE, user);
   }
 
    function isRentalityPlatform(address user) public view returns (bool) {
-    return hasRole(RENTALITY_PLATFORM, user);
+    return hasRole(UserServiceStorage.accessStorage().RENTALITY_PLATFORM, user);
   }
   /// @notice Checks if a user has host role.
   /// @param user The address of the user to check for host role.
   /// @return isHost A boolean indicating whether the user has host role.
   function isHost(address user) public view returns (bool) {
-    return hasRole(HOST_ROLE, user);
+    return hasRole(UserServiceStorage.accessStorage().HOST_ROLE, user);
   }
   /// @notice Checks if a user has guest role.
   /// @param user The address of the user to check for guest role.
   /// @return isGuest A boolean indicating whether the user has guest role.
   function isGuest(address user) public view returns (bool) {
-    return hasRole(GUEST_ROLE, user);
+    return hasRole(UserServiceStorage.accessStorage().GUEST_ROLE, user);
   }
   /// @notice Checks if a user has host or guest role.
   /// @param user The address of the user to check for host or guest role.
@@ -362,13 +328,13 @@ contract RentalityUserService is IAccessControl {
   }
 
     function isSignatureManager(address user) public view returns (bool) {
-    return hasRole(MANAGER_ROLE, user);
+    return hasRole(UserServiceStorage.accessStorage().MANAGER_ROLE, user);
   }
   function isInvestorManager(address user) public view returns (bool) {
-    return hasRole(INVESTMENT_MANAGER_ROLE, user);
+    return hasRole(UserServiceStorage.accessStorage().INVESTMENT_MANAGER_ROLE, user);
   }
   function isOracleManager(address user) public view returns (bool) {
-    return hasRole(ORACLE_MANAGER, user);
+    return hasRole(UserServiceStorage.accessStorage().ORACLE_MANAGER, user);
   }
 
   /// @dev Sets the Civic verifier and gatekeeper network for identity verification.
@@ -403,8 +369,8 @@ contract RentalityUserService is IAccessControl {
   }
 
   function useKycCommission(address user) public {
-    require(hasRole(KYC_COMMISSION_MANAGER_ROLE, tx.origin) || msg.sender == user, 'only Commission manager');
     UserServiceStorage.UserFaucetStorage storage s = UserServiceStorage.accessStorage();
+    require(hasRole(s.KYC_COMMISSION_MANAGER_ROLE, tx.origin) || msg.sender == user, 'only Commission manager');
     Schemas.KycCommissionData[] memory commissions = s.userToKYCCommission[user];
     if (commissions.length == 0) {
       revert('not paid');
@@ -432,14 +398,14 @@ contract RentalityUserService is IAccessControl {
     require(isAdmin(tx.origin), 'only admin');
     UserServiceStorage.UserFaucetStorage storage s = UserServiceStorage.accessStorage();
     bytes32 role;
-    if (newRole == Schemas.Role.Guest) role = GUEST_ROLE;
-    else if (newRole == Schemas.Role.Host) role = HOST_ROLE;
-    else if (newRole == Schemas.Role.Manager) role = MANAGER_ROLE;
+    if (newRole == Schemas.Role.Guest) role = s.GUEST_ROLE;
+    else if (newRole == Schemas.Role.Host) role = s.HOST_ROLE;
+    else if (newRole == Schemas.Role.Manager) role = s.MANAGER_ROLE;
     else if (newRole == Schemas.Role.Admin) role = s.DEFAULT_ADMIN_ROLE;
-    else if (newRole == Schemas.Role.KYCManager) role = KYC_COMMISSION_MANAGER_ROLE;
-    else if (newRole == Schemas.Role.AdminView) role = ADMIN_VIEW_ROLE;
-    else if (newRole == Schemas.Role.InvestmentManager) role = INVESTMENT_MANAGER_ROLE;
-    else if(newRole == Schemas.Role.OracleManager) role = ORACLE_MANAGER;
+    else if (newRole == Schemas.Role.KYCManager) role = s.KYC_COMMISSION_MANAGER_ROLE;
+    else if (newRole == Schemas.Role.AdminView) role = s.ADMIN_VIEW_ROLE;
+    else if (newRole == Schemas.Role.InvestmentManager) role = s.INVESTMENT_MANAGER_ROLE;
+    else if(newRole == Schemas.Role.OracleManager) role = s.ORACLE_MANAGER;
     else revert('Invalid role');
     if (grant) _grantRole(role, user);
     else {
@@ -448,8 +414,8 @@ contract RentalityUserService is IAccessControl {
   }
 
   function getPlatformUsers() public view returns (address[] memory) {
-    require(hasRole(ADMIN_VIEW_ROLE, tx.origin), 'Only Admin');
     UserServiceStorage.UserFaucetStorage storage s = UserServiceStorage.accessStorage();
+    require(hasRole(s.ADMIN_VIEW_ROLE, tx.origin), 'Only Admin');
     return s.platformUsers;
   }
 
@@ -497,7 +463,7 @@ contract RentalityUserService is IAccessControl {
 
 
   function _isGuest(address user) private view returns (bool) {
-    return hasRole(GUEST_ROLE, user);
+    return hasRole(UserServiceStorage.accessStorage().GUEST_ROLE, user);
   }
 
 }

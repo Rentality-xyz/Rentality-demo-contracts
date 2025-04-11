@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 
 import { Schemas } from "../../Schemas.sol";
 import { LibDiamond } from "./LibDiamond.sol";
+import { RentalityEnginesService } from "../../engine/RentalityEnginesService.sol";
 
 library CarTokenStorage {
 
@@ -27,6 +28,7 @@ library CarTokenStorage {
    mapping(uint256 => Schemas.CarInfo) idToCarInfo;
 
    mapping(uint => uint) carIdToListingMoment;
+   RentalityEnginesService enginesService;
 
 }
 

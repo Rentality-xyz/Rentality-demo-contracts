@@ -7,6 +7,8 @@ import {ERC721URIStorage} from "./standarts/ERC721URIStorage.sol";
 import {ERC721} from "./standarts/ERC721.sol";
 import "../..//libraries/CarTokenStorage.sol";
 import "../../libraries/UserServiceStorage.sol";
+import "../../libraries/GeoServiceStorage.sol";
+import "../../libraries/TaxesStorage.sol";
 
 contract RentalityCarToken is ERC721URIStorage {
 
@@ -74,26 +76,35 @@ contract RentalityCarToken is ERC721URIStorage {
   /// @param request The input parameters for creating the new car.
   /// @return The ID of the newly added car.
   function addCar(Schemas.CreateCarRequest memory request, address user) public returns (uint) {
+
+      RefferalProgramStorage.passReferralProgram(
+      Schemas.RefferalProgram.AddCar,
+      abi.encode(request.currentlyListed),
+      msg.sender
+    );
+    require(TaxesStorage.taxExists(request.locationInfo.locationInfo) != 0, 'Tax not exist.');
+    CarServiceStorage.CarTokenFaucetStorage storage s = CarTokenStorage.accessStorage();
     require(RentalityUserService.hasPassedKYCAndTC(user), 'KYC or TC has not passed.');
     require(request.pricePerDayInUsdCents > 0, "Make sure the price isn't negative");
     require(request.milesIncludedPerDay > 0, "Make sure the included distance isn't negative");
     require(isUniqueVinNumber(request.carVinNumber), 'Car with this VIN number already exists');
-    geoService.verifySignedLocationInfo(request.locationInfo);
-    if (!userService.isHost(user)) {
+    GeoServiceStorage.verifySignedLocationInfo(request.locationInfo);
+    if (!UserServiceStorage.isHost(user)) {
       userService.grantHostRole(user);
     }
 
-    _carIdCounter.increment();
-    uint256 newCarId = _carIdCounter.current();
+    s._carIdCounter += 1;
+    uint256 newCarId = s._carIdCounter;
 
-    engineService.verifyCreateParams(request.engineType, request.engineParams);
+    s.engineService.verifyCreateParams(request.engineType, request.engineParams);
 
     _safeMint(user, newCarId);
     _setTokenURI(newCarId, request.tokenUri);
 
-    bytes32 hash = geoService.createLocationInfo(request.locationInfo.locationInfo);
 
-    idToCarInfo[newCarId] = Schemas.CarInfo(
+    bytes32 hash = GeoServiceStorage.createLocationInfo(request.locationInfo.locationInfo);
+
+    s.idToCarInfo[newCarId] = Schemas.CarInfo(
       newCarId,
       request.carVinNumber,
       keccak256(abi.encodePacked(request.carVinNumber)),
@@ -114,7 +125,7 @@ contract RentalityCarToken is ERC721URIStorage {
       hash
     );
 
-    if (request.currentlyListed) carIdToListingMoment[newCarId] = block.timestamp;
+    if (request.currentlyListed) s.carIdToListingMoment[newCarId] = block.timestamp;
 
     _approve(address(this), newCarId);
 

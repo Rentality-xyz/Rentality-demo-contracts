@@ -29,9 +29,9 @@ library LibDiamond {
     bytes32 public constant GEO_SERVICE_STORAGE_POSITION = 
         keccak256("diamond.geo.service.storage");
 
+    bytes32 public constant TAXES_STORAGE_POSITION = 
+        keccak256("diamond.taxes.storage");
 
-    bytes32 public constant LOCATION_SERVICE_STORAGE_POSITION = 
-        keccak256("diamond.location.service.storage");
 
     struct FacetAddressAndPosition {
         address facetAddress;
