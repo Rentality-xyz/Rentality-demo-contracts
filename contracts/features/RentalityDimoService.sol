@@ -8,7 +8,6 @@ import '@openzeppelin/contracts/utils/cryptography/ECDSA.sol';
 import {RentalityCarToken} from '../RentalityCarToken.sol';
 import {IRentalityAccessControl} from '../abstract/IRentalityAccessControl.sol';
 import '@openzeppelin/contracts/utils/cryptography/ECDSA.sol';
-import '@openzeppelin/contracts/utils/Strings.sol';
 import {RentalityUserService} from '../RentalityUserService.sol';
 
 /// @title Rentality Dimo integration service
