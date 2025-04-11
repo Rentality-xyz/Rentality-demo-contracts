@@ -26,7 +26,6 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
   IRentalityGeoService private geoService;
   RentalityEnginesService private engineService;
   RentalityUserService private userService;
-
   mapping(uint256 => Schemas.CarInfo) private idToCarInfo;
   RentalityNotificationService private eventManager;
 

@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 
  import { UserServiceStorage } from "../../libraries/UserServiceStorage.sol";
  import { TaxesStorage } from "../../libraries/TaxesStorage.sol";
+ import "../../../Schemas.sol";
  
  contract RentalityTaxes {
 

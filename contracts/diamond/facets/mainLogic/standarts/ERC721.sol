@@ -1,12 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "../../../libraries/CarTokenStorage.sol";
-import {IERC721} from "@openZeppelin/contracts/interfaces/IERC721.sol";
-import {IERC721Metadata} from "@openZeppelin/contracts/interfaces/IERC721Metadata.sol";
-import {Context} from "@openZeppelin/contracts/utils/Context.sol";
-import {Strings} from "@openZeppelin/contracts/utils/Strings.sol";
-import {IERC165, ERC165} from "@openZeppelin/contracts/utils/introspection/ERC165.sol";
+import {CarTokenStorage} from "../../../libraries/CarTokenStorage.sol";
+import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import {IERC721Metadata} from "@openzeppelin/contracts/interfaces/IERC721Metadata.sol";
+import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
+import {IERC165, ERC165} from "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import {IERC721Errors} from "./IERC721Errors.sol";
 import {ERC721Utils} from "./ERC721Utils.sol";
 
@@ -15,7 +14,7 @@ import {ERC721Utils} from "./ERC721Utils.sol";
  * the Metadata extension, but not including the Enumerable extension, which is available separately as
  * {ERC721Enumerable}.
  */
-abstract contract ERC721 is Context, ERC165, IERC721Metadata, IERC721Errors {
+abstract contract ERC721 is ERC165, IERC721Metadata, IERC721Errors {
     using Strings for uint256;
 
 
@@ -96,7 +95,7 @@ abstract contract ERC721 is Context, ERC165, IERC721Metadata, IERC721Errors {
      * @dev See {IERC721-approve}.
      */
     function approve(address to, uint256 tokenId) public virtual override {
-        _approve(to, tokenId, _msgSender());
+        _approve(to, tokenId, msg.sender);
     }
 
     /**
@@ -112,7 +111,7 @@ abstract contract ERC721 is Context, ERC165, IERC721Metadata, IERC721Errors {
      * @dev See {IERC721-setApprovalForAll}.
      */
     function setApprovalForAll(address operator, bool approved) public virtual {
-        _setApprovalForAll(_msgSender(), operator, approved);
+        _setApprovalForAll(msg.sender, operator, approved);
     }
 
     /**
@@ -132,7 +131,7 @@ abstract contract ERC721 is Context, ERC165, IERC721Metadata, IERC721Errors {
         }
         // Setting an "auth" arguments enables the `_isAuthorized` check which verifies that the token exists
         // (from != 0). Therefore, it is not needed to verify that the return value is not 0 here.
-        address previousOwner = _update(to, tokenId, _msgSender());
+        address previousOwner = _update(to, tokenId, msg.sender);
         if (previousOwner != from) {
             revert ERC721IncorrectOwner(from, tokenId, previousOwner);
         }
@@ -141,7 +140,7 @@ abstract contract ERC721 is Context, ERC165, IERC721Metadata, IERC721Errors {
     /**
      * @dev See {IERC721-safeTransferFrom}.
      */
-    function safeTransferFrom(address from, address to, uint256 tokenId) public {
+    function safeTransferFrom(address from, address to, uint256 tokenId) public virtual {
         safeTransferFrom(from, to, tokenId, "");
     }
 
@@ -150,7 +149,7 @@ abstract contract ERC721 is Context, ERC165, IERC721Metadata, IERC721Errors {
      */
     function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory data) public virtual {
         transferFrom(from, to, tokenId);
-        ERC721Utils.checkOnERC721Received(_msgSender(), from, to, tokenId, data);
+        ERC721Utils.checkOnERC721Received(msg.sender, from, to, tokenId, data);
     }
 
     /**
@@ -308,7 +307,7 @@ abstract contract ERC721 is Context, ERC165, IERC721Metadata, IERC721Errors {
      */
     function _safeMint(address to, uint256 tokenId, bytes memory data) internal virtual {
         _mint(to, tokenId);
-        ERC721Utils.checkOnERC721Received(_msgSender(), address(0), to, tokenId, data);
+        ERC721Utils.checkOnERC721Received(msg.sender, address(0), to, tokenId, data);
     }
 
     /**
@@ -381,7 +380,7 @@ abstract contract ERC721 is Context, ERC165, IERC721Metadata, IERC721Errors {
      */
     function _safeTransfer(address from, address to, uint256 tokenId, bytes memory data) internal virtual {
         _transfer(from, to, tokenId);
-        ERC721Utils.checkOnERC721Received(_msgSender(), from, to, tokenId, data);
+        ERC721Utils.checkOnERC721Received(msg.sender, from, to, tokenId, data);
     }
 
     /**

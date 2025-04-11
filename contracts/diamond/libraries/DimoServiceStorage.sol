@@ -3,7 +3,6 @@ pragma solidity ^0.8.0;
 
 import { Schemas } from "../../Schemas.sol";
 import { LibDiamond } from "./LibDiamond.sol";
-import { UserServiceStorage } from "./UserServiceStorage.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
 library DimoServiceStorage { 
@@ -12,31 +11,25 @@ library DimoServiceStorage {
         uint[] dimoVihicles;
         }
 
-    function saveDimoTokenId(uint dimoTokenId, uint carId, address user, bytes memory signature) internal {
-        DimoServiceFaucetStorage storage ds = getDimoServiceFaucetStorage();
-    bool isCorrectSignature = UserServiceStorage.isSignatureManager(
-      ECDSA.recover(ECDSA.toEthSignedMessageHash(bytes(Strings.toString(dimoTokenId))), signature)
-    );
-    require(isCorrectSignature, 'dimo: wrong signature');
+    function saveDimoTokenId(uint dimoTokenId, uint carId) internal {
+    DimoServiceFaucetStorage storage s = accessStorage();
 
-    carIdToDimoTokenId[carId] = dimoTokenId;
+    s.carIdToDimoTokenId[carId] = dimoTokenId;
   }
 
-  function saveButch(uint[] memory dimoTokenIds, uint[] memory carIds, address user) public {
-    require(userService.isRentalityPlatform(msg.sender), 'only Rentality platform');
-    require(dimoTokenIds.length == carIds.length, 'Wrong length');
-    for (uint i = 0; i < dimoTokenIds.length; i++) {
-      require(carToken.ownerOf(carIds[i]) == user, 'Not car owner');
-      carIdToDimoTokenId[carIds[i]] = dimoTokenIds[i];
-      dimoVihicles.push(dimoTokenIds[i]);
-    }
-  }
   function getDimoVehicles() public view returns (uint[] memory) {
-    return dimoVihicles;
+    return accessStorage().dimoVihicles;
   }
   function getDimoTokenId(uint carId) public view returns (uint) {
-    return carIdToDimoTokenId[carId];
+    DimoServiceFaucetStorage storage s = accessStorage();
+    return s.carIdToDimoTokenId[carId];
   }
+
+    function accessStorage() internal pure returns (DimoServiceFaucetStorage storage ds) {
+        bytes32 position = LibDiamond.DIMO_STORAGE_POSITION;
+        assembly { ds.slot := position }
+    }
+
 
     
 }

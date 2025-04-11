@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "../../libraries/UserServiceStorage.sol";
-import "../../libraries/RefferalServiceStorage.sol";
+import {UserServiceStorage} from "../../libraries/UserServiceStorage.sol";
+import {RefferalServiceStorage} from "../../libraries/RefferalServiceStorage.sol";
 import "../../../Schemas.sol";
-import "../../../abstract/ARentalityContext.sol";
 import {IGatewayTokenVerifier} from '@identity.com/gateway-protocol-eth/contracts/interfaces/IGatewayTokenVerifier.sol';
 import "@openzeppelin/contracts/access/IAccessControl.sol";
 import '@openzeppelin/contracts/utils/cryptography/ECDSA.sol';
@@ -358,7 +357,7 @@ contract RentalityUserService is IAccessControl {
   }
 
   function setKycCommission(uint newCommission) public {
-    require(isAdmin(tx.origin), 'Only admin.');
+    require(isAdmin(msg.sender), 'Only admin.');
     UserServiceStorage.UserFaucetStorage storage s = UserServiceStorage.accessStorage();
     s.kycCommission = newCommission;
   }
@@ -370,7 +369,7 @@ contract RentalityUserService is IAccessControl {
 
   function useKycCommission(address user) public {
     UserServiceStorage.UserFaucetStorage storage s = UserServiceStorage.accessStorage();
-    require(hasRole(s.KYC_COMMISSION_MANAGER_ROLE, tx.origin) || msg.sender == user, 'only Commission manager');
+    require(hasRole(s.KYC_COMMISSION_MANAGER_ROLE, msg.sender) || msg.sender == user, 'only Commission manager');
     Schemas.KycCommissionData[] memory commissions = s.userToKYCCommission[user];
     if (commissions.length == 0) {
       revert('not paid');
@@ -381,7 +380,7 @@ contract RentalityUserService is IAccessControl {
   }
 
   function isCommissionPaidForUser(address user) public view returns (bool) {
-    require(isRentalityPlatform(user) || tx.origin == user, 'Not allowed');
+    require(isRentalityPlatform(user) || msg.sender == user, 'Not allowed');
     UserServiceStorage.UserFaucetStorage storage s = UserServiceStorage.accessStorage();
     Schemas.KycCommissionData[] memory commissions = s.userToKYCCommission[user];
     if (commissions.length == 0) return false;
@@ -395,7 +394,7 @@ contract RentalityUserService is IAccessControl {
   }
 
   function manageRole(Schemas.Role newRole, address user, bool grant) public {
-    require(isAdmin(tx.origin), 'only admin');
+    require(isAdmin(msg.sender), 'only admin');
     UserServiceStorage.UserFaucetStorage storage s = UserServiceStorage.accessStorage();
     bytes32 role;
     if (newRole == Schemas.Role.Guest) role = s.GUEST_ROLE;
@@ -415,7 +414,7 @@ contract RentalityUserService is IAccessControl {
 
   function getPlatformUsers() public view returns (address[] memory) {
     UserServiceStorage.UserFaucetStorage storage s = UserServiceStorage.accessStorage();
-    require(hasRole(s.ADMIN_VIEW_ROLE, tx.origin), 'Only Admin');
+    require(hasRole(s.ADMIN_VIEW_ROLE, msg.sender), 'Only Admin');
     return s.platformUsers;
   }
 

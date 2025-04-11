@@ -32,6 +32,15 @@ library LibDiamond {
     bytes32 public constant TAXES_STORAGE_POSITION = 
         keccak256("diamond.taxes.storage");
 
+    bytes32 public constant DIMO_STORAGE_POSITION = 
+        keccak256("diamond.dimo.storage");
+
+    bytes32 public constant INSURANCE_STORAGE_POSITION = 
+        keccak256("diamond.insurance.storage");
+
+    bytes32 public constant TRIP_STORAGE_POSITION = 
+        keccak256("diamond.trip.service.storage");
+
 
     struct FacetAddressAndPosition {
         address facetAddress;

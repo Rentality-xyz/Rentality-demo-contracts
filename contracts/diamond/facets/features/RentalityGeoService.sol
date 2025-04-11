@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "../../libraries/UserServiceStorage.sol";
-import "../../libraries/GeoServiceStorage.sol";
+import {UserServiceStorage} from  "../../libraries/UserServiceStorage.sol";
+import {GeoServiceStorage} from "../../libraries/GeoServiceStorage.sol";
 
 contract RentalityGeoService {
     function setVerifier(address verifier) external {

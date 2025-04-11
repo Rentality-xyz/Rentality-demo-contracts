@@ -60,6 +60,16 @@ library UserServiceStorage {
      function isSignatureManager(address user) internal view returns (bool) {
         return hasRole(accessStorage().MANAGER_ROLE, user);
    }
+   function grantHostRole(address user) internal returns(bool) {
+    UserFaucetStorage storage s = accessStorage();
+      if (!hasRole(s.HOST_ROLE, user)) {
+            s._roles[s.HOST_ROLE].hasRole[user] = true;
+            return true;
+        } else {
+            return false;
+        }
+  }
+  
 
  function accessStorage() internal pure returns (UserFaucetStorage storage ds) {
         bytes32 position = LibDiamond.ACCESS_STORAGE_POSITION;

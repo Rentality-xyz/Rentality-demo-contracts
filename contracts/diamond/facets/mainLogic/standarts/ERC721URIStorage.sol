@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import {ERC721} from "./ERC721.sol";
-import "../../../libraries/CarTokenStorage.sol";
+import {CarTokenStorage} from "../../../libraries/CarTokenStorage.sol";
 
  bytes4 constant ERC4906_INTERFACE_ID = bytes4(0x49064906);
 

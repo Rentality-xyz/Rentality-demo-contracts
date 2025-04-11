@@ -115,6 +115,28 @@ library TaxesStorage {
         s.taxIdToTaxes[taxId] = taxes;
       }
 
+  function taxExists(Schemas.LocationInfo memory locationInfo) internal view returns (uint) {
+    bytes32 cityHash =  keccak256(abi.encode(locationInfo.city));
+    bytes32 stateHash = keccak256(abi.encode(locationInfo.state));
+    bytes32 countryHash = keccak256(abi.encode(locationInfo.country));
+
+       uint taxId = getTaxesIdByHash(cityHash);
+      if (taxId > 0) {
+       return taxId;
+      }
+      taxId = getTaxesIdByHash(stateHash);
+      if (taxId > 0) {
+         return taxId;
+      }
+       taxId = getTaxesIdByHash(countryHash);
+        if (taxId > 0) {
+          return taxId;
+        }
+      
+
+    return 0;
+  }
+
      function accessStorage() internal pure returns (TaxesFaucetStorage storage ds) {
         bytes32 position = LibDiamond.TAXES_STORAGE_POSITION;
         assembly { ds.slot := position }

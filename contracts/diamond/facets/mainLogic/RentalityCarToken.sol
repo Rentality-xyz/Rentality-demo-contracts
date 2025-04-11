@@ -2,15 +2,24 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/utils/Strings.sol";
-import {ERC721URIStorage} from "./standarts/ERC721URIStorage.sol";
+import {ERC721URIStorage} from "./standarts/ERC721URItorage.sol";
 import {ERC721} from "./standarts/ERC721.sol";
-import "../..//libraries/CarTokenStorage.sol";
-import "../../libraries/UserServiceStorage.sol";
-import "../../libraries/GeoServiceStorage.sol";
-import "../../libraries/TaxesStorage.sol";
+import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
+import {CarTokenStorage} from "../..//libraries/CarTokenStorage.sol";
+import {UserServiceStorage} from "../../libraries/UserServiceStorage.sol";
+import {GeoServiceStorage} from "../../libraries/GeoServiceStorage.sol";
+import {RefferalServiceStorage} from "../../libraries/RefferalServiceStorage.sol";
+import {TaxesStorage} from "../../libraries/TaxesStorage.sol";
+import {DimoServiceStorage} from "../../libraries/DimoServiceStorage.sol";
+import {TripServiceStorage} from "../../libraries/TripServiceStorage.sol";
+import {InsuranceServiceStorage} from "../../libraries/InsuranceServiceStorage.sol";
+import {ARentalityEventManager} from "../abstract/ARentalityEventManager.sol";
+import {RentalityUtils} from "../../libraries/getters/RentalityUtils.sol";
+import '@openzeppelin/contracts/utils/cryptography/ECDSA.sol';
+import {Schemas} from '../../../Schemas.sol';
 
-contract RentalityCarToken is ERC721URIStorage {
+contract RentalityCarToken is ERC721, ARentalityEventManager {
+  using RentalityUtils for string;
 
     constructor(
         string memory name_,
@@ -20,7 +29,7 @@ contract RentalityCarToken is ERC721URIStorage {
 
     function totalSupply() public view returns (uint) {
     CarTokenStorage.CarTokenFaucetStorage storage s = CarTokenStorage.accessStorage();
-    return s._carIdCounter.current();
+    return s._carIdCounter;
   }
 
   /// @notice Retrieves information about a car based on its ID.
@@ -63,10 +72,11 @@ contract RentalityCarToken is ERC721URIStorage {
   /// @param carVinNumber The VIN number to check for uniqueness.
   /// @return True if the VIN number is unique, false otherwise.
   function isUniqueVinNumber(string memory carVinNumber) public view returns (bool) {
+    CarTokenStorage.CarTokenFaucetStorage storage s = CarTokenStorage.accessStorage();
     bytes32 carVinNumberHash = keccak256(abi.encodePacked(carVinNumber));
 
     for (uint i = 0; i < totalSupply(); i++) {
-      if (idToCarInfo[i + 1].carVinNumberHash == carVinNumberHash) return false;
+      if (s.idToCarInfo[i + 1].carVinNumberHash == carVinNumberHash) return false;
     }
 
     return true;
@@ -77,26 +87,28 @@ contract RentalityCarToken is ERC721URIStorage {
   /// @return The ID of the newly added car.
   function addCar(Schemas.CreateCarRequest memory request, address user) public returns (uint) {
 
-      RefferalProgramStorage.passReferralProgram(
+      RefferalServiceStorage.passReferralProgram(
       Schemas.RefferalProgram.AddCar,
       abi.encode(request.currentlyListed),
       msg.sender
     );
     require(TaxesStorage.taxExists(request.locationInfo.locationInfo) != 0, 'Tax not exist.');
-    CarServiceStorage.CarTokenFaucetStorage storage s = CarTokenStorage.accessStorage();
-    require(RentalityUserService.hasPassedKYCAndTC(user), 'KYC or TC has not passed.');
+
+    CarTokenStorage.CarTokenFaucetStorage storage s = CarTokenStorage.accessStorage();
+
+    require(UserServiceStorage.hasPassedKYCAndTC(user), 'KYC or TC has not passed.');
     require(request.pricePerDayInUsdCents > 0, "Make sure the price isn't negative");
     require(request.milesIncludedPerDay > 0, "Make sure the included distance isn't negative");
     require(isUniqueVinNumber(request.carVinNumber), 'Car with this VIN number already exists');
     GeoServiceStorage.verifySignedLocationInfo(request.locationInfo);
     if (!UserServiceStorage.isHost(user)) {
-      userService.grantHostRole(user);
+      UserServiceStorage.grantHostRole(user);
     }
 
     s._carIdCounter += 1;
     uint256 newCarId = s._carIdCounter;
 
-    s.engineService.verifyCreateParams(request.engineType, request.engineParams);
+    s.enginesService.verifyCreateParams(request.engineType, request.engineParams);
 
     _safeMint(user, newCarId);
     _setTokenURI(newCarId, request.tokenUri);
@@ -127,59 +139,78 @@ contract RentalityCarToken is ERC721URIStorage {
 
     if (request.currentlyListed) s.carIdToListingMoment[newCarId] = block.timestamp;
 
-    _approve(address(this), newCarId);
-
-    eventManager.emitEvent(Schemas.EventType.Car, newCarId, uint8(Schemas.CarUpdateStatus.Add), user, user);
+    _approve(address(this), newCarId, address(0));
+    bool isCorrectSignature = UserServiceStorage.isSignatureManager(
+      ECDSA.recover(ECDSA.toEthSignedMessageHash(bytes(Strings.toString(request.dimoTokenId))), request.signedDimoTokenId)
+    );
+    require(isCorrectSignature, 'Dimo signature is not correct');
+    DimoServiceStorage.saveDimoTokenId(request.dimoTokenId, newCarId);
+    InsuranceServiceStorage.saveInsuranceRequired(
+      newCarId,
+      request.insurancePriceInUsdCents,
+      request.insuranceRequired
+    );
+    emitEvent(Schemas.EventType.Car, newCarId, uint8(Schemas.CarUpdateStatus.Add), user, user);
 
     return newCarId;
   }
 
-  /// @notice Updates the information for a specific car.
-  /// @param request The input parameters for updating the car.
-  /// @param location The location for verifying geographic coordinates.
-  /// can be empty if updateLocation is false
-  /// @param updateLocation Wether update location or not
-  function updateCarInfo(
+
+ function updateCarInfoWithLocation(
     Schemas.UpdateCarInfoRequest memory request,
-    Schemas.LocationInfo memory location,
-    bool updateLocation,
-    address user
+    Schemas.SignedLocationInfo memory location
   ) public {
-    require(userService.isRentalityPlatform(msg.sender), 'only Rentality platform contract.');
+    TripServiceStorage.isCarEditable(request.carId);
+    
+    if (location.signature.length > 0)
+    GeoServiceStorage.verifySignedLocationInfo(location);
+
+     CarTokenStorage.CarTokenFaucetStorage storage s = CarTokenStorage.accessStorage();
+     RefferalServiceStorage.passReferralProgram(
+      Schemas.RefferalProgram.UnlistedCar,
+      abi.encode(s.idToCarInfo[request.carId].currentlyListed, request.currentlyListed),
+      msg.sender
+    );
+    InsuranceServiceStorage.saveInsuranceRequired(
+      request.carId,
+      request.insurancePriceInUsdCents,
+      request.insuranceRequired
+    );
     require(_exists(request.carId), 'Token does not exist');
-    require(ownerOf(request.carId) == user, 'Only the owner of the car can update car info');
+    require(ownerOf(request.carId) == msg.sender, 'Only the owner of the car can update car info');
     require(request.pricePerDayInUsdCents > 0, "Make sure the price isn't negative");
     require(request.milesIncludedPerDay > 0, "Make sure the included distance isn't negative");
 
-    if (updateLocation) {
-      idToCarInfo[request.carId].geoVerified = true;
-      bytes32 hash = geoService.createLocationInfo(location);
-      idToCarInfo[request.carId].locationHash = hash;
-      idToCarInfo[request.carId].timeZoneId = location.timeZoneId;
+    if (bytes(location.signature).length > 0) {
+      s.idToCarInfo[request.carId].geoVerified = true;
+      bytes32 hash = GeoServiceStorage.createLocationInfo(location.locationInfo);
+      s.idToCarInfo[request.carId].locationHash = hash;
+      s.idToCarInfo[request.carId].timeZoneId = location.locationInfo.timeZoneId;
     }
 
-    engineService.verifyCreateParams(request.engineType, request.engineParams);
+    s.enginesService.verifyCreateParams(request.engineType, request.engineParams);
     if (bytes(request.tokenUri).length > 0) _setTokenURI(request.carId, request.tokenUri);
 
-    idToCarInfo[request.carId].pricePerDayInUsdCents = request.pricePerDayInUsdCents;
-    idToCarInfo[request.carId].securityDepositPerTripInUsdCents = request.securityDepositPerTripInUsdCents;
-    idToCarInfo[request.carId].milesIncludedPerDay = request.milesIncludedPerDay;
-    idToCarInfo[request.carId].engineParams = request.engineParams;
-    idToCarInfo[request.carId].engineType = request.engineType;
-    idToCarInfo[request.carId].timeBufferBetweenTripsInSec = request.timeBufferBetweenTripsInSec;
-    idToCarInfo[request.carId].currentlyListed = request.currentlyListed;
+    s.idToCarInfo[request.carId].pricePerDayInUsdCents = request.pricePerDayInUsdCents;
+    s.idToCarInfo[request.carId].securityDepositPerTripInUsdCents = request.securityDepositPerTripInUsdCents;
+    s.idToCarInfo[request.carId].milesIncludedPerDay = request.milesIncludedPerDay;
+    s.idToCarInfo[request.carId].engineParams = request.engineParams;
+    s.idToCarInfo[request.carId].engineType = request.engineType;
+    s.idToCarInfo[request.carId].timeBufferBetweenTripsInSec = request.timeBufferBetweenTripsInSec;
+    s.idToCarInfo[request.carId].currentlyListed = request.currentlyListed;
 
-    bool listed = idToCarInfo[request.carId].currentlyListed;
+    bool listed = s.idToCarInfo[request.carId].currentlyListed;
 
-    if (listed && !request.currentlyListed) carIdToListingMoment[request.carId] = 0;
+    if (listed && !request.currentlyListed) s.carIdToListingMoment[request.carId] = 0;
 
-    if (!listed && request.currentlyListed) carIdToListingMoment[request.carId] = block.timestamp;
+    if (!listed && request.currentlyListed) s.carIdToListingMoment[request.carId] = block.timestamp;
 
-    eventManager.emitEvent(Schemas.EventType.Car, request.carId, uint8(Schemas.CarUpdateStatus.Update), user, user);
+   emitEvent(Schemas.EventType.Car, request.carId, uint8(Schemas.CarUpdateStatus.Update), msg.sender, msg.sender);
   }
 
   function getListingMoment(uint carId) public view returns (uint) {
-    return carIdToListingMoment[carId];
+    CarTokenStorage.CarTokenFaucetStorage storage s = CarTokenStorage.accessStorage();
+    return s.carIdToListingMoment[carId];
   }
 
   /// @notice Updates the token URI associated with a specific car.
@@ -197,18 +228,18 @@ contract RentalityCarToken is ERC721URIStorage {
   function burnCar(uint256 carId) public {
     require(_exists(carId), 'Token does not exist');
     require(ownerOf(carId) == msg.sender, 'Only the owner of the car can burn the token');
-
+    CarTokenStorage.CarTokenFaucetStorage storage s = CarTokenStorage.accessStorage();
     _burn(carId);
-    delete idToCarInfo[carId];
+    delete s.idToCarInfo[carId];
 
-    eventManager.emitEvent(Schemas.EventType.Car, carId, uint8(Schemas.CarUpdateStatus.Burn), msg.sender, msg.sender);
+   emitEvent(Schemas.EventType.Car, carId, uint8(Schemas.CarUpdateStatus.Burn), msg.sender, msg.sender);
   }
   /// @notice temporary disable transfer function
-  function transferFrom(address, address, uint256) public pure override(ERC721Upgradeable, IERC721Upgradeable) {
+  function transferFrom(address, address, uint256) public pure override(ERC721) {
     require(false, 'Not implemented.');
   }
   /// @notice temporary disable transfer function
-  function safeTransferFrom(address, address, uint256) public virtual override(ERC721Upgradeable, IERC721Upgradeable) {
+  function safeTransferFrom(address, address, uint256) public virtual override(ERC721) {
     require(false, 'Not implemented.');
   }
   /// @notice temporary disable transfer function
@@ -217,13 +248,14 @@ contract RentalityCarToken is ERC721URIStorage {
     address,
     uint256,
     bytes memory
-  ) public virtual override(ERC721Upgradeable, IERC721Upgradeable) {
+  ) public virtual override(ERC721) {
     require(false, 'Not implemented.');
   }
 
   /// @notice Retrieves information about all cars in the system.
   /// @return An array containing information about all cars.
   function getAllCars() public view returns (Schemas.CarInfo[] memory) {
+    CarTokenStorage.CarTokenFaucetStorage storage s = CarTokenStorage.accessStorage();
     uint itemCount = 0;
 
     for (uint i = 0; i < totalSupply(); i++) {
@@ -238,19 +270,16 @@ contract RentalityCarToken is ERC721URIStorage {
     uint elementsCounter = 0;
     for (uint i = 0; i < totalSupply(); i++) {
       if (_exists(i + 1)) {
-        result[elementsCounter++] = idToCarInfo[i + 1];
+        result[elementsCounter++] = s.idToCarInfo[i + 1];
       }
     }
 
     return result;
   }
 
-  /// @notice Checks if a car is available for a specific user.
-  /// @param carId The ID of the car.
-  /// @param sender The address of the user.
-  /// @return True if the car is available for the user, false otherwise.
-  function isCarAvailableForUser(uint256 carId, address sender) private view returns (bool) {
-    return _exists(carId) && idToCarInfo[carId].currentlyListed && ownerOf(carId) != sender;
+  function isCarAvailableForUser(uint256 carId, address user) private view returns (bool) {
+     CarTokenStorage.CarTokenFaucetStorage storage s = CarTokenStorage.accessStorage();
+    return _exists(carId) && s.idToCarInfo[carId].currentlyListed && ownerOf(carId) != user;
   }
 
   /// @notice Retrieves available cars for a specific user.
@@ -258,6 +287,7 @@ contract RentalityCarToken is ERC721URIStorage {
   /// @param user The address of the user.
   /// @return An array containing information about available cars for the user.
   function getAvailableCarsForUser(address user) public view returns (Schemas.CarInfo[] memory) {
+    CarTokenStorage.CarTokenFaucetStorage storage s = CarTokenStorage.accessStorage();
     uint itemCount = 0;
 
     for (uint i = 0; i < totalSupply(); i++) {
@@ -273,7 +303,7 @@ contract RentalityCarToken is ERC721URIStorage {
     for (uint i = 0; i < totalSupply(); i++) {
       uint currentId = i + 1;
       if (isCarAvailableForUser(currentId, user)) {
-        Schemas.CarInfo storage currentItem = idToCarInfo[currentId];
+        Schemas.CarInfo storage currentItem = s.idToCarInfo[currentId];
         result[currentIndex] = currentItem;
         currentIndex += 1;
       }
@@ -284,19 +314,19 @@ contract RentalityCarToken is ERC721URIStorage {
   /// @notice Checks if a car is available for a specific user based on search parameters.
   /// @dev Determines availability based on several conditions, including ownership and search parameters.
   /// @param carId The ID of the car being checked.
-  /// @param sender The address of the user checking availability.
   /// @param searchCarParams The parameters used to filter available cars.
   /// @return A boolean indicating whether the car is available for the user.
   function isCarAvailableForUser(
     uint256 carId,
-    address sender,
+    address user,
     Schemas.SearchCarParams memory searchCarParams
   ) public view returns (bool) {
+    CarTokenStorage.CarTokenFaucetStorage storage s = CarTokenStorage.accessStorage();
     return
       _exists(carId) &&
-      idToCarInfo[carId].currentlyListed &&
-      ownerOf(carId) != sender &&
-      RentalityUtils.isCarAvailableForUser(carId, searchCarParams, address(this), address(geoService));
+      s.idToCarInfo[carId].currentlyListed &&
+      ownerOf(carId) != user &&
+      _isCarAvailableForUser(carId, searchCarParams);
   }
 
   /// @notice Fetches available cars for a specific user based on search parameters.
@@ -308,6 +338,7 @@ contract RentalityCarToken is ERC721URIStorage {
     address user,
     Schemas.SearchCarParams memory searchCarParams
   ) public view returns (Schemas.CarInfo[] memory) {
+    CarTokenStorage.CarTokenFaucetStorage storage s = CarTokenStorage.accessStorage();
     uint itemCount = 0;
 
     // Count the number of available cars for the user.
@@ -326,7 +357,7 @@ contract RentalityCarToken is ERC721URIStorage {
     for (uint i = 0; i < totalSupply(); i++) {
       uint currentId = i + 1;
       if (isCarAvailableForUser(currentId, user, searchCarParams)) {
-        Schemas.CarInfo memory currentItem = idToCarInfo[currentId];
+        Schemas.CarInfo memory currentItem = s.idToCarInfo[currentId];
         result[currentIndex] = currentItem;
         currentIndex += 1;
       }
@@ -349,6 +380,7 @@ contract RentalityCarToken is ERC721URIStorage {
   /// @param user The address of the user for whom to fetch owned cars.
   /// @return An array of CarInfo representing the cars owned by the user.
   function getCarsOwnedByUser(address user) public view returns (Schemas.CarInfo[] memory) {
+    CarTokenStorage.CarTokenFaucetStorage storage s = CarTokenStorage.accessStorage();
     uint itemCount = 0;
 
     // Count the number of cars owned by the user.
@@ -367,7 +399,7 @@ contract RentalityCarToken is ERC721URIStorage {
     for (uint i = 0; i < totalSupply(); i++) {
       uint currentId = i + 1;
       if (isCarOfUser(currentId, user)) {
-        Schemas.CarInfo memory currentItem = idToCarInfo[currentId];
+        Schemas.CarInfo memory currentItem = s.idToCarInfo[currentId];
         result[currentIndex] = currentItem;
         currentIndex += 1;
       }
@@ -380,7 +412,33 @@ contract RentalityCarToken is ERC721URIStorage {
   /// @dev This function checks the validity of the signed location information using the geoService.
   /// @param locationInfo The signed location information that needs to be verified.
   function verifySignedLocationInfo(Schemas.SignedLocationInfo memory locationInfo) public view {
-    geoService.verifySignedLocationInfo(locationInfo);
+    GeoServiceStorage.verifySignedLocationInfo(locationInfo);
+  }
+
+    function _isCarAvailableForUser(
+    uint256 carId,
+    Schemas.SearchCarParams memory searchCarParams
+  ) internal view returns (bool) {
+  CarTokenStorage.CarTokenFaucetStorage storage s = CarTokenStorage.accessStorage();
+    Schemas.CarInfo memory car = s.idToCarInfo[carId];
+    return
+      (bytes(searchCarParams.brand).length == 0 || car.brand.toLower().containWord(searchCarParams.brand.toLower())) &&
+      (bytes(searchCarParams.model).length == 0 || car.model.toLower().containWord( searchCarParams.model.toLower())) &&
+      (bytes(searchCarParams.country).length == 0 ||
+        GeoServiceStorage.getCarCountry(car.locationHash).toLower().containWord(searchCarParams.country.toLower())) &&
+      (bytes(searchCarParams.state).length == 0 ||
+        GeoServiceStorage.getCarState(car.locationHash).toLower().containWord(searchCarParams.state.toLower())) &&
+      (bytes(searchCarParams.city).length == 0 ||
+        GeoServiceStorage.getCarCity(car.locationHash).toLower().containWord(searchCarParams.city.toLower())) &&
+      (searchCarParams.yearOfProductionFrom == 0 || car.yearOfProduction >= searchCarParams.yearOfProductionFrom) &&
+      (searchCarParams.yearOfProductionTo == 0 || car.yearOfProduction <= searchCarParams.yearOfProductionTo) &&
+      (searchCarParams.pricePerDayInUsdCentsFrom == 0 ||
+        car.pricePerDayInUsdCents >= searchCarParams.pricePerDayInUsdCentsFrom) &&
+      (searchCarParams.pricePerDayInUsdCentsTo == 0 ||
+        car.pricePerDayInUsdCents <= searchCarParams.pricePerDayInUsdCentsTo);
+  }
+  function _exists(uint256 carId) private view returns (bool) {
+    return _ownerOf(carId) != address(0);
   }
 
 

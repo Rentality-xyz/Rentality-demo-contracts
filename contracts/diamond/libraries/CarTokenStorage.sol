@@ -32,6 +32,13 @@ library CarTokenStorage {
 
 }
 
+    function ownerOf(uint tokenId) internal view returns(address) {
+        address owner = accessStorage()._owners[tokenId];
+        require(owner != address(0), "ERC721: owner query for nonexistent token");
+        return owner;
+    }
+
+
      function accessStorage() internal pure returns (CarTokenFaucetStorage storage ds) {
         bytes32 position = LibDiamond.CAR_TOKEN_STORAGE_POSSITION;
         assembly { ds.slot := position }
