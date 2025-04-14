@@ -127,33 +127,23 @@ contract RentalityInvestment is Initializable, UUPSAccess {
     investments = new Schemas.InvestmentDTO[](investmentId);
     for (uint i = 1; i <= investmentId; i++) {
       uint income = 0;
-      uint myIncomeInUsdCents = 0;
+      uint myIncome = 0;
       bool isBought = address(investIdToPool[i]) != address(0);
       address currency = investmentIdToCurrency[i];
       (uint[] memory tokens, uint iInvested, uint totalHolders, uint totalTokens) = RentalityViewLib
         .getAllMyTokensWithTotalPrice(msg.sender, investIdToNft[i]);
       (uint payed, , ) = converter.getToUsdLatest(currency, investmentIdToPayedInETH[i]);
       if (isBought) {
-        (income, , ) = converter.getToUsdLatest(currency, _getTotalIncome(investIdToPool[i]));
-        uint myIncome = _getTotalIncomeByNFTs(tokens, investIdToPool[i], investIdToNft[i]);
+        income  = _getTotalIncome(investIdToPool[i]);
+       myIncome = _getTotalIncomeByNFTs(tokens, investIdToPool[i], investIdToNft[i]);
 
-        (myIncomeInUsdCents, , ) = converter.getToUsdLatest(currency, myIncome);
       }
-      (uint percentages, uint investInUsd) = RentalityViewLib.calculatePercentage(
+      (uint percentages,) = RentalityViewLib.calculatePercentage(
         iInvested,
         investmentIdToCarInfo[i].priceInCurrency,
         converter
       );
-      uint totalEarnings = !isBought ? 0 : 
-      _calculatePriceInCurrency(
-      currency,
-       investIdToPool[i].getTotalEarnings()
-      );
-      uint totalEarningsByUser = !isBought ? 0 :
-       _calculatePriceInCurrency(
-        currency,
-        investIdToPool[i].getTotalEarningsByUser(msg.sender)
-      );
+           
       (uint priceInUsdCents, , ) = converter.getToUsdLatest(currency, investmentIdToCarInfo[i].priceInCurrency);
     
       investments[i - 1] = Schemas.InvestmentDTO(
@@ -164,7 +154,7 @@ contract RentalityInvestment is Initializable, UUPSAccess {
         investmentIdToCreator[i],
         isBought,
         income,
-        myIncomeInUsdCents,
+        myIncome,
         iInvested,
         isBought ? investIdToPool[i].creationDate() : 0,
         tokens.length,
@@ -172,8 +162,8 @@ contract RentalityInvestment is Initializable, UUPSAccess {
         totalHolders,
         totalTokens,
         currency,
-        totalEarnings,
-        totalEarningsByUser,
+        !isBought ? 0 : investIdToPool[i].getTotalEarnings(),
+        !isBought ? 0 : investIdToPool[i].getTotalEarningsByUser(msg.sender),
         investIdToNft[i].name(),
         investIdToNft[i].symbol(),
         priceInUsdCents,
@@ -181,13 +171,7 @@ contract RentalityInvestment is Initializable, UUPSAccess {
       );
     }
   }
-  function _calculatePriceInCurrency(address currency, uint amount) private view returns(uint) {
-         (uint result, , ) = converter.getToUsdLatest(
-      currency,
-      amount
-    );
-    return result;
-  }
+ 
 
   function claimAllMy(uint investId) public {
     (uint[] memory tokens, , , ) = RentalityViewLib.getAllMyTokensWithTotalPrice(msg.sender, investIdToNft[investId]);
