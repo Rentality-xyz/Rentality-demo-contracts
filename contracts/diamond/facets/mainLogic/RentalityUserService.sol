@@ -175,13 +175,13 @@ contract RentalityUserService is IAccessControl {
 
     address sender = msg.sender;
     RefferalServiceStorage.generateReferralHash(sender);
-    bool isGuest = _isGuest(sender);
-    RefferalServiceStorage.saveRefferalHash(hash, isGuest, sender);
+    bool isUserGuest = _isGuest(sender);
+    RefferalServiceStorage.saveRefferalHash(hash, isUserGuest, sender);
     RefferalServiceStorage.passReferralProgram(Schemas.RefferalProgram.SetKYC, bytes(''), sender);
     
     UserServiceStorage.UserFaucetStorage storage s = UserServiceStorage.accessStorage();
 
-     if (isGuest) {
+     if (isUserGuest) {
       _grantRole(s.GUEST_ROLE, sender);
     }
     bool isTCPassed = isValidSignatureNow(sender, s.TCMessageHash, TCSignature);

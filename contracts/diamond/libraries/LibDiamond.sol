@@ -23,7 +23,7 @@ library LibDiamond {
     bytes32 public constant REFFERAL_STORAGE_POSSITION = 
         keccak256("diamond.refferal.service.storage");
 
-    bytes32 public constant CAR_TOKEN_STORAGE_POSSITION = 
+    bytes32 public constant CAR_TOKEN_STORAGE_POSITION = 
         keccak256("diamond.car.token.storage");
 
     bytes32 public constant GEO_SERVICE_STORAGE_POSITION = 
@@ -40,6 +40,14 @@ library LibDiamond {
 
     bytes32 public constant TRIP_STORAGE_POSITION = 
         keccak256("diamond.trip.service.storage");
+
+    bytes32 public constant CURRENCY_CONVERTER_STORAGE_POSITION =
+        keccak256("diamond.currency.converter.storage");
+    bytes32 public constant DELIVERY_STORAGE_POSITION =
+        keccak256("diamond.delivery.storage");
+
+    bytes32 public constant PAYMENTS_STORAGE_POSITION = 
+        keccak256("diamond.payments.storage");
 
 
     struct FacetAddressAndPosition {

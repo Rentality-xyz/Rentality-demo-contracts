@@ -37,10 +37,18 @@ library CarTokenStorage {
         require(owner != address(0), "ERC721: owner query for nonexistent token");
         return owner;
     }
+      /// @notice Retrieves information about a car based on its ID.
+  /// @param carId The ID of the car.
+  /// @return A struct containing information about the specified car.
+  function getCarInfoById(uint256 carId) internal view returns (Schemas.CarInfo memory) {
+    CarTokenFaucetStorage storage s = accessStorage();
+    return s.idToCarInfo[carId];
+  }
+
 
 
      function accessStorage() internal pure returns (CarTokenFaucetStorage storage ds) {
-        bytes32 position = LibDiamond.CAR_TOKEN_STORAGE_POSSITION;
+        bytes32 position = LibDiamond.CAR_TOKEN_STORAGE_POSITION;
         assembly { ds.slot := position }
     }
 }

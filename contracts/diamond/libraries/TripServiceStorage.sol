@@ -44,8 +44,33 @@ library TripServiceStorage {
             }
     }
 
-    return true;
+            return true;
   }
+
+         function getActiveTrips(uint carId) internal view returns (uint[] memory) {
+            TripServiceFaucetStorage storage s = accessStorage();
+            return s.carIdToActiveTrips[carId];
+        }
+        function getCarTrips(uint carId) internal view returns (uint[] memory) {
+            TripServiceFaucetStorage storage s = accessStorage();
+            return s.carIdToTrips[carId];
+        }
+        function getActiveTripsByUser(address host) internal view returns (uint[] memory) {
+            TripServiceFaucetStorage storage s = accessStorage();
+            return s.userToActiveTrips[host];
+        }
+        function getTripsByUser(address host) internal view returns (uint[] memory) {
+            TripServiceFaucetStorage storage s = accessStorage();
+            return s.userToTrips[host];
+        }
+         function totalTripCount() internal view returns (uint) {
+            TripServiceFaucetStorage storage s = accessStorage();
+            return s._tripIdCounter;
+        }
+        function incrementTripIdCounter() internal {
+            TripServiceFaucetStorage storage s = accessStorage();
+            s._tripIdCounter++;
+        }
 
          function accessStorage() internal pure returns (TripServiceFaucetStorage storage ds) {
         bytes32 position = LibDiamond.TRIP_STORAGE_POSITION;

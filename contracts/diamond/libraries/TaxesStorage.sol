@@ -4,6 +4,8 @@ pragma solidity ^0.8.0;
 import { Schemas } from "../../Schemas.sol";
 import { LibDiamond } from "./LibDiamond.sol";
 import { RentalityEnginesService } from "../../engine/RentalityEnginesService.sol";
+import {GeoServiceStorage} from "./GeoServiceStorage.sol";
+import {CarTokenStorage} from "./CarTokenStorage.sol";
 
 library TaxesStorage { 
 
@@ -11,6 +13,8 @@ library TaxesStorage {
         mapping(uint => Schemas.TaxValue[]) tripIdToTaxes;
         mapping(uint => Schemas.TaxValue[]) taxIdToTaxes;
         mapping(bytes32 => uint) taxesLocationHashToTaxId;
+        
+        uint defaultTax;
     }
 
     /// @notice Calculates the total taxes for a trip based on trip duration and total cost.
@@ -135,6 +139,31 @@ library TaxesStorage {
       
 
     return 0;
+  }
+
+   function defineTaxesType(uint carId) public view returns (uint) {
+    TaxesFaucetStorage storage s = accessStorage();
+    bytes32 carLocationHash = CarTokenStorage.getCarInfoById(carId).locationHash;
+
+    bytes32 cityHash = keccak256(abi.encode(GeoServiceStorage.getCarCity(carLocationHash)));
+    bytes32 stateHash = keccak256(abi.encode(GeoServiceStorage.getCarState(carLocationHash)));
+    bytes32 countryHash = keccak256(abi.encode(GeoServiceStorage.getCarCountry(carLocationHash)));
+
+    uint taxId = getTaxesIdByHash(cityHash);
+      if (taxId > 0) {
+       return taxId;
+      }
+      taxId =  getTaxesIdByHash(stateHash);
+      if (taxId > 0) {
+         return taxId;
+      }
+       taxId =  getTaxesIdByHash(countryHash);
+        if (taxId > 0) {
+          return taxId;
+        }
+      
+
+    return s.defaultTax;
   }
 
      function accessStorage() internal pure returns (TaxesFaucetStorage storage ds) {

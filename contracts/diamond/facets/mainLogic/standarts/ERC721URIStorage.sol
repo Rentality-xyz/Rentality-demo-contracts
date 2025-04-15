@@ -8,18 +8,18 @@ import {CarTokenStorage} from "../../../libraries/CarTokenStorage.sol";
 
  bytes4 constant ERC4906_INTERFACE_ID = bytes4(0x49064906);
 
-   event MetadataUpdate(uint256 _tokenId);
+abstract contract ERC721URIStorage is ERC721 {
 
-  event BatchMetadataUpdate(uint256 _fromTokenId, uint256 _toTokenId);
+    event MetadataUpdate(uint256 _tokenId);
 
-abstract contract ERC721URIStorage is ERC721, IERC165 {
+    event BatchMetadataUpdate(uint256 _fromTokenId, uint256 _toTokenId);
     using Strings for uint256;
 
 
     /**
      * @dev See {IERC165-supportsInterface}
      */
-    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721, IERC165) returns (bool) {
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721) returns (bool) {
         return interfaceId == ERC4906_INTERFACE_ID || super.supportsInterface(interfaceId);
     }
 

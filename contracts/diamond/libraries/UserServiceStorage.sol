@@ -49,7 +49,7 @@ library UserServiceStorage {
     UserServiceStorage.UserFaucetStorage storage s = UserServiceStorage.accessStorage();
     return hasRole(s.DEFAULT_ADMIN_ROLE, user);
   }
-  function isHost(address user) public view returns (bool) {
+  function isHost(address user) internal view returns (bool) {
     return hasRole(accessStorage().HOST_ROLE, user);
   }
 
@@ -69,6 +69,24 @@ library UserServiceStorage {
             return false;
         }
   }
+
+    function getKYCInfo(address user) internal view returns (Schemas.KYCInfo memory kycInfo) {
+        UserFaucetStorage storage s = accessStorage();
+        return s.kycInfos[user];
+  }
+
+  function isCommissionPaidForUser(address user) internal view returns (bool) {
+    UserFaucetStorage storage s = accessStorage();
+    Schemas.KycCommissionData[] memory commissions = s.userToKYCCommission[user];
+    if (commissions.length == 0) return false;
+    return commissions[commissions.length - 1].commissionPaid;
+  }
+
+   function payCommission(address user) internal {
+    UserFaucetStorage storage s = accessStorage();
+    s.userToKYCCommission[user].push(Schemas.KycCommissionData(block.timestamp, true));
+  }
+
   
 
  function accessStorage() internal pure returns (UserFaucetStorage storage ds) {

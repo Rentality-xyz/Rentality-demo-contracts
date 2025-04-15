@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import {ERC721URIStorage} from "./standarts/ERC721URItorage.sol";
+import {ERC721URIStorage} from "./standarts/ERC721URIStorage.sol";
 import {ERC721} from "./standarts/ERC721.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {CarTokenStorage} from "../..//libraries/CarTokenStorage.sol";
@@ -17,8 +17,9 @@ import {ARentalityEventManager} from "../abstract/ARentalityEventManager.sol";
 import {RentalityUtils} from "../../libraries/getters/RentalityUtils.sol";
 import '@openzeppelin/contracts/utils/cryptography/ECDSA.sol';
 import {Schemas} from '../../../Schemas.sol';
+import {RentalityCarTokenHelper} from "../../libraries/getters/RentalityCarTokenHelper.sol";
 
-contract RentalityCarToken is ERC721, ARentalityEventManager {
+contract RentalityCarToken is ERC721URIStorage, ARentalityEventManager {
   using RentalityUtils for string;
 
     constructor(
@@ -36,8 +37,7 @@ contract RentalityCarToken is ERC721, ARentalityEventManager {
   /// @param carId The ID of the car.
   /// @return A struct containing information about the specified car.
   function getCarInfoById(uint256 carId) public view returns (Schemas.CarInfo memory) {
-    CarTokenStorage.CarTokenFaucetStorage storage s = CarTokenStorage.accessStorage();
-    return s.idToCarInfo[carId];
+    return CarTokenStorage.getCarInfoById(carId);
   }
 
   /// @notice Retrieves the cars owned by a specific host.
@@ -326,7 +326,7 @@ contract RentalityCarToken is ERC721, ARentalityEventManager {
       _exists(carId) &&
       s.idToCarInfo[carId].currentlyListed &&
       ownerOf(carId) != user &&
-      _isCarAvailableForUser(carId, searchCarParams);
+      RentalityCarTokenHelper._isCarAvailableForUser(carId, searchCarParams);
   }
 
   /// @notice Fetches available cars for a specific user based on search parameters.
@@ -411,32 +411,11 @@ contract RentalityCarToken is ERC721, ARentalityEventManager {
   /// @notice Verifies the authenticity of the signed location information.
   /// @dev This function checks the validity of the signed location information using the geoService.
   /// @param locationInfo The signed location information that needs to be verified.
-  function verifySignedLocationInfo(Schemas.SignedLocationInfo memory locationInfo) public view {
+  function verifySignedLocationInfo(Schemas.SignedLocationInfo memory locationInfo) internal view {
     GeoServiceStorage.verifySignedLocationInfo(locationInfo);
   }
 
-    function _isCarAvailableForUser(
-    uint256 carId,
-    Schemas.SearchCarParams memory searchCarParams
-  ) internal view returns (bool) {
-  CarTokenStorage.CarTokenFaucetStorage storage s = CarTokenStorage.accessStorage();
-    Schemas.CarInfo memory car = s.idToCarInfo[carId];
-    return
-      (bytes(searchCarParams.brand).length == 0 || car.brand.toLower().containWord(searchCarParams.brand.toLower())) &&
-      (bytes(searchCarParams.model).length == 0 || car.model.toLower().containWord( searchCarParams.model.toLower())) &&
-      (bytes(searchCarParams.country).length == 0 ||
-        GeoServiceStorage.getCarCountry(car.locationHash).toLower().containWord(searchCarParams.country.toLower())) &&
-      (bytes(searchCarParams.state).length == 0 ||
-        GeoServiceStorage.getCarState(car.locationHash).toLower().containWord(searchCarParams.state.toLower())) &&
-      (bytes(searchCarParams.city).length == 0 ||
-        GeoServiceStorage.getCarCity(car.locationHash).toLower().containWord(searchCarParams.city.toLower())) &&
-      (searchCarParams.yearOfProductionFrom == 0 || car.yearOfProduction >= searchCarParams.yearOfProductionFrom) &&
-      (searchCarParams.yearOfProductionTo == 0 || car.yearOfProduction <= searchCarParams.yearOfProductionTo) &&
-      (searchCarParams.pricePerDayInUsdCentsFrom == 0 ||
-        car.pricePerDayInUsdCents >= searchCarParams.pricePerDayInUsdCentsFrom) &&
-      (searchCarParams.pricePerDayInUsdCentsTo == 0 ||
-        car.pricePerDayInUsdCents <= searchCarParams.pricePerDayInUsdCentsTo);
-  }
+  
   function _exists(uint256 carId) private view returns (bool) {
     return _ownerOf(carId) != address(0);
   }
