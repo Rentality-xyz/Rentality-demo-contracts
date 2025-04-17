@@ -8,7 +8,7 @@ import { DeliveryStorage } from "../../libraries/DeliveryStorage.sol";
 import { UserServiceStorage } from "../../libraries/UserServiceStorage.sol";
 import { CurrencyConverterStorage } from "../../libraries/CurrencyConverterStorage.sol";
 import { TripServiceStorage } from "../../libraries/TripServiceStorage.sol";
-
+import "@openzeppelin/contracts/utils/math/Math.sol";
 library RentalityTripsHelper {
     
     
@@ -20,7 +20,7 @@ library RentalityTripsHelper {
     uint64 startDateTime,
     uint64 endDateTime,
     address user
-  ) internal view {
+  ) public view {
     require(UserServiceStorage.hasPassedKYCAndTC(user), 'KYC or TC not passed.');
     require(CurrencyConverterStorage.currencyTypeIsAvailable(currencyType), 'Token is not available.');
     require(CarTokenStorage.ownerOf(carId) != user, 'Car is not available for creator');
@@ -64,7 +64,7 @@ library RentalityTripsHelper {
     
     function calculateDelivery(
     Schemas.CreateTripRequestWithDelivery memory request
-  ) internal view returns (uint64, uint64) {
+  ) public view returns (uint64, uint64) {
     Schemas.CarInfo memory carInfo = CarTokenStorage.getCarInfoById(request.carId);
     bytes32 locationHash = carInfo.locationHash;
     (uint64 pickUp, uint64 dropOf) = DeliveryStorage.calculatePricesByDeliveryDataInUsdCents(
@@ -154,5 +154,68 @@ library RentalityTripsHelper {
 
     return (paymentInfo, valueSumInCurrency, valueSumInCurrencyBeforePromo, priceWithPromo, usePromo);
   }
+
+    function getTripsForCarThatIntersect(
+    uint256 carId,
+    uint64 startDateTime,
+    uint64 endDateTime
+  ) public view returns (Schemas.Trip[] memory) {
+    uint itemCount = 0;
+    uint32 timeBuffer = CarTokenStorage.getCarInfoById(carId).timeBufferBetweenTripsInSec;
+    uint[] memory trips = TripServiceStorage.getActiveTrips(carId);
+    for (uint i = 0; i < trips.length; i++) {
+      uint currentId = i + 1;
+      Schemas.Trip memory trip = TripServiceStorage.getTrip(currentId);
+      if (isCarThatIntersect(trip, carId, startDateTime, endDateTime + timeBuffer)) {
+        itemCount += 1;
+      }
+    }
+
+    Schemas.Trip[] memory result = new Schemas.Trip[](itemCount);
+    uint currentIndex = 0;
+
+    for (uint i = 0; i < trips.length; i++) {
+      uint currentId = i + 1;
+      Schemas.Trip memory trip = TripServiceStorage.getTrip(currentId);
+      if (isCarThatIntersect(trip, carId, startDateTime, endDateTime + timeBuffer)) {
+        result[currentIndex] = trip;
+        currentIndex += 1;
+      }
+    }
+
+    return result;
+  }
+
+   function isCarThatIntersect(
+    Schemas.Trip memory trip,
+    uint256 carId,
+    uint64 startDateTime,
+    uint64 endDateTime
+  ) public view returns (bool) {
+    return (trip.carId == carId) && (trip.endDateTime > startDateTime) && (trip.startDateTime < endDateTime);
+  }
+
+    function getResolveAmountInUsdCents(
+    uint8 eType,
+    Schemas.Trip memory tripInfo,
+    uint64[] memory engineParams
+  ) public view returns (uint64, uint64) {
+    uint64 duration = tripInfo.endDateTime - tripInfo.startDateTime;
+    uint64 tripDays = uint64(Math.ceilDiv(duration, 1 days));
+    CarTokenStorage.CarTokenFaucetStorage storage s = CarTokenStorage.accessStorage();
+
+    return
+      s.enginesService.getResolveAmountInUsdCents(
+        eType,
+        tripInfo.fuelPrice,
+        tripInfo.startParamLevels,
+        tripInfo.endParamLevels,
+        engineParams,
+        tripInfo.milesIncludedPerDay,
+        tripInfo.pricePerDayInUsdCents,
+        tripDays
+      );
+  }
+
 
 }

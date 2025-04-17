@@ -45,7 +45,18 @@ library CarTokenStorage {
     return s.idToCarInfo[carId];
   }
 
+  function tokenUri(uint256 tokenId) internal view returns (string memory) {
+        CarTokenFaucetStorage storage s = accessStorage();
+        require(s._owners[tokenId] != address(0), "ERC721: URI query for nonexistent token");
+        string memory _tokenURI = s._tokenURIs[tokenId];
+        return _tokenURI;
+  }
 
+
+
+  function _exists(uint256 tokenId) internal view returns (bool) {
+        return accessStorage()._owners[tokenId] != address(0);
+    }
 
      function accessStorage() internal pure returns (CarTokenFaucetStorage storage ds) {
         bytes32 position = LibDiamond.CAR_TOKEN_STORAGE_POSITION;

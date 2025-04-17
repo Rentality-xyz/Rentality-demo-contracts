@@ -1,16 +1,18 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "../../../Schemas.sol";
-import "../../libraries/TripServiceStorage.sol";
-import "../../libraries/CarTokenStorage.sol";
-import "../../libraries/TaxesStorage.sol";
-import "../../libraries/CurrencyConverterStorage.sol";
-import "../../libraries/UserServiceStorage.sol";
-import "../../libraries/getters/RentalityTripsHelper.sol";
-import "../../libraries/getters/RentalityUtils.sol";
-import "../../libraries/InsuranceServiceStorage.sol";
+import {Schemas} from "../../../Schemas.sol";
+import {TripServiceStorage} from "../../libraries/TripServiceStorage.sol";
+import {CarTokenStorage} from "../../libraries/CarTokenStorage.sol";
+import {TaxesStorage} from "../../libraries/TaxesStorage.sol";
+import {CurrencyConverterStorage} from "../../libraries/CurrencyConverterStorage.sol";
+import {UserServiceStorage} from "../../libraries/UserServiceStorage.sol";
+import {RentalityTripsHelper} from "../../libraries/getters/RentalityTripsHelper.sol";
+import {RentalityUtils} from "../../libraries/getters/RentalityUtils.sol";
+import {InsuranceServiceStorage} from "../../libraries/InsuranceServiceStorage.sol";
 import {PaymentsStorage} from "../../libraries/PaymentsStorage.sol";
+import {RefferalServiceStorage} from "../../libraries/RefferalServiceStorage.sol";
+import {GeoServiceStorage} from "../../libraries/GeoServiceStorage.sol";
 import {ARentalityEventManager} from "../abstract/ARentalityEventManager.sol";
 
 struct CreateTripRequestParams {
@@ -170,77 +172,100 @@ contract RentalityTripService is ARentalityEventManager {
     return tripId;
   }
 
-//   /// @notice Approves a trip by changing its status to Approved.
-//   ///  Requirements:
-//   ///   - Only the host of the trip can approve it.
-//   ///   - The trip must be in status Created.
-//   ///  @param tripId The ID of the trip to be approved.
-//   function approveTrip(uint256 tripId, address user) public {
-//     require(addresses.userService.isRentalityPlatform(msg.sender), 'only Rentality platform contract.');
-//     address host = idToTripInfo[tripId].host;
-//     require(host == user, 'Only host of the trip can approve it');
-//     require(idToTripInfo[tripId].status == Schemas.TripStatus.Created, 'The trip is not in status Created');
+  /// @notice Approves a trip by changing its status to Approved.
+  ///  Requirements:
+  ///   - Only the host of the trip can approve it.
+  ///   - The trip must be in status Created.
+  ///  @param tripId The ID of the trip to be approved.
+  function approveTrip(uint256 tripId) public {
+    Schemas.Trip memory trip = TripServiceStorage.getTrip(tripId);
+    Schemas.Trip[] memory intersectedTrips = RentalityTripsHelper.getTripsForCarThatIntersect(
+      trip.carId,
+      trip.startDateTime,
+      trip.endDateTime
+    );
+    if (intersectedTrips.length > 0) {
+      for (uint256 i = 0; i < intersectedTrips.length; i++) {
+        if (intersectedTrips[i].status == Schemas.TripStatus.Created) {
+          rejectTripRequest(intersectedTrips[i].tripId);
+        }
+      }
+    }
+    TripServiceStorage.TripServiceFaucetStorage storage s = TripServiceStorage.accessStorage();
+    address host = trip.host;
+    require(host == msg.sender, 'Only host of the trip can approve it');
+    require(trip.status == Schemas.TripStatus.Created, 'The trip is not in status Created');
 
-//     idToTripInfo[tripId].status = Schemas.TripStatus.Approved;
-//     idToTripInfo[tripId].approvedDateTime = block.timestamp;
+    s.idToTripInfo[tripId].status = Schemas.TripStatus.Approved;
+    s.idToTripInfo[tripId].approvedDateTime = block.timestamp;
 
-//     eventManager.emitEvent(
-//       Schemas.EventType.Trip,
-//       tripId,
-//       uint8(Schemas.TripStatus.Approved),
-//       host,
-//       idToTripInfo[tripId].guest
-//     );
-//   }
+    emitEvent(
+      Schemas.EventType.Trip,
+      tripId,
+      uint8(Schemas.TripStatus.Approved),
+      host,
+      s.idToTripInfo[tripId].guest
+    );
+  }
 
 //   /// @notice Reject a trip by changing its status to Canceled.
 //   ///  Requirements:
 //   ///   - Only the host or guest of the trip can reject it.
 //   ///   - The trip must be in status Created, Approved, or CheckedInByHost.
 //   ///  @param tripId The ID of the trip to be Rejected
-//   function rejectTrip(
-//     uint256 tripId,
-//     uint256 rentalityFee,
-//     uint256 depositRefund,
-//     uint256 tripEarnings,
-//     address user
-//   ) public {
-//     require(addresses.userService.isRentalityPlatform(msg.sender), 'only Rentality platform contract.');
-//     Schemas.TripStatus status = idToTripInfo[tripId].status;
+  function rejectTripRequest(
+    uint256 tripId
+  ) public {
+    TripServiceStorage.TripServiceFaucetStorage storage s = TripServiceStorage.accessStorage();
+    Schemas.Trip memory trip = s.idToTripInfo[tripId];
 
-//     address host = idToTripInfo[tripId].host;
-//     address guest = idToTripInfo[tripId].guest;
-//     bool controversialSituation = addresses.userService.isAdmin(user) && status == Schemas.TripStatus.CheckedOutByHost;
+    uint insurance = InsuranceServiceStorage.getInsurancePriceByTrip(tripId);
+    uint64 totalTax = TaxesStorage.getTotalTripTax(tripId);
+    uint valueToReturnInUsdCents = CurrencyConverterStorage.calculateTripReject(trip.paymentInfo, insurance, totalTax);
 
-//     require(
-//       idToTripInfo[tripId].host == user || idToTripInfo[tripId].guest == user || controversialSituation,
-//       'Only host or guest of the trip can reject it'
-//     );
+    Schemas.TripStatus status = trip.status;
 
-//     require(
-//       idToTripInfo[tripId].status == Schemas.TripStatus.Created ||
-//         idToTripInfo[tripId].status == Schemas.TripStatus.Approved ||
-//         idToTripInfo[tripId].status == Schemas.TripStatus.CheckedInByHost ||
-//         controversialSituation,
-//       'The trip is not in status Created, Approved'
-//     );
-//     _removeActiveTrip(idToTripInfo[tripId].carId, tripId);
-//     _removeActiveTripFromUser(tripId, idToTripInfo[tripId].host);
-//     _removeActiveTripFromUser(tripId, idToTripInfo[tripId].guest);
-//     idToTripInfo[tripId].status = Schemas.TripStatus.Canceled;
-//     idToTripInfo[tripId].rejectedDateTime = block.timestamp;
-//     idToTripInfo[tripId].rejectedBy = user;
+    address host = trip.host;
+    address guest = trip.guest;
+    bool controversialSituation = UserServiceStorage.isAdmin(msg.sender) && status == Schemas.TripStatus.CheckedOutByHost;
 
-//     saveTransactionInfo(tripId, rentalityFee, status, depositRefund, tripEarnings);
+    require(
+      trip.host == msg.sender || trip.guest == msg.sender || controversialSituation,
+      'Only host or guest of the trip can reject it'
+    );
 
-//     eventManager.emitEvent(
-//       Schemas.EventType.Trip,
-//       tripId,
-//       uint8(Schemas.TripStatus.Canceled),
-//       user,
-//       user == guest ? guest : host
-//     );
-//   }
+    require(
+      trip.status == Schemas.TripStatus.Created ||
+        trip.status == Schemas.TripStatus.Approved ||
+        trip.status == Schemas.TripStatus.CheckedInByHost ||
+        controversialSituation,
+      'The trip is not in status Created, Approved'
+    );
+    _removeActiveTrip(trip.carId, tripId);
+    _removeActiveTripFromUser(tripId, trip.host);
+    _removeActiveTripFromUser(tripId, trip.guest);
+    s.idToTripInfo[tripId].status = Schemas.TripStatus.Canceled;
+    s.idToTripInfo[tripId].rejectedDateTime = block.timestamp;
+    s.idToTripInfo[tripId].rejectedBy = msg.sender;
+
+    saveTransactionInfo(tripId, 0, status, valueToReturnInUsdCents, 0);
+
+
+       /* you should not recalculate the value with convertor,
+     for return during rejection,
+     but instead, use: 'addresses.tripService.tripIdToEthSumInTripCreation(tripId)'*/
+ 
+    PaymentsStorage.payRejectTrip(trip, s.tripIdToEthSumInTripCreation[tripId]);
+
+
+    emitEvent(
+      Schemas.EventType.Trip,
+      tripId,
+      uint8(Schemas.TripStatus.Canceled),
+      msg.sender,
+      msg.sender == guest ? guest : host
+    );
+  }
 //   /// @notice Allows the host to perform a check-in for a specific trip.
 //   /// This action typically occurs at the start of the trip and records key information
 //   /// such as fuel level, odometer reading, insurance details, and any other relevant data.
@@ -251,50 +276,56 @@ contract RentalityTripService is ARentalityEventManager {
 //   ///   - Additional parameters can be added based on the engine and vehicle characteristics.
 //   /// @param insuranceCompany The name of the insurance company covering the vehicle.
 //   /// @param insuranceNumber The insurance policy number.
-//   function checkInByHost(
-//     uint256 tripId,
-//     uint64[] memory panelParams,
-//     string memory insuranceCompany,
-//     string memory insuranceNumber,
-//     address user
-//   ) public {
-//     Schemas.Trip memory trip = getTrip(tripId);
-//     require(trip.host == user, 'For host only');
+  function checkInByHost(
+    uint256 tripId,
+    uint64[] memory panelParams,
+    string memory insuranceCompany,
+    string memory insuranceNumber
+  ) public {
+    TripServiceStorage.TripServiceFaucetStorage storage s = TripServiceStorage.accessStorage();
+     if (bytes(insuranceNumber).length > 0 || bytes(insuranceCompany).length > 0)
+        InsuranceServiceStorage.saveTripInsuranceInfo(
+        tripId,
+        Schemas.SaveInsuranceRequest(insuranceCompany, insuranceNumber, '', '', Schemas.InsuranceType.OneTime),
+        msg.sender
+      );
+    Schemas.Trip memory trip = s.idToTripInfo[tripId];
+    require(trip.host == msg.sender, 'For host only');
 
-//     uint[] memory totalTrips = carIdToActiveTrips[trip.carId];
-//     for (uint i = 0; i < totalTrips.length; i++) {
-//       Schemas.Trip memory check_trip = getTrip(totalTrips[i]);
+    uint[] memory totalTrips = s.carIdToActiveTrips[trip.carId];
+    for (uint i = 0; i < totalTrips.length; i++) {
+      Schemas.Trip memory check_trip = s.idToTripInfo[totalTrips[i]];
 
-//       if (
-//         check_trip.carId == trip.carId &&
-//         (check_trip.status == Schemas.TripStatus.CheckedInByGuest ||
-//           check_trip.status == Schemas.TripStatus.CheckedInByHost ||
-//           check_trip.status == Schemas.TripStatus.CheckedOutByGuest)
-//       ) {
-//         revert('Car on the trip.');
-//       }
-//     }
+      if (
+        check_trip.carId == trip.carId &&
+        (check_trip.status == Schemas.TripStatus.CheckedInByGuest ||
+          check_trip.status == Schemas.TripStatus.CheckedInByHost ||
+          check_trip.status == Schemas.TripStatus.CheckedOutByGuest)
+      ) {
+        revert('Car on the trip.');
+      }
+    }
+    CarTokenStorage.CarTokenFaucetStorage storage carStorage = CarTokenStorage.accessStorage();
+    Schemas.CarInfo memory carInfo = CarTokenStorage.getCarInfoById(trip.carId);
 
-//     Schemas.CarInfo memory carInfo = addresses.carService.getCarInfoById(trip.carId);
+    carStorage.enginesService.verifyStartParams(panelParams, carInfo.engineType);
 
-//     engineService.verifyStartParams(panelParams, carInfo.engineType);
+    require(trip.status == Schemas.TripStatus.Approved, 'The trip is not in status Approved');
 
-//     require(idToTripInfo[tripId].status == Schemas.TripStatus.Approved, 'The trip is not in status Approved');
+    s.idToTripInfo[tripId].status = Schemas.TripStatus.CheckedInByHost;
+    s.idToTripInfo[tripId].checkedInByHostDateTime = block.timestamp;
+    s.idToTripInfo[tripId].startParamLevels = panelParams;
+    s.idToTripInfo[tripId].guestInsuranceCompanyName = insuranceCompany;
+    s.idToTripInfo[tripId].guestInsurancePolicyNumber = insuranceNumber;
 
-//     idToTripInfo[tripId].status = Schemas.TripStatus.CheckedInByHost;
-//     idToTripInfo[tripId].checkedInByHostDateTime = block.timestamp;
-//     idToTripInfo[tripId].startParamLevels = panelParams;
-//     idToTripInfo[tripId].guestInsuranceCompanyName = insuranceCompany;
-//     idToTripInfo[tripId].guestInsurancePolicyNumber = insuranceNumber;
-
-//     eventManager.emitEvent(
-//       Schemas.EventType.Trip,
-//       tripId,
-//       uint8(Schemas.TripStatus.CheckedInByHost),
-//       trip.host,
-//       trip.guest
-//     );
-//   }
+    emitEvent(
+      Schemas.EventType.Trip,
+      tripId,
+      uint8(Schemas.TripStatus.CheckedInByHost),
+      trip.host,
+      trip.guest
+    );
+  }
 
 //   /// @notice Performs the check-in process by the guest, updating the trip status and details.
 //   /// Requirements:
@@ -304,31 +335,32 @@ contract RentalityTripService is ARentalityEventManager {
 //   /// @param tripId The ID of the trip to be checked in by the guest.
 //   /// @param panelParams An array representing parameters related to fuel, odometer,
 //   /// and other relevant details depends on engine.
-//   function checkInByGuest(uint256 tripId, uint64[] memory panelParams, address user) public {
-//     require(addresses.userService.isRentalityPlatform(msg.sender), 'only Rentality platform');
-//     Schemas.Trip memory trip = getTrip(tripId);
+  function checkInByGuest(uint256 tripId, uint64[] memory panelParams) public {
+    TripServiceStorage.TripServiceFaucetStorage storage s = TripServiceStorage.accessStorage();
+    CarTokenStorage.CarTokenFaucetStorage storage carStorage = CarTokenStorage.accessStorage();
+    Schemas.Trip memory trip = s.idToTripInfo[tripId];
 
-//     require(trip.guest == user, 'Only for guest');
+    require(trip.guest == msg.sender, 'Only for guest');
 
-//     Schemas.CarInfo memory carInfo = addresses.carService.getCarInfoById(trip.carId);
+    Schemas.CarInfo memory carInfo = CarTokenStorage.getCarInfoById(trip.carId);
 
-//     require(
-//       idToTripInfo[tripId].status == Schemas.TripStatus.CheckedInByHost,
-//       'The trip is not in status CheckedInByHost'
-//     );
-//     engineService.compareParams(panelParams, trip.startParamLevels, carInfo.engineType);
-//     idToTripInfo[tripId].tripStartedBy = user;
-//     idToTripInfo[tripId].status = Schemas.TripStatus.CheckedInByGuest;
-//     idToTripInfo[tripId].checkedInByGuestDateTime = block.timestamp;
+    require(
+      s.idToTripInfo[tripId].status == Schemas.TripStatus.CheckedInByHost,
+      'The trip is not in status CheckedInByHost'
+    );
+    carStorage.enginesService.compareParams(panelParams, trip.startParamLevels, carInfo.engineType);
+    s.idToTripInfo[tripId].tripStartedBy = msg.sender;
+    s.idToTripInfo[tripId].status = Schemas.TripStatus.CheckedInByGuest;
+    s.idToTripInfo[tripId].checkedInByGuestDateTime = block.timestamp;
 
-//     eventManager.emitEvent(
-//       Schemas.EventType.Trip,
-//       tripId,
-//       uint8(Schemas.TripStatus.CheckedInByGuest),
-//       trip.guest,
-//       trip.host
-//     );
-//   }
+    emitEvent(
+      Schemas.EventType.Trip,
+      tripId,
+      uint8(Schemas.TripStatus.CheckedInByGuest),
+      trip.guest,
+      trip.host
+    );
+  }
 
 //   ///  @dev Initiates the check-out process by the guest, updating trip status, and recording end details.
 //   ///    Requirements:
@@ -338,47 +370,56 @@ contract RentalityTripService is ARentalityEventManager {
 //   ///  @param tripId The ID of the trip to be checked out by the guest.
 //   /// @param panelParams An array representing parameters related to fuel, odometer,
 //   /// and other relevant details depends on engine.
-//   function checkOutByGuest(uint256 tripId, uint64[] memory panelParams, address user) public {
-//     require(addresses.userService.isRentalityPlatform(msg.sender), 'only Rentality platform');
-//     Schemas.Trip memory trip = getTrip(tripId);
+  function checkOutByGuest(uint256 tripId, uint64[] memory panelParams) public {
+    TripServiceStorage.TripServiceFaucetStorage storage s = TripServiceStorage.accessStorage();
+    CarTokenStorage.CarTokenFaucetStorage storage carStorage = CarTokenStorage.accessStorage();
+    address user = msg.sender;
+    Schemas.Trip memory trip = s.idToTripInfo[tripId];
 
-//     require(trip.guest == user, 'For trip guest only');
-//     Schemas.CarInfo memory carInfo = addresses.carService.getCarInfoById(trip.carId);
+     RefferalServiceStorage.passReferralProgram(
+      Schemas.RefferalProgram.FinishTripAsGuest,
+      abi.encode(trip.startDateTime, trip.endDateTime),
+      user
+    //   promoService
+    );
+    
 
-//     require(
-//       idToTripInfo[tripId].status == Schemas.TripStatus.CheckedInByGuest,
-//       'The trip is not in status CheckedInByGuest'
-//     );
-//     Schemas.CarInfo memory car = addresses.carService.getCarInfoById(idToTripInfo[tripId].carId);
-//     engineService.verifyEndParams(trip.startParamLevels, panelParams, carInfo.engineType);
-//     idToTripInfo[tripId].endParamLevels = panelParams;
-//     idToTripInfo[tripId].tripFinishedBy = user;
+    require(trip.guest == user, 'For trip guest only');
+    Schemas.CarInfo memory carInfo = CarTokenStorage.getCarInfoById(trip.carId);
 
-//     idToTripInfo[tripId].status = Schemas.TripStatus.CheckedOutByGuest;
-//     (uint64 resolveMilesAmountInUsdCents, uint64 resolveFuelAmountInUsdCents) = getResolveAmountInUsdCents(
-//       car.engineType,
-//       idToTripInfo[tripId],
-//       car.engineParams
-//     );
-//     idToTripInfo[tripId].paymentInfo.resolveMilesAmountInUsdCents = resolveMilesAmountInUsdCents;
-//     idToTripInfo[tripId].paymentInfo.resolveFuelAmountInUsdCents = resolveFuelAmountInUsdCents;
+    require(
+      trip.status == Schemas.TripStatus.CheckedInByGuest,
+      'The trip is not in status CheckedInByGuest'
+    );
+    carStorage.enginesService.verifyEndParams(trip.startParamLevels, panelParams, carInfo.engineType);
+    s.idToTripInfo[tripId].endParamLevels = panelParams;
+    s.idToTripInfo[tripId].tripFinishedBy = user;
 
-//     uint64 resolveAmountInUsdCents = resolveMilesAmountInUsdCents + resolveFuelAmountInUsdCents;
+    s.idToTripInfo[tripId].status = Schemas.TripStatus.CheckedOutByGuest;
+    (uint64 resolveMilesAmountInUsdCents, uint64 resolveFuelAmountInUsdCents) = RentalityTripsHelper.getResolveAmountInUsdCents(
+      carInfo.engineType,
+      s.idToTripInfo[tripId],
+      carInfo.engineParams
+    );
+    s.idToTripInfo[tripId].paymentInfo.resolveMilesAmountInUsdCents = resolveMilesAmountInUsdCents;
+    s.idToTripInfo[tripId].paymentInfo.resolveFuelAmountInUsdCents = resolveFuelAmountInUsdCents;
 
-//     if (resolveAmountInUsdCents > idToTripInfo[tripId].paymentInfo.depositInUsdCents) {
-//       resolveAmountInUsdCents = idToTripInfo[tripId].paymentInfo.depositInUsdCents;
-//     }
-//     idToTripInfo[tripId].paymentInfo.resolveAmountInUsdCents = resolveAmountInUsdCents;
-//     idToTripInfo[tripId].checkedOutByGuestDateTime = block.timestamp;
+    uint64 resolveAmountInUsdCents = resolveMilesAmountInUsdCents + resolveFuelAmountInUsdCents;
 
-//     eventManager.emitEvent(
-//       Schemas.EventType.Trip,
-//       tripId,
-//       uint8(Schemas.TripStatus.CheckedOutByGuest),
-//       trip.guest,
-//       trip.host
-//     );
-//   }
+    if (resolveAmountInUsdCents > s.idToTripInfo[tripId].paymentInfo.depositInUsdCents) {
+      resolveAmountInUsdCents = s.idToTripInfo[tripId].paymentInfo.depositInUsdCents;
+    }
+    s.idToTripInfo[tripId].paymentInfo.resolveAmountInUsdCents = resolveAmountInUsdCents;
+    s.idToTripInfo[tripId].checkedOutByGuestDateTime = block.timestamp;
+
+    emitEvent(
+      Schemas.EventType.Trip,
+      tripId,
+      uint8(Schemas.TripStatus.CheckedOutByGuest),
+      trip.guest,
+      trip.host
+    );
+  }
 
 //   ///  @dev Initiates the check-out process by the host, updating trip status, and validating end details.
 //   ///      Requirements:
@@ -388,179 +429,168 @@ contract RentalityTripService is ARentalityEventManager {
 //   ///  @param tripId The ID of the trip to be checked out by the host.
 //   /// @param panelParams An array representing parameters related to fuel, odometer,
 //   /// and other relevant details depends on engine.
-//   function checkOutByHost(uint256 tripId, uint64[] memory panelParams, address user) public {
-//     require(addresses.userService.isRentalityPlatform(msg.sender), 'only Rentality platform');
-//     Schemas.Trip memory trip = getTrip(tripId);
-//     require(trip.host == user, 'For trip host only');
+  function checkOutByHost(uint256 tripId, uint64[] memory panelParams) public {
+    TripServiceStorage.TripServiceFaucetStorage storage s = TripServiceStorage.accessStorage();
+    CarTokenStorage.CarTokenFaucetStorage storage carStorage = CarTokenStorage.accessStorage();
+    Schemas.Trip memory trip = s.idToTripInfo[tripId];
+    address user = msg.sender;
+    require(trip.host == user, 'For trip host only');
 
-//     require(
-//       idToTripInfo[tripId].status == Schemas.TripStatus.CheckedOutByGuest ||
-//         idToTripInfo[tripId].status == Schemas.TripStatus.CheckedInByHost ||
-//         idToTripInfo[tripId].status == Schemas.TripStatus.CheckedInByGuest,
-//       'The trip is not in status CheckedOutByGuest, CheckedInByHost or CheckedInByGuest'
-//     );
+    require(
+      trip.status == Schemas.TripStatus.CheckedOutByGuest ||
+        trip.status == Schemas.TripStatus.CheckedInByHost ||
+        trip.status == Schemas.TripStatus.CheckedInByGuest,
+      'The trip is not in status CheckedOutByGuest, CheckedInByHost or CheckedInByGuest'
+    );
 
-//     Schemas.CarInfo memory carInfo = addresses.carService.getCarInfoById(trip.carId);
+    Schemas.CarInfo memory carInfo = carStorage.idToCarInfo[trip.carId];
 
-//     if (
-//       idToTripInfo[tripId].status == Schemas.TripStatus.CheckedInByHost ||
-//       idToTripInfo[tripId].status == Schemas.TripStatus.CheckedInByGuest
-//     ) {
-//       engineService.verifyEndParams(trip.startParamLevels, panelParams, carInfo.engineType);
-//       idToTripInfo[tripId].endParamLevels = panelParams;
-//       (uint64 resolveMilesAmountInUsdCents, uint64 resolveFuelAmountInUsdCents) = getResolveAmountInUsdCents(
-//         carInfo.engineType,
-//         idToTripInfo[tripId],
-//         carInfo.engineParams
-//       );
-//       idToTripInfo[tripId].paymentInfo.resolveMilesAmountInUsdCents = resolveMilesAmountInUsdCents;
-//       idToTripInfo[tripId].paymentInfo.resolveFuelAmountInUsdCents = resolveFuelAmountInUsdCents;
+    if (
+      trip.status == Schemas.TripStatus.CheckedInByHost ||
+      trip.status == Schemas.TripStatus.CheckedInByGuest
+    ) {
+      carStorage.enginesService.verifyEndParams(trip.startParamLevels, panelParams, carInfo.engineType);
+      s.idToTripInfo[tripId].endParamLevels = panelParams;
+      (uint64 resolveMilesAmountInUsdCents, uint64 resolveFuelAmountInUsdCents) = RentalityTripsHelper.getResolveAmountInUsdCents(
+        carInfo.engineType,
+        trip,
+        carInfo.engineParams
+      );
+      s.idToTripInfo[tripId].paymentInfo.resolveMilesAmountInUsdCents = resolveMilesAmountInUsdCents;
+      s.idToTripInfo[tripId].paymentInfo.resolveFuelAmountInUsdCents = resolveFuelAmountInUsdCents;
 
-//       uint64 resolveAmountInUsdCents = resolveMilesAmountInUsdCents + resolveFuelAmountInUsdCents;
+      uint64 resolveAmountInUsdCents = resolveMilesAmountInUsdCents + resolveFuelAmountInUsdCents;
 
-//       if (resolveAmountInUsdCents > idToTripInfo[tripId].paymentInfo.depositInUsdCents) {
-//         resolveAmountInUsdCents = idToTripInfo[tripId].paymentInfo.depositInUsdCents;
-//       }
-//       idToTripInfo[tripId].paymentInfo.resolveAmountInUsdCents = resolveAmountInUsdCents;
-//       idToTripInfo[tripId].tripFinishedBy = user;
-//     } else {
-//       engineService.compareParams(trip.endParamLevels, panelParams, carInfo.engineType);
-//     }
-//     idToTripInfo[tripId].status = Schemas.TripStatus.CheckedOutByHost;
-//     idToTripInfo[tripId].checkedOutByHostDateTime = block.timestamp;
+      if (resolveAmountInUsdCents > trip.paymentInfo.depositInUsdCents) {
+        resolveAmountInUsdCents = trip.paymentInfo.depositInUsdCents;
+      }
+      s.idToTripInfo[tripId].paymentInfo.resolveAmountInUsdCents = resolveAmountInUsdCents;
+      s.idToTripInfo[tripId].tripFinishedBy = user;
+    } else {
+      carStorage.enginesService.compareParams(trip.endParamLevels, panelParams, carInfo.engineType);
+    }
+    s.idToTripInfo[tripId].status = Schemas.TripStatus.CheckedOutByHost;
+    s.idToTripInfo[tripId].checkedOutByHostDateTime = block.timestamp;
 
-//     eventManager.emitEvent(
-//       Schemas.EventType.Trip,
-//       tripId,
-//       uint8(Schemas.TripStatus.CheckedOutByHost),
-//       trip.host,
-//       trip.guest
-//     );
-//   }
+    emitEvent(
+      Schemas.EventType.Trip,
+      tripId,
+      uint8(Schemas.TripStatus.CheckedOutByHost),
+      trip.host,
+      trip.guest
+    );
+  }
 
 //   /// @dev Finalizes a trip, updating its status to Finished and calculating resolution amounts.
 //   ///    Requirements:
 //   ///    - The trip must be in status CheckedOutByHost.
 //   /// @param tripId The ID of the trip to be finished.
 //   /// Emits a `TripStatusChanged` event with the new status Finished.
-//   function finishTrip(uint256 tripId, address user) public {
-//     //require(idToTripInfo[tripId].status != TripStatus.CheckedOutByHost,"The trip is not in status CheckedOutByHost");
-//     require(addresses.userService.isRentalityPlatform(msg.sender), 'only Rentality platform contract.');
-//     Schemas.Trip storage trip = idToTripInfo[tripId];
+  function finishTrip(uint256 tripId, address user) public {
+    TripServiceStorage.TripServiceFaucetStorage storage s = TripServiceStorage.accessStorage();
+    CarTokenStorage.CarTokenFaucetStorage storage carStorage = CarTokenStorage.accessStorage();
+    Schemas.Trip storage trip = s.idToTripInfo[tripId];
 
-//     trip.status = Schemas.TripStatus.Finished;
+     require(
+      trip.status == Schemas.TripStatus.CheckedOutByHost && trip.tripFinishedBy == trip.guest,
+      'The trip is not CheckedOutByHost'
+    );
 
-//     _removeActiveTrip(trip.carId, tripId);
-//     _removeActiveTripFromUser(tripId, trip.host);
-//     _removeActiveTripFromUser(tripId, trip.guest);
-//     trip.finishDateTime = block.timestamp;
-//     completedByAdmin[tripId] = addresses.userService.isAdmin(user) && trip.host != user && trip.guest != user;
 
-//     eventManager.emitEvent(Schemas.EventType.Trip, tripId, uint8(Schemas.TripStatus.Finished), trip.host, trip.guest);
-//   }
+    trip.status = Schemas.TripStatus.Finished;
 
-//   ///  @dev Calculates the resolved amount in USD cents for a trip.
-//   ///  @param eType the engine type
-//   ///  @param engineParams, engine data params
-//   ///  @param tripInfo The information about the trip.
-//   ///  @return Returns the resolved amounts for miles and fuel in USD cents as a tuple.
-//   function getResolveAmountInUsdCents(
-//     uint8 eType,
-//     Schemas.Trip memory tripInfo,
-//     uint64[] memory engineParams
-//   ) private view returns (uint64, uint64) {
-//     uint64 duration = tripInfo.endDateTime - tripInfo.startDateTime;
-//     uint64 tripDays = uint64(Math.ceilDiv(duration, 1 days));
+    _removeActiveTrip(trip.carId, tripId);
+    _removeActiveTripFromUser(tripId, trip.host);
+    _removeActiveTripFromUser(tripId, trip.guest);
+    trip.finishDateTime = block.timestamp;
+    s.completedByAdmin[tripId] = UserServiceStorage.isAdmin(user) && trip.host != user && trip.guest != user;
 
-//     return
-//       engineService.getResolveAmountInUsdCents(
-//         eType,
-//         tripInfo.fuelPrice,
-//         tripInfo.startParamLevels,
-//         tripInfo.endParamLevels,
-//         engineParams,
-//         tripInfo.milesIncludedPerDay,
-//         tripInfo.pricePerDayInUsdCents,
-//         tripDays
-//       );
-//   }
+
+       uint256 rentalityFee = PaymentsStorage.getPlatformFeeFrom(
+      trip.paymentInfo.priceWithDiscount + trip.paymentInfo.pickUpFee + trip.paymentInfo.dropOfFee
+    );
+    uint insurancePrice = InsuranceServiceStorage.getInsurancePriceByTrip(tripId);
+    (
+      uint valueToHost,
+      uint valueToGuest,
+      uint valueToHostInUsdCents,
+      uint valueToGuestInUsdCents,
+      uint totalIncome
+    ) = CurrencyConverterStorage.calculateTripFinsish(
+        trip.paymentInfo,
+        rentalityFee,
+        insurancePrice
+        // promoService
+      );
+
+    PaymentsStorage.payFinishTrip(trip, valueToHost, valueToGuest, totalIncome);
+
+    saveTransactionInfo(
+      tripId,
+      rentalityFee,
+      Schemas.TripStatus.Finished,
+      valueToGuestInUsdCents,
+      valueToHostInUsdCents - trip.paymentInfo.resolveAmountInUsdCents - insurancePrice
+    );
+
+    emitEvent(Schemas.EventType.Trip, tripId, uint8(Schemas.TripStatus.Finished), trip.host, trip.guest);
+  }
+
+
 
 //   /// @dev Function to save transaction information for a finished trip.
 //   /// @param tripId Trip ID for which the transaction information is saved.
 //   /// @param rentalityFee Rentality fee for the transaction.
 //   /// @param depositRefund Amount refunded as deposit.
 //   /// @param tripEarnings Earnings from the completed trip.
-//   function saveTransactionInfo(
-//     uint256 tripId,
-//     uint256 rentalityFee,
-//     Schemas.TripStatus status,
-//     uint256 depositRefund,
-//     uint256 tripEarnings
-//   ) public {
-//     require(addresses.userService.isRentalityPlatform(msg.sender), 'Manager only.');
+  function saveTransactionInfo(
+    uint256 tripId,
+    uint256 rentalityFee,
+    Schemas.TripStatus status,
+    uint256 depositRefund,
+    uint256 tripEarnings
+  ) private {
+   TripServiceStorage.TripServiceFaucetStorage storage s = TripServiceStorage.accessStorage();
+    s.idToTripInfo[tripId].transactionInfo.rentalityFee = rentalityFee;
+    s.idToTripInfo[tripId].transactionInfo.depositRefund = depositRefund;
+    s.idToTripInfo[tripId].transactionInfo.tripEarnings = tripEarnings;
+    s.idToTripInfo[tripId].transactionInfo.dateTime = block.timestamp;
+    s.idToTripInfo[tripId].transactionInfo.statusBeforeCancellation = status;
+  }
 
-//     idToTripInfo[tripId].transactionInfo.rentalityFee = rentalityFee;
-//     idToTripInfo[tripId].transactionInfo.depositRefund = depositRefund;
-//     idToTripInfo[tripId].transactionInfo.tripEarnings = tripEarnings;
-//     idToTripInfo[tripId].transactionInfo.dateTime = block.timestamp;
-//     idToTripInfo[tripId].transactionInfo.statusBeforeCancellation = status;
-//   }
+  /// @dev Retrieves the details of a specific trip by its ID.
+  /// @param tripId The ID of the trip to retrieve.
+  /// @return trip The details of the requested trip.
+  function getTrip(uint256 tripId) public view returns (Schemas.Trip memory) {
+    TripServiceStorage.TripServiceFaucetStorage storage s = TripServiceStorage.accessStorage();
+    return s.idToTripInfo[tripId];
+  }
 
-//   /// @dev Retrieves the details of a specific trip by its ID.
-//   /// @param tripId The ID of the trip to retrieve.
-//   /// @return trip The details of the requested trip.
-//   function getTrip(uint256 tripId) public view returns (Schemas.Trip memory) {
-//     return idToTripInfo[tripId];
-//   }
+  function _removeActiveTrip(uint carId, uint tripId) private {
+    TripServiceStorage.TripServiceFaucetStorage storage s = TripServiceStorage.accessStorage();
+    uint[] memory activeTrips = s.carIdToActiveTrips[carId];
+    for (uint i = 0; i < activeTrips.length; i++) {
+      if (activeTrips[i] == tripId) {
+        for (uint j = i; j < activeTrips.length - 1; j++) activeTrips[j] = activeTrips[j + 1];
 
-//   function _removeActiveTrip(uint carId, uint tripId) private {
-//     uint[] memory activeTrips = carIdToActiveTrips[carId];
-//     for (uint i = 0; i < activeTrips.length; i++) {
-//       if (activeTrips[i] == tripId) {
-//         for (uint j = i; j < activeTrips.length - 1; j++) activeTrips[j] = activeTrips[j + 1];
+        s.carIdToActiveTrips[carId] = activeTrips;
+        break;
+      }
+    }
+  }
 
-//         carIdToActiveTrips[carId] = activeTrips;
-//         break;
-//       }
-//     }
-//   }
+  function _removeActiveTripFromUser(uint tripId, address user) private {
+    TripServiceStorage.TripServiceFaucetStorage storage s = TripServiceStorage.accessStorage();
+    uint[] memory activeTrips = s.userToActiveTrips[user];
+    for (uint i = 0; i < activeTrips.length; i++) {
+      if (activeTrips[i] == tripId) {
+        for (uint j = i; j < activeTrips.length - 1; j++) activeTrips[j] = activeTrips[j + 1];
 
-//   function _removeActiveTripFromUser(uint tripId, address user) private {
-//     uint[] memory activeTrips = userToActiveTrips[user];
-//     for (uint i = 0; i < activeTrips.length; i++) {
-//       if (activeTrips[i] == tripId) {
-//         for (uint j = i; j < activeTrips.length - 1; j++) activeTrips[j] = activeTrips[j + 1];
+        s.userToActiveTrips[user] = activeTrips;
+        break;
+      }
+    }
+  }
 
-//         userToActiveTrips[user] = activeTrips;
-//         break;
-//       }
-//     }
-//   }
-
-//   function setUserTrips(uint start, uint end) public {
-//     require(addresses.userService.isAdmin(msg.sender), 'only Admin');
-//     if (end == 0) end = totalTripCount();
-//     for (uint i = start; i <= end; i++) {
-//       Schemas.Trip memory trip = idToTripInfo[i];
-//       userToTrips[trip.guest].push(i);
-//       userToTrips[trip.host].push(i);
-//       if (trip.status != Schemas.TripStatus.Finished && trip.status != Schemas.TripStatus.Canceled) {
-//         userToActiveTrips[trip.guest].push(i);
-//         userToActiveTrips[trip.host].push(i);
-//       }
-//     }
-//   }
-//   function getActiveTrips(uint carId) public view returns (uint[] memory) {
-//     return carIdToActiveTrips[carId];
-//   }
-//   function getCarTrips(uint carId) public view returns (uint[] memory) {
-//     return carIdToTrips[carId];
-//   }
-//   function getActiveTripsByUser(address host) public view returns (uint[] memory) {
-//     return userToActiveTrips[host];
-//   }
-//   function getTripsByUser(address host) public view returns (uint[] memory) {
-//     return userToTrips[host];
-//   }
 
 }

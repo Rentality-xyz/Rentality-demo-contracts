@@ -9,6 +9,33 @@ import {RentalityUtils} from './RentalityUtils.sol';
 library RentalityCarTokenHelper {
     using RentalityUtils for string;
 
+    /// @notice Retrieves information about all cars in the system.
+  /// @return An array containing information about all cars.
+  function getAllCars() public view returns (Schemas.CarInfo[] memory) {
+    CarTokenStorage.CarTokenFaucetStorage storage s = CarTokenStorage.accessStorage();
+    uint itemCount = 0;
+
+    for (uint i = 0; i < s._carIdCounter; i++) {
+      uint currentId = i + 1;
+      if (CarTokenStorage._exists(currentId)) {
+        itemCount += 1;
+      }
+    }
+
+    Schemas.CarInfo[] memory result = new Schemas.CarInfo[](itemCount);
+
+    uint elementsCounter = 0;
+    for (uint i = 0; i < s._carIdCounter; i++) {
+      if (CarTokenStorage._exists(i + 1)) {
+        result[elementsCounter++] = s.idToCarInfo[i + 1];
+      }
+    }
+
+    return result;
+  }
+
+
+
   function _isCarAvailableForUser(
     uint256 carId,
     Schemas.SearchCarParams memory searchCarParams
@@ -31,4 +58,137 @@ library RentalityCarTokenHelper {
       (searchCarParams.pricePerDayInUsdCentsTo == 0 ||
         car.pricePerDayInUsdCents <= searchCarParams.pricePerDayInUsdCentsTo);
   }
+
+
+  function isCarAvailableForUser(uint256 carId, address user) private view returns (bool) {
+     CarTokenStorage.CarTokenFaucetStorage storage s = CarTokenStorage.accessStorage();
+    return CarTokenStorage._exists(carId) && s.idToCarInfo[carId].currentlyListed && CarTokenStorage.ownerOf(carId) != user;
+  }
+
+  /// @notice Retrieves available cars for a specific user.
+  /// @dev Only used by main contract
+  /// @param user The address of the user.
+  /// @return An array containing information about available cars for the user.
+  function getAvailableCarsForUser(address user) public view returns (Schemas.CarInfo[] memory) {
+    CarTokenStorage.CarTokenFaucetStorage storage s = CarTokenStorage.accessStorage();
+    uint itemCount = 0;
+
+    for (uint i = 0; i < s._carIdCounter; i++) {
+      uint currentId = i + 1;
+      if (isCarAvailableForUser(currentId, user)) {
+        itemCount += 1;
+      }
+    }
+
+    Schemas.CarInfo[] memory result = new Schemas.CarInfo[](itemCount);
+    uint currentIndex = 0;
+
+    for (uint i = 0; i < s._carIdCounter; i++) {
+      uint currentId = i + 1;
+      if (isCarAvailableForUser(currentId, user)) {
+        Schemas.CarInfo storage currentItem = s.idToCarInfo[currentId];
+        result[currentIndex] = currentItem;
+        currentIndex += 1;
+      }
+    }
+
+    return result;
+  }
+  /// @notice Checks if a car is available for a specific user based on search parameters.
+  /// @dev Determines availability based on several conditions, including ownership and search parameters.
+  /// @param carId The ID of the car being checked.
+  /// @param searchCarParams The parameters used to filter available cars.
+  /// @return A boolean indicating whether the car is available for the user.
+  function isCarAvailableForUser(
+    uint256 carId,
+    address user,
+    Schemas.SearchCarParams memory searchCarParams
+  ) public view returns (bool) {
+    CarTokenStorage.CarTokenFaucetStorage storage s = CarTokenStorage.accessStorage();
+    return
+      CarTokenStorage._exists(carId) &&
+      s.idToCarInfo[carId].currentlyListed &&
+      CarTokenStorage.ownerOf(carId) != user &&
+      RentalityCarTokenHelper._isCarAvailableForUser(carId, searchCarParams);
+  }
+
+  /// @notice Fetches available cars for a specific user based on search parameters.
+  /// @dev Iterates through all cars to find those that are available for the user.
+  /// @param user The address of the user for whom to fetch available cars.
+  /// @param searchCarParams The parameters used to filter available cars.
+  /// @return An array of CarInfo representing the available cars for the user.
+  function fetchAvailableCarsForUser(
+    address user,
+    Schemas.SearchCarParams memory searchCarParams
+  ) public view returns (Schemas.CarInfo[] memory) {
+    CarTokenStorage.CarTokenFaucetStorage storage s = CarTokenStorage.accessStorage();
+    uint itemCount = 0;
+
+    // Count the number of available cars for the user.
+    for (uint i = 0; i < s._carIdCounter; i++) {
+      uint currentId = i + 1;
+      if (isCarAvailableForUser(currentId, user, searchCarParams)) {
+        itemCount += 1;
+      }
+    }
+
+    // Create an array to store the available cars.
+    Schemas.CarInfo[] memory result = new Schemas.CarInfo[](itemCount);
+    uint currentIndex = 0;
+
+    // Populate the array with available cars.
+    for (uint i = 0; i < s._carIdCounter; i++) {
+      uint currentId = i + 1;
+      if (isCarAvailableForUser(currentId, user, searchCarParams)) {
+        Schemas.CarInfo memory currentItem = s.idToCarInfo[currentId];
+        result[currentIndex] = currentItem;
+        currentIndex += 1;
+      }
+    }
+
+    return result;
+  }
+
+  /// @notice Checks if a car belongs to a specific user.
+  /// @dev Determines ownership of a car.
+  /// @param carId The ID of the car being checked.
+  /// @param user The address of the user being checked.
+  /// @return A boolean indicating whether the car belongs to the user.
+  function isCarOfUser(uint256 carId, address user) private view returns (bool) {
+    return CarTokenStorage._exists(carId) && (CarTokenStorage.ownerOf(carId) == user);
+  }
+
+  /// @notice Gets the cars owned by a specific user.
+  /// @dev Iterates through all cars to find those owned by the user.
+  /// @param user The address of the user for whom to fetch owned cars.
+  /// @return An array of CarInfo representing the cars owned by the user.
+  function getCarsOwnedByUser(address user) public view returns (Schemas.CarInfo[] memory) {
+    CarTokenStorage.CarTokenFaucetStorage storage s = CarTokenStorage.accessStorage();
+    uint itemCount = 0;
+
+    // Count the number of cars owned by the user.
+    for (uint i = 0; i < s._carIdCounter; i++) {
+      uint currentId = i + 1;
+      if (isCarOfUser(currentId, user)) {
+        itemCount += 1;
+      }
+    }
+
+    // Create an array to store the owned cars.
+    Schemas.CarInfo[] memory result = new Schemas.CarInfo[](itemCount);
+    uint currentIndex = 0;
+
+    // Populate the array with owned cars.
+    for (uint i = 0; i < s._carIdCounter; i++) {
+      uint currentId = i + 1;
+      if (isCarOfUser(currentId, user)) {
+        Schemas.CarInfo memory currentItem = s.idToCarInfo[currentId];
+        result[currentIndex] = currentItem;
+        currentIndex += 1;
+      }
+    }
+
+    return result;
+  }
+
 }

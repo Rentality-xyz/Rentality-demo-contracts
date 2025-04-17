@@ -59,6 +59,34 @@ library InsuranceServiceStorage {
     }
   }
 
+   function getCarInsuranceInfo(uint carId) public view returns (Schemas.InsuranceCarInfo memory) {
+    InsuranceServiceFaucetStorage storage s = accessStorage();
+    return s.carIdToInsuranceRequired[carId];
+   }
+
+    function getInsurancePriceByTrip(uint tripId) internal view returns (uint) {
+    InsuranceServiceFaucetStorage storage s = accessStorage();
+    return s.tripIdToInsurancePaid[tripId];
+  }
+
+    function saveTripInsuranceInfo(uint tripId, Schemas.SaveInsuranceRequest memory insuranceInfo, address user) internal {
+    InsuranceServiceFaucetStorage storage s = accessStorage();
+    require(insuranceInfo.insuranceType != Schemas.InsuranceType.None, 'Wrong insurance type');
+    Schemas.InsuranceInfo[] storage insurances = s.tripIdToInsuranceInfo[tripId];
+
+    insurances.push(
+      Schemas.InsuranceInfo(
+        insuranceInfo.companyName,
+        insuranceInfo.policyNumber,
+        insuranceInfo.photo,
+        insuranceInfo.comment,
+        insuranceInfo.insuranceType,
+        block.timestamp,
+        user
+      )
+    );
+  }
+
     function accessStorage() internal pure returns (InsuranceServiceFaucetStorage storage ds) {
         bytes32 position = LibDiamond.INSURANCE_STORAGE_POSITION;
         assembly { ds.slot := position }
