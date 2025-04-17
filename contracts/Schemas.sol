@@ -566,8 +566,8 @@ interface Schemas {
   }
 
   enum TaxesLocationType {
-    City,
     State,
+    City,
     Country
   }
 
@@ -968,6 +968,7 @@ enum TaxesType {
   InUsdCents,
   PPM
 }
+
 
    struct Round {
         int256 answer;
