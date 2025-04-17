@@ -1,5 +1,5 @@
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
-const { expect } = require('chai')
+const { expect, assert } = require('chai')
 const { getMockCarRequest, deployDefaultFixture, ethToken, getEmptySearchCarParams, emptyLocationInfo, emptySignedLocationInfo } = require('../utils')
 const { ethers } = require('hardhat')
 
@@ -59,6 +59,7 @@ describe('Rentality investment', function () {
       priceInCurrency: 10000,
       inProgress: true,
       creatorPercents: 10,
+     listed: true
     }
     await expect(await investorsService.connect(host).createCarInvestment(mockCarInvestment, 'name',ethToken)).to.not
       .reverted
@@ -69,6 +70,7 @@ describe('Rentality investment', function () {
       priceInCurrency: 10000,
       inProgress: true,
       creatorPercents: 10,
+     listed: true
     }
     await expect(await investorsService.connect(host).createCarInvestment(mockCarInvestment, 'name',ethToken)).to.not
       .reverted
@@ -82,6 +84,7 @@ describe('Rentality investment', function () {
       priceInCurrency: 10000,
       inProgress: true,
       creatorPercents: 10,
+     listed: true
     }
     await expect(await investorsService.connect(host).createCarInvestment(mockCarInvestment, 'name',ethToken)).to.not
       .reverted
@@ -108,6 +111,7 @@ describe('Rentality investment', function () {
       priceInCurrency: 10000,
       inProgress: true,
       creatorPercents: 10,
+     listed: true
     }
     await expect(await investorsService.connect(host).createCarInvestment(mockCarInvestment, 'name',ethToken)).to.not
       .reverted
@@ -127,6 +131,7 @@ describe('Rentality investment', function () {
       priceInCurrency: 10000,
       inProgress: true,
       creatorPercents: 10,
+     listed: true
     }
     await expect(await investorsService.connect(host).createCarInvestment(mockCarInvestment, 'name',ethToken)).to.not
       .reverted
@@ -179,6 +184,7 @@ describe('Rentality investment', function () {
       priceInCurrency: 10000,
       inProgress: true,
       creatorPercents: 10,
+     listed: true
     }
     await expect(await investorsService.connect(host).createCarInvestment(mockCarInvestment, 'name',ethToken)).to.not
       .reverted
@@ -235,6 +241,7 @@ describe('Rentality investment', function () {
       priceInCurrency: 10000,
       inProgress: true,
       creatorPercents: 10,
+     listed: true
     }
     await expect(await investorsService.connect(host).createCarInvestment(mockCarInvestment, 'name',ethToken)).to.not
       .reverted
@@ -293,6 +300,7 @@ describe('Rentality investment', function () {
       priceInCurrency: 10000,
       inProgress: true,
       creatorPercents: 10,
+     listed: true
     }
     mockCarInvestment.car.pricePerDayInUsdCents = 10000
     await expect(await investorsService.connect(host).createCarInvestment(mockCarInvestment, 'name',ethToken)).to.not
@@ -361,6 +369,7 @@ describe('Rentality investment', function () {
       priceInCurrency: 10000,
       inProgress: true,
       creatorPercents: 10,
+     listed: true
     }
     mockCarInvestment.car.pricePerDayInUsdCents = 10000
     await expect(await investorsService.connect(host).createCarInvestment(mockCarInvestment, 'name',ethToken)).to.not
@@ -480,6 +489,7 @@ describe('Rentality investment', function () {
       priceInCurrency: 10000,
       inProgress: true,
       creatorPercents: 10,
+     listed: true
     }
     mockCarInvestment.car.pricePerDayInUsdCents = 10000
     await expect(await investorsService.connect(host).createCarInvestment(mockCarInvestment, 'name',ethToken)).to.not
@@ -612,6 +622,7 @@ describe('Rentality investment', function () {
       priceInCurrency: 10000,
       inProgress: true,
       creatorPercents: 10,
+     listed: true
     }
     await expect(await investorsService.connect(host).createCarInvestment(mockCarInvestment, 'name',ethToken)).to.not
       .reverted
@@ -671,5 +682,28 @@ describe('Rentality investment', function () {
       anonymous,
       BigInt(7200000000000)
     )
+  })
+
+  it('Investment listing', async function () {
+    let mockCarInvestment = {
+      car: getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin),
+      priceInCurrency: 10000,
+      inProgress: true,
+      creatorPercents: 10,
+     listed: true
+    }
+    await expect(await investorsService.connect(host).createCarInvestment(mockCarInvestment, 'name',ethToken)).to.not
+      .reverted
+      await expect(investorsService.connect(host).chengeListingStatus(1)).to.not.reverted
+      await expect(investorsService.connect(admin).chengeListingStatus(1)).to.be.reverted
+      let investment = await investorsService.connect(host).getAllInvestments()
+      assert.equal(investment.length, 1)
+      investment = await investorsService.connect(admin).getAllInvestments()
+      assert.equal(investment.length, 0)
+      await expect(investorsService.connect(host).chengeListingStatus(1)).to.not.reverted
+
+      investment = await investorsService.connect(guest).getAllInvestments()
+      assert.equal(investment.length, 1)
+   
   })
 })
