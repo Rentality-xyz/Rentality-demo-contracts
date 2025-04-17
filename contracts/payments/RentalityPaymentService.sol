@@ -8,7 +8,7 @@ import './abstract/IRentalityDiscount.sol';
 import './abstract/IRentalityTaxes.sol';
 import '../investment/RentalityInvestment.sol';
 import './RentalityTaxes.sol';
-
+import {Schemas} from '../Schemas.sol';
 /// @title Rentality Payment Service Contract
 /// @notice This contract manages platform fees and allows the adjustment of the platform fee by the manager.
 /// @dev It is connected to RentalityUserService to check if the caller is an admin.
@@ -107,18 +107,22 @@ contract RentalityPaymentService is UUPSOwnable {
     bytes32 stateHash = keccak256(abi.encode(geoService.getCarState(carLocationHash)));
     bytes32 countryHash = keccak256(abi.encode(geoService.getCarCountry(carLocationHash)));
 
-    uint taxId = rentalityTaxes.getTaxesIdByHash(cityHash);
-      if (taxId > 0) {
-       return taxId;
-      }
-      taxId = rentalityTaxes.getTaxesIdByHash(stateHash);
-      if (taxId > 0) {
-         return taxId;
-      }
-       taxId = rentalityTaxes.getTaxesIdByHash(countryHash);
-        if (taxId > 0) {
+    (uint taxId, Schemas.TaxesLocationType locationType) = rentalityTaxes.getTaxesIdByHash(countryHash);
+        if (taxId > 0 && locationType == Schemas.TaxesLocationType.Country) {
           return taxId;
         }
+
+      (taxId,locationType) = rentalityTaxes.getTaxesIdByHash(stateHash);
+      if (taxId > 0 && locationType == Schemas.TaxesLocationType.State) {
+         return taxId;
+      }
+
+     (taxId, locationType) = rentalityTaxes.getTaxesIdByHash(cityHash);
+      if (taxId > 0 && locationType == Schemas.TaxesLocationType.City) {
+         return taxId;
+      }
+    
+      
       
 
     return defaultTax;
@@ -149,12 +153,14 @@ contract RentalityPaymentService is UUPSOwnable {
   }
    function addTaxes(
    string memory location,
+   Schemas.TaxesLocationType locationType,
      Schemas.TaxValue[] memory taxes
       ) public onlyAdmin {
         taxesId += 1;
         rentalityTaxes.addTaxes(
                       taxesId,
                       location,
+                      locationType,
                       taxes
                   );
       }
@@ -364,18 +370,20 @@ contract RentalityPaymentService is UUPSOwnable {
     bytes32 stateHash = keccak256(abi.encode(locationInfo.state));
     bytes32 countryHash = keccak256(abi.encode(locationInfo.country));
 
-       uint taxId = rentalityTaxes.getTaxesIdByHash(cityHash);
-      if (taxId > 0) {
-       return taxId;
-      }
-      taxId = rentalityTaxes.getTaxesIdByHash(stateHash);
-      if (taxId > 0) {
-         return taxId;
-      }
-       taxId = rentalityTaxes.getTaxesIdByHash(countryHash);
-        if (taxId > 0) {
+      (uint taxId, Schemas.TaxesLocationType locationType) = rentalityTaxes.getTaxesIdByHash(countryHash);
+        if (taxId > 0 && locationType == Schemas.TaxesLocationType.Country) {
           return taxId;
         }
+
+      (taxId,locationType) = rentalityTaxes.getTaxesIdByHash(stateHash);
+      if (taxId > 0 && locationType == Schemas.TaxesLocationType.State) {
+         return taxId;
+      }
+
+     (taxId, locationType) = rentalityTaxes.getTaxesIdByHash(cityHash);
+      if (taxId > 0 && locationType == Schemas.TaxesLocationType.City) {
+         return taxId;
+      }
       
 
     return 0;
