@@ -59,7 +59,7 @@ describe('Rentality investment', function () {
       priceInCurrency: 10000,
       inProgress: true,
       creatorPercents: 10,
-     listed: true
+ 
     }
     await expect(await investorsService.connect(host).createCarInvestment(mockCarInvestment, 'name',ethToken)).to.not
       .reverted
@@ -70,7 +70,7 @@ describe('Rentality investment', function () {
       priceInCurrency: 10000,
       inProgress: true,
       creatorPercents: 10,
-     listed: true
+ 
     }
     await expect(await investorsService.connect(host).createCarInvestment(mockCarInvestment, 'name',ethToken)).to.not
       .reverted
@@ -84,7 +84,7 @@ describe('Rentality investment', function () {
       priceInCurrency: 10000,
       inProgress: true,
       creatorPercents: 10,
-     listed: true
+ 
     }
     await expect(await investorsService.connect(host).createCarInvestment(mockCarInvestment, 'name',ethToken)).to.not
       .reverted
@@ -111,7 +111,7 @@ describe('Rentality investment', function () {
       priceInCurrency: 10000,
       inProgress: true,
       creatorPercents: 10,
-     listed: true
+ 
     }
     await expect(await investorsService.connect(host).createCarInvestment(mockCarInvestment, 'name',ethToken)).to.not
       .reverted
@@ -131,7 +131,7 @@ describe('Rentality investment', function () {
       priceInCurrency: 10000,
       inProgress: true,
       creatorPercents: 10,
-     listed: true
+ 
     }
     await expect(await investorsService.connect(host).createCarInvestment(mockCarInvestment, 'name',ethToken)).to.not
       .reverted
@@ -184,7 +184,7 @@ describe('Rentality investment', function () {
       priceInCurrency: 10000,
       inProgress: true,
       creatorPercents: 10,
-     listed: true
+ 
     }
     await expect(await investorsService.connect(host).createCarInvestment(mockCarInvestment, 'name',ethToken)).to.not
       .reverted
@@ -241,7 +241,7 @@ describe('Rentality investment', function () {
       priceInCurrency: 10000,
       inProgress: true,
       creatorPercents: 10,
-     listed: true
+ 
     }
     await expect(await investorsService.connect(host).createCarInvestment(mockCarInvestment, 'name',ethToken)).to.not
       .reverted
@@ -300,7 +300,7 @@ describe('Rentality investment', function () {
       priceInCurrency: 10000,
       inProgress: true,
       creatorPercents: 10,
-     listed: true
+ 
     }
     mockCarInvestment.car.pricePerDayInUsdCents = 10000
     await expect(await investorsService.connect(host).createCarInvestment(mockCarInvestment, 'name',ethToken)).to.not
@@ -369,7 +369,7 @@ describe('Rentality investment', function () {
       priceInCurrency: 10000,
       inProgress: true,
       creatorPercents: 10,
-     listed: true
+ 
     }
     mockCarInvestment.car.pricePerDayInUsdCents = 10000
     await expect(await investorsService.connect(host).createCarInvestment(mockCarInvestment, 'name',ethToken)).to.not
@@ -489,7 +489,7 @@ describe('Rentality investment', function () {
       priceInCurrency: 10000,
       inProgress: true,
       creatorPercents: 10,
-     listed: true
+ 
     }
     mockCarInvestment.car.pricePerDayInUsdCents = 10000
     await expect(await investorsService.connect(host).createCarInvestment(mockCarInvestment, 'name',ethToken)).to.not
@@ -622,7 +622,7 @@ describe('Rentality investment', function () {
       priceInCurrency: 10000,
       inProgress: true,
       creatorPercents: 10,
-     listed: true
+ 
     }
     await expect(await investorsService.connect(host).createCarInvestment(mockCarInvestment, 'name',ethToken)).to.not
       .reverted
@@ -690,7 +690,7 @@ describe('Rentality investment', function () {
       priceInCurrency: 10000,
       inProgress: true,
       creatorPercents: 10,
-     listed: true
+ 
     }
     await expect(await investorsService.connect(host).createCarInvestment(mockCarInvestment, 'name',ethToken)).to.not
       .reverted
