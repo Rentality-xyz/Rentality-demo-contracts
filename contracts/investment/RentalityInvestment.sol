@@ -50,6 +50,7 @@ contract RentalityInvestment is Initializable, UUPSAccess {
 
   function invest(uint investId, uint amount) public payable {
     Schemas.CarInvestment storage investment = investmentIdToCarInfo[investId];
+    require(investment.listed, 'Investment: not listed');
 
     require(investment.inProgress, 'Not available');
 
@@ -125,7 +126,12 @@ contract RentalityInvestment is Initializable, UUPSAccess {
   
   function getAllInvestments() public view returns (Schemas.InvestmentDTO[] memory investments) {
     investments = new Schemas.InvestmentDTO[](investmentId);
+    uint totalInvestments = 0;
+    bool isInvestorManager = RentalityUserService(address(userService)).isInvestorManager(msg.sender);
     for (uint i = 1; i <= investmentId; i++) {
+      Schemas.CarInvestment memory investment = investmentIdToCarInfo[i];
+      if(investment.listed || msg.sender == investmentIdToCreator[i]) {
+  
       uint income = 0;
       uint myIncome = 0;
       bool isBought = address(investIdToPool[i]) != address(0);
@@ -140,14 +146,14 @@ contract RentalityInvestment is Initializable, UUPSAccess {
       }
       (uint percentages,) = RentalityViewLib.calculatePercentage(
         iInvested,
-        investmentIdToCarInfo[i].priceInCurrency,
+        investment.priceInCurrency,
         converter
       );
            
-      (uint priceInUsdCents, , ) = converter.getToUsdLatest(currency, investmentIdToCarInfo[i].priceInCurrency);
+      (uint priceInUsdCents, , ) = converter.getToUsdLatest(currency, investment.priceInCurrency);
     
-      investments[i - 1] = Schemas.InvestmentDTO(
-        investmentIdToCarInfo[i],
+      investments[totalInvestments] = Schemas.InvestmentDTO(
+        investment,
         address(investIdToNft[i]),
         i,
         payed,
@@ -169,7 +175,19 @@ contract RentalityInvestment is Initializable, UUPSAccess {
         priceInUsdCents,
         investmentIdToPayedInETH[i]
       );
+      totalInvestments++; 
     }
+    }
+    if(!isInvestorManager)
+      assembly("memory-safe") {
+        mstore(investments, totalInvestments)
+      }
+  }
+
+  function chengeListingStatus(uint investId) public {
+    Schemas.CarInvestment storage investment = investmentIdToCarInfo[investId];
+    require(RentalityUserService(address(userService)).isInvestorManager(msg.sender), 'Only for creator');
+    investment.listed = !investment.listed;
   }
  
 
