@@ -618,7 +618,6 @@ interface Schemas {
     uint priceInCurrency;
     bool inProgress;
     uint creatorPercents;
-    bool listed;
   }
 
   struct ClaimInvestmentDTO {
@@ -649,6 +648,7 @@ interface Schemas {
     string symbol;
     uint priceInUsdCents;
     uint payedInCurrency;
+    bool listed;
   }
 
   struct TripFilter {
