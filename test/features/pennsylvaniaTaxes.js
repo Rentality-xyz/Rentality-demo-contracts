@@ -69,6 +69,7 @@ describe('Rentality taxes & discounts', function () {
   it('should correctly calculate taxes', async function () {
     await rentalityPaymentService.addTaxes(
       'Massachusetts',
+      0,
       [
         {name:"governmentTax",value:1000, tType:0},
       ]
@@ -88,6 +89,7 @@ describe('Rentality taxes & discounts', function () {
 
     await rentalityPaymentService.addTaxes(
       'Massachusetts',
+      0,
       [{name:"salesTax",value:70_000, tType:2},
         {name:"governmentTax",value:1000, tType:1},
       ]

@@ -16,6 +16,9 @@ contract RentalityTaxes is Initializable, UUPSAccess {
 
   mapping(bytes32 => uint) private taxesLocationHashToTaxId;
 
+  mapping(uint => Schemas.TaxesLocationType) private taxIdToLocationType;
+
+
 
   /// @notice Retrieves the location hash and type for Florida taxes.
   /// @return The location hash for Florida and the taxes location type (State).
@@ -109,19 +112,23 @@ contract RentalityTaxes is Initializable, UUPSAccess {
 
           return totalTax;
        }
-  function getTaxesIdByHash(bytes32 hash) public view returns(uint)
-  {
-    return taxesLocationHashToTaxId[hash];
+  function getTaxesIdByHash(bytes32 hash) public view returns(uint, Schemas.TaxesLocationType) {
+    uint taxId = taxesLocationHashToTaxId[hash];
+    Schemas.TaxesLocationType locationType = taxIdToLocationType[taxId];
+    return (taxId, locationType);
   }
+ 
   function addTaxes(
     uint taxId,
     string memory location,
+    Schemas.TaxesLocationType locationType,
      Schemas.TaxValue[] memory taxes
       ) public {
         require(userService.isAdmin(tx.origin),"only Admin");
         bytes32 hash = keccak256(abi.encode(location));
         taxesLocationHashToTaxId[hash] = taxId;
         taxIdToTaxes[taxId] = taxes;
+        taxIdToLocationType[taxId] = locationType;
       }
 
    

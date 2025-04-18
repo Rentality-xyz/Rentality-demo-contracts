@@ -544,6 +544,7 @@ async function deployDefaultFixture() {
 
   await rentalityPaymentService.addTaxes(
     'Florida',
+    0,
     [{name:"salesTax",value:70_000, tType:2},
       {name:"governmentTax",value:200, tType:0} 
     ]
@@ -552,6 +553,7 @@ async function deployDefaultFixture() {
 
  await rentalityPaymentService.addTaxes(
   'Pennsylvania',
+  0,
   [{name:"salesTax",value:60_000, tType:2},
     {name:"governmentTax",value:20_000, tType:2},
     {name:"rentTax",value:200, tType:0}

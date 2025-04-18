@@ -3,6 +3,7 @@ const { ethers, upgrades } = require('hardhat')
 const { getContractAddress } = require('./utils/contractAddress')
 const addressSaver = require('./utils/addressSaver')
 const { checkNotNull, startDeploy } = require('./utils/deployHelper')
+const { keccak256 } = require('hardhat/internal/util/keccak')
 
 async function getInsuranceUrl(proxyAddress, caseId, mapSlot) {
     const provider = new ethers.JsonRpcProvider("https://base-sepolia.g.alchemy.com/v2/7NsKIcu9tp2GBR_6wuAL3L-oEvo5wflB");
@@ -45,7 +46,18 @@ async function getInsuranceUrl(proxyAddress, caseId, mapSlot) {
 }
 
 async function main() {
-  console.log(await getInsuranceUrl('0xa7BE73618F61F347eEA10B7C07D8fcB00993862B','0x9a7dd353446e08b42520684c8a1b1a83c7fd3f4951fe40ce8dc988eb6dc5ead5',1))
+  const contract = await ethers.getContractAt('RentalityTaxes','0x2287de614e0CafED95b42c45dd959176F4a9fF14')
+  const payments = await ethers.getContractAt("RentalityPaymentService", "0x6080F7A1F4fDaED78e01CDC951Bb15588B04EBF7")
+  const carToken = await ethers.getContractAt("IRentalityGateway", "0xB257FE9D206b60882691a24d5dfF8Aa24929cB73")
+  // const abiCoder = new ethers.AbiCoder()
+  // const encoded = abiCoder.encode(['string'], ["District of Columbia"])
+  // console.log("ENCODED", keccak256(encoded).toString('hex'))
+  // console.log("CONTRACT", await contract.getTaxesIdByHash('0x' + keccak256(encoded).toString('hex')))
+
+  console.log("CAR:" ,await carToken.getCarDetails(151))
+  console.log("PAYMENTS", await payments.defineTaxesType('0xCfd84b30b9fddaa275b38a40E08D8bE990688033',151))
+
+  console.log("TAXES",await contract.calculateTaxesDTO(52,3,294))
 }
 main()
   .then(() => process.exit(0))
