@@ -648,6 +648,7 @@ interface Schemas {
     string symbol;
     uint priceInUsdCents;
     uint payedInCurrency;
+    bool listed;
   }
 
   struct TripFilter {
