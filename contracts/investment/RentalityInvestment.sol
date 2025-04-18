@@ -35,7 +35,7 @@ contract RentalityInvestment is Initializable, UUPSAccess {
   mapping(uint => bool) private investmentIdToListed;
 
   function createCarInvestment(Schemas.CarInvestment memory car, string memory name_, address currency) public {
-    require(RentalityUserService(address(userService)).isInvestorManager(msg.sender), 'only Rentality platform');
+    require(RentalityUserService(address(userService)).isInvestorManager(msg.sender), 'only Invest Manager');
         require(converter.currencyTypeIsAvailable(currency), 'currency type is not available');
 
     investmentId += 1;
@@ -187,9 +187,9 @@ contract RentalityInvestment is Initializable, UUPSAccess {
       }
   }
 
-  function chengeListingStatus(uint investId) public {
+  function changeListingStatus(uint investId) public {
+      require(RentalityUserService(address(userService)).isInvestorManager(msg.sender), 'only Invest manager');
     bool listed = investmentIdToListed[investId];
-    require(RentalityUserService(address(userService)).isInvestorManager(msg.sender), 'Only for creator');
     investmentIdToListed[investId] = !listed;
   }
  
