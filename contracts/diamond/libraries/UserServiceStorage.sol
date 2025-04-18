@@ -87,6 +87,11 @@ library UserServiceStorage {
     s.userToKYCCommission[user].push(Schemas.KycCommissionData(block.timestamp, true));
   }
 
+   function getMyFullKYCInfo(address user) internal view returns (Schemas.FullKYCInfoDTO memory) {
+    UserFaucetStorage storage s = accessStorage();
+    return Schemas.FullKYCInfoDTO(s.kycInfos[user], s.additionalKycInfo[user], s.userToPhoneVerified[user]);
+  }
+
   
 
  function accessStorage() internal pure returns (UserFaucetStorage storage ds) {

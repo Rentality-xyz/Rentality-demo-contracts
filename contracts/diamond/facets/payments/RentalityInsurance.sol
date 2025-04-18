@@ -34,6 +34,8 @@ contract RentalityInsurance {
     InsuranceServiceStorage.InsuranceServiceFaucetStorage storage s = InsuranceServiceStorage.accessStorage();
     return s.guestToInsuranceInfo[user];
   }
+  
+  
 
   function saveTripInsuranceInfo(uint tripId, Schemas.SaveInsuranceRequest memory insuranceInfo, address user) public {
     require(insuranceInfo.insuranceType != Schemas.InsuranceType.None, 'Wrong insurance type');

@@ -1,7 +1,7 @@
 // // SPDX-License-Identifier: MIT
 // pragma solidity ^0.8.0;
 
-// import { Schemas } from "../../Schemas.sol";
+// import { Schemas } from "../../../Schemas.sol";
 // import {TripServiceStorage} from "../../libraries/TripServiceStorage.sol";
 // import {CarTokenStorage} from "../../libraries/CarTokenStorage.sol";
 // import {TaxesStorage} from "../../libraries/TaxesStorage.sol";
@@ -32,22 +32,22 @@
 //   /// @notice Retrieves information about all cars.
 //   /// @return An array of car information.
 //   function getAllCars() public view returns (Schemas.CarInfo[] memory) {
-//     return addresses.carService.getAllCars();
+//     return CarTokenHelper.getAllCars();
 //   }
 
-//   // not using
-//   /// @notice Retrieves information about available cars for a specific user.
-//   /// @param user The address of the user.
-//   /// @return An array of available car information for the specified user.
+// //   // not using
+// //   /// @notice Retrieves information about available cars for a specific user.
+// //   /// @param user The address of the user.
+// //   /// @return An array of available car information for the specified user.
 //   function getAvailableCarsForUser(address user) public view returns (Schemas.CarInfo[] memory) {
 //     return CarTokenHelper.getAvailableCarsForUser(user);
 //   }
 
-//   /// @notice Searches for available cars based on specified criteria.
-//   /// @param startDateTime The start date and time of the search.
-//   /// @param endDateTime The end date and time of the search.
-//   /// @param searchParams Additional search parameters.
-//   /// @return An array of available car information meeting the search criteria.
+// //   /// @notice Searches for available cars based on specified criteria.
+// //   /// @param startDateTime The start date and time of the search.
+// //   /// @param endDateTime The end date and time of the search.
+// //   /// @param searchParams Additional search parameters.
+// //   /// @return An array of available car information meeting the search criteria.
 //   function searchAvailableCars(
 //     uint64 startDateTime,
 //     uint64 endDateTime,
@@ -59,10 +59,8 @@
 //         startDateTime,
 //         endDateTime,
 //         searchParams,
-//         IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getLocationInfo(bytes32('')),
-//         IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getLocationInfo(bytes32('')),
-//         RentalityAdminGateway(addresses.adminService).getDeliveryServiceAddress(),
-//         address(insuranceService)
+//         GeoServiceStorage.getLocationInfo(bytes32('')),
+//         GeoServiceStorage.getLocationInfo(bytes32(''))
 //       );
 //   }
 

@@ -488,7 +488,6 @@ contract RentalityTripService is ARentalityEventManager {
 //   /// Emits a `TripStatusChanged` event with the new status Finished.
   function finishTrip(uint256 tripId, address user) public {
     TripServiceStorage.TripServiceFaucetStorage storage s = TripServiceStorage.accessStorage();
-    CarTokenStorage.CarTokenFaucetStorage storage carStorage = CarTokenStorage.accessStorage();
     Schemas.Trip storage trip = s.idToTripInfo[tripId];
 
      require(

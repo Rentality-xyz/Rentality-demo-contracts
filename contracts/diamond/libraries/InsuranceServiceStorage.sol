@@ -18,6 +18,10 @@ library InsuranceServiceStorage {
     InsuranceServiceFaucetStorage storage s = accessStorage();
     s.carIdToInsuranceRequired[carId] = Schemas.InsuranceCarInfo(required, priceInUsdCents);
   }
+   function getMyInsurancesAsGuest(address user) internal view returns (Schemas.InsuranceInfo[] memory) {
+    InsuranceServiceFaucetStorage storage s = accessStorage();
+    return s.guestToInsuranceInfo[user];
+  }
     function calculateInsuranceForTrip(
     uint carId,
     uint64 startDateTime,
@@ -63,6 +67,10 @@ library InsuranceServiceStorage {
     InsuranceServiceFaucetStorage storage s = accessStorage();
     return s.carIdToInsuranceRequired[carId];
    }
+    function getTripInsurances(uint tripId) public view returns (Schemas.InsuranceInfo[] memory) {
+    InsuranceServiceFaucetStorage storage s = accessStorage();
+    return s.tripIdToInsuranceInfo[tripId];
+  }
 
     function getInsurancePriceByTrip(uint tripId) internal view returns (uint) {
     InsuranceServiceFaucetStorage storage s = accessStorage();
@@ -85,6 +93,36 @@ library InsuranceServiceStorage {
         user
       )
     );
+  }
+
+   function isGuestHasInsurance(address guest) internal view returns (bool) {
+    InsuranceServiceFaucetStorage storage s = accessStorage();
+    Schemas.InsuranceInfo[] memory insurances = s.guestToInsuranceInfo[guest];
+    return insurances.length > 0 && insurances[insurances.length - 1].insuranceType == Schemas.InsuranceType.General;
+  }
+
+    function findActualInsurance(Schemas.InsuranceInfo[] memory insurances) internal pure returns (uint, uint) {
+    uint lastGeneralIndex = type(uint).max;
+    uint lastOneTimeIndex = type(uint).max;
+    uint latestGeneralTime = 0;
+    uint latestOneTimeTime = 0;
+
+    for (uint i = 0; i < insurances.length; i++) {
+      if (
+        insurances[i].insuranceType == Schemas.InsuranceType.General && insurances[i].createdTime > latestGeneralTime
+      ) {
+        latestGeneralTime = insurances[i].createdTime;
+        lastGeneralIndex = i;
+      }
+      if (
+        insurances[i].insuranceType == Schemas.InsuranceType.OneTime && insurances[i].createdTime > latestOneTimeTime
+      ) {
+        latestOneTimeTime = insurances[i].createdTime;
+        lastOneTimeIndex = i;
+      }
+    }
+
+    return (lastOneTimeIndex, lastGeneralIndex);
   }
 
     function accessStorage() internal pure returns (InsuranceServiceFaucetStorage storage ds) {

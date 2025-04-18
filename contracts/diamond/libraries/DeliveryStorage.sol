@@ -54,6 +54,14 @@ library DeliveryStorage {
     return total;
   }
 
+   /// @notice Retrieves delivery prices for a user
+  /// @param user Address of the user
+  /// @return DeliveryPrices struct containing the user's delivery prices
+  function getUserDeliveryPrices(address user) public view returns (Schemas.DeliveryPrices memory) {
+    DeliveryFaucetStorage storage s = accessStorage();
+    return s.userToDeliveryPrice[user].initialized ? s.userToDeliveryPrice[user] : s.defaultPrices;
+  }
+
   function calculatePricesByDeliveryDataInUsdCents(
     Schemas.LocationInfo memory pickUpLoc,
     Schemas.LocationInfo memory returnLoc,

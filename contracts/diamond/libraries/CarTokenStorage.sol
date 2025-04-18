@@ -51,6 +51,10 @@ library CarTokenStorage {
         string memory _tokenURI = s._tokenURIs[tokenId];
         return _tokenURI;
   }
+    function totalSupply(uint256 tokenId) internal view returns (uint) {
+        CarTokenFaucetStorage storage s = accessStorage();
+        return s._carIdCounter;
+  }
 
 
 
