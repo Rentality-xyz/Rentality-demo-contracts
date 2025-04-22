@@ -341,11 +341,11 @@ library RentalityUtils {
       (bytes(searchCarParams.brand).length == 0 || containWord(toLower(car.brand), toLower(searchCarParams.brand))) &&
       (bytes(searchCarParams.model).length == 0 || containWord(toLower(car.model), toLower(searchCarParams.model))) &&
       (bytes(searchCarParams.country).length == 0 ||
-        containWord(toLower(geoService.getCarCountry(car.locationHash)), toLower(searchCarParams.country))) &&
+        compareStrings(toLower(geoService.getCarCountry(car.locationHash)), toLower(searchCarParams.country))) &&
       (bytes(searchCarParams.state).length == 0 ||
-        containWord(toLower(geoService.getCarState(car.locationHash)), toLower(searchCarParams.state))) &&
+        compareStrings(toLower(geoService.getCarState(car.locationHash)),toLower(searchCarParams.state))) &&
       (bytes(searchCarParams.city).length == 0 ||
-        containWord(toLower(geoService.getCarCity(car.locationHash)), toLower(searchCarParams.city))) &&
+        compareStrings(toLower(geoService.getCarCity(car.locationHash)), toLower(searchCarParams.city))) &&
       (searchCarParams.yearOfProductionFrom == 0 || car.yearOfProduction >= searchCarParams.yearOfProductionFrom) &&
       (searchCarParams.yearOfProductionTo == 0 || car.yearOfProduction <= searchCarParams.yearOfProductionTo) &&
       (searchCarParams.pricePerDayInUsdCentsFrom == 0 ||
@@ -353,6 +353,7 @@ library RentalityUtils {
       (searchCarParams.pricePerDayInUsdCentsTo == 0 ||
         car.pricePerDayInUsdCents <= searchCarParams.pricePerDayInUsdCentsTo);
   }
+
 
   /// @dev Calculates the payments for a trip.
   /// @param carId The ID of the car.
