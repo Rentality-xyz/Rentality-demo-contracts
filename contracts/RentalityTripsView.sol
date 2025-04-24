@@ -16,7 +16,7 @@ import {ARentalityContext} from './abstract/ARentalityContext.sol';
 
 import {RentalityDimoService} from './features/RentalityDimoService.sol';
 import {RentalityViewLib} from './libs/RentalityViewLib.sol';
-import {RentalityMotionsCloud} from './features/RentalityMotionsCloud.sol';
+import {RentalityMotionsCloudV2} from './features/RentalityMotionsCloudV2.sol';
 
 error FunctionNotFound();
 /// @dev SAFETY: The linked library is not supported yet because it can modify the state or call
@@ -32,7 +32,7 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
   RentalityDimoService private dimoService;
   address private trustedForwarderAddress;
 
-  RentalityMotionsCloud private motionCloudService;
+  RentalityMotionsCloudV2 private motionCloudService;
 
   function updateServiceAddresses(
     RentalityContract memory contracts,
@@ -46,7 +46,7 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
     insuranceService = RentalityInsurance(insurance);
     promoService = RentalityPromoService(promoServiceAddress);
     dimoService = RentalityDimoService(dimoServiceAddress);
-    motionCloudService = RentalityMotionsCloud(motionsCloudServiceAddress);
+    motionCloudService = RentalityMotionsCloudV2(motionsCloudServiceAddress);
   }
   fallback(bytes calldata) external returns (bytes memory) {
     revert FunctionNotFound();
@@ -145,15 +145,15 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
     return Schemas.FilterInfoDTO(maxCarPrice, minCarYearOfProduction);
   }
 
-  function getMotionsCloudCaseData(uint tripId, bool pre) public view returns(Schemas.MotionsCloudCaseDataDTO memory) {
+  function getMotionsCloudCaseRequest(uint tripId, Schemas.CaseType caseType) public view returns(Schemas.MotionsCloudCaseRequestDTO memory) {
     Schemas.CarInfo memory car = addresses.carService.getCarInfoById(addresses.tripService.getTrip(tripId).carId);
     Schemas.FullKYCInfoDTO memory kyc = addresses.userService.getMyFullKYCInfo(_msgGatewaySender());
 
-    return Schemas.MotionsCloudCaseDataDTO(
-      motionCloudService.getCurrentCaseNumber(),
+    return Schemas.MotionsCloudCaseRequestDTO(
+      motionCloudService.getLatestCaseId(),
       kyc.additionalKYC.email,
       kyc.kyc.surname,
-      motionCloudService.getInsuranceCaseByTrip(tripId, pre),
+      motionCloudService.getCaseTokenForTrip(tripId, caseType),
       car.carVinNumber
     );
 
@@ -214,7 +214,7 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
     insuranceService = RentalityInsurance(insuranceAddress);
     promoService = RentalityPromoService(promoServiceAddress);
     dimoService = RentalityDimoService(dimoServiceAddress);
-    motionCloudService = RentalityMotionsCloud(motionsCloudServiceAddres);
+    motionCloudService = RentalityMotionsCloudV2(motionsCloudServiceAddres);
   }
 
   function _authorizeUpgrade(address /*newImplementation*/) internal view override {
