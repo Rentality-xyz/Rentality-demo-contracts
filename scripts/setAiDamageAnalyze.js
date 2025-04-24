@@ -69,8 +69,8 @@ async function main() {
       const rentalityPromoService = checkNotNull(
         getContractAddress('RentalityPromoService', 'scripts/deploy_4f_RentalityPromo.js', chainId))
 
-        const aiDamageAnalyze = checkNotNull(
-            getContractAddress('RentalityAiDamageAnalyze', 'scripts/deploy_3f_RentalityAiDamageAnalyze.js', chainId))
+      const aiDamageAnalyze = checkNotNull(
+            getContractAddress('RentalityAiDamageAnalyzeV2', 'scripts/deploy_3f_RentalityAiDamageAnalyze.js', chainId))
 
       const contract = await ethers.getContractAt('RentalityTripsView',rentalityTripsView)
 

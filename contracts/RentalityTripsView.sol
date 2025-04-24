@@ -16,7 +16,7 @@ import {ARentalityContext} from './abstract/ARentalityContext.sol';
 
 import {RentalityDimoService} from './features/RentalityDimoService.sol';
 import {RentalityViewLib} from './libs/RentalityViewLib.sol';
-import {RentalityAiDamageAnalyze} from './features/RentalityAiDamageAnalyze.sol';
+import {RentalityAiDamageAnalyzeV2} from './features/RentalityAiDamageAnalyzeV2.sol';
 
 error FunctionNotFound();
 /// @dev SAFETY: The linked library is not supported yet because it can modify the state or call
@@ -32,7 +32,7 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
   RentalityDimoService private dimoService;
   address private trustedForwarderAddress;
 
-  RentalityAiDamageAnalyze private aiDamageAnalyzeService;
+  RentalityAiDamageAnalyzeV2 private aiDamageAnalyzeService;
 
   function updateServiceAddresses(
     RentalityContract memory contracts,
@@ -46,7 +46,7 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
     insuranceService = RentalityInsurance(insurance);
     promoService = RentalityPromoService(promoServiceAddress);
     dimoService = RentalityDimoService(dimoServiceAddress);
-    aiDamageAnalyzeService = RentalityAiDamageAnalyze(aiDamageAnalyzeServiceAddress);
+    aiDamageAnalyzeService = RentalityAiDamageAnalyzeV2(aiDamageAnalyzeServiceAddress);
   }
   fallback(bytes calldata) external returns (bytes memory) {
     revert FunctionNotFound();
@@ -145,15 +145,15 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
     return Schemas.FilterInfoDTO(maxCarPrice, minCarYearOfProduction);
   }
 
-  function getAiDamageAnalyzeCaseData(uint tripId, bool pre) public view returns(Schemas.AiDamageAnalyzeCaseDataDTO memory) {
+  function getAiDamageAnalyzeCaseRequest(uint tripId, Schemas.CaseType caseType) public view returns(Schemas.AiDamageAnalyzeCaseRequestDTO memory) {
     Schemas.CarInfo memory car = addresses.carService.getCarInfoById(addresses.tripService.getTrip(tripId).carId);
     Schemas.FullKYCInfoDTO memory kyc = addresses.userService.getMyFullKYCInfo(_msgGatewaySender());
 
-    return Schemas.AiDamageAnalyzeCaseDataDTO(
-      aiDamageAnalyzeService.getCurrentCaseNumber(),
+    return Schemas.AiDamageAnalyzeCaseRequestDTO(
+      aiDamageAnalyzeService.getLatestCaseId(),
       kyc.additionalKYC.email,
       kyc.kyc.surname,
-      aiDamageAnalyzeService.getInsuranceCaseByTrip(tripId, pre),
+      aiDamageAnalyzeService.getInsuranceCaseByTrip(tripId, caseType),
       car.carVinNumber
     );
 
@@ -214,7 +214,7 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
     insuranceService = RentalityInsurance(insuranceAddress);
     promoService = RentalityPromoService(promoServiceAddress);
     dimoService = RentalityDimoService(dimoServiceAddress);
-    aiDamageAnalyzeService = RentalityAiDamageAnalyze(aiDamageAnalyzeServiceAddress);
+    aiDamageAnalyzeService = RentalityAiDamageAnalyzeV2(aiDamageAnalyzeServiceAddress);
   }
 
   function _authorizeUpgrade(address /*newImplementation*/) internal view override {

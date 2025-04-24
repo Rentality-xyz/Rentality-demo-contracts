@@ -7,7 +7,7 @@
   "keywords": [],
   "author": "",
   "license": "MIT",
-  "scripts": {
+   "scripts": {
     "format": "npx prettier --write . && npx prettier --write --plugin=prettier-plugin-solidity contracts/**/*.sol",
     "generate_schemas": "node scripts/utils/generateSchemas.js",
     "generate_interface": "node scripts/utils/generateInterface.js",
