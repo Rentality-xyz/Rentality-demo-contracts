@@ -153,7 +153,7 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
       motionCloudService.getLatestCaseId(),
       kyc.additionalKYC.email,
       kyc.kyc.surname,
-      motionCloudService.getInsuranceCaseByTrip(tripId, caseType),
+      motionCloudService.getCaseTokenForTrip(tripId, caseType),
       car.carVinNumber
     );
 
