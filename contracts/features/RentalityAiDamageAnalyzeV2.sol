@@ -44,7 +44,7 @@ contract RentalityAiDamageAnalyzeV2 is UUPSAccess, EIP712Upgradeable {
     return aiDamageAnalyzeCases;
   }
 
-  function getInsuranceCaseByTrip(uint tripId, Schemas.CaseType caseType) public view returns (string memory iCases) {
+  function getCaseTokenForTrip(uint tripId, Schemas.CaseType caseType) public view returns (string memory caseToken) {
     Schemas.CaseInfo[] memory tripCases = tripIdsToCaseInfos[tripId];
 
     for (uint i = 0; i < tripCases.length; i++) {
@@ -55,20 +55,20 @@ contract RentalityAiDamageAnalyzeV2 is UUPSAccess, EIP712Upgradeable {
     return '';
   }
 
-  function saveInsuranceCaseUrl(string memory iCase, string memory url) public {
+  function saveInsuranceCaseUrl(string memory caseToken, string memory url) public {
     require(RentalityUserService(address(userService)).isSignatureManager(tx.origin), 'only platform Manager');
-    bytes32 hash = keccak256(abi.encodePacked(iCase));
-    require(isCaseTokenExists(iCase), 'case not exists');
+    bytes32 hash = keccak256(abi.encodePacked(caseToken));
+    require(isCaseTokenExists(caseToken), 'case not exists');
     caseTokenToCaseTokenInfo[hash].url = url;
     caseTokenToCaseTokenInfo[hash].updateDate = block.timestamp;
   }
 
-  function saveInsuranceCase(string memory iCase, uint tripId, Schemas.CaseType caseType) public {
+  function saveInsuranceCase(string memory caseToken, uint tripId, Schemas.CaseType caseType) public {
     //   require(userService.isRentalityPlatform(msg.sender), "only Rentality platform");
-    bytes32 hash = keccak256(abi.encodePacked(iCase));
+    bytes32 hash = keccak256(abi.encodePacked(caseToken));
 
     caseId += 1;
-    Schemas.CaseInfo memory caseInfo = Schemas.CaseInfo(caseId, tripId, iCase, block.timestamp, caseType);
+    Schemas.CaseInfo memory caseInfo = Schemas.CaseInfo(caseId, tripId, caseToken, block.timestamp, caseType);
     tripIdsToCaseInfos[tripId].push(caseInfo);
     caseTokenToCaseTokenInfo[hash] = Schemas.CaseTokenInfo(caseId, 0, '');
   }

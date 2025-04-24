@@ -153,7 +153,7 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
       aiDamageAnalyzeService.getLatestCaseId(),
       kyc.additionalKYC.email,
       kyc.kyc.surname,
-      aiDamageAnalyzeService.getInsuranceCaseByTrip(tripId, caseType),
+      aiDamageAnalyzeService.getCaseTokenForTrip(tripId, caseType),
       car.carVinNumber
     );
 

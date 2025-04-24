@@ -962,10 +962,10 @@ struct AiDamageAnalyzeCaseDTO {
   string url;
 }
 struct AiDamageAnalyzeCaseRequestDTO {
-  uint caseNumber;
+  uint lastCaseId;
   string email;
   string name;
-  string iCase;
+  string caseToken;
   string vin;
  }
  struct InsuranceCase {
