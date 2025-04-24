@@ -5,7 +5,7 @@ const { startDeploy, checkNotNull } = require('./utils/deployHelper')
 const { getContractAddress } = require('./utils/contractAddress')
 
 async function main() {
-  const { contractName, chainId } = await startDeploy('RentalityMotionsCloud')
+  const { contractName, chainId } = await startDeploy('RentalityMotionsCloudV2')
 
   if (chainId < 0) throw new Error('chainId is not set')
 
