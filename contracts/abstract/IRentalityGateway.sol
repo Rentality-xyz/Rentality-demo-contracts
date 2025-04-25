@@ -400,7 +400,7 @@ interface IRentalityGateway {
    function getAvaibleCurrencies() external view returns(Schemas.Currency[] memory avaibleCurrencies);
 
 
-   function getAiDamageAnalyzeCaseData(uint, bool) external view returns(Schemas.AiDamageAnalyzeCaseDataDTO memory aiDamageAnalyzeCaseData);
+   function getAiDamageAnalyzeCaseData(uint, Schemas.CaseType) external view returns(Schemas.AiDamageAnalyzeCaseRequestDTO memory aiDamageAnalyzeCaseData);
 
   function getUserCurrency(address user) external view returns (Schemas.UserCurrency memory userCurrency);
 

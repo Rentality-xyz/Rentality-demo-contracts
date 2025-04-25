@@ -937,12 +937,37 @@ interface Schemas {
     uint promoCodeEnterDate;
   }
 
-  struct AiDamageAnalyzeCaseDataDTO {
-      uint caseNumber;
-      string email;
-      string name;
-      string iCase;
-      string vin;
+struct CaseTokenInfo {
+  uint caseId;
+  uint updateDate;
+  string url;
+}
+
+enum CaseType {
+  PreTrip,
+  PostTrip
+}
+
+struct CaseInfo {
+  uint caseId;
+  uint tripId;
+  string caseToken;
+  uint createDate;
+  CaseType caseType;
+}
+
+struct AiDamageAnalyzeCaseDTO {
+  uint caseId;
+  CaseType caseType;
+  string caseToken;
+  string url;
+}
+struct AiDamageAnalyzeCaseRequestDTO {
+  uint lastCaseId;
+  string email;
+  string name;
+  string caseToken;
+  string vin;
  }
  struct InsuranceCase {
   string iCase;
