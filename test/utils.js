@@ -17,6 +17,12 @@ const encodeTaxes = (data) => {
     [values]   
   );
 }
+
+const TaxesLocationType = {
+  State: 0,
+  City: 1,
+  Country: 2,
+}
 const UserRole = {
   Guest: 0,
   Host: 1,
@@ -853,5 +859,6 @@ module.exports = {
   taxesWithRentSign,
   taxesWithoutRentSign,
   encodeTaxes,
-  taxesGOVConst
+  taxesGOVConst,
+  TaxesLocationType
 }
