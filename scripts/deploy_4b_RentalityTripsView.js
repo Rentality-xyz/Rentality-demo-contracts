@@ -70,10 +70,9 @@ async function main() {
     'RentalityDimoService'
   )
   const motionsCloud = checkNotNull(
-    getContractAddress('RentalityMotionsCloud', 'scripts/deploy_3f_RentalityMotionsCloud.js', chainId),
-    'RentalityMotionsCloud'
+    getContractAddress('RentalityMotionsCloudV2', 'scripts/deploy_3f_RentalityMotionsCloud.js', chainId),
+    'RentalityMotionsCloudV2'
   )
-
 
   const rentalityViewLib = checkNotNull(
     getContractAddress('RentalityViewLib', 'scripts/deploy_1g_RentalityViewLib.js', chainId),
@@ -96,7 +95,7 @@ async function main() {
     rentalityInsurance,
     rentalityPromoService,
     dimoService,
-    motionsCloud
+    motionsCloud,
   ])
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()
