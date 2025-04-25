@@ -397,13 +397,14 @@ interface IRentalityGateway {
   function getDimoVihicles() external view returns (uint[] memory dimoVihicles);
   function saveDimoTokenIds(uint[] memory, uint[] memory) external;
 
-   function getAvaibleCurrencies() external view returns(Schemas.Currency[] memory avaibleCurrencies);
+  function getAvaibleCurrencies() external view returns (Schemas.Currency[] memory avaibleCurrencies);
 
-
-   function getAiDamageAnalyzeCaseData(uint, Schemas.CaseType) external view returns(Schemas.AiDamageAnalyzeCaseRequestDTO memory aiDamageAnalyzeCaseData);
+  function getAiDamageAnalyzeCaseRequest(
+    uint,
+    Schemas.CaseType
+  ) external view returns (Schemas.AiDamageAnalyzeCaseRequestDTO memory aiDamageAnalyzeCaseRequest);
 
   function getUserCurrency(address user) external view returns (Schemas.UserCurrency memory userCurrency);
 
-   function addUserCurrency(address currency) external;
-
+  function addUserCurrency(address currency) external;
 }

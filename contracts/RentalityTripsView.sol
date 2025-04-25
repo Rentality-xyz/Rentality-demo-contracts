@@ -36,11 +36,11 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
 
   function updateServiceAddresses(
     RentalityContract memory contracts,
-     address insurance,
-      address promoServiceAddress,
-      address dimoServiceAddress,
-      address aiDamageAnalyzeServiceAddress
-      ) public {
+    address insurance,
+    address promoServiceAddress,
+    address dimoServiceAddress,
+    address aiDamageAnalyzeServiceAddress
+  ) public {
     require(addresses.userService.isAdmin(tx.origin), 'only Admin.');
     addresses = contracts;
     insuranceService = RentalityInsurance(insurance);
@@ -124,9 +124,7 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
   function getAvaibleCurrencies() public view returns (Schemas.Currency[] memory) {
     return addresses.currencyConverterService.getAllCurrencies();
   }
-  function getFilterInfo(
-    uint64 duration
-  ) public view returns (Schemas.FilterInfoDTO memory) {
+  function getFilterInfo(uint64 duration) public view returns (Schemas.FilterInfoDTO memory) {
     uint64 maxCarPrice = 0;
     RentalityCarToken carService = addresses.carService;
     uint minCarYearOfProduction = carService.getCarInfoById(1).yearOfProduction;
@@ -145,20 +143,23 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
     return Schemas.FilterInfoDTO(maxCarPrice, minCarYearOfProduction);
   }
 
-  function getAiDamageAnalyzeCaseRequest(uint tripId, Schemas.CaseType caseType) public view returns(Schemas.AiDamageAnalyzeCaseRequestDTO memory) {
+  function getAiDamageAnalyzeCaseRequest(
+    uint tripId,
+    Schemas.CaseType caseType
+  ) public view returns (Schemas.AiDamageAnalyzeCaseRequestDTO memory aiDamageAnalyzeCaseRequest) {
     Schemas.CarInfo memory car = addresses.carService.getCarInfoById(addresses.tripService.getTrip(tripId).carId);
     Schemas.FullKYCInfoDTO memory kyc = addresses.userService.getMyFullKYCInfo(_msgGatewaySender());
 
-    return Schemas.AiDamageAnalyzeCaseRequestDTO(
-      aiDamageAnalyzeService.getLatestCaseId(),
-      kyc.additionalKYC.email,
-      kyc.kyc.surname,
-      aiDamageAnalyzeService.getCaseTokenForTrip(tripId, caseType),
-      car.carVinNumber
-    );
-
+    return
+      Schemas.AiDamageAnalyzeCaseRequestDTO(
+        aiDamageAnalyzeService.getLatestCaseId(),
+        kyc.additionalKYC.email,
+        kyc.kyc.surname,
+        aiDamageAnalyzeService.getCaseTokenForTrip(tripId, caseType),
+        car.carVinNumber
+      );
   }
-    function getDimoVehicles() public view returns (uint[] memory) {
+  function getDimoVehicles() public view returns (uint[] memory) {
     return dimoService.getDimoVehicles();
   }
 
@@ -173,10 +174,9 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
     return addresses.carService.tokenURI(carId);
   }
 
-    function trustedForwarder() internal view override returns (address) {
-      return trustedForwarderAddress;
-
-     }
+  function trustedForwarder() internal view override returns (address) {
+    return trustedForwarderAddress;
+  }
 
   function isTrustedForwarder(address forwarder) internal view override returns (bool) {
     return forwarder == trustedForwarderAddress;
