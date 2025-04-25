@@ -937,12 +937,37 @@ interface Schemas {
     uint promoCodeEnterDate;
   }
 
-  struct MotionsCloudCaseDataDTO {
-      uint caseNumber;
-      string email;
-      string name;
-      string iCase;
-      string vin;
+struct CaseTokenInfo {
+  uint caseId;
+  uint updateDate;
+  string url;
+}
+
+enum CaseType {
+  PreTrip,
+  PostTrip
+}
+
+struct CaseInfo {
+  uint caseId;
+  uint tripId;
+  string caseToken;
+  uint createDate;
+  CaseType caseType;
+}
+
+struct MotionCloudCaseDTO {
+  uint caseId;
+  CaseType caseType;
+  string caseToken;
+  string url;
+}
+struct MotionsCloudCaseRequestDTO {
+  uint lastCaseId;
+  string email;
+  string name;
+  string caseToken;
+  string vin;
  }
  struct InsuranceCase {
   string iCase;
