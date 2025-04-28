@@ -935,23 +935,23 @@
     },
     {
       "type": "function",
-      "name": "getAiDamageAnalyzeCaseData",
+      "name": "getAiDamageAnalyzeCaseRequest",
       "constant": true,
       "stateMutability": "view",
       "payable": false,
       "inputs": [
         { "type": "uint256", "name": "" },
-        { "type": "bool", "name": "" }
+        { "type": "uint8", "name": "" }
       ],
       "outputs": [
         {
           "type": "tuple",
-          "name": "aiDamageAnalyzeCaseData",
+          "name": "aiDamageAnalyzeCaseRequest",
           "components": [
-            { "type": "uint256", "name": "caseNumber" },
+            { "type": "uint256", "name": "lastCaseId" },
             { "type": "string", "name": "email" },
             { "type": "string", "name": "name" },
-            { "type": "string", "name": "iCase" },
+            { "type": "string", "name": "caseToken" },
             { "type": "string", "name": "vin" }
           ]
         }

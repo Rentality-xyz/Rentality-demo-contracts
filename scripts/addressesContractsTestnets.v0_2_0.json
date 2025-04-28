@@ -63,7 +63,7 @@
     "RentalityCurrencyConverter": "0x91C30265daF5Ff11B9151904F363dBA38D1721B5",
     "RentalityFloridaTaxes": "0x88927DF5F1E97E8080727A9E1587e6735bfBd56A",
     "RentalityBaseDiscount": "0x4Ab74cc01acb2C29e0CC915dBa72E7a74D1Cd193",
-    "RentalityUtils": "0xB9E64ea18a2Bde2E384e4e1f298Fc40530E4A297",
+    "RentalityUtils": "0x4ceC6F368b58785a8981AcC0d4b15e9011C57b56",
     "RentalityLocationVerifier": "0xdbD37DA72429C152E8d02cd3F57D3b8BcF8aee33",
     "RentalityGeoParser": "0xDbF2977c5B8dA6A04807687B57764e7A2001b42c",
     "RentalityGeoService": "0xb1576942d42196a5448eA93105122E4F2Bc26eb4",
@@ -93,7 +93,8 @@
     "RentalityChatHelper": "0xcfba800ae6290CDC48CB06Ad27091904d438f7eE",
     "RentalityAiDamageAnalyze": "0xa7BE73618F61F347eEA10B7C07D8fcB00993862B",
     "RentalityInvestDeployer": "0x46C4A9BeaD5243FcAC108018090f254fF16d2068",
-    "RentalityTaxes": "0x2287de614e0CafED95b42c45dd959176F4a9fF14"
+    "RentalityTaxes": "0x2287de614e0CafED95b42c45dd959176F4a9fF14",
+    "RentalityAiDamageAnalyzeV2": "0x59156833f041D213c6E1DD8c60E948a99Fef9DEC"
   },
   {
     "name": "opBNB_testnet",
@@ -111,7 +112,7 @@
     "RentalityCurrencyConverter": "0x14e79308E53EFc1f4C8e3B6dE5CB22083d12F6C4",
     "RentalityFloridaTaxes": "0x4fa8D1B6a03C150f033687B9DfDb0a8029042A36",
     "RentalityBaseDiscount": "0xB0eD952d6CA5Efea85146da5e0a8D4a6c5C3C9A4",
-    "RentalityUtils": "0x2FFE82A5D479eDc3678165A11A80C98bF4CCd21f",
+    "RentalityUtils": "0xC71e3678EECAad2814C1e72D01f06Cab771Af699",
     "RentalityLocationVerifier": "0xBfD1B67B8C5278267112211862d4D3dc9Fb422cd",
     "RentalityGeoParser": "0xD7DF18D38bB7497c2eC802A55e36b8FF3519B825",
     "RentalityGeoService": "0xc8Df3f5f1a312bc76E17F3A71B0C5e0b26635BCb",
@@ -142,7 +143,8 @@
     "RentalityAiDamageAnalyze": "0x2cC617D7c4e507fCA9fBA1aE4920e6A57A260A5F",
     "RentalityInvestDeployer": "0x446A87c6eFBC3B830242b2F46a9D990ce1FAE8d5",
     "RentalityTaxes": "0x5dFb58D2dc2FF33Ec3cb83Fd88f5A8432aF70DEc",
-    "RentalityBatchPriceUpdater": "0x9AeDFD14eae95D23D0687Afb7754358A3C83cEc3"
+    "RentalityBatchPriceUpdater": "0x9AeDFD14eae95D23D0687Afb7754358A3C83cEc3",
+    "RentalityAiDamageAnalyzeV2": "0x11c51C4f7851D02E1aDadae717BE3ED8f9A38Aac"
   },
   {
     "name": "opBNB",

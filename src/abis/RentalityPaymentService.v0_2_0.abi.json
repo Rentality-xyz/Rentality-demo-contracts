@@ -71,6 +71,7 @@
       "payable": false,
       "inputs": [
         { "type": "string", "name": "location" },
+        { "type": "uint8", "name": "locationType" },
         {
           "type": "tuple[]",
           "name": "taxes",

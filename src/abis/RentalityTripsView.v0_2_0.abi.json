@@ -118,23 +118,23 @@
     },
     {
       "type": "function",
-      "name": "getAiDamageAnalyzeCaseData",
+      "name": "getAiDamageAnalyzeCaseRequest",
       "constant": true,
       "stateMutability": "view",
       "payable": false,
       "inputs": [
         { "type": "uint256", "name": "tripId" },
-        { "type": "bool", "name": "pre" }
+        { "type": "uint8", "name": "caseType" }
       ],
       "outputs": [
         {
           "type": "tuple",
-          "name": "",
+          "name": "aiDamageAnalyzeCaseRequest",
           "components": [
-            { "type": "uint256", "name": "caseNumber" },
+            { "type": "uint256", "name": "lastCaseId" },
             { "type": "string", "name": "email" },
             { "type": "string", "name": "name" },
-            { "type": "string", "name": "iCase" },
+            { "type": "string", "name": "caseToken" },
             { "type": "string", "name": "vin" }
           ]
         }
