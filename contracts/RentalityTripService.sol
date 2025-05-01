@@ -231,6 +231,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
   ) public {
     Schemas.Trip memory trip = getTrip(tripId);
     require(trip.host == user, 'For host only');
+    require(trip.status == Schemas.TripStatus.Approved, "trip in wrong status");
 
     uint[] memory totalTrips = carIdToActiveTrips[trip.carId];
     for (uint i = 0; i < totalTrips.length; i++) {

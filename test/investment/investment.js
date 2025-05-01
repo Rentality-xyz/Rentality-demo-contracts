@@ -694,13 +694,13 @@ describe('Rentality investment', function () {
     }
     await expect(await investorsService.connect(host).createCarInvestment(mockCarInvestment, 'name',ethToken)).to.not
       .reverted
-      await expect(investorsService.connect(host).chengeListingStatus(1)).to.not.reverted
-      await expect(investorsService.connect(admin).chengeListingStatus(1)).to.be.reverted
+      await expect(investorsService.connect(host).changeListingStatus(1)).to.not.reverted
+      await expect(investorsService.connect(admin).changeListingStatus(1)).to.be.reverted
       let investment = await investorsService.connect(host).getAllInvestments()
       assert.equal(investment.length, 1)
       investment = await investorsService.connect(admin).getAllInvestments()
       assert.equal(investment.length, 0)
-      await expect(investorsService.connect(host).chengeListingStatus(1)).to.not.reverted
+      await expect(investorsService.connect(host).changeListingStatus(1)).to.not.reverted
 
       investment = await investorsService.connect(guest).getAllInvestments()
       assert.equal(investment.length, 1)
