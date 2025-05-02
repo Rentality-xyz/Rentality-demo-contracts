@@ -17,7 +17,7 @@ const {
 } = require('../utils')
 const {deployDefault, calculatePayments} = require('./deploy')
 
-describe.only('RentalityGateway: user info', function () {
+describe('RentalityGateway: user info', function () {
   let rentalityGateway,
     rentalityUserService,
     owner,

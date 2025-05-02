@@ -2,7 +2,6 @@
 pragma solidity ^0.8.9;
 
 import './ARentalityEngine.sol';
-
 /// @title RentalityElectricEngine - Implementation of an electric engine in the Rentality system.
 /// @notice This contract extends ARentalityEngine and adds functionality specific to electric engines.
 contract RentalityElectricEngine is ARentalityEngine {
@@ -80,14 +79,16 @@ contract RentalityElectricEngine is ARentalityEngine {
   /// @return The fuel-specific resolve amount in USD cents.
   function getFuelResolveAmountInUsdCents(
     uint64 endFuelLevelInPercents,
-    uint startFuelLevelInPercents,
+    uint64 startFuelLevelInPercents,
     uint64 priceForFullBatteryCharge
   ) public pure returns (uint64) {
     if (endFuelLevelInPercents >= startFuelLevelInPercents) {
       return 0;
     }
-    uint256 difference = startFuelLevelInPercents - endFuelLevelInPercents;
+    uint64 difference = startFuelLevelInPercents - endFuelLevelInPercents;
 
-    return (uint64(difference) * priceForFullBatteryCharge) / 100;
+    return (difference * priceForFullBatteryCharge) / 100;
+
+
   }
 }

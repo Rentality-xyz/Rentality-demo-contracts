@@ -300,9 +300,10 @@ contract RentalityTripServiceFacet is ARentalityEventManager {
     ) {
       carStorage.enginesService.verifyEndParams(trip.startParamLevels, panelParams, carInfo.engineType);
       s.idToTripInfo[tripId].endParamLevels = panelParams;
+
       (uint64 resolveMilesAmountInUsdCents, uint64 resolveFuelAmountInUsdCents) = RentalityTripsHelperDiamond.getResolveAmountInUsdCents(
         carInfo.engineType,
-        trip,
+        s.idToTripInfo[tripId],
         carInfo.engineParams
       );
       s.idToTripInfo[tripId].paymentInfo.resolveMilesAmountInUsdCents = resolveMilesAmountInUsdCents;
@@ -330,13 +331,17 @@ contract RentalityTripServiceFacet is ARentalityEventManager {
     );
   }
 
+ function confirmCheckOut(uint256 tripId) public {
+    RentalityTripsHelperDiamond.verifyConfirmCheckOut(tripId, msg.sender);
+    _finishTrip(tripId);
+  }
+
 //   /// @dev Finalizes a trip, updating its status to Finished and calculating resolution amounts.
 //   ///    Requirements:
 //   ///    - The trip must be in status CheckedOutByHost.
 //   /// @param tripId The ID of the trip to be finished.
 //   /// Emits a `TripStatusChanged` event with the new status Finished.
   function finishTrip(uint256 tripId) public {
-    address user = msg.sender;
     TripServiceStorage.TripServiceFaucetStorage storage s = TripServiceStorage.accessStorage();
     Schemas.Trip storage trip = s.idToTripInfo[tripId];
 
@@ -344,6 +349,14 @@ contract RentalityTripServiceFacet is ARentalityEventManager {
       trip.status == Schemas.TripStatus.CheckedOutByHost && trip.tripFinishedBy == trip.guest,
       'The trip is not CheckedOutByHost'
     );
+    _finishTrip(tripId);
+  }
+
+
+    function _finishTrip(uint256 tripId) private {
+    address user = msg.sender;
+    TripServiceStorage.TripServiceFaucetStorage storage s = TripServiceStorage.accessStorage();
+    Schemas.Trip storage trip = s.idToTripInfo[tripId];
 
 
     trip.status = Schemas.TripStatus.Finished;
@@ -384,6 +397,7 @@ contract RentalityTripServiceFacet is ARentalityEventManager {
 
     emitEvent(Schemas.EventType.Trip, tripId, uint8(Schemas.TripStatus.Finished), trip.host, trip.guest);
   }
+
 
 
 
