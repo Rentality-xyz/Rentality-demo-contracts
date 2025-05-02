@@ -158,12 +158,15 @@ let diamond = await Diamond.deploy(owner.address, await diamondCutFacet.getAddre
 
 diamond = await ethers.getContractAt("DiamondCutFacet", await diamond.getAddress()) 
 const cut = []
+const abis = {
+  abi: []
+}
 for (const FacetName of facetNames) {
   const Facet = await ethers.getContractFactory(FacetName);
   const facet = await Facet.deploy();
   await facet.waitForDeployment();
   const address = await facet.getAddress()
-
+  abis.abi = abis.abi.concat(JSON.parse(facet.interface.formatJson()))
   const selectors = []
   Facet.interface.forEachFunction(f => selectors.push(f.selector))
  cut.push({
@@ -193,7 +196,7 @@ let functionInitData = diamondInitFaucet.interface.encodeFunctionData('init',[
 const result = await diamond.diamondCut(cut, await diamondInitFaucet.getAddress(), functionInitData)
 
 
-  const rentalityGateway = await ethers.getContractAt('IRentalityGateway',await diamond.getAddress())
+  const rentalityGateway = await ethers.getContractAt(abis.abi, await diamond.getAddress())
 
 
     const hostSignature = await signTCMessage(host)

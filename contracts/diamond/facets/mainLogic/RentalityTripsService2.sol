@@ -173,6 +173,7 @@ contract RentalityTripServiceFacet2 is ARentalityEventManager {
     return tripId;
   }
 
+
     function getActiveTrips(uint carId) public view returns (uint[] memory) {
     TripServiceStorage.TripServiceFaucetStorage storage s = TripServiceStorage.accessStorage();
     return s.carIdToActiveTrips[carId];
@@ -189,6 +190,7 @@ contract RentalityTripServiceFacet2 is ARentalityEventManager {
     TripServiceStorage.TripServiceFaucetStorage storage s = TripServiceStorage.accessStorage();
     return s.userToTrips[host];
   }
+
 
 
   

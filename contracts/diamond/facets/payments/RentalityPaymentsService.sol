@@ -44,5 +44,14 @@ contract RentalityPaymentsServiceFacet {
     return s.discountAddressToDiscountContract[s.currentDiscount].calculateSumWithDiscount(user, daysOfTrip, value);
   }
 
+  /// @notice Gets the discount for a specific user.
+  /// @param userAddress The address of the user.
+  /// @return The discount information for the user.
+  function getDiscount(address userAddress) public view returns (Schemas.BaseDiscount memory) {
+    PaymentsStorage.PaymentsFaucetStorage storage s = PaymentsStorage.accessStorage();
+    return
+      abi.decode(s.discountAddressToDiscountContract[s.currentDiscount].getDiscount(userAddress), (Schemas.BaseDiscount));
+  }
+
   
 }

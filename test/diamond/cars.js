@@ -16,7 +16,7 @@ const {
 const {deployDefault, calculatePayments} = require('./deploy')
 const { ethers } = require('hardhat')
 
-describe.only('RentalityGateway: car', function () {
+describe('RentalityGateway: car', function () {
   let rentalityGateway,
     owner,
     admin,
@@ -391,7 +391,7 @@ describe.only('RentalityGateway: car', function () {
       'Not implemented.'
     )
   })
-  it('check available cars', async function () {
+  it.only('check available cars', async function () {
     const request = await getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
     await expect(rentalityGateway.connect(host).addCar(request)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
@@ -406,6 +406,7 @@ describe.only('RentalityGateway: car', function () {
         emptyLocationInfo,
         emptyLocationInfo
       )
+      console.log(availableCars)
     expect(availableCars.length).to.equal(1)
 
     const oneDayInSeconds = 86400

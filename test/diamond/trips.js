@@ -17,7 +17,7 @@ const {
 const {deployDefault, calculatePayments} = require('./deploy')
 const { ethers } = require('hardhat')
 
-describe.only('RentalityGateway: trips', function () {
+describe('RentalityGateway: trips', function () {
   let rentalityGateway,
     rentalityLocationVerifier,
     owner,

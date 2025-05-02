@@ -2,6 +2,7 @@ const { ethers, upgrades } = require('hardhat')
 const { getNeededServices } = require('./deployHelpers')
 const { startDeploy } = require('../utils/deployHelper')
 const { ethToken, DiamondCutFunctions } = require('../../test/utils')
+const { saveDiamondAbi } = require('../utils/abiSaver')
 
 
 async function main() {
@@ -53,11 +54,17 @@ let diamond = await Diamond.deploy(deployer.address, await diamondCutFacet.getAd
 
 diamond = await ethers.getContractAt("DiamondCutFacet", await diamond.getAddress()) 
 const cut = []
+const abis = {
+  abi: []
+}
 for (const FacetName of facetNames) {
   const Facet = await ethers.getContractFactory(FacetName);
   const facet = await Facet.deploy();
   await facet.waitForDeployment();
   const address = await facet.getAddress()
+
+
+  abis.abi = abis.abi.concat(JSON.parse(facet.interface.formatJson()))
 
   const selectors = []
   Facet.interface.forEachFunction(f => {
@@ -101,6 +108,9 @@ let functionInitData = diamondInitFaucet.interface.encodeFunctionData('init',[
 
 
 const result = await diamond.diamondCut(cut, await diamondInitFaucet.getAddress(), functionInitData)
+
+console.log(abis)
+saveDiamondAbi(abis)
 console.log("DONE:", result.signature);
 console.log("Diamond address:", await diamond.getAddress())
 }
