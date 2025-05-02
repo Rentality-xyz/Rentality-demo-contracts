@@ -17,7 +17,6 @@ import {RentalityCarTokenHelper} from './RentalityCarTokenHelper.sol';
 import {Math} from '@openzeppelin/contracts/utils/math/Math.sol';
 import {RentalityTripsQueryDiamond} from './RentalityTripsQueryDiamond.sol';
 
-
 library RentalityQueryDiamond {
 
 

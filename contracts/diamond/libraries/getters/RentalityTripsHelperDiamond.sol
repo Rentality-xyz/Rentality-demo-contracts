@@ -9,10 +9,11 @@ import { UserServiceStorage } from "../../libraries/UserServiceStorage.sol";
 import { CurrencyConverterStorage } from "../../libraries/CurrencyConverterStorage.sol";
 import { TripServiceStorage } from "../../libraries/TripServiceStorage.sol";
 import "@openzeppelin/contracts/utils/math/Math.sol";
+import "hardhat/console.sol";
+
 library RentalityTripsHelperDiamond {
     
-    
-    
+      
 
   function validateTripRequest(
     address currencyType,
@@ -203,7 +204,7 @@ library RentalityTripsHelperDiamond {
     uint64 duration = tripInfo.endDateTime - tripInfo.startDateTime;
     uint64 tripDays = uint64(Math.ceilDiv(duration, 1 days));
     CarTokenStorage.CarTokenFaucetStorage storage s = CarTokenStorage.accessStorage();
-
+    console.log("TRIPS HELPER: ", tripInfo.startParamLevels[1]);
     return
       s.enginesService.getResolveAmountInUsdCents(
         eType,
@@ -215,6 +216,14 @@ library RentalityTripsHelperDiamond {
         tripInfo.pricePerDayInUsdCents,
         tripDays
       );
+  }
+
+    function verifyConfirmCheckOut(uint tripId, address user) internal view {
+    Schemas.Trip memory trip = TripServiceStorage.getTrip(tripId);
+
+    require(trip.guest == user || UserServiceStorage.isAdmin(user), 'For trip guest or admin');
+    require(trip.host == trip.tripFinishedBy, 'No needs to confirm.');
+    require(trip.status == Schemas.TripStatus.CheckedOutByHost, 'The trip is not in status CheckedOutByHost');
   }
 
 

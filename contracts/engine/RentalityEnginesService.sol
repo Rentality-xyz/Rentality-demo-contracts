@@ -118,6 +118,7 @@ contract RentalityEnginesService is Initializable, UUPSAccess {
     return engineTypeToEngineContract[eType].extraCosts(params);
   }
 
+  
   /// @notice Computes the resolve amount in USD cents for a specific engine type and car rental.
   /// @param engineType The engine type associated with the car.
   /// @param fuelPrice Representing fuel prices.
@@ -138,6 +139,7 @@ contract RentalityEnginesService is Initializable, UUPSAccess {
     uint64 pricePerDayInUsdCents,
     uint64 tripDays
   ) public view returns (uint64, uint64) {
+
     return
       engineTypeToEngineContract[engineType].getResolveAmountInUsdCents(
         fuelPrice,

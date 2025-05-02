@@ -48,17 +48,7 @@
     "CivicGatewayTokenContract": "0xF65b6396dF6B7e2D8a6270E3AB6c7BB08BAEF22E",
     "EthToUsdPriceFeedAddress": "0x4aDC67696bA383F43DD60A9e78F2C97Fbbfc7cb1",
     "UsdtToUsdPriceFeedAddress": "0x3ec8593F930EA45ea58c968260e6e9FF53FC934f",
-    "RentalityRefferalLib": "0x49A9b3ec15444357149d3367C742c39ef29295e7",
-    "CivicMockVerifier": "0x76aC8ed2BBC0cF0Cf368b4E1D602964465ECDEa3",
-    "RentalityUserService": "0xB0f8a246Eeb3fcE68f54899Ae2dA608936d38a59",
-    "RentalityPetrolEngine": "0x6Cf285B4256399D2AeACEC2f485591641F329F88",
-    "RentalityElectricEngine": "0x2a96c93d6234D7e7Be149206a5F841dAe804C4a2",
-    "RentalityEnginesService": "0xF4Cd25c8e01efD864F6Bcc4A0D6D7eF6841207Cc",
-    "RentalityLocationVerifier": "0xE644f9e9c0a792B727784899EBD5f2b11C4959f4",
-    "RentalityETHConvertor": "0xa500ae68c794F868d16D4F87Df956e006Ead9D0c",
-    "RentalityTestUSDT": "0xc8f37f92E4A11423B2DA419032C0224506456F11",
-    "RentalityUSDTConverter": "0xF96cC06d06426Ec4A0D129908f37F7a108f45956",
-    "RentalityBaseDiscount": "0xA36f598D5206778313C1144B84Fd1C267533e4F4"
+    "RentalityRefferalLib": "0x85B30ebE6920FeFbcA3779feb3189fF66Bb8a832"
   },
   {
     "name": "opBNB_testnet",
@@ -147,5 +137,21 @@
     "RentalityAdminGateway": "0x76CAf3a0eDcB273663c1810a5aa746345C9268b2",
     "RentalityGateway": "0x663029e1290f061af1e23f67A22bB6D6a1479c2C",
     "RentalityAiDamageAnalyze": "0x5eA0394C2dE7933b49c7D61759Bd18CDb70ae401"
+  },
+  {
+    "name": "localhost",
+    "chainId": 1337,
+    "RentalityRefferalLib": "0x4728aF32823cf144586DaB95632156cC81BB0203",
+    "CivicMockVerifier": "0x37d0eD258f37a966f33b75b5AE7486917a0ae614",
+    "RentalityUserService": "0x294c69bD8415219b41B68a2f065DeABB950dd489",
+    "RentalityPetrolEngine": "0x48288D0e3079A03f6EC1846554CFc58C2696Aaee",
+    "RentalityElectricEngine": "0x74Ce26A2e4c1368C48A0157CE762944d282896Db",
+    "RentalityEnginesService": "0x7c77704007C9996Ee591C516f7319828BA49d91E",
+    "RentalityLocationVerifier": "0x676F5F71DAE1C83Dc31775E4c61212bC9e799d9C",
+    "EthToUsdPriceFeedAddress": "0x081F08945fd17C5470f7bCee23FB57aB1099428E",
+    "RentalityETHConvertor": "0xf102f0173707c6726543d65fA38025Eb72026c37",
+    "RentalityTestUSDT": "0x5EdB3Ff1EA450d1FF6d614F24f5C760761F7f688",
+    "UsdtToUsdPriceFeedAddress": "0x81a5186946ce055a5ceeC93cd97C7e7EDe7Da922",
+    "RentalityUSDTConverter": "0x98F74b7C96497070ba5052E02832EF9892962e62"
   }
 ]
