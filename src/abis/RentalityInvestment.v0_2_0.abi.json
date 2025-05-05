@@ -141,7 +141,7 @@
                 { "type": "bytes", "name": "signedDimoTokenId" }
               ]
             },
-            { "type": "uint256", "name": "priceInUsd" },
+            { "type": "uint256", "name": "priceInCurrency" },
             { "type": "bool", "name": "inProgress" },
             { "type": "uint256", "name": "creatorPercents" }
           ]
@@ -210,7 +210,7 @@
                     { "type": "bytes", "name": "signedDimoTokenId" }
                   ]
                 },
-                { "type": "uint256", "name": "priceInUsd" },
+                { "type": "uint256", "name": "priceInCurrency" },
                 { "type": "bool", "name": "inProgress" },
                 { "type": "uint256", "name": "creatorPercents" }
               ]
@@ -232,7 +232,9 @@
             { "type": "uint256", "name": "totalEarnings" },
             { "type": "uint256", "name": "userReceivedEarnings" },
             { "type": "string", "name": "name" },
-            { "type": "string", "name": "symbol" }
+            { "type": "string", "name": "symbol" },
+            { "type": "uint256", "name": "priceInUsdCents" },
+            { "type": "uint256", "name": "payedInCurrency" }
           ]
         }
       ]
