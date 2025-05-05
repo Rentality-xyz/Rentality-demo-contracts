@@ -1,4 +1,4 @@
-const saveJsonAbi = require('./utils/abiSaver')
+const {saveJsonAbi} = require('./utils/abiSaver')
 const { ethers } = require('hardhat')
 
 async function main() {

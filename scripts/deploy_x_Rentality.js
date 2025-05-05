@@ -1,4 +1,4 @@
-const saveJsonAbi = require('./utils/abiSaver')
+const {saveJsonAbi} = require('./utils/abiSaver')
 const RentalityUserServiceJSONNet = require('../src/abis/RentalityUserService.json')
 const RentalityUserServiceJSONLocal = require('../src/abis/RentalityUserService.localhost.json')
 const { ethers } = require('hardhat')

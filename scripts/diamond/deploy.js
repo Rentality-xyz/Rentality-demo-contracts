@@ -109,7 +109,6 @@ let functionInitData = diamondInitFaucet.interface.encodeFunctionData('init',[
 
 const result = await diamond.diamondCut(cut, await diamondInitFaucet.getAddress(), functionInitData)
 
-console.log(abis)
 saveDiamondAbi(abis)
 console.log("DONE:", result.signature);
 console.log("Diamond address:", await diamond.getAddress())
