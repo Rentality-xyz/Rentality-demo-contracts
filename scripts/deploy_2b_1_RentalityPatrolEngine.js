@@ -1,4 +1,4 @@
-const saveJsonAbi = require('./utils/abiSaver')
+const {saveJsonAbi} = require('./utils/abiSaver')
 const { ethers } = require('hardhat')
 const { getContractAddress } = require('./utils/contractAddress')
 const addressSaver = require('./utils/addressSaver')

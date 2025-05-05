@@ -1,5 +1,5 @@
 const { ethers, network, upgrades } = require('hardhat')
-const saveJsonAbi = require('./utils/abiSaver')
+const {saveJsonAbi} = require('./utils/abiSaver')
 const addressSaver = require('./utils/addressSaver')
 const { getContractAddress } = require('./utils/contractAddress')
 const { checkNotNull, startDeploy } = require('./utils/deployHelper')

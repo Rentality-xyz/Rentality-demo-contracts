@@ -1,7 +1,7 @@
 const { ethers, upgrades, network } = require('hardhat')
 const { readFromFile, getContractAddress } = require('./utils/contractAddress')
 const readlineSync = require('readline-sync')
-const saveJsonAbi = require('./utils/abiSaver')
+const {saveJsonAbi} = require('./utils/abiSaver')
 const { checkNotNull } = require('./utils/deployHelper')
 const getContractLibs = require('./utils/libSearch')
 

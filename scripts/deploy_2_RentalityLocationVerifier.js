@@ -1,7 +1,7 @@
 const { startDeploy, checkNotNull } = require('./utils/deployHelper')
 const { ethers, upgrades } = require('hardhat')
 const addressSaver = require('./utils/addressSaver')
-const saveJsonAbi = require('./utils/abiSaver')
+const {saveJsonAbi} = require('./utils/abiSaver')
 const { getContractAddress } = require('./utils/contractAddress')
 const env = require('hardhat')
 
