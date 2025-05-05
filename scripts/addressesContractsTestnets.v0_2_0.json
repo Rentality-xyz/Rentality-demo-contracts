@@ -48,7 +48,17 @@
     "CivicGatewayTokenContract": "0xF65b6396dF6B7e2D8a6270E3AB6c7BB08BAEF22E",
     "EthToUsdPriceFeedAddress": "0x4aDC67696bA383F43DD60A9e78F2C97Fbbfc7cb1",
     "UsdtToUsdPriceFeedAddress": "0x3ec8593F930EA45ea58c968260e6e9FF53FC934f",
-    "RentalityRefferalLib": "0x85B30ebE6920FeFbcA3779feb3189fF66Bb8a832"
+    "RentalityRefferalLib": "0x85B30ebE6920FeFbcA3779feb3189fF66Bb8a832",
+    "CivicMockVerifier": "0xAa25645253A162B969e4E82deEda847bFbf2bBdF",
+    "RentalityUserService": "0x2322a40350074F945Fb906d32afe1f5b851476aD",
+    "RentalityPetrolEngine": "0x53cAeD23847dc0b340a53006CC0A9B97aD709ba9",
+    "RentalityElectricEngine": "0x0CfE0b1d2EF38599c3a1bAc51A772Fc62b3258e2",
+    "RentalityEnginesService": "0x796D8D06Ac54256e4Cf18f27dDd302c6afca60A0",
+    "RentalityLocationVerifier": "0x10cA13A0Ed892902B7e88933CF067481c520f42D",
+    "RentalityETHConvertor": "0xd9490aF325df03Bac4aF7f6732400c58e6F2FF1B",
+    "RentalityTestUSDT": "0x96291E01A28a74b1a48566054EBe0300E7B1b5Ef",
+    "RentalityUSDTConverter": "0xA59f0e980F156b5EA350Cbef41b18096FE2d576F",
+    "RentalityBaseDiscount": "0xdD083913bd6139FB854fa9Bc41C2874671D815b2"
   },
   {
     "name": "opBNB_testnet",
