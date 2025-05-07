@@ -10,7 +10,7 @@ contract RentalityUSDTConverter is ARentalityUpgradableCurrencyType {
   /// @param decimals The specific USDT to USD decimals to use for conversion
   /// @return The equivalent amount in USDT
   function getFromUsd(uint256 amount, int256 rate, uint8 decimals) public pure override returns (uint256) {
-    return (amount * 10 ** decimals) / uint(rate);
+    return (amount * 10 ** (decimals - 2)) / uint(rate);
   }
 
   /// @notice Converts the specified amount from USDT to USD
@@ -19,6 +19,6 @@ contract RentalityUSDTConverter is ARentalityUpgradableCurrencyType {
   /// @param decimals The specific USDT to USD decimals to use for conversion
   /// @return The equivalent amount in USD cents
   function getUsd(uint256 amount, int256 rate, uint8 decimals) public pure override returns (uint256) {
-    return (amount * uint(rate)) / (10 ** decimals);
+    return (amount * uint(rate)) / (10 ** (decimals - 2));
   }
 }
