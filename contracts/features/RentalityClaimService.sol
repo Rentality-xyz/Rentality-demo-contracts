@@ -316,5 +316,59 @@ contract RentalityClaimService is Initializable, UUPSAccess {
     waitingTimeForApproveInSec = 259_200;
     platformFeeInPPM = 0;
     eventManager = RentalityNotificationService(_eventManager);
+
+        claimTypeNumberToClaimType[uint8(Schemas.ClaimType.Tolls)] = Schemas.ClaimTypeV2(
+      uint8(Schemas.ClaimType.Tolls),
+      'Tolls',
+      Schemas.ClaimCreator.Host
+    );
+    claimTypeNumberToClaimType[uint8(Schemas.ClaimType.Tickets)] = Schemas.ClaimTypeV2(
+      uint8(Schemas.ClaimType.Tickets),
+      'Tickets',
+      Schemas.ClaimCreator.Host
+    );
+    claimTypeNumberToClaimType[uint8(Schemas.ClaimType.LateReturn)] = Schemas.ClaimTypeV2(
+      uint8(Schemas.ClaimType.LateReturn),
+      'LateReturn',
+      Schemas.ClaimCreator.Host
+    );
+
+    claimTypeNumberToClaimType[uint8(Schemas.ClaimType.Smoking)] = Schemas.ClaimTypeV2(
+      uint8(Schemas.ClaimType.Smoking),
+      'Smoking',
+      Schemas.ClaimCreator.Both
+    );
+    claimTypeNumberToClaimType[uint8(Schemas.ClaimType.Cleanliness)] = Schemas.ClaimTypeV2(
+      uint8(Schemas.ClaimType.Cleanliness),
+      'Cleanliness',
+      Schemas.ClaimCreator.Both
+    );
+    claimTypeNumberToClaimType[uint8(Schemas.ClaimType.ExteriorDamage)] = Schemas.ClaimTypeV2(
+      uint8(Schemas.ClaimType.ExteriorDamage),
+      'ExteriorDamage',
+      Schemas.ClaimCreator.Both
+    );
+    claimTypeNumberToClaimType[uint8(Schemas.ClaimType.InteriorDamage)] = Schemas.ClaimTypeV2(
+      uint8(Schemas.ClaimType.InteriorDamage),
+      'InteriorDamage',
+      Schemas.ClaimCreator.Both
+    );
+    claimTypeNumberToClaimType[uint8(Schemas.ClaimType.Other)] = Schemas.ClaimTypeV2(
+      uint8(Schemas.ClaimType.Other),
+      'Other',
+      Schemas.ClaimCreator.Both
+    );
+
+    claimTypeNumberToClaimType[uint8(Schemas.ClaimType.FaultyVehicle)] = Schemas.ClaimTypeV2(
+      uint8(Schemas.ClaimType.FaultyVehicle),
+      'FaultyVehicle',
+      Schemas.ClaimCreator.Guest
+    );
+    claimTypeNumberToClaimType[uint8(Schemas.ClaimType.ListingMismatch)] = Schemas.ClaimTypeV2(
+      uint8(Schemas.ClaimType.ListingMismatch),
+      'ListingMismatch',
+      Schemas.ClaimCreator.Guest
+    );
+    claimTypeNumber = 9;
   }
 }

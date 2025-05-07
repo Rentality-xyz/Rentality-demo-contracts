@@ -671,7 +671,7 @@ library RentalityUtils {
         valueInCurrency,
         IRentalityGeoService(contracts.carService.getGeoServiceAddress()).getCarTimeZoneId(car.locationHash),
          contracts.claimService.getClaimTypeInfo(claim.claimType),
-        contracts.currencyConverterService.getUserCurrency(trip.host).currency
+        contracts.currencyConverterService.getUserCurrency(trip.host)
       );
   }
 
