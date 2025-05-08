@@ -179,7 +179,7 @@ function createTripRequestWithDelivery(
         params.returnHash,
         addresses.carService.getCarInfoById(params.request.carId).milesIncludedPerDay,
         paymentInfo,
-        msg.value
+        currencyType == address(0) ? msg.value : valueSumInCurrency
     );
     insuranceService.saveGuestinsurancePayment(tripId, params.request.carId, insurance, sender);
     if (usePromo)

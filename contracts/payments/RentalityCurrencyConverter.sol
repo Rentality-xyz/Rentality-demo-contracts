@@ -27,12 +27,16 @@ contract RentalityCurrencyConverter is Initializable, UUPSAccess {
     require(address(tokenAddressToPaymentMethod[currency]) != address(0), 'Currency not available.');
     userToCurrency[user] =  Schemas.UserCurrency(currency, true);
   }
-  function getUserCurrency(address user) public view returns ( Schemas.UserCurrency memory currency) {
+  function getUserCurrency(address user) public view returns ( Schemas.UserCurrencyDTO memory currency) {
       Schemas.UserCurrency memory userCurrency = userToCurrency[user];
-     if(userCurrency.initialized) {
-       return userCurrency;
-     }
-     return defaultCurrency;
+        if(!userCurrency.initialized) {
+            userCurrency = defaultCurrency;
+        }
+     return Schemas.UserCurrencyDTO(
+      userCurrency.currency,
+      _getCurrencyName(userCurrency.currency),
+      userCurrency.initialized
+      );
   }
 
   function setDefaultCurrencyType(address currency) public {
@@ -64,6 +68,21 @@ contract RentalityCurrencyConverter is Initializable, UUPSAccess {
     uint8 decimals
   ) public view returns (uint amountInCurrency) {
     return tokenAddressToPaymentMethod[tokenAddress].getFromUsd(amount, currencyRate, decimals);
+  }
+
+  function getCurrencyInfo(address currency) public view returns(Schemas.UserCurrencyDTO memory currencyInfo)
+  {
+    string memory name = _getCurrencyName(currency);
+    currencyInfo.currency = currency;
+    currencyInfo.name = name;
+  }
+
+  function _getCurrencyName(address currency) private view returns(string memory name) {
+    for(uint i = 0; i < availableCurrencies.length; i++) {
+      if(availableCurrencies[i].currency == currency)
+        return availableCurrencies[i].name;
+    }
+    return "";
   }
 
   /// @notice Retrieves the latest rate of the specified currency type

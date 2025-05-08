@@ -404,7 +404,7 @@ interface IRentalityGateway {
     Schemas.CaseType
   ) external view returns (Schemas.AiDamageAnalyzeCaseRequestDTO memory aiDamageAnalyzeCaseRequest);
 
-  function getUserCurrency(address user) external view returns (Schemas.UserCurrency memory userCurrency);
+  function getUserCurrency(address user) external view returns (Schemas.UserCurrencyDTO memory userCurrency);
 
   function addUserCurrency(address currency) external;
 }
