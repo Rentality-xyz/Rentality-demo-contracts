@@ -59,15 +59,13 @@ contract RentalityCurrencyConverter is Initializable, UUPSAccess {
   /// @param tokenAddress The address of the currency type to convert to
   /// @param amount The amount in USD cents to convert
   /// @param currencyRate The currency rate to use for conversion
-  /// @param decimals The decimals of the currency type
   /// @return amountInCurrency The equivalent amount in the specified currency type
-  function getFromUsd(
+  function getFromUsdCents(
     address tokenAddress,
     uint256 amount,
-    int256 currencyRate,
-    uint8 decimals
+    int256 currencyRate
   ) public view returns (uint amountInCurrency) {
-    return tokenAddressToPaymentMethod[tokenAddress].getFromUsd(amount, currencyRate, decimals);
+    return tokenAddressToPaymentMethod[tokenAddress].getFromUsdCents(amount, currencyRate);
   }
 
   function getCurrencyInfo(address currency) public view returns(Schemas.UserCurrencyDTO memory currencyInfo)
@@ -103,11 +101,11 @@ contract RentalityCurrencyConverter is Initializable, UUPSAccess {
   /// @param tokenAddress The address of the currency type
   /// @param valueInUsdCents The value in USD cents to convert
   /// @return valueInCurrency The equivalent amount in the specified currency type, the corresponding currency rate, and decimals
-  function getFromUsdLatest(
+  function getFromUsdCentsLatest(
     address tokenAddress,
     uint256 valueInUsdCents
   ) public view returns (uint256 valueInCurrency, int256 rate, uint8 decimals) {
-    return tokenAddressToPaymentMethod[tokenAddress].getFromUsdLatest(valueInUsdCents);
+    return tokenAddressToPaymentMethod[tokenAddress].getFromUsdCentsLatest(valueInUsdCents);
   }
 
   /// @notice Retrieves the equivalent amount in USD cents from the provided currency type amount
@@ -125,15 +123,13 @@ contract RentalityCurrencyConverter is Initializable, UUPSAccess {
   /// @param tokenAddress The address of the currency type
   /// @param tokenValue The amount in the specified currency type
   /// @param tokenToUsd The currency rate from the specified currency type to USD
-  /// @param decimals The decimals of the currency type
   /// @return valueInUsd The equivalent amount in USD
   function getToUsd(
     address tokenAddress,
     uint256 tokenValue,
-    int256 tokenToUsd,
-    uint8 decimals
+    int256 tokenToUsd
   ) public view returns (uint256 valueInUsd) {
-    return tokenAddressToPaymentMethod[tokenAddress].getUsd(tokenValue, tokenToUsd, decimals);
+    return tokenAddressToPaymentMethod[tokenAddress].getUsdCents(tokenValue, tokenToUsd);
   }
 
   /// @notice Retrieves the currency rate and decimals of the specified currency type with cache
@@ -148,11 +144,11 @@ contract RentalityCurrencyConverter is Initializable, UUPSAccess {
   /// @param tokenAddress The address of the currency type
   /// @param valueInUsdCents The value in USD cents to convert
   /// @return cachedValueInCurrency The equivalent amount in the specified currency type
-  function getFromUsdWithCache(
+  function getFromUsdCentsWithCache(
     address tokenAddress,
     uint256 valueInUsdCents
   ) public returns (uint256 cachedValueInCurrency) {
-    return tokenAddressToPaymentMethod[tokenAddress].getFromUsdWithCache(valueInUsdCents);
+    return tokenAddressToPaymentMethod[tokenAddress].getFromUsdCentsWithCache(valueInUsdCents);
   }
 
   /// @notice Retrieves the equivalent amount in USD cents from the provided currency type amount with cache
@@ -183,9 +179,9 @@ contract RentalityCurrencyConverter is Initializable, UUPSAccess {
     uint value,
     uint commission
   ) public view returns (uint toPay, uint fee, int currencyRate, uint8 decimals) {
-    (uint256 valueToPay, int256 rate, uint8 dec) = getFromUsdLatest(tokenAddress, value + commission);
+    (uint256 valueToPay, int256 rate, uint8 dec) = getFromUsdCentsLatest(tokenAddress, value + commission);
 
-    uint256 feeInCurrency = getFromUsd(tokenAddress, commission, rate, dec);
+    uint256 feeInCurrency = getFromUsdCents(tokenAddress, commission, rate);
     return (valueToPay, feeInCurrency, rate, dec);
   }
 
@@ -206,23 +202,20 @@ contract RentalityCurrencyConverter is Initializable, UUPSAccess {
 
     uint256 valueToGuestInUsdCents = paymentInfo.depositInUsdCents - paymentInfo.resolveAmountInUsdCents;
 
-    uint256 valueToHost = getFromUsd(
+    uint256 valueToHost = getFromUsdCents(
       paymentInfo.currencyType,
       valueToHostInUsdCents,
-      paymentInfo.currencyRate,
-      paymentInfo.currencyDecimals
+      paymentInfo.currencyRate
     );
-    uint256 valueToGuest = getFromUsd(
+    uint256 valueToGuest = getFromUsdCents(
       paymentInfo.currencyType,
       valueToGuestInUsdCents,
-      paymentInfo.currencyRate,
-      paymentInfo.currencyDecimals
+      paymentInfo.currencyRate
     );
-    uint256 totalIncome = getFromUsd(
+    uint256 totalIncome = getFromUsdCents(
       paymentInfo.currencyType,
       valueToHostInUsdCents - paymentInfo.resolveAmountInUsdCents + rentalityFee,
-      paymentInfo.currencyRate,
-      paymentInfo.currencyDecimals
+      paymentInfo.currencyRate
     );
     if (discount == 100) {
       valueToGuest = 0;

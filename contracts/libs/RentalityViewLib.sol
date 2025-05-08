@@ -187,7 +187,7 @@ library RentalityViewLib {
     if (claim.status == Schemas.ClaimStatus.Paid || claim.status == Schemas.ClaimStatus.Cancel) return 0;
 
     uint commission = addresses.claimService.getPlatformFeeFrom(claim.amountInUsdCents);
-    (uint result, , ) = addresses.currencyConverterService.getFromUsdLatest(
+    (uint result, , ) = addresses.currencyConverterService.getFromUsdCentsLatest(
       addresses.tripService.getTrip(claim.tripId).paymentInfo.currencyType,
       claim.amountInUsdCents + commission
     );

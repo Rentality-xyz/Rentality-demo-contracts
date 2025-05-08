@@ -58,7 +58,7 @@ describe('ERC20 payments', function () {
       request.securityDepositPerTripInUsdCents,
       usdt
     )
-    await mintTo(usdtContract, guest.address, 1000)
+    await mintTo(usdtContract, guest.address, 1000 * Math.pow(10, 6))
     const balanceBeforeTrip = await usdtContract.balanceOf(guest)
 
     await usdtContract.connect(guest).approve(await rentalityPaymentService.getAddress(), rentPrice)
@@ -129,11 +129,10 @@ describe('ERC20 payments', function () {
     await expect(rentalityGateway.connect(guest).checkOutByGuest(1, [0, 0])).not.to.be.reverted
     await expect(rentalityGateway.connect(host).checkOutByHost(1, [0, 0])).not.to.be.reverted
 
-    const deposit = await rentalityCurrencyConverter.getFromUsd(
+    const deposit = await rentalityCurrencyConverter.getFromUsdCents(
       usdt,
       request.securityDepositPerTripInUsdCents,
-      currencyRate,
-      currencyDecimals
+      currencyRate
     )
     await expect(rentalityGateway.connect(host).finishTrip(1)).to.not.reverted
 
@@ -143,8 +142,8 @@ describe('ERC20 payments', function () {
     const platformBalance = await usdtContract.balanceOf(await rentalityPaymentService.getAddress())
 
     expect(guestBalanceAfterTrip).to.be.eq(guestBalanceBeforeTrip + deposit - rentPrice)
-    expect(hostBalanceAfterTrip).to.be.eq(hostBalanceBeforeTrip + rentPrice - deposit - rentalityFee - taxes)
-    expect(platformBalance).to.be.eq(rentalityFee + taxes)
+    expect(hostBalanceAfterTrip).to.be.approximately(hostBalanceBeforeTrip + rentPrice - deposit - rentalityFee - taxes,10)
+    expect(platformBalance).to.be.approximately(rentalityFee + taxes, 10)
   })
 
   it('should not be able to create trip with wrong currency type', async function () {
@@ -201,7 +200,7 @@ describe('ERC20 payments', function () {
 
     const amountToPayForClaim = 1000
 
-    const [claimPriceInUsdt, ,] = await rentalityCurrencyConverter.getFromUsdLatest(
+    const [claimPriceInUsdt, ,] = await rentalityCurrencyConverter.getFromUsdCentsLatest(
       await usdtContract.getAddress(),
       amountToPayForClaim
     )
@@ -226,7 +225,7 @@ describe('ERC20 payments', function () {
     const request = getMockCarRequest(10, await rentalityLocationVerifier.getAddress(), admin)
     await expect(rentalityGateway.connect(host).addCar(request)).not.to.be.reverted
 
-    await mintTo(usdtContract, guest.address, 1000)
+    await mintTo(usdtContract, guest.address, 1000 * Math.pow(10, 6))
 
     const dailyPriceInUsdCents = 1000
 

@@ -74,7 +74,7 @@ async function calculateTripPriceWithCurrencyConversion(
     totalCost += insurancePricePerDay * daysOfTrip
   }
 
-  const valueSumInCurrency = await rentalityCurrencyConverter.getFromUsdLatest(ethToken, totalCost)
+  const valueSumInCurrency = await rentalityCurrencyConverter.getFromUsdCentsLatest(ethToken, totalCost)
 
   return {
     tripCost,
@@ -761,11 +761,10 @@ describe('Rentality promoService Service', function () {
 
     const paymentInfo = tripDetails['paymentInfo']
 
-    const depositValue = await rentalityCurrencyConverter.getFromUsd(
+    const depositValue = await rentalityCurrencyConverter.getFromUsdCents(
       ethToken,
       paymentInfo.depositInUsdCents,
-      paymentInfo.currencyRate,
-      paymentInfo.currencyDecimals
+      paymentInfo.currencyRate
     )
 
     const returnToHost = priceWithoutDiscount.totalPrice - depositValue - rentalityFee - taxes
@@ -851,11 +850,10 @@ describe('Rentality promoService Service', function () {
 
     const paymentInfo = tripDetails['paymentInfo']
 
-    const depositValue = await rentalityCurrencyConverter.getFromUsd(
+    const depositValue = await rentalityCurrencyConverter.getFromUsdCents(
       ethToken,
       paymentInfo.depositInUsdCents,
-      paymentInfo.currencyRate,
-      paymentInfo.currencyDecimals
+      paymentInfo.currencyRate
     )
 
     const returnToHost = priceWithoutDiscount.totalPrice - depositValue - rentalityFee - taxes

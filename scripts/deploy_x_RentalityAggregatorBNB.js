@@ -51,7 +51,7 @@ async function main() {
 
   const converter = await ethers.getContractAt('RentalityCurrencyConverter', rentalityCurrencyConverterAddress)
   console.log(await converter.addCurrencyType(ethToken, bnbService, 'BNB'))
-  console.log(await converter.getFromUsdLatest(ethToken, 10000))
+  console.log(await converter.getFromUsdCentsLatest(ethToken, 10000))
 }
 
 main()
