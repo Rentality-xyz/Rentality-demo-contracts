@@ -9,8 +9,10 @@ contract RentalityUSDTConverter is ARentalityUpgradableCurrencyType {
   /// @param rate The specific USDT to USD rate to use for conversion
   /// @param decimals The specific USDT to USD decimals to use for conversion
   /// @return The equivalent amount in USDT
+
+  // 30000 100016719 8 x = 300 000000
   function getFromUsd(uint256 amount, int256 rate, uint8 decimals) public pure override returns (uint256) {
-    return (amount * 10 ** (decimals - 2)) / uint(rate);
+    return (amount * (10 ** 6) / (uint(rate)) * 10 ** 6);
   }
 
   /// @notice Converts the specified amount from USDT to USD
@@ -18,7 +20,8 @@ contract RentalityUSDTConverter is ARentalityUpgradableCurrencyType {
   /// @param rate The specific USDT to USD rate to use for conversion
   /// @param decimals The specific USDT to USD decimals to use for conversion
   /// @return The equivalent amount in USD cents
-  function getUsd(uint256 amount, int256 rate, uint8 decimals) public pure override returns (uint256) {
-    return (amount * uint(rate)) / (10 ** (decimals - 2));
+  // 299949851 100016719
+  function getUsd(uint256 amount, int256 rate, uint8 decimals) public view override returns (uint256) {
+    return ((amount * uint(rate)) / (10 ** (currentToUsdDecimals + 6))) * 100;
   }
 }

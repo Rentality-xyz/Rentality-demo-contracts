@@ -381,7 +381,8 @@ library RentalityTripsQuery {
         userService.getMyFullKYCInfo(user).additionalKYC.issueCountry,
         promoService.getTripDiscount(tripId),
         dimoService.getDimoTokenId(trip.carId),
-        contracts.paymentService.getTripTaxesDTO(tripId)
+        contracts.paymentService.getTripTaxesDTO(tripId),
+        contracts.currencyConverterService.getCurrencyInfo(trip.paymentInfo.currencyType)
       );
   }
   function getTripInsurancesBy(

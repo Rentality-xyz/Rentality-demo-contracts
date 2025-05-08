@@ -41,7 +41,7 @@ abstract contract ARentalityUpgradableCurrencyType is Initializable, UUPSAccess 
   /// @param currencyRate The currency rate to use for conversion
   /// @param decimals The decimals of the token currency
   /// @return The equivalent amount in USD
-  function getUsd(uint256 amount, int256 currencyRate, uint8 decimals) public pure virtual returns (uint256);
+  function getUsd(uint256 amount, int256 currencyRate, uint8 decimals) public view virtual returns (uint256);
 
   /// @notice Retrieves the token address
   /// @return The address of the token contract
