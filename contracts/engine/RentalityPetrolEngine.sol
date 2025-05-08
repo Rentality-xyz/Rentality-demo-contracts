@@ -28,7 +28,7 @@ contract RentalityPetrolEngine is ARentalityEngine {
   /// @param params An array of two uint64 values representing tank volume and fuel price.
   /// @param params[0] The tank volume of the patrol car in liters.
   /// @param params[1] The initial fuel price per gallon in USD cents.
-  function verifyCreateParams(uint64[] memory params) public view override onlyManager {
+  function verifyCreateParams(uint64[] memory params) public view override {
     isCorrectArgs((params[0] != 0 && params[1] != 0));
   }
 
@@ -41,7 +41,7 @@ contract RentalityPetrolEngine is ARentalityEngine {
   function verifyUpdateParams(
     uint64[] memory newParams,
     uint64[] memory oldParams
-  ) public view override onlyManager returns (uint64[] memory) {
+  ) public view override returns (uint64[] memory) {
     // Ensure that the new fuel price is not zero.
     isCorrectArgs(newParams[0] != 0);
 

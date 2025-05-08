@@ -242,7 +242,7 @@ async function deployDefaultFixture() {
   })
   const deliveryService = await upgrades.deployProxy(DeliveryService, [await rentalityUserService.getAddress()])
 
-  const RentalityAiDamageAnalyze = await ethers.getContractFactory('RentalityAiDamageAnalyze')
+  const RentalityAiDamageAnalyze = await ethers.getContractFactory('RentalityAiDamageAnalyzeV2')
   const rentalityAiDamageAnalyze = await upgrades.deployProxy(RentalityAiDamageAnalyze,[await rentalityUserService.getAddress()])
 
 

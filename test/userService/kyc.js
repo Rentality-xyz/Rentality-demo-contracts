@@ -138,7 +138,7 @@ describe('RentalityUserService: KYC management', function () {
       adminKyc,
     } = await loadFixture(deployDefaultFixture)
 
-    const carRequest = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
+    const carRequest = await getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
     await expect(rentalityGateway.connect(host).addCar(carRequest)).not.to.be.reverted
     const availableCars = await rentalityGateway
       .connect(guest)

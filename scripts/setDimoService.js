@@ -1,4 +1,4 @@
-const saveJsonAbi = require('./utils/abiSaver')
+const {saveJsonAbi} = require('./utils/abiSaver')
 const { ethers, upgrades } = require('hardhat')
 const addressSaver = require('./utils/addressSaver')
 const { startDeploy, checkNotNull } = require('./utils/deployHelper')
@@ -85,6 +85,9 @@ async function main() {
     getContractAddress('RentalityPromoService', 'scripts/deploy_4f_RentalityPromo.js', chainId)
   )
 
+  const aiDamageAnalyze = checkNotNull(
+    getContractAddress('RentalityAiDamageAnalyze', 'scripts/deploy_3f_RentalityAiDamageAnalyze.js', chainId))
+
   let adminContract = await ethers.getContractAt('RentalityAdminGateway', adminService)
   console.log(await adminContract.updateDimoService(dimoService))
 
@@ -105,7 +108,7 @@ async function main() {
 
   let tripsView = await ethers.getContractAt('RentalityTripsView', rentalityTripsView)
   console.log(
-    await tripsView.updateServiceAddresses(rentalityContract, rentalityInsurance, rentalityPromoService, dimoService)
+    await tripsView.updateServiceAddresses(rentalityContract, rentalityInsurance, rentalityPromoService, dimoService, aiDamageAnalyze)
   )
   console.log(await userContract.grantPlatformRole(rentalityPlatformHelper))
 

@@ -40,7 +40,7 @@ describe('RentalityCarToken: search functions', function () {
     const { rentalityCarToken, rentalityTripService, guest, rentalityGateway, rentalityLocationVerifier, admin } =
       await loadFixture(deployFixtureWith1Car)
 
-    const request = getMockCarRequest(0, rentalityLocationVerifier, admin)
+    const request = await getMockCarRequest(0, rentalityLocationVerifier, admin)
     const searchCarParams1 = {
       country: '',
       state: '',
@@ -83,7 +83,7 @@ describe('RentalityCarToken: search functions', function () {
     const { rentalityCarToken, rentalityTripService, guest, rentalityGateway, rentalityLocationVerifier, admin } =
       await loadFixture(deployFixtureWith1Car)
 
-    const request = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
+    const request = await getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
     const searchCarParams1 = {
       country: '',
       state: '',
@@ -126,7 +126,7 @@ describe('RentalityCarToken: search functions', function () {
     const { rentalityCarToken, rentalityTripService, guest, rentalityGateway, rentalityLocationVerifier, admin } =
       await loadFixture(deployFixtureWith1Car)
 
-    const request = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
+    const request = await getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
     const searchCarParams1 = {
       country: '',
       state: '',
@@ -179,7 +179,7 @@ describe('RentalityCarToken: search functions', function () {
       timeZoneId: 'id',
     }
     location.country = 'Country'
-    let carRequest = getMockCarRequest(2, await rentalityLocationVerifier.getAddress(), admin, location)
+    let carRequest = await getMockCarRequest(2, await rentalityLocationVerifier.getAddress(), admin, location)
 
     await rentalityGateway.addCar(carRequest)
 
@@ -242,7 +242,7 @@ describe('RentalityCarToken: search functions', function () {
       timeZoneId: 'id',
     }
     location.state = 'Florida'
-    let carRequest = getMockCarRequest(2, await rentalityLocationVerifier.getAddress(), admin, location)
+    let carRequest = await getMockCarRequest(2, await rentalityLocationVerifier.getAddress(), admin, location)
     await rentalityGateway.addCar(carRequest)
 
     const searchCarParams1 = {
@@ -304,7 +304,7 @@ describe('RentalityCarToken: search functions', function () {
       timeZoneId: 'id',
     }
     location.city = 'City'
-    let carRequest = getMockCarRequest(2, await rentalityLocationVerifier.getAddress(), admin, location)
+    let carRequest = await getMockCarRequest(2, await rentalityLocationVerifier.getAddress(), admin, location)
     await rentalityGateway.addCar(carRequest)
 
     const searchCarParams1 = {
@@ -349,7 +349,7 @@ describe('RentalityCarToken: search functions', function () {
     const { rentalityCarToken, rentalityTripService, guest, rentalityGateway, rentalityLocationVerifier, admin } =
       await loadFixture(deployFixtureWith1Car)
 
-    const request = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
+    const request = await getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
     const searchCarParams1 = {
       country: '',
       state: '',
@@ -410,7 +410,7 @@ describe('RentalityCarToken: search functions', function () {
     const { rentalityCarToken, rentalityTripService, guest, rentalityGateway, rentalityLocationVerifier, admin } =
       await loadFixture(deployFixtureWith1Car)
 
-    const request = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
+    const request = await getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
     const searchCarParams1 = {
       country: '',
       state: '',

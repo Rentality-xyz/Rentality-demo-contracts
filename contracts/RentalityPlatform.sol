@@ -109,7 +109,7 @@ function createTripRequestWithDelivery(
   /// @notice Creates a trip request with specified details.
   /// @dev This function is private and should only be called internally.
    function _createTripRequest(
-    CreateTripRequestParams memory params // Single struct parameter
+    CreateTripRequestParams memory params
 ) private {
     address sender = _msgGatewaySender();
     address currencyType =  addresses.currencyConverterService.getUserCurrency(addresses.carService.ownerOf(params.request.carId)).currency;

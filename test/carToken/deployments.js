@@ -245,7 +245,7 @@ async function deployDefaultFixture() {
       RentalityUtils: await utils.getAddress(),
     },
   })
-  const RentalityAiDamageAnalyze = await ethers.getContractFactory('RentalityAiDamageAnalyze')
+  const RentalityAiDamageAnalyze = await ethers.getContractFactory('RentalityAiDamageAnalyzeV2')
   const rentalityAiDamageAnalyze = await upgrades.deployProxy(RentalityAiDamageAnalyze,[await rentalityUserService.getAddress()])
 
   let RentalityTripsView = await ethers.getContractFactory('RentalityTripsView', {
@@ -444,7 +444,7 @@ async function deployFixtureWith1Car() {
     rentalityLocationVerifier,
   } = await deployDefaultFixture()
 
-  const request = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
+  const request = await getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
 
   await rentalityGateway.connect(host).addCar(request)
 
