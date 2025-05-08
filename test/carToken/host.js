@@ -9,7 +9,7 @@ describe('RentalityCarToken: host functions', function () {
     const { rentalityGateway, host, rentalityLocationVerifier, admin, rentalityNotificationService } =
       await loadFixture(deployDefaultFixture)
 
-    const request = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
+    const request = await getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
 
     await expect(rentalityGateway.connect(host).addCar(request))
       .to.emit(rentalityNotificationService, 'RentalityEvent')
@@ -20,9 +20,9 @@ describe('RentalityCarToken: host functions', function () {
     const { rentalityCarToken, host, rentalityLocationVerifier, admin, rentalityGateway } =
       await loadFixture(deployDefaultFixture)
 
-    const request1 = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
+    const request1 = await getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
     const request2 = {
-      ...getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin),
+      ...await getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin),
       carVinNumber: request1.carVinNumber,
     }
 
@@ -34,8 +34,8 @@ describe('RentalityCarToken: host functions', function () {
     const { rentalityCarToken, host, rentalityLocationVerifier, admin, rentalityGateway } =
       await loadFixture(deployDefaultFixture)
 
-    const request1 = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
-    const request2 = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
+    const request1 = await getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
+    const request2 = await getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
 
     await expect(rentalityGateway.connect(host).addCar(request1)).not.be.reverted
     await expect(rentalityGateway.connect(host).addCar(request2)).not.be.reverted
@@ -58,7 +58,7 @@ describe('RentalityCarToken: host functions', function () {
       await loadFixture(deployFixtureWith1Car)
 
     const TOKEN_ID = 1
-    const request = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
+    const request = await getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
 
     const carInfo = await rentalityCarToken.connect(host).getCarInfoById(TOKEN_ID)
 
@@ -97,7 +97,7 @@ describe('RentalityCarToken: host functions', function () {
     const { rentalityCarToken, host, rentalityLocationVerifier, admin, rentalityGateway } =
       await loadFixture(deployFixtureWith1Car)
 
-    const request = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
+    const request = await getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
 
     const myCars = await rentalityCarToken.connect(host).getCarsOwnedByUser(host.address)
 
@@ -130,7 +130,7 @@ describe('RentalityCarToken: host functions', function () {
   it.skip('getAllAvailableCars with 1 car should return data for guest', async function () {
     const { rentalityGateway, host, guest, rentalityLocationVerifier, admin } = await loadFixture(deployFixtureWith1Car)
 
-    const request = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
+    const request = await getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
 
     const availableCars = await rentalityGateway
       .connect(guest)
