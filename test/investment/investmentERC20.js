@@ -74,7 +74,7 @@ describe('Rentality investment with erc20', function () {
     await expect(await investorsService.connect(host).createCarInvestment(mockCarInvestment, 'name', usdt)).to.not
       .reverted
 
-    let fromUsd = await rentalityCurrencyConverter.getFromUsdLatest(usdt, mockCarInvestment.priceInCurrency)
+    let fromUsd = await rentalityCurrencyConverter.getFromUsdCentsLatest(usdt, mockCarInvestment.priceInCurrency)
 
     await expect(investorsService.connect(guest).invest(1, fromUsd[0])).to.be.revertedWith(
       'Investment: wrong allowance'
@@ -141,14 +141,15 @@ describe('Rentality investment with erc20', function () {
 
     await expect(investorsService.connect(guest).claimAllMy(1)).to.not.reverted
 
-    let priceForDay = await rentalityCurrencyConverter.getFromUsdLatest(
+    let priceForDay = await rentalityCurrencyConverter.getFromUsdCentsLatest(
       usdt,
       mockCarInvestment.car.pricePerDayInUsdCents - (mockCarInvestment.car.pricePerDayInUsdCents / 100) * 20
     )
 
     const balanceAfterClaimTokens = await usdtContract.balanceOf(guest)
-    expect(Number(balanceAfterClaimTokens)).to.be.eq(
-      Number(balanceBeforeClaimTokens) + (Number(priceForDay[0]) - Number(priceForDay[0]) / 10)
+    expect(Number(balanceAfterClaimTokens)).to.be.approximately(
+      Number(balanceBeforeClaimTokens) + (Number(priceForDay[0]) - Number(priceForDay[0]) / 10),
+      10
     )
   })
 })

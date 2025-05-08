@@ -66,7 +66,7 @@ contract RentalityPlatformHelper is UUPSOwnable, ARentalityContext {
   }
 
   function payKycCommission(address currency) public payable {
-    (uint valueToPay, , ) = addresses.currencyConverterService.getFromUsdLatest(
+    (uint valueToPay, , ) = addresses.currencyConverterService.getFromUsdCentsLatest(
       currency,
       addresses.userService.getKycCommission()
     );

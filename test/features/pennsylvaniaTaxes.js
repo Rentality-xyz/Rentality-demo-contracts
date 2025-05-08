@@ -277,7 +277,7 @@ describe('Rentality taxes & discounts', function () {
     await expect(rentalityGateway.connect(guest).checkOutByGuest(1, [0, 0])).not.to.be.reverted
     await expect(rentalityGateway.connect(host).checkOutByHost(1, [0, 0])).not.to.be.reverted
 
-    const [deposit, ,] = await rentalityCurrencyConverter.getFromUsdLatest(
+    const [deposit, ,] = await rentalityCurrencyConverter.getFromUsdCentsLatest(
       ethToken,
       addCarRequest.securityDepositPerTripInUsdCents
     )

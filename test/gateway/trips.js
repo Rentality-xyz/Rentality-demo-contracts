@@ -934,11 +934,10 @@ describe('RentalityGateway: trips', function () {
     await expect(rentalityGateway.connect(guest).checkOutByGuest(1, [0, 0])).not.to.be.reverted
     await expect(rentalityGateway.connect(host).checkOutByHost(1, [0, 0])).not.to.be.reverted
 
-    const depositValue = await rentalityCurrencyConverter.getFromUsd(
+    const depositValue = await rentalityCurrencyConverter.getFromUsdCents(
       ethToken,
       request.securityDepositPerTripInUsdCents,
-      ethToCurrencyRate,
-      ethToCurrencyDecimals
+      ethToCurrencyRate
     )
 
     const returnToHost = rentPriceInEth - depositValue - rentalityFee - taxes

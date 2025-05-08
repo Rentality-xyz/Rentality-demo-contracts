@@ -93,7 +93,7 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
   /// @param currency The address of the currency in which the commission should be calculated.
   /// @return The KYC commission amount in the specified currency.
   function calculateKycCommission(address currency) public view returns (uint) {
-    (uint result, , ) = addresses.currencyConverterService.getFromUsdLatest(
+    (uint result, , ) = addresses.currencyConverterService.getFromUsdCentsLatest(
       currency,
       addresses.userService.getKycCommission()
     );
