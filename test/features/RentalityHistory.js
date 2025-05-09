@@ -150,11 +150,10 @@ describe('Rentality History Service', function () {
 
     const paymentInfo = tripDetails['paymentInfo']
 
-    const depositValue = await rentalityCurrencyConverter.getFromUsd(
+    const depositValue = await rentalityCurrencyConverter.getFromUsdCents(
       ethToken,
       paymentInfo.depositInUsdCents,
-      ethToCurrencyRate,
-      ethToCurrencyDecimals
+      ethToCurrencyRate
     )
 
     const returnToHost = rentPriceInEth - depositValue - rentalityFee - taxes

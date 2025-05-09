@@ -110,17 +110,16 @@ const calculatePayments = async (currencyConverter, paymentService, value, tripD
 
   const [rate, decimals] = await currencyConverter.getCurrentRate(token)
 
-  const rentPriceInEth = await currencyConverter.getFromUsd(
+  const rentPriceInEth = await currencyConverter.getFromUsdCents(
     token,
     priceWithDiscount + totalTaxes + BigInt(deposit),
-    rate,
-    decimals
+    rate
   )
-  const taxes = await currencyConverter.getFromUsd(token, totalTaxes, rate, decimals)
+  const taxes = await currencyConverter.getFromUsdCents(token, totalTaxes, rate)
 
   const feeInUsdCents = await paymentService.getPlatformFeeFrom(priceWithDiscount)
 
-  const rentalityFee = await currencyConverter.getFromUsd(token, feeInUsdCents, rate, decimals)
+  const rentalityFee = await currencyConverter.getFromUsdCents(token, feeInUsdCents, rate)
 
   return {
     rentPriceInEth,
@@ -140,17 +139,17 @@ const calculatePaymentsFrom = async (currencyConverter, paymentService, value, t
   let totalTaxes = await paymentService.calculateTaxes(1, tripDays, priceWithDiscount)
   const [rate, decimals] = await currencyConverter.getCurrentRate(token)
 
-  const rentPriceInEth = await currencyConverter.getFromUsd(
+  const rentPriceInEth = await currencyConverter.getFromUsdCents(
     token,
     priceWithDiscount + totalTaxes + BigInt(deposit),
-    rate,
-    decimals
+    rate
   )
-  const taxes = await currencyConverter.getFromUsd(token, totalTaxes, rate, decimals)
+  console.log("PRICE", priceWithDiscount + totalTaxes + BigInt(deposit))
+  const taxes = await currencyConverter.getFromUsdCents(token, totalTaxes, rate)
 
   const feeInUsdCents = await paymentService.getPlatformFeeFrom(priceWithDiscount)
 
-  const rentalityFee = await currencyConverter.getFromUsd(token, feeInUsdCents, rate, decimals)
+  const rentalityFee = await currencyConverter.getFromUsdCents(token, feeInUsdCents, rate)
 
   return {
     rentPrice: rentPriceInEth,
@@ -374,7 +373,7 @@ async function deployDefaultFixture() {
   let rentalityMockPriceFeed = await RentalityMockPriceFeed.deploy(8, 200000000000)
   await rentalityMockPriceFeed.waitForDeployment()
 
-  let rentalityMockUsdtPriceFeed = await RentalityMockPriceFeed.deploy(6, 100)
+  let rentalityMockUsdtPriceFeed = await RentalityMockPriceFeed.deploy(8, 100016719)
   await rentalityMockPriceFeed.waitForDeployment()
 
   const MockCivic = await ethers.getContractFactory('CivicMockVerifier')

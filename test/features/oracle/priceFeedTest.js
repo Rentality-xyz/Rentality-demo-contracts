@@ -68,14 +68,14 @@ describe('price feed work correctly', function () {
         await setPriceFeed(priceFeed,ethContract, rentalityCurrencyConverter)
 })
 it('calculate payments with new feed', async function () {
-    const calculaterInConverter = await rentalityCurrencyConverter.getFromUsdLatest(ethToken, 100)
-    const calculatedInJs = getFromUsd(100, 200000000000, 8)
+    const calculaterInConverter = await rentalityCurrencyConverter.getFromUsdCentsLatest(ethToken, 100)
+    const calculatedInJs = getFromUsdCents(100, 200000000000, 8)
     expect(calculaterInConverter[0]).to.be.equal(BigInt(calculatedInJs))
     const {priceFeed, batch} = await deployFeed(BigInt("300000000000"),rentalityUserService)
         await setPriceFeed(priceFeed,ethContract, rentalityCurrencyConverter)
 
-    const calculaterInConverterAfterUpdate = await rentalityCurrencyConverter.getFromUsdLatest(ethToken, 100)
-    const calculatedInJsWithNewRate = getFromUsd(100, 300000000000, 8)
+    const calculaterInConverterAfterUpdate = await rentalityCurrencyConverter.getFromUsdCentsLatest(ethToken, 100)
+    const calculatedInJsWithNewRate = getFromUsdCents(100, 300000000000, 8)
     expect(calculaterInConverterAfterUpdate[0]).to.be.equal(calculatedInJsWithNewRate)
     
 })
@@ -106,7 +106,7 @@ it('batch update', async function () {
     const batchContract = await upgrades.deployProxy(batchContractFactory, [await userService.getAddress()])
     return {priceFeed: contract, batch: batchContract}
   }
-  function getFromUsd(valueInUsdCents, ethToUsdRate, ethToUsdDecimals) {
+  function getFromUsdCents(valueInUsdCents, ethToUsdRate, ethToUsdDecimals) {
     const WEI_PER_ETHER = BigInt(10 ** 18); 
     const scaleFactor = BigInt(10 ** (ethToUsdDecimals - 2));
 

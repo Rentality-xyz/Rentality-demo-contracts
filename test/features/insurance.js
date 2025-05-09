@@ -198,11 +198,10 @@ describe('Rentality insurance', function () {
     await expect(rentalityGateway.connect(guest).checkOutByGuest(1, [0, 0])).not.to.be.reverted
     await expect(rentalityGateway.connect(host).checkOutByHost(1, [0, 0])).not.to.be.reverted
 
-    const depositValue = await rentalityCurrencyConverter.getFromUsd(
+    const depositValue = await rentalityCurrencyConverter.getFromUsdCents(
       ethToken,
       mockRequestWithInsurance.securityDepositPerTripInUsdCents,
-      payments.ethToCurrencyRate,
-      payments.ethToCurrencyDecimals
+      payments.ethToCurrencyRate
     )
 
     const returnToHost = result.totalPrice - depositValue - payments.rentalityFee - payments.taxes

@@ -375,7 +375,7 @@ describe('RentalityClaim', function () {
 
     await expect(rentalityGateway.connect(host).createClaim(mockClaimRequest)).to.not.reverted
 
-    const [claimPriceInEth] = await rentalityCurrencyConverter.getFromUsdLatest(ethToken, amountToClaimInUsdCents)
+    const [claimPriceInEth] = await rentalityCurrencyConverter.getFromUsdCentsLatest(ethToken, amountToClaimInUsdCents)
 
     const claimInEth = ethers.parseEther(claimPriceInEth.toString())
     const total = claimInEth / BigInt(1e18)
