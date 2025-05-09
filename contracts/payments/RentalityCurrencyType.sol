@@ -42,7 +42,7 @@ function getFromUsdCents(uint256 amountInUsdCent, int256 rate) public view virtu
     return address(tokenAddress);
   }
 
-  /// @notice Retrieves the decimals of the token
+  /// @notice Retrieves the decimals of the price feed
   /// @return The decimals of the token
   function rateTokenDecimals() public view returns (uint8) {
     return rateFeed.decimals();
@@ -51,7 +51,7 @@ function getFromUsdCents(uint256 amountInUsdCent, int256 rate) public view virtu
   /// @notice Retrieves the decimals of the token
   /// @return The decimals of the token
   function tokenDecimals() public view virtual returns (uint8) {
-    return rateFeed.decimals();
+    return tokenAddress.decimals();
   }
 
   /// @notice Get the latest rate from the Chainlink rate feed
