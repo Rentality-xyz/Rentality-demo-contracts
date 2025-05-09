@@ -41,7 +41,7 @@
     },
     {
       "type": "function",
-      "name": "getFromUsdCents",
+      "name": "getFromUsd",
       "constant": true,
       "stateMutability": "pure",
       "payable": false,
@@ -54,7 +54,7 @@
     },
     {
       "type": "function",
-      "name": "getFromUsdCentsLatest",
+      "name": "getFromUsdLatest",
       "constant": true,
       "stateMutability": "view",
       "payable": false,
@@ -67,7 +67,7 @@
     },
     {
       "type": "function",
-      "name": "getFromUsdCentsWithCache",
+      "name": "getFromUsdWithCache",
       "constant": false,
       "payable": false,
       "inputs": [{ "type": "uint256", "name": "valueInUsdCents" }],
