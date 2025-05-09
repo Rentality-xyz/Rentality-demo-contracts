@@ -140,7 +140,7 @@ library RentalityQuery {
             contracts.carService.getCarInfoById(trip.carId).locationHash
           ),
           contracts.claimService.getClaimTypeInfo(claim.claimType),
-          contracts.currencyConverterService.getUserCurrency(trip.host).currency
+          contracts.currencyConverterService.getUserCurrency(trip.host)
         );
       }
     }
@@ -196,7 +196,7 @@ library RentalityQuery {
             carService.getCarInfoById(trip.carId).locationHash
           ),
           contracts.claimService.getClaimTypeInfo(claim.claimType),
-          contracts.currencyConverterService.getUserCurrency(trip.host).currency
+          contracts.currencyConverterService.getUserCurrency(trip.host)
         );
       }
     }
@@ -213,9 +213,9 @@ library RentalityQuery {
   ) private view returns (uint) {
     uint valueInEth = 0;
     if (claim.status == Schemas.ClaimStatus.Paid) {
-      (int rate, uint8 dec) = claimService.claimIdToCurrencyRate(claim.claimId);
-      if (rate > 0) valueInEth = currencyConverterService.getFromUsd(currency, amount, rate, dec);
-    } else (valueInEth, , ) = currencyConverterService.getFromUsdLatest(currency, amount);
+      (int rate,) = claimService.claimIdToCurrencyRate(claim.claimId);
+      if (rate > 0) valueInEth = currencyConverterService.getFromUsdCents(currency, amount, rate);
+    } else (valueInEth, , ) = currencyConverterService.getFromUsdCentsLatest(currency, amount);
     return valueInEth;
   }
 

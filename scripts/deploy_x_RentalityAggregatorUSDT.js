@@ -52,7 +52,7 @@ async function main() {
 
   const converter = await ethers.getContractAt('RentalityCurrencyConverter', rentalityCurrencyConverterAddress)
   console.log(await converter.addCurrencyType(usdt, usdtService, 'USDT'))
-  console.log(await converter.getFromUsdLatest(usdt, 10000))
+  console.log(await converter.getFromUsdCentsLatest(usdt, 10000))
 }
 
 main()

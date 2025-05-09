@@ -46,18 +46,8 @@ async function getInsuranceUrl(proxyAddress, caseId, mapSlot) {
 }
 
 async function main() {
-  const contract = await ethers.getContractAt('RentalityTaxes','0x2287de614e0CafED95b42c45dd959176F4a9fF14')
-  const payments = await ethers.getContractAt("RentalityPaymentService", "0x6080F7A1F4fDaED78e01CDC951Bb15588B04EBF7")
-  const carToken = await ethers.getContractAt("IRentalityGateway", "0xB257FE9D206b60882691a24d5dfF8Aa24929cB73")
-  // const abiCoder = new ethers.AbiCoder()
-  // const encoded = abiCoder.encode(['string'], ["District of Columbia"])
-  // console.log("ENCODED", keccak256(encoded).toString('hex'))
-  // console.log("CONTRACT", await contract.getTaxesIdByHash('0x' + keccak256(encoded).toString('hex')))
-
-  console.log("CAR:" ,await carToken.getCarDetails(151))
-  console.log("PAYMENTS", await payments.defineTaxesType('0xCfd84b30b9fddaa275b38a40E08D8bE990688033',151))
-
-  console.log("TAXES",await contract.calculateTaxesDTO(52,3,294))
+const v = await ethers.getContractAt('RentalityUSDTConverter','0x9453130Cd8474cf5Aab6b6A3974432563B406c76')
+console.log(await v.getLatest())
 }
 main()
   .then(() => process.exit(0))

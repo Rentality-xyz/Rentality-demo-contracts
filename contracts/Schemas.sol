@@ -198,6 +198,8 @@ interface Schemas {
     uint promoDiscount;
     uint dimoTokenId;
     TaxValue[] taxesData;
+    
+    UserCurrencyDTO currency;
 
   }
 
@@ -247,7 +249,7 @@ interface Schemas {
     uint amountInEth;
     string timeZoneId;
     ClaimTypeV2 claimType;
-    address currency;
+    UserCurrencyDTO currency;
   }
 
   // Struct to represent a claim
@@ -473,7 +475,7 @@ interface Schemas {
     InsuranceCarInfo insuranceInfo;
     bool isGuestHasInsurance;
     uint dimoTokenId;
-    UserCurrency hostCurrency;
+    UserCurrencyDTO hostCurrency;
   }
   struct AvailableCarDTO {
     uint carId;
@@ -505,11 +507,18 @@ interface Schemas {
     uint dimoTokenId;
     TaxValue[] taxes;
     uint64 totalTax;
-    UserCurrency hostCurrency;
+    UserCurrencyDTO hostCurrency;
   }
 
   struct UserCurrency {
   address currency;
+  bool initialized;
+}
+
+
+  struct UserCurrencyDTO {
+  address currency;
+  string name;
   bool initialized;
 }
 

@@ -267,11 +267,10 @@ describe('Check out without guest', function () {
     await expect(rentalityGateway.connect(host).checkOutByHost(1, [0, 0])).not.to.be.reverted
     await expect(rentalityGateway.connect(host).confirmCheckOut(1)).to.be.reverted
 
-    const depositValue = await rentalityCurrencyConverter.getFromUsd(
+    const depositValue = await rentalityCurrencyConverter.getFromUsdCents(
       ethToken,
       request.securityDepositPerTripInUsdCents,
-      ethToCurrencyRate,
-      ethToCurrencyDecimals
+      ethToCurrencyRate
     )
 
     const returnToHost = rentPriceInEth - rentalityFee - taxes - depositValue
@@ -331,11 +330,10 @@ describe('Check out without guest', function () {
     await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0], '', '')).not.to.be.reverted
     await expect(rentalityGateway.connect(host).checkOutByHost(1, [0, 0])).not.to.be.reverted
 
-    const depositValue = await rentalityCurrencyConverter.getFromUsd(
+    const depositValue = await rentalityCurrencyConverter.getFromUsdCents(
       ethToken,
       request.securityDepositPerTripInUsdCents,
-      ethToCurrencyRate,
-      ethToCurrencyDecimals
+      ethToCurrencyRate
     )
 
     const returnToHost = rentPriceInEth - rentalityFee - taxes - depositValue

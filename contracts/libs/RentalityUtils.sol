@@ -448,7 +448,7 @@ library RentalityUtils {
       totalPrice += insuranceService.getInsurancePriceByCar(carId) * daysOfTrip;
     }
 
-    (uint256 valueSumInCurrency, int rate, uint8 decimals) = addresses.currencyConverterService.getFromUsdLatest(
+    (uint256 valueSumInCurrency, int rate, uint8 decimals) = addresses.currencyConverterService.getFromUsdCentsLatest(
       currency,
       totalPrice
     );
@@ -555,7 +555,7 @@ library RentalityUtils {
       priceWithPromo = (sumBeforePromo - ((sumBeforePromo * discount) / 100));
     }
 
-    (uint valueSumInCurrency, int rate, uint8 decimals) = addresses.currencyConverterService.getFromUsdLatest(
+    (uint valueSumInCurrency, int rate, uint8 decimals) = addresses.currencyConverterService.getFromUsdCentsLatest(
       currencyType,
       valueSum
     );
@@ -565,11 +565,10 @@ library RentalityUtils {
     if (discount > 0) {
       valueSumWithPromo = priceWithPromo;
 
-      valueSumInCurrency = addresses.currencyConverterService.getFromUsd(
+      valueSumInCurrency = addresses.currencyConverterService.getFromUsdCents(
         currencyType,
         priceWithPromo + carInfo.securityDepositPerTripInUsdCents + insurance,
-        rate,
-        decimals
+        rate
       );
     }
 
@@ -653,11 +652,10 @@ library RentalityUtils {
     string memory guestPhoneNumber = contracts.userService.getKYCInfo(trip.guest).mobilePhoneNumber;
     string memory hostPhoneNumber = contracts.userService.getKYCInfo(trip.host).mobilePhoneNumber;
 
-    uint valueInCurrency = currencyConverterService.getFromUsd(
+    uint valueInCurrency = currencyConverterService.getFromUsdCents(
       trip.paymentInfo.currencyType,
       claim.amountInUsdCents,
-      trip.paymentInfo.currencyRate,
-      trip.paymentInfo.currencyDecimals
+      trip.paymentInfo.currencyRate
     );
 
     return
@@ -671,7 +669,7 @@ library RentalityUtils {
         valueInCurrency,
         IRentalityGeoService(contracts.carService.getGeoServiceAddress()).getCarTimeZoneId(car.locationHash),
          contracts.claimService.getClaimTypeInfo(claim.claimType),
-        contracts.currencyConverterService.getUserCurrency(trip.host).currency
+        contracts.currencyConverterService.getUserCurrency(trip.host)
       );
   }
 
