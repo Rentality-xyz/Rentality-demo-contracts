@@ -41,20 +41,19 @@
     },
     {
       "type": "function",
-      "name": "getFromUsd",
+      "name": "getFromUsdCents",
       "constant": true,
-      "stateMutability": "pure",
+      "stateMutability": "view",
       "payable": false,
       "inputs": [
-        { "type": "uint256", "name": "amount" },
-        { "type": "int256", "name": "rate" },
-        { "type": "uint8", "name": "decimals" }
+        { "type": "uint256", "name": "amountInUsdCent" },
+        { "type": "int256", "name": "rate" }
       ],
       "outputs": [{ "type": "uint256", "name": "" }]
     },
     {
       "type": "function",
-      "name": "getFromUsdLatest",
+      "name": "getFromUsdCentsLatest",
       "constant": true,
       "stateMutability": "view",
       "payable": false,
@@ -67,7 +66,7 @@
     },
     {
       "type": "function",
-      "name": "getFromUsdWithCache",
+      "name": "getFromUsdCentsWithCache",
       "constant": false,
       "payable": false,
       "inputs": [{ "type": "uint256", "name": "valueInUsdCents" }],
@@ -116,14 +115,13 @@
     },
     {
       "type": "function",
-      "name": "getUsd",
+      "name": "getUsdCents",
       "constant": true,
-      "stateMutability": "pure",
+      "stateMutability": "view",
       "payable": false,
       "inputs": [
-        { "type": "uint256", "name": "amount" },
-        { "type": "int256", "name": "rate" },
-        { "type": "uint8", "name": "decimals" }
+        { "type": "uint256", "name": "value" },
+        { "type": "int256", "name": "rate" }
       ],
       "outputs": [{ "type": "uint256", "name": "" }]
     },
@@ -177,6 +175,15 @@
       "payable": false,
       "inputs": [],
       "outputs": [{ "type": "bytes32", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "rateTokenDecimals",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "uint8", "name": "" }]
     },
     {
       "type": "function",

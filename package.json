@@ -29,6 +29,7 @@
     "readline-sync": "^1.4.10"
   },
   "devDependencies": {
+    "@nomicfoundation/ethereumjs-util": "^9.0.4",
     "@nomicfoundation/hardhat-toolbox": "^4.0.0",
     "@openzeppelin/hardhat-upgrades": "^3.0.1",
     "hardhat": "^2.22.12",

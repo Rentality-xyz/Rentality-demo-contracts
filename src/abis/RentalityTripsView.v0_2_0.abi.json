@@ -64,6 +64,30 @@
     },
     {
       "type": "function",
+      "name": "getAiDamageAnalyzeCaseRequest",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        { "type": "uint256", "name": "tripId" },
+        { "type": "uint8", "name": "caseType" }
+      ],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "aiDamageAnalyzeCaseRequest",
+          "components": [
+            { "type": "uint256", "name": "lastCaseId" },
+            { "type": "string", "name": "email" },
+            { "type": "string", "name": "name" },
+            { "type": "string", "name": "caseToken" },
+            { "type": "string", "name": "vin" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
       "name": "getAvaibleCurrencies",
       "constant": true,
       "stateMutability": "view",
@@ -112,30 +136,6 @@
           "components": [
             { "type": "uint64", "name": "maxCarPrice" },
             { "type": "uint256", "name": "minCarYearOfProduction" }
-          ]
-        }
-      ]
-    },
-    {
-      "type": "function",
-      "name": "getAiDamageAnalyzeCaseRequest",
-      "constant": true,
-      "stateMutability": "view",
-      "payable": false,
-      "inputs": [
-        { "type": "uint256", "name": "tripId" },
-        { "type": "uint8", "name": "caseType" }
-      ],
-      "outputs": [
-        {
-          "type": "tuple",
-          "name": "aiDamageAnalyzeCaseRequest",
-          "components": [
-            { "type": "uint256", "name": "lastCaseId" },
-            { "type": "string", "name": "email" },
-            { "type": "string", "name": "name" },
-            { "type": "string", "name": "caseToken" },
-            { "type": "string", "name": "vin" }
           ]
         }
       ]
@@ -284,6 +284,15 @@
                 { "type": "string", "name": "name" },
                 { "type": "uint32", "name": "value" },
                 { "type": "uint8", "name": "tType" }
+              ]
+            },
+            {
+              "type": "tuple",
+              "name": "currency",
+              "components": [
+                { "type": "address", "name": "currency" },
+                { "type": "string", "name": "name" },
+                { "type": "bool", "name": "initialized" }
               ]
             }
           ]
@@ -447,6 +456,15 @@
                 { "type": "uint32", "name": "value" },
                 { "type": "uint8", "name": "tType" }
               ]
+            },
+            {
+              "type": "tuple",
+              "name": "currency",
+              "components": [
+                { "type": "address", "name": "currency" },
+                { "type": "string", "name": "name" },
+                { "type": "bool", "name": "initialized" }
+              ]
             }
           ]
         }
@@ -483,6 +501,7 @@
           "name": "userCurrency",
           "components": [
             { "type": "address", "name": "currency" },
+            { "type": "string", "name": "name" },
             { "type": "bool", "name": "initialized" }
           ]
         }

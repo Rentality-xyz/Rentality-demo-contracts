@@ -278,6 +278,7 @@
               "name": "hostCurrency",
               "components": [
                 { "type": "address", "name": "currency" },
+                { "type": "string", "name": "name" },
                 { "type": "bool", "name": "initialized" }
               ]
             }
@@ -451,6 +452,30 @@
       "payable": false,
       "inputs": [{ "type": "uint256", "name": "tripId" }],
       "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "getAiDamageAnalyzeCaseRequest",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        { "type": "uint256", "name": "" },
+        { "type": "uint8", "name": "" }
+      ],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "aiDamageAnalyzeCaseRequest",
+          "components": [
+            { "type": "uint256", "name": "lastCaseId" },
+            { "type": "string", "name": "email" },
+            { "type": "string", "name": "name" },
+            { "type": "string", "name": "caseToken" },
+            { "type": "string", "name": "vin" }
+          ]
+        }
+      ]
     },
     {
       "type": "function",
@@ -801,7 +826,15 @@
                 { "type": "uint8", "name": "creator" }
               ]
             },
-            { "type": "address", "name": "currency" }
+            {
+              "type": "tuple",
+              "name": "currency",
+              "components": [
+                { "type": "address", "name": "currency" },
+                { "type": "string", "name": "name" },
+                { "type": "bool", "name": "initialized" }
+              ]
+            }
           ]
         }
       ]
@@ -935,30 +968,6 @@
     },
     {
       "type": "function",
-      "name": "getAiDamageAnalyzeCaseRequest",
-      "constant": true,
-      "stateMutability": "view",
-      "payable": false,
-      "inputs": [
-        { "type": "uint256", "name": "" },
-        { "type": "uint8", "name": "" }
-      ],
-      "outputs": [
-        {
-          "type": "tuple",
-          "name": "aiDamageAnalyzeCaseRequest",
-          "components": [
-            { "type": "uint256", "name": "lastCaseId" },
-            { "type": "string", "name": "email" },
-            { "type": "string", "name": "name" },
-            { "type": "string", "name": "caseToken" },
-            { "type": "string", "name": "vin" }
-          ]
-        }
-      ]
-    },
-    {
-      "type": "function",
       "name": "getMyCars",
       "constant": true,
       "stateMutability": "view",
@@ -1069,7 +1078,15 @@
                 { "type": "uint8", "name": "creator" }
               ]
             },
-            { "type": "address", "name": "currency" }
+            {
+              "type": "tuple",
+              "name": "currency",
+              "components": [
+                { "type": "address", "name": "currency" },
+                { "type": "string", "name": "name" },
+                { "type": "bool", "name": "initialized" }
+              ]
+            }
           ]
         }
       ]
@@ -1282,6 +1299,15 @@
                 { "type": "uint32", "name": "value" },
                 { "type": "uint8", "name": "tType" }
               ]
+            },
+            {
+              "type": "tuple",
+              "name": "currency",
+              "components": [
+                { "type": "address", "name": "currency" },
+                { "type": "string", "name": "name" },
+                { "type": "bool", "name": "initialized" }
+              ]
             }
           ]
         }
@@ -1488,6 +1514,15 @@
                 { "type": "uint32", "name": "value" },
                 { "type": "uint8", "name": "tType" }
               ]
+            },
+            {
+              "type": "tuple",
+              "name": "currency",
+              "components": [
+                { "type": "address", "name": "currency" },
+                { "type": "string", "name": "name" },
+                { "type": "bool", "name": "initialized" }
+              ]
             }
           ]
         }
@@ -1524,6 +1559,7 @@
           "name": "userCurrency",
           "components": [
             { "type": "address", "name": "currency" },
+            { "type": "string", "name": "name" },
             { "type": "bool", "name": "initialized" }
           ]
         }
@@ -1774,6 +1810,7 @@
                   "name": "hostCurrency",
                   "components": [
                     { "type": "address", "name": "currency" },
+                    { "type": "string", "name": "name" },
                     { "type": "bool", "name": "initialized" }
                   ]
                 }
