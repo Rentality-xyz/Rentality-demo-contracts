@@ -7,7 +7,7 @@ const basePathToSave = './src/abis'
 let featureName = process.env.FEATURE_NAME?.trim()
 let pathToSave = featureName ? `${basePathToSave}/${featureName}` : basePathToSave
 
-var saveJsonAbi = async function (fileName, chainId, contract) {
+var saveJsonAbi = async (fileName, chainId, contract) => {
   let skip = process.env.SKIP_ABI
 
   if (skip && skip === '1') {
@@ -31,7 +31,31 @@ var saveJsonAbi = async function (fileName, chainId, contract) {
   console.log('JSON abi saved to ' + filePath)
 }
 
-module.exports = saveJsonAbi
+
+
+const saveDiamondAbi = (abi) => {
+  // let skip = process.env.SKIP_ABI
+
+  // if (skip && skip === '1') {
+  //   return
+  // }
+  const version = extractVersion()
+
+
+
+  fs.mkdirSync(pathToSave + '/diamond', { recursive: true }, (err) => {
+    if (err) throw err
+  })
+
+  let filePath = pathToSave + '/diamond/diamondContract' + '.' + version + '.abi.' + 'json'
+  fs.writeFileSync(filePath, JSON.stringify(abi))
+  console.log('JSON abi saved to ' + filePath)
+}
+
+module.exports = {
+  saveJsonAbi,
+  saveDiamondAbi
+}
 
 function extractVersion() {
   return 'v' + package.version.replace(/\./g, '_')

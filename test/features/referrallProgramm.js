@@ -110,7 +110,7 @@ describe('Referral program', function () {
     expect(
       await rentalityGateway
         .connect(anonymous)
-        .addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+        .addCar(await getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
     ).to.not.reverted
 
     const hashPointsCar = await refferalProgram.getReadyToClaimFromRefferalHash(hashCreator.address)
@@ -159,7 +159,7 @@ describe('Referral program', function () {
     expect(
       await rentalityGateway
         .connect(anonymous)
-        .addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+        .addCar(await getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
     ).to.not.reverted
 
     const hashPointsCar = await refferalProgram.getReadyToClaimFromRefferalHash(hashCreator.address)
@@ -277,7 +277,7 @@ describe('Referral program', function () {
     expect(
       await rentalityGateway
         .connect(host)
-        .addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+        .addCar(await getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
     ).to.not.reverted
 
     const result = await rentalityGateway.calculatePaymentsWithDelivery(
@@ -343,13 +343,13 @@ describe('Referral program', function () {
     expect(
       await rentalityGateway
         .connect(anonymous)
-        .addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+        .addCar(await getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
     ).to.not.reverted
 
     expect(
       await rentalityGateway
         .connect(anonymous)
-        .addCar(getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin))
+        .addCar(await getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin))
     ).to.not.reverted
 
     const toClaim = await refferalProgram.getReadyToClaim(anonymous.address)
@@ -372,7 +372,7 @@ describe('Referral program', function () {
     expect(
       await rentalityGateway
         .connect(host)
-        .addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+        .addCar(await getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
     ).to.not.reverted
 
     const result = await rentalityGateway.calculatePaymentsWithDelivery(
@@ -407,7 +407,7 @@ describe('Referral program', function () {
     expect(
       await rentalityGateway
         .connect(host)
-        .addCar(getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin))
+        .addCar(await getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin))
     ).to.not.reverted
 
     const result2 = await rentalityGateway.calculatePaymentsWithDelivery(
@@ -454,7 +454,7 @@ describe('Referral program', function () {
     expect(
       await rentalityGateway
         .connect(host)
-        .addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+        .addCar(await getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
     ).to.not.reverted
 
     const result = await rentalityGateway.calculatePaymentsWithDelivery(
@@ -491,7 +491,7 @@ describe('Referral program', function () {
     expect(
       await rentalityGateway
         .connect(host)
-        .addCar(getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin))
+        .addCar(await getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin))
     ).to.not.reverted
 
     const result2 = await rentalityGateway.calculatePaymentsWithDelivery(

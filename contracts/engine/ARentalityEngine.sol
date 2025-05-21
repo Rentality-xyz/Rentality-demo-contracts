@@ -66,7 +66,7 @@ abstract contract ARentalityEngine {
   function getEType() public view returns (uint8) {
     return eType;
   }
-
+ 
   /// @notice Calculates the resolve amount in USD cents based on driven miles.
   function getDrivenMilesResolveAmountInUsdCents(
     uint64 startOdometr,
@@ -76,7 +76,6 @@ abstract contract ARentalityEngine {
     uint64 tripDays
   ) public pure virtual returns (uint64) {
     if (endOdometr - startOdometr <= milesIncludedPerDay * tripDays) return 0;
-
     return
       uint64(
         Math.ceilDiv(pricePerDayInUsdCents, milesIncludedPerDay) *

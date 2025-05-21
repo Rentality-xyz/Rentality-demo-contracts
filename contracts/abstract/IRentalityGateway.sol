@@ -406,4 +406,7 @@ interface IRentalityGateway {
 
    function addUserCurrency(address currency) external;
 
+  function manageRole(Schemas.Role role, address user, bool grant /*revoke if false*/) external;
+
+  function burnCar(uint carId) external;
 }

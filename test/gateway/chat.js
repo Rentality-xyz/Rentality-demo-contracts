@@ -62,7 +62,7 @@ describe('RentalityGateway: chat', function () {
   })
 
   it('Should have chat history by guest', async function () {
-    let addCarRequest = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
+    let addCarRequest = await getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
 
     await expect(rentalityGateway.connect(host).addCar(addCarRequest)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
@@ -141,7 +141,7 @@ describe('RentalityGateway: chat', function () {
     expect(chatInfo.carYearOfProduction).to.be.equal(Number(addCarRequest.yearOfProduction))
   })
   it('Should have chat history by host', async function () {
-    let addCarRequest = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
+    let addCarRequest = await getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
     await expect(rentalityGateway.connect(host).addCar(addCarRequest)).not.to.be.reverted
     const myCars = await rentalityGateway.connect(host).getMyCars()
     expect(myCars.length).to.equal(1)

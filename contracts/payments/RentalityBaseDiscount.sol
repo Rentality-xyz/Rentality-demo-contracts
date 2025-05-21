@@ -6,6 +6,7 @@ import '../proxy/UUPSAccess.sol';
 import './abstract/IRentalityDiscount.sol';
 import '../Schemas.sol';
 
+/// TODO: add to the diamond
 /// @title RentalityBaseDiscount
 /// @notice This contract provides functionality for managing discounts applied to trip prices.
 contract RentalityBaseDiscount is IRentalityDiscount, Initializable, UUPSAccess {

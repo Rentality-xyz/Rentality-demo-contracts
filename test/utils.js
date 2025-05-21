@@ -6,6 +6,11 @@ const taxesWithRentSign = '0x57ccc04e'
 const taxesWithGovePMM = '0x96746221'
 const taxesGOVConst = '0x05e92b7e'
 
+const DiamondCutFunctions = {
+  addFacet: 0,
+  replaceFacet: 1,
+  removeFacet: 2,
+}
 const encodeTaxes = (data) => {
   const abiCoder = new ethers.AbiCoder();
   const dataType = 'tuple(uint32, uint32, uint32)'
@@ -170,7 +175,7 @@ function getMockCarRequestWithAddress(seed, address, contractAddress, admin) {
   return getMockCarRequest(seed, contractAddress, admin, locationInfo2)
 }
 
-const signLocationInfo = (contractAddress, admin, location) => {
+const signLocationInfo = async (contractAddress, admin, location) => {
   const domain = {
     name: 'RentalityLocationVerifier',
     version: '1',
@@ -189,7 +194,7 @@ const signLocationInfo = (contractAddress, admin, location) => {
     ],
   }
   if (location === undefined) location = locationInfo
-  return admin.signTypedData(domain, types, location)
+  return await admin.signTypedData(domain, types, location)
 }
 const emptyKyc = {
   fullName: '',
@@ -220,7 +225,7 @@ const signKycInfo = (contractAddress, admin, kyc) => {
   return admin.signTypedData(domain, types, kyc)
 }
 
-function getMockCarRequest(seed, contractAddress, admin, locationI) {
+async function getMockCarRequest(seed, contractAddress, admin, locationI) {
   let newLocation = locationI === undefined ? locationInfo : locationI
 
   const seedStr = seed?.toString() ?? ''
@@ -244,7 +249,7 @@ function getMockCarRequest(seed, contractAddress, admin, locationI) {
   const locationLongitude = seedStr
   const locationInfo1 = {
     locationInfo: newLocation,
-    signature: signLocationInfo(contractAddress, admin, newLocation),
+    signature: await signLocationInfo(contractAddress, admin, newLocation),
   }
 
   return {
@@ -594,7 +599,7 @@ async function deployDefaultFixture() {
       RentalityViewLib: await viewLib.getAddress(),
     },
   })
-  const RentalityAiDamageAnalyze = await ethers.getContractFactory('RentalityAiDamageAnalyze')
+  const RentalityAiDamageAnalyze = await ethers.getContractFactory('RentalityAiDamageAnalyzeV2')
   const rentalityAiDamageAnalyze = await upgrades.deployProxy(RentalityAiDamageAnalyze,[await rentalityUserService.getAddress()])
 
   const rentalityTripsView = await upgrades.deployProxy(RentalityTripsView, [
@@ -851,5 +856,6 @@ module.exports = {
   taxesWithRentSign,
   taxesWithoutRentSign,
   encodeTaxes,
-  taxesGOVConst
+  taxesGOVConst,
+  DiamondCutFunctions
 }

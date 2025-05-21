@@ -23,11 +23,6 @@ contract RentalityEnginesService is Initializable, UUPSAccess {
     _;
   }
 
-  /// @notice Modifier to restrict access to only Rentality platforms.
-  modifier onlyManager() {
-    // require(userService.isRentalityPlatform(msg.sender), 'Only for Manager.');
-    _;
-  }
 
   /// @notice Adds a new engine service contract to the system.
   /// @param engineService The address of the new engine service contract.
@@ -65,7 +60,7 @@ contract RentalityEnginesService is Initializable, UUPSAccess {
   /// @notice Verify engine params
   /// @param eType The engine type associated with the car.
   /// @param params An array of parameters required for adding the car.
-  function verifyCreateParams(uint8 eType, uint64[] memory params) public view onlyManager {
+  function verifyCreateParams(uint8 eType, uint64[] memory params) public view {
     engineTypeToEngineContract[eType].verifyCreateParams(params);
   }
 
@@ -77,7 +72,7 @@ contract RentalityEnginesService is Initializable, UUPSAccess {
     uint8 eType,
     uint64[] memory newParams,
     uint64[] memory oldParams
-  ) public view onlyManager returns (uint64[] memory) {
+  ) public view returns (uint64[] memory) {
     return engineTypeToEngineContract[eType].verifyUpdateParams(newParams, oldParams);
   }
 
@@ -123,6 +118,7 @@ contract RentalityEnginesService is Initializable, UUPSAccess {
     return engineTypeToEngineContract[eType].extraCosts(params);
   }
 
+  
   /// @notice Computes the resolve amount in USD cents for a specific engine type and car rental.
   /// @param engineType The engine type associated with the car.
   /// @param fuelPrice Representing fuel prices.
@@ -143,6 +139,7 @@ contract RentalityEnginesService is Initializable, UUPSAccess {
     uint64 pricePerDayInUsdCents,
     uint64 tripDays
   ) public view returns (uint64, uint64) {
+
     return
       engineTypeToEngineContract[engineType].getResolveAmountInUsdCents(
         fuelPrice,

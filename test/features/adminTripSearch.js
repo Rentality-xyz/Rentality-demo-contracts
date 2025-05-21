@@ -70,7 +70,7 @@ describe('Admin trip searching', function () {
   })
 
   it('Search by location', async function () {
-    let request = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
+    let request = await getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
     request.locationInfo.locationInfo = {
       latitude: '',
       longitude: '',
@@ -138,7 +138,7 @@ describe('Admin trip searching', function () {
     expect(result2.trips.length).to.be.eq(0)
   })
   it('Pagination test', async function () {
-    let request = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
+    let request = await getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
     request.locationInfo.locationInfo = {
       latitude: '',
       longitude: '',
@@ -235,7 +235,7 @@ describe('Admin trip searching', function () {
     expect(result4.trips[0].trip.tripId).to.be.eq(10)
   })
   it('Payment status', async function () {
-    let request = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
+    let request = await getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
     request.locationInfo.locationInfo = {
       latitude: '',
       longitude: '',
@@ -335,7 +335,7 @@ describe('Admin trip searching', function () {
     expect(result.trips[0].trip.tripId).to.be.eq(1)
   })
   it('Payment status unpaid', async function () {
-    let request = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
+    let request = await getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
     request.locationInfo.locationInfo = {
       latitude: '',
       longitude: '',
@@ -424,7 +424,7 @@ describe('Admin trip searching', function () {
     expect(result.trips[0].trip.tripId).to.be.eq(1)
   })
   it('Payment status refund to guest', async function () {
-    let request = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
+    let request = await getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
     request.locationInfo.locationInfo = {
       latitude: '1231',
       longitude: '41241',
@@ -493,7 +493,7 @@ describe('Admin trip searching', function () {
     expect(result.trips[0].trip.tripId).to.be.eq(1)
   })
   it('Admin status', async function () {
-    let request = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
+    let request = await getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
     request.locationInfo.locationInfo = {
       latitude: '',
       longitude: '',
@@ -589,7 +589,7 @@ describe('Admin trip searching', function () {
   it('All cars pagination test', async function () {
     for (let i = 0; i < 10; i++)
       await expect(
-        rentalityGateway.connect(host).addCar(getMockCarRequest(i, await rentalityLocationVerifier.getAddress(), admin))
+        rentalityGateway.connect(host).addCar(await getMockCarRequest(i, await rentalityLocationVerifier.getAddress(), admin))
       ).not.to.be.reverted
 
     let result = await rentalityAdminGateway.getAllCars(1, 3)
@@ -631,7 +631,7 @@ describe('Admin trip searching', function () {
   })
 
   it('Admin can refund to guest and pay to host ', async function () {
-    let request = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
+    let request = await getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
     request.locationInfo.locationInfo = {
       latitude: '',
       longitude: '',
