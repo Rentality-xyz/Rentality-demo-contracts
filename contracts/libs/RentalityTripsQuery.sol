@@ -154,6 +154,31 @@ library RentalityTripsQuery {
 
     return result;
   }
+  function isCarHasIntersectetTrips(
+    RentalityContract memory contracts,
+    uint64 startDateTime,
+    uint64 endDateTime,
+    uint256 carId
+  ) internal view returns (bool) {
+      uint[] memory activeTrips = contracts.tripService.getActiveTrips(carId);
+              for (uint i = 0; i < activeTrips.length; i++) {
+                if(isTripThatIntersect(contracts, activeTrips[i], startDateTime, endDateTime)) {
+                  Schemas.Trip memory trip = contracts.tripService.getTrip(activeTrips[i]);
+                       if (
+            trip.status == Schemas.TripStatus.Created ||
+            trip.status == Schemas.TripStatus.Finished ||
+            trip.status == Schemas.TripStatus.Canceled ||
+            (trip.status == Schemas.TripStatus.CheckedOutByHost && trip.host == trip.tripFinishedBy)
+          ) {
+            continue;
+          }
+          return true;
+                 
+                }
+              }
+              return false;
+  }
+
   // /// @notice Calculates the detailed receipt for a specific trip.
   // /// @dev This function computes various aspects of the trip receipt, including pricing, mileage, and fuel charges.
   // /// @param tripId The ID of the trip for which the receipt is calculated.

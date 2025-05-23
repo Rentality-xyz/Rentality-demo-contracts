@@ -247,55 +247,39 @@ library RentalityQuery {
     Schemas.CarInfo[] memory availableCars = carService.fetchAvailableCarsForUser(user, searchParams);
     if (availableCars.length == 0) return new Schemas.SearchCar[](0);
 
-    Schemas.Trip[] memory trips = RentalityTripsQuery.getTripsThatIntersect(contracts, startDateTime, endDateTime);
-    Schemas.CarInfo[] memory temp;
+    uint[] memory temp = new uint[](availableCars.length);
     uint256 resultCount;
-
-    if (trips.length == 0) {
-      temp = availableCars;
-      resultCount = availableCars.length;
-    } else {
-      temp = new Schemas.CarInfo[](availableCars.length);
-      resultCount = 0;
-
-      for (uint i = 0; i < availableCars.length; i++) {
-        bool hasIntersectTrip = false;
-
-        for (uint j = 0; j < trips.length; j++) {
-          if (
-            trips[j].status == Schemas.TripStatus.Created ||
-            trips[j].status == Schemas.TripStatus.Finished ||
-            trips[j].status == Schemas.TripStatus.Canceled ||
-            (trips[j].status == Schemas.TripStatus.CheckedOutByHost && trips[j].host == trips[j].tripFinishedBy)
-          ) {
-            continue;
-          }
-
-          if (trips[j].carId == availableCars[i].carId) {
-            hasIntersectTrip = true;
-            break;
-          }
-        }
-
+   
+   for (uint i = 0; i < availableCars.length; i++) {
+   bool hasIntersectTrip = RentalityTripsQuery.isCarHasIntersectetTrips(
+                contracts,
+                startDateTime,
+                endDateTime,
+                availableCars[i].carId
+              );
         if (!hasIntersectTrip) {
-          temp[resultCount] = availableCars[i];
+          temp[resultCount] = i;
           resultCount++;
         }
       }
-    }
+      assembly ("memory-safe") {
+        mstore(temp, resultCount)
+      }
     result = new Schemas.SearchCar[](resultCount);
     bool isGuestHasInsurance = insuranceService.isGuestHasInsurance(user);
+    uint64 totalTripDays = uint64(Math.ceilDiv(endDateTime - startDateTime, 1 days));
+    totalTripDays = totalTripDays == 0 ? 1 : totalTripDays;
     for (uint i = 0; i < resultCount; i++) {
-      uint64 totalTripDays = uint64(Math.ceilDiv(endDateTime - startDateTime, 1 days));
-      totalTripDays = totalTripDays == 0 ? 1 : totalTripDays;
+
+   
 
       Schemas.DeliveryPrices memory deliveryPrices = RentalityCarDelivery(deliveryServiceAddress).getUserDeliveryPrices(
-        temp[i].createdBy
+        availableCars[temp[i]].createdBy
       );
       uint64 priceWithDiscount = contracts.paymentService.calculateSumWithDiscount(
-        carService.ownerOf(temp[i].carId),
+        carService.ownerOf( availableCars[temp[i]].carId),
         totalTripDays,
-        temp[i].pricePerDayInUsdCents
+         availableCars[temp[i]].pricePerDayInUsdCents
       );
       uint64 pickUp = 0;
       uint64 dropOf = 0;
@@ -304,48 +288,48 @@ library RentalityQuery {
           pickUpInfo,
           returnInfo,
           IRentalityGeoService(carService.getGeoServiceAddress()).getCarLocationLatitude(
-            carService.getCarInfoById(temp[i].carId).locationHash
+            carService.getCarInfoById( availableCars[temp[i]].carId).locationHash
           ),
           IRentalityGeoService(carService.getGeoServiceAddress()).getCarLocationLongitude(
-            carService.getCarInfoById(temp[i].carId).locationHash
+            carService.getCarInfoById( availableCars[temp[i]].carId).locationHash
           ),
-          temp[i].createdBy
+          availableCars[temp[i]].createdBy
         );
       }
 
-      uint taxId = contracts.paymentService.defineTaxesType(address(contracts.carService), temp[i].carId);
+      uint taxId = contracts.paymentService.defineTaxesType(address(contracts.carService),  availableCars[temp[i]].carId);
 
       uint64 totalTax = taxId == 0
         ? 0
         : contracts.paymentService.calculateTaxes(taxId, totalTripDays, priceWithDiscount + pickUp + dropOf);
 
       result[i] = Schemas.SearchCar(
-        temp[i].carId,
-        temp[i].brand,
-        temp[i].model,
-        temp[i].yearOfProduction,
-        temp[i].pricePerDayInUsdCents,
+         availableCars[temp[i]].carId,
+         availableCars[temp[i]].brand,
+         availableCars[temp[i]].model,
+         availableCars[temp[i]].yearOfProduction,
+         availableCars[temp[i]].pricePerDayInUsdCents,
         priceWithDiscount / totalTripDays,
         totalTripDays,
         priceWithDiscount,
         totalTax,
-        temp[i].securityDepositPerTripInUsdCents,
-        temp[i].engineType,
-        temp[i].milesIncludedPerDay,
-        temp[i].createdBy,
-        contracts.userService.getKYCInfo(temp[i].createdBy).name,
-        contracts.userService.getKYCInfo(temp[i].createdBy).profilePhoto,
-        carService.tokenURI(temp[i].carId),
+         availableCars[temp[i]].securityDepositPerTripInUsdCents,
+         availableCars[temp[i]].engineType,
+         availableCars[temp[i]].milesIncludedPerDay,
+        availableCars[temp[i]].createdBy,
+        contracts.userService.getKYCInfo( availableCars[temp[i]].createdBy).name,
+        contracts.userService.getKYCInfo( availableCars[temp[i]].createdBy).profilePhoto,
+        carService.tokenURI( availableCars[temp[i]].carId),
         deliveryPrices.underTwentyFiveMilesInUsdCents,
         deliveryPrices.aboveTwentyFiveMilesInUsdCents,
         pickUp,
         dropOf,
-        temp[i].insuranceIncluded,
-        IRentalityGeoService(carService.getGeoServiceAddress()).getLocationInfo(temp[i].locationHash),
-        insuranceService.getCarInsuranceInfo(temp[i].carId),
+         availableCars[temp[i]].insuranceIncluded,
+        IRentalityGeoService(carService.getGeoServiceAddress()).getLocationInfo( availableCars[temp[i]].locationHash),
+        insuranceService.getCarInsuranceInfo( availableCars[temp[i]].carId),
         isGuestHasInsurance,
-        RentalityDimoService(dimoService).getDimoTokenId(temp[i].carId),
-        contracts.currencyConverterService.getUserCurrency(temp[i].createdBy)
+        RentalityDimoService(dimoService).getDimoTokenId( availableCars[temp[i]].carId),
+        contracts.currencyConverterService.getUserCurrency( availableCars[temp[i]].createdBy)
       );
     }
     return result;
