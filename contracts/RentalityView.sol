@@ -135,7 +135,7 @@ contract RentalityView is UUPSUpgradeable, Initializable, ARentalityContext {
         endDateTime,
         pickUpInfo,
         returnInfo,
-        addresses.adminService.getDeliveryServiceAddress(),
+        address(addresses.deliveryService),
         address(insuranceService),
         address(dimoService)
       );
@@ -169,7 +169,7 @@ contract RentalityView is UUPSUpgradeable, Initializable, ARentalityContext {
         searchParams,
         pickUpInfo,
         returnInfo,
-        RentalityAdminGateway(addresses.adminService).getDeliveryServiceAddress(),
+        address(addresses.deliveryService),
         address(insuranceService),
         address(dimoService)
       );
@@ -298,7 +298,7 @@ contract RentalityView is UUPSUpgradeable, Initializable, ARentalityContext {
   /// @param user The user address for which delivery data is requested.
   /// @return deliveryData The delivery data including location details and delivery prices.
   function getUserDeliveryPrices(address user) public view returns (Schemas.DeliveryPrices memory) {
-    return RentalityCarDelivery(addresses.adminService.getDeliveryServiceAddress()).getUserDeliveryPrices(user);
+    return addresses.deliveryService.getUserDeliveryPrices(user);
   }
 
   /// @notice Retrieves the KYC commission amount.
@@ -370,7 +370,7 @@ contract RentalityView is UUPSUpgradeable, Initializable, ARentalityContext {
     );
     insuranceService = RentalityInsurance(insuranceAddress);
     tripsView = RentalityTripsView(tripsViewAddress);
-    tripsView.updateViewService(this);
+    // tripsView.updateViewService(this);
     refferalService = RentalityReferralProgram(refferalProgramAddress);
     promoService = RentalityPromoService(promoServiceAddress);
     dimoService = RentalityDimoService(dimoServiceAddress);
