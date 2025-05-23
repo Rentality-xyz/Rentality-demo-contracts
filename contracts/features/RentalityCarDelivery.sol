@@ -8,6 +8,11 @@ import '../libs/RealMath.sol';
 import '../libs/RentalityUtils.sol';
 import '../Schemas.sol';
 
+struct Distance {
+  int distance;
+  uint carId;
+}
+
 int128 constant EARTH_RADIUS = 3_959;
 int128 constant COORDINATE_ACCURACY = 10000000000000;
 /// @title RentalityCarDelivery
@@ -174,28 +179,40 @@ contract RentalityCarDelivery is Initializable, UUPSAccess {
     Schemas.SearchCar[] memory cars,
     Schemas.LocationInfo memory pickUpLocation
   ) public pure returns (Schemas.SearchCarWithDistance[] memory result) {
-    int max = 0;
-
-    result = new Schemas.SearchCarWithDistance[](cars.length);
+   Distance[] memory distances = new Distance[](cars.length);
+    
+    // Заполняем массив расстояниями
     for (uint i = 0; i < cars.length; i++) {
-      int distance = calculateDistance(
-        cars[i].locationInfo.latitude,
-        cars[i].locationInfo.longitude,
-        pickUpLocation.latitude,
-        pickUpLocation.longitude
-      );
-      if (distance >= max) {
-        max = distance;
-        result[i] = Schemas.SearchCarWithDistance(cars[i], distance);
-      } else {
-        for (uint j = 0; j < i; j++) {
-          if (result[j].distance >= distance) {
-            for (uint n = i; n > j; n--) {
-              result[n] = result[n - 1];
+        int distance = calculateDistance(
+            cars[i].locationInfo.latitude,
+            cars[i].locationInfo.longitude,
+            pickUpLocation.latitude,
+            pickUpLocation.longitude
+        );
+        distances[i] = Distance(distance, i);
+    }
+
+    // Сортируем массив расстояний пузырьковой сортировкой (для примера)
+    for (uint i = 0; i < distances.length; i++) {
+        for (uint j = i + 1; j < distances.length; j++) {
+            if (distances[i].distance > distances[j].distance) {
+                Distance memory temp = distances[i];
+                distances[i] = distances[j];
+                distances[j] = temp;
             }
-            result[j] = Schemas.SearchCarWithDistance(cars[i], distance);
-            break;
-          }
+        }
+    }
+
+    // Формируем результат
+    result = new Schemas.SearchCarWithDistance[](cars.length);
+    for (uint i = 0; i < distances.length; i++) {
+        result[i] = Schemas.SearchCarWithDistance(
+            cars[distances[i].carId],
+            distances[i].distance
+        );
+    }
+    
+    return result;
           /// TODO: uncomment after update to 0.8.25
           //            assembly {
           //              // shifting by memcopy all calculated values from j..i to j + 1..i + 1
@@ -215,9 +232,9 @@ contract RentalityCarDelivery is Initializable, UUPSAccess {
           //            result[j] = Schemas.SearchCarWithDistance(cars[i], distance);
           //            break;
           //          }
-        }
-      }
-    }
+      
+     
+
   }
 
   function setDefaultPrices(uint64 underTwentyFiveMilesInUsdCents, uint64 aboveTwentyFiveMilesInUsdCents) public {
