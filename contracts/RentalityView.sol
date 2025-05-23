@@ -370,7 +370,7 @@ contract RentalityView is UUPSUpgradeable, Initializable, ARentalityContext {
     );
     insuranceService = RentalityInsurance(insuranceAddress);
     tripsView = RentalityTripsView(tripsViewAddress);
-    // tripsView.updateViewService(this);
+    tripsView.updateViewService(this);
     refferalService = RentalityReferralProgram(refferalProgramAddress);
     promoService = RentalityPromoService(promoServiceAddress);
     dimoService = RentalityDimoService(dimoServiceAddress);

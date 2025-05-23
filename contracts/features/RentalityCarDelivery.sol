@@ -181,7 +181,6 @@ contract RentalityCarDelivery is Initializable, UUPSAccess {
   ) public pure returns (Schemas.SearchCarWithDistance[] memory result) {
    Distance[] memory distances = new Distance[](cars.length);
     
-    // Заполняем массив расстояниями
     for (uint i = 0; i < cars.length; i++) {
         int distance = calculateDistance(
             cars[i].locationInfo.latitude,
@@ -192,7 +191,6 @@ contract RentalityCarDelivery is Initializable, UUPSAccess {
         distances[i] = Distance(distance, i);
     }
 
-    // Сортируем массив расстояний пузырьковой сортировкой (для примера)
     for (uint i = 0; i < distances.length; i++) {
         for (uint j = i + 1; j < distances.length; j++) {
             if (distances[i].distance > distances[j].distance) {
@@ -203,7 +201,6 @@ contract RentalityCarDelivery is Initializable, UUPSAccess {
         }
     }
 
-    // Формируем результат
     result = new Schemas.SearchCarWithDistance[](cars.length);
     for (uint i = 0; i < distances.length; i++) {
         result[i] = Schemas.SearchCarWithDistance(
