@@ -30,7 +30,7 @@ library RentalityRefferalLib {
     uint counter = 0;
     if (carService.balanceOf(user) == 0) return (0, new uint[](0));
     for (uint i = 1; i <= carService.totalSupply(); i++) {
-      if (carService.ownerOf(i) == user) {
+      if (carService.exists(i) && carService.ownerOf(i) == user) {
         uint listingMoment = carService.getListingMoment(i);
         if (listingMoment != 0) {
           uint updateTime = refferalProgram.getCarDailyClaimedTime(i);

@@ -12,6 +12,8 @@ import './RentalityUserService.sol';
 import './libs/RentalityUtils.sol';
 import './features/RentalityNotificationService.sol';
 
+string constant DEFAULT_TOKEN_URI = 'https://gateway.pinata.cloud/ipfs/bafkreia377eynrti7aruyoafvehwdkgsmxdwlagyqqw7fefqq7ucbjj3ym'; 
+
 /// @title RentalityCarToken
 /// @notice ERC-721 token for representing cars in the Rentality platform.
 /// @notice This contract allows users to add, update, and manage information about cars for rental.
@@ -51,6 +53,13 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
   /// @notice returns RentalityGeoService address
   function getGeoServiceAddress() public view returns (address) {
     return address(geoService);
+  }
+
+  function tokenURI(uint256 tokenId) public view override returns (string memory) {
+   if (!_exists(tokenId)) {
+      return "";
+    }
+   return super.tokenURI(tokenId);
   }
   /// @notice update RentalityGeoService address
   /// @param _geoService address of service
@@ -226,7 +235,6 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
 
     _setTokenURI(carId, tokenUri);
   }
-
   /// @notice Burns a specific car token, removing it from the system.
   /// @param carId The ID of the car to be burned.
   function burnCar(uint256 carId) public {
@@ -341,32 +349,31 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
   /// @return An array of CarInfo representing the available cars for the user.
   function fetchAvailableCarsForUser(
     address user,
-    Schemas.SearchCarParams memory searchCarParams
+    Schemas.SearchCarParams memory searchCarParams,
+    uint from,
+    uint to
   ) public view returns (Schemas.CarInfo[] memory) {
+    uint total = totalSupply();
+    if (from > total) from = 0;
+    if (to > total) to = total;
+    
+    uint[] memory temp = new uint[](to - from);
     uint itemCount = 0;
-
-    // Count the number of available cars for the user.
-    for (uint i = 0; i < totalSupply(); i++) {
-      uint currentId = i + 1;
-      if (isCarAvailableForUser(currentId, user, searchCarParams)) {
-        itemCount += 1;
-      }
+    
+    for (uint i = from; i < to; i++) {
+        uint currentId = i + 1;
+        if (isCarAvailableForUser(currentId, user, searchCarParams)) {
+            temp[itemCount] = currentId;
+            itemCount++;
+        }
     }
-
-    // Create an array to store the available cars.
+    
     Schemas.CarInfo[] memory result = new Schemas.CarInfo[](itemCount);
-    uint currentIndex = 0;
-
-    // Populate the array with available cars.
-    for (uint i = 0; i < totalSupply(); i++) {
-      uint currentId = i + 1;
-      if (isCarAvailableForUser(currentId, user, searchCarParams)) {
-        Schemas.CarInfo memory currentItem = idToCarInfo[currentId];
-        result[currentIndex] = currentItem;
-        currentIndex += 1;
-      }
+    
+    for (uint i = 0; i < itemCount; i++) {
+        result[i] = idToCarInfo[temp[i]];
     }
-
+    
     return result;
   }
 
@@ -377,6 +384,10 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
   /// @return A boolean indicating whether the car belongs to the user.
   function isCarOfUser(uint256 carId, address user) private view returns (bool) {
     return _exists(carId) && (ownerOf(carId) == user);
+  }
+
+  function exists(uint256 carId) public view returns (bool) {
+    return _exists(carId);
   }
 
   /// @notice Gets the cars owned by a specific user.

@@ -230,8 +230,10 @@ interface IRentalityGateway {
     uint64 endDateTime,
     Schemas.SearchCarParams memory searchParams,
     Schemas.LocationInfo memory pickUpInfo,
-    Schemas.LocationInfo memory returnInfo
-  ) external view returns (Schemas.SearchCarWithDistance[] memory foundCarsWithDistance);
+    Schemas.LocationInfo memory returnInfo,
+    uint from,
+    uint to
+  ) external view returns (Schemas.SearchCarsWithDistanceDTO memory foundCarsWithDistance);
 
   /// @notice Calculates the total payment for a car rental with delivery service
   /// @dev use an empty fields for latitude and longitude to skip location part
@@ -407,4 +409,6 @@ interface IRentalityGateway {
   function getUserCurrency(address user) external view returns (Schemas.UserCurrencyDTO memory userCurrency);
 
   function addUserCurrency(address currency) external;
+
+  function getTotalCarsAmount() external view returns (uint);
 }

@@ -152,13 +152,15 @@ contract RentalityView is UUPSUpgradeable, Initializable, ARentalityContext {
     uint64 endDateTime,
     Schemas.SearchCarParams memory searchParams,
     Schemas.LocationInfo memory pickUpInfo,
-    Schemas.LocationInfo memory returnInfo
+    Schemas.LocationInfo memory returnInfo,
+    uint from,
+    uint to
   )
     public
     view
     returns (
       // bool useRefferalPoints
-      Schemas.SearchCarWithDistance[] memory
+      Schemas.SearchCarsWithDistanceDTO memory
     )
   {
     return
@@ -171,7 +173,9 @@ contract RentalityView is UUPSUpgradeable, Initializable, ARentalityContext {
         returnInfo,
         address(addresses.deliveryService),
         address(insuranceService),
-        address(dimoService)
+        address(dimoService),
+        from,
+        to
       );
   }
 
@@ -370,7 +374,7 @@ contract RentalityView is UUPSUpgradeable, Initializable, ARentalityContext {
     );
     insuranceService = RentalityInsurance(insuranceAddress);
     tripsView = RentalityTripsView(tripsViewAddress);
-    tripsView.updateViewService(this);
+    // tripsView.updateViewService(this);
     refferalService = RentalityReferralProgram(refferalProgramAddress);
     promoService = RentalityPromoService(promoServiceAddress);
     dimoService = RentalityDimoService(dimoServiceAddress);

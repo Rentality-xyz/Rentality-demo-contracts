@@ -443,10 +443,19 @@ interface Schemas {
     address wallet;
   }
 
+  struct AdminKYCInfosDTO {
+    AdminKYCInfoDTO[] kycInfos;
+    uint totalPageCount;
+  }
+
   /// Query
   struct SearchCarWithDistance {
     SearchCar car;
     int distance;
+  }
+    struct SearchCarsWithDistanceDTO {
+    SearchCarWithDistance[] cars;
+    uint totalCarsSupply;
   }
 
   struct SearchCar {

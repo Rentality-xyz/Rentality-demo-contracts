@@ -236,9 +236,9 @@ describe('Rentality Delivery', function () {
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,0,10
       )
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
 
     let locationInfo2 = {
       latitude: homeLat,
@@ -496,6 +496,6 @@ describe('Rentality Delivery', function () {
     await expect(rentalityGateway.connect(host).addCar(mockCreateCarRequest3)).not.to.be.reverted
 
     let emptySearchParams = { ...getEmptySearchCarParams(), userLocation: loc }
-    let result = await rentalityGateway.searchAvailableCarsWithDelivery(0, 1, emptySearchParams, loc, loc)
+    let result = await rentalityGateway.searchAvailableCarsWithDelivery(0, 1, emptySearchParams, loc, loc,0,10)
   })
 })

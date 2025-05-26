@@ -134,9 +134,9 @@ describe('Rentality promoService Service', function () {
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,0,10
       )
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
 
     await promoService.generateNumbers(1, 10000, 10, 0, Math.floor(new Date().getTime() / 1000) + 86400 * 10, 'A')
     const promos = await promoService.getPromoCodes()
@@ -197,14 +197,14 @@ describe('Rentality promoService Service', function () {
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,0,10
       )
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
 
     await promoService.generateNumbers(1, 10000, 10, Math.floor(new Date().getTime() / 1000), new Date().getTime(), 'A')
     await promoService.generateNumbers(
-      1,
-      10000,
+     0,
+10000,
       10,
       Math.floor(new Date().getTime() / 1000),
       Math.floor(new Date().getTime() / 1000) + 86400 * 10,
@@ -247,21 +247,21 @@ describe('Rentality promoService Service', function () {
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,0,10
       )
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
 
     await promoService.generateNumbers(
-      1,
-      10000,
+     0,
+10000,
       10,
       Math.floor(new Date().getTime() / 1000),
       Math.floor(new Date().getTime() / 1000) + 86400 * 10,
       'A'
     )
     await promoService.generateNumbers(
-      1,
-      10000,
+     0,
+10000,
       10,
       Math.floor(new Date().getTime() / 1000),
       Math.floor(new Date().getTime() / 1000) + 86400 * 10,
@@ -312,9 +312,9 @@ describe('Rentality promoService Service', function () {
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,0,10
       )
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
 
     const jsPrice = await calculateTripPriceWithCurrencyConversion(
       mockCarRequest.pricePerDayInUsdCents,
@@ -359,9 +359,9 @@ describe('Rentality promoService Service', function () {
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,0,10
       )
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
 
     const jsPrice = await calculateTripPriceWithCurrencyConversion(
       mockCarRequest.pricePerDayInUsdCents,
@@ -452,9 +452,9 @@ describe('Rentality promoService Service', function () {
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,0,10
       )
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
 
     const generalPromo = await promoService.getGeneralPromoCode()
     const result = await rentalityGateway
@@ -515,9 +515,9 @@ describe('Rentality promoService Service', function () {
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,0,10
       )
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
 
     const result = await rentalityGateway
       .connect(guest)
@@ -571,13 +571,13 @@ describe('Rentality promoService Service', function () {
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,0,10
       )
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
 
     await promoService.generateNumbers(
-      1,
-      10000,
+     0,
+10000,
       10,
       Math.floor(new Date().getTime() / 1000),
       Math.floor(new Date().getTime() / 1000) + 86400 * 10,
@@ -645,13 +645,13 @@ describe('Rentality promoService Service', function () {
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,0,10
       )
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
 
     await promoService.generateNumbers(
-      1,
-      10000,
+     0,
+10000,
       10,
       Math.floor(new Date().getTime() / 1000),
       Math.floor(new Date().getTime() / 1000) + 86400 * 10,
@@ -712,9 +712,9 @@ describe('Rentality promoService Service', function () {
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,0,10
       )
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
 
     const promos = await promoService.getPromoCodes()
     const result = await rentalityGateway
@@ -793,13 +793,13 @@ describe('Rentality promoService Service', function () {
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,0,10
       )
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
 
     await promoService.generateNumbers(
-      1,
-      10000,
+     0,
+10000,
       10,
       Math.floor(new Date().getTime() / 1000),
       Math.floor(new Date().getTime() / 1000) + 86400 * 10,
@@ -879,9 +879,9 @@ describe('Rentality promoService Service', function () {
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,0,10
       )
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
 
     await promoService.generateNumbers(1, 10000, 10, 0, 17361747333920 + 86200, 'C')
     await promoService.generateGeneralCode(0, new Date().getTime() + 86400)
@@ -913,14 +913,14 @@ describe('Rentality promoService Service', function () {
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,0,10
       )
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
 
     await promoService.generateNumbers(1, 10000, 10, Math.floor(new Date().getTime() / 1000), new Date().getTime(), 'A')
     await promoService.generateNumbers(
-      1,
-      10000,
+     0,
+10000,
       10,
       Math.floor(new Date().getTime() / 1000),
       Math.floor(new Date().getTime() / 1000) + 86400 * 10,
@@ -987,9 +987,9 @@ describe('Rentality promoService Service', function () {
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,0,10
       )
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
 
     await promoService.generateNumbers(1, 10000, 10, Math.floor(new Date().getTime() / 1000), new Date().getTime(), 'A')
     const promos = await promoService.getPromoCodes()

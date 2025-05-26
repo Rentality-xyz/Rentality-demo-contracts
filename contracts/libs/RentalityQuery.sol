@@ -240,15 +240,17 @@ library RentalityQuery {
     Schemas.LocationInfo memory returnInfo,
     address deliveryServiceAddress,
     address insuranceServiceAddress,
-    address dimoService
-  ) public view returns (Schemas.SearchCar[] memory result) {
+    address dimoService,
+    uint from,
+    uint to
+  ) public view returns (Schemas.SearchCar[] memory result, uint totalCars) {
     RentalityInsurance insuranceService = RentalityInsurance(insuranceServiceAddress);
     RentalityCarToken carService = contracts.carService;
-    Schemas.CarInfo[] memory availableCars = carService.fetchAvailableCarsForUser(user, searchParams);
-    if (availableCars.length == 0) return new Schemas.SearchCar[](0);
+    Schemas.CarInfo[] memory availableCars = carService.fetchAvailableCarsForUser(user, searchParams, from, to);
+    if (availableCars.length == 0) return (new Schemas.SearchCar[](0), 0);
 
     uint[] memory temp = new uint[](availableCars.length);
-    uint256 resultCount;
+    uint256 resultCount = 0;
    
    for (uint i = 0; i < availableCars.length; i++) {
    bool hasIntersectTrip = RentalityTripsQuery.isCarHasIntersectetTrips(
@@ -265,6 +267,8 @@ library RentalityQuery {
       assembly ("memory-safe") {
         mstore(temp, resultCount)
       }
+
+
     result = new Schemas.SearchCar[](resultCount);
     bool isGuestHasInsurance = insuranceService.isGuestHasInsurance(user);
     uint64 totalTripDays = uint64(Math.ceilDiv(endDateTime - startDateTime, 1 days));
@@ -332,7 +336,7 @@ library RentalityQuery {
         contracts.currencyConverterService.getUserCurrency( availableCars[temp[i]].createdBy)
       );
     }
-    return result;
+    return (result, carService.totalSupply());
   }
 
   /// @notice Searches for available cars and sorts them by distance from the user.
@@ -356,23 +360,31 @@ library RentalityQuery {
     Schemas.LocationInfo memory returnInfo,
     address deliveryServiceAddress,
     address insuranceAddress,
-    address dimoService
-  ) public view returns (Schemas.SearchCarWithDistance[] memory) {
+    address dimoService,
+    uint from,
+    uint to
+  ) public view returns (Schemas.SearchCarsWithDistanceDTO memory) {
+    (Schemas.SearchCar[] memory cars, uint totalCarsAmount) =
+      searchAvailableCarsForUser(
+        contracts,
+        user,
+        startDateTime,
+        endDateTime,
+        searchParams,
+        pickUpInfo,
+        returnInfo,
+        deliveryServiceAddress,
+        insuranceAddress,
+        dimoService,
+        from,
+        to
+      );
+      Schemas.SearchCarWithDistance[] memory carsWithDistance = 
+        RentalityCarDelivery(deliveryServiceAddress).sortCarsByDistance(cars, searchParams.userLocation);
     return
-      RentalityCarDelivery(deliveryServiceAddress).sortCarsByDistance(
-        searchAvailableCarsForUser(
-          contracts,
-          user,
-          startDateTime,
-          endDateTime,
-          searchParams,
-          pickUpInfo,
-          returnInfo,
-          deliveryServiceAddress,
-          insuranceAddress,
-          dimoService
-        ),
-        searchParams.userLocation
+     Schemas.SearchCarsWithDistanceDTO(
+        carsWithDistance,
+        totalCarsAmount
       );
   }
 }

@@ -93,15 +93,17 @@ describe('Rentality investment', function () {
     await expect(investorsService.connect(guest).invest(1, fromUsd[0], { value: fromUsd[0] })).to.not.reverted
 
     await expect(investorsService.connect(host).claimAndCreatePool(1,mockCarInvestment.car)).to.not.reverted
-    let cars = await rentalityView
+    let cars = (await rentalityView
     .connect(guest)
     .searchAvailableCarsWithDelivery(
       0,
       new Date().getSeconds() + 86400,
       getEmptySearchCarParams(1),
       emptyLocationInfo,
-      emptyLocationInfo
-    )
+      emptyLocationInfo,
+     0,
+10
+    )).cars
     expect(cars.length).to.be.eq(1)
   })
 
@@ -139,15 +141,15 @@ describe('Rentality investment', function () {
     await expect(investorsService.connect(guest).invest(1, mockCarInvestment.priceInCurrency, { value: mockCarInvestment.priceInCurrency })).to.not.reverted
 
     await expect(investorsService.connect(host).claimAndCreatePool(1,mockCarInvestment.car)).to.not.reverted
-    let cars =  await rentalityView
+    let cars =  (await rentalityView
       .connect(guest)
       .searchAvailableCarsWithDelivery(
         0,
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
-      )
+        emptyLocationInfo,0,10
+      )).cars
     expect(cars.length).to.be.eq(1)
 
     const oneDayInSeconds = 86400
@@ -193,15 +195,15 @@ describe('Rentality investment', function () {
     await expect(investorsService.connect(guest).invest(1, mockCarInvestment.priceInCurrency, { value: mockCarInvestment.priceInCurrency })).to.not.reverted
 
     await expect(investorsService.connect(host).claimAndCreatePool(1,mockCarInvestment.car)).to.not.reverted
-    let cars =  await rentalityView
+    let cars =  (await rentalityView
       .connect(guest)
       .searchAvailableCarsWithDelivery(
         0,
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
-      )
+        emptyLocationInfo,0,10
+      )).cars
     expect(cars.length).to.be.eq(1)
 
     const oneDayInSeconds = 86400
@@ -250,15 +252,15 @@ describe('Rentality investment', function () {
     await expect(investorsService.connect(guest).invest(1, mockCarInvestment.priceInCurrency, { value: mockCarInvestment.priceInCurrency })).to.not.reverted
 
     await expect(investorsService.connect(host).claimAndCreatePool(1,mockCarInvestment.car)).to.not.reverted
-    let cars =  await rentalityView
+    let cars =  (await rentalityView
       .connect(guest)
       .searchAvailableCarsWithDelivery(
         0,
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
-      )
+        emptyLocationInfo,0,10
+      )).cars
     expect(cars.length).to.be.eq(1)
 
     const oneDayInSeconds = 86400
@@ -312,15 +314,15 @@ describe('Rentality investment', function () {
     await expect(investorsService.connect(guest).invest(1, fromUsd[0] / BigInt(2), { value: fromUsd[0] / BigInt(2) })).to.not.reverted
 
     await expect(investorsService.connect(host).claimAndCreatePool(1,mockCarInvestment.car)).to.not.reverted
-    let cars =  await rentalityView
+    let cars =  (await rentalityView
       .connect(guest)
       .searchAvailableCarsWithDelivery(
         0,
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
-      )
+        emptyLocationInfo,0,10
+      )).cars
     expect(cars.length).to.be.eq(1)
 
     let priceForDayInETH = await rentalityCurrencyConverter.getFromUsdCentsLatest(
@@ -381,15 +383,15 @@ describe('Rentality investment', function () {
     await expect(investorsService.connect(guest).invest(1, fromUsd[0] / BigInt(2), { value: fromUsd[0] / BigInt(2) })).to.not.reverted
 
     await expect(investorsService.connect(host).claimAndCreatePool(1,mockCarInvestment.car)).to.not.reverted
-    let cars =  await rentalityView
+    let cars =  (await rentalityView
       .connect(guest)
       .searchAvailableCarsWithDelivery(
         0,
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
-      )
+        emptyLocationInfo,0,10
+      )).cars
     expect(cars.length).to.be.eq(1)
 
     let priceForDayInETH = await rentalityCurrencyConverter.getFromUsdCentsLatest(
@@ -503,16 +505,16 @@ describe('Rentality investment', function () {
     await expect(investorsService.connect(manager).invest(1, fromUsd[0] / BigInt(4), { value: fromUsd[0] / BigInt(4) })).to.not.reverted
 
     await expect(investorsService.connect(host).claimAndCreatePool(1,mockCarInvestment.car)).to.not.reverted
-    let cars =  await rentalityView
+    let cars =  (await rentalityView
       .connect(guest)
       .searchAvailableCarsWithDelivery(
         0,
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
-      )
-    expect(cars.length).to.be.eq(1)
+        emptyLocationInfo,0,10
+      )).cars
+    expect(cars.length).to.be. eq(1)
 
     let priceForDayInETH = await rentalityCurrencyConverter.getFromUsdCentsLatest(
       ethToken,
@@ -631,15 +633,15 @@ describe('Rentality investment', function () {
     await expect(investorsService.connect(guest).invest(1, fromUsd[0], { value: fromUsd[0] })).to.not.reverted
 
     await expect(investorsService.connect(host).claimAndCreatePool(1,mockCarInvestment.car)).to.not.reverted
-    let cars =  await rentalityView
+    let cars =  (await rentalityView
       .connect(guest)
       .searchAvailableCarsWithDelivery(
         0,
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
-      )
+        emptyLocationInfo,0,10
+      )).cars
     expect(cars.length).to.be.eq(1)
 
     const oneDayInSeconds = 86400

@@ -384,7 +384,7 @@ library RentalityTripsQuery {
         trip,
         userService.getKYCInfo(trip.guest).profilePhoto,
         userService.getKYCInfo(trip.host).profilePhoto,
-        carService.tokenURI(trip.carId),
+       carService.tokenURI(trip.carId),
         IRentalityGeoService(carService.getGeoServiceAddress()).getCarTimeZoneId(car.locationHash),
         userService.getKYCInfo(trip.host).licenseNumber,
         userService.getKYCInfo(trip.host).expirationDate,
