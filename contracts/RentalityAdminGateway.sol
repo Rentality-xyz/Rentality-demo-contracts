@@ -321,29 +321,58 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
   /// @param itemsPerPage The number of items per page.
   /// @return allCars structure containing the cars on the current page and total page count.
   function getAllCars(uint page, uint itemsPerPage) public view returns (Schemas.AllCarsDTO memory allCars) {
-    uint totalCarsAmount = carService.totalSupply();
-
-    uint totalPageCount = (totalCarsAmount + itemsPerPage - 1) / itemsPerPage;
-
-    if (page > totalPageCount) {
-      page = totalPageCount;
-    }
-
-    uint startIndex = (page - 1) * itemsPerPage + 1;
-    uint endIndex = startIndex + itemsPerPage - 1;
-
-    if (endIndex > totalCarsAmount) {
-      endIndex = totalCarsAmount;
-    }
     RentalityContract memory contracts = getRentalityContracts();
-
-    Schemas.AdminCarDTO[] memory cars = new Schemas.AdminCarDTO[](endIndex - startIndex + 1);
-    for (uint i = startIndex; i <= endIndex; i++) {
-      cars[i - startIndex].car = RentalityUtils.getCarDetails(contracts, i, dimoService);
-      cars[i - startIndex].carMetadataURI = contracts.carService.tokenURI(i);
+    uint totalCars = carService.totalSupply();
+    
+    uint totalExistingCars = 0;
+    for (uint i = 1; i <= totalCars; i++) {
+        if (contracts.carService.exists(i)) {
+            totalExistingCars++;
+        }
     }
+    
+    uint totalPageCount = totalExistingCars == 0 ? 0 : (totalExistingCars + itemsPerPage - 1) / itemsPerPage;
+    
+    if (page > totalPageCount) {
+        page = totalPageCount;
+    }
+    if (page < 1) {
+        page = 1;
+    }
+    
+    Schemas.AdminCarDTO[] memory cars = new Schemas.AdminCarDTO[](itemsPerPage);
+    uint collected = 0;
+    uint currentId = 1;
+    
+    uint toSkip = (page - 1) * itemsPerPage;
+    while (toSkip > 0 && currentId <= totalCars) {
+        if (contracts.carService.exists(currentId)) {
+            toSkip--;
+        }
+        currentId++;
+    }
+    
+    while (collected < itemsPerPage && currentId <= totalCars) {
+        if (contracts.carService.exists(currentId)) {
+            cars[collected] = Schemas.AdminCarDTO({
+                car: RentalityUtils.getCarDetails(contracts, currentId, dimoService),
+                carMetadataURI: contracts.carService.tokenURI(currentId)
+            });
+            collected++;
+        }
+        currentId++;
+    }
+    
+    if (collected < itemsPerPage) {
+        Schemas.AdminCarDTO[] memory adjustedCars = new Schemas.AdminCarDTO[](collected);
+        for (uint i = 0; i < collected; i++) {
+            adjustedCars[i] = cars[i];
+        }
+        cars = adjustedCars;
+    }
+    
     return Schemas.AllCarsDTO(cars, totalPageCount);
-  }
+}
 
   function manageRefferalBonusAccrual(
     Schemas.RefferalAccrualType accrualType,
@@ -378,8 +407,8 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
   function getRefferalPointsInfo() public view returns (Schemas.AllRefferalInfoDTO memory) {
     return refferalProgram.getRefferalPointsInfo();
   }
-  function getPlatformUsersInfo() public view returns (Schemas.AdminKYCInfoDTO[] memory result) {
-    return userService.getPlatformUsersKYCInfos();
+  function getPlatformUsersInfo(uint page, uint itemsPerPage) public view returns (Schemas.AdminKYCInfosDTO memory result) {
+    return userService.getPlatformUsersKYCInfos(page, itemsPerPage);
   }
 
   function getAllClaimTypes(bool byHost) public view returns (Schemas.ClaimTypeV2[] memory claimTypes) {

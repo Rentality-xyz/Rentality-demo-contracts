@@ -151,14 +151,43 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
   function getMyFullKYCInfo(address user) public view returns (Schemas.FullKYCInfoDTO memory) {
     return Schemas.FullKYCInfoDTO(kycInfos[user], additionalKycInfo[user], userToPhoneVerified[user]);
   }
-  function getPlatformUsersKYCInfos() public view returns (Schemas.AdminKYCInfoDTO[] memory result) {
+function getPlatformUsersKYCInfos(uint page, uint itemsPerPage) public view returns (Schemas.AdminKYCInfosDTO memory) {
     require(hasRole(ADMIN_VIEW_ROLE, tx.origin), 'Only Admin');
-    address[] memory users = platformUsers;
-    result = new Schemas.AdminKYCInfoDTO[](platformUsers.length);
-    for (uint i = 0; i < result.length; i++) {
-      result[i] = Schemas.AdminKYCInfoDTO(kycInfos[users[i]], additionalKycInfo[users[i]], users[i]);
+    require(page > 0, "Page must be positive");
+    require(itemsPerPage > 0, "Items per page must be positive");
+
+    uint totalUsersAmount = platformUsers.length;
+    uint totalPageCount = (totalUsersAmount + itemsPerPage - 1) / itemsPerPage;
+
+    if (page > totalPageCount && totalPageCount > 0) {
+        page = totalPageCount;
     }
-  }
+
+    uint startIndex = (page - 1) * itemsPerPage; 
+    uint endIndex = startIndex + itemsPerPage;
+    
+    if (endIndex > totalUsersAmount) {
+        endIndex = totalUsersAmount;
+    }
+    
+    if (startIndex >= endIndex) {
+        return Schemas.AdminKYCInfosDTO(new Schemas.AdminKYCInfoDTO[](0), totalPageCount);
+    }
+
+    Schemas.AdminKYCInfoDTO[] memory result = new Schemas.AdminKYCInfoDTO[](endIndex - startIndex);
+    
+    for (uint i = startIndex; i < endIndex; i++) {
+        uint resultIndex = i - startIndex; // Корректный индекс для результата
+        address user = platformUsers[i];
+        result[resultIndex] = Schemas.AdminKYCInfoDTO(
+            kycInfos[user],
+            additionalKycInfo[user],
+            user
+        );
+    }
+    
+    return Schemas.AdminKYCInfosDTO(result, totalPageCount);
+}
   /// @notice Checks if the KYC information for a specified user is valid.
   /// @param user The address of the user to check for valid KYC.
   /// @return isValid A boolean indicating whether the user has valid KYC information.

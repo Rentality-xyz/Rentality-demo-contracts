@@ -1,4 +1,5 @@
 const { expect } = require('chai')
+const hre = require("hardhat");
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 
 const {
@@ -14,7 +15,7 @@ const {
   calculatePayments,
   rentalityPaymentService
 } = require('../utils')
-const { ethers } = require('hardhat')
+const { ethers, tracer } = require('hardhat')
 
 describe('RentalityGateway: car', function () {
   let rentalityGateway,
@@ -60,6 +61,14 @@ describe('RentalityGateway: car', function () {
       rentalityLocationVerifier,
       adminKyc,
     } = await loadFixture(deployDefaultFixture))
+
+    await expect(
+      rentalityGateway.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+    ).not.to.be.reverted
+
+    await expect(
+      rentalityCarToken.connect(host).burnCar(1)
+    ).to.not.be.reverted
   })
 
   it('Host can add car to gateway', async function () {
@@ -82,9 +91,9 @@ describe('RentalityGateway: car', function () {
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,0,10
       )
-    expect(availableCars.length).to.equal(0)
+    expect(availableCars.cars.length).to.equal(0)
   })
   it('Guest see cars as available', async function () {
     await expect(
@@ -99,16 +108,16 @@ describe('RentalityGateway: car', function () {
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,0,10
       )
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
   })
   it('should allow only host to update car info', async function () {
     let addCarRequest = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
     await expect(rentalityGateway.connect(host).addCar(addCarRequest)).not.be.reverted
 
     let update_params = {
-      carId: 1,
+      carId: 2,
       pricePerDayInUsdCents: 2,
       securityDepositPerTripInUsdCents: 2,
       engineParams: [2, 2],
@@ -197,16 +206,18 @@ describe('RentalityGateway: car', function () {
     const totalTripDays = 7
     const searchParams = getEmptySearchCarParams()
     await expect(rentalityGateway.connect(host).addCar(addCarRequest)).not.be.reverted
-    const resultAr = await rentalityGateway.searchAvailableCarsWithDelivery(
+    const resultAr = (await rentalityGateway.searchAvailableCarsWithDelivery(
       new Date().getDate(),
       new Date().getDate() + oneDayInSec * totalTripDays,
       searchParams,
       emptyLocationInfo,
-      emptyLocationInfo
-    )
+      emptyLocationInfo,
+     0,
+10
+    )).cars
     const result = resultAr[0].car
 
-    expect(result.carId).to.be.equal(1)
+    expect(result.carId).to.be.equal(2)
     expect(result.brand).to.be.eq(addCarRequest.brand)
     expect(result.model).to.be.eq(addCarRequest.model)
     expect(result.yearOfProduction).to.be.eq(addCarRequest.yearOfProduction)
@@ -254,9 +265,9 @@ describe('RentalityGateway: car', function () {
       signedDimoTokenId: '0x',
     }
     await expect(await rentalityGateway.connect(host).addCar(addCarRequest)).not.be.reverted
-    const result = await rentalityGateway.connect(guest).getCarDetails(1)
+    const result = await rentalityGateway.connect(guest).getCarDetails(2)
 
-    expect(result.carId).to.be.equal(1)
+    expect(result.carId).to.be.equal(2)
     expect(result.brand).to.be.eq(addCarRequest.brand)
     expect(result.model).to.be.eq(addCarRequest.model)
     expect(result.yearOfProduction).to.be.eq(addCarRequest.yearOfProduction)
@@ -348,7 +359,7 @@ describe('RentalityGateway: car', function () {
         .connect(guest)
         .addCar(getMockCarRequest(6, await rentalityLocationVerifier.getAddress(), admin))
     )
-    await rentalityCarToken.connect(guest).burnCar(6)
+    await rentalityCarToken.connect(guest).burnCar(7)
     await expect(
       await rentalityGateway
         .connect(guest)
@@ -425,9 +436,9 @@ describe('RentalityGateway: car', function () {
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,0,10
       )
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
 
     const oneDayInSeconds = 86400
 
@@ -439,7 +450,7 @@ describe('RentalityGateway: car', function () {
     let totalTaxes = await rentalityPaymentService.calculateTaxes(1, 1, priceWithDiscount)
 
     const taxesData = await rentalityGateway. checkCarAvailabilityWithDelivery(
-      1,
+      2,
       new Date().getSeconds(),
       new Date().getSeconds() + oneDayInSeconds,
       emptyLocationInfo,
@@ -447,5 +458,26 @@ describe('RentalityGateway: car', function () {
     )
     const calculatedTax = taxesData.taxes.reduce((acc, t) => acc + t.value, BigInt(0));
     expect(calculatedTax).to.be.equal(BigInt(totalTaxes))
+  })
+
+  it('check available cars pagination', async function () {
+    for (let i = 0; i < 10; i++) {
+    const request = getMockCarRequest(i, await rentalityLocationVerifier.getAddress(), admin)
+    await expect(rentalityGateway.connect(host).addCar(request)).not.to.be.reverted
+    }
+
+
+    const availableCars = (await rentalityGateway
+      .connect(guest)
+      .searchAvailableCarsWithDelivery(
+        0,
+        new Date().getSeconds() + 86400,
+        getEmptySearchCarParams(1),
+        emptyLocationInfo,
+        emptyLocationInfo,
+        5,
+        11
+      )).cars
+    expect(availableCars.length).to.equal(6)
   })
 })

@@ -69,9 +69,9 @@ describe('Ability to update car during trip', function () {
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,0,10
       )
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
     let dailyPriceInUsdCents = 1000
 
     const result = await rentalityGateway
@@ -112,9 +112,9 @@ describe('Ability to update car during trip', function () {
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,0,10
       )
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
     let dailyPriceInUsdCents = 1000
 
     const result = await rentalityGateway
@@ -181,9 +181,9 @@ describe('Ability to update car during trip', function () {
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,0,10
       )
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
 
     const rentPriceInUsdCents = 1000
 

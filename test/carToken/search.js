@@ -31,9 +31,9 @@ describe('RentalityCarToken: search functions', function () {
 
     const availableCars = await rentalityGateway
       .connect(guest)
-      .searchAvailableCarsWithDelivery(0, 0, searchCarParams, emptyLocationInfo, emptyLocationInfo)
+      .searchAvailableCarsWithDelivery(0, 0, searchCarParams, emptyLocationInfo, emptyLocationInfo,0, 10)
 
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
   })
 
   it('Search with brand should work', async function () {
@@ -66,15 +66,15 @@ describe('RentalityCarToken: search functions', function () {
       userLocation: locationInfo,
     }
 
-    const availableCars1 = await rentalityGateway
+    const availableCars1 = (await rentalityGateway
       .connect(guest)
-      .searchAvailableCarsWithDelivery(0, 0, searchCarParams1, emptyLocationInfo, emptyLocationInfo)
+      .searchAvailableCarsWithDelivery(0, 0, searchCarParams1, emptyLocationInfo, emptyLocationInfo,0,10)).cars
 
     expect(availableCars1.length).to.equal(1)
 
-    const availableCars2 = await rentalityGateway
+    const availableCars2 = (await rentalityGateway
       .connect(guest)
-      .searchAvailableCarsWithDelivery(0, 0, searchCarParams2, emptyLocationInfo, emptyLocationInfo)
+      .searchAvailableCarsWithDelivery(0, 0, searchCarParams2, emptyLocationInfo, emptyLocationInfo,0,10)).cars
 
     expect(availableCars2.length).to.equal(0)
   })
@@ -109,15 +109,15 @@ describe('RentalityCarToken: search functions', function () {
       userLocation: locationInfo,
     }
 
-    const availableCars1 = await rentalityGateway
+    const availableCars1 = (await rentalityGateway
       .connect(guest)
-      .searchAvailableCarsWithDelivery(0, 0, searchCarParams1, emptyLocationInfo, emptyLocationInfo)
+      .searchAvailableCarsWithDelivery(0, 0, searchCarParams1, emptyLocationInfo, emptyLocationInfo,0,10)).cars
 
     expect(availableCars1.length).to.equal(1)
 
-    const availableCars2 = await rentalityGateway
+    const availableCars2 = (await rentalityGateway
       .connect(guest)
-      .searchAvailableCarsWithDelivery(0, 0, searchCarParams2, emptyLocationInfo, emptyLocationInfo)
+      .searchAvailableCarsWithDelivery(0, 0, searchCarParams2,  emptyLocationInfo, emptyLocationInfo,0,10)).cars
 
     expect(availableCars2.length).to.equal(0)
   })
@@ -152,15 +152,15 @@ describe('RentalityCarToken: search functions', function () {
       userLocation: locationInfo,
     }
 
-    const availableCars1 = await rentalityGateway
+    const availableCars1 = (await rentalityGateway
       .connect(guest)
-      .searchAvailableCarsWithDelivery(0, 0, searchCarParams1, emptyLocationInfo, emptyLocationInfo)
+      .searchAvailableCarsWithDelivery(0, 0, searchCarParams1, emptyLocationInfo, emptyLocationInfo,0,10)).cars
 
     expect(availableCars1.length).to.equal(1)
 
-    const availableCars2 = await rentalityGateway
+    const availableCars2 = (await rentalityGateway
       .connect(guest)
-      .searchAvailableCarsWithDelivery(0, 0, searchCarParams2, emptyLocationInfo, emptyLocationInfo)
+      .searchAvailableCarsWithDelivery(0, 0, searchCarParams2, emptyLocationInfo, emptyLocationInfo,0,10)).cars
 
     expect(availableCars2.length).to.equal(0)
   })
@@ -208,15 +208,15 @@ describe('RentalityCarToken: search functions', function () {
       userLocation: locationInfo,
     }
 
-    const availableCars1 = await rentalityGateway
+    const availableCars1 = (await rentalityGateway
       .connect(guest)
-      .searchAvailableCarsWithDelivery(0, 0, searchCarParams1, emptyLocationInfo, emptyLocationInfo)
+      .searchAvailableCarsWithDelivery(0, 0, searchCarParams1, emptyLocationInfo, emptyLocationInfo,0,10)).cars
 
     expect(availableCars1.length).to.equal(1)
 
-    const availableCars2 = await rentalityGateway
+    const availableCars2 = (await rentalityGateway
       .connect(guest)
-      .searchAvailableCarsWithDelivery(0, 0, searchCarParams2, emptyLocationInfo, emptyLocationInfo)
+      .searchAvailableCarsWithDelivery(0, 0, searchCarParams2, emptyLocationInfo, emptyLocationInfo,0,10)).cars
 
     expect(availableCars2.length).to.equal(0)
   })
@@ -272,13 +272,13 @@ describe('RentalityCarToken: search functions', function () {
 
     const availableCars1 = await rentalityGateway
       .connect(guest)
-      .searchAvailableCarsWithDelivery(0, 0, searchCarParams1, emptyLocationInfo, emptyLocationInfo)
+      .searchAvailableCarsWithDelivery(0, 0, searchCarParams1, emptyLocationInfo, emptyLocationInfo,0,10)
 
     expect(availableCars1.length).to.equal(2)
 
-    const availableCars2 = await rentalityGateway
+    const availableCars2 = (await rentalityGateway
       .connect(guest)
-      .searchAvailableCarsWithDelivery(0, 0, searchCarParams2, emptyLocationInfo, emptyLocationInfo)
+      .searchAvailableCarsWithDelivery(0, 0, searchCarParams2, emptyLocationInfo, emptyLocationInfo,0,10)).cars
 
     expect(availableCars2.length).to.equal(0)
   })
@@ -332,15 +332,15 @@ describe('RentalityCarToken: search functions', function () {
       userLocation: locationInfo,
     }
 
-    const availableCars1 = await rentalityGateway
+    const availableCars1 = (await rentalityGateway
       .connect(guest)
-      .searchAvailableCarsWithDelivery(0, 0, searchCarParams1, emptyLocationInfo, emptyLocationInfo)
+      .searchAvailableCarsWithDelivery(0, 0, searchCarParams1, emptyLocationInfo, emptyLocationInfo,0,10)).cars
 
     expect(availableCars1.length).to.equal(1)
 
-    const availableCars2 = await rentalityGateway
+    const availableCars2 = (await rentalityGateway
       .connect(guest)
-      .searchAvailableCarsWithDelivery(0, 0, searchCarParams2, emptyLocationInfo, emptyLocationInfo)
+      .searchAvailableCarsWithDelivery(0, 0, searchCarParams2, emptyLocationInfo, emptyLocationInfo,0,10)).cars
 
     expect(availableCars2.length).to.equal(0)
   })
@@ -387,21 +387,21 @@ describe('RentalityCarToken: search functions', function () {
       userLocation: locationInfo,
     }
 
-    const availableCars1 = await rentalityGateway
+    const availableCars1 = (await rentalityGateway
       .connect(guest)
-      .searchAvailableCarsWithDelivery(0, 0, searchCarParams1, emptyLocationInfo, emptyLocationInfo)
+      .searchAvailableCarsWithDelivery(0, 0, searchCarParams3, emptyLocationInfo, emptyLocationInfo,0,10)).cars
 
     expect(availableCars1.length).to.equal(1)
 
-    const availableCars2 = await rentalityGateway
+    const availableCars2 = (await rentalityGateway
       .connect(guest)
-      .searchAvailableCarsWithDelivery(0, 0, searchCarParams2, emptyLocationInfo, emptyLocationInfo)
+      .searchAvailableCarsWithDelivery(0, 0, searchCarParams2, emptyLocationInfo, emptyLocationInfo,0,10)).cars
 
     expect(availableCars2.length).to.equal(0)
 
-    const availableCars3 = await rentalityGateway
+    const availableCars3 = (await rentalityGateway
       .connect(guest)
-      .searchAvailableCarsWithDelivery(0, 0, searchCarParams3, emptyLocationInfo, emptyLocationInfo)
+      .searchAvailableCarsWithDelivery(0, 0, searchCarParams3,  emptyLocationInfo, emptyLocationInfo,0,10)).cars
 
     expect(availableCars3.length).to.equal(1)
   })
@@ -448,21 +448,21 @@ describe('RentalityCarToken: search functions', function () {
       userLocation: locationInfo,
     }
 
-    const availableCars1 = await rentalityGateway
+    const availableCars1 = (await rentalityGateway
       .connect(guest)
-      .searchAvailableCarsWithDelivery(0, 0, searchCarParams1, emptyLocationInfo, emptyLocationInfo)
+      .searchAvailableCarsWithDelivery(0, 0, searchCarParams1, emptyLocationInfo, emptyLocationInfo,0,10)).cars
 
     expect(availableCars1.length).to.equal(1)
 
-    const availableCars2 = await rentalityGateway
+    const availableCars2 = (await rentalityGateway
       .connect(guest)
-      .searchAvailableCarsWithDelivery(0, 0, searchCarParams2, emptyLocationInfo, emptyLocationInfo)
+      .searchAvailableCarsWithDelivery(0, 0, searchCarParams2,  emptyLocationInfo, emptyLocationInfo,0,10)).cars
 
     expect(availableCars2.length).to.equal(1)
 
-    const availableCars3 = await rentalityGateway
+    const availableCars3 = (await rentalityGateway
       .connect(guest)
-      .searchAvailableCarsWithDelivery(0, 0, searchCarParams3, emptyLocationInfo, emptyLocationInfo)
+      .searchAvailableCarsWithDelivery(0, 0, searchCarParams3,  emptyLocationInfo, emptyLocationInfo,0,10)).cars
 
     expect(availableCars3.length).to.equal(0)
   })

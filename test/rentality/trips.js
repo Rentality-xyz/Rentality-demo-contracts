@@ -29,9 +29,9 @@ describe('Rentality: trips', function () {
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,0,10
       )
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
 
     const result = await rentalityGateway.calculatePaymentsWithDelivery(
       1,
@@ -82,9 +82,9 @@ describe('Rentality: trips', function () {
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,0,10
       )
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
 
     const result = await rentalityGateway
       .connect(guest)
@@ -135,9 +135,9 @@ describe('Rentality: trips', function () {
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,0,10
       )
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
 
     const result = await rentalityGateway
       .connect(guest)
@@ -188,9 +188,9 @@ describe('Rentality: trips', function () {
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,0,10
       )
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
 
     const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals, rentalityFee, taxes } = await calculatePayments(
       rentalityCurrencyConverter,
@@ -260,9 +260,9 @@ describe('Rentality: trips', function () {
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,0,10
       )
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
 
     const result = await rentalityGateway
       .connect(guest)
@@ -335,9 +335,9 @@ describe('Rentality: trips', function () {
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,0,10
       )
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
 
     const dailyPriceInUsdCents = 1000
 
@@ -413,9 +413,11 @@ describe('Rentality: trips', function () {
         timestampIn1Day,
         searchCarParams,
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,
+       0,
+10
       )
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
 
     const result = await rentalityGateway
       .connect(guest)
@@ -437,15 +439,17 @@ describe('Rentality: trips', function () {
 
     expect((await rentalityTripService.connect(host).getTrip(1)).status).to.equal(0)
 
-    const availableCars2 = await rentalityGateway
+    const availableCars2 = (await rentalityGateway
       .connect(guest)
       .searchAvailableCarsWithDelivery(
         timestampNow,
         timestampIn1Day,
         searchCarParams,
         emptyLocationInfo,
-        emptyLocationInfo
-      )
+        emptyLocationInfo,
+       0,
+10
+      )).cars
     expect(availableCars2.length).to.equal(1)
   })
 
@@ -477,9 +481,11 @@ describe('Rentality: trips', function () {
         timestampIn1Day,
         searchCarParams,
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,
+       0,
+10
       )
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
 
     const result = await rentalityGateway
       .connect(guest)
@@ -505,15 +511,17 @@ describe('Rentality: trips', function () {
 
     const trip1 = await rentalityTripService.connect(host).getTrip(1)
     expect(trip1.status).to.equal(1)
-    const availableCars2 = await rentalityGateway
+    const availableCars2 = (await rentalityGateway
       .connect(guest)
       .searchAvailableCarsWithDelivery(
         timestampNow,
         timestampIn1Day,
         searchCarParams,
         emptyLocationInfo,
-        emptyLocationInfo
-      )
+        emptyLocationInfo,
+       0,
+10
+      )).cars
     expect(availableCars2.length).to.equal(0)
   })
 })

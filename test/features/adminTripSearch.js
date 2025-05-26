@@ -97,9 +97,9 @@ describe('Admin trip searching', function () {
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,0,10
       )
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
 
     const oneDayInSeconds = 86400
 
@@ -165,9 +165,107 @@ describe('Admin trip searching', function () {
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,0,10
       )
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
+
+    const oneDayInSeconds = 86400
+
+    const resultPayments = await rentalityGateway.calculatePaymentsWithDelivery(
+      1,
+      2,
+      ethToken,
+      emptyLocationInfo,
+      emptyLocationInfo,
+      ' '
+    )
+    let startDateTime = Date.now() - 10
+    let endDateTime = Date.now() + oneDayInSeconds * 2
+    for (let i = 0; i < 10; i++) {
+      await expect(
+        await rentalityGateway.connect(guest).createTripRequestWithDelivery(
+          {
+            carId: 1,
+            startDateTime: Date.now(),
+            endDateTime: Date.now() + oneDayInSeconds + 10,
+            currencyType: ethToken,
+            pickUpInfo: emptySignedLocationInfo,
+            returnInfo: emptySignedLocationInfo,
+          },
+          ' ',
+          { value: resultPayments.totalPrice }
+        )
+      ).to.changeEtherBalances(
+        [guest, rentalityPaymentService],
+        [-resultPayments.totalPrice, resultPayments.totalPrice]
+      )
+    }
+    let searchFiler = filter
+    searchFiler.location.city = request.locationInfo.locationInfo.city
+    searchFiler.location.state = request.locationInfo.locationInfo.state
+    searchFiler.location.country = request.locationInfo.locationInfo.country
+    searchFiler.startDateTime = startDateTime
+    searchFiler.endDateTime = endDateTime
+
+    let result = await rentalityAdminGateway.getAllTrips(searchFiler, 1, 3)
+    expect(result.trips.length).to.be.eq(3)
+    expect(result.totalPageCount).to.be.eq(4)
+
+    expect(result.trips[0].trip.tripId).to.be.eq(1)
+    expect(result.trips[1].trip.tripId).to.be.eq(2)
+    expect(result.trips[2].trip.tripId).to.be.eq(3)
+
+    let result2 = await rentalityAdminGateway.getAllTrips(searchFiler, 2, 3)
+
+    expect(result2.trips.length).to.be.eq(3)
+
+    expect(result2.trips[0].trip.tripId).to.be.eq(4)
+    expect(result2.trips[1].trip.tripId).to.be.eq(5)
+    expect(result2.trips[2].trip.tripId).to.be.eq(6)
+
+    let result3 = await rentalityAdminGateway.getAllTrips(searchFiler, 3, 3)
+    expect(result3.trips.length).to.be.eq(3)
+
+    expect(result3.trips[0].trip.tripId).to.be.eq(7)
+    expect(result3.trips[1].trip.tripId).to.be.eq(8)
+    expect(result3.trips[2].trip.tripId).to.be.eq(9)
+
+    let result4 = await rentalityAdminGateway.getAllTrips(searchFiler, 4, 3)
+    expect(result4.trips.length).to.be.eq(1)
+    expect(result4.trips[0].trip.tripId).to.be.eq(10)
+  })
+
+  it('Pagination test after burn', async function () {
+    let request = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
+    request.locationInfo.locationInfo = {
+      latitude: '',
+      longitude: '',
+      userAddress: 'Miami Riverwalk, Miami, Florida, USA',
+      country: 'USA',
+      state: 'Florida',
+      city: 'Miami',
+
+      timeZoneId: 'id',
+    }
+    request.locationInfo.signature = signLocationInfo(
+      await rentalityLocationVerifier.getAddress(),
+      admin,
+      request.locationInfo.locationInfo
+    )
+    await expect(rentalityGateway.connect(host).addCar(request)).not.to.be.reverted
+    const myCars = await rentalityGateway.connect(host).getMyCars()
+    expect(myCars.length).to.equal(1)
+
+    const availableCars = await rentalityGateway
+      .connect(guest)
+      .searchAvailableCarsWithDelivery(
+        0,
+        new Date().getSeconds() + 86400,
+        getEmptySearchCarParams(1),
+        emptyLocationInfo,
+        emptyLocationInfo,0,10
+      )
+    expect(availableCars.cars.length).to.equal(1)
 
     const oneDayInSeconds = 86400
 
@@ -262,9 +360,9 @@ describe('Admin trip searching', function () {
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,0,10
       )
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
 
     const oneDayInSeconds = 86400
 
@@ -362,9 +460,9 @@ describe('Admin trip searching', function () {
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,0,10
       )
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
 
     const oneDayInSeconds = 86400
 
@@ -451,9 +549,9 @@ describe('Admin trip searching', function () {
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,0,10
       )
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
 
     const oneDayInSeconds = 86400
 
@@ -520,9 +618,9 @@ describe('Admin trip searching', function () {
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,0,10
       )
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
 
     const oneDayInSeconds = 86400
 
@@ -618,6 +716,38 @@ describe('Admin trip searching', function () {
     expect(result.cars.length).to.be.eq(1)
 
     expect(result.cars[0].car.carId).to.be.eq(10)
+  })
+
+  it('All cars pagination test with burn', async function () {
+    for (let i = 0; i < 10; i++)
+      await expect(
+        rentalityGateway.connect(host).addCar(getMockCarRequest(i, await rentalityLocationVerifier.getAddress(), admin))
+      ).not.to.be.reverted
+
+    let result = await rentalityAdminGateway.getAllCars(1, 3)
+    expect(result.cars.length).to.be.eq(3)
+    expect(result.totalPageCount).to.be.eq(4)
+
+    expect(result.cars[0].car.carId).to.be.eq(1)
+    expect(result.cars[1].car.carId).to.be.eq(2)
+    expect(result.cars[2].car.carId).to.be.eq(3)
+
+    result = await rentalityAdminGateway.getAllCars(2, 3)
+    expect(result.cars.length).to.be.eq(3)
+
+    expect(result.cars[0].car.carId).to.be.eq(4)
+    expect(result.cars[1].car.carId).to.be.eq(5)
+    expect(result.cars[2].car.carId).to.be.eq(6)
+    await rentalityCarToken.connect(host).burnCar(4);
+
+    result = await rentalityAdminGateway.getAllCars(2, 3)
+    expect(result.cars.length).to.be.eq(3)
+
+    expect(result.cars[0].car.carId).to.be.eq(5)
+    expect(result.cars[1].car.carId).to.be.eq(6)
+    expect(result.cars[2].car.carId).to.be.eq(7)
+
+
   })
 
   it('Role manage', async function () {

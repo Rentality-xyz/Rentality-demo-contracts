@@ -174,6 +174,10 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
     return addresses.carService.tokenURI(carId);
   }
 
+  function getTotalCarsAmount() public view returns (uint) {
+    return addresses.carService.totalSupply();
+  }
+
   function trustedForwarder() internal view override returns (address) {
     return trustedForwarderAddress;
   }

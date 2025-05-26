@@ -88,15 +88,15 @@ describe('Rentality investment with erc20', function () {
     const balanceAfterClaim = await usdtContract.balanceOf(host)
     expect(balanceBeforeClaim + fromUsd[0]).to.be.eq(balanceAfterClaim)
 
-    let cars = await rentalityView
+    let cars = (await rentalityView
       .connect(guest)
       .searchAvailableCarsWithDelivery(
         0,
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
-      )
+        emptyLocationInfo,0,10
+      )).cars
     expect(cars.length).to.be.eq(1)
 
     const oneDayInSeconds = 86400

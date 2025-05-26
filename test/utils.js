@@ -144,7 +144,6 @@ const calculatePaymentsFrom = async (currencyConverter, paymentService, value, t
     priceWithDiscount + totalTaxes + BigInt(deposit),
     rate
   )
-  console.log("PRICE", priceWithDiscount + totalTaxes + BigInt(deposit))
   const taxes = await currencyConverter.getFromUsdCents(token, totalTaxes, rate)
 
   const feeInUsdCents = await paymentService.getPlatformFeeFrom(priceWithDiscount)
@@ -385,6 +384,7 @@ async function deployDefaultFixture() {
   await rentalityUserService.waitForDeployment()
 
   await rentalityUserService.manageRole(4, owner.address, true)
+    await rentalityUserService.manageRole(5, owner.address, true)
   await rentalityUserService.manageRole(7, owner.address, true)
   await rentalityUserService.grantPlatformRole(owner.address)
 

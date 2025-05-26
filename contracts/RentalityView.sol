@@ -135,7 +135,7 @@ contract RentalityView is UUPSUpgradeable, Initializable, ARentalityContext {
         endDateTime,
         pickUpInfo,
         returnInfo,
-        addresses.adminService.getDeliveryServiceAddress(),
+        address(addresses.deliveryService),
         address(insuranceService),
         address(dimoService)
       );
@@ -152,13 +152,15 @@ contract RentalityView is UUPSUpgradeable, Initializable, ARentalityContext {
     uint64 endDateTime,
     Schemas.SearchCarParams memory searchParams,
     Schemas.LocationInfo memory pickUpInfo,
-    Schemas.LocationInfo memory returnInfo
+    Schemas.LocationInfo memory returnInfo,
+    uint from,
+    uint to
   )
     public
     view
     returns (
       // bool useRefferalPoints
-      Schemas.SearchCarWithDistance[] memory
+      Schemas.SearchCarsWithDistanceDTO memory
     )
   {
     return
@@ -169,9 +171,11 @@ contract RentalityView is UUPSUpgradeable, Initializable, ARentalityContext {
         searchParams,
         pickUpInfo,
         returnInfo,
-        RentalityAdminGateway(addresses.adminService).getDeliveryServiceAddress(),
+        address(addresses.deliveryService),
         address(insuranceService),
-        address(dimoService)
+        address(dimoService),
+        from,
+        to
       );
   }
 
@@ -298,7 +302,7 @@ contract RentalityView is UUPSUpgradeable, Initializable, ARentalityContext {
   /// @param user The user address for which delivery data is requested.
   /// @return deliveryData The delivery data including location details and delivery prices.
   function getUserDeliveryPrices(address user) public view returns (Schemas.DeliveryPrices memory) {
-    return RentalityCarDelivery(addresses.adminService.getDeliveryServiceAddress()).getUserDeliveryPrices(user);
+    return addresses.deliveryService.getUserDeliveryPrices(user);
   }
 
   /// @notice Retrieves the KYC commission amount.
