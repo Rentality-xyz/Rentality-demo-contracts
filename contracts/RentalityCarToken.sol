@@ -12,7 +12,6 @@ import './RentalityUserService.sol';
 import './libs/RentalityUtils.sol';
 import './features/RentalityNotificationService.sol';
 
-string constant DEFAULT_TOKEN_URI = 'https://gateway.pinata.cloud/ipfs/bafkreia377eynrti7aruyoafvehwdkgsmxdwlagyqqw7fefqq7ucbjj3ym'; 
 
 /// @title RentalityCarToken
 /// @notice ERC-721 token for representing cars in the Rentality platform.
