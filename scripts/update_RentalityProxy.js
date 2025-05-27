@@ -35,6 +35,7 @@ async function main() {
     console.log(`Updating contract ${contractName} in address ${contractAddress}`)
     contract = await upgrades.upgradeProxy(contractAddress, contractFactory, {
       unsafeAllow: ['structs'], // You may need to specify "structs" to allow incompatible struct changes
+      redeployImplementation: "always"
     })
   } else {
     const initializationArgs = readlineSync.question(
