@@ -425,36 +425,46 @@
       "constant": true,
       "stateMutability": "view",
       "payable": false,
-      "inputs": [],
+      "inputs": [
+        { "type": "uint256", "name": "page" },
+        { "type": "uint256", "name": "itemsPerPage" }
+      ],
       "outputs": [
         {
-          "type": "tuple[]",
+          "type": "tuple",
           "name": "result",
           "components": [
             {
-              "type": "tuple",
-              "name": "kyc",
+              "type": "tuple[]",
+              "name": "kycInfos",
               "components": [
-                { "type": "string", "name": "name" },
-                { "type": "string", "name": "surname" },
-                { "type": "string", "name": "mobilePhoneNumber" },
-                { "type": "string", "name": "profilePhoto" },
-                { "type": "string", "name": "licenseNumber" },
-                { "type": "uint64", "name": "expirationDate" },
-                { "type": "uint256", "name": "createDate" },
-                { "type": "bool", "name": "isTCPassed" },
-                { "type": "bytes", "name": "TCSignature" }
+                {
+                  "type": "tuple",
+                  "name": "kyc",
+                  "components": [
+                    { "type": "string", "name": "name" },
+                    { "type": "string", "name": "surname" },
+                    { "type": "string", "name": "mobilePhoneNumber" },
+                    { "type": "string", "name": "profilePhoto" },
+                    { "type": "string", "name": "licenseNumber" },
+                    { "type": "uint64", "name": "expirationDate" },
+                    { "type": "uint256", "name": "createDate" },
+                    { "type": "bool", "name": "isTCPassed" },
+                    { "type": "bytes", "name": "TCSignature" }
+                  ]
+                },
+                {
+                  "type": "tuple",
+                  "name": "additionalKYC",
+                  "components": [
+                    { "type": "string", "name": "issueCountry" },
+                    { "type": "string", "name": "email" }
+                  ]
+                },
+                { "type": "address", "name": "wallet" }
               ]
             },
-            {
-              "type": "tuple",
-              "name": "additionalKYC",
-              "components": [
-                { "type": "string", "name": "issueCountry" },
-                { "type": "string", "name": "email" }
-              ]
-            },
-            { "type": "address", "name": "wallet" }
+            { "type": "uint256", "name": "totalPageCount" }
           ]
         }
       ]

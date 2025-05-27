@@ -142,6 +142,15 @@
     },
     {
       "type": "function",
+      "name": "getTotalCarsAmount",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "uint256", "name": "" }]
+    },
+    {
+      "type": "function",
       "name": "getTrip",
       "constant": true,
       "stateMutability": "view",

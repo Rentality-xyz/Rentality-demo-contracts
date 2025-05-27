@@ -164,6 +164,15 @@
     },
     {
       "type": "function",
+      "name": "exists",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "carId" }],
+      "outputs": [{ "type": "bool", "name": "" }]
+    },
+    {
+      "type": "function",
       "name": "fetchAvailableCarsForUser",
       "constant": true,
       "stateMutability": "view",
@@ -197,7 +206,9 @@
               ]
             }
           ]
-        }
+        },
+        { "type": "uint256", "name": "from" },
+        { "type": "uint256", "name": "to" }
       ],
       "outputs": [
         {
