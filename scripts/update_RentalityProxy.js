@@ -53,6 +53,7 @@ async function main() {
         args: args,
       },
       unsafeAllow: true,
+      redeployImplementation: "always"
     })
   }
 
