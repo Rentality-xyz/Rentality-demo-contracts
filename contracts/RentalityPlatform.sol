@@ -94,7 +94,6 @@ function createTripRequestWithDelivery(
     bytes32 returnHash = IRentalityGeoService(addresses.carService.getGeoServiceAddress()).createSignedLocationInfo(
         request.returnInfo
     );
-    // Create the struct and pass it
     CreateTripRequestParams memory params = CreateTripRequestParams({
         request: request,
         pickUp: pickUp,
@@ -109,9 +108,13 @@ function createTripRequestWithDelivery(
   /// @notice Creates a trip request with specified details.
   /// @dev This function is private and should only be called internally.
    function _createTripRequest(
-    CreateTripRequestParams memory params // Single struct parameter
+    CreateTripRequestParams memory params
 ) private {
     address sender = _msgGatewaySender();
+    require(
+        addresses.carService.exists(params.request.carId),
+        'Car with this id does not exist.'
+    );
     address currencyType =  addresses.currencyConverterService.getUserCurrency(addresses.carService.ownerOf(params.request.carId)).currency;
     RentalityUtils.validateTripRequest(
         addresses,
