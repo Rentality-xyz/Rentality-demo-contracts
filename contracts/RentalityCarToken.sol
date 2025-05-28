@@ -222,6 +222,9 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
   }
 
   function getListingMoment(uint carId) public view returns (uint) {
+    if (!_exists(carId)) {
+      return 0;
+    }
     return carIdToListingMoment[carId];
   }
 
@@ -383,6 +386,13 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
   /// @return A boolean indicating whether the car belongs to the user.
   function isCarOfUser(uint256 carId, address user) private view returns (bool) {
     return _exists(carId) && (ownerOf(carId) == user);
+  }
+
+  function ownerOf(uint256 carId) public view override(ERC721Upgradeable,IERC721Upgradeable) returns (address) {
+   if(_exists(carId) == false) {
+      return address(0);
+    }
+    return _ownerOf(carId);
   }
 
   function exists(uint256 carId) public view returns (bool) {
