@@ -56,6 +56,7 @@ contract RentalityPlatform is UUPSOwnable, ARentalityContext {
   RentalityPlatformHelper private platformHelper;
   address private trustedForwarderAddress;
 
+
   fallback(bytes calldata data) external returns (bytes memory) {
     require(trustedForwarderAddress == msg.sender, 'only trusted forwarder');
     (bool ok_view, bytes memory res_view) = address(platformHelper).call(data);

@@ -337,6 +337,7 @@ interface IRentalityGateway {
   /// @return insuranceInfo An array of insurance information specific to the guest
   function getMyInsurancesAsGuest() external view returns (Schemas.InsuranceInfo[] memory insuranceInfo);
 
+  function getGuestInsurance(address guest) external view returns (Schemas.InsuranceInfo[] memory insuranceInfo);
   /// @notice Saves insurance information related to a specific trip
   /// @param tripId The ID of the trip for which the insurance information is being saved
   /// @param insuranceInfo A struct containing the details of the insurance to be saved

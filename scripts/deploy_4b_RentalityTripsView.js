@@ -78,6 +78,11 @@ async function main() {
     getContractAddress('RentalityViewLib', 'scripts/deploy_1g_RentalityViewLib.js', chainId),
     'RentalityViewLib'
   )
+  const notificationService = checkNotNull(
+    getContractAddress('RentalityNotificationService', 'scripts/deploy_2_RentalityNotificationService.js', chainId),
+    'RentalityNotificationService'
+  )
+
   const contractFactory = await ethers.getContractFactory(contractName, {
     libraries: {
       RentalityTripsQuery: rentalityTripsQueryAddress,
@@ -96,6 +101,7 @@ async function main() {
     rentalityPromoService,
     dimoService,
     aiDamageAnalyze,
+    notificationService
   ])
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()

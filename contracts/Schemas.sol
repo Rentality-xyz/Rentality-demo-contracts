@@ -852,7 +852,18 @@ interface Schemas {
   enum EventType {
     Car,
     Claim,
-    Trip
+    Trip,
+    User,
+    Insurance,
+    Taxes,
+    Discount,
+    Delivery,
+    Currency
+  }
+
+  enum EventCreator {
+    User,
+    Admin
   }
   struct FilterInfoDTO {
     uint64 maxCarPrice;

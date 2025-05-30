@@ -46,8 +46,9 @@ async function getInsuranceUrl(proxyAddress, caseId, mapSlot) {
 }
 
 async function main() {
-const v = await ethers.getContractAt('RentalityUSDTConverter','0x9453130Cd8474cf5Aab6b6A3974432563B406c76')
-console.log(await v.getLatest())
+const v = await ethers.getContractAt('IRentalityGateway','0xB257FE9D206b60882691a24d5dfF8Aa24929cB73')
+
+console.log(await v.getTrip(185))
 }
 main()
   .then(() => process.exit(0))

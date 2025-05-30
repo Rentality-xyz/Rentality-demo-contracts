@@ -267,7 +267,8 @@ async function deployDefaultFixture() {
     await insuranceService.getAddress(),
     await promoService.getAddress(),
     await dimoService.getAddress(),
-    await rentalityAiDamageAnalyze.getAddress()
+    await rentalityAiDamageAnalyze.getAddress(),
+    await rentalityNotificationService.getAddress(),
   ])
   await rentalityTripsView.waitForDeployment()
 
@@ -355,11 +356,11 @@ async function deployDefaultFixture() {
     await rentalityView.getAddress(),
     await insuranceService.getAddress(),
     await rentalityTripsView.getAddress(),
-
     await refferalProgram.getAddress(),
     await promoService.getAddress(),
     await dimoService.getAddress(),
     await investorsService.getAddress(),
+    await rentalityNotificationService.getAddress(),
   ])
   await rentalityAdminGateway.waitForDeployment()
 
