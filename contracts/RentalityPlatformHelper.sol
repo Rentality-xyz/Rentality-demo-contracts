@@ -123,6 +123,10 @@ contract RentalityPlatformHelper is UUPSOwnable, ARentalityContext {
   function setPhoneNumber(address user, string memory phone, bool isVerified) public {
     addresses.userService.setPhoneNumber(user, phone, isVerified);
   }
+
+   function setEmail(address user, string memory email, bool isVerified) public {
+     addresses.userService.setEmail(user, email, isVerified);
+   }
     function setCivicKYCInfo(address user, Schemas.CivicKYCInfo memory civicKycInfo) public {
     refferalProgram.passReferralProgram(Schemas.RefferalProgram.PassCivic, bytes(''), user, promoService);
     addresses.userService.setCivicKYCInfo(user, civicKycInfo);

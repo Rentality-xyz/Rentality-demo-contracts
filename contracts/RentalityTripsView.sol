@@ -181,7 +181,17 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
   function getGuestInsurance(address guest) public view returns (Schemas.InsuranceInfo[] memory) {
     return insuranceService.getMyInsurancesAsGuest(guest);
   }
+  function getTaxesInfoById(uint taxId) public view returns (Schemas.TaxesInfoDTO memory) {
+    return addresses.paymentService.getTaxesInfoById(taxId);
+  }
 
+  function getPlatformInfo() public view returns(Schemas.PlatformInfoDTO memory) {
+   return Schemas.PlatformInfoDTO(
+      addresses.userService.getPlatformUsersCount(),
+      addresses.tripService.totalTripCount(),
+      addresses.carService.totalSupply()
+    );
+  }
   function trustedForwarder() internal view override returns (address) {
     return trustedForwarderAddress;
   }

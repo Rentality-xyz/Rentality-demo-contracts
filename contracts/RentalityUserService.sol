@@ -42,6 +42,8 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
   address[] private platformUsers;
   mapping(address => bool) private userToPhoneVerified;
 
+   mapping(address => bool) private userToEmailVerified;
+
   /// @notice Sets KYC information for the caller (host or guest).
   /// Requirements:
   /// - Caller must be a host or guest.
@@ -66,8 +68,12 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
     string memory oldEmail = additionalKycInfo[user].email;
     if (bytes(oldEmail).length == 0 || !hasPassedKYC(user)) additionalKycInfo[user].email = email;
 
+    if (!_comparePhones(email, additionalKycInfo[user].email)) userToEmailVerified[user] = false;
+
+
     kycInfo.name = nickName;
     if (!_comparePhones(mobilePhoneNumber, kycInfo.mobilePhoneNumber)) userToPhoneVerified[user] = false;
+
 
     kycInfo.mobilePhoneNumber = mobilePhoneNumber;
     kycInfo.profilePhoto = profilePhoto;
@@ -120,6 +126,7 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
     kycInfo.expirationDate = civicKycInfo.expirationDate;
     additionalKycInfo[user].email = civicKycInfo.email;
     additionalKycInfo[user].issueCountry = civicKycInfo.issueCountry;
+    userToEmailVerified[user] = true;
   }
 
   function setPhoneNumber(address user, string memory phone, bool isVerified) public {
@@ -127,6 +134,13 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
 
     userToPhoneVerified[user] = isVerified;
     kycInfos[user].mobilePhoneNumber = phone;
+  }
+
+    function setEmail(address user, string memory email, bool isVerified) public {
+    require(hasRole(KYC_COMMISSION_MANAGER_ROLE, tx.origin), 'Only KYC manager');
+
+    userToEmailVerified[user] = isVerified;
+    additionalKycInfo[user].email = email;
   }
 
   function _comparePhones(string memory p1, string memory p2) private pure returns (bool) {
@@ -376,6 +390,9 @@ function getPlatformUsersKYCInfos(uint page, uint itemsPerPage) public view retu
       _revokeRole(role, user);
     }
   }
+    function getPlatformUsersCount() public view returns (uint) {
+         return platformUsers.length;
+   }
 
   function getPlatformUsers() public view returns (address[] memory) {
     require(hasRole(ADMIN_VIEW_ROLE, tx.origin), 'Only Admin');

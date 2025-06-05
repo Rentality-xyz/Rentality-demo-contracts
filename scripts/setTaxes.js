@@ -26,15 +26,9 @@ async function main() {
   const totalTripsCount = await contract.totalTripCount()
 
     
-  const rentalityPaymentService = await ethers.getContractAt('RentalityPaymentService',paymentService)
+  const rentalityPaymentService = await ethers.getContractAt('RentalityPaymentService','0xF242A76f700Af65C2D05fB2fa74C99e64e0F299a')
   console.log(await rentalityPaymentService.addTaxesContract(taxesServiceAddress))
 
-  const taxesContract = await ethers.getContractAt('RentalityTaxes',taxesServiceAddress)
-
-
-  for (let i = 1; i < totalTripsCount; i += 30) {
-    await taxesContract.migration(rentalityTripServiceAddress, i, i + 29)
-  }
 
   // Florida
 await rentalityPaymentService.addTaxes('Florida', 

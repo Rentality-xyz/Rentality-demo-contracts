@@ -18,6 +18,8 @@ contract RentalityTaxes is Initializable, UUPSAccess {
 
   mapping(uint => Schemas.TaxesLocationType) private taxIdToLocationType;
 
+  mapping(uint => string) private taxIdToLocation;
+
 
 
   /// @notice Retrieves the location hash and type for Florida taxes.
@@ -77,6 +79,15 @@ contract RentalityTaxes is Initializable, UUPSAccess {
     function getTripTaxesDTO(uint tripId) public view returns (Schemas.TaxValue[] memory) {
    return tripIdToTaxes[tripId];
   }
+
+  function getTaxInfoById(uint taxId) public view returns (Schemas.TaxesInfoDTO memory) {
+    return Schemas.TaxesInfoDTO(
+      taxIdToLocation[taxId],
+      taxIdToLocationType[taxId],
+      taxIdToTaxes[taxId]
+    );
+
+  }
    function calculateTaxesDTO(uint taxId, uint64 tripDays, uint64 totalCost) public view returns ( uint64 totalTax, Schemas.TaxValue[] memory) {
        Schemas.TaxValue[] memory values = taxIdToTaxes[taxId];
          Schemas.TaxValue[] memory returnValues = new Schemas.TaxValue[](values.length);
@@ -129,6 +140,16 @@ contract RentalityTaxes is Initializable, UUPSAccess {
         taxesLocationHashToTaxId[hash] = taxId;
         taxIdToTaxes[taxId] = taxes;
         taxIdToLocationType[taxId] = locationType;
+        taxIdToLocation[taxId] = location;
+      }
+      function setTaxLocations(uint[] memory taxes, string[] memory locations) public {
+        require(userService.isAdmin(tx.origin),"only Admin");
+        require(taxes.length == locations.length, "taxes and locations length mismatch");
+        for(uint i = 0; i < taxes.length; i++) {
+          bytes32 hash = keccak256(abi.encode(locations[i]));
+          require(taxesLocationHashToTaxId[hash] == taxes[i], "taxId mismatch");
+           taxIdToLocation[i] = locations[i];
+        }
       }
 
    

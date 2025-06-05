@@ -169,7 +169,9 @@ contract RentalityPaymentService is UUPSOwnable {
                   );
         return taxesId;
       }
-
+function getTaxesInfoById(uint taxId) public view returns(Schemas.TaxesInfoDTO memory taxesData) {
+    return rentalityTaxes.getTaxInfoById(taxId);
+  }
   /// @notice Adds a discount contract to the system.
   /// @param discountContactAddress The address of the discount contract.
   function addDiscountContract(address discountContactAddress) public onlyAdmin {

@@ -4,6 +4,7 @@ const { getContractAddress } = require('./utils/contractAddress')
 const addressSaver = require('./utils/addressSaver')
 const { checkNotNull, startDeploy } = require('./utils/deployHelper')
 const { keccak256 } = require('hardhat/internal/util/keccak')
+const { zeroHash } = require('../test/utils')
 
 async function getInsuranceUrl(proxyAddress, caseId, mapSlot) {
     const provider = new ethers.JsonRpcProvider("https://base-sepolia.g.alchemy.com/v2/7NsKIcu9tp2GBR_6wuAL3L-oEvo5wflB");
@@ -46,9 +47,20 @@ async function getInsuranceUrl(proxyAddress, caseId, mapSlot) {
 }
 
 async function main() {
-const v = await ethers.getContractAt('IRentalityGateway','0xB257FE9D206b60882691a24d5dfF8Aa24929cB73')
+const v = await ethers.getContractAt('RentalityAdminGateway','0xF242A76f700Af65C2D05fB2fa74C99e64e0F299a')
 
-console.log(await v.getTrip(185))
+// const userService = await ethers.getContractAt('RentalityUserService', '0x6a8BD84f29D74b2A77C28D23468210Cb1F8494fD')
+// await userService.grantPlatformRole('0xF242A76f700Af65C2D05fB2fa74C99e64e0F299a')
+
+// console.log(await v.setDefaultCurrencyType('0x0000000000000000000000000000000000000000'))
+
+console.log(await v.setDefaultPrices(300,250))
+// await v.setDefaultDiscount( {
+//      threeDaysDiscount: 20_000,
+//      sevenDaysDiscount: 100_000,
+//      thirtyDaysDiscount:150_000,
+//     initialized:true
+//   })
 }
 main()
   .then(() => process.exit(0))

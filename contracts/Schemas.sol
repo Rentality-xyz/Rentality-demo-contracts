@@ -483,7 +483,7 @@ interface Schemas {
     LocationInfo locationInfo;
     InsuranceCarInfo insuranceInfo;
     bool isGuestHasInsurance;
-    uint dimoTokenId;
+    uint dimoTpokenId;
     UserCurrencyDTO hostCurrency;
   }
   struct AvailableCarDTO {
@@ -1024,6 +1024,12 @@ enum TaxesType {
   PPM
 }
 
+struct TaxesInfoDTO {
+  string location;
+  TaxesLocationType locationType;
+  Schemas.TaxValue[] taxes;
+}
+
 
    struct Round {
         int256 answer;
@@ -1034,6 +1040,12 @@ enum TaxesType {
 struct OracleUpdate {
   address feed;
   int answer;
+}
+
+struct PlatformInfoDTO {
+  uint totalUsers;
+  uint totalTrips;
+  uint totalCars;
 }
 
 }
