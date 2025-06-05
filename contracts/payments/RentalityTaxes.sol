@@ -153,31 +153,11 @@ contract RentalityTaxes is Initializable, UUPSAccess {
       }
 
    
-      function migration(RentalityTripService tripService, uint from, uint to) public {
-        if (from == 0) {
-          from = 1;
+      function setTaxesLocations(uint[] memory taxIds, string[] memory locations) public {
+        for(uint i = 0; i < taxIds.length; i++) {
+          taxIdToLocation[i] = locations[i];
         }
-        uint totalTrips = tripService.totalTripCount();
-        if(to > totalTrips) {
-          to = totalTrips;
-        }
-        for (uint i = from; i <= to; i++) {
-          Schemas.PaymentInfo memory paymentInfo = tripService.getTrip(i).paymentInfo;
-          Schemas.TaxValue[] memory taxes = new Schemas.TaxValue[](2);
-          taxes[0] = Schemas.TaxValue(
-            'salesTax',
-            uint32(paymentInfo.salesTax),
-            Schemas.TaxesType.InUsdCents
-          );
-             taxes[1] = Schemas.TaxValue(
-            'governmentTax',
-            uint32(paymentInfo.governmentTax),
-            Schemas.TaxesType.InUsdCents
-          );
-           tripIdToTaxes[i] = taxes;
-        }
-      }
-
+}
 
   /// @notice Initializes the RentalityFloridaTaxes contract.
   /// @param _userService The address of the RentalityUserService contract.

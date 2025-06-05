@@ -26,7 +26,7 @@ async function main() {
   const totalTripsCount = await contract.totalTripCount()
 
     
-  const rentalityPaymentService = await ethers.getContractAt('RentalityPaymentService','0xF242A76f700Af65C2D05fB2fa74C99e64e0F299a')
+  const rentalityPaymentService = await ethers.getContractAt('RentalityPaymentService',paymentService)
   console.log(await rentalityPaymentService.addTaxesContract(taxesServiceAddress))
 
 
