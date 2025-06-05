@@ -12,7 +12,7 @@ import {RentalityReferralProgram} from './features/refferalProgram/RentalityRefe
 import {RentalityPromoService} from './features/RentalityPromo.sol';
 import {RentalityViewLib} from './libs/RentalityViewLib.sol';
 import {RentalityDimoService} from './features/RentalityDimoService.sol';
-
+import {RentalityNotificationService} from './features/RentalityNotificationService.sol';
 /// @custom:oz-upgrades-unsafe-allow external-library-linking
 contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
   RentalityCarToken private carService;
@@ -29,6 +29,7 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
   RentalityPromoService private promoService;
   RentalityDimoService private dimoService;
   RentalityInvestment private investment;
+  RentalityNotificationService private notificationService;
 
   /// @notice Ensures that the caller is either an admin, the contract owner, or an admin from the origin transaction.
   modifier onlyAdmin() {
@@ -56,26 +57,14 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
   function getPromoService() public view returns (RentalityPromoService) {
     return promoService;
   }
-  function setPromoService(address promoServiceAddress) public onlyAdmin {
-    promoService = RentalityPromoService(promoServiceAddress);
-  }
-
-  function updateDimoService(address dimoServiceAddress) public onlyAdmin {
-    dimoService = RentalityDimoService(dimoServiceAddress);
+  function setNotificationService(address notificationServiceAddress) public onlyAdmin {
+    notificationService = RentalityNotificationService(notificationServiceAddress);
   }
   function getDimoService() public view returns (RentalityDimoService dimoServiceAddress) {
     return dimoService;
   }
   function getInsuranceService() public view returns (RentalityInsurance rentalityInsuranceAddress) {
     return insuranceService;
-  }
-
-  function setInsuranceService(address insurance) public onlyAdmin {
-    insuranceService = RentalityInsurance(insurance);
-  }
-
-  function updateInvestmentAddress(address investmentAddress) public onlyAdmin {
-    investment = RentalityInvestment(investmentAddress);
   }
 
   function getInvestmentAddress() public view returns (address investmentAddress) {
@@ -424,8 +413,27 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
 
   function setDefaultCurrencyType(address currency) public {
     currencyConverterService.setDefaultCurrencyType(currency);
+     notificationService.emitEvent(Schemas.EventType.Currency, 0, uint8(Schemas.EventCreator.Admin), msg.sender, msg.sender);
   }
 
+function setDefaultPrices(uint64 underTwentyFiveMilesInUsdCents, uint64 aboveTwentyFiveMilesInUsdCents) public {
+    deliveryService.setDefaultPrices(underTwentyFiveMilesInUsdCents, aboveTwentyFiveMilesInUsdCents);
+    notificationService.emitEvent(Schemas.EventType.Delivery, 0, uint8(Schemas.EventCreator.Admin), msg.sender, msg.sender);
+  }
+    function setDefaultDiscount(Schemas.BaseDiscount memory newDiscounts) public {
+      paymentService.setDefaultDiscount(newDiscounts);
+      notificationService.emitEvent(Schemas.EventType.Discount, 0, uint8(Schemas.EventCreator.Admin), msg.sender, msg.sender);
+    }
+
+    function addTaxes(
+     string memory location,
+     Schemas.TaxesLocationType locationType,
+     Schemas.TaxValue[] memory taxes) public {
+      uint taxId = paymentService.addTaxes(location, locationType, taxes);
+      notificationService.emitEvent(Schemas.EventType.Taxes, taxId, uint8(locationType), msg.sender, msg.sender);
+    }
+
+      
   ///------------------------------------
   /// NOT USING IN FRONT
   ///------------------------------------
@@ -484,7 +492,8 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
     address refferalProgramAddress,
     address promoServiceAddress,
     address dimoServiceAddress,
-    address investmentAddress
+    address investmentAddress,
+    address notificationServiceAddress
   ) public initializer {
     carService = RentalityCarToken(carServiceAddress);
     currencyConverterService = RentalityCurrencyConverter(currencyConverterServiceAddress);
@@ -508,6 +517,7 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
     refferalProgram = RentalityReferralProgram(refferalProgramAddress);
     insuranceService = RentalityInsurance(insuranceServiceAddress);
     investment = RentalityInvestment(investmentAddress);
+    notificationService = RentalityNotificationService(notificationServiceAddress);
     __Ownable_init();
   }
 }

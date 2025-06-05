@@ -29,7 +29,7 @@ async function main() {
   )
   const notificationService = checkNotNull(
     getContractAddress('RentalityNotificationService', 'scripts/deploy_2_RentalityNotificationService.js', chainId),
-    'RentalityUserServRentalityNotificationServiceice'
+    'RentalityNotificationService'
   )
 
   const contractFactory = await ethers.getContractFactory(contractName, {

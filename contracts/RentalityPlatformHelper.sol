@@ -19,6 +19,8 @@ import {RentalityReferralProgram} from './features/refferalProgram/RentalityRefe
 import './payments/RentalityInsurance.sol';
 import {RentalityPromoService} from './features/RentalityPromo.sol';
 import {ARentalityContext} from './abstract/ARentalityContext.sol';
+import {RentalityNotificationService} from './features/RentalityNotificationService.sol';
+
 
 /// @title Rentality Platform Contract
 /// @notice This contract manages various services related to the Rentality platform, including cars, trips, users, and payments.
@@ -36,23 +38,30 @@ contract RentalityPlatformHelper is UUPSOwnable, ARentalityContext {
   RentalityReferralProgram private refferalProgram;
   RentalityPromoService private promoService;
   address private trustedForwarderAddress;
+  RentalityNotificationService private notificationService;
 
   function saveGuestInsurance(Schemas.SaveInsuranceRequest memory insuranceInfo) public {
-    insuranceService.saveGuestInsurance(insuranceInfo, _msgGatewaySender());
+    address user = _msgGatewaySender();
+    insuranceService.saveGuestInsurance(insuranceInfo, user);
+    notificationService.emitEvent(Schemas.EventType.Insurance, 0, uint8(insuranceInfo.insuranceType), user, user);
   }
 
   /// @notice Adds a user discount.
   /// @param data The discount data.
   function addUserDiscount(Schemas.BaseDiscount memory data) public {
-    addresses.paymentService.addBaseDiscount(_msgGatewaySender(), data);
+    address user = _msgGatewaySender();
+    addresses.paymentService.addBaseDiscount(user, data);
+    notificationService.emitEvent(Schemas.EventType.Discount, 0, uint8(Schemas.EventCreator.User), user, user);
   }
 
   function addUserDeliveryPrices(uint64 underTwentyFiveMilesInUsdCents, uint64 aboveTwentyFiveMilesInUsdCents) public {
+    address sender = _msgGatewaySender();
     addresses.deliveryService.setUserDeliveryPrices(
       underTwentyFiveMilesInUsdCents,
       aboveTwentyFiveMilesInUsdCents,
-      _msgGatewaySender()
+      sender
     );
+     notificationService.emitEvent(Schemas.EventType.Delivery, 0, uint8(Schemas.EventCreator.User), sender, sender);
   }
   function saveDimoTokenIds(uint[] memory dimoTokenIds, uint[] memory carIds) public {
     dimoService.saveButch(dimoTokenIds, carIds, _msgGatewaySender());
@@ -62,7 +71,9 @@ contract RentalityPlatformHelper is UUPSOwnable, ARentalityContext {
   }
 
   function addUserCurrency(address currency) public {
+    address sender = _msgGatewaySender();
     addresses.currencyConverterService.addUserCurrency(_msgGatewaySender(), currency);
+    notificationService.emitEvent(Schemas.EventType.Currency, 0, uint8(Schemas.EventCreator.User), sender, sender);
   }
 
   function payKycCommission(address currency) public payable {
@@ -112,6 +123,10 @@ contract RentalityPlatformHelper is UUPSOwnable, ARentalityContext {
   function setPhoneNumber(address user, string memory phone, bool isVerified) public {
     addresses.userService.setPhoneNumber(user, phone, isVerified);
   }
+
+   function setEmail(address user, string memory email, bool isVerified) public {
+     addresses.userService.setEmail(user, email, isVerified);
+   }
     function setCivicKYCInfo(address user, Schemas.CivicKYCInfo memory civicKycInfo) public {
     refferalProgram.passReferralProgram(Schemas.RefferalProgram.PassCivic, bytes(''), user, promoService);
     addresses.userService.setCivicKYCInfo(user, civicKycInfo);
@@ -131,6 +146,7 @@ contract RentalityPlatformHelper is UUPSOwnable, ARentalityContext {
     refferalProgram.saveRefferalHash(hash, isGuest, sender);
     refferalProgram.passReferralProgram(Schemas.RefferalProgram.SetKYC, bytes(''), sender, promoService);
     addresses.userService.setKYCInfo(nickName, mobilePhoneNumber, profilePhoto, email, TCSignature, sender);
+    notificationService.emitEvent(Schemas.EventType.User, 0, 0, sender, sender);
   }
 
 
@@ -143,6 +159,11 @@ contract RentalityPlatformHelper is UUPSOwnable, ARentalityContext {
   }
   function setTrustedForwarder(address forwarder) public onlyOwner {
     trustedForwarderAddress = forwarder;
+  }
+
+   function setNotificationService(address notificationServiceAddress) public {
+    require(addresses.userService.isAdmin(tx.origin), 'Only admin.');
+    notificationService = RentalityNotificationService(notificationServiceAddress);
   }
 
   /// @notice Constructor to initialize the RentalityPlatform with service contract addresses.
@@ -163,7 +184,8 @@ contract RentalityPlatformHelper is UUPSOwnable, ARentalityContext {
     address insuranceServiceAddress,
     address refferalProgramAddress,
     address promoServiceAddress,
-    address dimoServiceAddress
+    address dimoServiceAddress,
+    address notificationServiceAddress
   ) public initializer {
     addresses = RentalityContract(
       RentalityCarToken(carServiceAddress),
@@ -182,6 +204,7 @@ contract RentalityPlatformHelper is UUPSOwnable, ARentalityContext {
     promoService = RentalityPromoService(promoServiceAddress);
 
     dimoService = RentalityDimoService(dimoServiceAddress);
+    notificationService = RentalityNotificationService(notificationServiceAddress);
     __Ownable_init();
   }
 }

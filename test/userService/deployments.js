@@ -313,6 +313,7 @@ async function deployDefaultFixture() {
     await refferalProgram.getAddress(),
     await promoService.getAddress(),
     await dimoService.getAddress(),
+    await rentalityNotificationService.getAddress(),
   ])
   await rentalityPlatformHelper.waitForDeployment()
 
@@ -396,6 +397,7 @@ async function deployDefaultFixture() {
     await promoService.getAddress(),
     await dimoService.getAddress(),
     await investorsService.getAddress(),
+    await rentalityNotificationService.getAddress()
   ])
   await rentalityAdminGateway.waitForDeployment()
   await rentalityUserService.connect(owner).grantPlatformRole(await rentalityView.getAddress())

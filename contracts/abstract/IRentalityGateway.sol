@@ -337,10 +337,13 @@ interface IRentalityGateway {
   /// @return insuranceInfo An array of insurance information specific to the guest
   function getMyInsurancesAsGuest() external view returns (Schemas.InsuranceInfo[] memory insuranceInfo);
 
+  function getGuestInsurance(address guest) external view returns (Schemas.InsuranceInfo[] memory insuranceInfo);
   /// @notice Saves insurance information related to a specific trip
   /// @param tripId The ID of the trip for which the insurance information is being saved
   /// @param insuranceInfo A struct containing the details of the insurance to be saved
   function saveTripInsuranceInfo(uint tripId, Schemas.SaveInsuranceRequest memory insuranceInfo) external;
+
+  function getTaxesInfoById(uint taxId) external view returns (Schemas.TaxesInfoDTO memory taxesInfoDTO);
 
   /// @notice Saves insurance information for a guest
   /// @param insuranceInfo A struct containing the details of the insurance requested by the guest
@@ -410,5 +413,9 @@ interface IRentalityGateway {
 
   function addUserCurrency(address currency) external;
 
-  function getTotalCarsAmount() external view returns (uint);
+  function getTotalCarsAmount() external view returns (uint totalCarsAmount);
+
+  function getPlatformInfo() external view returns(Schemas.PlatformInfoDTO memory platformInfo);
+
+   function setEmail(address user, string memory email, bool isVerified) external;
 }

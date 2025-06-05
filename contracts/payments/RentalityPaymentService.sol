@@ -138,6 +138,10 @@ contract RentalityPaymentService is UUPSOwnable {
     discountAddressToDiscountContract[currentDiscount].addUserDiscount(user, abi.encode(data));
   }
 
+  function setDefaultDiscount(Schemas.BaseDiscount memory data) public {
+    discountAddressToDiscountContract[currentDiscount].setDiscount(abi.encode(data));
+  }
+
   /// @notice Gets the discount for a specific user.
   /// @param userAddress The address of the user.
   /// @return The discount information for the user.
@@ -155,7 +159,7 @@ contract RentalityPaymentService is UUPSOwnable {
    string memory location,
    Schemas.TaxesLocationType locationType,
      Schemas.TaxValue[] memory taxes
-      ) public onlyAdmin {
+      ) public onlyAdmin returns(uint) {
         taxesId += 1;
         rentalityTaxes.addTaxes(
                       taxesId,
@@ -163,8 +167,11 @@ contract RentalityPaymentService is UUPSOwnable {
                       locationType,
                       taxes
                   );
+        return taxesId;
       }
-
+function getTaxesInfoById(uint taxId) public view returns(Schemas.TaxesInfoDTO memory taxesData) {
+    return rentalityTaxes.getTaxInfoById(taxId);
+  }
   /// @notice Adds a discount contract to the system.
   /// @param discountContactAddress The address of the discount contract.
   function addDiscountContract(address discountContactAddress) public onlyAdmin {
