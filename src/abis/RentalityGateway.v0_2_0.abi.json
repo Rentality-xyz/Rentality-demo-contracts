@@ -920,6 +920,29 @@
     },
     {
       "type": "function",
+      "name": "getGuestInsurance",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "guest" }],
+      "outputs": [
+        {
+          "type": "tuple[]",
+          "name": "insuranceInfo",
+          "components": [
+            { "type": "string", "name": "companyName" },
+            { "type": "string", "name": "policyNumber" },
+            { "type": "string", "name": "photo" },
+            { "type": "string", "name": "comment" },
+            { "type": "uint8", "name": "insuranceType" },
+            { "type": "uint256", "name": "createdTime" },
+            { "type": "address", "name": "createdBy" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
       "name": "getInsurancesBy",
       "constant": true,
       "stateMutability": "view",
@@ -1126,7 +1149,8 @@
                 { "type": "string", "name": "email" }
               ]
             },
-            { "type": "bool", "name": "isPhoneVerified" }
+            { "type": "bool", "name": "isPhoneVerified" },
+            { "type": "bool", "name": "isEmailVerified" }
           ]
         }
       ]
@@ -1156,12 +1180,58 @@
     },
     {
       "type": "function",
+      "name": "getPlatformInfo",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "platformInfo",
+          "components": [
+            { "type": "uint256", "name": "totalUsers" },
+            { "type": "uint256", "name": "totalTrips" },
+            { "type": "uint256", "name": "totalCars" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getTaxesInfoById",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "taxId" }],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "taxesInfoDTO",
+          "components": [
+            { "type": "string", "name": "location" },
+            { "type": "uint8", "name": "locationType" },
+            {
+              "type": "tuple[]",
+              "name": "taxes",
+              "components": [
+                { "type": "string", "name": "name" },
+                { "type": "uint32", "name": "value" },
+                { "type": "uint8", "name": "tType" }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
       "name": "getTotalCarsAmount",
       "constant": true,
       "stateMutability": "view",
       "payable": false,
       "inputs": [],
-      "outputs": [{ "type": "uint256", "name": "" }]
+      "outputs": [{ "type": "uint256", "name": "totalCarsAmount" }]
     },
     {
       "type": "function",
@@ -1819,7 +1889,7 @@
                       ]
                     },
                     { "type": "bool", "name": "isGuestHasInsurance" },
-                    { "type": "uint256", "name": "dimoTokenId" },
+                    { "type": "uint256", "name": "dimoTpokenId" },
                     {
                       "type": "tuple",
                       "name": "hostCurrency",
@@ -1857,6 +1927,18 @@
             { "type": "string", "name": "email" }
           ]
         }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "setEmail",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "user" },
+        { "type": "string", "name": "email" },
+        { "type": "bool", "name": "isVerified" }
       ],
       "outputs": []
     },

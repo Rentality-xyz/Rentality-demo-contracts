@@ -91,7 +91,8 @@
         { "type": "address", "name": "insuranceServiceAddress" },
         { "type": "address", "name": "refferalProgramAddress" },
         { "type": "address", "name": "promoServiceAddress" },
-        { "type": "address", "name": "dimoServiceAddress" }
+        { "type": "address", "name": "dimoServiceAddress" },
+        { "type": "address", "name": "notificationServiceAddress" }
       ],
       "outputs": []
     },
@@ -205,6 +206,18 @@
     },
     {
       "type": "function",
+      "name": "setEmail",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "user" },
+        { "type": "string", "name": "email" },
+        { "type": "bool", "name": "isVerified" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
       "name": "setKYCInfo",
       "constant": false,
       "payable": false,
@@ -216,6 +229,14 @@
         { "type": "bytes", "name": "TCSignature" },
         { "type": "bytes4", "name": "hash" }
       ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "setNotificationService",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "notificationServiceAddress" }],
       "outputs": []
     },
     {

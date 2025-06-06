@@ -82,7 +82,7 @@
           ]
         }
       ],
-      "outputs": []
+      "outputs": [{ "type": "uint256", "name": "" }]
     },
     {
       "type": "function",
@@ -221,6 +221,33 @@
       "payable": false,
       "inputs": [],
       "outputs": [{ "type": "uint32", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getTaxesInfoById",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "taxId" }],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "taxesData",
+          "components": [
+            { "type": "string", "name": "location" },
+            { "type": "uint8", "name": "locationType" },
+            {
+              "type": "tuple[]",
+              "name": "taxes",
+              "components": [
+                { "type": "string", "name": "name" },
+                { "type": "uint32", "name": "value" },
+                { "type": "uint8", "name": "tType" }
+              ]
+            }
+          ]
+        }
+      ]
     },
     {
       "type": "function",
@@ -558,6 +585,25 @@
       "constant": false,
       "payable": false,
       "inputs": [],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "setDefaultDiscount",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "tuple",
+          "name": "data",
+          "components": [
+            { "type": "uint32", "name": "threeDaysDiscount" },
+            { "type": "uint32", "name": "sevenDaysDiscount" },
+            { "type": "uint32", "name": "thirtyDaysDiscount" },
+            { "type": "bool", "name": "initialized" }
+          ]
+        }
+      ],
       "outputs": []
     },
     {

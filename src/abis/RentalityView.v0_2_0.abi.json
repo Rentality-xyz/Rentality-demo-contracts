@@ -735,7 +735,8 @@
                 { "type": "string", "name": "email" }
               ]
             },
-            { "type": "bool", "name": "isPhoneVerified" }
+            { "type": "bool", "name": "isPhoneVerified" },
+            { "type": "bool", "name": "isEmailVerified" }
           ]
         }
       ]
@@ -943,7 +944,7 @@
                       ]
                     },
                     { "type": "bool", "name": "isGuestHasInsurance" },
-                    { "type": "uint256", "name": "dimoTokenId" },
+                    { "type": "uint256", "name": "dimoTpokenId" },
                     {
                       "type": "tuple",
                       "name": "hostCurrency",

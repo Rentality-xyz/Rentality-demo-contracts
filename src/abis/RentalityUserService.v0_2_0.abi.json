@@ -207,7 +207,8 @@
                 { "type": "string", "name": "email" }
               ]
             },
-            { "type": "bool", "name": "isPhoneVerified" }
+            { "type": "bool", "name": "isPhoneVerified" },
+            { "type": "bool", "name": "isEmailVerified" }
           ]
         }
       ]
@@ -245,6 +246,15 @@
       "payable": false,
       "inputs": [],
       "outputs": [{ "type": "address[]", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getPlatformUsersCount",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "uint256", "name": "" }]
     },
     {
       "type": "function",
@@ -608,6 +618,18 @@
             { "type": "string", "name": "email" }
           ]
         }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "setEmail",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "user" },
+        { "type": "string", "name": "email" },
+        { "type": "bool", "name": "isVerified" }
       ],
       "outputs": []
     },

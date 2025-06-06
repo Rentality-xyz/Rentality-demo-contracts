@@ -49,6 +49,26 @@
     },
     {
       "type": "function",
+      "name": "addTaxes",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "string", "name": "location" },
+        { "type": "uint8", "name": "locationType" },
+        {
+          "type": "tuple[]",
+          "name": "taxes",
+          "components": [
+            { "type": "string", "name": "name" },
+            { "type": "uint32", "name": "value" },
+            { "type": "uint8", "name": "tType" }
+          ]
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
       "name": "calculateSumWithDiscount",
       "constant": true,
       "stateMutability": "view",
@@ -624,7 +644,8 @@
         { "type": "address", "name": "refferalProgramAddress" },
         { "type": "address", "name": "promoServiceAddress" },
         { "type": "address", "name": "dimoServiceAddress" },
-        { "type": "address", "name": "investmentAddress" }
+        { "type": "address", "name": "investmentAddress" },
+        { "type": "address", "name": "notificationServiceAddress" }
       ],
       "outputs": []
     },
@@ -768,10 +789,32 @@
     },
     {
       "type": "function",
-      "name": "setInsuranceService",
+      "name": "setDefaultDiscount",
       "constant": false,
       "payable": false,
-      "inputs": [{ "type": "address", "name": "insurance" }],
+      "inputs": [
+        {
+          "type": "tuple",
+          "name": "newDiscounts",
+          "components": [
+            { "type": "uint32", "name": "threeDaysDiscount" },
+            { "type": "uint32", "name": "sevenDaysDiscount" },
+            { "type": "uint32", "name": "thirtyDaysDiscount" },
+            { "type": "bool", "name": "initialized" }
+          ]
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "setDefaultPrices",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint64", "name": "underTwentyFiveMilesInUsdCents" },
+        { "type": "uint64", "name": "aboveTwentyFiveMilesInUsdCents" }
+      ],
       "outputs": []
     },
     {
@@ -780,6 +823,14 @@
       "constant": false,
       "payable": false,
       "inputs": [{ "type": "uint256", "name": "value" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "setNotificationService",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "notificationServiceAddress" }],
       "outputs": []
     },
     {
@@ -800,14 +851,6 @@
     },
     {
       "type": "function",
-      "name": "setPromoService",
-      "constant": false,
-      "payable": false,
-      "inputs": [{ "type": "address", "name": "promoServiceAddress" }],
-      "outputs": []
-    },
-    {
-      "type": "function",
       "name": "transferOwnership",
       "constant": false,
       "payable": false,
@@ -824,26 +867,10 @@
     },
     {
       "type": "function",
-      "name": "updateDimoService",
-      "constant": false,
-      "payable": false,
-      "inputs": [{ "type": "address", "name": "dimoServiceAddress" }],
-      "outputs": []
-    },
-    {
-      "type": "function",
       "name": "updateGeoServiceAddress",
       "constant": false,
       "payable": false,
       "inputs": [{ "type": "address", "name": "newGeoServiceAddress" }],
-      "outputs": []
-    },
-    {
-      "type": "function",
-      "name": "updateInvestmentAddress",
-      "constant": false,
-      "payable": false,
-      "inputs": [{ "type": "address", "name": "investmentAddress" }],
       "outputs": []
     },
     {

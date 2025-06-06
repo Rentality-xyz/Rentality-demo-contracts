@@ -42,6 +42,26 @@
     },
     {
       "type": "function",
+      "name": "emitAll",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "tuple[]",
+          "name": "events",
+          "components": [
+            { "type": "uint8", "name": "eType" },
+            { "type": "uint256", "name": "id" },
+            { "type": "uint8", "name": "objectStatus" },
+            { "type": "address", "name": "from" },
+            { "type": "address", "name": "to" }
+          ]
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
       "name": "emitEvent",
       "constant": false,
       "payable": false,

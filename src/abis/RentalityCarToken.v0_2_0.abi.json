@@ -532,7 +532,7 @@
       "constant": true,
       "stateMutability": "view",
       "payable": false,
-      "inputs": [{ "type": "uint256", "name": "tokenId" }],
+      "inputs": [{ "type": "uint256", "name": "carId" }],
       "outputs": [{ "type": "address", "name": "" }]
     },
     {
