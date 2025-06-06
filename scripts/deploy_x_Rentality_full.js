@@ -7,6 +7,7 @@ const commands = [
   { message: 'Grand manager role...', command: command + 'deploy_8_GrandManagerRole.js' },
   { message: 'Grand KYC manager role...', command: command + 'grandKYCManagerRole.js' },
   { message: 'Set trusted forwarder...', command: command + 'deploy_XI_setTrusted.js' },
+  { message: 'Set taxes for all states...', command: command + 'setTaxes.js' },
   { message: 'Formatting ABIs...', command: 'npx prettier --write ./src' },
 ]
 
