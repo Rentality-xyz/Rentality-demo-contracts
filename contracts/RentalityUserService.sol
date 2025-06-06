@@ -163,7 +163,7 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
   }
 
   function getMyFullKYCInfo(address user) public view returns (Schemas.FullKYCInfoDTO memory) {
-    return Schemas.FullKYCInfoDTO(kycInfos[user], additionalKycInfo[user], userToPhoneVerified[user]);
+    return Schemas.FullKYCInfoDTO(kycInfos[user], additionalKycInfo[user], userToPhoneVerified[user], userToEmailVerified[user]);
   }
 function getPlatformUsersKYCInfos(uint page, uint itemsPerPage) public view returns (Schemas.AdminKYCInfosDTO memory) {
     require(hasRole(ADMIN_VIEW_ROLE, tx.origin), 'Only Admin');
