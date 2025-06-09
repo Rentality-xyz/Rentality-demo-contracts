@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
+import {RentalityUserService} from './RentalityUserService.sol';
 import './payments/RentalityPaymentService.sol';
 import './RentalityPlatform.sol';
 import './abstract/IRentalityAdminGateway.sol';
@@ -431,6 +432,11 @@ function setDefaultPrices(uint64 underTwentyFiveMilesInUsdCents, uint64 aboveTwe
      Schemas.TaxValue[] memory taxes) public {
       uint taxId = paymentService.addTaxes(location, locationType, taxes);
       notificationService.emitEvent(Schemas.EventType.Taxes, taxId, uint8(locationType), msg.sender, msg.sender);
+    }
+
+    function getUserFullKYCInfo(address user) public view returns(Schemas.FullKYCInfoDTO memory fullKycInfo) {
+      require(userService.isAdminViewRole(msg.sender), "only from admin");
+      return userService.getMyFullKYCInfo(user);
     }
 
       

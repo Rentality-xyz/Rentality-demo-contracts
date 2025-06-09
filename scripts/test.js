@@ -4,63 +4,124 @@ const { getContractAddress } = require('./utils/contractAddress')
 const addressSaver = require('./utils/addressSaver')
 const { checkNotNull, startDeploy } = require('./utils/deployHelper')
 const { keccak256 } = require('hardhat/internal/util/keccak')
-const { zeroHash } = require('../test/utils')
+const { zeroHash, ethToken, emptyLocationInfo } = require('../test/utils')
 
-async function getInsuranceUrl(proxyAddress, caseId, mapSlot) {
-    const provider = new ethers.JsonRpcProvider("https://base-sepolia.g.alchemy.com/v2/7NsKIcu9tp2GBR_6wuAL3L-oEvo5wflB");
-    const keyBytes32 =  ethers.zeroPadBytes(caseId, 32);
-    const mapSlotBytes32 = ethers.zeroPadBytes('0x00', 32);
+const tripsFilter = {
+    paymentStatus: 0,
+    status: 0,
+    location: emptyLocationInfo,
+    startDateTime: 0,
+    endDateTime: 1893456000
     
-    // Вычисление слота хранения
-    const concatenated = ethers.concat([keyBytes32, mapSlotBytes32]);
-    console.log("CONCATENATED", concatenated)
-    const storageSlot = ethers.keccak256(concatenated);
-    
-    // Чтение данных из слота
-    const data = await provider.getStorage(proxyAddress, storageSlot);
-    console.log("DATA", data)
-    const dataBytes = ethers.arrayify(data);
-    const lastByte = dataBytes[31];
-    
-    let content;
-    if (lastByte % 2 === 0) {
-        // Короткая строка (inline)
-        const length = lastByte / 2;
-        content = ethers.utils.toUtf8String(dataBytes.slice(0, length));
-    } else {
-        // Длинная строка (внешние слоты)
-        const length = (lastByte - 1) / 2;
-        const baseSlot = ethers.utils.keccak256(storageSlot);
-        let hexString = '0x';
-        const numSlots = Math.ceil(length / 32);
-        
-        for (let i = 0; i < numSlots; i++) {
-            const slot = ethers.BigNumber.from(baseSlot).add(i).toHexString();
-            const chunk = await provider.getStorageAt(proxyAddress, slot);
-            hexString += chunk.slice(2);
-        }
-        
-        content = ethers.utils.toUtf8String(hexString.substring(0, 2 + length * 2));
-    }
-    
-    return content;
 }
-
+//block 26718122
 async function main() {
-const v = await ethers.getContractAt('RentalityAdminGateway','0xF242A76f700Af65C2D05fB2fa74C99e64e0F299a')
 
-// const userService = await ethers.getContractAt('RentalityUserService', '0x6a8BD84f29D74b2A77C28D23468210Cb1F8494fD')
-// await userService.grantPlatformRole('0xF242A76f700Af65C2D05fB2fa74C99e64e0F299a')
+    // enum EventType {
+    //     Car,
+    //     Claim,
+    //     Trip,
+    //     User,
+    //     Insurance,
+    //     Taxes,
+    //     Discount,
+    //     Delivery,
+    //     Currency
+    //   }
+    //   Schemas.EventType eType;
+    //   uint256 id;
+    //   uint8 objectStatus;
+    //   address from;
+    //   address to;
 
-// console.log(await v.setDefaultCurrencyType('0x0000000000000000000000000000000000000000'))
+const adminContract = await ethers.getContractAt('RentalityAdminGateway','0xE27172d322E2ba92A9cDCd17D5021B82df7B6b95')
 
-console.log(await v.setDefaultPrices(300,250))
-// await v.setDefaultDiscount( {
-//      threeDaysDiscount: 20_000,
-//      sevenDaysDiscount: 100_000,
-//      thirtyDaysDiscount:150_000,
-//     initialized:true
-//   })
+// const users = await adminContract.getPlatformUsersInfo(1,100)
+// const u = users.kycInfos
+// .map(
+//     user => {
+//        return { eType: 3, id: 0, objectStatus: 0, from: user.wallet, to: user.wallet }
+      
+//     });
+
+    const cars = Array.from({ length: 162 }, (_, i) => ({
+        eType: 0,
+        id: i + 1,
+        objectStatus: 0,
+        from: ethToken,
+        to: ethToken
+      }));
+      console.log("CARS", cars)
+
+
+// const trips =  Array.from({ length: 447 }, (_, i) => ({
+//     eType: 2,
+//     id: i + 1,
+//     objectStatus: 0,
+//     from: ethToken,
+//     to: ethToken
+//   }));
+const v = await ethers.getContractAt('RentalityNotificationService','0x6538488EAD213996727D1f4eC9738c3C92141180')
+// const request = [
+//     { eType: 5, id: 2, objectStatus: 1, from: ethToken, to: ethToken },
+//     { eType: 6, id: 2, objectStatus: 1, from: ethToken, to: ethToken },
+//     { eType: 7, id: 2, objectStatus: 1, from: ethToken, to: ethToken }
+
+// ]
+
+const taxes = Array.from({ length: 52 }, (_, i) => ({
+    eType: 5,
+    id: i + 1,
+    objectStatus: 0,
+    from: ethToken,
+    to: ethToken
+  }));
+  const paymentService = await ethers.getContractAt('RentalityPaymentService','0x6080F7A1F4fDaED78e01CDC951Bb15588B04EBF7')
+  const gateway = await ethers.getContractAt('IRentalityGateway','0xB257FE9D206b60882691a24d5dfF8Aa24929cB73')
+  const taxesContract = await ethers.getContractAt('RentalityTaxes','0x2287de614e0CafED95b42c45dd959176F4a9fF14')
+  const ids = [
+    1,2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
+    12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
+    22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
+    32, 33, 34, 35, 36, 37, 38, 39, 40, 41,
+    42, 43, 44, 45, 46, 47, 48, 49, 50, 51,
+    52,53
+  ];
+  const states = [
+    "Florida",
+    "Florida","Florida","Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado",
+    "Connecticut", "Delaware", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana",
+    "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts",
+    "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska",
+    "Nevada", "New Hampshire", "New Jersey", "New Mexico", "New York", "North Carolina",
+    "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island",
+    "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah", "Vermont",
+    "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming", "District of Columbia"
+  ];
+
+//   const carToken = await ethers.getContractAt('RentalityCarToken','0xCfd84b30b9fddaa275b38a40E08D8bE990688033')
+//   const details = await gateway.getCarDetails(162)
+//   console.log(details.locationInfo)
+
+  console.log(await gateway.getTaxesInfoById(2))
+//   console.log(ids.length)
+//   console.log(await taxesContract.setTaxesLocations(ids,states))
+//   console.log(await gateway.getTaxesInfoById(0))
+// console.log(taxes)
+const currency = {
+    eType: 9,
+    id:0,
+    objectStatus: 1,
+    from: ethToken,
+    to: ethToken
+  }
+console.log(await v.emitAll([{
+    eType: 8,
+    id:0,
+    objectStatus: 1,
+    from: ethToken,
+    to: ethToken
+  }]))
 }
 main()
   .then(() => process.exit(0))
