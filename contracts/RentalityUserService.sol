@@ -321,6 +321,9 @@ function getPlatformUsersKYCInfos(uint page, uint itemsPerPage) public view retu
   function isHostOrGuest(address user) public view returns (bool) {
     return isHost(user) || isGuest(user);
   }
+  function isAdminViewRole(address user)  public view returns (bool) {
+    return hasRole(ADMIN_VIEW_ROLE, user);
+  }
 
   /// @dev Sets the Civic verifier and gatekeeper network for identity verification.
   /// @param _civicVerifier The address of the Civic verifier contract.

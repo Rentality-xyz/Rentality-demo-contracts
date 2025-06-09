@@ -53,7 +53,7 @@ const signDimoToken = async (user, token) => {
 const emptyLocationInfo = {
   userAddress: '',
   country: '',
-  state: 'Florida',
+  state: '',
   city: '',
   latitude: '',
   longitude: '',
