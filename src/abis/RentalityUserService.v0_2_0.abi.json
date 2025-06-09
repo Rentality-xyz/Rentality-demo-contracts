@@ -427,6 +427,15 @@
     },
     {
       "type": "function",
+      "name": "isAdminViewRole",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "user" }],
+      "outputs": [{ "type": "bool", "name": "" }]
+    },
+    {
+      "type": "function",
       "name": "isCommissionPaidForUser",
       "constant": true,
       "stateMutability": "view",

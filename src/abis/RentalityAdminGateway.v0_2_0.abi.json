@@ -617,6 +617,47 @@
     },
     {
       "type": "function",
+      "name": "getUserFullKYCInfo",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "user" }],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "fullKycInfo",
+          "components": [
+            {
+              "type": "tuple",
+              "name": "kyc",
+              "components": [
+                { "type": "string", "name": "name" },
+                { "type": "string", "name": "surname" },
+                { "type": "string", "name": "mobilePhoneNumber" },
+                { "type": "string", "name": "profilePhoto" },
+                { "type": "string", "name": "licenseNumber" },
+                { "type": "uint64", "name": "expirationDate" },
+                { "type": "uint256", "name": "createDate" },
+                { "type": "bool", "name": "isTCPassed" },
+                { "type": "bytes", "name": "TCSignature" }
+              ]
+            },
+            {
+              "type": "tuple",
+              "name": "additionalKYC",
+              "components": [
+                { "type": "string", "name": "issueCountry" },
+                { "type": "string", "name": "email" }
+              ]
+            },
+            { "type": "bool", "name": "isPhoneVerified" },
+            { "type": "bool", "name": "isEmailVerified" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
       "name": "getUserServiceAddress",
       "constant": true,
       "stateMutability": "view",
