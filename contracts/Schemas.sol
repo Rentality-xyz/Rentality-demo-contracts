@@ -1048,5 +1048,14 @@ struct PlatformInfoDTO {
   uint totalTrips;
   uint totalCars;
 }
+struct HostInsuranceRule {
+  uint partToInsurance;
+
+}
+struct HostInsuranceAvarage {
+  uint totalTripsCount;
+  uint totalPercents;
+
+}
 
 }
