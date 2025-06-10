@@ -32,6 +32,15 @@ contract RentalityHostInsurance is Initializable, UUPSAccess {
         }
         return (amount * rule.partToInsurance) / 100;
     }
+
+    function calculateAvaragePercents(address user, uint amount) public view returns (uint) {
+        uint hostInsuranceRuleId = userToInsuranceId[user];
+        Schemas.HostInsuranceRule memory rule = insuranceIdToInsurance[hostInsuranceRuleId];
+        if (rule.partToInsurance == 0) {
+            return 0;
+        }
+        return (amount * rule.partToInsurance) / 100;
+    }
     function addToInsurancePool(address user, uint sum) public payable {
         require(userService.isRentalityPlatform(msg.sender), 'RentalityHostInsurance: only Rentality platform.');
         uint percents = calculateCurrentHostInsuranceSumFrom(user, sum);
