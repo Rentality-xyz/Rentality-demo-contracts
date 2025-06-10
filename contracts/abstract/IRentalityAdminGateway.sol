@@ -48,9 +48,6 @@ interface IRentalityAdminGateway {
   /// @param valueInPPM The new platform fee value in PPM.
   function setPlatformFeeInPPM(uint32 valueInPPM) external;
 
-  /// @notice Updates the address of the GeoService contract.
-  /// @param newGeoServiceAddress The new address of the GeoService contract.
-  function updateGeoServiceAddress(address newGeoServiceAddress) external;
 
   /// @dev Sets the waiting time, only callable by administrators.
   /// @param timeInSec, set old value to this

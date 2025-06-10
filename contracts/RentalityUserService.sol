@@ -191,12 +191,13 @@ function getPlatformUsersKYCInfos(uint page, uint itemsPerPage) public view retu
     Schemas.AdminKYCInfoDTO[] memory result = new Schemas.AdminKYCInfoDTO[](endIndex - startIndex);
     
     for (uint i = startIndex; i < endIndex; i++) {
-        uint resultIndex = i - startIndex; // Корректный индекс для результата
+        uint resultIndex = i - startIndex; 
         address user = platformUsers[i];
         result[resultIndex] = Schemas.AdminKYCInfoDTO(
             kycInfos[user],
             additionalKycInfo[user],
-            user
+            user,
+            userToEmailVerified[user]
         );
     }
     

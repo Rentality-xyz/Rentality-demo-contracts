@@ -442,6 +442,7 @@ interface Schemas {
     KYCInfo kyc;
     AdditionalKYCInfo additionalKYC;
     address wallet;
+    bool isEmailVerified;
   }
 
   struct AdminKYCInfosDTO {
