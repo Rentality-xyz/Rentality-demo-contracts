@@ -538,11 +538,19 @@ async function deployDefaultFixture() {
   ])
   await investorsService.waitForDeployment()
 
+  let HostInsurance =  await ethers.getContractFactory('RentalityHostInsurance')
+  let hostInsurance = await upgrades.deployProxy(HostInsurance, [
+    await rentalityUserService.getAddress(),
+  ])
+  await hostInsurance.waitForDeployment()
+
   const rentalityPaymentService = await upgrades.deployProxy(RentalityPaymentService, [
     await rentalityUserService.getAddress(),
     await rentalityTaxes.getAddress(),
     await rentalityBaseDiscount.getAddress(),
     await investorsService.getAddress(),
+    await hostInsurance.getAddress()
+    
   ])
   await rentalityPaymentService.waitForDeployment()
 
@@ -616,6 +624,7 @@ async function deployDefaultFixture() {
     await promoService.getAddress(),
     await rentalityDimo.getAddress(),
     await rentalityAiDamageAnalyze.getAddress(),
+    await hostInsurance.getAddress()
 
   ])
   await rentalityTripsView.waitForDeployment()
@@ -665,6 +674,7 @@ async function deployDefaultFixture() {
     await promoService.getAddress(),
     await rentalityDimo.getAddress(),
     await rentalityNotificationService.getAddress(),
+    await hostInsurance.getAddress()
   ])
   await rentalityPlatformHelper.waitForDeployment()
 
@@ -684,6 +694,8 @@ async function deployDefaultFixture() {
     await rentalityPlatformHelper.getAddress(),
   ])
   await rentalityPlatform.waitForDeployment()
+
+  await rentalityPlatform.setHostInsuranceAddress(await hostInsurance.getAddress())
 
   await promoService.generateGeneralCode(0, new Date().getTime() + 86400)
 
@@ -828,7 +840,8 @@ async function deployDefaultFixture() {
     hashCreator,
     promoService,
     ethContract,
-    usdtPaymentContract
+    usdtPaymentContract,
+    hostInsurance
   }
 }
 

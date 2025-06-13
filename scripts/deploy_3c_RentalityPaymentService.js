@@ -26,9 +26,13 @@ async function main() {
     'RentalityInvestment'
   )
 
+  const rentalityHostInsurace = checkNotNull(
+    getContractAddress('RentalityHostInsurance', 'scripts/deploy_3g_RentalityHostInsurance.js', chainId),
+    'RentalityHostInsurance'
+  )
 
   const contractFactory = await ethers.getContractFactory(contractName)
-  const contract = await upgrades.deployProxy(contractFactory, [userService, rentalityTaxes, baseDiscount, investService])
+  const contract = await upgrades.deployProxy(contractFactory, [userService, rentalityTaxes, baseDiscount, investService,rentalityHostInsurace])
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()
 

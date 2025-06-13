@@ -1058,4 +1058,5 @@ struct HostInsuranceAvarage {
 
 }
 
+
 }

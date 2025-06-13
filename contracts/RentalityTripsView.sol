@@ -17,6 +17,7 @@ import {ARentalityContext} from './abstract/ARentalityContext.sol';
 import {RentalityDimoService} from './features/RentalityDimoService.sol';
 import {RentalityViewLib} from './libs/RentalityViewLib.sol';
 import {RentalityAiDamageAnalyzeV2} from './features/RentalityAiDamageAnalyzeV2.sol';
+import {RentalityHostInsurance} from './payments/RentalityHostInsurance.sol';
 
 error FunctionNotFound();
 /// @dev SAFETY: The linked library is not supported yet because it can modify the state or call
@@ -33,6 +34,7 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
   address private trustedForwarderAddress;
 
   RentalityAiDamageAnalyzeV2 private aiDamageAnalyzeService;
+  RentalityHostInsurance private hostInsurance;
 
   function updateServiceAddresses(
     RentalityContract memory contracts,
@@ -203,6 +205,24 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
     require(addresses.userService.isAdmin(tx.origin), 'Only for Admin.');
     trustedForwarderAddress = forwarder;
   }
+  function getHostInsuranceClaims() public view returns(Schemas.ClaimV2[] memory claims) {
+    uint[] memory claimIds = hostInsurance.getInsuranceClaims();
+    claims = new Schemas.ClaimV2[](claimIds.length);
+    for (uint i = 0; i < claimIds.length; i++) {
+      claims[i] = addresses.claimService.getClaim(claimIds[i]);
+    }
+
+  }
+    function getHostInsuranceRule(address host) public view returns(Schemas.HostInsuranceRule memory insuranceRules) {
+    return hostInsurance.getHostInsuranceRule(host);
+    }
+    function getAllInsuranceRules() public view returns(Schemas.HostInsuranceRule[] memory insuranceRules) { 
+      return hostInsurance.getAllInsuranceRules();
+    }
+    function setHostInsuranceAddress(address _hostInsurance) public {
+    require(addresses.userService.isAdmin(tx.origin), 'Only for Admin.');
+    hostInsurance = RentalityHostInsurance(payable(_hostInsurance));
+  }
 
   function initialize(
     address carServiceAddress,
@@ -215,7 +235,8 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
     address insuranceAddress,
     address promoServiceAddress,
     address dimoServiceAddress,
-    address aiDamageAnalyzeServiceAddress
+    address aiDamageAnalyzeServiceAddress,
+    address _hostInsurance
   ) public initializer {
     addresses = RentalityContract(
       RentalityCarToken(carServiceAddress),
@@ -233,6 +254,7 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
     promoService = RentalityPromoService(promoServiceAddress);
     dimoService = RentalityDimoService(dimoServiceAddress);
     aiDamageAnalyzeService = RentalityAiDamageAnalyzeV2(aiDamageAnalyzeServiceAddress);
+    hostInsurance = RentalityHostInsurance(payable(_hostInsurance));
   }
 
   function _authorizeUpgrade(address /*newImplementation*/) internal view override {

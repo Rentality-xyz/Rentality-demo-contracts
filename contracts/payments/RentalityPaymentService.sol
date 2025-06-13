@@ -8,6 +8,7 @@ import './abstract/IRentalityDiscount.sol';
 import './abstract/IRentalityTaxes.sol';
 import '../investment/RentalityInvestment.sol';
 import './RentalityTaxes.sol';
+import './RentalityHostInsurance.sol';
 import {Schemas} from '../Schemas.sol';
 /// @title Rentality Payment Service Contract
 /// @notice This contract manages platform fees and allows the adjustment of the platform fee by the manager.
@@ -26,14 +27,16 @@ contract RentalityPaymentService is UUPSOwnable {
   RentalityInvestment private investmentService;
   RentalityTaxes private rentalityTaxes;
 
+  RentalityHostInsurance private hostInsurance;
+
   modifier onlyAdmin() {
     require(userService.isAdmin(tx.origin), 'Only admin.');
     _;
   }
 
-  function setInvestmentService(address investAddress) public {
+  function setHostInsuranceService(address _hostInsurance) public {
     require(userService.isAdmin(msg.sender), 'only admin');
-    investmentService = RentalityInvestment(investAddress);
+    hostInsurance = RentalityHostInsurance(payable(_hostInsurance));
   }
   function getBaseDiscount() public view returns (RentalityBaseDiscount) {
     address discountAddress = address(discountAddressToDiscountContract[currentDiscount]);
@@ -243,9 +246,18 @@ function getTaxesInfoById(uint taxId) public view returns(Schemas.TaxesInfoDTO m
         pool.deposit(totalIncome, depositToPool);
       }
     }
+    uint toInsurance = 0;
+    if(address(pool) == address(0)) {
+      toInsurance = hostInsurance.calculateCurrentHostInsuranceSumFrom(trip.host, valueToHost);
+    }
+    
     if (trip.paymentInfo.currencyType == address(0)) {
       // Handle payment in native currency (ETH)
       if (valueToHost > 0) {
+        if(toInsurance > 0) {
+          valueToHost = valueToHost - toInsurance;
+          hostInsurance.updateUserAvarage{value:toInsurance}(trip.host);
+        }
         (successHost, ) = payable(trip.host).call{value: valueToHost}('');
       } else {
         successHost = true;
@@ -257,6 +269,11 @@ function getTaxesInfoById(uint taxId) public view returns(Schemas.TaxesInfoDTO m
       }
     } else {
       // Handle payment in ERC20 tokens
+         if(toInsurance > 0) {
+          valueToHost = valueToHost - toInsurance;
+          hostInsurance.updateUserAvarage(trip.host);
+          IERC20(trip.paymentInfo.currencyType).transfer(address(hostInsurance), toInsurance);
+        }
       successHost = IERC20(trip.paymentInfo.currencyType).transfer(trip.host, valueToHost);
       successGuest = IERC20(trip.paymentInfo.currencyType).transfer(trip.guest, valueToGuest);
     }
@@ -412,7 +429,8 @@ function getTaxesInfoById(uint taxId) public view returns(Schemas.TaxesInfoDTO m
     address _userService,
     address _rentalityTaxes,
     address _baseDiscount,
-    address _investorService
+    address _investorService,
+    address _hostInsurance
   ) public initializer {
     userService = IRentalityAccessControl(_userService);
     platformFeeInPPM = 200_000;
@@ -425,6 +443,7 @@ function getTaxesInfoById(uint taxId) public view returns(Schemas.TaxesInfoDTO m
     rentalityTaxes = RentalityTaxes(_rentalityTaxes);
 
     investmentService = RentalityInvestment(_investorService);
+    hostInsurance =RentalityHostInsurance(payable(_hostInsurance));
     __Ownable_init();
   }
 }
