@@ -206,7 +206,7 @@ describe('ERC20 payments', function () {
     )
 
     await usdtContract.connect(guest).approve(await rentalityPaymentService.getAddress(), claimPriceInUsdt)
-    await expect(rentalityGateway.connect(host).createClaim(createMockClaimRequest(1, amountToPayForClaim))).not.to.be
+    await expect(rentalityGateway.connect(host).createClaim(createMockClaimRequest(1, amountToPayForClaim), false)).not.to.be
       .reverted
     const hostBalanceBeforeClaim = await usdtContract.balanceOf(host.address)
     const guestBalanceBeforeClaim = await usdtContract.balanceOf(guest.address)

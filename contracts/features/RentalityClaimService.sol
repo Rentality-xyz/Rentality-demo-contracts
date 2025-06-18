@@ -63,7 +63,7 @@ contract RentalityClaimService is Initializable, UUPSAccess {
     address host,
     address guest,
     address user
-  ) public onlyManager {
+  ) public onlyManager returns(uint) {
     require(request.amountInUsdCents > 0, 'Amount can not be null.');
 
     claimId += 1;
@@ -94,6 +94,7 @@ contract RentalityClaimService is Initializable, UUPSAccess {
       host == user ? guest : host,
       host == user ? host : guest
     );
+    return claimId;
   }
 
   /// @dev Rejects a claim, only callable by managers contracts.
@@ -179,10 +180,11 @@ contract RentalityClaimService is Initializable, UUPSAccess {
     platformFeeInPPM = value;
   }
 
-  function addClaimType(string memory name, Schemas.ClaimCreator creator) public {
+  function addClaimType(string memory name, Schemas.ClaimCreator creator) public returns (uint){
     require(userService.isAdmin(tx.origin), 'Only admin.');
     claimTypeNumber += 1;
     claimTypeNumberToClaimType[claimTypeNumber] = Schemas.ClaimTypeV2(claimTypeNumber, name, creator);
+    return claimTypeNumber;
   }
   function removeClaimType(uint8 claimType) public {
     require(userService.isAdmin(tx.origin), 'Only admin');
