@@ -92,6 +92,7 @@ contract RentalityPlatformHelper is UUPSOwnable, ARentalityContext {
     address sender = _msgGatewaySender();
     require(trip.host == sender || trip.guest == sender, 'For trip host or guest');
     insuranceService.saveTripInsuranceInfo(tripId, insuranceInfo, sender);
+    notificationService.emitEvent(Schemas.EventType.SaveTripInsurance, tripId, 0, sender, sender);
   }
 
   function updateCarInfoWithLocation(

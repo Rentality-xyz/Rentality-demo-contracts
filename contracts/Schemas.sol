@@ -859,7 +859,9 @@ interface Schemas {
     Taxes,
     Discount,
     Delivery,
-    Currency
+    Currency,
+    AddClaimType, 
+    SaveTripInsurance
   }
 
   enum EventCreator {
@@ -1052,7 +1054,7 @@ struct HostInsuranceRule {
   uint partToInsurance;
 
 }
-struct HostInsuranceAvarage {
+struct HostInsuranceAvarage { 
   uint totalTripsCount;
   uint totalPercents;
 

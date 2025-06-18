@@ -180,10 +180,11 @@ contract RentalityClaimService is Initializable, UUPSAccess {
     platformFeeInPPM = value;
   }
 
-  function addClaimType(string memory name, Schemas.ClaimCreator creator) public {
+  function addClaimType(string memory name, Schemas.ClaimCreator creator) public returns (uint){
     require(userService.isAdmin(tx.origin), 'Only admin.');
     claimTypeNumber += 1;
     claimTypeNumberToClaimType[claimTypeNumber] = Schemas.ClaimTypeV2(claimTypeNumber, name, creator);
+    return claimTypeNumber;
   }
   function removeClaimType(uint8 claimType) public {
     require(userService.isAdmin(tx.origin), 'Only admin');

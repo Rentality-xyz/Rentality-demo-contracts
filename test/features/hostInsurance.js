@@ -12,7 +12,7 @@ const {
 } = require('../utils')
 const { expect } = require('chai')
 const { ethers } = require('hardhat')
-describe.only('HostInsurance', function () {
+describe('HostInsurance', function () {
   let rentalityGateway,
     rentalityMockPriceFeed,
     rentalityUserService,
