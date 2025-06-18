@@ -298,7 +298,8 @@
                     { "type": "string", "name": "email" }
                   ]
                 },
-                { "type": "address", "name": "wallet" }
+                { "type": "address", "name": "wallet" },
+                { "type": "bool", "name": "isEmailVerified" }
               ]
             },
             { "type": "uint256", "name": "totalPageCount" }

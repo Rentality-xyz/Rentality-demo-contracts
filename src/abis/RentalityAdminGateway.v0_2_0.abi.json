@@ -481,7 +481,8 @@
                     { "type": "string", "name": "email" }
                   ]
                 },
-                { "type": "address", "name": "wallet" }
+                { "type": "address", "name": "wallet" },
+                { "type": "bool", "name": "isEmailVerified" }
               ]
             },
             { "type": "uint256", "name": "totalPageCount" }
@@ -868,14 +869,6 @@
     },
     {
       "type": "function",
-      "name": "setNotificationService",
-      "constant": false,
-      "payable": false,
-      "inputs": [{ "type": "address", "name": "notificationServiceAddress" }],
-      "outputs": []
-    },
-    {
-      "type": "function",
       "name": "setPlatformFee",
       "constant": false,
       "payable": false,
@@ -904,14 +897,6 @@
       "constant": false,
       "payable": false,
       "inputs": [{ "type": "address", "name": "contractAddress" }],
-      "outputs": []
-    },
-    {
-      "type": "function",
-      "name": "updateGeoServiceAddress",
-      "constant": false,
-      "payable": false,
-      "inputs": [{ "type": "address", "name": "newGeoServiceAddress" }],
       "outputs": []
     },
     {

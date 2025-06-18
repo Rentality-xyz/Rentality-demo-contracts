@@ -58,9 +58,6 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
   function getPromoService() public view returns (RentalityPromoService) {
     return promoService;
   }
-  function setNotificationService(address notificationServiceAddress) public onlyAdmin {
-    notificationService = RentalityNotificationService(notificationServiceAddress);
-  }
   function getDimoService() public view returns (RentalityDimoService dimoServiceAddress) {
     return dimoService;
   }
@@ -114,6 +111,7 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
   function getUserServiceAddress() public view returns (address userServiceAddress) {
     return address(userService);
   }
+
 
 
   /// @notice Retrieves the address of the RentalityCarDelivery contract.

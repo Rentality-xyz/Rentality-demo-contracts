@@ -74,7 +74,8 @@ function main() {
     let allStructNames = []
 
     while ((match = structPattern.exec(data)) !== null) {
-      allStructNames.push(match[1])
+      const structName = match[1].split('.').at(-1)
+      allStructNames.push(structName)
     }
 
     while ((match = structPattern.exec(data)) !== null) {
@@ -90,6 +91,7 @@ function main() {
             field = field.split('\n')[1].trim()
           }
           let [fieldType, fieldName] = field.split(/\s+/)
+          fieldType = fieldType.split('.').at(-1)
           if (allStructNames.includes(fieldType.replace('[]', ''))) {
             fieldType = `Contract${fieldType}`
           }
