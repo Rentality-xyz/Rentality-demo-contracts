@@ -92,7 +92,8 @@
         { "type": "address", "name": "refferalProgramAddress" },
         { "type": "address", "name": "promoServiceAddress" },
         { "type": "address", "name": "dimoServiceAddress" },
-        { "type": "address", "name": "notificationServiceAddress" }
+        { "type": "address", "name": "notificationServiceAddress" },
+        { "type": "address", "name": "_hostInsurance" }
       ],
       "outputs": []
     },
@@ -214,6 +215,22 @@
         { "type": "string", "name": "email" },
         { "type": "bool", "name": "isVerified" }
       ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "setHostInsurance",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "insuranceId" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "setHostInsuranceAddress",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "_hostInsurance" }],
       "outputs": []
     },
     {

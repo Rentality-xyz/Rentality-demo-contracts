@@ -286,7 +286,8 @@
         { "type": "address", "name": "_userService" },
         { "type": "address", "name": "_rentalityTaxes" },
         { "type": "address", "name": "_baseDiscount" },
-        { "type": "address", "name": "_investorService" }
+        { "type": "address", "name": "_investorService" },
+        { "type": "address", "name": "_hostInsurance" }
       ],
       "outputs": []
     },
@@ -616,10 +617,10 @@
     },
     {
       "type": "function",
-      "name": "setInvestmentService",
+      "name": "setHostInsuranceService",
       "constant": false,
       "payable": false,
-      "inputs": [{ "type": "address", "name": "investAddress" }],
+      "inputs": [{ "type": "address", "name": "_hostInsurance" }],
       "outputs": []
     },
     {

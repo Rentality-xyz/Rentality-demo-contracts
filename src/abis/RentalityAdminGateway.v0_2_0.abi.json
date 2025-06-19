@@ -893,14 +893,6 @@
     },
     {
       "type": "function",
-      "name": "updateDeliveryService",
-      "constant": false,
-      "payable": false,
-      "inputs": [{ "type": "address", "name": "contractAddress" }],
-      "outputs": []
-    },
-    {
-      "type": "function",
       "name": "updatePromoData",
       "constant": false,
       "payable": false,
