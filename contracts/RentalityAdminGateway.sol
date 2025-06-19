@@ -120,11 +120,6 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
     return address(deliveryService);
   }
 
-  /// @notice Updates the address of the RentalityCarDelivery contract. Only callable by admins.
-  /// @param contractAddress The new address of the RentalityCarDeliveryn contract.
-  function updateDeliveryService(address contractAddress) public onlyAdmin {
-    deliveryService = RentalityCarDelivery(contractAddress);
-  }
   /// @notice Retrieves the address of the RentalityRefferalProgram contract.
   /// @return refferalServiceAddress The address of the RentalityRefferalProgram contract.
   function getRefferalServiceAddress() public view returns (RentalityReferralProgram refferalServiceAddress) {
@@ -397,7 +392,8 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
   }
 
   function addClaimType(string memory name, Schemas.ClaimCreator creator) public {
-    claimService.addClaimType(name, creator);
+    uint claimTypeId = claimService.addClaimType(name, creator);
+    notificationService.emitEvent(Schemas.EventType.AddClaimType, claimTypeId, uint8(Schemas.EventCreator.Admin), msg.sender, msg.sender);
   }
   function removeClaimType(uint8 claimType) public {
     claimService.removeClaimType(claimType);

@@ -860,7 +860,9 @@ interface Schemas {
     Taxes,
     Discount,
     Delivery,
-    Currency
+    Currency,
+    AddClaimType, 
+    SaveTripInsurance
   }
 
   enum EventCreator {
@@ -1049,5 +1051,15 @@ struct PlatformInfoDTO {
   uint totalTrips;
   uint totalCars;
 }
+struct HostInsuranceRule {
+  uint partToInsurance;
+
+}
+struct HostInsuranceAvarage { 
+  uint totalTripsCount;
+  uint totalPercents;
+
+}
+
 
 }

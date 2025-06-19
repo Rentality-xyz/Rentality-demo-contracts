@@ -761,10 +761,12 @@ library RentalityUtils {
   function verifyClaim(
     RentalityContract memory addresses,
     Schemas.CreateClaimRequest memory request,
-    address user
+    address user,
+    bool isInsuranceClaim
   ) public view returns (address, address) {
     Schemas.Trip memory trip = addresses.tripService.getTrip(request.tripId);
 
+    require(!isInsuranceClaim || trip.host == user,"RentalityUtils: insurance claim only for hosts");
     require(
       (trip.host == user && addresses.claimService.claimTypeExists(request.claimType, true)) ||
         (trip.guest == user && addresses.claimService.claimTypeExists(request.claimType, false)),

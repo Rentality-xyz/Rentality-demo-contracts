@@ -85,6 +85,11 @@ async function main() {
     'RentalityPlatformHelper'
   )
 
+  const rentalityHostInsurace = checkNotNull(
+    getContractAddress('RentalityHostInsurance', 'scripts/deploy_3g_RentalityHostInsurance.js', chainId),
+    'RentalityHostInsurance'
+  )
+
   const contractFactory = await ethers.getContractFactory(contractName, {
     libraries: {
       RentalityUtils: rentalityUtilsAddress,
@@ -108,6 +113,8 @@ async function main() {
   ])
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()
+
+  await contract.setHostInsuranceAddress(rentalityHostInsurace)
 
   console.log(`${contractName} was deployed to: ${contractAddress}`)
   addressSaver(contractAddress, contractName, true, chainId)

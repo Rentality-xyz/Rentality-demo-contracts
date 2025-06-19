@@ -48,7 +48,6 @@ interface IRentalityAdminGateway {
   /// @param valueInPPM The new platform fee value in PPM.
   function setPlatformFeeInPPM(uint32 valueInPPM) external;
 
-
   /// @dev Sets the waiting time, only callable by administrators.
   /// @param timeInSec, set old value to this
   function setClaimsWaitingTime(uint timeInSec) external;

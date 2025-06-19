@@ -287,7 +287,7 @@ interface IRentalityGateway {
   /// @notice Creates a new claim through the Rentality platform.
   /// @dev This function delegates the claim creation to the Rentality platform contract.
   /// @param request Details of the claim to be created.
-  function createClaim(Schemas.CreateClaimRequest memory request) external;
+  function createClaim(Schemas.CreateClaimRequest memory request, bool isHostInsuranceClaim) external;
 
   /// @notice Rejects a specific claim through the Rentality platform.
   /// @dev This function delegates the claim rejection to the Rentality platform contract.
@@ -417,5 +417,12 @@ interface IRentalityGateway {
 
   function getPlatformInfo() external view returns(Schemas.PlatformInfoDTO memory platformInfo);
 
-   function setEmail(address user, string memory email, bool isVerified) external;
+  function setEmail(address user, string memory email, bool isVerified) external;
+
+  function getHostInsuranceClaims() external view returns(Schemas.ClaimV2[] memory claims);
+  function setHostInsurance(uint insuranceId) external;
+
+
+  function getHostInsuranceRule(address host) external view returns(Schemas.HostInsuranceRule memory insuranceRules);
+  function getAllInsuranceRules() external view returns(Schemas.HostInsuranceRule[] memory insuranceRules);
 }

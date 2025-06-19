@@ -163,11 +163,18 @@ async function deployDefaultFixture() {
   ])
   await investorsService.waitForDeployment()
 
+    let HostInsurance =  await ethers.getContractFactory('RentalityHostInsurance')
+    let hostInsurance = await upgrades.deployProxy(HostInsurance, [
+      await rentalityUserService.getAddress(),
+    ])
+    await hostInsurance.waitForDeployment()
+
   const rentalityPaymentService = await upgrades.deployProxy(RentalityPaymentService, [
     await rentalityUserService.getAddress(),
     await rentalityTaxes.getAddress(),
     await rentalityBaseDiscount.getAddress(),
     await investorsService.getAddress(),
+    await hostInsurance.getAddress()
   ])
   
   await rentalityPaymentService.addTaxes(
@@ -268,6 +275,7 @@ async function deployDefaultFixture() {
     await promoService.getAddress(),
     await dimoService.getAddress(),
     await rentalityAiDamageAnalyze.getAddress(),
+    await hostInsurance.getAddress()
    
   ])
   await rentalityTripsView.waitForDeployment()
@@ -317,6 +325,7 @@ async function deployDefaultFixture() {
     await promoService.getAddress(),
     await dimoService.getAddress(),
     await rentalityNotificationService.getAddress(),
+    await hostInsurance.getAddress()
   ])
   await rentalityPlatformHelper.waitForDeployment()
 

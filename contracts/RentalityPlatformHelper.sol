@@ -20,6 +20,7 @@ import './payments/RentalityInsurance.sol';
 import {RentalityPromoService} from './features/RentalityPromo.sol';
 import {ARentalityContext} from './abstract/ARentalityContext.sol';
 import {RentalityNotificationService} from './features/RentalityNotificationService.sol';
+import {RentalityHostInsurance} from './payments/RentalityHostInsurance.sol';
 
 
 /// @title Rentality Platform Contract
@@ -39,6 +40,7 @@ contract RentalityPlatformHelper is UUPSOwnable, ARentalityContext {
   RentalityPromoService private promoService;
   address private trustedForwarderAddress;
   RentalityNotificationService private notificationService;
+  RentalityHostInsurance private hostInsurance;
 
   function saveGuestInsurance(Schemas.SaveInsuranceRequest memory insuranceInfo) public {
     address user = _msgGatewaySender();
@@ -90,6 +92,7 @@ contract RentalityPlatformHelper is UUPSOwnable, ARentalityContext {
     address sender = _msgGatewaySender();
     require(trip.host == sender || trip.guest == sender, 'For trip host or guest');
     insuranceService.saveTripInsuranceInfo(tripId, insuranceInfo, sender);
+    notificationService.emitEvent(Schemas.EventType.SaveTripInsurance, tripId, 0, sender, sender);
   }
 
   function updateCarInfoWithLocation(
@@ -166,6 +169,14 @@ contract RentalityPlatformHelper is UUPSOwnable, ARentalityContext {
     notificationService = RentalityNotificationService(notificationServiceAddress);
   }
 
+    function setHostInsurance(uint insuranceId) public {
+    address sender = _msgGatewaySender();
+    hostInsurance.setHostInsurance(insuranceId, sender);
+  }
+
+  function setHostInsuranceAddress(address _hostInsurance) public onlyOwner {
+    hostInsurance = RentalityHostInsurance(payable(_hostInsurance));
+  }
   /// @notice Constructor to initialize the RentalityPlatform with service contract addresses.
   /// @param carServiceAddress The address of the RentalityCarToken contract.
   /// @param currencyConverterServiceAddress The address of the RentalityCurrencyConverter contract.
@@ -185,7 +196,8 @@ contract RentalityPlatformHelper is UUPSOwnable, ARentalityContext {
     address refferalProgramAddress,
     address promoServiceAddress,
     address dimoServiceAddress,
-    address notificationServiceAddress
+    address notificationServiceAddress,
+    address _hostInsurance
   ) public initializer {
     addresses = RentalityContract(
       RentalityCarToken(carServiceAddress),
@@ -205,6 +217,7 @@ contract RentalityPlatformHelper is UUPSOwnable, ARentalityContext {
 
     dimoService = RentalityDimoService(dimoServiceAddress);
     notificationService = RentalityNotificationService(notificationServiceAddress);
+    hostInsurance = RentalityHostInsurance(payable(_hostInsurance));
     __Ownable_init();
   }
 }
