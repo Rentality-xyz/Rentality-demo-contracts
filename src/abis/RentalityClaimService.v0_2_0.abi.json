@@ -42,7 +42,7 @@
         { "type": "string", "name": "name" },
         { "type": "uint8", "name": "creator" }
       ],
-      "outputs": []
+      "outputs": [{ "type": "uint256", "name": "" }]
     },
     {
       "type": "function",
@@ -89,7 +89,7 @@
         { "type": "address", "name": "guest" },
         { "type": "address", "name": "user" }
       ],
-      "outputs": []
+      "outputs": [{ "type": "uint256", "name": "" }]
     },
     {
       "type": "function",
