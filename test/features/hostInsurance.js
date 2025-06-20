@@ -820,8 +820,8 @@ it('admin can get claims list', async function () {
     )
     let claims = await rentalityGateway.getHostInsuranceClaims()
     expect(claims.length).to.be.eq(2)
-    expect(claims[0].claim.claimId).to.be.eq(1)
-    expect(claims[1].claim.claimId).to.be.eq(4)
+    expect(claims[0].claimId).to.be.eq(1)
+    expect(claims[1].claimId).to.be.eq(4)
 
 })
 

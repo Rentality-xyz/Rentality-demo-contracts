@@ -607,7 +607,6 @@ async function deployDefaultFixture() {
     libraries: {
       RentalityTripsQuery: await tripsQuery.getAddress(),
       RentalityViewLib: await viewLib.getAddress(),
-      RentalityQuery: await query.getAddress(),
     },
   })
   const RentalityAiDamageAnalyze = await ethers.getContractFactory('RentalityAiDamageAnalyze')
