@@ -99,9 +99,6 @@ library RentalityQuery {
     RentalityContract memory contracts,
     address host
   ) private view returns (Schemas.FullClaimInfo[] memory) {
-    RentalityUserService userService = contracts.userService;
-    RentalityCurrencyConverter currencyConverterService = contracts.currencyConverterService;
-
     uint256 arraySize = 0;
 
     for (uint256 i = 1; i <= contracts.claimService.getClaimsAmount(); i++) {
@@ -121,32 +118,18 @@ library RentalityQuery {
       Schemas.Trip memory trip = contracts.tripService.getTrip(claim.tripId);
 
       if (trip.host == host) {
-        uint valueInEth = _getClaimValueInCurrency(
-          trip.paymentInfo.currencyType,
-          claim.amountInUsdCents,
+        claimInfos[counter++] = getFullClaimInfo(
           claim,
-          contracts.claimService,
-          currencyConverterService
-        );
-        claimInfos[counter++] = Schemas.FullClaimInfo(
-          claim,
-          host,
-          trip.guest,
-          userService.getKYCInfo(trip.guest).mobilePhoneNumber,
-          userService.getKYCInfo(host).mobilePhoneNumber,
-          contracts.carService.getCarInfoById(trip.carId),
-          valueInEth,
-          IRentalityGeoService(contracts.carService.getGeoServiceAddress()).getCarTimeZoneId(
-            contracts.carService.getCarInfoById(trip.carId).locationHash
-          ),
-          contracts.claimService.getClaimTypeInfo(claim.claimType),
-          contracts.currencyConverterService.getUserCurrency(trip.host)
+          trip,
+          contracts
         );
       }
     }
 
     return claimInfos;
   }
+
+
 
   /// @notice Retrieves all claims associated with a specific guest.
   /// @dev This function fetches detailed claim information for a given guest address.
@@ -157,9 +140,6 @@ library RentalityQuery {
     RentalityContract memory contracts,
     address guest
   ) private view returns (Schemas.FullClaimInfo[] memory) {
-    RentalityCarToken carService = contracts.carService;
-    RentalityUserService userService = contracts.userService;
-    RentalityCurrencyConverter currencyConverterService = contracts.currencyConverterService;
 
     uint256 arraySize = 0;
 
@@ -178,31 +158,47 @@ library RentalityQuery {
       Schemas.Trip memory trip = contracts.tripService.getTrip(claim.tripId);
       if (trip.guest == guest) {
 
-        claimInfos[counter++] = Schemas.FullClaimInfo(
+        claimInfos[counter++] = getFullClaimInfo(
           claim,
-          trip.host,
-          guest,
-          userService.getKYCInfo(guest).mobilePhoneNumber,
-          userService.getKYCInfo(trip.host).mobilePhoneNumber,
-          carService.getCarInfoById(trip.carId),
-          _getClaimValueInCurrency(
-          trip.paymentInfo.currencyType,
-          claim.amountInUsdCents,
-          claim,
-          contracts.claimService,
-          currencyConverterService
-        ),
-          IRentalityGeoService(contracts.carService.getGeoServiceAddress()).getCarTimeZoneId(
-            carService.getCarInfoById(trip.carId).locationHash
-          ),
-          contracts.claimService.getClaimTypeInfo(claim.claimType),
-          contracts.currencyConverterService.getUserCurrency(trip.host)
+          trip,
+          contracts
         );
       }
     }
-
     return claimInfos;
   }
+
+  function getFullClaimInfo(
+  Schemas.ClaimV2 memory claim,
+  Schemas.Trip memory trip,
+  RentalityContract memory contracts
+) public view returns (Schemas.FullClaimInfo memory) {
+  RentalityUserService userService = contracts.userService;
+  RentalityCurrencyConverter currencyConverterService = contracts.currencyConverterService;
+
+  uint valueInEth = _getClaimValueInCurrency(
+    trip.paymentInfo.currencyType,
+    claim.amountInUsdCents,
+    claim,
+    contracts.claimService,
+    currencyConverterService
+  );
+
+  return Schemas.FullClaimInfo(
+    claim,
+    trip.host,
+    trip.guest,
+    userService.getKYCInfo(trip.guest).mobilePhoneNumber,
+    userService.getKYCInfo(trip.host).mobilePhoneNumber,
+    contracts.carService.getCarInfoById(trip.carId),
+    valueInEth,
+    IRentalityGeoService(contracts.carService.getGeoServiceAddress()).getCarTimeZoneId(
+      contracts.carService.getCarInfoById(trip.carId).locationHash
+    ),
+    contracts.claimService.getClaimTypeInfo(claim.claimType),
+    contracts.currencyConverterService.getUserCurrency(trip.host)
+  );
+}
 
   function _getClaimValueInCurrency(
     address currency,
