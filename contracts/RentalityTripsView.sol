@@ -205,11 +205,17 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
     require(addresses.userService.isAdmin(tx.origin), 'Only for Admin.');
     trustedForwarderAddress = forwarder;
   }
-  function getHostInsuranceClaims() public view returns(Schemas.ClaimV2[] memory claims) {
+  function getHostInsuranceClaims() public view returns(Schemas.FullClaimInfo[] memory claims) {
     uint[] memory claimIds = hostInsurance.getInsuranceClaims();
-    claims = new Schemas.ClaimV2[](claimIds.length);
+    claims = new Schemas.FullClaimInfo[](claimIds.length);
     for (uint i = 0; i < claimIds.length; i++) {
-      claims[i] = addresses.claimService.getClaim(claimIds[i]);
+      Schemas.ClaimV2 memory claim = addresses.claimService.getClaim(claimIds[i]);
+
+      claims[i] = RentalityQuery.getFullClaimInfo(
+        claim,
+        addresses.tripService.getTrip(claim.tripId),
+        addresses
+      );
     }
 
   }
