@@ -6,18 +6,18 @@ const { emptyLocationInfo, getEmptySearchCarParams } = require('../test/utils')
 const { getContractAddress } = require('./utils/contractAddress')
 
 async function main() {
-    const { chainId } = await startDeploy('')
-    const delivery = checkNotNull(
-        getContractAddress('RentalityCarDelivery', 'scripts/deploy_2i_RentalityCarDelivery.js', chainId),
-        'RentalityCarDelivery'
-      )
+  const { chainId } = await startDeploy('')
+  const delivery = checkNotNull(
+    getContractAddress('RentalityCarDelivery', 'scripts/deploy_2i_RentalityCarDelivery.js', chainId),
+    'RentalityCarDelivery'
+  )
 
-      const contract = await ethers.getContractAt('RentalityCarDelivery',delivery)
+  const contract = await ethers.getContractAt('RentalityCarDelivery', delivery)
 
-      console.log(await contract.setDefaultPrices(300, 250))
+  console.log(await contract.setDefaultPrices(300, 250))
 }
 
-  main()
+main()
   .then(() => process.exit(0))
   .catch((error) => {
     console.error(error)

@@ -39,7 +39,7 @@ async function main() {
   const totalTripsCount = await contract.totalTripCount()
 
   let paymentsService = await ethers.getContractAt('RentalityPaymentService', paymentsServiceAddress)
-  await paymentsService.addTaxesContract (taxesServiceAddress)
+  await paymentsService.addTaxesContract(taxesServiceAddress)
   const rentalityAdminGateway = await ethers.getContractAt('RentalityAdminGateway', adminGatewayAddress)
 
   // Florida
@@ -241,9 +241,7 @@ async function main() {
   ])
 
   // Ohio
-  await rentalityAdminGateway.addTaxes('Ohio', TaxesLocationType.State, [
-    { name: 'salesTax', value: 57_500, tType: 2 },
-  ])
+  await rentalityAdminGateway.addTaxes('Ohio', TaxesLocationType.State, [{ name: 'salesTax', value: 57_500, tType: 2 }])
 
   // Oklahoma
   await rentalityAdminGateway.addTaxes('Oklahoma', TaxesLocationType.State, [

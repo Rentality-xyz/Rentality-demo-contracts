@@ -10,26 +10,25 @@ async function main() {
   const { chainId, deployer } = await startDeploy('')
 
   if (chainId < 0) throw new Error('chainId is not set')
-    const patrolEngine = checkNotNull(
-        getContractAddress('RentalityPetrolEngine', 'scripts/deploy_2b_1_RentalityPatrolEngine.js', chainId),
-        'RentalityPetrolEngine'
-      )
-    
-      const electricEngine = checkNotNull(
-        getContractAddress('RentalityElectricEngine', 'scripts/deploy_2b_2_RentalityElectricEngine.js', chainId),
-        'RentalityElectricEngine'
-      )
+  const patrolEngine = checkNotNull(
+    getContractAddress('RentalityPetrolEngine', 'scripts/deploy_2b_1_RentalityPatrolEngine.js', chainId),
+    'RentalityPetrolEngine'
+  )
 
-      const engineAddress = checkNotNull(
-        getContractAddress('RentalityEnginesService', 'scripts/deploy_2b_RentalityEngineService.js', chainId),
-        'RentalityEnginesService'
-      )
+  const electricEngine = checkNotNull(
+    getContractAddress('RentalityElectricEngine', 'scripts/deploy_2b_2_RentalityElectricEngine.js', chainId),
+    'RentalityElectricEngine'
+  )
 
-      const contract = await ethers.getContractAt('RentalityEnginesService', engineAddress)
+  const engineAddress = checkNotNull(
+    getContractAddress('RentalityEnginesService', 'scripts/deploy_2b_RentalityEngineService.js', chainId),
+    'RentalityEnginesService'
+  )
 
-      console.log(await contract.updateEngineService(patrolEngine, 1))
-      console.log(await contract.updateEngineService(electricEngine, 2))
-    
+  const contract = await ethers.getContractAt('RentalityEnginesService', engineAddress)
+
+  console.log(await contract.updateEngineService(patrolEngine, 1))
+  console.log(await contract.updateEngineService(electricEngine, 2))
 }
 
 main()
