@@ -109,7 +109,7 @@ async function main() {
     rentalityPromoService,
     dimoService,
     notificationService,
-    rentalityHostInsurace
+    rentalityHostInsurace,
   ])
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()

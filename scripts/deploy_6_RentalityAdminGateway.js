@@ -98,7 +98,6 @@ async function main() {
     'RentalityNotificationService'
   )
 
-
   const contractFactory = await ethers.getContractFactory(contractName, {
     libraries: {
       RentalityViewLib: rentalityViewLib,
@@ -122,7 +121,7 @@ async function main() {
     rentalityPromoService,
     dimoService,
     investService,
-    notificationService
+    notificationService,
   ])
 
   await contract.waitForDeployment()

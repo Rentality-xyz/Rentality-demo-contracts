@@ -41,7 +41,7 @@ async function main() {
   const rentalityReferralProgram = checkNotNull(addresses['RentalityReferralProgram'], 'RentalityReferralProgram')
   const rentalityInvestment = checkNotNull(addresses['RentalityInvestment'], 'RentalityInvestment')
 
-  let rentalityUserServiceContract = await ethers.getContractAt('RentalityUserService',rentalityUserServiceAddress)
+  let rentalityUserServiceContract = await ethers.getContractAt('RentalityUserService', rentalityUserServiceAddress)
 
   await rentalityUserServiceContract.grantPlatformRole(deployer.address)
   await rentalityUserServiceContract.grantPlatformRole(rentalityView)
