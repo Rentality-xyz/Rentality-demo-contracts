@@ -1053,7 +1053,6 @@ struct PlatformInfoDTO {
 }
 struct HostInsuranceRule {
   uint partToInsurance;
-  uint insuranceId;
 
 }
 struct HostInsuranceAvarage { 
