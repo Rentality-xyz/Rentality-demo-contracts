@@ -437,6 +437,7 @@ interface Schemas {
     AdditionalKYCInfo additionalKYC;
     bool isPhoneVerified;
     bool isEmailVerified;
+    string pushToken;
   }
   struct AdminKYCInfoDTO {
     KYCInfo kyc;

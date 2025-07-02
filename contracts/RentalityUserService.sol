@@ -42,8 +42,16 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
   address[] private platformUsers;
   mapping(address => bool) private userToPhoneVerified;
 
-   mapping(address => bool) private userToEmailVerified;
+   
+  mapping(address => bool) private userToEmailVerified;
 
+  mapping(address => string) private userToPushToken;
+
+  function setPushToken(address user, string memory pushToken) public {
+    require(hasRole(KYC_COMMISSION_MANAGER_ROLE, tx.origin), 'Only KYC manager');
+
+    userToPushToken[user] = pushToken;
+  }
   /// @notice Sets KYC information for the caller (host or guest).
   /// Requirements:
   /// - Caller must be a host or guest.
@@ -163,7 +171,7 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
   }
 
   function getMyFullKYCInfo(address user) public view returns (Schemas.FullKYCInfoDTO memory) {
-    return Schemas.FullKYCInfoDTO(kycInfos[user], additionalKycInfo[user], userToPhoneVerified[user], userToEmailVerified[user]);
+    return Schemas.FullKYCInfoDTO(kycInfos[user], additionalKycInfo[user], userToPhoneVerified[user], userToEmailVerified[user], userToPushToken[user]);
   }
 function getPlatformUsersKYCInfos(uint page, uint itemsPerPage) public view returns (Schemas.AdminKYCInfosDTO memory) {
     require(hasRole(ADMIN_VIEW_ROLE, tx.origin), 'Only Admin');
