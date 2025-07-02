@@ -425,4 +425,6 @@ interface IRentalityGateway {
 
   function getHostInsuranceRule(address host) external view returns(Schemas.HostInsuranceRule memory insuranceRules);
   function getAllInsuranceRules() external view returns(Schemas.HostInsuranceRule[] memory insuranceRules);
+
+  function setPushToken(address user, string memory pushToken) external;
 }

@@ -208,7 +208,8 @@
               ]
             },
             { "type": "bool", "name": "isPhoneVerified" },
-            { "type": "bool", "name": "isEmailVerified" }
+            { "type": "bool", "name": "isEmailVerified" },
+            { "type": "string", "name": "pushToken" }
           ]
         }
       ]
@@ -704,6 +705,17 @@
         { "type": "address", "name": "user" },
         { "type": "string", "name": "phone" },
         { "type": "bool", "name": "isVerified" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "setPushToken",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "user" },
+        { "type": "string", "name": "pushToken" }
       ],
       "outputs": []
     },
