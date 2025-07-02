@@ -7,7 +7,6 @@ const { checkNotNull, startDeploy } = require('./utils/deployHelper')
 async function main() {
   const { contractName, chainId } = await startDeploy('RentalityAggregator')
 
-
   const bnbOracleAddress = '0xD2852dCbEc372aaeDb13E4fa4863fcB17fD89496'
 
   if (chainId < 0) throw new Error('chainId is not set')
@@ -21,12 +20,11 @@ async function main() {
     'RentalityCurrencyConverter'
   )
 
-  const usdtOracle = await ethers.getContractAt('AggregatorV3Interface',bnbOracleAddress)
+  const usdtOracle = await ethers.getContractAt('AggregatorV3Interface', bnbOracleAddress)
   const decimals = await usdtOracle.decimals()
   const description = await usdtOracle.description()
   const [roundId, answer, startedAt, updatedAt, answeredInRound] = await usdtOracle.latestRoundData()
   console.log(`decimals: ${decimals}, description: ${description}, answer: ${answer}`)
-
 
   const contractFactory = await ethers.getContractFactory(contractName)
 
@@ -43,10 +41,7 @@ async function main() {
     'RentalityUSDTConverter'
   )
 
-  const usdt = checkNotNull(
-    getContractAddress('RentalityTestUSDT', '', chainId),
-    'RentalityTestUSDT'
-  )
+  const usdt = checkNotNull(getContractAddress('RentalityTestUSDT', '', chainId), 'RentalityTestUSDT')
   const usdtContract = await ethers.getContractAt('RentalityUSDTConverter', usdtService)
   await usdtContract.setRateFeed(await contract.getAddress())
 

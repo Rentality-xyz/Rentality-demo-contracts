@@ -14,8 +14,6 @@ async function main() {
     'RentalityUserService'
   )
 
-
-
   const contractFactory = await ethers.getContractFactory(contractName)
 
   const contract = await upgrades.deployProxy(contractFactory, [userService])

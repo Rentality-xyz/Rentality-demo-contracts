@@ -2,7 +2,16 @@ const saveJsonAbi = require('./utils/abiSaver')
 const { ethers, upgrades } = require('hardhat')
 const addressSaver = require('./utils/addressSaver')
 const { startDeploy, checkNotNull } = require('./utils/deployHelper')
-const { emptyLocationInfo, getEmptySearchCarParams, taxesWithGovePMM, taxesWithoutRentSign, taxesWithRentSign, encodeTaxes, taxesGOVConst, TaxesLocationType } = require('../test/utils')
+const {
+  emptyLocationInfo,
+  getEmptySearchCarParams,
+  taxesWithGovePMM,
+  taxesWithoutRentSign,
+  taxesWithRentSign,
+  encodeTaxes,
+  taxesGOVConst,
+  TaxesLocationType,
+} = require('../test/utils')
 const { getContractAddress } = require('./utils/contractAddress')
 
 async function main() {
@@ -15,64 +24,63 @@ async function main() {
   )
   const taxesContract = await ethers.getContractAt('RentalityTaxes', taxesServiceAddress)
 
-  const numbers = Array.from({ length: 51 }, (_, i) => i + 2);
+  const numbers = Array.from({ length: 51 }, (_, i) => i + 2)
 
-const states = [
-  "Florida",
-  "Alabama",
-  "Alaska",
-  "Arizona",
-  "Arkansas",
-  "California",
-  "Colorado",
-  "Connecticut",
-  "Delaware",
-  "Georgia",
-  "Hawaii",
-  "Idaho",
-  "Illinois",
-  "Indiana",
-  "Iowa",
-  "Kansas",
-  "Kentucky",
-  "Louisiana",
-  "Maine",
-  "Maryland",
-  "Massachusetts",
-  "Michigan",
-  "Minnesota",
-  "Mississippi",
-  "Missouri",
-  "Montana",
-  "Nebraska",
-  "Nevada",
-  "New Hampshire",
-  "New Jersey",
-  "New Mexico",
-  "New York",
-  "North Carolina",
-  "North Dakota",
-  "Ohio",
-  "Oklahoma",
-  "Oregon",
-  "Pennsylvania",
-  "Rhode Island",
-  "South Carolina",
-  "South Dakota",
-  "Tennessee",
-  "Texas",
-  "Utah",
-  "Vermont",
-  "Virginia",
-  "Washington",
-  "West Virginia",
-  "Wisconsin",
-  "Wyoming",
-  "District of Columbia"
-];
+  const states = [
+    'Florida',
+    'Alabama',
+    'Alaska',
+    'Arizona',
+    'Arkansas',
+    'California',
+    'Colorado',
+    'Connecticut',
+    'Delaware',
+    'Georgia',
+    'Hawaii',
+    'Idaho',
+    'Illinois',
+    'Indiana',
+    'Iowa',
+    'Kansas',
+    'Kentucky',
+    'Louisiana',
+    'Maine',
+    'Maryland',
+    'Massachusetts',
+    'Michigan',
+    'Minnesota',
+    'Mississippi',
+    'Missouri',
+    'Montana',
+    'Nebraska',
+    'Nevada',
+    'New Hampshire',
+    'New Jersey',
+    'New Mexico',
+    'New York',
+    'North Carolina',
+    'North Dakota',
+    'Ohio',
+    'Oklahoma',
+    'Oregon',
+    'Pennsylvania',
+    'Rhode Island',
+    'South Carolina',
+    'South Dakota',
+    'Tennessee',
+    'Texas',
+    'Utah',
+    'Vermont',
+    'Virginia',
+    'Washington',
+    'West Virginia',
+    'Wisconsin',
+    'Wyoming',
+    'District of Columbia',
+  ]
 
-console.log(await taxesContract.setTaxesLocations(numbers, states))
-
+  console.log(await taxesContract.setTaxesLocations(numbers, states))
 }
 
 main()
