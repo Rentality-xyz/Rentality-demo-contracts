@@ -177,6 +177,10 @@ contract RentalityPlatformHelper is UUPSOwnable, ARentalityContext {
   function setHostInsuranceAddress(address _hostInsurance) public onlyOwner {
     hostInsurance = RentalityHostInsurance(payable(_hostInsurance));
   }
+
+  function setPushToken(address user, string memory pushToken) public {
+    addresses.userService.setPushToken(user, pushToken);
+  }
   /// @notice Constructor to initialize the RentalityPlatform with service contract addresses.
   /// @param carServiceAddress The address of the RentalityCarToken contract.
   /// @param currencyConverterServiceAddress The address of the RentalityCurrencyConverter contract.
