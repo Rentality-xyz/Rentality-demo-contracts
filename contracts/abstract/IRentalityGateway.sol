@@ -419,7 +419,7 @@ interface IRentalityGateway {
 
   function setEmail(address user, string memory email, bool isVerified) external;
 
-  function getHostInsuranceClaims() external view returns(Schemas.FullClaimInfo[] memory claims);
+  function getHostInsuranceClaims() external view returns(Schemas.ClaimV2[] memory claims);
   function setHostInsurance(uint insuranceId) external;
 
 
