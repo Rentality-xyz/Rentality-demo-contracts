@@ -270,6 +270,17 @@
     },
     {
       "type": "function",
+      "name": "setPushToken",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "user" },
+        { "type": "string", "name": "pushToken" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
       "name": "setTrustedForwarder",
       "constant": false,
       "payable": false,

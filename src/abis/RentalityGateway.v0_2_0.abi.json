@@ -1050,14 +1050,7 @@
       "payable": false,
       "inputs": [{ "type": "address", "name": "host" }],
       "outputs": [
-        {
-          "type": "tuple",
-          "name": "insuranceRules",
-          "components": [
-            { "type": "uint256", "name": "partToInsurance" },
-            { "type": "uint256", "name": "insuranceId" }
-          ]
-        }
+        { "type": "tuple", "name": "insuranceRules", "components": [{ "type": "uint256", "name": "partToInsurance" }] }
       ]
     },
     {
@@ -1269,7 +1262,8 @@
               ]
             },
             { "type": "bool", "name": "isPhoneVerified" },
-            { "type": "bool", "name": "isEmailVerified" }
+            { "type": "bool", "name": "isEmailVerified" },
+            { "type": "string", "name": "pushToken" }
           ]
         }
       ]
@@ -2113,6 +2107,17 @@
         { "type": "address", "name": "user" },
         { "type": "string", "name": "phone" },
         { "type": "bool", "name": "isVerified" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "setPushToken",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "user" },
+        { "type": "string", "name": "pushToken" }
       ],
       "outputs": []
     },

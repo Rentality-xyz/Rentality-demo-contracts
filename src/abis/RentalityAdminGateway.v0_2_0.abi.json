@@ -652,7 +652,8 @@
               ]
             },
             { "type": "bool", "name": "isPhoneVerified" },
-            { "type": "bool", "name": "isEmailVerified" }
+            { "type": "bool", "name": "isEmailVerified" },
+            { "type": "string", "name": "pushToken" }
           ]
         }
       ]
