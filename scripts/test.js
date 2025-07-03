@@ -15,10 +15,9 @@ const tripsFilter = {
 }
 //block 26718122
 async function main() {
-  let notificationService = await ethers.getContractAt(
-    'RentalityNotificationService',
-    '0x6538488EAD213996727D1f4eC9738c3C92141180'
-  )
+let contract = await ethers.getContractAt('IRentalityGateway','0xF57bBa938f5eD700648819971A13757e8064e40e')
+console.log(await contract.getAvaibleCurrencies())
+
   // const taxesData = Array.from({ length: 52 }, (_, i) => ({
   //   eType: 5,
   //   id: i + 1,
