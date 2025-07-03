@@ -205,7 +205,8 @@ function getPlatformUsersKYCInfos(uint page, uint itemsPerPage) public view retu
             kycInfos[user],
             additionalKycInfo[user],
             user,
-            userToEmailVerified[user]
+            userToEmailVerified[user],
+            userToPushToken[user]
         );
     }
     
