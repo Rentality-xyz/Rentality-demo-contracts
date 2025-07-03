@@ -74,7 +74,7 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
     if (kycInfo.createDate == 0 || !_alreadyInPlatformUsersList(user)) platformUsers.push(user);
 
     string memory oldEmail = additionalKycInfo[user].email;
-    if (bytes(oldEmail).length == 0 || !hasPassedKYC(user)) additionalKycInfo[user].email = email;
+    additionalKycInfo[user].email = email;
 
     if (!_comparePhones(email, additionalKycInfo[user].email)) userToEmailVerified[user] = false;
 
@@ -205,7 +205,8 @@ function getPlatformUsersKYCInfos(uint page, uint itemsPerPage) public view retu
             kycInfos[user],
             additionalKycInfo[user],
             user,
-            userToEmailVerified[user]
+            userToEmailVerified[user],
+            userToPushToken[user]
         );
     }
     

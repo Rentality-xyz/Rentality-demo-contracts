@@ -444,6 +444,7 @@ interface Schemas {
     AdditionalKYCInfo additionalKYC;
     address wallet;
     bool isEmailVerified;
+    string pushToken;
   }
 
   struct AdminKYCInfosDTO {
