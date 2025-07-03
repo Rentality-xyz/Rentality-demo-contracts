@@ -482,7 +482,8 @@
                   ]
                 },
                 { "type": "address", "name": "wallet" },
-                { "type": "bool", "name": "isEmailVerified" }
+                { "type": "bool", "name": "isEmailVerified" },
+                { "type": "string", "name": "pushToken" }
               ]
             },
             { "type": "uint256", "name": "totalPageCount" }
