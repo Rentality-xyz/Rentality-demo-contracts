@@ -284,7 +284,7 @@ contract RentalityInvestment is Initializable, UUPSAccess {
   ) public initializer {
     userService = IRentalityAccessControl(_userService);
     converter = RentalityCurrencyConverter(_currencyConverter);
-    carToken = RentalityCarToken(_carService);
+    carToken = RentalityCarToken(payable(_carService));
     insuranceService = RentalityInsurance(_insuranceServce);
     investDeployer = RentalityInvestDeployer(_investDeployer);
   }

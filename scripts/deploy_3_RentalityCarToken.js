@@ -32,6 +32,11 @@ async function main() {
     'RentalityNotificationService'
   )
 
+  let platformAddress = checkNotNull(
+      getContractAddress('RentalityPlatform', 'scripts/deploy_5_RentalityPlatform.js', chainId),
+      'RentalityPlatform'
+    )
+ 
   const contractFactory = await ethers.getContractFactory(contractName, {
     libraries: {
       RentalityUtils: rentalityUtilsAddress,
@@ -42,6 +47,7 @@ async function main() {
     engineAddress,
     rentalityUserServiceAddress,
     notificationService,
+    platformAddress,
   ])
   await contract.waitForDeployment()
 
