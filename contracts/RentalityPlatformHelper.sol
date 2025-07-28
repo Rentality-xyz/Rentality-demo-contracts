@@ -181,6 +181,31 @@ contract RentalityPlatformHelper is UUPSOwnable, ARentalityContext {
   function setPushToken(address user, string memory pushToken) public {
     addresses.userService.setPushToken(user, pushToken);
   }
+
+ function checkInByGuest(uint256 tripId, uint64[] memory panelParams) public {
+    return addresses.tripService.checkInByGuest(tripId, panelParams, _msgGatewaySender());
+  }
+
+
+
+
+  /// @notice Performs check-out by the guest for a trip.
+  /// @param tripId The ID of the trip.
+  /// @param panelParams An array representing parameters related to fuel, odometer,
+  /// and other relevant details depends on engine.
+  function checkOutByGuest(uint256 tripId, uint64[] memory panelParams) public {
+    address sender = _msgGatewaySender();
+    Schemas.Trip memory trip = addresses.tripService.getTrip(tripId);
+    refferalProgram.passReferralProgram(
+      Schemas.RefferalProgram.FinishTripAsGuest,
+      abi.encode(trip.startDateTime, trip.endDateTime),
+      sender,
+      promoService
+    );
+    return addresses.tripService.checkOutByGuest(tripId, panelParams, sender);
+  }
+
+
   /// @notice Constructor to initialize the RentalityPlatform with service contract addresses.
   /// @param carServiceAddress The address of the RentalityCarToken contract.
   /// @param currencyConverterServiceAddress The address of the RentalityCurrencyConverter contract.
@@ -204,7 +229,7 @@ contract RentalityPlatformHelper is UUPSOwnable, ARentalityContext {
     address _hostInsurance
   ) public initializer {
     addresses = RentalityContract(
-      RentalityCarToken(carServiceAddress),
+      RentalityCarToken(payable(carServiceAddress)),
       RentalityCurrencyConverter(currencyConverterServiceAddress),
       RentalityTripService(tripServiceAddress),
       RentalityUserService(userServiceAddress),

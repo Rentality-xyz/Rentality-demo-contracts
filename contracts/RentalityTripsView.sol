@@ -135,7 +135,7 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
       Schemas.CarInfo memory car = carService.getCarInfoById(i);
 
       uint64 sumWithDiscount = addresses.paymentService.calculateSumWithDiscount(
-        carService.ownerOf(i),
+        carService.assetOwner(i),
         duration,
         car.pricePerDayInUsdCents
       );
@@ -239,7 +239,7 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
     address _hostInsurance
   ) public initializer {
     addresses = RentalityContract(
-      RentalityCarToken(carServiceAddress),
+      RentalityCarToken(payable(carServiceAddress)),
       RentalityCurrencyConverter(currencyConverterServiceAddress),
       RentalityTripService(tripServiceAddress),
       RentalityUserService(userServiceAddress),

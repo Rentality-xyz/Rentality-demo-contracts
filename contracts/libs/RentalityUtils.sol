@@ -333,7 +333,7 @@ library RentalityUtils {
     address carServiceAddress,
     address geoServiceAddress
   ) public view returns (bool) {
-    RentalityCarToken carService = RentalityCarToken(carServiceAddress);
+    RentalityCarToken carService = RentalityCarToken(payable(carServiceAddress));
     IRentalityGeoService geoService = IRentalityGeoService(geoServiceAddress);
 
     Schemas.CarInfo memory car = carService.getCarInfoById(carId);
@@ -410,13 +410,13 @@ library RentalityUtils {
     RentalityPromoService promoService,
     address user
   ) public view returns (Schemas.CalculatePaymentsDTO memory) {
-    address carOwner = addresses.carService.ownerOf(carId);
+    address carOwner = addresses.carService.assetOwner(carId);
     Schemas.CarInfo memory car = addresses.carService.getCarInfoById(carId);
 
     uint64 discount = uint64(promoService.getDiscountByPromo(promo, user));
     uint64 priceWithDiscount;
     priceWithDiscount = addresses.paymentService.calculateSumWithDiscount(
-      addresses.carService.ownerOf(carId),
+      addresses.carService.assetOwner(carId),
       daysOfTrip,
       car.pricePerDayInUsdCents
     );
@@ -469,7 +469,7 @@ library RentalityUtils {
   ) public view {
     require(addresses.userService.hasPassedKYCAndTC(user), 'KYC or TC not passed.');
     require(addresses.currencyConverterService.currencyTypeIsAvailable(currencyType), 'Token is not available.');
-    require(addresses.carService.ownerOf(carId) != user, 'Car is not available for creator');
+    require(addresses.carService.assetOwner(carId) != user, 'Car is not available for creator');
     require(!isCarUnavailable(addresses, carId, startDateTime, endDateTime), 'Unavailable for current date.');
   }
 
@@ -606,7 +606,7 @@ library RentalityUtils {
 
     Schemas.DeliveryPrices memory deliveryPrices = RentalityCarDelivery(
       addresses.adminService.getDeliveryServiceAddress()
-    ).getUserDeliveryPrices(addresses.carService.ownerOf(carId));
+    ).getUserDeliveryPrices(addresses.carService.assetOwner(carId));
 
     return
       Schemas.DeliveryData(

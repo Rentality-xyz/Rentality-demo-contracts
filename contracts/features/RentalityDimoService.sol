@@ -21,7 +21,7 @@ contract RentalityDimoService is UUPSAccess, EIP712Upgradeable {
 
   function saveDimoTokenId(uint dimoTokenId, uint carId, address user, bytes memory signature) public {
     if (dimoTokenId == 0) return require(userService.isRentalityPlatform(msg.sender), 'only Rentality platform');
-    require(carToken.ownerOf(carId) == user, 'Not car owner');
+    require(carToken.assetOwner(carId) == user, 'Not car owner');
 
     bool isCorrectSignature = RentalityUserService(address(userService)).isSignatureManager(
       ECDSA.recover(ECDSA.toEthSignedMessageHash(bytes(Strings.toString(dimoTokenId))), signature)
@@ -35,7 +35,7 @@ contract RentalityDimoService is UUPSAccess, EIP712Upgradeable {
     require(userService.isRentalityPlatform(msg.sender), 'only Rentality platform');
     require(dimoTokenIds.length == carIds.length, 'Wrong length');
     for (uint i = 0; i < dimoTokenIds.length; i++) {
-      require(carToken.ownerOf(carIds[i]) == user, 'Not car owner');
+      require(carToken.assetOwner(carIds[i]) == user, 'Not car owner');
       carIdToDimoTokenId[carIds[i]] = dimoTokenIds[i];
       dimoVihicles.push(dimoTokenIds[i]);
     }
@@ -49,7 +49,7 @@ contract RentalityDimoService is UUPSAccess, EIP712Upgradeable {
 
   function initialize(address _userService, address _carToken) public initializer {
     userService = IRentalityAccessControl(_userService);
-    carToken = RentalityCarToken(_carToken);
+    carToken = RentalityCarToken(payable(_carToken));
     __EIP712_init('RentalityDimoService', '1');
   }
 }

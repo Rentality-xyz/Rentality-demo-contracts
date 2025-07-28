@@ -488,7 +488,7 @@ function setDefaultPrices(uint64 underTwentyFiveMilesInUsdCents, uint64 aboveTwe
     address investmentAddress,
     address notificationServiceAddress
   ) public initializer {
-    carService = RentalityCarToken(carServiceAddress);
+    carService = RentalityCarToken(payable(carServiceAddress));
     currencyConverterService = RentalityCurrencyConverter(currencyConverterServiceAddress);
     tripService = RentalityTripService(tripServiceAddress);
     userService = RentalityUserService(userServiceAddress);

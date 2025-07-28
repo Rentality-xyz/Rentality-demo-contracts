@@ -17,7 +17,7 @@ contract RentalityInsurance is Initializable, UUPSAccess {
 
   function saveInsuranceRequired(uint carId, uint priceInUsdCents, bool required, address user) public {
     require(userService.isRentalityPlatform(msg.sender), 'only Rentality platform');
-    require(carService.ownerOf(carId) == user, 'For car owner');
+    require(carService.assetOwner(carId) == user, 'For car owner');
 
     carIdToInsuranceRequired[carId] = Schemas.InsuranceCarInfo(required, priceInUsdCents);
   }
@@ -149,6 +149,6 @@ contract RentalityInsurance is Initializable, UUPSAccess {
   function initialize(address _userService, address _carService) public initializer {
     userService = IRentalityAccessControl(_userService);
 
-    carService = RentalityCarToken(_carService);
+    carService = RentalityCarToken(payable(_carService));
   }
 }

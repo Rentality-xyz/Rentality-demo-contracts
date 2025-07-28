@@ -281,7 +281,7 @@ library RentalityQuery {
         availableCars[temp[i]].createdBy
       );
       uint64 priceWithDiscount = contracts.paymentService.calculateSumWithDiscount(
-        carService.ownerOf( availableCars[temp[i]].carId),
+        carService.assetOwner( availableCars[temp[i]].carId),
         totalTripDays,
          availableCars[temp[i]].pricePerDayInUsdCents
       );

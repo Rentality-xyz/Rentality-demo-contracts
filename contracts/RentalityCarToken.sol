@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import {ERC721URIStorageUpgradeable, ERC721Upgradeable, IERC721Upgradeable} from '@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol';
 import {UUPSUpgradeable} from '@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol';
+import {ERC721URIStorageUpgradeable, ERC721Upgradeable, IERC721Upgradeable} from '@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol';
 import '@openzeppelin/contracts/utils/Counters.sol';
 import './abstract/IRentalityGeoService.sol';
 import './proxy/UUPSOwnable.sol';
@@ -11,8 +11,9 @@ import './Schemas.sol';
 import './RentalityUserService.sol';
 import './libs/RentalityUtils.sol';
 import './features/RentalityNotificationService.sol';
-
-
+import './RentalityTripService.sol';
+import {RentalityModule} from './module/RentalityModule.sol';
+import {RentalityPlatform} from './RentalityPlatform.sol';
 /// @title RentalityCarToken
 /// @notice ERC-721 token for representing cars in the Rentality platform.
 /// @notice This contract allows users to add, update, and manage information about cars for rental.
@@ -21,12 +22,15 @@ import './features/RentalityNotificationService.sol';
 ///  selfdestruct, as far as RentalityUtils doesn't has this logic,
 /// it's completely safe for upgrade
 /// @custom:oz-upgrades-unsafe-allow external-library-linking
-contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
+contract RentalityCarToken is RentalityModule, UUPSOwnable {
   using Counters for Counters.Counter;
   Counters.Counter private _carIdCounter;
   IRentalityGeoService private geoService;
   RentalityEnginesService private engineService;
   RentalityUserService private userService;
+  RentalityTripService private tripService;
+  RentalityPlatform private platform;
+  
 
   mapping(uint256 => Schemas.CarInfo) private idToCarInfo;
   RentalityNotificationService private eventManager;
@@ -37,17 +41,23 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
   }
   mapping(uint => uint) private carIdToListingMoment;
 
-  /// @dev Updates the address of the RentalityEventManager contract.
-  /// @param _eventManager The address of the new RentalityEventManager contract.
-  function updateEventServiceAddress(address _eventManager) public onlyAdmin {
-    eventManager = RentalityNotificationService(_eventManager);
-  }
+  // /// @dev Updates the address of the RentalityEventManager contract.
+  // /// @param _eventManager The address of the new RentalityEventManager contract.
+  // function updateEventServiceAddress(address _eventManager) public onlyAdmin {
+  //   eventManager = RentalityNotificationService(_eventManager);
+  // }
 
-  /// @dev Updates the address of the RentalityEnginesService contract.
-  /// @param _engineService The address of the new RentalityEnginesService contract.
-  function updateEngineServiceAddress(address _engineService) public onlyAdmin {
-    engineService = RentalityEnginesService(_engineService);
-  }
+  // /// @dev Updates the address of the RentalityEnginesService contract.
+  // /// @param _engineService The address of the new RentalityEnginesService contract.
+  // function updateEngineServiceAddress(address _engineService) public onlyAdmin {
+  //   engineService = RentalityEnginesService(_engineService);
+  // }
+
+  // /// @dev Updates the address of the RentalityTripService contract.
+  // /// @param _tripService The address of the new RentalityTripService contract.
+  // function updateTripServiceAddress(address _tripService) public onlyAdmin {
+  //   tripService = RentalityTripService(_tripService);
+  // }
 
   /// @notice returns RentalityGeoService address
   function getGeoServiceAddress() public view returns (address) {
@@ -92,7 +102,7 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     Schemas.PublicHostCarDTO[] memory carDTOs = new Schemas.PublicHostCarDTO[](carsOwnedByHost);
     uint carCounter = 0;
     for (uint i = 1; i <= _carIdCounter.current(); i++) {
-      if (_exists(i) && ownerOf(i) == host) {
+      if (_exists(i) && assetOwner(i) == host) {
         Schemas.CarInfo memory car = idToCarInfo[i];
 
         carDTOs[carCounter].carId = i;
@@ -142,7 +152,10 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
 
     engineService.verifyCreateParams(request.engineType, request.engineParams);
 
-    _safeMint(user, newCarId);
+    // Используем функцию createAsset из RentalityModule
+    createAsset(user, request.pricePerDayInUsdCents);
+    
+    // Устанавливаем tokenURI для нового токена
     _setTokenURI(newCarId, request.tokenUri);
 
     bytes32 hash = geoService.createLocationInfo(request.locationInfo.locationInfo);
@@ -171,6 +184,7 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     if (request.currentlyListed) carIdToListingMoment[newCarId] = block.timestamp;
 
     _approve(address(this), newCarId);
+    createAsset(user, request.pricePerDayInUsdCents);
 
     eventManager.emitEvent(Schemas.EventType.Car, newCarId, uint8(Schemas.CarUpdateStatus.Add), user, user);
 
@@ -190,7 +204,7 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
   ) public {
     require(userService.isRentalityPlatform(msg.sender), 'only Rentality platform contract.');
     require(_exists(request.carId), 'Token does not exist');
-    require(ownerOf(request.carId) == user, 'Only the owner of the car can update car info');
+    require(assetOwner(request.carId) == user, 'Only the owner of the car can update car info');
     require(request.pricePerDayInUsdCents > 0, "Make sure the price isn't negative");
     require(request.milesIncludedPerDay > 0, "Make sure the included distance isn't negative");
 
@@ -203,6 +217,7 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
 
     engineService.verifyCreateParams(request.engineType, request.engineParams);
     if (bytes(request.tokenUri).length > 0) _setTokenURI(request.carId, request.tokenUri);
+
 
     idToCarInfo[request.carId].pricePerDayInUsdCents = request.pricePerDayInUsdCents;
     idToCarInfo[request.carId].securityDepositPerTripInUsdCents = request.securityDepositPerTripInUsdCents;
@@ -233,30 +248,29 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
   /// @param tokenUri The new token URI.
   function updateCarTokenUri(uint256 carId, string memory tokenUri, address user) public {
     require(_exists(carId), 'Token does not exist');
-    require(ownerOf(carId) == user, 'Only the owner of the car can update the token URI');
+    require(assetOwner(carId) == user, 'Only the owner of the car can update the token URI');
 
     _setTokenURI(carId, tokenUri);
   }
+  
   /// @notice Burns a specific car token, removing it from the system.
   /// @param carId The ID of the car to be burned.
   function burnCar(uint256 carId) public {
     require(_exists(carId), 'Token does not exist');
-    require(ownerOf(carId) == msg.sender, 'Only the owner of the car can burn the token');
+    require(assetOwner(carId) == msg.sender, 'Only the owner of the car can burn the token');
 
     _burn(carId);
     delete idToCarInfo[carId];
 
     eventManager.emitEvent(Schemas.EventType.Car, carId, uint8(Schemas.CarUpdateStatus.Burn), msg.sender, msg.sender);
   }
-  /// @notice temporary disable transfer function
+
   function transferFrom(address, address, uint256) public pure override(ERC721Upgradeable, IERC721Upgradeable) {
     require(false, 'Not implemented.');
   }
-  /// @notice temporary disable transfer function
   function safeTransferFrom(address, address, uint256) public virtual override(ERC721Upgradeable, IERC721Upgradeable) {
     require(false, 'Not implemented.');
   }
-  /// @notice temporary disable transfer function
   function safeTransferFrom(
     address,
     address,
@@ -295,7 +309,7 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
   /// @param sender The address of the user.
   /// @return True if the car is available for the user, false otherwise.
   function isCarAvailableForUser(uint256 carId, address sender) private view returns (bool) {
-    return _exists(carId) && idToCarInfo[carId].currentlyListed && ownerOf(carId) != sender;
+    return _exists(carId) && idToCarInfo[carId].currentlyListed && assetOwner(carId) != sender;
   }
 
   /// @notice Retrieves available cars for a specific user.
@@ -326,6 +340,7 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
 
     return result;
   }
+  
   /// @notice Checks if a car is available for a specific user based on search parameters.
   /// @dev Determines availability based on several conditions, including ownership and search parameters.
   /// @param carId The ID of the car being checked.
@@ -340,7 +355,7 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     return
       _exists(carId) &&
       idToCarInfo[carId].currentlyListed &&
-      ownerOf(carId) != sender &&
+      assetOwner(carId) != sender &&
       RentalityUtils.isCarAvailableForUser(carId, searchCarParams, address(this), address(geoService));
   }
 
@@ -385,15 +400,9 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
   /// @param user The address of the user being checked.
   /// @return A boolean indicating whether the car belongs to the user.
   function isCarOfUser(uint256 carId, address user) private view returns (bool) {
-    return _exists(carId) && (ownerOf(carId) == user);
+    return _exists(carId) && (assetOwner(carId) == user);
   }
 
-  function ownerOf(uint256 carId) public view override(ERC721Upgradeable,IERC721Upgradeable) returns (address) {
-   if(_exists(carId) == false) {
-      return address(0);
-    }
-    return _ownerOf(carId);
-  }
 
   function exists(uint256 carId) public view returns (bool) {
     return _exists(carId);
@@ -438,21 +447,73 @@ contract RentalityCarToken is ERC721URIStorageUpgradeable, UUPSOwnable {
     geoService.verifySignedLocationInfo(locationInfo);
   }
 
+    fallback (bytes calldata data) external payable returns (bytes memory) {
+      bytes4 selector = bytes4(data[:4]);
+      bytes memory _calldata;
+      if (selector == bytes4(keccak256("rentOut(uint256,uint256,bytes)"))) {
+        _calldata = _createCallData(RentalityPlatform.createTripRequestWithDelivery.selector, data);
+    } else if (selector == bytes4(keccak256("claimBack(uint256)"))) {
+        _calldata = _createCallData(RentalityPlatform.finishTrip.selector, data);
+    } else if (selector == bytes4(keccak256("createAsset(address,uint256,bytes)"))) {
+        _calldata = _createCallData(RentalityPlatform.addCar.selector, data);
+    } else if (selector == bytes4(keccak256("approveRental(uint256)"))) {
+        _calldata = _createCallData(RentalityPlatform.approveTripRequest.selector, data);
+    } else {
+        revert("function not found");
+    }
+      
+      _createCallData(RentalityPlatform.createTripRequestWithDelivery.selector, data);
+        (bool success, bytes memory resultData) = address(platform).call{value: msg.value}(_calldata);
+          if (!success)
+            assembly ('memory-safe') {
+              revert(add(32, resultData), mload(resultData))
+            }
+          return resultData;
+    }
+
+
+
+  function _createCallData(bytes4 selector, bytes memory data) internal view returns (bytes memory) {
+    return abi.encodePacked(abi.encodePacked(selector, data), msg.sender);
+  }
+
+
+
+  function _parseResult(bool flag, bytes memory result) internal pure returns (bytes memory) {
+    if (!flag)
+      assembly ('memory-safe') {
+        revert(add(32, result), mload(result))
+      }
+    return result;
+  }
+
+
+
+
+
+
   /// @notice Constructor to initialize the RentalityCarToken contract.
   /// @param geoServiceAddress The address of the RentalityGeoService contract.
-  /// @param engineServiceAddress The address of the RentalityGeoService contract.
-  /// @param userServiceAddress The address of the RentalityGeoService contract.
+  /// @param engineServiceAddress The address of the RentalityEnginesService contract.
+  /// @param userServiceAddress The address of the RentalityUserService contract.
+  /// @param eventManagerAddress The address of the RentalityNotificationService contract.
+  /// @param platformAddress The address of the RentalityPlatform contract.
   function initialize(
     address geoServiceAddress,
     address engineServiceAddress,
     address userServiceAddress,
-    address eventManagerAddress
+    address eventManagerAddress,
+    address platformAddress
   ) public initializer {
     engineService = RentalityEnginesService(engineServiceAddress);
     geoService = IRentalityGeoService(geoServiceAddress);
     userService = RentalityUserService(userServiceAddress);
     eventManager = RentalityNotificationService(eventManagerAddress);
-    __ERC721_init('RentalityCarToken Test', 'RTCT');
+    platform = RentalityPlatform(platformAddress);
+    
+    super.initialize('RentalityCarToken Test', 'RTCT', 2000);
+    
     __Ownable_init();
   }
+
 }

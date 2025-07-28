@@ -119,7 +119,7 @@ function createTripRequestWithDelivery(
         addresses.carService.exists(params.request.carId),
         'Car with this id does not exist.'
     );
-    address currencyType =  addresses.currencyConverterService.getUserCurrency(addresses.carService.ownerOf(params.request.carId)).currency;
+    address currencyType =  addresses.currencyConverterService.getUserCurrency(addresses.carService.assetOwner(params.request.carId)).currency;
     RentalityUtils.validateTripRequest(
         addresses,
         currencyType,
@@ -136,7 +136,7 @@ function createTripRequestWithDelivery(
         sender
     );
     uint64 priceWithDiscount = addresses.paymentService.calculateSumWithDiscount(
-        addresses.carService.ownerOf(params.request.carId),
+        addresses.carService.assetOwner(params.request.carId),
         RentalityUtils.getCeilDays(params.request.startDateTime, params.request.endDateTime),
         addresses.carService.getCarInfoById(params.request.carId).pricePerDayInUsdCents
     );
@@ -178,7 +178,7 @@ function createTripRequestWithDelivery(
     addresses.tripService.createNewTrip(
         params.request.carId,
         sender,
-        addresses.carService.ownerOf(params.request.carId),
+        addresses.carService.assetOwner(params.request.carId),
         addresses.carService.getCarInfoById(params.request.carId).pricePerDayInUsdCents,
         params.request.startDateTime,
         params.request.endDateTime,
@@ -380,30 +380,6 @@ function createTripRequestWithDelivery(
     return addresses.tripService.checkInByHost(tripId, panelParams, insuranceCompany, insuranceNumber, sender);
   }
 
-  /// @notice Performs check-in by the guest for a trip.
-  /// @param tripId The ID of the trip.
-  /// @param panelParams An array representing parameters related to fuel, odometer,
-  /// and other relevant details depends on engine.
-  function checkInByGuest(uint256 tripId, uint64[] memory panelParams) public {
-    return addresses.tripService.checkInByGuest(tripId, panelParams, _msgGatewaySender());
-  }
-
-  /// @notice Performs check-out by the guest for a trip.
-  /// @param tripId The ID of the trip.
-  /// @param panelParams An array representing parameters related to fuel, odometer,
-  /// and other relevant details depends on engine.
-  function checkOutByGuest(uint256 tripId, uint64[] memory panelParams) public {
-    address sender = _msgGatewaySender();
-    Schemas.Trip memory trip = addresses.tripService.getTrip(tripId);
-    refferalProgram.passReferralProgram(
-      Schemas.RefferalProgram.FinishTripAsGuest,
-      abi.encode(trip.startDateTime, trip.endDateTime),
-      sender,
-      promoService
-    );
-    return addresses.tripService.checkOutByGuest(tripId, panelParams, sender);
-  }
-
   /// @notice Performs check-out by the host for a trip.
   /// @param tripId The ID of the trip.
   /// @param panelParams An array representing parameters related to fuel, odometer,
@@ -447,6 +423,23 @@ function createTripRequestWithDelivery(
     hostInsurance = RentalityHostInsurance(payable(_hostInsurance));
   }
 
+
+  function rentOut(uint256 _tokenId, uint256 _duration, bytes memory data) public payable {
+      createTripRequestWithDelivery(abi.decode(data, (Schemas.CreateTripRequestWithDelivery)), "");
+  }
+
+  function claimBack(uint256 tokenId) public  {
+    finishTrip(tokenId);
+  }
+
+  function createAsset(address _to, uint256 _price, bytes memory _data) public {
+    addCar(abi.decode(_data, (Schemas.CreateCarRequest)));
+
+  }
+    function approveRental(uint256 tokenId) public {
+      approveTripRequest(tokenId);
+  }
+
   /// @notice Constructor to initialize the RentalityPlatform with service contract addresses.
   /// @param carServiceAddress The address of the RentalityCarToken contract.
   /// @param currencyConverterServiceAddress The address of the RentalityCurrencyConverter contract.
@@ -469,7 +462,7 @@ function createTripRequestWithDelivery(
     address rentalityPlatformHelperAddress
   ) public initializer {
     addresses = RentalityContract(
-      RentalityCarToken(carServiceAddress),
+      RentalityCarToken(payable(carServiceAddress)),
       RentalityCurrencyConverter(currencyConverterServiceAddress),
       RentalityTripService(tripServiceAddress),
       RentalityUserService(userServiceAddress),

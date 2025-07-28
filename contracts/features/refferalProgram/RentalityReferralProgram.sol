@@ -323,7 +323,7 @@ contract RentalityReferralProgram is
   ) public virtual initializer {
     userService = IRentalityAccessControl(_userService);
     refferalLib = _refferalLib;
-    carService = RentalityCarToken(carServiceAddress);
+    carService = RentalityCarToken(payable(carServiceAddress));
 
     addOneTimeProgram(Schemas.RefferalProgram.SetKYC, 100, 125, bytes4(''));
     addOneTimeProgram(Schemas.RefferalProgram.PassCivic, 500, 625, bytes4(''));

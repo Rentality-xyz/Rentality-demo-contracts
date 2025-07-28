@@ -105,7 +105,7 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
     address viewService
   ) public initializer {
     addresses = RentalityContract(
-      RentalityCarToken(carServiceAddress),
+      RentalityCarToken(payable(carServiceAddress)),
       RentalityCurrencyConverter(currencyConverterServiceAddress),
       RentalityTripService(tripServiceAddress),
       RentalityUserService(userServiceAddress),

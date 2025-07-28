@@ -201,6 +201,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     idToTripInfo[tripId].status = Schemas.TripStatus.Canceled;
     idToTripInfo[tripId].rejectedDateTime = block.timestamp;
     idToTripInfo[tripId].rejectedBy = user;
+    addresses.carService.approveRental(idToTripInfo[tripId].carId);
 
     saveTransactionInfo(tripId, rentalityFee, status, depositRefund, tripEarnings);
 
@@ -427,6 +428,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     _removeActiveTripFromUser(tripId, trip.guest);
     trip.finishDateTime = block.timestamp;
     completedByAdmin[tripId] = addresses.userService.isAdmin(user) && trip.host != user && trip.guest != user;
+    addresses.carService.claimBack(trip.carId);
 
     eventManager.emitEvent(Schemas.EventType.Trip, tripId, uint8(Schemas.TripStatus.Finished), trip.host, trip.guest);
   }
@@ -548,7 +550,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     address eventManagerAddress
   ) public initializer {
     addresses = RentalityContract(
-      RentalityCarToken(carServiceAddress),
+      RentalityCarToken(payable(carServiceAddress)),
       RentalityCurrencyConverter(currencyConverterServiceAddress),
       RentalityTripService(address(this)),
       RentalityUserService(userServiceAddress),

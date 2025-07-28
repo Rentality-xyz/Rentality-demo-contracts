@@ -173,7 +173,7 @@ library RentalityViewLib {
       Schemas.CarInfo memory car = carService.getCarInfoById(i);
 
       uint64 sumWithDiscount = contracts.paymentService.calculateSumWithDiscount(
-        carService.ownerOf(i),
+        carService.assetOwner(i),
         duration,
         car.pricePerDayInUsdCents
       );
@@ -313,7 +313,7 @@ library RentalityViewLib {
       pickUpInfo.longitude
     );
     uint64 priceWithDiscount = contracts.paymentService.calculateSumWithDiscount(
-      carService.ownerOf(carId),
+      carService.assetOwner(carId),
       totalTripDays,
       temp.pricePerDayInUsdCents
     );
@@ -364,13 +364,13 @@ library RentalityViewLib {
         IRentalityGeoService(carService.getGeoServiceAddress()).getLocationInfo(temp.locationHash),
         RentalityInsurance(insuranceServiceAddress).getCarInsuranceInfo(temp.carId),
         fuelPrice,
-        contracts.paymentService.getBaseDiscount().getParsedDiscount(contracts.carService.ownerOf(carId)),
+        contracts.paymentService.getBaseDiscount().getParsedDiscount(contracts.carService.assetOwner(carId)),
         distance,
         RentalityInsurance(insuranceServiceAddress).isGuestHasInsurance(user),
         RentalityDimoService(dimoService).getDimoTokenId(temp.carId),
         taxes,
         totalTax,
-        contracts.currencyConverterService.getUserCurrency(contracts.carService.ownerOf(carId))
+        contracts.currencyConverterService.getUserCurrency(contracts.carService.assetOwner(carId))
       );
   }
 }
