@@ -15,60 +15,10 @@ const tripsFilter = {
 }
 //block 26718122
 async function main() {
-let contract = await ethers.getContractAt('IRentalityGateway','0xF57bBa938f5eD700648819971A13757e8064e40e')
-console.log(await contract.getAvaibleCurrencies())
+let contract = await ethers.getContractAt('IRentalityGateway', '0xCf261b0275870d924d65d67beB9E88Ebd8deE693')
 
-  // const taxesData = Array.from({ length: 52 }, (_, i) => ({
-  //   eType: 5,
-  //   id: i + 1,
-  //   objectStatus: 0,
-  //   from: ethToken,
-  //   to: ethToken,
-  // }));
-
-  // let userService = await ethers.getContractAt('RentalityUserService','0xE15378Ad98796BB35cbbc116DfC70d3416B52D45')
-  // let userData = await userService.getPlatformUsers();
-  // let users = userData.map((user) => {
-  //   return {
-  //     eType: 3,
-  //     id:0,
-  //     objectStatus: 0,
-  //     from: user,
-  //     to: user,
-  //   }})
-
-  const claims = Array.from({ length: 82 }, (_, i) => ({
-    eType: 1,
-    id: i + 1,
-    objectStatus: 0,
-    from: ethToken,
-    to: ethToken,
-  }))
-  let mods = [
-    {
-      eType: 8,
-      id: 0,
-      objectStatus: 1,
-      from: ethToken,
-      to: ethToken,
-    },
-    {
-      eType: 7,
-      id: 0,
-      objectStatus: 1,
-      from: ethToken,
-      to: ethToken,
-    },
-    {
-      eType: 6,
-      id: 0,
-      objectStatus: 1,
-      from: ethToken,
-      to: ethToken,
-    },
-  ]
-
-  console.log('Notification service address: ', await notificationService.emitAll(mods))
+let result = await contract.searchAvailableCarsWithDelivery(1722268800, 1722268800, {
+}
 }
 main()
   .then(() => process.exit(0))
