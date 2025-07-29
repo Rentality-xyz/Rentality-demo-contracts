@@ -28,7 +28,7 @@ abstract contract ARentalityUpgradableCurrencyType is Initializable, UUPSAccess 
   IERC20 public tokenAddress;
 
 function getFromUsdCents(uint256 amountInUsdCent, int256 rate) public view virtual returns (uint256) {
-    return (amountInUsdCent  * (10 ** (tokenDeimals() + rateTokenDecimals() - 2)) / (uint(rate)) ) ;
+    return (amountInUsdCent  * (10 ** (tokenDecimals() + rateTokenDecimals() - 2)) / (uint(rate)) ) ;
      
   }
  

@@ -49,10 +49,24 @@ contract RentalityCurrencyConverter is Initializable, UUPSAccess {
   /// @param tokenAddress The address of the new currency type
   /// @param rentalityTokenService The address of the Rentality token service contract
   function addCurrencyType(address tokenAddress, address rentalityTokenService, string memory name) public {
-    require(userService.isAdmin(msg.sender), 'From manager contract only.');
+    require(userService.isAdmin(msg.sender), 'Only for admin.');
 
     tokenAddressToPaymentMethod[tokenAddress] = ARentalityUpgradableCurrencyType(rentalityTokenService);
     availableCurrencies.push(Schemas.Currency(tokenAddress, name));
+  }
+
+  function removeCurrencyType(address tokenAddress) public {
+     require(userService.isAdmin(msg.sender), 'Only for admin.');
+     Schemas.Currency[] memory availableCurrenciesMem = availableCurrencies;
+      for (uint i = 0; i < availableCurrenciesMem.length; i++) {
+        if(availableCurrenciesMem[i].currency == tokenAddress) {
+           for (uint j = i; j < availableCurrencies.length - 1; j++) {
+                availableCurrencies[j] = availableCurrencies[j + 1];
+            }
+            availableCurrencies.pop();
+            return;
+      }
+      }
   }
 
   /// @notice Converts the specified amount from USD to the specified currency type

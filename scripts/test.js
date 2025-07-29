@@ -19,6 +19,7 @@ let contract = await ethers.getContractAt('IRentalityGateway', '0xCf261b0275870d
 
 let result = await contract.searchAvailableCarsWithDelivery(1722268800, 1722268800, {
 }
+}
 main()
   .then(() => process.exit(0))
   .catch((error) => {
