@@ -73,17 +73,17 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
     Schemas.KYCInfo storage kycInfo = kycInfos[user];
     if (kycInfo.createDate == 0 || !_alreadyInPlatformUsersList(user)) platformUsers.push(user);
 
-    string memory oldEmail = additionalKycInfo[user].email;
-    additionalKycInfo[user].email = email;
-
-    if (!_comparePhones(email, additionalKycInfo[user].email)) userToEmailVerified[user] = false;
-
+    if (!_comparePhones(email, additionalKycInfo[user].email)) {
+      userToEmailVerified[user] = false;
+      additionalKycInfo[user].email = email;
+    }
 
     kycInfo.name = nickName;
-    if (!_comparePhones(mobilePhoneNumber, kycInfo.mobilePhoneNumber)) userToPhoneVerified[user] = false;
+    if (!_comparePhones(mobilePhoneNumber, kycInfo.mobilePhoneNumber)) {
+      userToPhoneVerified[user] = false;
+      kycInfo.mobilePhoneNumber = mobilePhoneNumber;
+    }
 
-
-    kycInfo.mobilePhoneNumber = mobilePhoneNumber;
     kycInfo.profilePhoto = profilePhoto;
 
     if (kycInfo.createDate == 0) kycInfo.createDate = block.timestamp;

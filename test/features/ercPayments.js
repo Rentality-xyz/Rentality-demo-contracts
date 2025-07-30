@@ -6,6 +6,7 @@ const {
   emptyLocationInfo,
   emptySignedLocationInfo,
   zeroHash,
+  ethToken,
 } = require('../utils')
 const { expect } = require('chai')
 const { calculatePaymentsFrom } = require('../utils')
@@ -268,5 +269,14 @@ describe('ERC20 payments', function () {
 
     const ownerBalance = await usdtContract.balanceOf(owner)
     expect(ownerBalance).to.be.gt(0)
+  })
+  it('should be able to remove currency ', async function () {
+    let usdt = await usdtContract.getAddress()
+    await rentalityGateway.connect(host).addUserCurrency(usdt)
+
+   await expect(rentalityCurrencyConverter.connect(admin).removeCurrencyType(usdt)).to.not.reverted
+   let availableCurrency = await rentalityGateway.getAvaibleCurrencies()
+   expect(availableCurrency.length).to.be.eq(1)
+   expect(availableCurrency[0].currency).to.be.eq(ethToken)
   })
 })
