@@ -251,7 +251,7 @@ contract RentalityClaimService is Initializable, UUPSAccess {
     );
     claimTypeNumberToClaimType[uint8(Schemas.ClaimType.LateReturn)] = Schemas.ClaimTypeV2(
       uint8(Schemas.ClaimType.LateReturn),
-      'LateReturn',
+      'Late return',
       Schemas.ClaimCreator.Host
     );
 
@@ -267,12 +267,12 @@ contract RentalityClaimService is Initializable, UUPSAccess {
     );
     claimTypeNumberToClaimType[uint8(Schemas.ClaimType.ExteriorDamage)] = Schemas.ClaimTypeV2(
       uint8(Schemas.ClaimType.ExteriorDamage),
-      'ExteriorDamage',
+      'Exterior damage',
       Schemas.ClaimCreator.Both
     );
     claimTypeNumberToClaimType[uint8(Schemas.ClaimType.InteriorDamage)] = Schemas.ClaimTypeV2(
       uint8(Schemas.ClaimType.InteriorDamage),
-      'InteriorDamage',
+      'Interior damage',
       Schemas.ClaimCreator.Both
     );
     claimTypeNumberToClaimType[uint8(Schemas.ClaimType.Other)] = Schemas.ClaimTypeV2(
@@ -283,12 +283,12 @@ contract RentalityClaimService is Initializable, UUPSAccess {
 
     claimTypeNumberToClaimType[uint8(Schemas.ClaimType.FaultyVehicle)] = Schemas.ClaimTypeV2(
       uint8(Schemas.ClaimType.FaultyVehicle),
-      'FaultyVehicle',
+      'Faulty vehicle',
       Schemas.ClaimCreator.Guest
     );
     claimTypeNumberToClaimType[uint8(Schemas.ClaimType.ListingMismatch)] = Schemas.ClaimTypeV2(
       uint8(Schemas.ClaimType.ListingMismatch),
-      'ListingMismatch',
+      'Listing mismatch',
       Schemas.ClaimCreator.Guest
     );
     claimTypeNumber = 9;
@@ -331,7 +331,7 @@ contract RentalityClaimService is Initializable, UUPSAccess {
     );
     claimTypeNumberToClaimType[uint8(Schemas.ClaimType.LateReturn)] = Schemas.ClaimTypeV2(
       uint8(Schemas.ClaimType.LateReturn),
-      'LateReturn',
+      'Late return',
       Schemas.ClaimCreator.Host
     );
 
@@ -347,12 +347,12 @@ contract RentalityClaimService is Initializable, UUPSAccess {
     );
     claimTypeNumberToClaimType[uint8(Schemas.ClaimType.ExteriorDamage)] = Schemas.ClaimTypeV2(
       uint8(Schemas.ClaimType.ExteriorDamage),
-      'ExteriorDamage',
+      'Exterior damage',
       Schemas.ClaimCreator.Both
     );
     claimTypeNumberToClaimType[uint8(Schemas.ClaimType.InteriorDamage)] = Schemas.ClaimTypeV2(
       uint8(Schemas.ClaimType.InteriorDamage),
-      'InteriorDamage',
+      'Interior damage',
       Schemas.ClaimCreator.Both
     );
     claimTypeNumberToClaimType[uint8(Schemas.ClaimType.Other)] = Schemas.ClaimTypeV2(
@@ -363,12 +363,12 @@ contract RentalityClaimService is Initializable, UUPSAccess {
 
     claimTypeNumberToClaimType[uint8(Schemas.ClaimType.FaultyVehicle)] = Schemas.ClaimTypeV2(
       uint8(Schemas.ClaimType.FaultyVehicle),
-      'FaultyVehicle',
+      'Faulty vehicle',
       Schemas.ClaimCreator.Guest
     );
     claimTypeNumberToClaimType[uint8(Schemas.ClaimType.ListingMismatch)] = Schemas.ClaimTypeV2(
       uint8(Schemas.ClaimType.ListingMismatch),
-      'ListingMismatch',
+      'Listing mismatch',
       Schemas.ClaimCreator.Guest
     );
     claimTypeNumber = 9;
