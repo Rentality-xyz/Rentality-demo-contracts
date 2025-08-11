@@ -64,7 +64,7 @@ function getFromUsdCents(uint256 amountInUsdCent, int256 rate) public view virtu
   /// @notice Retrieves the rate and decimals of the token currency
   /// @return The rate and decimals of the token currency
   function getRate() public view virtual returns (int256, uint8) {
-    return (getLatest(), tokenDecimals());
+    return (getLatest(), rateTokenDecimals());
   }
 
   /// @notice Retrieves the equivalent amount in the token currency from the provided USD value
@@ -91,7 +91,7 @@ function getFromUsdCents(uint256 amountInUsdCent, int256 rate) public view virtu
     if ((block.timestamp - lastUpdateRateTimeStamp) > updateRateInterval) {
       lastUpdateRateTimeStamp = block.timestamp;
       currentToUsdRate = getLatest();
-      currentToUsdDecimals = tokenDecimals();
+      currentToUsdDecimals = rateTokenDecimals();
     }
     return (currentToUsdRate, currentToUsdDecimals);
   }
