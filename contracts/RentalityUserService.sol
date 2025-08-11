@@ -110,8 +110,8 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
       abi.encodeCall(IERC1271.isValidSignature, (hash, signature))
     );
     return (success &&
-      result.length >= 32 &&
-      abi.decode(result, (bytes32)) == bytes32(IERC1271.isValidSignature.selector));
+      result.length >= 4 &&
+      abi.decode(result, (bytes4)) == IERC1271.isValidSignature.selector);
   }
 
   function setMyCivicKYCInfo(address user, Schemas.CivicKYCInfo memory civicKycInfo) public {
