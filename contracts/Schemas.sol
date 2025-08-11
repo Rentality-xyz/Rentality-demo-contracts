@@ -1063,5 +1063,12 @@ struct HostInsuranceAvarage {
 
 }
 
+struct AllowedCurrencyDTO {
+  uint8 decimals;
+  string name;
+  string symbol;
+  address tokenAddress;
+}
+
 
 }
