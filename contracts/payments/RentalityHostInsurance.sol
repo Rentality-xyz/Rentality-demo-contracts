@@ -135,7 +135,7 @@ contract RentalityHostInsurance is Initializable, UUPSAccess {
   ) public virtual initializer {
     userService = IRentalityAccessControl(_userService);
     insuranceId = 1;
-    insuranceIdToInsurance[1] = Schemas.HostInsuranceRule(40);
+    insuranceIdToInsurance[1] = Schemas.HostInsuranceRule(40, 1);
   }
 
 
