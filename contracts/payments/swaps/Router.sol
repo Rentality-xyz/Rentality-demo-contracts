@@ -69,25 +69,27 @@ abstract contract BaseHook {
 contract AccessSenderHook is BaseHook {
      mapping(PoolId => uint256 count) public afterSwapCount;
      IWETH public weth;
+     address public rentalityGateway;
 
-     constructor(address _poolManager, IWETH _weth) BaseHook(_poolManager) {
+     constructor(address _poolManager, IWETH _weth, address _gateway) BaseHook(_poolManager) {
         weth = _weth;
+        rentalityGateway = _gateway;
     }
 
 
-      function _afterSwap(address, PoolKey calldata key, SwapParams calldata, BalanceDelta, bytes calldata data)
+      function _afterSwap(address, PoolKey calldata key, SwapParams calldata, BalanceDelta balance, bytes calldata data)
         internal
         override
         returns (bytes4, int128)
     {   
         address sender = IMsgSender(msg.sender).msgSender();
-        address to = address(bytes20(data[data.length - 20:]));
-        uint expectedAmount = abi.decode(data[data.length - 64: 32], (uint));
-        bytes memory updatedData = abi.encodePacked(data[data.length - 64:], sender);
+        bytes memory updatedData = abi.encodePacked(data, sender);
 
-        IWETH(weth).withdraw(expectedAmount);
+        uint weiAmount = uint128(amount1(balance));
+
+        IWETH(weth).withdraw(weiAmount); // Withdraw WETH to the contract
     
-        (bool success, bytes memory returnData) = to.call{value: expectedAmount}(updatedData);
+        (bool success, bytes memory returnData) = rentalityGateway.call{value: weiAmount}(updatedData);
         if(!success) {
             revert("Transfer failed");
         }
@@ -120,4 +122,10 @@ contract AccessSenderHook is BaseHook {
             poolId := keccak256(poolKey, 0xa0)
         }
     }
+
+    function amount1(BalanceDelta balanceDelta) internal pure returns (int128 _amount1) {
+    assembly ("memory-safe") {
+        _amount1 := signextend(15, balanceDelta)
+    }
+}
 }
