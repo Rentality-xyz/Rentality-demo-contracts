@@ -1057,6 +1057,12 @@ struct HostInsuranceRule {
   uint partToInsurance;
 
 }
+
+struct HostInsuranceRuleDTO {
+  uint partToInsurance;
+  uint insuranceId;
+
+}
 struct HostInsuranceAvarage { 
   uint totalTripsCount;
   uint totalPercents;
