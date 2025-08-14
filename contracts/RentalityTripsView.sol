@@ -213,10 +213,10 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
     }
 
   }
-    function getHostInsuranceRule(address host) public view returns(Schemas.HostInsuranceRule memory insuranceRules) {
+    function getHostInsuranceRule(address host) public view returns(Schemas.HostInsuranceRuleDTO memory insuranceRules) {
     return hostInsurance.getHostInsuranceRule(host);
     }
-    function getAllInsuranceRules() public view returns(Schemas.HostInsuranceRule[] memory insuranceRules) { 
+    function getAllInsuranceRules() public view returns(Schemas.HostInsuranceRuleDTO[] memory insuranceRules) { 
       return hostInsurance.getAllInsuranceRules();
     }
     function setHostInsuranceAddress(address _hostInsurance) public {
