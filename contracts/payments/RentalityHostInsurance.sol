@@ -107,14 +107,21 @@ contract RentalityHostInsurance is Initializable, UUPSAccess {
         updateUserAvarage(user);
     }
 
-    function getAllInsuranceRules() public view returns(Schemas.HostInsuranceRule[] memory insuranceRules) {
-    insuranceRules = new Schemas.HostInsuranceRule[](insuranceId);
+    function getAllInsuranceRules() public view returns(Schemas.HostInsuranceRuleDTO[] memory insuranceRules) {
+    insuranceRules = new Schemas.HostInsuranceRuleDTO[](insuranceId);
     for (uint i = 0; i < insuranceId; i++) {
-        insuranceRules[i] = insuranceIdToInsurance[i + 1];
+        insuranceRules[i] = Schemas.HostInsuranceRuleDTO({
+            partToInsurance: insuranceIdToInsurance[i + 1].partToInsurance,
+            insuranceId: i + 1
+        });
     }
     }
-    function getHostInsuranceRule(address host) public view returns(Schemas.HostInsuranceRule memory insuranceRules) {
-    return insuranceIdToInsurance[userToInsuranceId[host]];
+    function getHostInsuranceRule(address host) public view returns(Schemas.HostInsuranceRuleDTO memory insuranceRules) {
+    uint _insuranceId = userToInsuranceId[host];
+    return Schemas.HostInsuranceRuleDTO({
+        insuranceId: _insuranceId,
+        partToInsurance: insuranceIdToInsurance[insuranceId].partToInsurance
+    });
     }
     function isHostInsuranceClaim(uint claimId) public view returns(bool) {
         return claimIdIsInsuranceClaim[claimId];
