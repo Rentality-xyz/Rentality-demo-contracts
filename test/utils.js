@@ -1,6 +1,6 @@
 const { ethers, upgrades } = require('hardhat')
 const { keccak256 } = require('hardhat/internal/util/keccak')
-const ethToken = ethers.getAddress('0x0000000000000000000000000000000000000000')
+const ethToken = '0x0000000000000000000000000000000000000000'
 const taxesWithoutRentSign = '0x656b0a99'
 const taxesWithRentSign = '0x57ccc04e'
 const taxesWithGovePMM = '0x96746221'
@@ -274,7 +274,8 @@ function getMockCarRequest(seed, contractAddress, admin, locationI) {
   }
 }
 
-let zeroHash = ethers.zeroPadBytes('0x', 4)
+// let zeroHash = ethers.zeroPadBytes('0x', 4)
+let zeroHash = '0x'
 function createMockClaimRequest(tripId, amountToClaim) {
   return {
     tripId: tripId,

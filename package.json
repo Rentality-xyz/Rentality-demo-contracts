@@ -28,13 +28,16 @@
     "chai": "^4.3.10",
     "child_process": "^1.0.2",
     "dotenv": "^16.0.4",
+    "ethers5": "npm:ethers@^5.8.0",
     "hardhat-tracer": "^3.1.0",
     "readline-sync": "^1.4.10"
   },
   "devDependencies": {
     "@nomicfoundation/ethereumjs-util": "^9.0.4",
     "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "@nomiclabs/hardhat-ethers": "^2.2.3",
     "@openzeppelin/hardhat-upgrades": "^3.0.1",
+    "ethers": "^5.8.0",
     "hardhat": "^2.22.12",
     "hardhat-console": "^1.0.0",
     "prettier": "3.2.5",

@@ -3,11 +3,12 @@ const { ethers, upgrades } = require('hardhat')
 const { getContractAddress } = require('./utils/contractAddress')
 const addressSaver = require('./utils/addressSaver')
 const { checkNotNull, startDeploy } = require('./utils/deployHelper')
-const { keccak256 } = require('hardhat/internal/util/keccak')
 const { zeroHash, ethToken, emptyLocationInfo } = require('../test/utils')
-const { Actions, V4Planner } = require('@uniswap/v4-sdk')
-  const { CommandType, RoutePlanner } = require('@uniswap/universal-router-sdk')
-  const { Pool } =  require('@uniswap/v4-sdk')
+// const { Actions, V4Planner } = require('@uniswap/v4-sdk')
+//   const { CommandType, RoutePlanner } = require('@uniswap/universal-router-sdk')
+const { Pool } = require('@uniswap/v4-sdk');
+const { Token } = require('@uniswap/sdk-core')
+const { deploy } = require('@openzeppelin/hardhat-upgrades/dist/utils')
 const tripsFilter = {
   paymentStatus: 0,
   status: 0,
@@ -15,38 +16,81 @@ const tripsFilter = {
   startDateTime: 0,
   endDateTime: 1893456000,
 }
+const STATE_VIEW_ADDRESS = '0x571291b572ed32ce6751a2cb2486ebee8defb9b4'
+const STATE_VIEW_ABI = 
+[
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "poolId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getLiquidity",
+    "outputs": [
+      { "internalType": "uint128", "name": "liquidity", "type": "uint128" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
+];
+
+
 //block 26718122
 async function main() {
 
-     let config = {
+
+  // const deployer = await ethers.getSigner()
+  const contractFactory = await ethers.getContractFactory('AccessSenderHook')
+  let linkToken = "0xe4ab69c077896252fafbd49efd26b5d171a32410"
+  let amountIn = 25000;
+  let poolManager = "0x05E73354cFDd6745C338b50BcFDfA3Aa6fA03408"
+  // let usdc = "0x14196f08a4fa0b66b7331bc40dd6bcd8a1deea9f"
+  let weth = "0x4200000000000000000000000000000000000006"
+
+let config = {
   poolKey: {
-      currency0: linkToken,
-      currency1: ethToken,
+      currency0: linkToken.trim(),
+      currency1: weth.trim(),
       fee: 500,
       tickSpacing: 10,
-      hooks: await contract.getAddress(),
+      hooks: '0x0',
   },
   zeroForOne: true,
   amountIn: amountIn, 
-  amountOutMinimum: "minAmountOut",
-  hookData: data
+  amountOutMinimum: 0,
+  hookData: '0x000'
 }
+let tokenLink = new Token(84532,linkToken, 6)
+let weiToken = new Token(84532,weth, 18)
 
-const poolAddress = Pool.getAddress(
-  CurrentConfig.pool.token0, 
-  CurrentConfig.pool.token1, 
-  CurrentConfig.pool.fee
-)
+// const poolAddress = Pool.getAddress(
+//   config.poolKey.currency0, 
+//   config.poolKey.currency1, 
+//   config.poolKey.fee
+// )
+console.log('POOOOOOO1111:')
+  let poolId = Pool.getPoolId(tokenLink, weiToken,config.poolKey.fee.toString(),10,ethToken)
+  const stateViewContract = await ethers.getContractAt(STATE_VIEW_ABI, STATE_VIEW_ADDRESS);
 
-  let info = await Pool.getPoolKey()
-//   const [deployer] = await ethers.getSigners()
-//   const contractFactory = await ethers.getContractFactory('AccessSenderHook')
-//   let linkToken = "0xE4aB69C077896252FAFBD49EFD26B5D171A32410"
-//   let amountIn = 25000;
-//   let poolManager = "	0x05E73354cFDd6745C338b50BcFDfA3Aa6fA03408"
-//   let weth = "0x4200000000000000000000000000000000000006"
+console.log('POOOOOOO333:', poolId)
 
- 
+let provider = new ethers.providers.JsonRpcProvider("https://base-sepolia.g.alchemy.com/v2/7NsKIcu9tp2GBR_6wuAL3L-oEvo5wflB")
+const blockNum = await provider.getBlockNumber()
+
+
+  // const [slot0, liquidity] = await Promise.all([
+  //   stateViewContract.getLiquidity(poolId, {
+  //     blockTag: blockNum,
+  //   }),
+  
+   let liquidity = await stateViewContract.getLiquidity(poolId, {
+      blockTag: blockNum,
+    })
+  console.log('Liquidity:', liquidity.toString())
+
+  // console.log('slot0:', slot0)
 //   console.log('AccessSenderHook deployed to:', await contract.getAddress())
 
 // let rentalityGateway = await ethers.getContractAt('IRentalityGateway','0xB257FE9D206b60882691a24d5dfF8Aa24929cB73')
