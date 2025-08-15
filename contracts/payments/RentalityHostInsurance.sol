@@ -108,11 +108,15 @@ contract RentalityHostInsurance is Initializable, UUPSAccess {
     }
 
     function getAllInsuranceRules() public view returns(Schemas.HostInsuranceRuleDTO[] memory insuranceRules) {
-    insuranceRules = new Schemas.HostInsuranceRuleDTO[](insuranceId);
+    insuranceRules = new Schemas.HostInsuranceRuleDTO[](insuranceId + 1);
     for (uint i = 0; i < insuranceId; i++) {
         insuranceRules[i] = Schemas.HostInsuranceRuleDTO({
             partToInsurance: insuranceIdToInsurance[i + 1].partToInsurance,
             insuranceId: i + 1
+        });
+        insuranceRules[insuranceId] = Schemas.HostInsuranceRuleDTO({
+            partToInsurance: 0,
+            insuranceId:0
         });
     }
     }
