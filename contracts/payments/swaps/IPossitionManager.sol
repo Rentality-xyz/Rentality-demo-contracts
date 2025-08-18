@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.9;
 
+import './IPoolManager.sol';
 interface IPositionManager {
     enum Action { MINT_POSITION, SETTLE_PAIR }
     

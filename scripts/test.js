@@ -53,9 +53,9 @@ let config = {
   poolKey: {
       currency0: linkToken.trim(),
       currency1: weth.trim(),
-      fee: 500,
-      tickSpacing: 10,
-      hooks: '0x0',
+      fee: 3000,
+      tickSpacing: 60,
+      hooks: weth,
   },
   zeroForOne: true,
   amountIn: amountIn, 
@@ -71,7 +71,7 @@ let weiToken = new Token(84532,weth, 18)
 //   config.poolKey.fee
 // )
 console.log('POOOOOOO1111:')
-  let poolId = Pool.getPoolId(tokenLink, weiToken,config.poolKey.fee.toString(),10,ethToken)
+  let poolId = Pool.getPoolId(tokenLink, weiToken,config.poolKey.fee.toString(),60,ethToken)
   const stateViewContract = await ethers.getContractAt(STATE_VIEW_ABI, STATE_VIEW_ADDRESS);
 
 console.log('POOOOOOO333:', poolId)
@@ -90,12 +90,11 @@ const blockNum = await provider.getBlockNumber()
     })
   console.log('Liquidity:', liquidity.toString())
 
-  // console.log('slot0:', slot0)
-//   console.log('AccessSenderHook deployed to:', await contract.getAddress())
 
 // let rentalityGateway = await ethers.getContractAt('IRentalityGateway','0xB257FE9D206b60882691a24d5dfF8Aa24929cB73')
 
 // let contract =  await contractFactory.deploy(poolManager, weth, await rentalityGateway.getAddress())
+//   console.log('AccessSenderHook deployed to:', await contract.getAddress())
 // let data = rentalityGateway.interface.encodeFunctionData('payKycCommission', [zeroHash])
 
 //    let config = {
@@ -111,32 +110,32 @@ const blockNum = await provider.getBlockNumber()
 //   amountOutMinimum: "minAmountOut",
 //   hookData: data
 // }
-//   const v4Planner = new V4Planner()
-//   const routePlanner = new RoutePlanner()
+  const v4Planner = new V4Planner()
+  const routePlanner = new RoutePlanner()
   
-//   // Set deadline (1 hour from now)
-//   const deadline = Math.floor(Date.now() / 1000) + 3600
+  // Set deadline (1 hour from now)
+  const deadline = Math.floor(Date.now() / 1000) + 3600
   
-//   v4Planner.addAction(Actions.SWAP_EXACT_IN_SINGLE, [config]);
-//   v4Planner.addAction(Actions.SETTLE_ALL, [config.poolKey.currency0, CurrentConfig.amountIn]);
-//   v4Planner.addAction(Actions.TAKE_ALL, [config.poolKey.currency1, CurrentConfig.amountOutMinimum]);
-//   const encodedActions = v4Planner.finalize()
+  v4Planner.addAction(Actions.SWAP_EXACT_IN_SINGLE, [config]);
+  v4Planner.addAction(Actions.SETTLE_ALL, [config.poolKey.currency0, CurrentConfig.amountIn]);
+  v4Planner.addAction(Actions.TAKE_ALL, [config.poolKey.currency1, CurrentConfig.amountOutMinimum]);
+  const encodedActions = v4Planner.finalize()
   
-//   routePlanner.addCommand(CommandType.V4_SWAP, [v4Planner.actions, v4Planner.params])
+  routePlanner.addCommand(CommandType.V4_SWAP, [v4Planner.actions, v4Planner.params])
   
 
   
-//   const tx = await universalRouter.execute(
-//       routePlanner.commands,
-//       [encodedActions],
-//       deadline,
-//       {}
-//   )
+  const tx = await universalRouter.execute(
+      routePlanner.commands,
+      [encodedActions],
+      deadline,
+      {}
+  )
   
-//   const receipt = await tx.wait()
-//   console.log('Swap completed! Transaction hash:', receipt.transactionHash)
+  const receipt = await tx.wait()
+  console.log('Swap completed! Transaction hash:', receipt.transactionHash)
 
-//   console.log(await approvetx.wait())
+  console.log(await approvetx.wait())
 
 
 

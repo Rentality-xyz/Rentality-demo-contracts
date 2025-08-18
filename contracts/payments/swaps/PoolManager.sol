@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
-
+pragma solidity ^0.8.9;
+import './IPoolManager.sol';
 
 contract PoolManager  {
     event PoolInitialized(
@@ -13,7 +13,7 @@ contract PoolManager  {
         int24 tick
     );
 
-    function initialize(PoolKey calldata key, uint160 sqrtPriceX96) external override returns (int24 tick) {
+    function initialize(IPoolManager.PoolKey calldata key, uint160 sqrtPriceX96) external returns (int24 tick) {
         // Simplified initialization logic
         int24 initializedTick = 0; // Actual implementation would calculate this
         
