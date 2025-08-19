@@ -210,7 +210,7 @@ library RentalityQuery {
     Schemas.ClaimV2 memory claim,
     RentalityClaimService claimService,
     RentalityCurrencyConverter currencyConverterService
-  ) private view returns (uint) {
+  ) public view returns (uint) {
     uint valueInEth = 0;
     if (claim.status == Schemas.ClaimStatus.Paid) {
       (int rate,) = claimService.claimIdToCurrencyRate(claim.claimId);
