@@ -364,6 +364,14 @@
     },
     {
       "type": "function",
+      "name": "removeCurrencyType",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "tokenAddress" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
       "name": "setDefaultCurrencyType",
       "constant": false,
       "payable": false,

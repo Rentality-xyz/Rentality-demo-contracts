@@ -97,7 +97,10 @@
         {
           "type": "tuple[]",
           "name": "insuranceRules",
-          "components": [{ "type": "uint256", "name": "partToInsurance" }]
+          "components": [
+            { "type": "uint256", "name": "partToInsurance" },
+            { "type": "uint256", "name": "insuranceId" }
+          ]
         }
       ]
     },
@@ -214,7 +217,14 @@
       "payable": false,
       "inputs": [{ "type": "address", "name": "host" }],
       "outputs": [
-        { "type": "tuple", "name": "insuranceRules", "components": [{ "type": "uint256", "name": "partToInsurance" }] }
+        {
+          "type": "tuple",
+          "name": "insuranceRules",
+          "components": [
+            { "type": "uint256", "name": "partToInsurance" },
+            { "type": "uint256", "name": "insuranceId" }
+          ]
+        }
       ]
     },
     {
