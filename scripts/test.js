@@ -62,7 +62,7 @@ let config = {
   hookData: '0x000'
 }
 
-let swapContract = await ethers.getContractAt('IRentalitySwap', '0x7f4947155E1f0Fb6798165c1356fA92A6F3aD1fB')
+let swapContract = await ethers.getContractAt('IRentalitySwap', '0xe048055e3fFA112B6B2f0F0480ff45284C618f16')
   const stateViewContract = await ethers.getContractAt(STATE_VIEW_ABI, STATE_VIEW_ADDRESS);
 
   const abiCoder = new ethers.AbiCoder();
@@ -96,6 +96,7 @@ let swapContract = await ethers.getContractAt('IRentalitySwap', '0x7f4947155E1f0
     blockTag: blockNum,
    })
 
+   console.log('Liquidity:', liquidity.toString())
 
 let rentalityGateway = await ethers.getContractAt('IRentalityGateway','0xB257FE9D206b60882691a24d5dfF8Aa24929cB73')
 
@@ -134,6 +135,7 @@ let data = rentalityGateway.interface.encodeFunctionData('payKycCommission', [et
 
 let swapTx = await swapContract.swapExactInputSingle(
   config.poolKey,
+  false,
   config.amountIn,
   0,
   data
