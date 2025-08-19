@@ -1,9 +1,7 @@
-// npm i @nomiclabs/hardhat-ethers
 require('dotenv').config()
 require('@nomicfoundation/hardhat-toolbox')
 require('@openzeppelin/hardhat-upgrades')
 require('solidity-docgen')
-require("@nomiclabs/hardhat-ethers");
 
 module.exports = {
   mocha: {

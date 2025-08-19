@@ -1,14 +1,13 @@
 const saveJsonAbi = require('./utils/abiSaver')
-const { ethers, upgrades } = require('hardhat')
+const { ethers, upgrades, network } = require('hardhat')
 const { getContractAddress } = require('./utils/contractAddress')
 const addressSaver = require('./utils/addressSaver')
 const { checkNotNull, startDeploy } = require('./utils/deployHelper')
 const { zeroHash, ethToken, emptyLocationInfo } = require('../test/utils')
 // const { Actions, V4Planner } = require('@uniswap/v4-sdk')
 //   const { CommandType, RoutePlanner } = require('@uniswap/universal-router-sdk')
-const { Pool } = require('@uniswap/v4-sdk');
-const { Token } = require('@uniswap/sdk-core')
 const { deploy } = require('@openzeppelin/hardhat-upgrades/dist/utils')
+const { config } = require('dotenv')
 const tripsFilter = {
   paymentStatus: 0,
   status: 0,
@@ -43,7 +42,7 @@ async function main() {
 
   // const deployer = await ethers.getSigner()
   const contractFactory = await ethers.getContractFactory('AccessSenderHook')
-  let linkToken = "0xe4ab69c077896252fafbd49efd26b5d171a32410"
+  let linkToken = "0xE4aB69C077896252FAFBD49EFD26B5D171A32410"
   let amountIn = 25000;
   let poolManager = "0x05E73354cFDd6745C338b50BcFDfA3Aa6fA03408"
   // let usdc = "0x14196f08a4fa0b66b7331bc40dd6bcd8a1deea9f"
@@ -51,100 +50,102 @@ async function main() {
 
 let config = {
   poolKey: {
-      currency0: linkToken.trim(),
-      currency1: weth.trim(),
+      currency0: weth.trim(),
+      currency1: linkToken.trim(),
       fee: 3000,
       tickSpacing: 60,
-      hooks: weth,
+      hooks: ethToken,
   },
   zeroForOne: true,
   amountIn: amountIn, 
   amountOutMinimum: 0,
   hookData: '0x000'
 }
-let tokenLink = new Token(84532,linkToken, 6)
-let weiToken = new Token(84532,weth, 18)
 
-// const poolAddress = Pool.getAddress(
-//   config.poolKey.currency0, 
-//   config.poolKey.currency1, 
-//   config.poolKey.fee
-// )
-console.log('POOOOOOO1111:')
-  let poolId = Pool.getPoolId(tokenLink, weiToken,config.poolKey.fee.toString(),60,ethToken)
+let swapContract = await ethers.getContractAt('IRentalitySwap', '0x7f4947155E1f0Fb6798165c1356fA92A6F3aD1fB')
   const stateViewContract = await ethers.getContractAt(STATE_VIEW_ABI, STATE_VIEW_ADDRESS);
 
-console.log('POOOOOOO333:', poolId)
+  const abiCoder = new ethers.AbiCoder();
+  const encoded = abiCoder.encode(
+    ["address","address","uint24","int24","address"],
+    [
+      config.poolKey.currency0,
+      config.poolKey.currency1,
+      config.poolKey.fee,
+      config.poolKey.tickSpacing,
+      config.poolKey.hooks
+    ]
+  );
+  console.log('Encoded pool key:', encoded)
 
-let provider = new ethers.providers.JsonRpcProvider("https://base-sepolia.g.alchemy.com/v2/7NsKIcu9tp2GBR_6wuAL3L-oEvo5wflB")
-const blockNum = await provider.getBlockNumber()
 
+  let poolId = ethers.keccak256(encoded)
+  console.log('Pool ID:', poolId)
+  // 0x525bbcb70b04a9aa87db2f54626100b6156963b9b2f1b264db73846c737f851f
+  // let poolId = poolKeyToId(config.poolKey)
 
-  // const [slot0, liquidity] = await Promise.all([
-  //   stateViewContract.getLiquidity(poolId, {
-  //     blockTag: blockNum,
-  //   }),
+  // // const [slot0, liquidity] = await Promise.all([
+  // //   stateViewContract.getLiquidity(poolId, {
+  // //     blockTag: blockNum,
+  // //   }),
+
+  let provider = new ethers.JsonRpcProvider("https://base-sepolia.g.alchemy.com/v2/7NsKIcu9tp2GBR_6wuAL3L-oEvo5wflB")
+  let blockNum = await provider.getBlockNumber()
   
-   let liquidity = await stateViewContract.getLiquidity(poolId, {
-      blockTag: blockNum,
-    })
-  console.log('Liquidity:', liquidity.toString())
+   let liquidity = await stateViewContract.getLiquidity(poolId,{
+    blockTag: blockNum,
+   })
 
 
-// let rentalityGateway = await ethers.getContractAt('IRentalityGateway','0xB257FE9D206b60882691a24d5dfF8Aa24929cB73')
+let rentalityGateway = await ethers.getContractAt('IRentalityGateway','0xB257FE9D206b60882691a24d5dfF8Aa24929cB73')
 
 // let contract =  await contractFactory.deploy(poolManager, weth, await rentalityGateway.getAddress())
 //   console.log('AccessSenderHook deployed to:', await contract.getAddress())
-// let data = rentalityGateway.interface.encodeFunctionData('payKycCommission', [zeroHash])
+let expiration = Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30
 
-//    let config = {
-//   poolKey: {
-//       currency0: linkToken,
-//       currency1: ethToken,
-//       fee: 500,
-//       tickSpacing: 10,
-//       hooks: await contract.getAddress(),
-//   },
-//   zeroForOne: true,
-//   amountIn: amountIn, 
-//   amountOutMinimum: "minAmountOut",
-//   hookData: data
+
+let approveTx = await swapContract.approveTokenWithPermit2(
+  linkToken,
+  amountIn,
+  expiration
+)
+
+console.log('Approve transaction hash:', approveTx.hash)
+
+let data = rentalityGateway.interface.encodeFunctionData('payKycCommission', [ethToken])
+
+// let key =   {
+//   currency0: linkToken,
+//   currency1: weth,
+//   fee: 3000,
+//   tickSpacing: 60,
+//   hooks: ethToken,
 // }
-  const v4Planner = new V4Planner()
-  const routePlanner = new RoutePlanner()
-  
-  // Set deadline (1 hour from now)
-  const deadline = Math.floor(Date.now() / 1000) + 3600
-  
-  v4Planner.addAction(Actions.SWAP_EXACT_IN_SINGLE, [config]);
-  v4Planner.addAction(Actions.SETTLE_ALL, [config.poolKey.currency0, CurrentConfig.amountIn]);
-  v4Planner.addAction(Actions.TAKE_ALL, [config.poolKey.currency1, CurrentConfig.amountOutMinimum]);
-  const encodedActions = v4Planner.finalize()
-  
-  routePlanner.addCommand(CommandType.V4_SWAP, [v4Planner.actions, v4Planner.params])
-  
+// let encodedData = swapContract.interface.encodeFunctionData(
+//   'swapExactInputSingle',
+//   [
+//     config.poolKey,
+//     config.amountIn,
+//     0,
+//     data
+//   ]
+// )
+// console.log('Encoded data:', encodedData)
 
-  
-  const tx = await universalRouter.execute(
-      routePlanner.commands,
-      [encodedActions],
-      deadline,
-      {}
-  )
-  
-  const receipt = await tx.wait()
-  console.log('Swap completed! Transaction hash:', receipt.transactionHash)
-
-  console.log(await approvetx.wait())
+let swapTx = await swapContract.swapExactInputSingle(
+  config.poolKey,
+  config.amountIn,
+  0,
+  data
+)
 
 
+console.log('Swap transaction hash:', swapTx.hash)
 
 
 }
 
-function encodeSqrtPriceX96(price) {
-  return JSBI.BigInt(Math.floor(Math.sqrt(price) * Math.pow(2, 96)));
-}
+
 
 main()
   .then(() => process.exit(0))
@@ -152,3 +153,5 @@ main()
     console.error(error)
     process.exit(1)
   })
+
+
