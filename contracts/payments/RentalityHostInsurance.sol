@@ -120,7 +120,7 @@ contract RentalityHostInsurance is Initializable, UUPSAccess {
     uint _insuranceId = userToInsuranceId[host];
     return Schemas.HostInsuranceRuleDTO({
         insuranceId: _insuranceId,
-        partToInsurance: insuranceIdToInsurance[insuranceId].partToInsurance
+        partToInsurance: insuranceIdToInsurance[_insuranceId].partToInsurance
     });
     }
     function isHostInsuranceClaim(uint claimId) public view returns(bool) {

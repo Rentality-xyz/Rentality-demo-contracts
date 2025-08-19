@@ -205,14 +205,38 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
     require(addresses.userService.isAdmin(tx.origin), 'Only for Admin.');
     trustedForwarderAddress = forwarder;
   }
-  function getHostInsuranceClaims() public view returns(Schemas.ClaimV2[] memory claims) {
+  function getHostInsuranceClaims() public view returns(Schemas.FullClaimInfo[] memory claimInfos) {
     uint[] memory claimIds = hostInsurance.getInsuranceClaims();
-    claims = new Schemas.ClaimV2[](claimIds.length);
+    claimInfos = new Schemas.FullClaimInfo[](claimIds.length);
+    uint counter = 0;
     for (uint i = 0; i < claimIds.length; i++) {
-      claims[i] = addresses.claimService.getClaim(claimIds[i]);
+      Schemas.ClaimV2 memory claim = addresses.claimService.getClaim(claimIds[i]);
+      Schemas.Trip memory trip = addresses.tripService.getTrip(claim.tripId);
+
+        claimInfos[counter++] = Schemas.FullClaimInfo(
+          claim,
+          trip.host,
+          trip.guest,
+          addresses.userService.getKYCInfo(trip.guest).mobilePhoneNumber,
+          addresses.userService.getKYCInfo(trip.host).mobilePhoneNumber,
+          addresses.carService.getCarInfoById(trip.carId),
+          RentalityQuery._getClaimValueInCurrency(
+          trip.paymentInfo.currencyType,
+          claim.amountInUsdCents,
+          claim,
+          addresses.claimService,
+          addresses.currencyConverterService
+        ),
+          IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getCarTimeZoneId(
+            addresses.carService.getCarInfoById(trip.carId).locationHash
+          ),
+          addresses.claimService.getClaimTypeInfo(claim.claimType),
+          addresses.currencyConverterService.getUserCurrency(trip.host)
+        );
+      }
     }
 
-  }
+
     function getHostInsuranceRule(address host) public view returns(Schemas.HostInsuranceRuleDTO memory insuranceRules) {
     return hostInsurance.getHostInsuranceRule(host);
     }
