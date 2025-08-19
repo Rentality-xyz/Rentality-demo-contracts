@@ -972,18 +972,72 @@
           "type": "tuple[]",
           "name": "claims",
           "components": [
-            { "type": "uint256", "name": "tripId" },
-            { "type": "uint256", "name": "claimId" },
-            { "type": "uint256", "name": "deadlineDateInSec" },
-            { "type": "uint8", "name": "claimType" },
-            { "type": "uint8", "name": "status" },
-            { "type": "string", "name": "description" },
-            { "type": "uint64", "name": "amountInUsdCents" },
-            { "type": "uint256", "name": "payDateInSec" },
-            { "type": "address", "name": "rejectedBy" },
-            { "type": "uint256", "name": "rejectedDateInSec" },
-            { "type": "string", "name": "photosUrl" },
-            { "type": "bool", "name": "isHostClaims" }
+            {
+              "type": "tuple",
+              "name": "claim",
+              "components": [
+                { "type": "uint256", "name": "tripId" },
+                { "type": "uint256", "name": "claimId" },
+                { "type": "uint256", "name": "deadlineDateInSec" },
+                { "type": "uint8", "name": "claimType" },
+                { "type": "uint8", "name": "status" },
+                { "type": "string", "name": "description" },
+                { "type": "uint64", "name": "amountInUsdCents" },
+                { "type": "uint256", "name": "payDateInSec" },
+                { "type": "address", "name": "rejectedBy" },
+                { "type": "uint256", "name": "rejectedDateInSec" },
+                { "type": "string", "name": "photosUrl" },
+                { "type": "bool", "name": "isHostClaims" }
+              ]
+            },
+            { "type": "address", "name": "host" },
+            { "type": "address", "name": "guest" },
+            { "type": "string", "name": "guestPhoneNumber" },
+            { "type": "string", "name": "hostPhoneNumber" },
+            {
+              "type": "tuple",
+              "name": "carInfo",
+              "components": [
+                { "type": "uint256", "name": "carId" },
+                { "type": "string", "name": "carVinNumber" },
+                { "type": "bytes32", "name": "carVinNumberHash" },
+                { "type": "address", "name": "createdBy" },
+                { "type": "string", "name": "brand" },
+                { "type": "string", "name": "model" },
+                { "type": "uint32", "name": "yearOfProduction" },
+                { "type": "uint64", "name": "pricePerDayInUsdCents" },
+                { "type": "uint64", "name": "securityDepositPerTripInUsdCents" },
+                { "type": "uint8", "name": "engineType" },
+                { "type": "uint64[]", "name": "engineParams" },
+                { "type": "uint64", "name": "milesIncludedPerDay" },
+                { "type": "uint32", "name": "timeBufferBetweenTripsInSec" },
+                { "type": "bool", "name": "currentlyListed" },
+                { "type": "bool", "name": "geoVerified" },
+                { "type": "string", "name": "timeZoneId" },
+                { "type": "bool", "name": "insuranceIncluded" },
+                { "type": "bytes32", "name": "locationHash" }
+              ]
+            },
+            { "type": "uint256", "name": "amountInEth" },
+            { "type": "string", "name": "timeZoneId" },
+            {
+              "type": "tuple",
+              "name": "claimType",
+              "components": [
+                { "type": "uint8", "name": "claimType" },
+                { "type": "string", "name": "claimName" },
+                { "type": "uint8", "name": "creator" }
+              ]
+            },
+            {
+              "type": "tuple",
+              "name": "currency",
+              "components": [
+                { "type": "address", "name": "currency" },
+                { "type": "string", "name": "name" },
+                { "type": "bool", "name": "initialized" }
+              ]
+            }
           ]
         }
       ]
