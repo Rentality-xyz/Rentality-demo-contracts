@@ -1,6 +1,6 @@
 const { expect } = require('chai')
 
-const { deployDefaultFixture } = require('../utils')
+const { deployDefaultFixture, getMockCarRequest } = require('../utils')
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 
 describe('RentalityGateway: update fields', function () {
@@ -11,6 +11,7 @@ describe('RentalityGateway: update fields', function () {
     rentalityCurrencyConverter,
     rentalityCarToken,
     rentalityPaymentService,
+    rentalityLocationVerifier,
     rentalityPlatform,
     rentalityGeoService,
     rentalityAdminGateway,
@@ -45,7 +46,16 @@ describe('RentalityGateway: update fields', function () {
       guest,
       anonymous,
       rentalityView,
+      rentalityLocationVerifier
     } = await loadFixture(deployDefaultFixture))
+
+    await expect(
+      rentalityGateway.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+    ).not.to.be.reverted
+
+    await expect(
+      rentalityCarToken.connect(host).burnCar(1)
+    ).to.not.be.reverted
   })
 
   it('should has right owner', async function () {

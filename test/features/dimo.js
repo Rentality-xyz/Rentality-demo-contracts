@@ -118,7 +118,9 @@ describe('Rentality dimo', function () {
       new Date().getDate() + oneDayInSec * totalTripDays,
       searchParams,
       emptyLocationInfo,
-      emptyLocationInfo
+      emptyLocationInfo,
+     0,
+10
     )
   })
 })

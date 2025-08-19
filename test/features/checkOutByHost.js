@@ -72,9 +72,9 @@ describe('Check out without guest', function () {
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,0,10
       )
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
 
     const oneDayInSeconds = 86400
 
@@ -121,9 +121,9 @@ describe('Check out without guest', function () {
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,0,10
       )
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
 
     const oneDayInSeconds = 86400
 
@@ -157,13 +157,15 @@ describe('Check out without guest', function () {
     await expect(rentalityGateway.connect(host).checkOutByHost(1, [0, 0])).not.to.be.reverted
 
     const searchParams = getEmptySearchCarParams()
-    const resultAr = await rentalityGateway.searchAvailableCarsWithDelivery(
+    const resultAr = (await rentalityGateway.searchAvailableCarsWithDelivery(
       new Date().getDate(),
       new Date().getDate() + 100,
       searchParams,
       emptyLocationInfo,
-      emptyLocationInfo
-    )
+      emptyLocationInfo,
+     0,
+10
+    )).cars
     const carId = resultAr[0].car.carId
 
     expect(carId).to.be.eq(1)
@@ -182,9 +184,9 @@ describe('Check out without guest', function () {
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,0,10
       )
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
 
     const oneDayInSeconds = 86400
 
@@ -231,9 +233,9 @@ describe('Check out without guest', function () {
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,0,10
       )
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
     let oneDayInSeconds = 86400
     let dayInTrip = 31
 
@@ -267,11 +269,10 @@ describe('Check out without guest', function () {
     await expect(rentalityGateway.connect(host).checkOutByHost(1, [0, 0])).not.to.be.reverted
     await expect(rentalityGateway.connect(host).confirmCheckOut(1)).to.be.reverted
 
-    const depositValue = await rentalityCurrencyConverter.getFromUsd(
+    const depositValue = await rentalityCurrencyConverter.getFromUsdCents(
       ethToken,
       request.securityDepositPerTripInUsdCents,
-      ethToCurrencyRate,
-      ethToCurrencyDecimals
+      ethToCurrencyRate
     )
 
     const returnToHost = rentPriceInEth - rentalityFee - taxes - depositValue
@@ -297,9 +298,9 @@ describe('Check out without guest', function () {
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,0,10
       )
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
     const oneDayInSeconds = 86400
 
     const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals, rentalityFee, taxes } = await calculatePayments(
@@ -331,11 +332,10 @@ describe('Check out without guest', function () {
     await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0], '', '')).not.to.be.reverted
     await expect(rentalityGateway.connect(host).checkOutByHost(1, [0, 0])).not.to.be.reverted
 
-    const depositValue = await rentalityCurrencyConverter.getFromUsd(
+    const depositValue = await rentalityCurrencyConverter.getFromUsdCents(
       ethToken,
       request.securityDepositPerTripInUsdCents,
-      ethToCurrencyRate,
-      ethToCurrencyDecimals
+      ethToCurrencyRate
     )
 
     const returnToHost = rentPriceInEth - rentalityFee - taxes - depositValue
@@ -362,9 +362,9 @@ describe('Check out without guest', function () {
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,0,10
       )
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
     let dayInTrip = 31
 
     const oneDayInSeconds = 86400

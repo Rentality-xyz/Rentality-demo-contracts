@@ -32,9 +32,10 @@ contract RentalityInvestment is Initializable, UUPSAccess {
   mapping(uint => uint) private carIdToInvestId;
   RentalityInvestDeployer private investDeployer;
   mapping(uint => address) private investmentIdToCurrency;
+  mapping(uint => bool) private investmentIdToListed;
 
   function createCarInvestment(Schemas.CarInvestment memory car, string memory name_, address currency) public {
-    // require(RentalityUserService(address(userService)).isInvestorManager(msg.sender), 'only Rentality platform');
+    require(RentalityUserService(address(userService)).isInvestorManager(msg.sender), 'only Invest Manager');
         require(converter.currencyTypeIsAvailable(currency), 'currency type is not available');
 
     investmentId += 1;
@@ -46,10 +47,12 @@ contract RentalityInvestment is Initializable, UUPSAccess {
       investDeployer.createNewNft(name_, sym, investmentId, car.car.tokenUri)
     );
     investmentIdToCreator[investmentId] = msg.sender;
+    investmentIdToListed[investmentId] = true;
   }
 
   function invest(uint investId, uint amount) public payable {
     Schemas.CarInvestment storage investment = investmentIdToCarInfo[investId];
+    require(investmentIdToListed[investId], 'Investment: not listed');
 
     require(investment.inProgress, 'Not available');
 
@@ -125,46 +128,41 @@ contract RentalityInvestment is Initializable, UUPSAccess {
   
   function getAllInvestments() public view returns (Schemas.InvestmentDTO[] memory investments) {
     investments = new Schemas.InvestmentDTO[](investmentId);
+    uint totalInvestments = 0;
+    bool isInvestorManager = RentalityUserService(address(userService)).isInvestorManager(msg.sender);
     for (uint i = 1; i <= investmentId; i++) {
+      Schemas.CarInvestment memory investment = investmentIdToCarInfo[i];
+      if(investmentIdToListed[i] || msg.sender == investmentIdToCreator[i]) {
+  
       uint income = 0;
-      uint myIncomeInUsdCents = 0;
+      uint myIncome = 0;
       bool isBought = address(investIdToPool[i]) != address(0);
       address currency = investmentIdToCurrency[i];
       (uint[] memory tokens, uint iInvested, uint totalHolders, uint totalTokens) = RentalityViewLib
         .getAllMyTokensWithTotalPrice(msg.sender, investIdToNft[i]);
       (uint payed, , ) = converter.getToUsdLatest(currency, investmentIdToPayedInETH[i]);
       if (isBought) {
-        (income, , ) = converter.getToUsdLatest(currency, _getTotalIncome(investIdToPool[i]));
-        uint myIncome = _getTotalIncomeByNFTs(tokens, investIdToPool[i], investIdToNft[i]);
+        income  = _getTotalIncome(investIdToPool[i]);
+       myIncome = _getTotalIncomeByNFTs(tokens, investIdToPool[i], investIdToNft[i]);
 
-        (myIncomeInUsdCents, , ) = converter.getToUsdLatest(currency, myIncome);
       }
-      (uint percentages, uint investInUsd) = RentalityViewLib.calculatePercentage(
+      (uint percentages,) = RentalityViewLib.calculatePercentage(
         iInvested,
-        investmentIdToCarInfo[i].priceInCurrency,
+        investment.priceInCurrency,
         converter
       );
-      uint totalEarnings = !isBought ? 0 : 
-      _calculatePriceInCurrency(
-      currency,
-       investIdToPool[i].getTotalEarnings()
-      );
-      uint totalEarningsByUser = !isBought ? 0 :
-       _calculatePriceInCurrency(
-        currency,
-        investIdToPool[i].getTotalEarningsByUser(msg.sender)
-      );
-      (uint priceInUsdCents, , ) = converter.getToUsdLatest(currency, investmentIdToCarInfo[i].priceInCurrency);
+           
+      (uint priceInUsdCents, , ) = converter.getToUsdLatest(currency, investment.priceInCurrency);
     
-      investments[i - 1] = Schemas.InvestmentDTO(
-        investmentIdToCarInfo[i],
+      investments[totalInvestments] = Schemas.InvestmentDTO(
+        investment,
         address(investIdToNft[i]),
         i,
         payed,
         investmentIdToCreator[i],
         isBought,
         income,
-        myIncomeInUsdCents,
+        myIncome,
         iInvested,
         isBought ? investIdToPool[i].creationDate() : 0,
         tokens.length,
@@ -172,22 +170,29 @@ contract RentalityInvestment is Initializable, UUPSAccess {
         totalHolders,
         totalTokens,
         currency,
-        totalEarnings,
-        totalEarningsByUser,
+        !isBought ? 0 : investIdToPool[i].getTotalEarnings(),
+        !isBought ? 0 : investIdToPool[i].getTotalEarningsByUser(msg.sender),
         investIdToNft[i].name(),
         investIdToNft[i].symbol(),
         priceInUsdCents,
-        investmentIdToPayedInETH[i]
+        investmentIdToPayedInETH[i],
+        investmentIdToListed[i]
       );
+      totalInvestments++; 
     }
+    }
+    if(!isInvestorManager)
+      assembly("memory-safe") {
+        mstore(investments, totalInvestments)
+      }
   }
-  function _calculatePriceInCurrency(address currency, uint amount) private view returns(uint) {
-         (uint result, , ) = converter.getToUsdLatest(
-      currency,
-      amount
-    );
-    return result;
+
+  function changeListingStatus(uint investId) public {
+      require(RentalityUserService(address(userService)).isInvestorManager(msg.sender), 'only Invest manager');
+    bool listed = investmentIdToListed[investId];
+    investmentIdToListed[investId] = !listed;
   }
+ 
 
   function claimAllMy(uint investId) public {
     (uint[] memory tokens, , , ) = RentalityViewLib.getAllMyTokensWithTotalPrice(msg.sender, investIdToNft[investId]);

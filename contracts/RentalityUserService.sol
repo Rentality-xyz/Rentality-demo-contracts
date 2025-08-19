@@ -42,6 +42,16 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
   address[] private platformUsers;
   mapping(address => bool) private userToPhoneVerified;
 
+   
+  mapping(address => bool) private userToEmailVerified;
+
+  mapping(address => string) private userToPushToken;
+
+  function setPushToken(address user, string memory pushToken) public {
+    require(hasRole(KYC_COMMISSION_MANAGER_ROLE, tx.origin), 'Only KYC manager');
+
+    userToPushToken[user] = pushToken;
+  }
   /// @notice Sets KYC information for the caller (host or guest).
   /// Requirements:
   /// - Caller must be a host or guest.
@@ -63,13 +73,17 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
     Schemas.KYCInfo storage kycInfo = kycInfos[user];
     if (kycInfo.createDate == 0 || !_alreadyInPlatformUsersList(user)) platformUsers.push(user);
 
-    string memory oldEmail = additionalKycInfo[user].email;
-    if (bytes(oldEmail).length == 0 || !hasPassedKYC(user)) additionalKycInfo[user].email = email;
+    if (!_comparePhones(email, additionalKycInfo[user].email)) {
+      userToEmailVerified[user] = false;
+      additionalKycInfo[user].email = email;
+    }
 
     kycInfo.name = nickName;
-    if (!_comparePhones(mobilePhoneNumber, kycInfo.mobilePhoneNumber)) userToPhoneVerified[user] = false;
+    if (!_comparePhones(mobilePhoneNumber, kycInfo.mobilePhoneNumber)) {
+      userToPhoneVerified[user] = false;
+      kycInfo.mobilePhoneNumber = mobilePhoneNumber;
+    }
 
-    kycInfo.mobilePhoneNumber = mobilePhoneNumber;
     kycInfo.profilePhoto = profilePhoto;
 
     if (kycInfo.createDate == 0) kycInfo.createDate = block.timestamp;
@@ -96,8 +110,8 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
       abi.encodeCall(IERC1271.isValidSignature, (hash, signature))
     );
     return (success &&
-      result.length >= 32 &&
-      abi.decode(result, (bytes32)) == bytes32(IERC1271.isValidSignature.selector));
+      result.length >= 4 &&
+      abi.decode(result, (bytes4)) == IERC1271.isValidSignature.selector);
   }
 
   function setMyCivicKYCInfo(address user, Schemas.CivicKYCInfo memory civicKycInfo) public {
@@ -120,6 +134,7 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
     kycInfo.expirationDate = civicKycInfo.expirationDate;
     additionalKycInfo[user].email = civicKycInfo.email;
     additionalKycInfo[user].issueCountry = civicKycInfo.issueCountry;
+    userToEmailVerified[user] = true;
   }
 
   function setPhoneNumber(address user, string memory phone, bool isVerified) public {
@@ -127,6 +142,13 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
 
     userToPhoneVerified[user] = isVerified;
     kycInfos[user].mobilePhoneNumber = phone;
+  }
+
+    function setEmail(address user, string memory email, bool isVerified) public {
+    require(hasRole(KYC_COMMISSION_MANAGER_ROLE, tx.origin), 'Only KYC manager');
+
+    userToEmailVerified[user] = isVerified;
+    additionalKycInfo[user].email = email;
   }
 
   function _comparePhones(string memory p1, string memory p2) private pure returns (bool) {
@@ -149,16 +171,47 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
   }
 
   function getMyFullKYCInfo(address user) public view returns (Schemas.FullKYCInfoDTO memory) {
-    return Schemas.FullKYCInfoDTO(kycInfos[user], additionalKycInfo[user], userToPhoneVerified[user]);
+    return Schemas.FullKYCInfoDTO(kycInfos[user], additionalKycInfo[user], userToPhoneVerified[user], userToEmailVerified[user], userToPushToken[user]);
   }
-  function getPlatformUsersKYCInfos() public view returns (Schemas.AdminKYCInfoDTO[] memory result) {
+function getPlatformUsersKYCInfos(uint page, uint itemsPerPage) public view returns (Schemas.AdminKYCInfosDTO memory) {
     require(hasRole(ADMIN_VIEW_ROLE, tx.origin), 'Only Admin');
-    address[] memory users = platformUsers;
-    result = new Schemas.AdminKYCInfoDTO[](platformUsers.length);
-    for (uint i = 0; i < result.length; i++) {
-      result[i] = Schemas.AdminKYCInfoDTO(kycInfos[users[i]], additionalKycInfo[users[i]], users[i]);
+    require(page > 0, "Page must be positive");
+    require(itemsPerPage > 0, "Items per page must be positive");
+
+    uint totalUsersAmount = platformUsers.length;
+    uint totalPageCount = (totalUsersAmount + itemsPerPage - 1) / itemsPerPage;
+
+    if (page > totalPageCount && totalPageCount > 0) {
+        page = totalPageCount;
     }
-  }
+
+    uint startIndex = (page - 1) * itemsPerPage; 
+    uint endIndex = startIndex + itemsPerPage;
+    
+    if (endIndex > totalUsersAmount) {
+        endIndex = totalUsersAmount;
+    }
+    
+    if (startIndex >= endIndex) {
+        return Schemas.AdminKYCInfosDTO(new Schemas.AdminKYCInfoDTO[](0), totalPageCount);
+    }
+
+    Schemas.AdminKYCInfoDTO[] memory result = new Schemas.AdminKYCInfoDTO[](endIndex - startIndex);
+    
+    for (uint i = startIndex; i < endIndex; i++) {
+        uint resultIndex = i - startIndex; 
+        address user = platformUsers[i];
+        result[resultIndex] = Schemas.AdminKYCInfoDTO(
+            kycInfos[user],
+            additionalKycInfo[user],
+            user,
+            userToEmailVerified[user],
+            userToPushToken[user]
+        );
+    }
+    
+    return Schemas.AdminKYCInfosDTO(result, totalPageCount);
+}
   /// @notice Checks if the KYC information for a specified user is valid.
   /// @param user The address of the user to check for valid KYC.
   /// @return isValid A boolean indicating whether the user has valid KYC information.
@@ -278,6 +331,9 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
   function isHostOrGuest(address user) public view returns (bool) {
     return isHost(user) || isGuest(user);
   }
+  function isAdminViewRole(address user)  public view returns (bool) {
+    return hasRole(ADMIN_VIEW_ROLE, user);
+  }
 
   /// @dev Sets the Civic verifier and gatekeeper network for identity verification.
   /// @param _civicVerifier The address of the Civic verifier contract.
@@ -347,6 +403,9 @@ contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRen
       _revokeRole(role, user);
     }
   }
+    function getPlatformUsersCount() public view returns (uint) {
+         return platformUsers.length;
+   }
 
   function getPlatformUsers() public view returns (address[] memory) {
     require(hasRole(ADMIN_VIEW_ROLE, tx.origin), 'Only Admin');

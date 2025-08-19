@@ -29,6 +29,14 @@
     },
     {
       "type": "function",
+      "name": "changeListingStatus",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "investId" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
       "name": "claimAllMy",
       "constant": false,
       "payable": false,
@@ -234,7 +242,8 @@
             { "type": "string", "name": "name" },
             { "type": "string", "name": "symbol" },
             { "type": "uint256", "name": "priceInUsdCents" },
-            { "type": "uint256", "name": "payedInCurrency" }
+            { "type": "uint256", "name": "payedInCurrency" },
+            { "type": "bool", "name": "listed" }
           ]
         }
       ]

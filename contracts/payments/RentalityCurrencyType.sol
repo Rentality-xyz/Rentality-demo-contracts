@@ -9,7 +9,7 @@ import '../proxy/UUPSAccess.sol';
 
 /// @notice an abstract contract represent available payment types on Rentality.
 /// for adding new currency type, smart contract should override 3 main functions
-/// getFromUsd, getUsd
+/// getFromUsdCents, getUsd
 abstract contract ARentalityUpgradableCurrencyType is Initializable, UUPSAccess {
   // Current Currency to USD rate and decimals
   int256 internal currentToUsdRate;
@@ -27,21 +27,14 @@ abstract contract ARentalityUpgradableCurrencyType is Initializable, UUPSAccess 
   // Current token address
   IERC20 public tokenAddress;
 
-  /// @notice Converts the specified amount from USD to the token currency
-  /// @dev should be overridden
-  /// @param amount The amount in USD cents
-  /// @param currencyRate The currency rate to use for conversion
-  /// @param decimals The decimals of the token currency
-  /// @return The equivalent amount in the token currency
-  function getFromUsd(uint256 amount, int256 currencyRate, uint8 decimals) public pure virtual returns (uint256);
-
-  /// @notice Converts the specified amount from the token currency to USD
-  /// @dev should be overridden
-  /// @param amount The amount in the token currency
-  /// @param currencyRate The currency rate to use for conversion
-  /// @param decimals The decimals of the token currency
-  /// @return The equivalent amount in USD
-  function getUsd(uint256 amount, int256 currencyRate, uint8 decimals) public pure virtual returns (uint256);
+function getFromUsdCents(uint256 amountInUsdCent, int256 rate) public view virtual returns (uint256) {
+    return (amountInUsdCent  * (10 ** (tokenDecimals() + rateTokenDecimals() - 2)) / (uint(rate)) ) ;
+     
+  }
+ 
+  function getUsdCents(uint256 value, int256 rate) public view virtual returns (uint256) {
+    return ((value * uint(rate)) / ((10 ** ( tokenDecimals() + rateTokenDecimals() - 2))));
+  }
 
   /// @notice Retrieves the token address
   /// @return The address of the token contract
@@ -49,10 +42,16 @@ abstract contract ARentalityUpgradableCurrencyType is Initializable, UUPSAccess 
     return address(tokenAddress);
   }
 
+  /// @notice Retrieves the decimals of the price feed
+  /// @return The decimals of the token
+  function rateTokenDecimals() public view returns (uint8) {
+    return rateFeed.decimals();
+  }
+
   /// @notice Retrieves the decimals of the token
   /// @return The decimals of the token
-  function tokenDecimals() public view returns (uint8) {
-    return rateFeed.decimals();
+  function tokenDecimals() public view virtual returns (uint8) {
+    return tokenAddress.decimals();
   }
 
   /// @notice Get the latest rate from the Chainlink rate feed
@@ -65,16 +64,16 @@ abstract contract ARentalityUpgradableCurrencyType is Initializable, UUPSAccess 
   /// @notice Retrieves the rate and decimals of the token currency
   /// @return The rate and decimals of the token currency
   function getRate() public view virtual returns (int256, uint8) {
-    return (getLatest(), tokenDecimals());
+    return (getLatest(), rateTokenDecimals());
   }
 
   /// @notice Retrieves the equivalent amount in the token currency from the provided USD value
   /// @param amount The value in USD cents
   /// @return The equivalent amount in the token currency, the corresponding currency rate, and decimals
-  function getFromUsdLatest(uint256 amount) public view returns (uint256, int256, uint8) {
+  function getFromUsdCentsLatest(uint256 amount) public view returns (uint256, int256, uint8) {
     (int256 rate, uint8 decimals) = getRate();
 
-    return (getFromUsd(amount, rate, decimals), rate, decimals);
+    return (getFromUsdCents(amount, rate), rate, decimals);
   }
 
   /// @notice Retrieves the equivalent amount in USD cents from the provided token currency amount
@@ -83,7 +82,7 @@ abstract contract ARentalityUpgradableCurrencyType is Initializable, UUPSAccess 
   function getUsdFromLatest(uint256 amount) public view returns (uint256, int256, uint8) {
     (int256 rate, uint8 decimals) = getRate();
 
-    return (getUsd(amount, rate, decimals), rate, decimals);
+    return (getUsdCents(amount, rate), rate, decimals);
   }
 
   /// @notice Retrieves the rate and decimals of the token currency with caching
@@ -92,7 +91,7 @@ abstract contract ARentalityUpgradableCurrencyType is Initializable, UUPSAccess 
     if ((block.timestamp - lastUpdateRateTimeStamp) > updateRateInterval) {
       lastUpdateRateTimeStamp = block.timestamp;
       currentToUsdRate = getLatest();
-      currentToUsdDecimals = tokenDecimals();
+      currentToUsdDecimals = rateTokenDecimals();
     }
     return (currentToUsdRate, currentToUsdDecimals);
   }
@@ -100,19 +99,19 @@ abstract contract ARentalityUpgradableCurrencyType is Initializable, UUPSAccess 
   /// @notice Retrieves the equivalent amount in the token currency from the provided USD value with caching
   /// @param valueInUsdCents The value in USD cents
   /// @return The equivalent amount in the token currency
-  function getFromUsdWithCache(uint256 valueInUsdCents) public returns (uint256) {
-    (int256 rate, uint8 decimals) = getRateWithCache();
+  function getFromUsdCentsWithCache(uint256 valueInUsdCents) public returns (uint256) {
+    (int256 rate,) = getRateWithCache();
 
-    return getFromUsd(valueInUsdCents, rate, decimals);
+    return getFromUsdCents(valueInUsdCents, rate);
   }
 
   /// @notice Retrieves the equivalent amount in USD cents from the provided token currency amount with caching
   /// @param valueInThis The amount in the token currency
   /// @return The equivalent amount in USD cents
   function getUsdWithCache(uint256 valueInThis) public returns (uint256) {
-    (int256 rate, uint8 decimals) = getRateWithCache();
+    (int256 rate,) = getRateWithCache();
 
-    return getUsd(valueInThis, rate, decimals);
+    return getUsdCents(valueInThis, rate);
   }
 
   /// @dev Retrieves the cached rate for a given token address.

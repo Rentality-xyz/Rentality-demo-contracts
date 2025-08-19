@@ -69,6 +69,7 @@ describe('Rentality taxes & discounts', function () {
   it('should correctly calculate taxes', async function () {
     await rentalityPaymentService.addTaxes(
       'Massachusetts',
+      0,
       [
         {name:"governmentTax",value:1000, tType:0},
       ]
@@ -88,6 +89,7 @@ describe('Rentality taxes & discounts', function () {
 
     await rentalityPaymentService.addTaxes(
       'Massachusetts',
+      0,
       [{name:"salesTax",value:70_000, tType:2},
         {name:"governmentTax",value:1000, tType:1},
       ]
@@ -275,7 +277,7 @@ describe('Rentality taxes & discounts', function () {
     await expect(rentalityGateway.connect(guest).checkOutByGuest(1, [0, 0])).not.to.be.reverted
     await expect(rentalityGateway.connect(host).checkOutByHost(1, [0, 0])).not.to.be.reverted
 
-    const [deposit, ,] = await rentalityCurrencyConverter.getFromUsdLatest(
+    const [deposit, ,] = await rentalityCurrencyConverter.getFromUsdCentsLatest(
       ethToken,
       addCarRequest.securityDepositPerTripInUsdCents
     )

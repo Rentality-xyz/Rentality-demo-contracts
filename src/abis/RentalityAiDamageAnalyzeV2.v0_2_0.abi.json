@@ -47,37 +47,19 @@
     },
     {
       "type": "function",
-      "name": "getCurrentCaseNumber",
-      "constant": true,
-      "stateMutability": "view",
-      "payable": false,
-      "inputs": [],
-      "outputs": [{ "type": "uint256", "name": "currentCaseNumber" }]
-    },
-    {
-      "type": "function",
-      "name": "getInsuranceCaseByTrip",
+      "name": "getCaseTokenForTrip",
       "constant": true,
       "stateMutability": "view",
       "payable": false,
       "inputs": [
         { "type": "uint256", "name": "tripId" },
-        { "type": "bool", "name": "pre" }
+        { "type": "uint8", "name": "caseType" }
       ],
-      "outputs": [{ "type": "string", "name": "iCases" }]
+      "outputs": [{ "type": "string", "name": "caseToken" }]
     },
     {
       "type": "function",
-      "name": "getInsuranceCaseUrl",
-      "constant": true,
-      "stateMutability": "view",
-      "payable": false,
-      "inputs": [{ "type": "string", "name": "iCase" }],
-      "outputs": [{ "type": "string", "name": "url" }]
-    },
-    {
-      "type": "function",
-      "name": "getInsuranceCasesUrlByTrip",
+      "name": "getCasesByTripId",
       "constant": true,
       "stateMutability": "view",
       "payable": false,
@@ -85,20 +67,33 @@
       "outputs": [
         {
           "type": "tuple[]",
-          "name": "caseUrls",
+          "name": "aiDamageAnalyzeCases",
           "components": [
-            {
-              "type": "tuple",
-              "name": "iCase",
-              "components": [
-                { "type": "string", "name": "iCase" },
-                { "type": "bool", "name": "pre" }
-              ]
-            },
+            { "type": "uint256", "name": "caseId" },
+            { "type": "uint8", "name": "caseType" },
+            { "type": "string", "name": "caseToken" },
             { "type": "string", "name": "url" }
           ]
         }
       ]
+    },
+    {
+      "type": "function",
+      "name": "getLatestCaseId",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "uint256", "name": "latestCaseId" }]
+    },
+    {
+      "type": "function",
+      "name": "getReportUrl",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "string", "name": "caseToken" }],
+      "outputs": [{ "type": "string", "name": "url" }]
     },
     {
       "type": "function",
@@ -110,12 +105,12 @@
     },
     {
       "type": "function",
-      "name": "isCaseExists",
+      "name": "isCaseTokenExists",
       "constant": true,
       "stateMutability": "view",
       "payable": false,
-      "inputs": [{ "type": "string", "name": "iCase" }],
-      "outputs": [{ "type": "bool", "name": "isExists" }]
+      "inputs": [{ "type": "string", "name": "caseToken" }],
+      "outputs": [{ "type": "bool", "name": "isExist" }]
     },
     {
       "type": "function",
@@ -132,9 +127,9 @@
       "constant": false,
       "payable": false,
       "inputs": [
-        { "type": "string", "name": "iCase" },
+        { "type": "string", "name": "caseToken" },
         { "type": "uint256", "name": "tripId" },
-        { "type": "bool", "name": "pre" }
+        { "type": "uint8", "name": "caseType" }
       ],
       "outputs": []
     },
@@ -144,7 +139,7 @@
       "constant": false,
       "payable": false,
       "inputs": [
-        { "type": "string", "name": "iCase" },
+        { "type": "string", "name": "caseToken" },
         { "type": "string", "name": "url" }
       ],
       "outputs": []

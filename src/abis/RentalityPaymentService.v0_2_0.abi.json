@@ -71,6 +71,7 @@
       "payable": false,
       "inputs": [
         { "type": "string", "name": "location" },
+        { "type": "uint8", "name": "locationType" },
         {
           "type": "tuple[]",
           "name": "taxes",
@@ -81,7 +82,7 @@
           ]
         }
       ],
-      "outputs": []
+      "outputs": [{ "type": "uint256", "name": "" }]
     },
     {
       "type": "function",
@@ -223,6 +224,33 @@
     },
     {
       "type": "function",
+      "name": "getTaxesInfoById",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "taxId" }],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "taxesData",
+          "components": [
+            { "type": "string", "name": "location" },
+            { "type": "uint8", "name": "locationType" },
+            {
+              "type": "tuple[]",
+              "name": "taxes",
+              "components": [
+                { "type": "string", "name": "name" },
+                { "type": "uint32", "name": "value" },
+                { "type": "uint8", "name": "tType" }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
       "name": "getTotalTripTax",
       "constant": true,
       "stateMutability": "view",
@@ -258,7 +286,8 @@
         { "type": "address", "name": "_userService" },
         { "type": "address", "name": "_rentalityTaxes" },
         { "type": "address", "name": "_baseDiscount" },
-        { "type": "address", "name": "_investorService" }
+        { "type": "address", "name": "_investorService" },
+        { "type": "address", "name": "_hostInsurance" }
       ],
       "outputs": []
     },
@@ -561,6 +590,25 @@
     },
     {
       "type": "function",
+      "name": "setDefaultDiscount",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "tuple",
+          "name": "data",
+          "components": [
+            { "type": "uint32", "name": "threeDaysDiscount" },
+            { "type": "uint32", "name": "sevenDaysDiscount" },
+            { "type": "uint32", "name": "thirtyDaysDiscount" },
+            { "type": "bool", "name": "initialized" }
+          ]
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
       "name": "setDefaultTax",
       "constant": false,
       "payable": false,
@@ -569,10 +617,10 @@
     },
     {
       "type": "function",
-      "name": "setInvestmentService",
+      "name": "setHostInsuranceService",
       "constant": false,
       "payable": false,
-      "inputs": [{ "type": "address", "name": "investAddress" }],
+      "inputs": [{ "type": "address", "name": "_hostInsurance" }],
       "outputs": []
     },
     {

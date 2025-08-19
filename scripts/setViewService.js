@@ -1,15 +1,21 @@
-const saveJsonAbi = require('./utils/abiSaver')
 const { ethers, upgrades } = require('hardhat')
-const addressSaver = require('./utils/addressSaver')
-const { startDeploy, checkNotNull } = require('./utils/deployHelper')
-const { emptyLocationInfo, getEmptySearchCarParams, zeroHash } = require('../test/utils')
+const { checkNotNull } = require('./utils/deployHelper')
 const { getContractAddress } = require('./utils/contractAddress')
 
 async function main() {
-  const { contractName, chainId } = await startDeploy('')
+  const [deployer] = await ethers.getSigners()
+  const chainId = (await deployer.provider?.getNetwork())?.chainId ?? -1
 
-  if (chainId < 0) throw new Error('chainId is not set')
+  const viewServiceAddress = checkNotNull(
+    getContractAddress('RentalityView', 'scripts/deploy_4c_RentalityView.js', chainId),
+    'RentalityView'
+  )
+  const viewService = await ethers.getContractAt('RentalityView', viewServiceAddress)
 
+  const rentalityTripsView = checkNotNull(
+    getContractAddress('RentalityTripsView', 'scripts/deploy_4b_RentalityTripsView.js', chainId),
+    'RentalityTripsView'
+  )
   const rentalityContract = {
     carService: checkNotNull(
       getContractAddress('RentalityCarToken', 'scripts/deploy_3_RentalityCarToken.js', chainId),
@@ -52,24 +58,10 @@ async function main() {
       'RentalityView'
     ),
   }
+
   const dimoService = checkNotNull(
     getContractAddress('RentalityDimoService', 'scripts/deploy_3e_RentalityDimoService.js', chainId),
     'RentalityDimoService'
-  )
-
-  const rentalityPlatformHelper = checkNotNull(
-    getContractAddress('RentalityPlatformHelper', 'scripts/deploy_4g_RentalityPlatformHelper.js', chainId),
-    'RentalityPlatformHelper'
-  )
-
-  const rentalityView = checkNotNull(
-    getContractAddress('RentalityView', 'scripts/deploy_4c_RentalityView.js', chainId),
-    'RentalityView'
-  )
-
-  const adminService = checkNotNull(
-    getContractAddress('RentalityAdminGateway', 'scripts.deploy_6_RentalityAdminGateway.js', chainId),
-    'RentalityAdminGateway'
   )
 
   const rentalityInsurance = checkNotNull(
@@ -77,20 +69,12 @@ async function main() {
     'RentalityInsurance'
   )
 
-  const rentalityTripsView = checkNotNull(
-    getContractAddress('RentalityTripsView', 'scripts/deploy_4b_RentalityTripsView.js', chainId),
-    'RentalityTripsView'
-  )
   const rentalityPromoService = checkNotNull(
     getContractAddress('RentalityPromoService', 'scripts/deploy_4f_RentalityPromo.js', chainId)
   )
 
-  let adminContract = await ethers.getContractAt('RentalityAdminGateway', adminService)
-  console.log(await adminContract.updateDimoService(dimoService))
-
-  let contract1 = await ethers.getContractAt('RentalityView', rentalityView)
   console.log(
-    await contract1.updateServiceAddresses(
+    await viewService.updateServiceAddresses(
       rentalityContract,
       rentalityInsurance,
       rentalityTripsView,
@@ -98,20 +82,7 @@ async function main() {
       dimoService
     )
   )
-
-  let contract2 = await ethers.getContractAt('RentalityPlatform', rentalityContract.rentalityPlatform)
-  console.log(await contract2.updateServiceAddresses(adminService, rentalityPlatformHelper))
-  const userContract = await ethers.getContractAt('RentalityUserService', rentalityContract.userService)
-
-  let tripsView = await ethers.getContractAt('RentalityTripsView', rentalityTripsView)
-  console.log(
-    await tripsView.updateServiceAddresses(rentalityContract, rentalityInsurance, rentalityPromoService, dimoService)
-  )
-  console.log(await userContract.grantPlatformRole(rentalityPlatformHelper))
-
-  console.log('updated!')
 }
-
 main()
   .then(() => process.exit(0))
   .catch((error) => {

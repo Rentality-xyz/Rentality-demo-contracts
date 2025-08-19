@@ -241,6 +241,7 @@
               "name": "hostCurrency",
               "components": [
                 { "type": "address", "name": "currency" },
+                { "type": "string", "name": "name" },
                 { "type": "bool", "name": "initialized" }
               ]
             }
@@ -318,6 +319,7 @@
                   "name": "hostCurrency",
                   "components": [
                     { "type": "address", "name": "currency" },
+                    { "type": "string", "name": "name" },
                     { "type": "bool", "name": "initialized" }
                   ]
                 }

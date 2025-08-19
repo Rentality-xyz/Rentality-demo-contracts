@@ -49,6 +49,26 @@
     },
     {
       "type": "function",
+      "name": "addTaxes",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "string", "name": "location" },
+        { "type": "uint8", "name": "locationType" },
+        {
+          "type": "tuple[]",
+          "name": "taxes",
+          "components": [
+            { "type": "string", "name": "name" },
+            { "type": "uint32", "name": "value" },
+            { "type": "uint8", "name": "tType" }
+          ]
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
       "name": "calculateSumWithDiscount",
       "constant": true,
       "stateMutability": "view",
@@ -425,36 +445,48 @@
       "constant": true,
       "stateMutability": "view",
       "payable": false,
-      "inputs": [],
+      "inputs": [
+        { "type": "uint256", "name": "page" },
+        { "type": "uint256", "name": "itemsPerPage" }
+      ],
       "outputs": [
         {
-          "type": "tuple[]",
+          "type": "tuple",
           "name": "result",
           "components": [
             {
-              "type": "tuple",
-              "name": "kyc",
+              "type": "tuple[]",
+              "name": "kycInfos",
               "components": [
-                { "type": "string", "name": "name" },
-                { "type": "string", "name": "surname" },
-                { "type": "string", "name": "mobilePhoneNumber" },
-                { "type": "string", "name": "profilePhoto" },
-                { "type": "string", "name": "licenseNumber" },
-                { "type": "uint64", "name": "expirationDate" },
-                { "type": "uint256", "name": "createDate" },
-                { "type": "bool", "name": "isTCPassed" },
-                { "type": "bytes", "name": "TCSignature" }
+                {
+                  "type": "tuple",
+                  "name": "kyc",
+                  "components": [
+                    { "type": "string", "name": "name" },
+                    { "type": "string", "name": "surname" },
+                    { "type": "string", "name": "mobilePhoneNumber" },
+                    { "type": "string", "name": "profilePhoto" },
+                    { "type": "string", "name": "licenseNumber" },
+                    { "type": "uint64", "name": "expirationDate" },
+                    { "type": "uint256", "name": "createDate" },
+                    { "type": "bool", "name": "isTCPassed" },
+                    { "type": "bytes", "name": "TCSignature" }
+                  ]
+                },
+                {
+                  "type": "tuple",
+                  "name": "additionalKYC",
+                  "components": [
+                    { "type": "string", "name": "issueCountry" },
+                    { "type": "string", "name": "email" }
+                  ]
+                },
+                { "type": "address", "name": "wallet" },
+                { "type": "bool", "name": "isEmailVerified" },
+                { "type": "string", "name": "pushToken" }
               ]
             },
-            {
-              "type": "tuple",
-              "name": "additionalKYC",
-              "components": [
-                { "type": "string", "name": "issueCountry" },
-                { "type": "string", "name": "email" }
-              ]
-            },
-            { "type": "address", "name": "wallet" }
+            { "type": "uint256", "name": "totalPageCount" }
           ]
         }
       ]
@@ -587,6 +619,48 @@
     },
     {
       "type": "function",
+      "name": "getUserFullKYCInfo",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "user" }],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "fullKycInfo",
+          "components": [
+            {
+              "type": "tuple",
+              "name": "kyc",
+              "components": [
+                { "type": "string", "name": "name" },
+                { "type": "string", "name": "surname" },
+                { "type": "string", "name": "mobilePhoneNumber" },
+                { "type": "string", "name": "profilePhoto" },
+                { "type": "string", "name": "licenseNumber" },
+                { "type": "uint64", "name": "expirationDate" },
+                { "type": "uint256", "name": "createDate" },
+                { "type": "bool", "name": "isTCPassed" },
+                { "type": "bytes", "name": "TCSignature" }
+              ]
+            },
+            {
+              "type": "tuple",
+              "name": "additionalKYC",
+              "components": [
+                { "type": "string", "name": "issueCountry" },
+                { "type": "string", "name": "email" }
+              ]
+            },
+            { "type": "bool", "name": "isPhoneVerified" },
+            { "type": "bool", "name": "isEmailVerified" },
+            { "type": "string", "name": "pushToken" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
       "name": "getUserServiceAddress",
       "constant": true,
       "stateMutability": "view",
@@ -614,7 +688,8 @@
         { "type": "address", "name": "refferalProgramAddress" },
         { "type": "address", "name": "promoServiceAddress" },
         { "type": "address", "name": "dimoServiceAddress" },
-        { "type": "address", "name": "investmentAddress" }
+        { "type": "address", "name": "investmentAddress" },
+        { "type": "address", "name": "notificationServiceAddress" }
       ],
       "outputs": []
     },
@@ -758,10 +833,32 @@
     },
     {
       "type": "function",
-      "name": "setInsuranceService",
+      "name": "setDefaultDiscount",
       "constant": false,
       "payable": false,
-      "inputs": [{ "type": "address", "name": "insurance" }],
+      "inputs": [
+        {
+          "type": "tuple",
+          "name": "newDiscounts",
+          "components": [
+            { "type": "uint32", "name": "threeDaysDiscount" },
+            { "type": "uint32", "name": "sevenDaysDiscount" },
+            { "type": "uint32", "name": "thirtyDaysDiscount" },
+            { "type": "bool", "name": "initialized" }
+          ]
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "setDefaultPrices",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint64", "name": "underTwentyFiveMilesInUsdCents" },
+        { "type": "uint64", "name": "aboveTwentyFiveMilesInUsdCents" }
+      ],
       "outputs": []
     },
     {
@@ -790,50 +887,10 @@
     },
     {
       "type": "function",
-      "name": "setPromoService",
-      "constant": false,
-      "payable": false,
-      "inputs": [{ "type": "address", "name": "promoServiceAddress" }],
-      "outputs": []
-    },
-    {
-      "type": "function",
       "name": "transferOwnership",
       "constant": false,
       "payable": false,
       "inputs": [{ "type": "address", "name": "newOwner" }],
-      "outputs": []
-    },
-    {
-      "type": "function",
-      "name": "updateDeliveryService",
-      "constant": false,
-      "payable": false,
-      "inputs": [{ "type": "address", "name": "contractAddress" }],
-      "outputs": []
-    },
-    {
-      "type": "function",
-      "name": "updateDimoService",
-      "constant": false,
-      "payable": false,
-      "inputs": [{ "type": "address", "name": "dimoServiceAddress" }],
-      "outputs": []
-    },
-    {
-      "type": "function",
-      "name": "updateGeoServiceAddress",
-      "constant": false,
-      "payable": false,
-      "inputs": [{ "type": "address", "name": "newGeoServiceAddress" }],
-      "outputs": []
-    },
-    {
-      "type": "function",
-      "name": "updateInvestmentAddress",
-      "constant": false,
-      "payable": false,
-      "inputs": [{ "type": "address", "name": "investmentAddress" }],
       "outputs": []
     },
     {

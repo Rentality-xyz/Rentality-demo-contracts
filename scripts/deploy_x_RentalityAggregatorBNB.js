@@ -21,14 +21,11 @@ async function main() {
     'RentalityCurrencyConverter'
   )
 
-  const bnbOracleContract = await ethers.getContractAt('AggregatorV3Interface',bnbOracleAddress)
+  const bnbOracleContract = await ethers.getContractAt('AggregatorV3Interface', bnbOracleAddress)
   const decimals = await bnbOracleContract.decimals()
   const description = await bnbOracleContract.description()
   const [roundId, answer, startedAt, updatedAt, answeredInRound] = await bnbOracleContract.latestRoundData()
   console.log(`decimals: ${decimals}, description: ${description}, answer: ${answer}`)
-
-
-
 
   const contractFactory = await ethers.getContractFactory(contractName)
 
@@ -44,14 +41,13 @@ async function main() {
     getContractAddress('RentalityETHConvertor', 'scripts/deploy_2c_RentalityEthService.js', chainId),
     'RentalityETHConvertor'
   )
-  
 
   const bnbContract = await ethers.getContractAt('RentalityETHConvertor', bnbService)
   await bnbContract.setRateFeed(await contract.getAddress())
 
   const converter = await ethers.getContractAt('RentalityCurrencyConverter', rentalityCurrencyConverterAddress)
   console.log(await converter.addCurrencyType(ethToken, bnbService, 'BNB'))
-  console.log(await converter.getFromUsdLatest(ethToken, 10000))
+  console.log(await converter.getFromUsdCentsLatest(ethToken, 10000))
 }
 
 main()

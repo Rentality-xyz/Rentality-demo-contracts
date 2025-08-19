@@ -63,7 +63,7 @@ contract RentalityClaimService is Initializable, UUPSAccess {
     address host,
     address guest,
     address user
-  ) public onlyManager {
+  ) public onlyManager returns(uint) {
     require(request.amountInUsdCents > 0, 'Amount can not be null.');
 
     claimId += 1;
@@ -94,6 +94,7 @@ contract RentalityClaimService is Initializable, UUPSAccess {
       host == user ? guest : host,
       host == user ? host : guest
     );
+    return claimId;
   }
 
   /// @dev Rejects a claim, only callable by managers contracts.
@@ -179,10 +180,11 @@ contract RentalityClaimService is Initializable, UUPSAccess {
     platformFeeInPPM = value;
   }
 
-  function addClaimType(string memory name, Schemas.ClaimCreator creator) public {
+  function addClaimType(string memory name, Schemas.ClaimCreator creator) public returns (uint){
     require(userService.isAdmin(tx.origin), 'Only admin.');
     claimTypeNumber += 1;
     claimTypeNumberToClaimType[claimTypeNumber] = Schemas.ClaimTypeV2(claimTypeNumber, name, creator);
+    return claimTypeNumber;
   }
   function removeClaimType(uint8 claimType) public {
     require(userService.isAdmin(tx.origin), 'Only admin');
@@ -249,7 +251,7 @@ contract RentalityClaimService is Initializable, UUPSAccess {
     );
     claimTypeNumberToClaimType[uint8(Schemas.ClaimType.LateReturn)] = Schemas.ClaimTypeV2(
       uint8(Schemas.ClaimType.LateReturn),
-      'LateReturn',
+      'Late return',
       Schemas.ClaimCreator.Host
     );
 
@@ -265,12 +267,12 @@ contract RentalityClaimService is Initializable, UUPSAccess {
     );
     claimTypeNumberToClaimType[uint8(Schemas.ClaimType.ExteriorDamage)] = Schemas.ClaimTypeV2(
       uint8(Schemas.ClaimType.ExteriorDamage),
-      'ExteriorDamage',
+      'Exterior damage',
       Schemas.ClaimCreator.Both
     );
     claimTypeNumberToClaimType[uint8(Schemas.ClaimType.InteriorDamage)] = Schemas.ClaimTypeV2(
       uint8(Schemas.ClaimType.InteriorDamage),
-      'InteriorDamage',
+      'Interior damage',
       Schemas.ClaimCreator.Both
     );
     claimTypeNumberToClaimType[uint8(Schemas.ClaimType.Other)] = Schemas.ClaimTypeV2(
@@ -281,12 +283,12 @@ contract RentalityClaimService is Initializable, UUPSAccess {
 
     claimTypeNumberToClaimType[uint8(Schemas.ClaimType.FaultyVehicle)] = Schemas.ClaimTypeV2(
       uint8(Schemas.ClaimType.FaultyVehicle),
-      'FaultyVehicle',
+      'Faulty vehicle',
       Schemas.ClaimCreator.Guest
     );
     claimTypeNumberToClaimType[uint8(Schemas.ClaimType.ListingMismatch)] = Schemas.ClaimTypeV2(
       uint8(Schemas.ClaimType.ListingMismatch),
-      'ListingMismatch',
+      'Listing mismatch',
       Schemas.ClaimCreator.Guest
     );
     claimTypeNumber = 9;
@@ -316,5 +318,59 @@ contract RentalityClaimService is Initializable, UUPSAccess {
     waitingTimeForApproveInSec = 259_200;
     platformFeeInPPM = 0;
     eventManager = RentalityNotificationService(_eventManager);
+
+        claimTypeNumberToClaimType[uint8(Schemas.ClaimType.Tolls)] = Schemas.ClaimTypeV2(
+      uint8(Schemas.ClaimType.Tolls),
+      'Tolls',
+      Schemas.ClaimCreator.Host
+    );
+    claimTypeNumberToClaimType[uint8(Schemas.ClaimType.Tickets)] = Schemas.ClaimTypeV2(
+      uint8(Schemas.ClaimType.Tickets),
+      'Tickets',
+      Schemas.ClaimCreator.Host
+    );
+    claimTypeNumberToClaimType[uint8(Schemas.ClaimType.LateReturn)] = Schemas.ClaimTypeV2(
+      uint8(Schemas.ClaimType.LateReturn),
+      'Late return',
+      Schemas.ClaimCreator.Host
+    );
+
+    claimTypeNumberToClaimType[uint8(Schemas.ClaimType.Smoking)] = Schemas.ClaimTypeV2(
+      uint8(Schemas.ClaimType.Smoking),
+      'Smoking',
+      Schemas.ClaimCreator.Both
+    );
+    claimTypeNumberToClaimType[uint8(Schemas.ClaimType.Cleanliness)] = Schemas.ClaimTypeV2(
+      uint8(Schemas.ClaimType.Cleanliness),
+      'Cleanliness',
+      Schemas.ClaimCreator.Both
+    );
+    claimTypeNumberToClaimType[uint8(Schemas.ClaimType.ExteriorDamage)] = Schemas.ClaimTypeV2(
+      uint8(Schemas.ClaimType.ExteriorDamage),
+      'Exterior damage',
+      Schemas.ClaimCreator.Both
+    );
+    claimTypeNumberToClaimType[uint8(Schemas.ClaimType.InteriorDamage)] = Schemas.ClaimTypeV2(
+      uint8(Schemas.ClaimType.InteriorDamage),
+      'Interior damage',
+      Schemas.ClaimCreator.Both
+    );
+    claimTypeNumberToClaimType[uint8(Schemas.ClaimType.Other)] = Schemas.ClaimTypeV2(
+      uint8(Schemas.ClaimType.Other),
+      'Other',
+      Schemas.ClaimCreator.Both
+    );
+
+    claimTypeNumberToClaimType[uint8(Schemas.ClaimType.FaultyVehicle)] = Schemas.ClaimTypeV2(
+      uint8(Schemas.ClaimType.FaultyVehicle),
+      'Faulty vehicle',
+      Schemas.ClaimCreator.Guest
+    );
+    claimTypeNumberToClaimType[uint8(Schemas.ClaimType.ListingMismatch)] = Schemas.ClaimTypeV2(
+      uint8(Schemas.ClaimType.ListingMismatch),
+      'Listing mismatch',
+      Schemas.ClaimCreator.Guest
+    );
+    claimTypeNumber = 9;
   }
 }

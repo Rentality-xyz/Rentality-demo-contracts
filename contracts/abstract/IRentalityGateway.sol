@@ -230,8 +230,10 @@ interface IRentalityGateway {
     uint64 endDateTime,
     Schemas.SearchCarParams memory searchParams,
     Schemas.LocationInfo memory pickUpInfo,
-    Schemas.LocationInfo memory returnInfo
-  ) external view returns (Schemas.SearchCarWithDistance[] memory foundCarsWithDistance);
+    Schemas.LocationInfo memory returnInfo,
+    uint from,
+    uint to
+  ) external view returns (Schemas.SearchCarsWithDistanceDTO memory foundCarsWithDistance);
 
   /// @notice Calculates the total payment for a car rental with delivery service
   /// @dev use an empty fields for latitude and longitude to skip location part
@@ -285,7 +287,7 @@ interface IRentalityGateway {
   /// @notice Creates a new claim through the Rentality platform.
   /// @dev This function delegates the claim creation to the Rentality platform contract.
   /// @param request Details of the claim to be created.
-  function createClaim(Schemas.CreateClaimRequest memory request) external;
+  function createClaim(Schemas.CreateClaimRequest memory request, bool isHostInsuranceClaim) external;
 
   /// @notice Rejects a specific claim through the Rentality platform.
   /// @dev This function delegates the claim rejection to the Rentality platform contract.
@@ -335,10 +337,13 @@ interface IRentalityGateway {
   /// @return insuranceInfo An array of insurance information specific to the guest
   function getMyInsurancesAsGuest() external view returns (Schemas.InsuranceInfo[] memory insuranceInfo);
 
+  function getGuestInsurance(address guest) external view returns (Schemas.InsuranceInfo[] memory insuranceInfo);
   /// @notice Saves insurance information related to a specific trip
   /// @param tripId The ID of the trip for which the insurance information is being saved
   /// @param insuranceInfo A struct containing the details of the insurance to be saved
   function saveTripInsuranceInfo(uint tripId, Schemas.SaveInsuranceRequest memory insuranceInfo) external;
+
+  function getTaxesInfoById(uint taxId) external view returns (Schemas.TaxesInfoDTO memory taxesInfoDTO);
 
   /// @notice Saves insurance information for a guest
   /// @param insuranceInfo A struct containing the details of the insurance requested by the guest
@@ -397,13 +402,29 @@ interface IRentalityGateway {
   function getDimoVihicles() external view returns (uint[] memory dimoVihicles);
   function saveDimoTokenIds(uint[] memory, uint[] memory) external;
 
-   function getAvaibleCurrencies() external view returns(Schemas.Currency[] memory avaibleCurrencies);
+  function getAvaibleCurrencies() external view returns (Schemas.Currency[] memory avaibleCurrencies);
+
+  function getAiDamageAnalyzeCaseRequest(
+    uint,
+    Schemas.CaseType
+  ) external view returns (Schemas.AiDamageAnalyzeCaseRequestDTO memory aiDamageAnalyzeCaseRequest);
+
+  function getUserCurrency(address user) external view returns (Schemas.UserCurrencyDTO memory userCurrency);
+
+  function addUserCurrency(address currency) external;
+
+  function getTotalCarsAmount() external view returns (uint totalCarsAmount);
+
+  function getPlatformInfo() external view returns(Schemas.PlatformInfoDTO memory platformInfo);
+
+  function setEmail(address user, string memory email, bool isVerified) external;
+
+  function getHostInsuranceClaims() external view returns(Schemas.ClaimV2[] memory claims);
+  function setHostInsurance(uint insuranceId) external;
 
 
-   function getAiDamageAnalyzeCaseData(uint, bool) external view returns(Schemas.AiDamageAnalyzeCaseDataDTO memory aiDamageAnalyzeCaseData);
+  function getHostInsuranceRule(address host) external view returns(Schemas.HostInsuranceRuleDTO memory insuranceRules);
+  function getAllInsuranceRules() external view returns(Schemas.HostInsuranceRuleDTO[] memory insuranceRules);
 
-  function getUserCurrency(address user) external view returns (Schemas.UserCurrency memory userCurrency);
-
-   function addUserCurrency(address currency) external;
-
+  function setPushToken(address user, string memory pushToken) external;
 }

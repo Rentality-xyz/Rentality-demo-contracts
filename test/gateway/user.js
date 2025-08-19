@@ -52,6 +52,14 @@ describe('RentalityGateway: user info', function () {
       rentalityLocationVerifier,
       adminKyc,
     } = await loadFixture(deployDefaultFixture))
+
+    await expect(
+      rentalityGateway.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+    ).not.to.be.reverted
+
+    await expect(
+      rentalityCarToken.connect(host).burnCar(1)
+    ).to.not.be.reverted
   })
 
   it('Should host be able to create KYC', async function () {
@@ -125,19 +133,19 @@ describe('RentalityGateway: user info', function () {
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,0,10
       )
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
 
     const dailyPriceInUsdCents = 1000
 
     const result = await rentalityGateway
       .connect(guest)
-      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
+      .calculatePaymentsWithDelivery(2, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
     await expect(
       await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
-          carId: 1,
+          carId: 2,
           startDateTime: 123,
           endDateTime: 321,
           currencyType: ethToken,
@@ -180,19 +188,19 @@ describe('RentalityGateway: user info', function () {
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,0,10
       )
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
 
     const dailyPriceInUsdCents = 1000
 
     const result = await rentalityGateway
       .connect(guest)
-      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
+      .calculatePaymentsWithDelivery(2, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
     await expect(
       await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
-          carId: 1,
+          carId: 2,
           startDateTime: 123,
           endDateTime: 321,
           currencyType: ethToken,
@@ -234,19 +242,19 @@ describe('RentalityGateway: user info', function () {
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,0,10
       )
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
 
     const dailyPriceInUsdCents = 1000
 
     const result = await rentalityGateway
       .connect(guest)
-      .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
+      .calculatePaymentsWithDelivery(2, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
     await expect(
       await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
-          carId: 1,
+          carId: 2,
           startDateTime: 123,
           endDateTime: 321,
           currencyType: ethToken,
@@ -292,9 +300,9 @@ describe('RentalityGateway: user info', function () {
         .setKYCInfo(name + 'host', number + 'host', photo + 'host', '', hostSignature, zeroHash)
     ).not.be.reverted
 
-    const availableCars = await rentalityGateway
+    const availableCars = (await rentalityGateway
       .connect(guest)
-      .searchAvailableCarsWithDelivery(0, 1, getEmptySearchCarParams(0), emptyLocationInfo, emptyLocationInfo)
+      .searchAvailableCarsWithDelivery(0, 1, getEmptySearchCarParams(0), emptyLocationInfo, emptyLocationInfo,0,10)).cars
     expect(availableCars.length).to.equal(1)
     expect(availableCars[0].car.hostPhotoUrl).to.be.eq(photo + 'host')
     expect(availableCars[0].car.hostName).to.be.eq(name + 'host')
@@ -339,5 +347,33 @@ describe('RentalityGateway: user info', function () {
     expect(kycInfo.kyc.expirationDate).to.equal(expirationDate)
     expect(kycInfo.additionalKYC.email).to.eq(kyc.email)
     expect(kycInfo.additionalKYC.issueCountry).to.eq(kyc.issueCountry)
+  })
+
+  it('All users with pagination', async function () {
+    let name = 'name'
+    let surname = 'surname'
+    let number = '+380'
+    let photo = 'photo'
+    let licenseNumber = 'licenseNumber'
+    let expirationDate = 10
+
+    const hostSignature = await signTCMessage(anonymous)
+
+    let kyc = {
+      fullName: surname,
+      licenseNumber: licenseNumber,
+      expirationDate: expirationDate,
+      issueCountry: 'ISSUE',
+      email: 'EMAIL',
+    }
+
+    await expect(rentalityGateway.connect(anonymous).setKYCInfo(name, number, photo, '', hostSignature, zeroHash)).not.be
+    .reverted
+    let kycInfos = await rentalityAdminGateway.connect(owner).getPlatformUsersInfo(1, 2)
+    expect(kycInfos.totalPageCount).to.equal(2)
+    expect(kycInfos.kycInfos.length).to.equal(2)
+    kycInfos = await rentalityAdminGateway.getPlatformUsersInfo(4, 1)
+    expect(kycInfos.totalPageCount).to.equal(4)
+    expect(kycInfos.kycInfos.length).to.equal(1)
   })
 })

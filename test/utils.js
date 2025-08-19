@@ -17,6 +17,12 @@ const encodeTaxes = (data) => {
     [values]   
   );
 }
+
+const TaxesLocationType = {
+  State: 0,
+  City: 1,
+  Country: 2,
+}
 const UserRole = {
   Guest: 0,
   Host: 1,
@@ -47,7 +53,7 @@ const signDimoToken = async (user, token) => {
 const emptyLocationInfo = {
   userAddress: '',
   country: '',
-  state: 'Florida',
+  state: '',
   city: '',
   latitude: '',
   longitude: '',
@@ -104,17 +110,16 @@ const calculatePayments = async (currencyConverter, paymentService, value, tripD
 
   const [rate, decimals] = await currencyConverter.getCurrentRate(token)
 
-  const rentPriceInEth = await currencyConverter.getFromUsd(
+  const rentPriceInEth = await currencyConverter.getFromUsdCents(
     token,
     priceWithDiscount + totalTaxes + BigInt(deposit),
-    rate,
-    decimals
+    rate
   )
-  const taxes = await currencyConverter.getFromUsd(token, totalTaxes, rate, decimals)
+  const taxes = await currencyConverter.getFromUsdCents(token, totalTaxes, rate)
 
   const feeInUsdCents = await paymentService.getPlatformFeeFrom(priceWithDiscount)
 
-  const rentalityFee = await currencyConverter.getFromUsd(token, feeInUsdCents, rate, decimals)
+  const rentalityFee = await currencyConverter.getFromUsdCents(token, feeInUsdCents, rate)
 
   return {
     rentPriceInEth,
@@ -134,17 +139,16 @@ const calculatePaymentsFrom = async (currencyConverter, paymentService, value, t
   let totalTaxes = await paymentService.calculateTaxes(1, tripDays, priceWithDiscount)
   const [rate, decimals] = await currencyConverter.getCurrentRate(token)
 
-  const rentPriceInEth = await currencyConverter.getFromUsd(
+  const rentPriceInEth = await currencyConverter.getFromUsdCents(
     token,
     priceWithDiscount + totalTaxes + BigInt(deposit),
-    rate,
-    decimals
+    rate
   )
-  const taxes = await currencyConverter.getFromUsd(token, totalTaxes, rate, decimals)
+  const taxes = await currencyConverter.getFromUsdCents(token, totalTaxes, rate)
 
   const feeInUsdCents = await paymentService.getPlatformFeeFrom(priceWithDiscount)
 
-  const rentalityFee = await currencyConverter.getFromUsd(token, feeInUsdCents, rate, decimals)
+  const rentalityFee = await currencyConverter.getFromUsdCents(token, feeInUsdCents, rate)
 
   return {
     rentPrice: rentPriceInEth,
@@ -368,7 +372,7 @@ async function deployDefaultFixture() {
   let rentalityMockPriceFeed = await RentalityMockPriceFeed.deploy(8, 200000000000)
   await rentalityMockPriceFeed.waitForDeployment()
 
-  let rentalityMockUsdtPriceFeed = await RentalityMockPriceFeed.deploy(6, 100)
+  let rentalityMockUsdtPriceFeed = await RentalityMockPriceFeed.deploy(8, 100016719)
   await rentalityMockPriceFeed.waitForDeployment()
 
   const MockCivic = await ethers.getContractFactory('CivicMockVerifier')
@@ -380,6 +384,7 @@ async function deployDefaultFixture() {
   await rentalityUserService.waitForDeployment()
 
   await rentalityUserService.manageRole(4, owner.address, true)
+    await rentalityUserService.manageRole(5, owner.address, true)
   await rentalityUserService.manageRole(7, owner.address, true)
   await rentalityUserService.grantPlatformRole(owner.address)
 
@@ -533,17 +538,26 @@ async function deployDefaultFixture() {
   ])
   await investorsService.waitForDeployment()
 
+  let HostInsurance =  await ethers.getContractFactory('RentalityHostInsurance')
+  let hostInsurance = await upgrades.deployProxy(HostInsurance, [
+    await rentalityUserService.getAddress(),
+  ])
+  await hostInsurance.waitForDeployment()
+
   const rentalityPaymentService = await upgrades.deployProxy(RentalityPaymentService, [
     await rentalityUserService.getAddress(),
     await rentalityTaxes.getAddress(),
     await rentalityBaseDiscount.getAddress(),
     await investorsService.getAddress(),
+    await hostInsurance.getAddress()
+    
   ])
   await rentalityPaymentService.waitForDeployment()
 
 
   await rentalityPaymentService.addTaxes(
     'Florida',
+    0,
     [{name:"salesTax",value:70_000, tType:2},
       {name:"governmentTax",value:200, tType:0} 
     ]
@@ -552,6 +566,7 @@ async function deployDefaultFixture() {
 
  await rentalityPaymentService.addTaxes(
   'Pennsylvania',
+  0,
   [{name:"salesTax",value:60_000, tType:2},
     {name:"governmentTax",value:20_000, tType:2},
     {name:"rentTax",value:200, tType:0}
@@ -608,7 +623,9 @@ async function deployDefaultFixture() {
     await insuranceService.getAddress(),
     await promoService.getAddress(),
     await rentalityDimo.getAddress(),
-    await rentalityAiDamageAnalyze.getAddress()
+    await rentalityAiDamageAnalyze.getAddress(),
+    await hostInsurance.getAddress()
+
   ])
   await rentalityTripsView.waitForDeployment()
 
@@ -656,6 +673,8 @@ async function deployDefaultFixture() {
     await refferalProgram.getAddress(),
     await promoService.getAddress(),
     await rentalityDimo.getAddress(),
+    await rentalityNotificationService.getAddress(),
+    await hostInsurance.getAddress()
   ])
   await rentalityPlatformHelper.waitForDeployment()
 
@@ -675,6 +694,8 @@ async function deployDefaultFixture() {
     await rentalityPlatformHelper.getAddress(),
   ])
   await rentalityPlatform.waitForDeployment()
+
+  await rentalityPlatform.setHostInsuranceAddress(await hostInsurance.getAddress())
 
   await promoService.generateGeneralCode(0, new Date().getTime() + 86400)
 
@@ -703,6 +724,7 @@ async function deployDefaultFixture() {
     await promoService.getAddress(),
     await rentalityDimo.getAddress(),
     await investorsService.getAddress(),
+    await rentalityNotificationService.getAddress(),
   ])
   await rentalityAdminGateway.waitForDeployment()
 
@@ -818,7 +840,8 @@ async function deployDefaultFixture() {
     hashCreator,
     promoService,
     ethContract,
-    usdtPaymentContract
+    usdtPaymentContract,
+    hostInsurance
   }
 }
 
@@ -851,5 +874,6 @@ module.exports = {
   taxesWithRentSign,
   taxesWithoutRentSign,
   encodeTaxes,
-  taxesGOVConst
+  taxesGOVConst,
+  TaxesLocationType
 }

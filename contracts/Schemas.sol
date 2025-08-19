@@ -198,6 +198,8 @@ interface Schemas {
     uint promoDiscount;
     uint dimoTokenId;
     TaxValue[] taxesData;
+    
+    UserCurrencyDTO currency;
 
   }
 
@@ -247,7 +249,7 @@ interface Schemas {
     uint amountInEth;
     string timeZoneId;
     ClaimTypeV2 claimType;
-    address currency;
+    UserCurrencyDTO currency;
   }
 
   // Struct to represent a claim
@@ -434,17 +436,30 @@ interface Schemas {
     KYCInfo kyc;
     AdditionalKYCInfo additionalKYC;
     bool isPhoneVerified;
+    bool isEmailVerified;
+    string pushToken;
   }
   struct AdminKYCInfoDTO {
     KYCInfo kyc;
     AdditionalKYCInfo additionalKYC;
     address wallet;
+    bool isEmailVerified;
+    string pushToken;
+  }
+
+  struct AdminKYCInfosDTO {
+    AdminKYCInfoDTO[] kycInfos;
+    uint totalPageCount;
   }
 
   /// Query
   struct SearchCarWithDistance {
     SearchCar car;
     int distance;
+  }
+    struct SearchCarsWithDistanceDTO {
+    SearchCarWithDistance[] cars;
+    uint totalCarsSupply;
   }
 
   struct SearchCar {
@@ -473,7 +488,7 @@ interface Schemas {
     InsuranceCarInfo insuranceInfo;
     bool isGuestHasInsurance;
     uint dimoTokenId;
-    UserCurrency hostCurrency;
+    UserCurrencyDTO hostCurrency;
   }
   struct AvailableCarDTO {
     uint carId;
@@ -505,11 +520,18 @@ interface Schemas {
     uint dimoTokenId;
     TaxValue[] taxes;
     uint64 totalTax;
-    UserCurrency hostCurrency;
+    UserCurrencyDTO hostCurrency;
   }
 
   struct UserCurrency {
   address currency;
+  bool initialized;
+}
+
+
+  struct UserCurrencyDTO {
+  address currency;
+  string name;
   bool initialized;
 }
 
@@ -566,8 +588,8 @@ interface Schemas {
   }
 
   enum TaxesLocationType {
-    City,
     State,
+    City,
     Country
   }
 
@@ -648,6 +670,7 @@ interface Schemas {
     string symbol;
     uint priceInUsdCents;
     uint payedInCurrency;
+    bool listed;
   }
 
   struct TripFilter {
@@ -833,7 +856,20 @@ interface Schemas {
   enum EventType {
     Car,
     Claim,
-    Trip
+    Trip,
+    User,
+    Insurance,
+    Taxes,
+    Discount,
+    Delivery,
+    Currency,
+    AddClaimType, 
+    SaveTripInsurance
+  }
+
+  enum EventCreator {
+    User,
+    Admin
   }
   struct FilterInfoDTO {
     uint64 maxCarPrice;
@@ -936,12 +972,37 @@ interface Schemas {
     uint promoCodeEnterDate;
   }
 
-  struct AiDamageAnalyzeCaseDataDTO {
-      uint caseNumber;
-      string email;
-      string name;
-      string iCase;
-      string vin;
+struct CaseTokenInfo {
+  uint caseId;
+  uint updateDate;
+  string url;
+}
+
+enum CaseType {
+  PreTrip,
+  PostTrip
+}
+
+struct CaseInfo {
+  uint caseId;
+  uint tripId;
+  string caseToken;
+  uint createDate;
+  CaseType caseType;
+}
+
+struct AiDamageAnalyzeCaseDTO {
+  uint caseId;
+  CaseType caseType;
+  string caseToken;
+  string url;
+}
+struct AiDamageAnalyzeCaseRequestDTO {
+  uint lastCaseId;
+  string email;
+  string name;
+  string caseToken;
+  string vin;
  }
  struct InsuranceCase {
   string iCase;
@@ -969,6 +1030,13 @@ enum TaxesType {
   PPM
 }
 
+struct TaxesInfoDTO {
+  string location;
+  TaxesLocationType locationType;
+  Schemas.TaxValue[] taxes;
+}
+
+
    struct Round {
         int256 answer;
         uint256 startedAt;
@@ -979,5 +1047,27 @@ struct OracleUpdate {
   address feed;
   int answer;
 }
+
+struct PlatformInfoDTO {
+  uint totalUsers;
+  uint totalTrips;
+  uint totalCars;
+}
+struct HostInsuranceRule {
+  uint partToInsurance;
+
+}
+
+struct HostInsuranceRuleDTO {
+  uint partToInsurance;
+  uint insuranceId;
+
+}
+struct HostInsuranceAvarage { 
+  uint totalTripsCount;
+  uint totalPercents;
+
+}
+
 
 }

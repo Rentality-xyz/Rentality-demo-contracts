@@ -168,7 +168,8 @@
             { "type": "uint64", "name": "amountInUsdCents" },
             { "type": "string", "name": "photosUrl" }
           ]
-        }
+        },
+        { "type": "bool", "name": "isInsuranceClaim" }
       ],
       "outputs": []
     },
@@ -316,6 +317,14 @@
     },
     {
       "type": "function",
+      "name": "setHostInsuranceAddress",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "_hostInsurance" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
       "name": "setTrustedForwarder",
       "constant": false,
       "payable": false,
@@ -328,17 +337,6 @@
       "constant": false,
       "payable": false,
       "inputs": [{ "type": "address", "name": "newOwner" }],
-      "outputs": []
-    },
-    {
-      "type": "function",
-      "name": "updateServiceAddresses",
-      "constant": false,
-      "payable": false,
-      "inputs": [
-        { "type": "address", "name": "adminService" },
-        { "type": "address", "name": "platformHelperAddress" }
-      ],
       "outputs": []
     },
     {

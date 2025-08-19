@@ -341,11 +341,11 @@ library RentalityUtils {
       (bytes(searchCarParams.brand).length == 0 || containWord(toLower(car.brand), toLower(searchCarParams.brand))) &&
       (bytes(searchCarParams.model).length == 0 || containWord(toLower(car.model), toLower(searchCarParams.model))) &&
       (bytes(searchCarParams.country).length == 0 ||
-        containWord(toLower(geoService.getCarCountry(car.locationHash)), toLower(searchCarParams.country))) &&
+        compareStrings(toLower(geoService.getCarCountry(car.locationHash)), toLower(searchCarParams.country))) &&
       (bytes(searchCarParams.state).length == 0 ||
-        containWord(toLower(geoService.getCarState(car.locationHash)), toLower(searchCarParams.state))) &&
+        compareStrings(toLower(geoService.getCarState(car.locationHash)),toLower(searchCarParams.state))) &&
       (bytes(searchCarParams.city).length == 0 ||
-        containWord(toLower(geoService.getCarCity(car.locationHash)), toLower(searchCarParams.city))) &&
+        compareStrings(toLower(geoService.getCarCity(car.locationHash)), toLower(searchCarParams.city))) &&
       (searchCarParams.yearOfProductionFrom == 0 || car.yearOfProduction >= searchCarParams.yearOfProductionFrom) &&
       (searchCarParams.yearOfProductionTo == 0 || car.yearOfProduction <= searchCarParams.yearOfProductionTo) &&
       (searchCarParams.pricePerDayInUsdCentsFrom == 0 ||
@@ -353,6 +353,7 @@ library RentalityUtils {
       (searchCarParams.pricePerDayInUsdCentsTo == 0 ||
         car.pricePerDayInUsdCents <= searchCarParams.pricePerDayInUsdCentsTo);
   }
+
 
   /// @dev Calculates the payments for a trip.
   /// @param carId The ID of the car.
@@ -447,7 +448,7 @@ library RentalityUtils {
       totalPrice += insuranceService.getInsurancePriceByCar(carId) * daysOfTrip;
     }
 
-    (uint256 valueSumInCurrency, int rate, uint8 decimals) = addresses.currencyConverterService.getFromUsdLatest(
+    (uint256 valueSumInCurrency, int rate, uint8 decimals) = addresses.currencyConverterService.getFromUsdCentsLatest(
       currency,
       totalPrice
     );
@@ -554,7 +555,7 @@ library RentalityUtils {
       priceWithPromo = (sumBeforePromo - ((sumBeforePromo * discount) / 100));
     }
 
-    (uint valueSumInCurrency, int rate, uint8 decimals) = addresses.currencyConverterService.getFromUsdLatest(
+    (uint valueSumInCurrency, int rate, uint8 decimals) = addresses.currencyConverterService.getFromUsdCentsLatest(
       currencyType,
       valueSum
     );
@@ -564,11 +565,10 @@ library RentalityUtils {
     if (discount > 0) {
       valueSumWithPromo = priceWithPromo;
 
-      valueSumInCurrency = addresses.currencyConverterService.getFromUsd(
+      valueSumInCurrency = addresses.currencyConverterService.getFromUsdCents(
         currencyType,
         priceWithPromo + carInfo.securityDepositPerTripInUsdCents + insurance,
-        rate,
-        decimals
+        rate
       );
     }
 
@@ -652,11 +652,10 @@ library RentalityUtils {
     string memory guestPhoneNumber = contracts.userService.getKYCInfo(trip.guest).mobilePhoneNumber;
     string memory hostPhoneNumber = contracts.userService.getKYCInfo(trip.host).mobilePhoneNumber;
 
-    uint valueInCurrency = currencyConverterService.getFromUsd(
+    uint valueInCurrency = currencyConverterService.getFromUsdCents(
       trip.paymentInfo.currencyType,
       claim.amountInUsdCents,
-      trip.paymentInfo.currencyRate,
-      trip.paymentInfo.currencyDecimals
+      trip.paymentInfo.currencyRate
     );
 
     return
@@ -670,7 +669,7 @@ library RentalityUtils {
         valueInCurrency,
         IRentalityGeoService(contracts.carService.getGeoServiceAddress()).getCarTimeZoneId(car.locationHash),
          contracts.claimService.getClaimTypeInfo(claim.claimType),
-        contracts.currencyConverterService.getUserCurrency(trip.host).currency
+        contracts.currencyConverterService.getUserCurrency(trip.host)
       );
   }
 
@@ -762,10 +761,12 @@ library RentalityUtils {
   function verifyClaim(
     RentalityContract memory addresses,
     Schemas.CreateClaimRequest memory request,
-    address user
+    address user,
+    bool isInsuranceClaim
   ) public view returns (address, address) {
     Schemas.Trip memory trip = addresses.tripService.getTrip(request.tripId);
 
+    require(!isInsuranceClaim || trip.host == user,"RentalityUtils: insurance claim only for hosts");
     require(
       (trip.host == user && addresses.claimService.claimTypeExists(request.claimType, true)) ||
         (trip.guest == user && addresses.claimService.claimTypeExists(request.claimType, false)),

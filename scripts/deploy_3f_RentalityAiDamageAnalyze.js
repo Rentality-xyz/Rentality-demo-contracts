@@ -5,7 +5,7 @@ const { startDeploy, checkNotNull } = require('./utils/deployHelper')
 const { getContractAddress } = require('./utils/contractAddress')
 
 async function main() {
-  const { contractName, chainId } = await startDeploy('RentalityAiDamageAnalyze')
+  const { contractName, chainId } = await startDeploy('RentalityAiDamageAnalyzeV2')
 
   if (chainId < 0) throw new Error('chainId is not set')
 

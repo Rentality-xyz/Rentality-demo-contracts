@@ -278,6 +278,7 @@
               "name": "hostCurrency",
               "components": [
                 { "type": "address", "name": "currency" },
+                { "type": "string", "name": "name" },
                 { "type": "bool", "name": "initialized" }
               ]
             }
@@ -379,7 +380,8 @@
             { "type": "uint64", "name": "amountInUsdCents" },
             { "type": "string", "name": "photosUrl" }
           ]
-        }
+        },
+        { "type": "bool", "name": "isHostInsuranceClaim" }
       ],
       "outputs": []
     },
@@ -454,6 +456,30 @@
     },
     {
       "type": "function",
+      "name": "getAiDamageAnalyzeCaseRequest",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        { "type": "uint256", "name": "" },
+        { "type": "uint8", "name": "" }
+      ],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "aiDamageAnalyzeCaseRequest",
+          "components": [
+            { "type": "uint256", "name": "lastCaseId" },
+            { "type": "string", "name": "email" },
+            { "type": "string", "name": "name" },
+            { "type": "string", "name": "caseToken" },
+            { "type": "string", "name": "vin" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
       "name": "getAllCars",
       "constant": true,
       "stateMutability": "view",
@@ -482,6 +508,24 @@
             { "type": "string", "name": "timeZoneId" },
             { "type": "bool", "name": "insuranceIncluded" },
             { "type": "bytes32", "name": "locationHash" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getAllInsuranceRules",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "tuple[]",
+          "name": "insuranceRules",
+          "components": [
+            { "type": "uint256", "name": "partToInsurance" },
+            { "type": "uint256", "name": "insuranceId" }
           ]
         }
       ]
@@ -801,7 +845,15 @@
                 { "type": "uint8", "name": "creator" }
               ]
             },
-            { "type": "address", "name": "currency" }
+            {
+              "type": "tuple",
+              "name": "currency",
+              "components": [
+                { "type": "address", "name": "currency" },
+                { "type": "string", "name": "name" },
+                { "type": "bool", "name": "initialized" }
+              ]
+            }
           ]
         }
       ]
@@ -887,6 +939,75 @@
     },
     {
       "type": "function",
+      "name": "getGuestInsurance",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "guest" }],
+      "outputs": [
+        {
+          "type": "tuple[]",
+          "name": "insuranceInfo",
+          "components": [
+            { "type": "string", "name": "companyName" },
+            { "type": "string", "name": "policyNumber" },
+            { "type": "string", "name": "photo" },
+            { "type": "string", "name": "comment" },
+            { "type": "uint8", "name": "insuranceType" },
+            { "type": "uint256", "name": "createdTime" },
+            { "type": "address", "name": "createdBy" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getHostInsuranceClaims",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "tuple[]",
+          "name": "claims",
+          "components": [
+            { "type": "uint256", "name": "tripId" },
+            { "type": "uint256", "name": "claimId" },
+            { "type": "uint256", "name": "deadlineDateInSec" },
+            { "type": "uint8", "name": "claimType" },
+            { "type": "uint8", "name": "status" },
+            { "type": "string", "name": "description" },
+            { "type": "uint64", "name": "amountInUsdCents" },
+            { "type": "uint256", "name": "payDateInSec" },
+            { "type": "address", "name": "rejectedBy" },
+            { "type": "uint256", "name": "rejectedDateInSec" },
+            { "type": "string", "name": "photosUrl" },
+            { "type": "bool", "name": "isHostClaims" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getHostInsuranceRule",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "host" }],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "insuranceRules",
+          "components": [
+            { "type": "uint256", "name": "partToInsurance" },
+            { "type": "uint256", "name": "insuranceId" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
       "name": "getInsurancesBy",
       "constant": true,
       "stateMutability": "view",
@@ -932,30 +1053,6 @@
       "payable": false,
       "inputs": [],
       "outputs": [{ "type": "uint256", "name": "kycCommision" }]
-    },
-    {
-      "type": "function",
-      "name": "getAiDamageAnalyzeCaseData",
-      "constant": true,
-      "stateMutability": "view",
-      "payable": false,
-      "inputs": [
-        { "type": "uint256", "name": "" },
-        { "type": "bool", "name": "" }
-      ],
-      "outputs": [
-        {
-          "type": "tuple",
-          "name": "aiDamageAnalyzeCaseData",
-          "components": [
-            { "type": "uint256", "name": "caseNumber" },
-            { "type": "string", "name": "email" },
-            { "type": "string", "name": "name" },
-            { "type": "string", "name": "iCase" },
-            { "type": "string", "name": "vin" }
-          ]
-        }
-      ]
     },
     {
       "type": "function",
@@ -1069,7 +1166,15 @@
                 { "type": "uint8", "name": "creator" }
               ]
             },
-            { "type": "address", "name": "currency" }
+            {
+              "type": "tuple",
+              "name": "currency",
+              "components": [
+                { "type": "address", "name": "currency" },
+                { "type": "string", "name": "name" },
+                { "type": "bool", "name": "initialized" }
+              ]
+            }
           ]
         }
       ]
@@ -1109,7 +1214,9 @@
                 { "type": "string", "name": "email" }
               ]
             },
-            { "type": "bool", "name": "isPhoneVerified" }
+            { "type": "bool", "name": "isPhoneVerified" },
+            { "type": "bool", "name": "isEmailVerified" },
+            { "type": "string", "name": "pushToken" }
           ]
         }
       ]
@@ -1136,6 +1243,61 @@
           ]
         }
       ]
+    },
+    {
+      "type": "function",
+      "name": "getPlatformInfo",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "platformInfo",
+          "components": [
+            { "type": "uint256", "name": "totalUsers" },
+            { "type": "uint256", "name": "totalTrips" },
+            { "type": "uint256", "name": "totalCars" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getTaxesInfoById",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "taxId" }],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "taxesInfoDTO",
+          "components": [
+            { "type": "string", "name": "location" },
+            { "type": "uint8", "name": "locationType" },
+            {
+              "type": "tuple[]",
+              "name": "taxes",
+              "components": [
+                { "type": "string", "name": "name" },
+                { "type": "uint32", "name": "value" },
+                { "type": "uint8", "name": "tType" }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getTotalCarsAmount",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "uint256", "name": "totalCarsAmount" }]
     },
     {
       "type": "function",
@@ -1281,6 +1443,15 @@
                 { "type": "string", "name": "name" },
                 { "type": "uint32", "name": "value" },
                 { "type": "uint8", "name": "tType" }
+              ]
+            },
+            {
+              "type": "tuple",
+              "name": "currency",
+              "components": [
+                { "type": "address", "name": "currency" },
+                { "type": "string", "name": "name" },
+                { "type": "bool", "name": "initialized" }
               ]
             }
           ]
@@ -1488,6 +1659,15 @@
                 { "type": "uint32", "name": "value" },
                 { "type": "uint8", "name": "tType" }
               ]
+            },
+            {
+              "type": "tuple",
+              "name": "currency",
+              "components": [
+                { "type": "address", "name": "currency" },
+                { "type": "string", "name": "name" },
+                { "type": "bool", "name": "initialized" }
+              ]
             }
           ]
         }
@@ -1524,6 +1704,7 @@
           "name": "userCurrency",
           "components": [
             { "type": "address", "name": "currency" },
+            { "type": "string", "name": "name" },
             { "type": "bool", "name": "initialized" }
           ]
         }
@@ -1714,72 +1895,82 @@
             { "type": "string", "name": "longitude" },
             { "type": "string", "name": "timeZoneId" }
           ]
-        }
+        },
+        { "type": "uint256", "name": "from" },
+        { "type": "uint256", "name": "to" }
       ],
       "outputs": [
         {
-          "type": "tuple[]",
+          "type": "tuple",
           "name": "foundCarsWithDistance",
           "components": [
             {
-              "type": "tuple",
-              "name": "car",
+              "type": "tuple[]",
+              "name": "cars",
               "components": [
-                { "type": "uint256", "name": "carId" },
-                { "type": "string", "name": "brand" },
-                { "type": "string", "name": "model" },
-                { "type": "uint32", "name": "yearOfProduction" },
-                { "type": "uint64", "name": "pricePerDayInUsdCents" },
-                { "type": "uint64", "name": "pricePerDayWithDiscount" },
-                { "type": "uint64", "name": "tripDays" },
-                { "type": "uint64", "name": "totalPriceWithDiscount" },
-                { "type": "uint64", "name": "taxes" },
-                { "type": "uint64", "name": "securityDepositPerTripInUsdCents" },
-                { "type": "uint8", "name": "engineType" },
-                { "type": "uint64", "name": "milesIncludedPerDay" },
-                { "type": "address", "name": "host" },
-                { "type": "string", "name": "hostName" },
-                { "type": "string", "name": "hostPhotoUrl" },
-                { "type": "string", "name": "metadataURI" },
-                { "type": "uint64", "name": "underTwentyFiveMilesInUsdCents" },
-                { "type": "uint64", "name": "aboveTwentyFiveMilesInUsdCents" },
-                { "type": "uint64", "name": "pickUp" },
-                { "type": "uint64", "name": "dropOf" },
-                { "type": "bool", "name": "insuranceIncluded" },
                 {
                   "type": "tuple",
-                  "name": "locationInfo",
+                  "name": "car",
                   "components": [
-                    { "type": "string", "name": "userAddress" },
-                    { "type": "string", "name": "country" },
-                    { "type": "string", "name": "state" },
-                    { "type": "string", "name": "city" },
-                    { "type": "string", "name": "latitude" },
-                    { "type": "string", "name": "longitude" },
-                    { "type": "string", "name": "timeZoneId" }
+                    { "type": "uint256", "name": "carId" },
+                    { "type": "string", "name": "brand" },
+                    { "type": "string", "name": "model" },
+                    { "type": "uint32", "name": "yearOfProduction" },
+                    { "type": "uint64", "name": "pricePerDayInUsdCents" },
+                    { "type": "uint64", "name": "pricePerDayWithDiscount" },
+                    { "type": "uint64", "name": "tripDays" },
+                    { "type": "uint64", "name": "totalPriceWithDiscount" },
+                    { "type": "uint64", "name": "taxes" },
+                    { "type": "uint64", "name": "securityDepositPerTripInUsdCents" },
+                    { "type": "uint8", "name": "engineType" },
+                    { "type": "uint64", "name": "milesIncludedPerDay" },
+                    { "type": "address", "name": "host" },
+                    { "type": "string", "name": "hostName" },
+                    { "type": "string", "name": "hostPhotoUrl" },
+                    { "type": "string", "name": "metadataURI" },
+                    { "type": "uint64", "name": "underTwentyFiveMilesInUsdCents" },
+                    { "type": "uint64", "name": "aboveTwentyFiveMilesInUsdCents" },
+                    { "type": "uint64", "name": "pickUp" },
+                    { "type": "uint64", "name": "dropOf" },
+                    { "type": "bool", "name": "insuranceIncluded" },
+                    {
+                      "type": "tuple",
+                      "name": "locationInfo",
+                      "components": [
+                        { "type": "string", "name": "userAddress" },
+                        { "type": "string", "name": "country" },
+                        { "type": "string", "name": "state" },
+                        { "type": "string", "name": "city" },
+                        { "type": "string", "name": "latitude" },
+                        { "type": "string", "name": "longitude" },
+                        { "type": "string", "name": "timeZoneId" }
+                      ]
+                    },
+                    {
+                      "type": "tuple",
+                      "name": "insuranceInfo",
+                      "components": [
+                        { "type": "bool", "name": "required" },
+                        { "type": "uint256", "name": "priceInUsdCents" }
+                      ]
+                    },
+                    { "type": "bool", "name": "isGuestHasInsurance" },
+                    { "type": "uint256", "name": "dimoTokenId" },
+                    {
+                      "type": "tuple",
+                      "name": "hostCurrency",
+                      "components": [
+                        { "type": "address", "name": "currency" },
+                        { "type": "string", "name": "name" },
+                        { "type": "bool", "name": "initialized" }
+                      ]
+                    }
                   ]
                 },
-                {
-                  "type": "tuple",
-                  "name": "insuranceInfo",
-                  "components": [
-                    { "type": "bool", "name": "required" },
-                    { "type": "uint256", "name": "priceInUsdCents" }
-                  ]
-                },
-                { "type": "bool", "name": "isGuestHasInsurance" },
-                { "type": "uint256", "name": "dimoTokenId" },
-                {
-                  "type": "tuple",
-                  "name": "hostCurrency",
-                  "components": [
-                    { "type": "address", "name": "currency" },
-                    { "type": "bool", "name": "initialized" }
-                  ]
-                }
+                { "type": "int256", "name": "distance" }
               ]
             },
-            { "type": "int256", "name": "distance" }
+            { "type": "uint256", "name": "totalCarsSupply" }
           ]
         }
       ]
@@ -1803,6 +1994,26 @@
           ]
         }
       ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "setEmail",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "user" },
+        { "type": "string", "name": "email" },
+        { "type": "bool", "name": "isVerified" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "setHostInsurance",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "insuranceId" }],
       "outputs": []
     },
     {
@@ -1849,6 +2060,17 @@
         { "type": "address", "name": "user" },
         { "type": "string", "name": "phone" },
         { "type": "bool", "name": "isVerified" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "setPushToken",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "user" },
+        { "type": "string", "name": "pushToken" }
       ],
       "outputs": []
     },

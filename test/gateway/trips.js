@@ -60,6 +60,14 @@ describe('RentalityGateway: trips', function () {
       anonymous,
       rentalityLocationVerifier,
     } = await loadFixture(deployDefaultFixture))
+
+    await expect(
+      rentalityGateway.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
+    ).not.to.be.reverted
+
+    await expect(
+      rentalityCarToken.connect(host).burnCar(1)
+    ).to.not.be.reverted
   })
 
   it('createTripRequest', async function () {
@@ -76,12 +84,12 @@ describe('RentalityGateway: trips', function () {
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,0,10
       )
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
 
     const result = await rentalityGateway.calculatePaymentsWithDelivery(
-      1,
+      2,
       1,
       ethToken,
       emptyLocationInfo,
@@ -91,7 +99,7 @@ describe('RentalityGateway: trips', function () {
     await expect(
       await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
-          carId: 1,
+          carId: 2,
           startDateTime: 123,
           endDateTime: 321,
           currencyType: ethToken,
@@ -118,12 +126,12 @@ describe('RentalityGateway: trips', function () {
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,0,10
       )
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
 
     const result = await rentalityGateway.calculatePaymentsWithDelivery(
-      1,
+      2,
       1,
       ethToken,
       emptyLocationInfo,
@@ -133,7 +141,7 @@ describe('RentalityGateway: trips', function () {
     await expect(
       await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
-          carId: 1,
+          carId: 2,
           startDateTime: 123,
           endDateTime: 321,
           currencyType: ethToken,
@@ -149,7 +157,7 @@ describe('RentalityGateway: trips', function () {
     const carLocation = await rentalityGeoService.hashLocationInfo(locationInfo)
 
     expect(trip.tripId).to.be.equal(1, 'trip.tripId)')
-    expect(trip.carId).to.be.equal(1, 'trip.carId')
+    expect(trip.carId).to.be.equal(2, 'trip.carId')
     expect(trip.status).to.be.equal(TripStatus.Created, 'trip.status')
     expect(trip.guest).to.be.equal(guest.address, 'trip.guest')
     expect(trip.host).to.be.equal(host.address, 'trip.host')
@@ -243,7 +251,7 @@ describe('RentalityGateway: trips', function () {
     const dailyPriceInUsdCents = 1000
 
     const result = await rentalityGateway.calculatePaymentsWithDelivery(
-      1,
+      2,
       1,
       ethToken,
       emptyLocationInfo,
@@ -253,7 +261,7 @@ describe('RentalityGateway: trips', function () {
     await expect(
       await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
-          carId: 1,
+          carId: 2,
           startDateTime: 123,
           endDateTime: 321,
           currencyType: ethToken,
@@ -292,7 +300,7 @@ describe('RentalityGateway: trips', function () {
     }
     await expect(rentalityGateway.connect(host).addCar(mockPatrolCreateCarRequest)).not.to.be.reverted
     const resultPatrol = await rentalityGateway.calculatePaymentsWithDelivery(
-      2,
+      3,
       1,
       ethToken,
       emptyLocationInfo,
@@ -302,7 +310,7 @@ describe('RentalityGateway: trips', function () {
     await expect(
       await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
-          carId: 2,
+          carId: 3,
           startDateTime: 123,
           endDateTime: 321,
           currencyType: ethToken,
@@ -333,9 +341,9 @@ describe('RentalityGateway: trips', function () {
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,0,10
       )
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
 
     const oneDayInSeconds = 86400
 
@@ -352,7 +360,7 @@ describe('RentalityGateway: trips', function () {
     await expect(
       rentalityGateway.connect(host).createTripRequestWithDelivery(
         {
-          carId: 1,
+          carId: 2,
           host: host.address,
           startDateTime: Date.now(),
           endDateTime: Date.now() + oneDayInSeconds,
@@ -386,13 +394,13 @@ describe('RentalityGateway: trips', function () {
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,0,10
       )
 
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
 
     const result = await rentalityGateway.calculatePaymentsWithDelivery(
-      1,
+      2,
       1,
       ethToken,
       emptyLocationInfo,
@@ -402,7 +410,7 @@ describe('RentalityGateway: trips', function () {
     await expect(
       await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
-          carId: 1,
+          carId: 2,
           startDateTime: 123,
           endDateTime: 321,
           currencyType: ethToken,
@@ -434,12 +442,12 @@ describe('RentalityGateway: trips', function () {
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,0,10
       )
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
 
     const result = await rentalityGateway.calculatePaymentsWithDelivery(
-      1,
+      2,
       1,
       ethToken,
       emptyLocationInfo,
@@ -449,7 +457,7 @@ describe('RentalityGateway: trips', function () {
     await expect(
       await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
-          carId: 1,
+          carId: 2,
           startDateTime: 123,
           endDateTime: 321,
           currencyType: ethToken,
@@ -481,12 +489,12 @@ describe('RentalityGateway: trips', function () {
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,0,10
       )
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
 
     const result = await rentalityGateway.calculatePaymentsWithDelivery(
-      1,
+      2,
       1,
       ethToken,
       emptyLocationInfo,
@@ -496,7 +504,7 @@ describe('RentalityGateway: trips', function () {
     await expect(
       await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
-          carId: 1,
+          carId: 2,
           startDateTime: 123,
           endDateTime: 321,
           currencyType: ethToken,
@@ -533,12 +541,12 @@ describe('RentalityGateway: trips', function () {
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,0,10
       )
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
 
     const result = await rentalityGateway.calculatePaymentsWithDelivery(
-      1,
+      2,
       1,
       ethToken,
       emptyLocationInfo,
@@ -548,7 +556,7 @@ describe('RentalityGateway: trips', function () {
     await expect(
       await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
-          carId: 1,
+          carId: 2,
           startDateTime: 123,
           endDateTime: 321,
           currencyType: ethToken,
@@ -593,12 +601,12 @@ describe('RentalityGateway: trips', function () {
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,0,10
       )
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
 
     const result = await rentalityGateway.calculatePaymentsWithDelivery(
-      1,
+      2,
       1,
       ethToken,
       emptyLocationInfo,
@@ -608,7 +616,7 @@ describe('RentalityGateway: trips', function () {
     await expect(
       await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
-          carId: 1,
+          carId: 2,
           startDateTime: 123,
           endDateTime: 321,
           currencyType: ethToken,
@@ -645,12 +653,12 @@ describe('RentalityGateway: trips', function () {
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,0,10
       )
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
 
     const result = await rentalityGateway.calculatePaymentsWithDelivery(
-      1,
+      2,
       1,
       ethToken,
       emptyLocationInfo,
@@ -660,7 +668,7 @@ describe('RentalityGateway: trips', function () {
     await expect(
       await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
-          carId: 1,
+          carId: 2,
           startDateTime: 123,
           endDateTime: 321,
           currencyType: ethToken,
@@ -707,12 +715,12 @@ describe('RentalityGateway: trips', function () {
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,0,10
       )
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
 
     const result = await rentalityGateway.calculatePaymentsWithDelivery(
-      1,
+      2,
       1,
       ethToken,
       emptyLocationInfo,
@@ -722,7 +730,7 @@ describe('RentalityGateway: trips', function () {
     await expect(
       await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
-          carId: 1,
+          carId: 2,
           startDateTime: 123,
           endDateTime: 321,
           currencyType: ethToken,
@@ -771,12 +779,12 @@ describe('RentalityGateway: trips', function () {
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,0,10
       )
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
 
     const result = await rentalityGateway.calculatePaymentsWithDelivery(
-      1,
+      2,
       1,
       ethToken,
       emptyLocationInfo,
@@ -786,7 +794,7 @@ describe('RentalityGateway: trips', function () {
     await expect(
       await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
-          carId: 1,
+          carId: 2,
           startDateTime: 123,
           endDateTime: 321,
           currencyType: ethToken,
@@ -834,12 +842,12 @@ describe('RentalityGateway: trips', function () {
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,0,10
       )
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
 
     const result = await rentalityGateway.calculatePaymentsWithDelivery(
-      1,
+      2,
       1,
       ethToken,
       emptyLocationInfo,
@@ -849,7 +857,7 @@ describe('RentalityGateway: trips', function () {
     await expect(
       await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
-          carId: 1,
+          carId: 2,
           startDateTime: 123,
           endDateTime: 321,
           currencyType: ethToken,
@@ -900,9 +908,9 @@ describe('RentalityGateway: trips', function () {
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,0,10
       )
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
 
     const oneDayInSeconds = 86400
 
@@ -916,7 +924,7 @@ describe('RentalityGateway: trips', function () {
     await expect(
       await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
-          carId: 1,
+          carId: 2,
           startDateTime: Date.now(),
           endDateTime: Date.now() + oneDayInSeconds,
           currencyType: ethToken,
@@ -934,11 +942,10 @@ describe('RentalityGateway: trips', function () {
     await expect(rentalityGateway.connect(guest).checkOutByGuest(1, [0, 0])).not.to.be.reverted
     await expect(rentalityGateway.connect(host).checkOutByHost(1, [0, 0])).not.to.be.reverted
 
-    const depositValue = await rentalityCurrencyConverter.getFromUsd(
+    const depositValue = await rentalityCurrencyConverter.getFromUsdCents(
       ethToken,
       request.securityDepositPerTripInUsdCents,
-      ethToCurrencyRate,
-      ethToCurrencyDecimals
+      ethToCurrencyRate
     )
 
     const returnToHost = rentPriceInEth - depositValue - rentalityFee - taxes
@@ -958,7 +965,7 @@ describe('RentalityGateway: trips', function () {
     const oneDayInSeconds = 86400
 
     const result = await rentalityGateway.calculatePaymentsWithDelivery(
-      1,
+      2,
       1,
       ethToken,
       emptyLocationInfo,
@@ -968,7 +975,7 @@ describe('RentalityGateway: trips', function () {
     await expect(
       await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
-          carId: 1,
+          carId: 2,
           startDateTime: Date.now(),
           endDateTime: Date.now() + oneDayInSeconds,
           currencyType: ethToken,
@@ -983,7 +990,7 @@ describe('RentalityGateway: trips', function () {
     await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
 
     const result2Days = await rentalityGateway.calculatePaymentsWithDelivery(
-      1,
+      2,
       2,
       ethToken,
       emptyLocationInfo,
@@ -993,7 +1000,7 @@ describe('RentalityGateway: trips', function () {
     await expect(
       rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
-          carId: 1,
+          carId: 2,
           startDateTime: Date.now(),
           endDateTime: Date.now() + oneDayInSeconds * 2,
           currencyType: ethToken,
@@ -1008,7 +1015,7 @@ describe('RentalityGateway: trips', function () {
     await expect(
       rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
-          carId: 1,
+          carId: 2,
           startDateTime: Date.now() + oneDayInSeconds * 3,
           endDateTime: Date.now() + oneDayInSeconds * 4,
           currencyType: ethToken,
@@ -1035,15 +1042,15 @@ describe('RentalityGateway: trips', function () {
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,0,10
       )
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
 
     const oneDayInSeconds = 86400
     const dailyPriceInUsdCents = 1000
 
     const result = await rentalityGateway.calculatePaymentsWithDelivery(
-      1,
+      2,
       1,
       ethToken,
       emptyLocationInfo,
@@ -1053,7 +1060,7 @@ describe('RentalityGateway: trips', function () {
     await expect(
       await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
-          carId: 1,
+          carId: 2,
           startDateTime: 123,
           endDateTime: 321,
           currencyType: ethToken,
@@ -1074,7 +1081,7 @@ describe('RentalityGateway: trips', function () {
     await expect(
       rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
-          carId: 1,
+          carId: 2,
           startDateTime: Date.now() + oneDayInSeconds * 3,
           endDateTime: Date.now() + oneDayInSeconds * 4,
           currencyType: ethToken,
@@ -1103,14 +1110,14 @@ describe('RentalityGateway: trips', function () {
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,0,10
       )
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
 
     let dayInSeconds = 86400
     let tripDays = 4
     const result = await rentalityGateway.calculatePaymentsWithDelivery(
-      1,
+      2,
       tripDays,
       ethToken,
       emptyLocationInfo,
@@ -1120,7 +1127,7 @@ describe('RentalityGateway: trips', function () {
     await expect(
       await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
-          carId: 1,
+          carId: 2,
           startDateTime: Date.now(),
           endDateTime: Date.now() + dayInSeconds * tripDays,
           currencyType: ethToken,
@@ -1151,15 +1158,15 @@ describe('RentalityGateway: trips', function () {
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,0,10
       )
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
 
     const oneDayInSeconds = 86400
     const dailyPriceInUsdCents = 1000
 
     const result = await rentalityGateway.calculatePaymentsWithDelivery(
-      1,
+      2,
       1,
       ethToken,
       emptyLocationInfo,
@@ -1170,7 +1177,7 @@ describe('RentalityGateway: trips', function () {
     await expect(
       await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
-          carId: 1,
+          carId: 2,
           startDateTime: 123,
           endDateTime: 321,
           currencyType: ethToken,
@@ -1201,14 +1208,14 @@ describe('RentalityGateway: trips', function () {
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,0,10
       )
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
 
     let dayInSeconds = 86400
     let tripDays = 4
     const result = await rentalityGateway.calculatePaymentsWithDelivery(
-      1,
+      2,
       tripDays,
       ethToken,
       emptyLocationInfo,
@@ -1218,7 +1225,7 @@ describe('RentalityGateway: trips', function () {
     await expect(
       await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
-          carId: 1,
+          carId: 2,
           startDateTime: Date.now(),
           endDateTime: Date.now() + dayInSeconds * tripDays,
           currencyType: ethToken,
@@ -1232,7 +1239,7 @@ describe('RentalityGateway: trips', function () {
     await expect(
       await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
-          carId: 1,
+          carId: 2,
           startDateTime: Date.now(),
           endDateTime: Date.now() + dayInSeconds * tripDays,
           currencyType: ethToken,
@@ -1246,7 +1253,7 @@ describe('RentalityGateway: trips', function () {
     await expect(
       await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
-          carId: 1,
+          carId: 2,
           startDateTime: Date.now(),
           endDateTime: Date.now() + dayInSeconds * tripDays,
           currencyType: ethToken,
@@ -1291,14 +1298,14 @@ describe('RentalityGateway: trips', function () {
         new Date().getSeconds() + 86400,
         getEmptySearchCarParams(1),
         emptyLocationInfo,
-        emptyLocationInfo
+        emptyLocationInfo,0,10
       )
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
 
     let dayInSeconds = 86400
     let tripDays = 4
     const result = await rentalityGateway.calculatePaymentsWithDelivery(
-      1,
+      2,
       tripDays,
       ethToken,
       emptyLocationInfo,
@@ -1308,7 +1315,7 @@ describe('RentalityGateway: trips', function () {
     await expect(
       await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
-          carId: 1,
+          carId: 2,
           startDateTime: Date.now(),
           endDateTime: Date.now() + dayInSeconds * tripDays,
           currencyType: ethToken,
@@ -1323,7 +1330,7 @@ describe('RentalityGateway: trips', function () {
     await expect(
       await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
-          carId: 1,
+          carId: 2,
           startDateTime: Date.now(),
           endDateTime: Date.now() + dayInSeconds * tripDays,
           currencyType: ethToken,
@@ -1337,7 +1344,7 @@ describe('RentalityGateway: trips', function () {
     await expect(
       await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
-          carId: 1,
+          carId: 2,
           startDateTime: Date.now(),
           endDateTime: Date.now() + dayInSeconds * tripDays,
           currencyType: ethToken,
@@ -1355,7 +1362,7 @@ describe('RentalityGateway: trips', function () {
     await expect(
       await rentalityGateway.connect(host).createTripRequestWithDelivery(
         {
-          carId: 2,
+          carId: 3,
           startDateTime: Date.now(),
           endDateTime: Date.now() + dayInSeconds * tripDays,
           currencyType: ethToken,
@@ -1370,7 +1377,7 @@ describe('RentalityGateway: trips', function () {
     await expect(
       await rentalityGateway.connect(host).createTripRequestWithDelivery(
         {
-          carId: 2,
+          carId: 3,
           startDateTime: Date.now(),
           endDateTime: Date.now() + dayInSeconds * tripDays,
           currencyType: ethToken,
@@ -1385,7 +1392,7 @@ describe('RentalityGateway: trips', function () {
     await expect(
       await rentalityGateway.connect(host).createTripRequestWithDelivery(
         {
-          carId: 2,
+          carId: 3,
           startDateTime: Date.now(),
           endDateTime: Date.now() + dayInSeconds * tripDays,
           currencyType: ethToken,

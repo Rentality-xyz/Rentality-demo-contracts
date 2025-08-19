@@ -26,9 +26,19 @@ async function main() {
     'RentalityInvestment'
   )
 
+  const rentalityHostInsurace = checkNotNull(
+    getContractAddress('RentalityHostInsurance', 'scripts/deploy_3g_RentalityHostInsurance.js', chainId),
+    'RentalityHostInsurance'
+  )
 
   const contractFactory = await ethers.getContractFactory(contractName)
-  const contract = await upgrades.deployProxy(contractFactory, [userService, rentalityTaxes, baseDiscount, investService])
+  const contract = await upgrades.deployProxy(contractFactory, [
+    userService,
+    rentalityTaxes,
+    baseDiscount,
+    investService,
+    rentalityHostInsurace,
+  ])
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()
 
@@ -38,11 +48,9 @@ async function main() {
   console.log()
 
   await contract.addTaxes('Florida', [
-    { name: "salesTax", value: 70_000, tType: 2 },
-    { name: "governmentTax", value: 200, tType: 0 }
-  ]);
-
-
+    { name: 'salesTax', value: 70_000, tType: 2 },
+    { name: 'governmentTax', value: 200, tType: 0 },
+  ])
 }
 
 main()

@@ -136,7 +136,7 @@ describe('RentalityCarToken: host functions', function () {
       .connect(guest)
       .searchAvailableCars(0, new Date().getSeconds() + 86400, getEmptySearchCarParams(1))
 
-    expect(availableCars.length).to.equal(1)
+    expect(availableCars.cars.length).to.equal(1)
     expect(availableCars[0].carVinNumber).to.equal(request.carVinNumber)
     expect(availableCars[0].createdBy).to.equal(host.address)
     expect(availableCars[0].pricePerDayInUsdCents).to.equal(request.pricePerDayInUsdCents)

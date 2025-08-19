@@ -20,6 +20,7 @@ import './payments/RentalityInsurance.sol';
 import {RentalityPromoService} from './features/RentalityPromo.sol';
 import {RentalityPlatformHelper} from './RentalityPlatformHelper.sol';
 import {ARentalityContext} from './abstract/ARentalityContext.sol';
+import {RentalityHostInsurance} from './payments/RentalityHostInsurance.sol';
 
 struct CreateTripRequestParams {
     Schemas.CreateTripRequestWithDelivery request;
@@ -56,6 +57,9 @@ contract RentalityPlatform is UUPSOwnable, ARentalityContext {
   RentalityPlatformHelper private platformHelper;
   address private trustedForwarderAddress;
 
+  RentalityHostInsurance private hostInsurance;
+
+
   fallback(bytes calldata data) external returns (bytes memory) {
     require(trustedForwarderAddress == msg.sender, 'only trusted forwarder');
     (bool ok_view, bytes memory res_view) = address(platformHelper).call(data);
@@ -70,18 +74,18 @@ contract RentalityPlatform is UUPSOwnable, ARentalityContext {
     return res_view;
   }
 
-  function updateServiceAddresses(
-    RentalityAdminGateway adminService,
-    RentalityPlatformHelper platformHelperAddress
-  ) public {
-    require(addresses.userService.isAdmin(tx.origin), 'only Admin.');
-    addresses = adminService.getRentalityContracts();
-    insuranceService = adminService.getInsuranceService();
-    refferalProgram = adminService.getRefferalServiceAddress();
-    promoService = adminService.getPromoService();
-    dimoService = adminService.getDimoService();
-    platformHelper = platformHelperAddress;
-  }
+  // function updateServiceAddresses(
+  //   RentalityAdminGateway adminService,
+  //   RentalityPlatformHelper platformHelperAddress
+  // ) public {
+  //   require(addresses.userService.isAdmin(tx.origin), 'only Admin.');
+  //   addresses = adminService.getRentalityContracts();
+  //   insuranceService = adminService.getInsuranceService();
+  //   refferalProgram = adminService.getRefferalServiceAddress();
+  //   promoService = adminService.getPromoService();
+  //   dimoService = adminService.getDimoService();
+  //   platformHelper = platformHelperAddress;
+  // }
 
 function createTripRequestWithDelivery(
     Schemas.CreateTripRequestWithDelivery memory request,
@@ -94,7 +98,6 @@ function createTripRequestWithDelivery(
     bytes32 returnHash = IRentalityGeoService(addresses.carService.getGeoServiceAddress()).createSignedLocationInfo(
         request.returnInfo
     );
-    // Create the struct and pass it
     CreateTripRequestParams memory params = CreateTripRequestParams({
         request: request,
         pickUp: pickUp,
@@ -109,9 +112,13 @@ function createTripRequestWithDelivery(
   /// @notice Creates a trip request with specified details.
   /// @dev This function is private and should only be called internally.
    function _createTripRequest(
-    CreateTripRequestParams memory params // Single struct parameter
+    CreateTripRequestParams memory params
 ) private {
     address sender = _msgGatewaySender();
+    require(
+        addresses.carService.exists(params.request.carId),
+        'Car with this id does not exist.'
+    );
     address currencyType =  addresses.currencyConverterService.getUserCurrency(addresses.carService.ownerOf(params.request.carId)).currency;
     RentalityUtils.validateTripRequest(
         addresses,
@@ -179,7 +186,7 @@ function createTripRequestWithDelivery(
         params.returnHash,
         addresses.carService.getCarInfoById(params.request.carId).milesIncludedPerDay,
         paymentInfo,
-        msg.value
+        currencyType == address(0) ? msg.value : valueSumInCurrency
     );
     insuranceService.saveGuestinsurancePayment(tripId, params.request.carId, insurance, sender);
     if (usePromo)
@@ -272,7 +279,6 @@ function createTripRequestWithDelivery(
       );
 
     addresses.paymentService.payFinishTrip(trip, valueToHost, valueToGuest, totalIncome);
-
     addresses.tripService.saveTransactionInfo(
       tripId,
       rentalityFee,
@@ -285,10 +291,12 @@ function createTripRequestWithDelivery(
   /// @notice Creates a new claim for a specific trip.
   /// @dev Only the host of the trip can create a claim, and certain trip status checks are performed.
   /// @param request Details of the claim to be created.
-  function createClaim(Schemas.CreateClaimRequest memory request) public {
+  function createClaim(Schemas.CreateClaimRequest memory request, bool isInsuranceClaim) public {
     address sender = _msgGatewaySender();
-    (address host, address guest) = RentalityUtils.verifyClaim(addresses, request, sender);
-    addresses.claimService.createClaim(request, host, guest, sender);
+    (address host, address guest) = RentalityUtils.verifyClaim(addresses, request, sender, isInsuranceClaim);
+    uint claimId = addresses.claimService.createClaim(request, host, guest, sender);
+    if(isInsuranceClaim)
+    hostInsurance.createInsuranceClaim(claimId, sender);
   }
 
   /// @notice Rejects a specific claim.
@@ -318,6 +326,7 @@ function createTripRequestWithDelivery(
       .calculateLatestValueWithFee(trip.paymentInfo.currencyType, claim.amountInUsdCents, commission);
 
     addresses.claimService.payClaim(claimId, trip.host, trip.guest, rate, dec);
+    if(!hostInsurance.isHostInsuranceClaim(claimId)) {
     addresses.paymentService.payClaim{value: msg.value}(
       trip,
       valueToPay,
@@ -325,6 +334,10 @@ function createTripRequestWithDelivery(
       commission,
       _msgGatewaySender()
     );
+    }
+    else {
+      hostInsurance.payClaim(valueToPay, trip);
+    }
   }
 
   //not using
@@ -424,8 +437,14 @@ function createTripRequestWithDelivery(
   function isTrustedForwarder(address forwarder) internal view override returns (bool) {
     return addresses.userService.isRentalityPlatform(forwarder);
   }
+
+
   function setTrustedForwarder(address forwarder) public onlyOwner {
     trustedForwarderAddress = forwarder;
+  }
+
+  function setHostInsuranceAddress(address _hostInsurance) public onlyOwner {
+    hostInsurance = RentalityHostInsurance(payable(_hostInsurance));
   }
 
   /// @notice Constructor to initialize the RentalityPlatform with service contract addresses.

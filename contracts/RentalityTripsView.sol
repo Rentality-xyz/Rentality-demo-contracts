@@ -16,7 +16,8 @@ import {ARentalityContext} from './abstract/ARentalityContext.sol';
 
 import {RentalityDimoService} from './features/RentalityDimoService.sol';
 import {RentalityViewLib} from './libs/RentalityViewLib.sol';
-import {RentalityAiDamageAnalyze} from './features/RentalityAiDamageAnalyze.sol';
+import {RentalityAiDamageAnalyzeV2} from './features/RentalityAiDamageAnalyzeV2.sol';
+import {RentalityHostInsurance} from './payments/RentalityHostInsurance.sol';
 
 error FunctionNotFound();
 /// @dev SAFETY: The linked library is not supported yet because it can modify the state or call
@@ -32,21 +33,22 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
   RentalityDimoService private dimoService;
   address private trustedForwarderAddress;
 
-  RentalityAiDamageAnalyze private aiDamageAnalyzeService;
+  RentalityAiDamageAnalyzeV2 private aiDamageAnalyzeService;
+  RentalityHostInsurance private hostInsurance;
 
   function updateServiceAddresses(
     RentalityContract memory contracts,
-     address insurance,
-      address promoServiceAddress,
-      address dimoServiceAddress,
-      address aiDamageAnalyzeServiceAddress
-      ) public {
+    address insurance,
+    address promoServiceAddress,
+    address dimoServiceAddress,
+    address aiDamageAnalyzeServiceAddress
+  ) public {
     require(addresses.userService.isAdmin(tx.origin), 'only Admin.');
     addresses = contracts;
     insuranceService = RentalityInsurance(insurance);
     promoService = RentalityPromoService(promoServiceAddress);
     dimoService = RentalityDimoService(dimoServiceAddress);
-    aiDamageAnalyzeService = RentalityAiDamageAnalyze(aiDamageAnalyzeServiceAddress);
+    aiDamageAnalyzeService = RentalityAiDamageAnalyzeV2(aiDamageAnalyzeServiceAddress);
   }
   fallback(bytes calldata) external returns (bytes memory) {
     revert FunctionNotFound();
@@ -93,7 +95,7 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
   /// @param currency The address of the currency in which the commission should be calculated.
   /// @return The KYC commission amount in the specified currency.
   function calculateKycCommission(address currency) public view returns (uint) {
-    (uint result, , ) = addresses.currencyConverterService.getFromUsdLatest(
+    (uint result, , ) = addresses.currencyConverterService.getFromUsdCentsLatest(
       currency,
       addresses.userService.getKycCommission()
     );
@@ -124,9 +126,7 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
   function getAvaibleCurrencies() public view returns (Schemas.Currency[] memory) {
     return addresses.currencyConverterService.getAllCurrencies();
   }
-  function getFilterInfo(
-    uint64 duration
-  ) public view returns (Schemas.FilterInfoDTO memory) {
+  function getFilterInfo(uint64 duration) public view returns (Schemas.FilterInfoDTO memory) {
     uint64 maxCarPrice = 0;
     RentalityCarToken carService = addresses.carService;
     uint minCarYearOfProduction = carService.getCarInfoById(1).yearOfProduction;
@@ -145,24 +145,27 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
     return Schemas.FilterInfoDTO(maxCarPrice, minCarYearOfProduction);
   }
 
-  function getAiDamageAnalyzeCaseData(uint tripId, bool pre) public view returns(Schemas.AiDamageAnalyzeCaseDataDTO memory) {
+  function getAiDamageAnalyzeCaseRequest(
+    uint tripId,
+    Schemas.CaseType caseType
+  ) public view returns (Schemas.AiDamageAnalyzeCaseRequestDTO memory aiDamageAnalyzeCaseRequest) {
     Schemas.CarInfo memory car = addresses.carService.getCarInfoById(addresses.tripService.getTrip(tripId).carId);
     Schemas.FullKYCInfoDTO memory kyc = addresses.userService.getMyFullKYCInfo(_msgGatewaySender());
 
-    return Schemas.AiDamageAnalyzeCaseDataDTO(
-      aiDamageAnalyzeService.getCurrentCaseNumber(),
-      kyc.additionalKYC.email,
-      kyc.kyc.surname,
-      aiDamageAnalyzeService.getInsuranceCaseByTrip(tripId, pre),
-      car.carVinNumber
-    );
-
+    return
+      Schemas.AiDamageAnalyzeCaseRequestDTO(
+        aiDamageAnalyzeService.getLatestCaseId(),
+        kyc.additionalKYC.email,
+        kyc.kyc.surname,
+        aiDamageAnalyzeService.getCaseTokenForTrip(tripId, caseType),
+        car.carVinNumber
+      );
   }
-    function getDimoVehicles() public view returns (uint[] memory) {
+  function getDimoVehicles() public view returns (uint[] memory) {
     return dimoService.getDimoVehicles();
   }
 
-  function getUserCurrency(address user) public view returns (Schemas.UserCurrency memory userCurrency) {
+  function getUserCurrency(address user) public view returns (Schemas.UserCurrencyDTO memory userCurrency) {
     return addresses.currencyConverterService.getUserCurrency(user);
   }
 
@@ -173,10 +176,27 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
     return addresses.carService.tokenURI(carId);
   }
 
-    function trustedForwarder() internal view override returns (address) {
-      return trustedForwarderAddress;
+  function getTotalCarsAmount() public view returns (uint) {
+    return addresses.carService.totalSupply();
+  }
 
-     }
+  function getGuestInsurance(address guest) public view returns (Schemas.InsuranceInfo[] memory) {
+    return insuranceService.getMyInsurancesAsGuest(guest);
+  }
+  function getTaxesInfoById(uint taxId) public view returns (Schemas.TaxesInfoDTO memory) {
+    return addresses.paymentService.getTaxesInfoById(taxId);
+  }
+
+  function getPlatformInfo() public view returns(Schemas.PlatformInfoDTO memory) {
+   return Schemas.PlatformInfoDTO(
+      addresses.userService.getPlatformUsersCount(),
+      addresses.tripService.totalTripCount(),
+      addresses.carService.totalSupply()
+    );
+  }
+  function trustedForwarder() internal view override returns (address) {
+    return trustedForwarderAddress;
+  }
 
   function isTrustedForwarder(address forwarder) internal view override returns (bool) {
     return forwarder == trustedForwarderAddress;
@@ -184,6 +204,24 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
   function setTrustedForwarder(address forwarder) public {
     require(addresses.userService.isAdmin(tx.origin), 'Only for Admin.');
     trustedForwarderAddress = forwarder;
+  }
+  function getHostInsuranceClaims() public view returns(Schemas.ClaimV2[] memory claims) {
+    uint[] memory claimIds = hostInsurance.getInsuranceClaims();
+    claims = new Schemas.ClaimV2[](claimIds.length);
+    for (uint i = 0; i < claimIds.length; i++) {
+      claims[i] = addresses.claimService.getClaim(claimIds[i]);
+    }
+
+  }
+    function getHostInsuranceRule(address host) public view returns(Schemas.HostInsuranceRuleDTO memory insuranceRules) {
+    return hostInsurance.getHostInsuranceRule(host);
+    }
+    function getAllInsuranceRules() public view returns(Schemas.HostInsuranceRuleDTO[] memory insuranceRules) { 
+      return hostInsurance.getAllInsuranceRules();
+    }
+    function setHostInsuranceAddress(address _hostInsurance) public {
+    require(addresses.userService.isAdmin(tx.origin), 'Only for Admin.');
+    hostInsurance = RentalityHostInsurance(payable(_hostInsurance));
   }
 
   function initialize(
@@ -197,7 +235,8 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
     address insuranceAddress,
     address promoServiceAddress,
     address dimoServiceAddress,
-    address aiDamageAnalyzeServiceAddress
+    address aiDamageAnalyzeServiceAddress,
+    address _hostInsurance
   ) public initializer {
     addresses = RentalityContract(
       RentalityCarToken(carServiceAddress),
@@ -214,7 +253,8 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
     insuranceService = RentalityInsurance(insuranceAddress);
     promoService = RentalityPromoService(promoServiceAddress);
     dimoService = RentalityDimoService(dimoServiceAddress);
-    aiDamageAnalyzeService = RentalityAiDamageAnalyze(aiDamageAnalyzeServiceAddress);
+    aiDamageAnalyzeService = RentalityAiDamageAnalyzeV2(aiDamageAnalyzeServiceAddress);
+    hostInsurance = RentalityHostInsurance(payable(_hostInsurance));
   }
 
   function _authorizeUpgrade(address /*newImplementation*/) internal view override {

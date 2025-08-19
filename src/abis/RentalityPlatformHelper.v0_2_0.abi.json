@@ -91,7 +91,9 @@
         { "type": "address", "name": "insuranceServiceAddress" },
         { "type": "address", "name": "refferalProgramAddress" },
         { "type": "address", "name": "promoServiceAddress" },
-        { "type": "address", "name": "dimoServiceAddress" }
+        { "type": "address", "name": "dimoServiceAddress" },
+        { "type": "address", "name": "notificationServiceAddress" },
+        { "type": "address", "name": "_hostInsurance" }
       ],
       "outputs": []
     },
@@ -205,6 +207,34 @@
     },
     {
       "type": "function",
+      "name": "setEmail",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "user" },
+        { "type": "string", "name": "email" },
+        { "type": "bool", "name": "isVerified" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "setHostInsurance",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "insuranceId" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "setHostInsuranceAddress",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "_hostInsurance" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
       "name": "setKYCInfo",
       "constant": false,
       "payable": false,
@@ -220,6 +250,14 @@
     },
     {
       "type": "function",
+      "name": "setNotificationService",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "notificationServiceAddress" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
       "name": "setPhoneNumber",
       "constant": false,
       "payable": false,
@@ -227,6 +265,17 @@
         { "type": "address", "name": "user" },
         { "type": "string", "name": "phone" },
         { "type": "bool", "name": "isVerified" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "setPushToken",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "user" },
+        { "type": "string", "name": "pushToken" }
       ],
       "outputs": []
     },

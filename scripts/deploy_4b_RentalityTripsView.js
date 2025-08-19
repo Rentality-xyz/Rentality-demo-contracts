@@ -70,19 +70,25 @@ async function main() {
     'RentalityDimoService'
   )
   const aiDamageAnalyze = checkNotNull(
-    getContractAddress('RentalityAiDamageAnalyze', 'scripts/deploy_3f_RentalityAiDamageAnalyze.js', chainId),
-    'RentalityAiDamageAnalyze'
+    getContractAddress('RentalityAiDamageAnalyzeV2', 'scripts/deploy_3f_RentalityAiDamageAnalyze.js', chainId),
+    'RentalityAiDamageAnalyzeV2'
   )
-
 
   const rentalityViewLib = checkNotNull(
     getContractAddress('RentalityViewLib', 'scripts/deploy_1g_RentalityViewLib.js', chainId),
     'RentalityViewLib'
   )
+  const rentalityHostInsurace = checkNotNull(
+    getContractAddress('RentalityHostInsurance', 'scripts/deploy_3g_RentalityHostInsurance.js', chainId),
+    'RentalityHostInsurance'
+  )
+
   const contractFactory = await ethers.getContractFactory(contractName, {
     libraries: {
       RentalityTripsQuery: rentalityTripsQueryAddress,
       RentalityViewLib: rentalityViewLib,
+      RentalityQuery: rentalityQueryAddress,
+
     },
   })
   const contract = await upgrades.deployProxy(contractFactory, [
@@ -96,7 +102,8 @@ async function main() {
     rentalityInsurance,
     rentalityPromoService,
     dimoService,
-    aiDamageAnalyze
+    aiDamageAnalyze,
+    rentalityHostInsurace,
   ])
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()

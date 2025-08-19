@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
+import {RentalityUserService} from './RentalityUserService.sol';
 import './payments/RentalityPaymentService.sol';
 import './RentalityPlatform.sol';
 import './abstract/IRentalityAdminGateway.sol';
@@ -12,7 +13,7 @@ import {RentalityReferralProgram} from './features/refferalProgram/RentalityRefe
 import {RentalityPromoService} from './features/RentalityPromo.sol';
 import {RentalityViewLib} from './libs/RentalityViewLib.sol';
 import {RentalityDimoService} from './features/RentalityDimoService.sol';
-
+import {RentalityNotificationService} from './features/RentalityNotificationService.sol';
 /// @custom:oz-upgrades-unsafe-allow external-library-linking
 contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
   RentalityCarToken private carService;
@@ -29,6 +30,7 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
   RentalityPromoService private promoService;
   RentalityDimoService private dimoService;
   RentalityInvestment private investment;
+  RentalityNotificationService private notificationService;
 
   /// @notice Ensures that the caller is either an admin, the contract owner, or an admin from the origin transaction.
   modifier onlyAdmin() {
@@ -56,26 +58,11 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
   function getPromoService() public view returns (RentalityPromoService) {
     return promoService;
   }
-  function setPromoService(address promoServiceAddress) public onlyAdmin {
-    promoService = RentalityPromoService(promoServiceAddress);
-  }
-
-  function updateDimoService(address dimoServiceAddress) public onlyAdmin {
-    dimoService = RentalityDimoService(dimoServiceAddress);
-  }
   function getDimoService() public view returns (RentalityDimoService dimoServiceAddress) {
     return dimoService;
   }
   function getInsuranceService() public view returns (RentalityInsurance rentalityInsuranceAddress) {
     return insuranceService;
-  }
-
-  function setInsuranceService(address insurance) public onlyAdmin {
-    insuranceService = RentalityInsurance(insurance);
-  }
-
-  function updateInvestmentAddress(address investmentAddress) public onlyAdmin {
-    investment = RentalityInvestment(investmentAddress);
   }
 
   function getInvestmentAddress() public view returns (address investmentAddress) {
@@ -127,23 +114,12 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
 
 
 
-  /// @notice Updates the address of the GeoService contract.
-  /// @param newGeoServiceAddress The new address of the GeoService contract.
-  function updateGeoServiceAddress(address newGeoServiceAddress) public onlyAdmin {
-    carService.updateGeoServiceAddress(newGeoServiceAddress);
-  }
-
   /// @notice Retrieves the address of the RentalityCarDelivery contract.
   /// @return deliveryServiceAddress The address of the RentalityCarDelivery contract.
   function getDeliveryServiceAddress() public view returns (address deliveryServiceAddress) {
     return address(deliveryService);
   }
 
-  /// @notice Updates the address of the RentalityCarDelivery contract. Only callable by admins.
-  /// @param contractAddress The new address of the RentalityCarDeliveryn contract.
-  function updateDeliveryService(address contractAddress) public onlyAdmin {
-    deliveryService = RentalityCarDelivery(contractAddress);
-  }
   /// @notice Retrieves the address of the RentalityRefferalProgram contract.
   /// @return refferalServiceAddress The address of the RentalityRefferalProgram contract.
   function getRefferalServiceAddress() public view returns (RentalityReferralProgram refferalServiceAddress) {
@@ -321,29 +297,58 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
   /// @param itemsPerPage The number of items per page.
   /// @return allCars structure containing the cars on the current page and total page count.
   function getAllCars(uint page, uint itemsPerPage) public view returns (Schemas.AllCarsDTO memory allCars) {
-    uint totalCarsAmount = carService.totalSupply();
-
-    uint totalPageCount = (totalCarsAmount + itemsPerPage - 1) / itemsPerPage;
-
-    if (page > totalPageCount) {
-      page = totalPageCount;
-    }
-
-    uint startIndex = (page - 1) * itemsPerPage + 1;
-    uint endIndex = startIndex + itemsPerPage - 1;
-
-    if (endIndex > totalCarsAmount) {
-      endIndex = totalCarsAmount;
-    }
     RentalityContract memory contracts = getRentalityContracts();
-
-    Schemas.AdminCarDTO[] memory cars = new Schemas.AdminCarDTO[](endIndex - startIndex + 1);
-    for (uint i = startIndex; i <= endIndex; i++) {
-      cars[i - startIndex].car = RentalityUtils.getCarDetails(contracts, i, dimoService);
-      cars[i - startIndex].carMetadataURI = contracts.carService.tokenURI(i);
+    uint totalCars = carService.totalSupply();
+    
+    uint totalExistingCars = 0;
+    for (uint i = 1; i <= totalCars; i++) {
+        if (contracts.carService.exists(i)) {
+            totalExistingCars++;
+        }
     }
+    
+    uint totalPageCount = totalExistingCars == 0 ? 0 : (totalExistingCars + itemsPerPage - 1) / itemsPerPage;
+    
+    if (page > totalPageCount) {
+        page = totalPageCount;
+    }
+    if (page < 1) {
+        page = 1;
+    }
+    
+    Schemas.AdminCarDTO[] memory cars = new Schemas.AdminCarDTO[](itemsPerPage);
+    uint collected = 0;
+    uint currentId = 1;
+    
+    uint toSkip = (page - 1) * itemsPerPage;
+    while (toSkip > 0 && currentId <= totalCars) {
+        if (contracts.carService.exists(currentId)) {
+            toSkip--;
+        }
+        currentId++;
+    }
+    
+    while (collected < itemsPerPage && currentId <= totalCars) {
+        if (contracts.carService.exists(currentId)) {
+            cars[collected] = Schemas.AdminCarDTO({
+                car: RentalityUtils.getCarDetails(contracts, currentId, dimoService),
+                carMetadataURI: contracts.carService.tokenURI(currentId)
+            });
+            collected++;
+        }
+        currentId++;
+    }
+    
+    if (collected < itemsPerPage) {
+        Schemas.AdminCarDTO[] memory adjustedCars = new Schemas.AdminCarDTO[](collected);
+        for (uint i = 0; i < collected; i++) {
+            adjustedCars[i] = cars[i];
+        }
+        cars = adjustedCars;
+    }
+    
     return Schemas.AllCarsDTO(cars, totalPageCount);
-  }
+}
 
   function manageRefferalBonusAccrual(
     Schemas.RefferalAccrualType accrualType,
@@ -378,8 +383,8 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
   function getRefferalPointsInfo() public view returns (Schemas.AllRefferalInfoDTO memory) {
     return refferalProgram.getRefferalPointsInfo();
   }
-  function getPlatformUsersInfo() public view returns (Schemas.AdminKYCInfoDTO[] memory result) {
-    return userService.getPlatformUsersKYCInfos();
+  function getPlatformUsersInfo(uint page, uint itemsPerPage) public view returns (Schemas.AdminKYCInfosDTO memory result) {
+    return userService.getPlatformUsersKYCInfos(page, itemsPerPage);
   }
 
   function getAllClaimTypes(bool byHost) public view returns (Schemas.ClaimTypeV2[] memory claimTypes) {
@@ -387,7 +392,8 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
   }
 
   function addClaimType(string memory name, Schemas.ClaimCreator creator) public {
-    claimService.addClaimType(name, creator);
+    uint claimTypeId = claimService.addClaimType(name, creator);
+    notificationService.emitEvent(Schemas.EventType.AddClaimType, claimTypeId, uint8(Schemas.EventCreator.Admin), msg.sender, msg.sender);
   }
   function removeClaimType(uint8 claimType) public {
     claimService.removeClaimType(claimType);
@@ -395,8 +401,32 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
 
   function setDefaultCurrencyType(address currency) public {
     currencyConverterService.setDefaultCurrencyType(currency);
+     notificationService.emitEvent(Schemas.EventType.Currency, 0, uint8(Schemas.EventCreator.Admin), msg.sender, msg.sender);
   }
 
+function setDefaultPrices(uint64 underTwentyFiveMilesInUsdCents, uint64 aboveTwentyFiveMilesInUsdCents) public {
+    deliveryService.setDefaultPrices(underTwentyFiveMilesInUsdCents, aboveTwentyFiveMilesInUsdCents);
+    notificationService.emitEvent(Schemas.EventType.Delivery, 0, uint8(Schemas.EventCreator.Admin), msg.sender, msg.sender);
+  }
+    function setDefaultDiscount(Schemas.BaseDiscount memory newDiscounts) public {
+      paymentService.setDefaultDiscount(newDiscounts);
+      notificationService.emitEvent(Schemas.EventType.Discount, 0, uint8(Schemas.EventCreator.Admin), msg.sender, msg.sender);
+    }
+
+    function addTaxes(
+     string memory location,
+     Schemas.TaxesLocationType locationType,
+     Schemas.TaxValue[] memory taxes) public {
+      uint taxId = paymentService.addTaxes(location, locationType, taxes);
+      notificationService.emitEvent(Schemas.EventType.Taxes, taxId, uint8(locationType), msg.sender, msg.sender);
+    }
+
+    function getUserFullKYCInfo(address user) public view returns(Schemas.FullKYCInfoDTO memory fullKycInfo) {
+      require(userService.isAdminViewRole(msg.sender), "only from admin");
+      return userService.getMyFullKYCInfo(user);
+    }
+
+      
   ///------------------------------------
   /// NOT USING IN FRONT
   ///------------------------------------
@@ -455,7 +485,8 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
     address refferalProgramAddress,
     address promoServiceAddress,
     address dimoServiceAddress,
-    address investmentAddress
+    address investmentAddress,
+    address notificationServiceAddress
   ) public initializer {
     carService = RentalityCarToken(carServiceAddress);
     currencyConverterService = RentalityCurrencyConverter(currencyConverterServiceAddress);
@@ -479,6 +510,7 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
     refferalProgram = RentalityReferralProgram(refferalProgramAddress);
     insuranceService = RentalityInsurance(insuranceServiceAddress);
     investment = RentalityInvestment(investmentAddress);
+    notificationService = RentalityNotificationService(notificationServiceAddress);
     __Ownable_init();
   }
 }
