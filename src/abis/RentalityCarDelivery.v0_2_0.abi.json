@@ -235,7 +235,7 @@
               ]
             },
             { "type": "bool", "name": "isGuestHasInsurance" },
-            { "type": "uint256", "name": "dimoTpokenId" },
+            { "type": "uint256", "name": "dimoTokenId" },
             {
               "type": "tuple",
               "name": "hostCurrency",
@@ -313,7 +313,7 @@
                   ]
                 },
                 { "type": "bool", "name": "isGuestHasInsurance" },
-                { "type": "uint256", "name": "dimoTpokenId" },
+                { "type": "uint256", "name": "dimoTokenId" },
                 {
                   "type": "tuple",
                   "name": "hostCurrency",
