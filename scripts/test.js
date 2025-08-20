@@ -50,19 +50,19 @@ async function main() {
 
 let config = {
   poolKey: {
-      currency0: weth.trim(),
-      currency1: linkToken.trim(),
+      currency0: weth,
+      currency1: linkToken,
       fee: 3000,
       tickSpacing: 60,
       hooks: ethToken,
   },
-  zeroForOne: true,
+  zeroForOne: false,
   amountIn: amountIn, 
   amountOutMinimum: 0,
   hookData: '0x000'
 }
 
-let swapContract = await ethers.getContractAt('IRentalitySwap', '0xe048055e3fFA112B6B2f0F0480ff45284C618f16')
+let swapContract = await ethers.getContractAt('IRentalitySwap', '0xC2B03fdb23c996E55cd9045E1976946B23b14F16')
   const stateViewContract = await ethers.getContractAt(STATE_VIEW_ABI, STATE_VIEW_ADDRESS);
 
   const abiCoder = new ethers.AbiCoder();
@@ -105,13 +105,13 @@ let rentalityGateway = await ethers.getContractAt('IRentalityGateway','0xB257FE9
 let expiration = Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30
 
 
-// let approveTx = await swapContract.approveTokenWithPermit2(
-//   linkToken,
-//   amountIn,
-//   expiration
-// )
+let approveTx = await swapContract.approveTokenWithPermit2(
+  linkToken,
+  amountIn,
+  expiration
+)
 
-// console.log('Approve transaction hash:', approveTx.hash)
+console.log('Approve transaction hash:', approveTx.hash)
 
 let data = rentalityGateway.interface.encodeFunctionData('payKycCommission', [ethToken])
 
@@ -134,13 +134,13 @@ let encodedData = swapContract.interface.encodeFunctionData(
 )
 console.log('Encoded data:', encodedData)
 
-// let swapTx = await swapContract.swapExactInputSingle(
-//   config.poolKey,
-//   false,
-//   config.amountIn,
-//   0,
-//   data
-// )
+let swapTx = await swapContract.swapExactInputSingle(
+  config.poolKey,
+  false,
+  config.amountIn,
+  0,
+  data
+)
 
 
 console.log('Swap transaction hash:', swapTx.hash)
