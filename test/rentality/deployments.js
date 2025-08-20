@@ -271,7 +271,7 @@ async function deployDefaultFixture() {
     libraries: {
       RentalityTripsQuery: await tripsQuery.getAddress(),
       RentalityViewLib: await viewLib.getAddress(),
-      RentalityQuery: await query.getAddress(),
+      RentalityQuery: await query.getAddress()
     },
   })
 

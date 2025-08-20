@@ -15,10 +15,11 @@ const tripsFilter = {
 }
 //block 26718122
 async function main() {
-let contract = await ethers.getContractAt('IRentalityGateway', '0xCf261b0275870d924d65d67beB9E88Ebd8deE693')
+let contract = await ethers.getContractAt('RentalityAdminGateway', '0x19dE77342611e0aF6dD387223309B9397123450b')
 
-let result = await contract.searchAvailableCarsWithDelivery(1722268800, 1722268800, {
-}
+console.log(await contract.updateNotificationService('0x37E1950eE1BCC531478fb0507476505AC0a5fAaf'))
+
+
 }
 main()
   .then(() => process.exit(0))
