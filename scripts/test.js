@@ -62,7 +62,7 @@ let config = {
   hookData: '0x000'
 }
 
-let swapContract = await ethers.getContractAt('IRentalitySwap', '0xC2B03fdb23c996E55cd9045E1976946B23b14F16')
+let swapContract = await ethers.getContractAt('IRentalitySwap', '0xC1f0C087C3991a24Ad59Fc93580cDfa4135535AF')
   const stateViewContract = await ethers.getContractAt(STATE_VIEW_ABI, STATE_VIEW_ADDRESS);
 
   const abiCoder = new ethers.AbiCoder();
@@ -103,15 +103,17 @@ let rentalityGateway = await ethers.getContractAt('IRentalityGateway','0xB257FE9
 // let contract =  await contractFactory.deploy(poolManager, weth, await rentalityGateway.getAddress())
 //   console.log('AccessSenderHook deployed to:', await contract.getAddress())
 let expiration = Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30
-
+console.log('Expiration:', expiration)
 
 let approveTx = await swapContract.approveTokenWithPermit2(
   linkToken,
-  amountIn,
+  amountIn + 10,
   expiration
 )
 
-console.log('Approve transaction hash:', approveTx.hash)
+// let ierc20 = await ethers.getContractAt('contracts/payments/abstract/IERC20.sol:IERC20', linkToken)
+// let approveTx = await ierc20.approve(await swapContract.getAddress(), amountIn)
+// console.log('Approve transaction hash:', approveTx.hash)
 
 let data = rentalityGateway.interface.encodeFunctionData('payKycCommission', [ethToken])
 
@@ -129,18 +131,18 @@ let encodedData = swapContract.interface.encodeFunctionData(
     false,
     config.amountIn,
     0,
-    data
+    '0x'
   ]
 )
 console.log('Encoded data:', encodedData)
 
-let swapTx = await swapContract.swapExactInputSingle(
-  config.poolKey,
-  false,
-  config.amountIn,
-  0,
-  data
-)
+// let swapTx = await swapContract.swapExactInputSingle(
+//   config.poolKey,
+//   false,
+//   config.amountIn,
+//   0,
+//   data
+// )
 
 
 console.log('Swap transaction hash:', swapTx.hash)
