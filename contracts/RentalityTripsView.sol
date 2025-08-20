@@ -206,10 +206,7 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
     trustedForwarderAddress = forwarder;
   }
  function getHostInsuranceClaims() public view returns(Schemas.FullClaimInfo[] memory claimInfos) {
- function getHostInsuranceClaims() public view returns(Schemas.FullClaimInfo[] memory claimInfos) {
     uint[] memory claimIds = hostInsurance.getInsuranceClaims();
-    claimInfos = new Schemas.FullClaimInfo[](claimIds.length);
-    uint counter = 0;
     claimInfos = new Schemas.FullClaimInfo[](claimIds.length);
     uint counter = 0;
     for (uint i = 0; i < claimIds.length; i++) {
@@ -239,8 +236,6 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
       }
     }
   
-
-
     function getHostInsuranceRule(address host) public view returns(Schemas.HostInsuranceRuleDTO memory insuranceRules) {
     return hostInsurance.getHostInsuranceRule(host);
     }
