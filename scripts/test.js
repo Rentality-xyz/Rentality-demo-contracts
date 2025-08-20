@@ -105,13 +105,13 @@ let rentalityGateway = await ethers.getContractAt('IRentalityGateway','0xB257FE9
 let expiration = Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30
 
 
-let approveTx = await swapContract.approveTokenWithPermit2(
-  linkToken,
-  amountIn,
-  expiration
-)
+// let approveTx = await swapContract.approveTokenWithPermit2(
+//   linkToken,
+//   amountIn,
+//   expiration
+// )
 
-console.log('Approve transaction hash:', approveTx.hash)
+// console.log('Approve transaction hash:', approveTx.hash)
 
 let data = rentalityGateway.interface.encodeFunctionData('payKycCommission', [ethToken])
 
@@ -122,24 +122,25 @@ let data = rentalityGateway.interface.encodeFunctionData('payKycCommission', [et
 //   tickSpacing: 60,
 //   hooks: ethToken,
 // }
-// let encodedData = swapContract.interface.encodeFunctionData(
-//   'swapExactInputSingle',
-//   [
-//     config.poolKey,
-//     config.amountIn,
-//     0,
-//     data
-//   ]
-// )
-// console.log('Encoded data:', encodedData)
-
-let swapTx = await swapContract.swapExactInputSingle(
-  config.poolKey,
-  false,
-  config.amountIn,
-  0,
-  data
+let encodedData = swapContract.interface.encodeFunctionData(
+  'swapExactInputSingle',
+  [
+    config.poolKey,
+    false,
+    config.amountIn,
+    0,
+    data
+  ]
 )
+console.log('Encoded data:', encodedData)
+
+// let swapTx = await swapContract.swapExactInputSingle(
+//   config.poolKey,
+//   false,
+//   config.amountIn,
+//   0,
+//   data
+// )
 
 
 console.log('Swap transaction hash:', swapTx.hash)

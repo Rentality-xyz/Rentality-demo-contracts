@@ -19,6 +19,7 @@ interface IRentalitySwap {
 
 function swapExactInputSingle(
     PoolKey calldata key,
+    bool toToken0,
     uint128 amountIn,
     uint128 minAmountOut,
     bytes calldata hookData
