@@ -2018,6 +2018,26 @@
                         { "type": "string", "name": "name" },
                         { "type": "bool", "name": "initialized" }
                       ]
+                    },
+                    { "type": "uint256", "name": "fuelPrice" },
+                    {
+                      "type": "tuple",
+                      "name": "carDiscounts",
+                      "components": [
+                        { "type": "uint32", "name": "threeDaysDiscount" },
+                        { "type": "uint32", "name": "sevenDaysDiscount" },
+                        { "type": "uint32", "name": "thirtyDaysDiscount" },
+                        { "type": "bool", "name": "initialized" }
+                      ]
+                    },
+                    {
+                      "type": "tuple[]",
+                      "name": "taxesInfo",
+                      "components": [
+                        { "type": "string", "name": "name" },
+                        { "type": "uint32", "name": "value" },
+                        { "type": "uint8", "name": "tType" }
+                      ]
                     }
                   ]
                 },
