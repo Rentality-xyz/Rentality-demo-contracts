@@ -489,6 +489,9 @@ interface Schemas {
     bool isGuestHasInsurance;
     uint dimoTokenId;
     UserCurrencyDTO hostCurrency;
+    uint fuelPrice;
+    BaseDiscount carDiscounts;
+    TaxValue[] taxesInfo;
   }
   struct AvailableCarDTO {
     uint carId;

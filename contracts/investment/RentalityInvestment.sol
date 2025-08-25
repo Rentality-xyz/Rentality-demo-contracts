@@ -76,9 +76,13 @@ contract RentalityInvestment is Initializable, UUPSAccess {
       investIdToNft[investId].mint(amount, msg.sender);
     }
   }
+  function getUserServiceAddress() public view returns (address) {
+    return address(userService);
+  }
 
   function claimAndCreatePool(uint investId, Schemas.CreateCarRequest memory createCarRequest) public {
-    require(investmentIdToCreator[investId] == msg.sender, 'Only for creator');
+     bool isInvestorManager = RentalityUserService(address(userService)).isInvestorManager(msg.sender);
+    require(isInvestorManager, 'Only for creator');
     require(address(investIdToPool[investId]) == address(0), 'Claimed');
     require(carToken.isUniqueVinNumber(createCarRequest.carVinNumber), 'Car with this VIN number already exists');
 
@@ -132,7 +136,7 @@ contract RentalityInvestment is Initializable, UUPSAccess {
     bool isInvestorManager = RentalityUserService(address(userService)).isInvestorManager(msg.sender);
     for (uint i = 1; i <= investmentId; i++) {
       Schemas.CarInvestment memory investment = investmentIdToCarInfo[i];
-      if(investmentIdToListed[i] || msg.sender == investmentIdToCreator[i]) {
+      if(investmentIdToListed[i] || isInvestorManager) {
   
       uint income = 0;
       uint myIncome = 0;
@@ -181,7 +185,6 @@ contract RentalityInvestment is Initializable, UUPSAccess {
       totalInvestments++; 
     }
     }
-    if(!isInvestorManager)
       assembly("memory-safe") {
         mstore(investments, totalInvestments)
       }
