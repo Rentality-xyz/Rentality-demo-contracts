@@ -17,7 +17,9 @@ const tripsFilter = {
 async function main() {
 let contract = await ethers.getContractAt('RentalityAdminGateway', '0x19dE77342611e0aF6dD387223309B9397123450b')
 
-console.log(await contract.updateNotificationService('0x37E1950eE1BCC531478fb0507476505AC0a5fAaf'))
+// let investment = await contract.getInvestmentAddress()
+
+console.log("INVESTMENT: ",await contract.updateNotificationService('0x37E1950eE1BCC531478fb0507476505AC0a5fAaf'))
 
 
 }

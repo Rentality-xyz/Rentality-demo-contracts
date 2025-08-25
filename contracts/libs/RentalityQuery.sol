@@ -300,12 +300,12 @@ library RentalityQuery {
           availableCars[temp[i]].createdBy
         );
       }
-
+      uint fuelPrice = contracts.carService.getEngineService().getFuelPriceFromEngineParams(availableCars[temp[i]].engineType, availableCars[temp[i]].engineParams);
       uint taxId = contracts.paymentService.defineTaxesType(address(contracts.carService),  availableCars[temp[i]].carId);
 
-      uint64 totalTax = taxId == 0
-        ? 0
-        : contracts.paymentService.calculateTaxes(taxId, totalTripDays, priceWithDiscount + pickUp + dropOf);
+    (uint64 totalTax, Schemas.TaxValue[] memory taxes) = taxId == 0
+      ? (0,new Schemas.TaxValue[](0))
+      : contracts.paymentService.calculateTaxesDTO(taxId, totalTripDays, priceWithDiscount + pickUp + dropOf);
 
       result[i] = Schemas.SearchCar(
          availableCars[temp[i]].carId,
@@ -333,7 +333,11 @@ library RentalityQuery {
         insuranceService.getCarInsuranceInfo( availableCars[temp[i]].carId),
         isGuestHasInsurance,
         RentalityDimoService(dimoService).getDimoTokenId( availableCars[temp[i]].carId),
-        contracts.currencyConverterService.getUserCurrency( availableCars[temp[i]].createdBy)
+        contracts.currencyConverterService.getUserCurrency( availableCars[temp[i]].createdBy),
+        fuelPrice,
+        contracts.paymentService.getBaseDiscount().getParsedDiscount(contracts.carService.ownerOf(availableCars[temp[i]].carId)),
+        taxes
+        
       );
     }
     return (result, carService.totalSupply());
