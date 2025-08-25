@@ -34,6 +34,7 @@ contract RentalityPaymentService is UUPSOwnable {
     _;
   }
 
+
   function setHostInsuranceService(address _hostInsurance) public {
     require(userService.isAdmin(msg.sender), 'only admin');
     hostInsurance = RentalityHostInsurance(payable(_hostInsurance));

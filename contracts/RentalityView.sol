@@ -68,18 +68,7 @@ contract RentalityView is UUPSUpgradeable, Initializable, ARentalityContext {
     }
     return res_view;
   }
-  /// @notice Retrieves information about a car by its ID.
-  /// @param carId The ID of the car.
-  /// @return Car information as a struct.
-  function getCarInfoById(uint256 carId) public view returns (Schemas.CarInfoWithInsurance memory) {
-    return
-      Schemas.CarInfoWithInsurance(
-        addresses.carService.getCarInfoById(carId),
-        insuranceService.getCarInsuranceInfo(carId),
-        addresses.carService.tokenURI(carId)
-      );
-  }
-
+  
 
   // not using
   /// @notice Retrieves information about all cars.
