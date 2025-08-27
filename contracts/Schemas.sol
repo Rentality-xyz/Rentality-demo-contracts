@@ -492,6 +492,7 @@ interface Schemas {
     uint fuelPrice;
     BaseDiscount carDiscounts;
     TaxValue[] taxesInfo;
+    uint64[] engineParams;
   }
   struct AvailableCarDTO {
     uint carId;

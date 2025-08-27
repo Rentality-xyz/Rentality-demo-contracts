@@ -336,7 +336,8 @@ library RentalityQuery {
         contracts.currencyConverterService.getUserCurrency( availableCars[temp[i]].createdBy),
         fuelPrice,
         contracts.paymentService.getBaseDiscount().getParsedDiscount(contracts.carService.ownerOf(availableCars[temp[i]].carId)),
-        taxes
+        taxes,
+        availableCars[temp[i]].engineParams
         
       );
     }
