@@ -2038,7 +2038,8 @@
                         { "type": "uint32", "name": "value" },
                         { "type": "uint8", "name": "tType" }
                       ]
-                    }
+                    },
+                    { "type": "uint64[]", "name": "engineParams" }
                   ]
                 },
                 { "type": "int256", "name": "distance" }
