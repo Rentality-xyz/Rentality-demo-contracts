@@ -155,7 +155,7 @@ contract RentalityTaxes is Initializable, UUPSAccess {
    
       function setTaxesLocations(uint[] memory taxIds, string[] memory locations) public {
         for(uint i = 0; i < taxIds.length; i++) {
-          taxIdToLocation[i] = locations[i];
+          taxIdToLocation[taxIds[i]] = locations[i];
         }
 }
 

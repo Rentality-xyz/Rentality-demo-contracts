@@ -15,12 +15,13 @@ const tripsFilter = {
 }
 //block 26718122
 async function main() {
-let contract = await ethers.getContractAt('RentalityAdminGateway', '0x19dE77342611e0aF6dD387223309B9397123450b')
+ 
+// base 0xCf261b0275870d924d65d67beB9E88Ebd8deE693
+let gatewaty = await ethers.getContractAt('IRentalityGateway','0xB257FE9D206b60882691a24d5dfF8Aa24929cB73')
+  console.log(await gatewaty.getTaxesInfoById(53))
 
-// let investment = await contract.getInvestmentAddress()
-
-console.log("INVESTMENT: ",await contract.updateNotificationService('0x37E1950eE1BCC531478fb0507476505AC0a5fAaf'))
-
+  // let paymentService = await ethers.getContractAt('RentalityPaymentService','0x0638e2C99A879eD5D0bA0d6DA7872BD586060FaA')
+  // console.log(await paymentService.defineTaxesType('0x5a450aB8C86BA17655a1ACf03114bD3EE986DD4e',1))
 
 }
 main()
