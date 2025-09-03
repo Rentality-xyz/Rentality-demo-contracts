@@ -1507,7 +1507,9 @@
                 { "type": "string", "name": "name" },
                 { "type": "bool", "name": "initialized" }
               ]
-            }
+            },
+            { "type": "string", "name": "guestNickName" },
+            { "type": "string", "name": "hostNickName" }
           ]
         }
       ]
@@ -1722,7 +1724,9 @@
                 { "type": "string", "name": "name" },
                 { "type": "bool", "name": "initialized" }
               ]
-            }
+            },
+            { "type": "string", "name": "guestNickName" },
+            { "type": "string", "name": "hostNickName" }
           ]
         }
       ]
