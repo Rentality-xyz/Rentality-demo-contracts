@@ -200,6 +200,8 @@ interface Schemas {
     TaxValue[] taxesData;
     
     UserCurrencyDTO currency;
+    string guestNickName;
+    string hostNickName;
 
   }
 
