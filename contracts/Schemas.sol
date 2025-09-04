@@ -224,6 +224,8 @@ interface Schemas {
     uint64 startDateTime;
     uint64 endDateTime;
     string timeZoneId;
+    string guestNickname;
+    string hostNickname;
   }
 
   /// @dev Struct to represent a pair of private and public chat keys
