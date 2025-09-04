@@ -771,7 +771,9 @@
             { "type": "string", "name": "carMetadataUrl" },
             { "type": "uint64", "name": "startDateTime" },
             { "type": "uint64", "name": "endDateTime" },
-            { "type": "string", "name": "timeZoneId" }
+            { "type": "string", "name": "timeZoneId" },
+            { "type": "string", "name": "guestNickname" },
+            { "type": "string", "name": "hostNickname" }
           ]
         }
       ]
