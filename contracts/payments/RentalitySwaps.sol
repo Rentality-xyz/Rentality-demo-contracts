@@ -28,7 +28,6 @@ contract RentalitySwaps is Initializable, UUPSAccess {
     mapping(address => bool) private allowedCurrency;
     address[] private allowedCurrencyList;
 
-   receive() external payable{} 
 
     function initialize(address _router, address _weth, address allowedToken, address _nonfungiblePositionManager) public virtual initializer {
         router = ISwapRouter(_router);
@@ -60,18 +59,23 @@ contract RentalitySwaps is Initializable, UUPSAccess {
 
     function swapExactInputSingle(
     address from,
+    address to,
     uint128 amountIn,
     address sender
-) public returns (uint256 amountOut) {
-    address[] memory path = new address[](2);
-    path[0] = from;
-    path[1] = weth;
+) public payable returns (uint256 amountOut) {
+
+    if(from == address(0)) {
+        require(amountIn == msg.value, "Wrong value");
+        IWETH(weth).deposit{value: msg.value}();
+    }
+    else {
     IERC20(from).transferFrom(sender, address(this), amountIn);
+    }
 
     IERC20(from).approve(address(router), amountIn);
     ExactInputSingleParams memory params = ExactInputSingleParams({
         tokenIn: from,
-        tokenOut: weth,
+        tokenOut: to,
         fee: 3000,
         recipient: address(this),
         amountIn: amountIn,
@@ -80,9 +84,10 @@ contract RentalitySwaps is Initializable, UUPSAccess {
     });
 
    uint amount = router.exactInputSingle(params);
-    IWETH(weth).withdraw(amountIn -  (amountIn * 3 / 1000));
+    IWETH(weth).withdraw(IWETH(weth).balanceOf(address(this)));
     return amount;
 }
+  receive() external payable {}
 
 
 

@@ -10,6 +10,8 @@ import '../investment/RentalityInvestment.sol';
 import './RentalityTaxes.sol';
 import './RentalityHostInsurance.sol';
 import {Schemas} from '../Schemas.sol';
+import {RentalitySwaps} from './RentalitySwaps.sol';
+
 /// @title Rentality Payment Service Contract
 /// @notice This contract manages platform fees and allows the adjustment of the platform fee by the manager.
 /// @dev It is connected to RentalityUserService to check if the caller is an admin.
@@ -28,6 +30,7 @@ contract RentalityPaymentService is UUPSOwnable {
   RentalityTaxes private rentalityTaxes;
 
   RentalityHostInsurance private hostInsurance;
+  RentalitySwaps private rentalitySwaps;
 
   modifier onlyAdmin() {
     require(userService.isAdmin(tx.origin), 'Only admin.');
@@ -305,10 +308,14 @@ function getTaxesInfoById(uint taxId) public view returns(Schemas.TaxesInfoDTO m
   /// @dev This function can only be called by a manager. The function handles both native currency (ETH) and ERC20 tokens.
   /// @param currencyType The type of currency used for payment (address of the ERC20 token or address(0) for ETH).
   /// @param valueSumInCurrency The total amount to be paid, which includes price, discount, taxes, deposit, and delivery fees.
-  function payCreateTrip(address currencyType, uint valueSumInCurrency, address user, uint carId) public payable {
+  function payCreateTrip(address currencyType, uint valueSumInCurrency, address user, uint carId, address currencyFrom) public payable {
     require(userService.isRentalityPlatform(msg.sender), 'only Rentality platform');
     (, RentalityCarInvestmentPool pool, address currency) = investmentService.getPaymentsInfo(carId);
     if (address(pool) != address(0)) require(currency == currencyType, 'wrong currency type');
+
+    if (currencyFrom != currencyType) {
+
+    }
 
     if (currencyType == address(0)) {
       // Handle payment in native currency (ETH)
