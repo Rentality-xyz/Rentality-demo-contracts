@@ -219,10 +219,16 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
     function getAllInsuranceRules() public view returns(Schemas.HostInsuranceRule[] memory insuranceRules) { 
       return hostInsurance.getAllInsuranceRules();
     }
+
+     function getAvailableCurrency() public view returns(Schemas.AllowedCurrencyDTO[] memory) {
+      return addresses.paymentService.rentalitySwaps().getAllowedCurrencies();
+     }
     function setHostInsuranceAddress(address _hostInsurance) public {
     require(addresses.userService.isAdmin(tx.origin), 'Only for Admin.');
     hostInsurance = RentalityHostInsurance(payable(_hostInsurance));
   }
+
+ 
 
   function initialize(
     address carServiceAddress,

@@ -287,7 +287,9 @@
         { "type": "address", "name": "_rentalityTaxes" },
         { "type": "address", "name": "_baseDiscount" },
         { "type": "address", "name": "_investorService" },
-        { "type": "address", "name": "_hostInsurance" }
+        { "type": "address", "name": "_hostInsurance" },
+        { "type": "address", "name": "_rentalitySwaps" },
+        { "type": "address", "name": "_quoter" }
       ],
       "outputs": []
     },
@@ -393,7 +395,8 @@
         { "type": "address", "name": "currencyType" },
         { "type": "uint256", "name": "valueSumInCurrency" },
         { "type": "address", "name": "user" },
-        { "type": "uint256", "name": "carId" }
+        { "type": "uint256", "name": "carId" },
+        { "type": "address", "name": "currencyFrom" }
       ],
       "outputs": []
     },
@@ -582,11 +585,29 @@
     },
     {
       "type": "function",
+      "name": "quoter",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
       "name": "renounceOwnership",
       "constant": false,
       "payable": false,
       "inputs": [],
       "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "rentalitySwaps",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
     },
     {
       "type": "function",
@@ -629,6 +650,17 @@
       "constant": false,
       "payable": false,
       "inputs": [{ "type": "uint32", "name": "valueInPPM" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "setSwapContracts",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "_swapsRouter" },
+        { "type": "address", "name": "_quoter" }
+      ],
       "outputs": []
     },
     {

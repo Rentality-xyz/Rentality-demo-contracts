@@ -121,6 +121,26 @@
     },
     {
       "type": "function",
+      "name": "getAvailableCurrency",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "tuple[]",
+          "name": "",
+          "components": [
+            { "type": "uint8", "name": "decimals" },
+            { "type": "string", "name": "name" },
+            { "type": "string", "name": "symbol" },
+            { "type": "address", "name": "tokenAddress" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
       "name": "getCarMetadataURI",
       "constant": true,
       "stateMutability": "view",

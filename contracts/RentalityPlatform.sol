@@ -172,7 +172,8 @@ function createTripRequestWithDelivery(
         currencyType,
         valueSumInCurrency,
         sender,
-        params.request.carId
+        params.request.carId,
+        params.request.currencyType
     );
 
     addresses.tripService.createNewTrip(

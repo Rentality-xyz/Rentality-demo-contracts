@@ -11,6 +11,7 @@ import './RentalityTaxes.sol';
 import './RentalityHostInsurance.sol';
 import {Schemas} from '../Schemas.sol';
 import {RentalitySwaps} from './RentalitySwaps.sol';
+import './swaps/IQuoterV2.sol';
 
 /// @title Rentality Payment Service Contract
 /// @notice This contract manages platform fees and allows the adjustment of the platform fee by the manager.
@@ -30,17 +31,24 @@ contract RentalityPaymentService is UUPSOwnable {
   RentalityTaxes private rentalityTaxes;
 
   RentalityHostInsurance private hostInsurance;
-  RentalitySwaps private rentalitySwaps;
+  RentalitySwaps public rentalitySwaps;
+  IQuoterV2 public quoter;
 
   modifier onlyAdmin() {
     require(userService.isAdmin(tx.origin), 'Only admin.');
     _;
   }
 
+  function setSwapContracts(address _swapsRouter, address _quoter) public onlyAdmin {
+    rentalitySwaps = RentalitySwaps(payable(_swapsRouter));
+    quoter = IQuoterV2(_quoter);
+  }
+
   function setHostInsuranceService(address _hostInsurance) public {
     require(userService.isAdmin(msg.sender), 'only admin');
     hostInsurance = RentalityHostInsurance(payable(_hostInsurance));
   }
+
   function getBaseDiscount() public view returns (RentalityBaseDiscount) {
     address discountAddress = address(discountAddressToDiscountContract[currentDiscount]);
     return RentalityBaseDiscount(discountAddress);
@@ -314,10 +322,24 @@ function getTaxesInfoById(uint taxId) public view returns(Schemas.TaxesInfoDTO m
     if (address(pool) != address(0)) require(currency == currencyType, 'wrong currency type');
 
     if (currencyFrom != currencyType) {
+      IQuoterV2.QuoteExactOutputSingleParams memory params = IQuoterV2.QuoteExactOutputSingleParams({
+        tokenIn: currencyFrom,
+        tokenOut: currencyType,
+        fee: 3000,
+        amountOut: valueSumInCurrency,
+        sqrtPriceLimitX96: 0
+      });
+  
+      (uint amountIn,,,) = quoter.quoteExactOutputSingle(params);
+      require( IERC20(currencyType).allowance(user, address(this)) >= valueSumInCurrency, 
+      'Rental fee must be equal to sum: price with discount + taxes + deposit + delivery');
 
+      IERC20(currencyType).transferFrom(user, address(this), amountIn);
+      IERC20(currencyType).approve(address(rentalitySwaps), amountIn);
+      rentalitySwaps.swapExactInputSingle(currencyFrom, currencyType, uint128(amountIn), address(this));
     }
 
-    if (currencyType == address(0)) {
+    else if (currencyType == address(0)) {
       // Handle payment in native currency (ETH)
       _checkNativeAmount(valueSumInCurrency);
     } else {
@@ -437,7 +459,9 @@ function getTaxesInfoById(uint taxId) public view returns(Schemas.TaxesInfoDTO m
     address _rentalityTaxes,
     address _baseDiscount,
     address _investorService,
-    address _hostInsurance
+    address _hostInsurance,
+    address _rentalitySwaps,
+    address _quoter
   ) public initializer {
     userService = IRentalityAccessControl(_userService);
     platformFeeInPPM = 200_000;
@@ -450,7 +474,9 @@ function getTaxesInfoById(uint taxId) public view returns(Schemas.TaxesInfoDTO m
     rentalityTaxes = RentalityTaxes(_rentalityTaxes);
 
     investmentService = RentalityInvestment(_investorService);
-    hostInsurance =RentalityHostInsurance(payable(_hostInsurance));
+    hostInsurance = RentalityHostInsurance(payable(_hostInsurance));
+    rentalitySwaps = RentalitySwaps(payable(_rentalitySwaps));
+    quoter = IQuoterV2(_quoter);
     __Ownable_init();
   }
 }

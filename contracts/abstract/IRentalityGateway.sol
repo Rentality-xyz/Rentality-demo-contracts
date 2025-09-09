@@ -427,4 +427,6 @@ interface IRentalityGateway {
   function getAllInsuranceRules() external view returns(Schemas.HostInsuranceRule[] memory insuranceRules);
 
   function setPushToken(address user, string memory pushToken) external;
+
+  function getAvailableCurrency() external view returns(Schemas.AllowedCurrencyDTO[] memory);
 }
