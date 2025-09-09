@@ -87,7 +87,6 @@ async function main() {
     libraries: {
       RentalityTripsQuery: rentalityTripsQueryAddress,
       RentalityViewLib: rentalityViewLib,
-
     },
   })
   const contract = await upgrades.deployProxy(contractFactory, [

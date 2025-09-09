@@ -205,18 +205,52 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
     require(addresses.userService.isAdmin(tx.origin), 'Only for Admin.');
     trustedForwarderAddress = forwarder;
   }
-  function getHostInsuranceClaims() public view returns(Schemas.ClaimV2[] memory claims) {
+ function getHostInsuranceClaims() public view returns(Schemas.FullClaimInfo[] memory claimInfos) {
     uint[] memory claimIds = hostInsurance.getInsuranceClaims();
-    claims = new Schemas.ClaimV2[](claimIds.length);
+    claimInfos = new Schemas.FullClaimInfo[](claimIds.length);
+    uint counter = 0;
     for (uint i = 0; i < claimIds.length; i++) {
-      claims[i] = addresses.claimService.getClaim(claimIds[i]);
-    }
+      Schemas.ClaimV2 memory claim = addresses.claimService.getClaim(claimIds[i]);
+      Schemas.Trip memory trip = addresses.tripService.getTrip(claim.tripId);
 
+        claimInfos[counter++] = Schemas.FullClaimInfo(
+          claim,
+          trip.host,
+          trip.guest,
+          addresses.userService.getKYCInfo(trip.guest).mobilePhoneNumber,
+          addresses.userService.getKYCInfo(trip.host).mobilePhoneNumber,
+          addresses.carService.getCarInfoById(trip.carId),
+          RentalityQuery._getClaimValueInCurrency(
+          trip.paymentInfo.currencyType,
+          claim.amountInUsdCents,
+          claim,
+          addresses.claimService,
+          addresses.currencyConverterService
+        ),
+          IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getCarTimeZoneId(
+            addresses.carService.getCarInfoById(trip.carId).locationHash
+          ),
+          addresses.claimService.getClaimTypeInfo(claim.claimType),
+          addresses.currencyConverterService.getUserCurrency(trip.host)
+        );
+      }
+    }
+    /// @notice Retrieves information about a car by its ID.
+  /// @param carId The ID of the car.
+  /// @return Car information as a struct.
+  function getCarInfoById(uint256 carId) public view returns (Schemas.CarInfoWithInsurance memory) {
+    return
+      Schemas.CarInfoWithInsurance(
+        addresses.carService.getCarInfoById(carId),
+        insuranceService.getCarInsuranceInfo(carId),
+        addresses.carService.tokenURI(carId)
+      );
   }
-    function getHostInsuranceRule(address host) public view returns(Schemas.HostInsuranceRule memory insuranceRules) {
+  
+    function getHostInsuranceRule(address host) public view returns(Schemas.HostInsuranceRuleDTO memory insuranceRules) {
     return hostInsurance.getHostInsuranceRule(host);
     }
-    function getAllInsuranceRules() public view returns(Schemas.HostInsuranceRule[] memory insuranceRules) { 
+    function getAllInsuranceRules() public view returns(Schemas.HostInsuranceRuleDTO[] memory insuranceRules) { 
       return hostInsurance.getAllInsuranceRules();
     }
 

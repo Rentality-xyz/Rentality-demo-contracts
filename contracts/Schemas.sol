@@ -200,6 +200,8 @@ interface Schemas {
     TaxValue[] taxesData;
     
     UserCurrencyDTO currency;
+    string guestNickName;
+    string hostNickName;
 
   }
 
@@ -222,6 +224,8 @@ interface Schemas {
     uint64 startDateTime;
     uint64 endDateTime;
     string timeZoneId;
+    string guestNickname;
+    string hostNickname;
   }
 
   /// @dev Struct to represent a pair of private and public chat keys
@@ -489,6 +493,10 @@ interface Schemas {
     bool isGuestHasInsurance;
     uint dimoTokenId;
     UserCurrencyDTO hostCurrency;
+    uint fuelPrice;
+    BaseDiscount carDiscounts;
+    TaxValue[] taxesInfo;
+    uint64[] engineParams;
   }
   struct AvailableCarDTO {
     uint carId;
@@ -1055,6 +1063,13 @@ struct PlatformInfoDTO {
 }
 struct HostInsuranceRule {
   uint partToInsurance;
+  uint insuranceId;
+
+}
+
+struct HostInsuranceRuleDTO {
+  uint partToInsurance;
+  uint insuranceId;
 
 }
 struct HostInsuranceAvarage { 

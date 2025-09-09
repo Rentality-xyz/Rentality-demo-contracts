@@ -107,14 +107,25 @@ contract RentalityHostInsurance is Initializable, UUPSAccess {
         updateUserAvarage(user);
     }
 
-    function getAllInsuranceRules() public view returns(Schemas.HostInsuranceRule[] memory insuranceRules) {
-    insuranceRules = new Schemas.HostInsuranceRule[](insuranceId);
+    function getAllInsuranceRules() public view returns(Schemas.HostInsuranceRuleDTO[] memory insuranceRules) {
+    insuranceRules = new Schemas.HostInsuranceRuleDTO[](insuranceId + 1);
     for (uint i = 0; i < insuranceId; i++) {
-        insuranceRules[i] = insuranceIdToInsurance[i + 1];
+        insuranceRules[i] = Schemas.HostInsuranceRuleDTO({
+            partToInsurance: insuranceIdToInsurance[i + 1].partToInsurance,
+            insuranceId: i + 1
+        });
+        insuranceRules[insuranceId] = Schemas.HostInsuranceRuleDTO({
+            partToInsurance: 0,
+            insuranceId:0
+        });
     }
     }
-    function getHostInsuranceRule(address host) public view returns(Schemas.HostInsuranceRule memory insuranceRules) {
-    return insuranceIdToInsurance[userToInsuranceId[host]];
+    function getHostInsuranceRule(address host) public view returns(Schemas.HostInsuranceRuleDTO memory insuranceRules) {
+    uint _insuranceId = userToInsuranceId[host];
+    return Schemas.HostInsuranceRuleDTO({
+        insuranceId: _insuranceId,
+        partToInsurance: insuranceIdToInsurance[_insuranceId].partToInsurance
+    });
     }
     function isHostInsuranceClaim(uint claimId) public view returns(bool) {
         return claimIdIsInsuranceClaim[claimId];
@@ -128,7 +139,7 @@ contract RentalityHostInsurance is Initializable, UUPSAccess {
   ) public virtual initializer {
     userService = IRentalityAccessControl(_userService);
     insuranceId = 1;
-    insuranceIdToInsurance[1] = Schemas.HostInsuranceRule(40);
+    insuranceIdToInsurance[1] = Schemas.HostInsuranceRule(40, 1);
   }
 
 

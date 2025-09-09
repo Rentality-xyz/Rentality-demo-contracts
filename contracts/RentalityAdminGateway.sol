@@ -127,8 +127,8 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
   }
   /// @notice Updates the address of the RentalityReferralProgram contract. Only callable by admins.
   /// @param contractAddress The new address of the RentalityReferralProgram contract.
-  function updateRefferalProgramService(address contractAddress) public onlyAdmin {
-    refferalProgram = RentalityReferralProgram(contractAddress);
+  function updateNotificationService(address contractAddress) public onlyAdmin {
+    notificationService = RentalityNotificationService(contractAddress);
   }
 
   /// @notice Withdraws the specified amount from the RentalityPlatform contract.

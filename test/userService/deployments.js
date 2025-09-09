@@ -257,7 +257,8 @@ async function deployDefaultFixture() {
   let RentalityTripsView = await ethers.getContractFactory('RentalityTripsView', {
     libraries: {
       RentalityTripsQuery: await tripsQuery.getAddress(),
-      RentalityViewLib: await viewLib.getAddress()
+      RentalityViewLib: await viewLib.getAddress(),
+      RentalityQuery: await query.getAddress(),
     },
   })
 
