@@ -17,7 +17,7 @@ const {
 } = require('../utils')
 const { ethers } = require('hardhat')
 
-describe('RentalityGateway: trips', function () {
+describe.only('RentalityGateway: trips', function () {
   let rentalityGateway,
     rentalityMockPriceFeed,
     rentalityUserService,

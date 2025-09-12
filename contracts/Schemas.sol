@@ -114,6 +114,8 @@ interface Schemas {
     address currencyType;
     SignedLocationInfo pickUpInfo;
     SignedLocationInfo returnInfo;
+    uint256 amountIn;
+    uint24 fee;
   }
 
   /// @dev Enumeration representing verious states of a trip.

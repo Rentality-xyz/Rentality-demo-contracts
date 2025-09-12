@@ -9,6 +9,9 @@ import '@openzeppelin/contracts/utils/math/Math.sol';
 import {IRentalityAccessControl} from '../abstract/IRentalityAccessControl.sol';
 import './swaps/ISwapRouter.sol';
 import {IWETH} from './swaps/IWETH.sol';
+import './swaps/IUniswapV3Factory.sol';
+import './swaps/IUniswapV3Pool.sol';
+import '../libs/TickMath.sol';
 
 
    struct Deposit {
@@ -22,6 +25,8 @@ import {IWETH} from './swaps/IWETH.sol';
 contract RentalitySwaps is Initializable, UUPSAccess {
     ISwapRouter public router;
     address public weth;
+    IUniswapV3Factory public factory;
+    
 
     mapping(address => bool) private allowedCurrency;
     address[] private allowedCurrencyList;
@@ -73,7 +78,9 @@ contract RentalitySwaps is Initializable, UUPSAccess {
     address from,
     address to,
     uint128 amountIn,
-    address sender
+    address sender,
+    uint128 minimumAmountOut,
+    uint24 fee
 ) public payable returns (uint256 amountOut) {
     require(isAllowedCurrency(to), 'Currency is not allowed');
     bool toNative = to == address(0);
@@ -91,14 +98,20 @@ contract RentalitySwaps is Initializable, UUPSAccess {
     }
 
     IERC20(from).approve(address(router), amountIn);
+
+    address poolAddress = IUniswapV3Factory(factory).getPool(from, to, fee);
+
+    IUniswapV3Pool pool = IUniswapV3Pool(poolAddress);
+    (uint160 sqrtPriceX96,, , , , ,) = pool.slot0();
+
     ExactInputSingleParams memory params = ExactInputSingleParams({
         tokenIn: from,
         tokenOut: to,
-        fee: 3000,
+        fee: fee,
         recipient: address(this),
         amountIn: amountIn,
-        amountOutMinimum: 0,
-        sqrtPriceLimitX96: 0
+        amountOutMinimum: minimumAmountOut,
+        sqrtPriceLimitX96: calculateAdjustedSqrtPriceX96(sqrtPriceX96, 500)
     });
 
    uint amount = router.exactInputSingle(params);
@@ -112,18 +125,93 @@ contract RentalitySwaps is Initializable, UUPSAccess {
      else {
         IERC20(to).transfer(msg.sender, amount);
      }
+    uint balance = IERC20(from).balanceOf(address(this));
+     if(balance > 0) {
+        IERC20(to).transfer(sender, balance);
+     }
     return amount;
 }
 
-   function initialize(address _router, address _weth, address allowedToken, address _userService) public virtual initializer {
+   function initialize(address _router, address _weth, address allowedToken, address _userService, address _factory) public virtual initializer {
         router = ISwapRouter(_router);
         weth = _weth;
         allowedCurrency[allowedToken] = true;
         allowedCurrencyList.push(allowedToken);
         allowedCurrency[address(0)] = true;
         userService = IRentalityAccessControl(_userService);
+        factory = IUniswapV3Factory(_factory);
+   }
+    
+     function setFactory(address _factory) public {
+  
+        factory = IUniswapV3Factory(_factory);
 
     }
+
+    function calculateAdjustedSqrtPriceX96(uint160 currentSqrtPriceX96, int24 basisPointsDelta)
+    public
+    pure
+    returns (uint160 adjustedSqrtPriceX96)
+{
+    int24 currentTick = TickMath.getTickAtSqrtRatio(currentSqrtPriceX96);
+    int24 adjustedTick = currentTick + basisPointsDelta;
+    adjustedSqrtPriceX96 = TickMath.getSqrtRatioAtTick(adjustedTick);
+}
+
+
+function getPrice(address from, address to, uint24 fee)
+    public
+    view
+    returns (uint256)
+{
+
+    if(from == address(0)) {
+
+        from = weth;
+    }
+    else if (to == address(0)){
+   
+        to = weth;
+    }
+
+    address poolAddress = IUniswapV3Factory(factory).getPool(from, to, fee);
+
+    IUniswapV3Pool pool = IUniswapV3Pool(poolAddress);
+    (uint160 sqrtPriceX96,, , , , ,) = pool.slot0();
+
+
+    uint256 numerator1 = uint256(sqrtPriceX96) * uint256(sqrtPriceX96);
+    uint256 numerator2 = 10**IERC20(from).decimals();
+    return mulDiv(numerator1, numerator2, 1 << 192);
+}
+  function mulDiv(uint256 a, uint256 b, uint256 denominator) internal pure returns (uint256 result) {
+        unchecked {
+            // 512-bit multiply [prod1 prod0] = a * b
+            // Compute the product mod 2**256 and mod 2**256 - 1
+            // then use the Chinese Remainder Theorem to reconstruct
+            // the 512 bit result. The result is stored in two 256
+            // variables such that product = prod1 * 2**256 + prod0
+            uint256 prod0 = a * b; // Least significant 256 bits of the product
+            uint256 prod1; // Most significant 256 bits of the product
+            assembly ("memory-safe") {
+                let mm := mulmod(a, b, not(0))
+                prod1 := sub(sub(mm, prod0), lt(mm, prod0))
+            }
+
+            // Make sure the result is less than 2**256.
+            // Also prevents denominator == 0
+            require(denominator > prod1);
+
+            // Handle non-overflow cases, 256 by 256 division
+            if (prod1 == 0) {
+                assembly ("memory-safe") {
+                    result := div(prod0, denominator)
+                }
+                return result;
+            }
+        }
+  }
+  
   receive() external payable {}
 
 

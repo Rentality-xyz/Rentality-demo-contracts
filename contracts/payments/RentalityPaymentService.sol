@@ -316,27 +316,17 @@ function getTaxesInfoById(uint taxId) public view returns(Schemas.TaxesInfoDTO m
   /// @dev This function can only be called by a manager. The function handles both native currency (ETH) and ERC20 tokens.
   /// @param currencyType The type of currency used for payment (address of the ERC20 token or address(0) for ETH).
   /// @param valueSumInCurrency The total amount to be paid, which includes price, discount, taxes, deposit, and delivery fees.
-  function payCreateTrip(address currencyType, uint valueSumInCurrency, address user, uint carId, address currencyFrom) public payable {
+  function payCreateTrip(address currencyType, uint valueSumInCurrency, address user, uint carId, address currencyFrom, uint256 amountIn, uint24 fee) public payable {
     require(userService.isRentalityPlatform(msg.sender), 'only Rentality platform');
     (, RentalityCarInvestmentPool pool, address currency) = investmentService.getPaymentsInfo(carId);
     if (address(pool) != address(0)) require(currency == currencyType, 'wrong currency type');
 
     if (currencyFrom != currencyType) {
-      IQuoterV2.QuoteExactOutputSingleParams memory params = IQuoterV2.QuoteExactOutputSingleParams({
-        tokenIn: currencyFrom,
-        tokenOut: currencyType,
-        fee: 3000,
-        amountOut: valueSumInCurrency,
-        sqrtPriceLimitX96: 0
-      });
-  
-      (uint amountIn,,,) = quoter.quoteExactOutputSingle(params);
-      require( IERC20(currencyType).allowance(user, address(this)) >= valueSumInCurrency, 
-      'Rental fee must be equal to sum: price with discount + taxes + deposit + delivery');
 
-      IERC20(currencyType).transferFrom(user, address(this), amountIn);
-      IERC20(currencyType).approve(address(rentalitySwaps), amountIn);
-      rentalitySwaps.swapExactInputSingle(currencyFrom, currencyType, uint128(amountIn), address(this));
+  
+      IERC20(currencyFrom).transferFrom(user, address(this), amountIn);
+      IERC20(currencyFrom).approve(address(rentalitySwaps), amountIn);
+      rentalitySwaps.swapExactInputSingle(currencyFrom, currencyType, uint128(amountIn), address(this), uint128(valueSumInCurrency), fee);
     }
 
     else if (currencyType == address(0)) {
@@ -450,6 +440,23 @@ function getTaxesInfoById(uint taxId) public view returns(Schemas.TaxesInfoDTO m
     }
     require(diff <= value / 100, 'Not enough tokens');
   }
+
+  function _getQuote(IQuoterV2.QuoteExactOutputSingleParams memory params)
+    internal
+    view
+    returns (uint256)
+{
+    (bool success, bytes memory data) = address(quoter).staticcall(
+        abi.encodeWithSignature(
+            "quoteExactOutputSingle((address,address,uint256,uint24,uint160))",
+            params
+        )
+    );
+
+   
+    (uint256 amountIn,,,) = abi.decode(data, (uint256, uint160, uint32, uint256));
+    return amountIn;
+}
 
   receive() external payable {}
   /// @notice Constructor to initialize the RentalityPaymentService.

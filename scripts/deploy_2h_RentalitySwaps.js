@@ -25,12 +25,23 @@ async function main() {
         getContractAddress('DefaultAllowedToken', '', chainId),
         'DefaultAllowedToken'
       )
+      const uniswapFactory = checkNotNull(
+        getContractAddress('UniswapFactory', '', chainId),
+        'UniswapFactory'
+      )
+    
       
       const contractFactory = await ethers.getContractFactory(contractName, {
         libraries: {},
       })
     
-      const contract = await upgrades.deployProxy(contractFactory, [router, weth, allowedToken, rentalityUserServiceAddress])
+      const contract = await upgrades.deployProxy(contractFactory, [
+        router,
+        weth,
+        allowedToken,
+        rentalityUserServiceAddress,
+        uniswapFactory,
+      ])
       await contract.waitForDeployment()
       const contractAddress = await contract.getAddress()
     

@@ -115,7 +115,7 @@ const params = [
 // await linkContract.approve(nonFingPossitionManager, ethers.parseUnits("1.0", 18));
 // await wethContract.approve(nonFingPossitionManager,  ethers.parseUnits("1.0", 18));
 
-console.log("HERE")
+console.log(await findBestPool(linkToken, weth, 100000))
 // const tx = await positionManager.mint(params);
 // const receipt = await tx.wait();
 // console.log(tx)
@@ -230,3 +230,52 @@ main()
   })
 
 
+
+  async function findBestPool(tokenIn, tokenOut, amountOut) {
+    const factory = await ethers.getContractAt(factoryAbi, uniswapFactory);
+    const fees = [500, 3000, 10000];
+    let bestPool = null;
+    let bestQuote = null;
+    let bestFee = null;
+
+    for (let fee of fees) {
+        try {
+            const poolAddress = await factory.getPool(tokenIn, tokenOut, fee);
+            if (poolAddress === ethers.constants.AddressZero) continue;
+
+            const pool = await ethers.getContractAt(
+                [
+                    "function liquidity() view returns (uint128)",
+                    "function slot0() view returns (uint160 sqrtPriceX96,int24 tick,uint16 observationIndex,uint16 observationCardinality,uint16 observationCardinalityNext,uint8 feeProtocol,bool unlocked)"
+                ],
+                poolAddress
+            );
+
+            const slot0 = await pool.slot0();
+            const sqrtPriceX96 = slot0.sqrtPriceX96;
+            const price = Number(sqrtPriceX96) ** 2 / 2 ** 192;
+            const liquidity = await pool.liquidity();
+
+            // Используем quoter для точного расчета amountIn
+            const quoter = await ethers.getContractAt(quoterV2Abi, quoterAddress);
+            const quote = await quoter.quoteExactOutputSingle({
+                tokenIn,
+                tokenOut,
+                fee,
+                amount: amountOut,
+                sqrtPriceLimitX96: 0
+            });
+
+            if (!bestQuote || quote.amountIn < bestQuote.amountIn) {
+                bestQuote = quote;
+                bestPool = { poolAddress, fee, price, liquidity, bestFee: fee };
+            }
+
+        } catch (e) {
+            console.log("Error for fee", fee, e.message);
+            continue;
+        }
+    }
+
+    return { bestPool, bestQuote, bestFee };
+}
