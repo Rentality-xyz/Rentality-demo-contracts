@@ -258,6 +258,10 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
     hostInsurance = RentalityHostInsurance(payable(_hostInsurance));
   }
 
+  function getHostInsuranceBalance() public view returns(uint) {
+       return address(hostInsurance).balance;
+  }
+
   function initialize(
     address carServiceAddress,
     address currencyConverterServiceAddress,

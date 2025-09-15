@@ -964,6 +964,15 @@
     },
     {
       "type": "function",
+      "name": "getHostInsuranceBalance",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "uint256", "name": "" }]
+    },
+    {
+      "type": "function",
       "name": "getHostInsuranceClaims",
       "constant": true,
       "stateMutability": "view",
@@ -2058,27 +2067,6 @@
     },
     {
       "type": "function",
-      "name": "setCivicKYCInfo",
-      "constant": false,
-      "payable": false,
-      "inputs": [
-        { "type": "address", "name": "user" },
-        {
-          "type": "tuple",
-          "name": "civicKycInfo",
-          "components": [
-            { "type": "string", "name": "fullName" },
-            { "type": "string", "name": "licenseNumber" },
-            { "type": "uint64", "name": "expirationDate" },
-            { "type": "string", "name": "issueCountry" },
-            { "type": "string", "name": "email" }
-          ]
-        }
-      ],
-      "outputs": []
-    },
-    {
-      "type": "function",
       "name": "setEmail",
       "constant": false,
       "payable": false,
@@ -2109,26 +2097,6 @@
         { "type": "string", "name": "email" },
         { "type": "bytes", "name": "TCSignature" },
         { "type": "bytes4", "name": "hash" }
-      ],
-      "outputs": []
-    },
-    {
-      "type": "function",
-      "name": "setMyCivicKYCInfo",
-      "constant": false,
-      "payable": false,
-      "inputs": [
-        {
-          "type": "tuple",
-          "name": "civicKycInfo",
-          "components": [
-            { "type": "string", "name": "fullName" },
-            { "type": "string", "name": "licenseNumber" },
-            { "type": "uint64", "name": "expirationDate" },
-            { "type": "string", "name": "issueCountry" },
-            { "type": "string", "name": "email" }
-          ]
-        }
       ],
       "outputs": []
     },
