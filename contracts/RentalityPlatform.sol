@@ -325,14 +325,15 @@ function createTripRequestWithDelivery(
       .currencyConverterService
       .calculateLatestValueWithFee(trip.paymentInfo.currencyType, claim.amountInUsdCents, commission);
 
+    address sender = _msgGatewaySender();
     addresses.claimService.payClaim(claimId, trip.host, trip.guest, rate, dec);
-    if(!hostInsurance.isHostInsuranceClaim(claimId)) {
+    if(!hostInsurance.isHostInsuranceClaim(claimId) ||  hostInsurance.isHostInsuranceClaim(claimId) && trip.guest == sender) {
     addresses.paymentService.payClaim{value: msg.value}(
       trip,
       valueToPay,
       feeInCurrency,
       commission,
-      _msgGatewaySender()
+      sender
     );
     }
     else {
