@@ -115,7 +115,7 @@ const params = [
 // await linkContract.approve(nonFingPossitionManager, ethers.parseUnits("1.0", 18));
 // await wethContract.approve(nonFingPossitionManager,  ethers.parseUnits("1.0", 18));
 
-console.log(await findBestPool(linkToken, weth, 100000))
+// console.log(await findBestPool(linkToken, weth, 100000))
 // const tx = await positionManager.mint(params);
 // const receipt = await tx.wait();
 // console.log(tx)
@@ -130,8 +130,10 @@ const v3Pool = await ethers.getContractAt(
 const L = await v3Pool.liquidity();
 console.log("LIQUDITY: ",L)
 
-const contractFactory = await ethers.getContractFactory('RentalitySwaps')
-let swapContract = await ethers.getContractAt('RentalitySwaps', '0xb4Bb19B98159C2E1Dd1764Cf1F7f743e4efc0373')
+// const contractFactory = await ethers.getContractFactory('RentalitySwaps')
+let swapContract = await ethers.getContractAt('RentalitySwaps', '0x820404483885356af5FB7376078774c2A0beA509')
+
+console.log("Currency Added: ", await swapContract.getAllowedCurrencies())
 // let swapContract =  await upgrades.deployProxy(contractFactory,["0x94cC0AaC535CCDB3C01d6787D6413C739ae12bc4", weth, linkToken, ethToken])
   // console.log('SWAP ROUTER deployed to:', await swapContract.getAddress())
 
@@ -207,15 +209,15 @@ let encodedData = swapContract.interface.encodeFunctionData(
     deployer.address
   ]
 )
-console.log('Encoded data:', encodedData)
+// console.log('Encoded data:', encodedData)
 
-let swapTx = await swapContract.swapExactInputSingle(
-  linkToken,
-  config.amountIn,
-  deployer.address
-)
+// let swapTx = await swapContract.swapExactInputSingle(
+//   linkToken,
+//   config.amountIn,
+//   deployer.address
+// )
 
-console.log('Swap transaction hash:', swapTx.hash)
+// console.log('Swap transaction hash:', swapTx.hash)
 
 
 }
