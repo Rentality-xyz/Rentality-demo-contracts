@@ -33,15 +33,6 @@ interface IRentalityGateway {
 
   function setPhoneNumber(address user, string memory phone, bool isVerified) external;
 
-  /// @notice Set KYC information for a specific user based on Civic identity
-  /// @param user The address of the user whose Civic KYC information is being set
-  /// @param civicKycInfo The Civic KYC information structure containing the user's data
-  /// @dev This function is used to set verified KYC information from the Civic platform
-  function setCivicKYCInfo(address user, Schemas.CivicKYCInfo memory civicKycInfo) external;
-
-  /// @param civicKycInfo The Civic KYC information structure containing the user's data
-  /// @dev This function is used to set verified KYC information from the Civic platform
-  function setMyCivicKYCInfo(Schemas.CivicKYCInfo memory civicKycInfo) external;
 
   /// @notice Retrieves the KYC commission amount.
   /// @dev Calls the `getKycCommission` function from the `userService` contract.
@@ -427,4 +418,6 @@ interface IRentalityGateway {
   function getAllInsuranceRules() external view returns(Schemas.HostInsuranceRuleDTO[] memory insuranceRules);
 
   function setPushToken(address user, string memory pushToken) external;
+
+   function getHostInsuranceBalance() external view returns(uint);
 }
