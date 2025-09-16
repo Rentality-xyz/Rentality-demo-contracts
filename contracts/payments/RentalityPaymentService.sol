@@ -257,7 +257,7 @@ function getTaxesInfoById(uint taxId) public view returns(Schemas.TaxesInfoDTO m
       if (valueToHost > 0) {
         if(toInsurance > 0) {
           valueToHost = valueToHost - toInsurance;
-          hostInsurance.updateUserAvarage{value:toInsurance}(trip.host);
+          hostInsurance.updateUserAvarage{value:toInsurance}(trip.host, trip.tripId, toInsurance);
         }
         (successHost, ) = payable(trip.host).call{value: valueToHost}('');
       } else {
@@ -272,7 +272,7 @@ function getTaxesInfoById(uint taxId) public view returns(Schemas.TaxesInfoDTO m
       // Handle payment in ERC20 tokens
          if(toInsurance > 0) {
           valueToHost = valueToHost - toInsurance;
-          hostInsurance.updateUserAvarage(trip.host);
+          hostInsurance.updateUserAvarage(trip.host, trip.tripId, toInsurance);
           IERC20(trip.paymentInfo.currencyType).transfer(address(hostInsurance), toInsurance);
         }
       successHost = IERC20(trip.paymentInfo.currencyType).transfer(trip.host, valueToHost);

@@ -79,7 +79,8 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
         promoService,
         dimoService,
         _msgGatewaySender(),
-        trip
+        trip,
+        hostInsurance
       );
   }
 
@@ -87,7 +88,7 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
   /// @return An array of trip information.
   function getTripsAs(bool host) public view returns (Schemas.TripDTO[] memory) {
     return
-      RentalityTripsQuery.getTripsAs(addresses, insuranceService, _msgGatewaySender(), host, promoService, dimoService);
+      RentalityTripsQuery.getTripsAs(addresses, insuranceService, _msgGatewaySender(), host, promoService, dimoService, hostInsurance);
   }
 
   /// @notice Calculates the KYC commission in a specific currency based on the current exchange rate.
@@ -235,17 +236,6 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
         );
       }
     }
-    /// @notice Retrieves information about a car by its ID.
-  /// @param carId The ID of the car.
-  /// @return Car information as a struct.
-  function getCarInfoById(uint256 carId) public view returns (Schemas.CarInfoWithInsurance memory) {
-    return
-      Schemas.CarInfoWithInsurance(
-        addresses.carService.getCarInfoById(carId),
-        insuranceService.getCarInsuranceInfo(carId),
-        addresses.carService.tokenURI(carId)
-      );
-  }
   
     function getHostInsuranceRule(address host) public view returns(Schemas.HostInsuranceRuleDTO memory insuranceRules) {
     return hostInsurance.getHostInsuranceRule(host);
@@ -260,6 +250,21 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
 
   function getHostInsuranceBalance() public view returns(uint) {
        return address(hostInsurance).balance;
+  }
+
+    /// @notice Get chat information for trips hosted by the caller on the Rentality platform.
+  /// @return chatInfo An array of chat information for trips hosted by the caller.
+  function getChatInfoFor(bool host) public view returns (Schemas.ChatInfo[] memory) {
+    return
+      RentalityTripsQuery.populateChatInfo(
+        addresses,
+        insuranceService,
+        _msgGatewaySender(),
+        host,
+        promoService,
+        dimoService,
+        hostInsurance
+      );
   }
 
   function initialize(
