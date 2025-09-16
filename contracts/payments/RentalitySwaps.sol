@@ -83,6 +83,7 @@ contract RentalitySwaps is Initializable, UUPSAccess {
     uint24 fee
 ) public payable returns (uint256 amountOut) {
     require(isAllowedCurrency(to), 'Currency is not allowed');
+    require(address(factory) != address(0), "Swaps not alowed");
     bool toNative = to == address(0);
 
     if(from == address(0)) {
@@ -103,7 +104,8 @@ contract RentalitySwaps is Initializable, UUPSAccess {
 
     IUniswapV3Pool pool = IUniswapV3Pool(poolAddress);
     (uint160 sqrtPriceX96,, , , , ,) = pool.slot0();
-
+    // uint160 priceLimit = calculateAdjustedSqrtPriceX96(sqrtPriceX96, 500);
+    uint160 priceLimit = 0;
     ExactInputSingleParams memory params = ExactInputSingleParams({
         tokenIn: from,
         tokenOut: to,
@@ -111,7 +113,7 @@ contract RentalitySwaps is Initializable, UUPSAccess {
         recipient: address(this),
         amountIn: amountIn,
         amountOutMinimum: minimumAmountOut,
-        sqrtPriceLimitX96: calculateAdjustedSqrtPriceX96(sqrtPriceX96, 500)
+        sqrtPriceLimitX96: priceLimit
     });
 
    uint amount = router.exactInputSingle(params);
@@ -211,11 +213,12 @@ function getPrice(address from, address to, uint24 fee)
             }
         }
   }
+
+   function _authorizeUpgrade(address /*newImplementation*/) internal view override {
+    // require(userService.isAdmin(msg.sender), 'Only for Admin.');
+  }
   
   receive() external payable {}
-
-
-
 
 
 }

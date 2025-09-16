@@ -274,8 +274,7 @@ function getMockCarRequest(seed, contractAddress, admin, locationI) {
   }
 }
 
-// let zeroHash = ethers.zeroPadBytes('0x', 4)
-let zeroHash = '0x'
+let zeroHash = ethers.zeroPadBytes('0x', 4)
 function createMockClaimRequest(tripId, amountToClaim) {
   return {
     tripId: tripId,
@@ -418,7 +417,8 @@ async function deployDefaultFixture() {
     ethToken,
     ethToken,
     ethToken,
-    await rentalityUserService.getAddress()
+    await rentalityUserService.getAddress(),
+    ethToken
   ])
 
 
@@ -561,8 +561,7 @@ async function deployDefaultFixture() {
     await rentalityBaseDiscount.getAddress(),
     await investorsService.getAddress(),
     await hostInsurance.getAddress(),
-    await rentalitySwaps.getAddress(),
-    ethToken
+    await rentalitySwaps.getAddress()
     
   ])
   await rentalityPaymentService.waitForDeployment()
@@ -585,7 +584,6 @@ async function deployDefaultFixture() {
     {name:"rentTax",value:200, tType:0}
   ]
 )
-
 
   const rentalityTripService = await upgrades.deployProxy(RentalityTripService, [
     await rentalityCurrencyConverter.getAddress(),
@@ -673,6 +671,8 @@ async function deployDefaultFixture() {
       RentalityUtils: await utils.getAddress(),
     },
   })
+
+
 
   const rentalityPlatformHelper = await upgrades.deployProxy(RentalityPlatformHelper, [
     await rentalityCarToken.getAddress(),
@@ -796,6 +796,7 @@ async function deployDefaultFixture() {
   const hostSignature = await signTCMessage(host)
   const guestSignature = await signTCMessage(guest)
   const adminSignature = await signTCMessage(admin)
+
   const adminKyc = signKycInfo(await rentalityLocationVerifier.getAddress(), admin)
   await rentalityGateway.connect(host).setKYCInfo(' ', ' ', ' ', ' ', hostSignature, zeroHash)
   await rentalityGateway.connect(admin).setKYCInfo(' ', ' ', ' ', ' ', adminSignature, zeroHash)
@@ -812,6 +813,7 @@ async function deployDefaultFixture() {
 
   mockRequestWithInsurance.insuranceRequired = true
   mockRequestWithInsurance.insurancePriceInUsdCents = insurancePriceInCents
+  
 
   return {
     rentalityGateway,

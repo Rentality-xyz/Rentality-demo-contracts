@@ -39,9 +39,8 @@ contract RentalityPaymentService is UUPSOwnable {
     _;
   }
 
-  function setSwapContracts(address _swapsRouter, address _quoter) public onlyAdmin {
+  function setSwapContracts(address _swapsRouter) public onlyAdmin {
     rentalitySwaps = RentalitySwaps(payable(_swapsRouter));
-    quoter = IQuoterV2(_quoter);
   }
 
   function setHostInsuranceService(address _hostInsurance) public {
@@ -267,7 +266,7 @@ function getTaxesInfoById(uint taxId) public view returns(Schemas.TaxesInfoDTO m
       if (valueToHost > 0) {
         if(toInsurance > 0) {
           valueToHost = valueToHost - toInsurance;
-          hostInsurance.updateUserAvarage{value:toInsurance}(trip.host);
+          hostInsurance.updateUserAvarage{value:toInsurance}(trip.host, trip.tripId, toInsurance);
         }
         (successHost, ) = payable(trip.host).call{value: valueToHost}('');
       } else {
@@ -282,7 +281,7 @@ function getTaxesInfoById(uint taxId) public view returns(Schemas.TaxesInfoDTO m
       // Handle payment in ERC20 tokens
          if(toInsurance > 0) {
           valueToHost = valueToHost - toInsurance;
-          hostInsurance.updateUserAvarage(trip.host);
+          hostInsurance.updateUserAvarage(trip.host, trip.tripId, toInsurance);
           IERC20(trip.paymentInfo.currencyType).transfer(address(hostInsurance), toInsurance);
         }
       successHost = IERC20(trip.paymentInfo.currencyType).transfer(trip.host, valueToHost);
@@ -322,11 +321,12 @@ function getTaxesInfoById(uint taxId) public view returns(Schemas.TaxesInfoDTO m
     if (address(pool) != address(0)) require(currency == currencyType, 'wrong currency type');
 
     if (currencyFrom != currencyType) {
+      if(currencyFrom != address(0)) {
 
-  
       IERC20(currencyFrom).transferFrom(user, address(this), amountIn);
       IERC20(currencyFrom).approve(address(rentalitySwaps), amountIn);
-      rentalitySwaps.swapExactInputSingle(currencyFrom, currencyType, uint128(amountIn), address(this), uint128(valueSumInCurrency), fee);
+    }
+         rentalitySwaps.swapExactInputSingle{value: msg.value}(currencyFrom, currencyType, uint128(amountIn), address(this), uint128(valueSumInCurrency), fee);
     }
 
     else if (currencyType == address(0)) {
@@ -441,22 +441,6 @@ function getTaxesInfoById(uint taxId) public view returns(Schemas.TaxesInfoDTO m
     require(diff <= value / 100, 'Not enough tokens');
   }
 
-  function _getQuote(IQuoterV2.QuoteExactOutputSingleParams memory params)
-    internal
-    view
-    returns (uint256)
-{
-    (bool success, bytes memory data) = address(quoter).staticcall(
-        abi.encodeWithSignature(
-            "quoteExactOutputSingle((address,address,uint256,uint24,uint160))",
-            params
-        )
-    );
-
-   
-    (uint256 amountIn,,,) = abi.decode(data, (uint256, uint160, uint32, uint256));
-    return amountIn;
-}
 
   receive() external payable {}
   /// @notice Constructor to initialize the RentalityPaymentService.
@@ -467,8 +451,7 @@ function getTaxesInfoById(uint taxId) public view returns(Schemas.TaxesInfoDTO m
     address _baseDiscount,
     address _investorService,
     address _hostInsurance,
-    address _rentalitySwaps,
-    address _quoter
+    address _rentalitySwaps
   ) public initializer {
     userService = IRentalityAccessControl(_userService);
     platformFeeInPPM = 200_000;
@@ -483,7 +466,6 @@ function getTaxesInfoById(uint taxId) public view returns(Schemas.TaxesInfoDTO m
     investmentService = RentalityInvestment(_investorService);
     hostInsurance = RentalityHostInsurance(payable(_hostInsurance));
     rentalitySwaps = RentalitySwaps(payable(_rentalitySwaps));
-    quoter = IQuoterV2(_quoter);
     __Ownable_init();
   }
 }

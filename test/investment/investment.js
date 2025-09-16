@@ -163,6 +163,8 @@ describe('Rentality investment', function () {
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },
 " ",
         { value: result[0]}
@@ -219,6 +221,8 @@ describe('Rentality investment', function () {
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },"",
         { value: result[0] }
       )
@@ -276,6 +280,8 @@ describe('Rentality investment', function () {
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },
         "",
         { value: result[0] }
@@ -343,6 +349,8 @@ describe('Rentality investment', function () {
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },
 " ",
         { value: result[0]}
@@ -412,6 +420,8 @@ describe('Rentality investment', function () {
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },
 " ",
         { value: result[0]}
@@ -437,6 +447,8 @@ describe('Rentality investment', function () {
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },
 " ",
         { value: result[0]}
@@ -463,6 +475,8 @@ describe('Rentality investment', function () {
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },
 " ",
         { value: result[0]}
@@ -534,6 +548,8 @@ describe('Rentality investment', function () {
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },
 " ",
         { value: result[0]}
@@ -559,6 +575,8 @@ describe('Rentality investment', function () {
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },
 " ",
         { value: result[0]}
@@ -585,6 +603,8 @@ describe('Rentality investment', function () {
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },
         " ",
         { value: result[0]}
@@ -657,6 +677,8 @@ describe('Rentality investment', function () {
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },
 " ",
         { value: result[0]}

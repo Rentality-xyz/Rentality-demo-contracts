@@ -19,15 +19,11 @@ async function main() {
         'RentalitySwaps'
       )
     
-      const quoterV2 = checkNotNull(
-        getContractAddress('QuoterV2', '', chainId),
-        'QuoterV2'
-      )
-
+      
       
       let paymentsService = await ethers.getContractAt('RentalityPaymentService', rentalityPaymentServiceAddress)
 
-      console.log(await paymentsService.setSwapContracts(rentalitySwaps, quoterV2))
+      console.log(await paymentsService.setSwapContracts(rentalitySwaps))
 }
 
 main()
