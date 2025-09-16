@@ -202,7 +202,7 @@ interface Schemas {
     UserCurrencyDTO currency;
     string guestNickName;
     string hostNickName;
-    uint paidToInsurance;
+    uint paidToInsuranceInUsdCents;
 
   }
 

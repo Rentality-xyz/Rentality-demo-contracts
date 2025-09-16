@@ -417,7 +417,11 @@ library RentalityTripsQuery {
         contracts.currencyConverterService.getCurrencyInfo(trip.paymentInfo.currencyType),
         userService.getKYCInfo(trip.guest).name,
         userService.getKYCInfo(trip.host).name,
-        hostInsurance.getPaidToInsuranceByTripId(tripId)
+        contracts.currencyConverterService.getToUsd(
+          trip.paymentInfo.currencyType,
+          hostInsurance.getPaidToInsuranceByTripId(tripId),
+          trip.paymentInfo.currencyRate
+        )
       );
   }
   function getTripInsurancesBy(
