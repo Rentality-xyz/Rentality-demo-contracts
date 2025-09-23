@@ -11,7 +11,6 @@ import './RentalityTaxes.sol';
 import './RentalityHostInsurance.sol';
 import {Schemas} from '../Schemas.sol';
 import {RentalitySwaps} from './RentalitySwaps.sol';
-import './swaps/IQuoterV2.sol';
 
 /// @title Rentality Payment Service Contract
 /// @notice This contract manages platform fees and allows the adjustment of the platform fee by the manager.
@@ -32,7 +31,6 @@ contract RentalityPaymentService is UUPSOwnable {
 
   RentalityHostInsurance private hostInsurance;
   RentalitySwaps public rentalitySwaps;
-  IQuoterV2 public quoter;
 
   modifier onlyAdmin() {
     require(userService.isAdmin(tx.origin), 'Only admin.');
