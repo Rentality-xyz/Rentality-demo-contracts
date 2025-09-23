@@ -263,6 +263,15 @@
     },
     {
       "type": "function",
+      "name": "getUserServiceAddress",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
       "name": "initialize",
       "constant": false,
       "payable": false,

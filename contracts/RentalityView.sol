@@ -173,6 +173,17 @@ contract RentalityView is UUPSUpgradeable, Initializable, ARentalityContext {
   function getMyCars() public view returns (Schemas.CarInfoDTO[] memory) {
     return RentalityUtils.getCarsOwnedByUserWithEditability(addresses, dimoService, _msgGatewaySender());
   }
+      /// @notice Retrieves information about a car by its ID.
+  /// @param carId The ID of the car.
+  /// @return Car information as a struct.
+  function getCarInfoById(uint256 carId) public view returns (Schemas.CarInfoWithInsurance memory) {
+    return
+      Schemas.CarInfoWithInsurance(
+        addresses.carService.getCarInfoById(carId),
+        insuranceService.getCarInsuranceInfo(carId),
+        addresses.carService.tokenURI(carId)
+      );
+  }
 
   /// @notice Retrieves detailed information about a car.
   /// @param carId The ID of the car for which details are requested.
@@ -266,19 +277,6 @@ contract RentalityView is UUPSUpgradeable, Initializable, ARentalityContext {
         _msgGatewaySender()
       );
   }
-  /// @notice Get chat information for trips hosted by the caller on the Rentality platform.
-  /// @return chatInfo An array of chat information for trips hosted by the caller.
-  function getChatInfoFor(bool host) public view returns (Schemas.ChatInfo[] memory) {
-    return
-      RentalityTripsQuery.populateChatInfo(
-        addresses,
-        insuranceService,
-        _msgGatewaySender(),
-        host,
-        promoService,
-        dimoService
-      );
-  }
 
   /// @dev Retrieves delivery data for a given car.
   /// @param carId The ID of the car for which delivery data is requested.
@@ -335,6 +333,10 @@ contract RentalityView is UUPSUpgradeable, Initializable, ARentalityContext {
     trustedForwarderAddress = forwarder;
   }
 
+
+    function getAvailableCurrency() public view returns(Schemas.AllowedCurrencyDTO[] memory) {
+      return addresses.paymentService.rentalitySwaps().getAllowedCurrencies();
+     }
   function initialize(
     address carServiceAddress,
     address currencyConverterServiceAddress,

@@ -121,6 +121,8 @@ describe('Rentality investment with erc20', function () {
           currencyType: usdt,
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },
         ''
       )

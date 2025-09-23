@@ -88,6 +88,8 @@ describe('Ability to update car during trip', function () {
           photo: '',
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },
         ' ',
         { value: result.totalPrice }
@@ -131,6 +133,8 @@ describe('Ability to update car during trip', function () {
           photo: '',
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },
         ' ',
         { value: result.totalPrice }
@@ -201,6 +205,8 @@ describe('Ability to update car during trip', function () {
           photo: '',
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },
         ' ',
         { value: result.totalPrice }

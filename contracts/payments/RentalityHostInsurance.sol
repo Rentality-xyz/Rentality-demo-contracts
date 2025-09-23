@@ -14,6 +14,8 @@ contract RentalityHostInsurance is Initializable, UUPSAccess {
     mapping (uint => bool) private claimIdIsInsuranceClaim;
     uint [] private insuranceClaims;
 
+    mapping(uint => uint) private tripIdToValuePaid;
+
     function payClaim(uint amountToPay, Schemas.Trip memory trip) public {
     require(userService.isRentalityPlatform(msg.sender), 'RentalityHostInsurance: only Rentality platform.');
     require(userService.isAdmin(tx.origin), "HostInsurance: only admin");
@@ -88,7 +90,7 @@ contract RentalityHostInsurance is Initializable, UUPSAccess {
     receive() external payable {}
 
 
-    function updateUserAvarage(address user) public payable {
+    function updateUserAvarage(address user, uint tripId, uint value) public payable {
         uint hostInsuranceRuleId = userToInsuranceId[user];
         Schemas.HostInsuranceAvarage memory avarage = userToAvaragePercents[user];
 
@@ -100,13 +102,10 @@ contract RentalityHostInsurance is Initializable, UUPSAccess {
         }
         userToAvaragePercents[user].totalPercents = newValue;
         userToAvaragePercents[user].totalTripsCount++;
+        tripIdToValuePaid[tripId] = value;
 
     }
-    function addToInsurancePool(address user) public payable {
-        require(userService.isRentalityPlatform(msg.sender), 'RentalityHostInsurance: only Rentality platform.');
-        updateUserAvarage(user);
-    }
-
+ 
     function getAllInsuranceRules() public view returns(Schemas.HostInsuranceRuleDTO[] memory insuranceRules) {
     insuranceRules = new Schemas.HostInsuranceRuleDTO[](insuranceId + 1);
     for (uint i = 0; i < insuranceId; i++) {
@@ -132,6 +131,9 @@ contract RentalityHostInsurance is Initializable, UUPSAccess {
     }
     function getInsuranceClaims() public view returns(uint[] memory) {
         return insuranceClaims;
+    }
+    function getPaidToInsuranceByTripId(uint tripId) public view returns(uint) {
+        return tripIdToValuePaid[tripId];
     }
 
     function initialize(

@@ -1,4 +1,3 @@
-// npm i @nomiclabs/hardhat-ethers
 require('dotenv').config()
 require('@nomicfoundation/hardhat-toolbox')
 require('@openzeppelin/hardhat-upgrades')

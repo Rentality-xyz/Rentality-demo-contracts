@@ -419,5 +419,6 @@ interface IRentalityGateway {
 
   function setPushToken(address user, string memory pushToken) external;
 
+  function getAvailableCurrency() external view returns(Schemas.AllowedCurrencyDTO[] memory);
    function getHostInsuranceBalance() external view returns(uint);
 }
