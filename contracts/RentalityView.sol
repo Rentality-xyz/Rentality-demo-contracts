@@ -333,7 +333,8 @@ contract RentalityView is UUPSUpgradeable, Initializable, ARentalityContext {
     trustedForwarderAddress = forwarder;
   }
 
- function getAvailableCurrency() public view returns(Schemas.AllowedCurrencyDTO[] memory) {
+
+    function getAvailableCurrency() public view returns(Schemas.AllowedCurrencyDTO[] memory) {
       return addresses.paymentService.rentalitySwaps().getAllowedCurrencies();
      }
   function initialize(
