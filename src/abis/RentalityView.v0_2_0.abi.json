@@ -244,6 +244,26 @@
     },
     {
       "type": "function",
+      "name": "getAvailableCurrency",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "tuple[]",
+          "name": "",
+          "components": [
+            { "type": "uint8", "name": "decimals" },
+            { "type": "string", "name": "name" },
+            { "type": "string", "name": "symbol" },
+            { "type": "address", "name": "tokenAddress" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
       "name": "getCarDetails",
       "constant": true,
       "stateMutability": "view",
@@ -290,6 +310,55 @@
     },
     {
       "type": "function",
+      "name": "getCarInfoById",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "carId" }],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "",
+          "components": [
+            {
+              "type": "tuple",
+              "name": "carInfo",
+              "components": [
+                { "type": "uint256", "name": "carId" },
+                { "type": "string", "name": "carVinNumber" },
+                { "type": "bytes32", "name": "carVinNumberHash" },
+                { "type": "address", "name": "createdBy" },
+                { "type": "string", "name": "brand" },
+                { "type": "string", "name": "model" },
+                { "type": "uint32", "name": "yearOfProduction" },
+                { "type": "uint64", "name": "pricePerDayInUsdCents" },
+                { "type": "uint64", "name": "securityDepositPerTripInUsdCents" },
+                { "type": "uint8", "name": "engineType" },
+                { "type": "uint64[]", "name": "engineParams" },
+                { "type": "uint64", "name": "milesIncludedPerDay" },
+                { "type": "uint32", "name": "timeBufferBetweenTripsInSec" },
+                { "type": "bool", "name": "currentlyListed" },
+                { "type": "bool", "name": "geoVerified" },
+                { "type": "string", "name": "timeZoneId" },
+                { "type": "bool", "name": "insuranceIncluded" },
+                { "type": "bytes32", "name": "locationHash" }
+              ]
+            },
+            {
+              "type": "tuple",
+              "name": "insuranceInfo",
+              "components": [
+                { "type": "bool", "name": "required" },
+                { "type": "uint256", "name": "priceInUsdCents" }
+              ]
+            },
+            { "type": "string", "name": "carMetadataURI" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
       "name": "getCarsOfHost",
       "constant": true,
       "stateMutability": "view",
@@ -309,39 +378,6 @@
             { "type": "uint64", "name": "securityDepositPerTripInUsdCents" },
             { "type": "uint64", "name": "milesIncludedPerDay" },
             { "type": "bool", "name": "currentlyListed" }
-          ]
-        }
-      ]
-    },
-    {
-      "type": "function",
-      "name": "getChatInfoFor",
-      "constant": true,
-      "stateMutability": "view",
-      "payable": false,
-      "inputs": [{ "type": "bool", "name": "host" }],
-      "outputs": [
-        {
-          "type": "tuple[]",
-          "name": "",
-          "components": [
-            { "type": "uint256", "name": "tripId" },
-            { "type": "address", "name": "guestAddress" },
-            { "type": "string", "name": "guestName" },
-            { "type": "string", "name": "guestPhotoUrl" },
-            { "type": "address", "name": "hostAddress" },
-            { "type": "string", "name": "hostName" },
-            { "type": "string", "name": "hostPhotoUrl" },
-            { "type": "uint256", "name": "tripStatus" },
-            { "type": "string", "name": "carBrand" },
-            { "type": "string", "name": "carModel" },
-            { "type": "uint32", "name": "carYearOfProduction" },
-            { "type": "string", "name": "carMetadataUrl" },
-            { "type": "uint64", "name": "startDateTime" },
-            { "type": "uint64", "name": "endDateTime" },
-            { "type": "string", "name": "timeZoneId" },
-            { "type": "string", "name": "guestNickname" },
-            { "type": "string", "name": "hostNickname" }
           ]
         }
       ]
