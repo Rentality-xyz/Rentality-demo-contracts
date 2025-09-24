@@ -227,7 +227,9 @@
                 },
                 { "type": "bytes", "name": "signature" }
               ]
-            }
+            },
+            { "type": "uint256", "name": "amountIn" },
+            { "type": "uint24", "name": "fee" }
           ]
         },
         { "type": "string", "name": "promo" }

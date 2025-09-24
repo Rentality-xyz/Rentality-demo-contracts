@@ -29,6 +29,7 @@ struct CreateTripRequestParams {
     bytes32 pickUpHash;
     bytes32 returnHash;
     string promo;
+    
 }
 
 
@@ -172,7 +173,10 @@ function createTripRequestWithDelivery(
         currencyType,
         valueSumInCurrency,
         sender,
-        params.request.carId
+        params.request.carId,
+        params.request.currencyType,
+        params.request.amountIn,
+        params.request.fee
     );
 
     addresses.tripService.createNewTrip(

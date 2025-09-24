@@ -1,6 +1,6 @@
 const { ethers, upgrades } = require('hardhat')
 const { keccak256 } = require('hardhat/internal/util/keccak')
-const ethToken = ethers.getAddress('0x0000000000000000000000000000000000000000')
+const ethToken = '0x0000000000000000000000000000000000000000'
 const taxesWithoutRentSign = '0x656b0a99'
 const taxesWithRentSign = '0x57ccc04e'
 const taxesWithGovePMM = '0x96746221'
@@ -411,6 +411,17 @@ async function deployDefaultFixture() {
   ])
   await engineService.waitForDeployment()
 
+  const RentalitySwaps = await ethers.getContractFactory('RentalitySwaps')
+
+  const rentalitySwaps = await upgrades.deployProxy(RentalitySwaps, [
+    ethToken,
+    ethToken,
+    ethToken,
+    await rentalityUserService.getAddress(),
+    ethToken
+  ])
+
+
   await rentalityUserService.connect(owner).grantAdminRole(admin.address)
   await rentalityUserService.connect(owner).grantPlatformRole(manager.address)
   await rentalityUserService.connect(owner).grantHostRole(host.address)
@@ -549,7 +560,8 @@ async function deployDefaultFixture() {
     await rentalityTaxes.getAddress(),
     await rentalityBaseDiscount.getAddress(),
     await investorsService.getAddress(),
-    await hostInsurance.getAddress()
+    await hostInsurance.getAddress(),
+    await rentalitySwaps.getAddress()
     
   ])
   await rentalityPaymentService.waitForDeployment()
@@ -572,7 +584,6 @@ async function deployDefaultFixture() {
     {name:"rentTax",value:200, tType:0}
   ]
 )
-
 
   const rentalityTripService = await upgrades.deployProxy(RentalityTripService, [
     await rentalityCurrencyConverter.getAddress(),
@@ -660,6 +671,8 @@ async function deployDefaultFixture() {
       RentalityUtils: await utils.getAddress(),
     },
   })
+
+
 
   const rentalityPlatformHelper = await upgrades.deployProxy(RentalityPlatformHelper, [
     await rentalityCarToken.getAddress(),
@@ -783,6 +796,7 @@ async function deployDefaultFixture() {
   const hostSignature = await signTCMessage(host)
   const guestSignature = await signTCMessage(guest)
   const adminSignature = await signTCMessage(admin)
+
   const adminKyc = signKycInfo(await rentalityLocationVerifier.getAddress(), admin)
   await rentalityGateway.connect(host).setKYCInfo(' ', ' ', ' ', ' ', hostSignature, zeroHash)
   await rentalityGateway.connect(admin).setKYCInfo(' ', ' ', ' ', ' ', adminSignature, zeroHash)
@@ -799,6 +813,7 @@ async function deployDefaultFixture() {
 
   mockRequestWithInsurance.insuranceRequired = true
   mockRequestWithInsurance.insurancePriceInUsdCents = insurancePriceInCents
+  
 
   return {
     rentalityGateway,

@@ -1,0 +1,196 @@
+{
+  "abi": [
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "AdminChanged",
+      "inputs": [
+        { "type": "address", "name": "previousAdmin", "indexed": false },
+        { "type": "address", "name": "newAdmin", "indexed": false }
+      ]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "BeaconUpgraded",
+      "inputs": [{ "type": "address", "name": "beacon", "indexed": true }]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "Initialized",
+      "inputs": [{ "type": "uint8", "name": "version", "indexed": false }]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "Upgraded",
+      "inputs": [{ "type": "address", "name": "implementation", "indexed": true }]
+    },
+    {
+      "type": "function",
+      "name": "addAllowedCurrencies",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address[]", "name": "currencies" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "addAllowedCurrency",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "currency" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "calculateAdjustedSqrtPriceX96",
+      "constant": true,
+      "stateMutability": "pure",
+      "payable": false,
+      "inputs": [
+        { "type": "uint160", "name": "currentSqrtPriceX96" },
+        { "type": "int24", "name": "basisPointsDelta" }
+      ],
+      "outputs": [{ "type": "uint160", "name": "adjustedSqrtPriceX96" }]
+    },
+    {
+      "type": "function",
+      "name": "factory",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getAllowedCurrencies",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "tuple[]",
+          "name": "currencies",
+          "components": [
+            { "type": "uint8", "name": "decimals" },
+            { "type": "string", "name": "name" },
+            { "type": "string", "name": "symbol" },
+            { "type": "address", "name": "tokenAddress" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getPrice",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "from" },
+        { "type": "address", "name": "to" },
+        { "type": "uint24", "name": "fee" }
+      ],
+      "outputs": [{ "type": "uint256", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "initialize",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "_router" },
+        { "type": "address", "name": "_weth" },
+        { "type": "address", "name": "allowedToken" },
+        { "type": "address", "name": "_userService" },
+        { "type": "address", "name": "_factory" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "isAllowedCurrency",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "currency" }],
+      "outputs": [{ "type": "bool", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "proxiableUUID",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "bytes32", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "router",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "setFactory",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "_factory" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "swapExactInputSingle",
+      "constant": false,
+      "stateMutability": "payable",
+      "payable": true,
+      "inputs": [
+        { "type": "address", "name": "from" },
+        { "type": "address", "name": "to" },
+        { "type": "uint128", "name": "amountIn" },
+        { "type": "address", "name": "sender" },
+        { "type": "uint128", "name": "minimumAmountOut" },
+        { "type": "uint24", "name": "fee" }
+      ],
+      "outputs": [{ "type": "uint256", "name": "amountOut" }]
+    },
+    {
+      "type": "function",
+      "name": "upgradeTo",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "newImplementation" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "upgradeToAndCall",
+      "constant": false,
+      "stateMutability": "payable",
+      "payable": true,
+      "inputs": [
+        { "type": "address", "name": "newImplementation" },
+        { "type": "bytes", "name": "data" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "weth",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    { "type": "receive", "stateMutability": "payable" }
+  ]
+}

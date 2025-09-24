@@ -439,7 +439,9 @@
                 },
                 { "type": "bytes", "name": "signature" }
               ]
-            }
+            },
+            { "type": "uint256", "name": "amountIn" },
+            { "type": "uint24", "name": "fee" }
           ]
         },
         { "type": "string", "name": "promoCode" }
@@ -612,6 +614,26 @@
             { "type": "string", "name": "timeZoneId" },
             { "type": "bool", "name": "insuranceIncluded" },
             { "type": "bytes32", "name": "locationHash" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getAvailableCurrency",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "tuple[]",
+          "name": "",
+          "components": [
+            { "type": "uint8", "name": "decimals" },
+            { "type": "string", "name": "name" },
+            { "type": "string", "name": "symbol" },
+            { "type": "address", "name": "tokenAddress" }
           ]
         }
       ]
@@ -1520,7 +1542,8 @@
               ]
             },
             { "type": "string", "name": "guestNickName" },
-            { "type": "string", "name": "hostNickName" }
+            { "type": "string", "name": "hostNickName" },
+            { "type": "uint256", "name": "paidToInsuranceInUsdCents" }
           ]
         }
       ]
@@ -1737,7 +1760,8 @@
               ]
             },
             { "type": "string", "name": "guestNickName" },
-            { "type": "string", "name": "hostNickName" }
+            { "type": "string", "name": "hostNickName" },
+            { "type": "uint256", "name": "paidToInsuranceInUsdCents" }
           ]
         }
       ]

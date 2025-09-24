@@ -75,6 +75,8 @@ describe('ERC20 payments', function () {
           photo: '',
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },
         ' '
       )
@@ -119,6 +121,8 @@ describe('ERC20 payments', function () {
           photo: '',
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },
         ' '
       )
@@ -192,6 +196,8 @@ describe('ERC20 payments', function () {
           photo: '',
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },
         ' '
       )
@@ -252,6 +258,8 @@ describe('ERC20 payments', function () {
           photo: '',
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },
         ' '
       )

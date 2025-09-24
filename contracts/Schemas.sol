@@ -114,6 +114,8 @@ interface Schemas {
     address currencyType;
     SignedLocationInfo pickUpInfo;
     SignedLocationInfo returnInfo;
+    uint256 amountIn;
+    uint24 fee;
   }
 
   /// @dev Enumeration representing verious states of a trip.
@@ -202,6 +204,7 @@ interface Schemas {
     UserCurrencyDTO currency;
     string guestNickName;
     string hostNickName;
+    uint paidToInsuranceInUsdCents;
 
   }
 
@@ -1076,6 +1079,13 @@ struct HostInsuranceAvarage {
   uint totalTripsCount;
   uint totalPercents;
 
+}
+
+struct AllowedCurrencyDTO {
+  uint8 decimals;
+  string name;
+  string symbol;
+  address tokenAddress;
 }
 
 

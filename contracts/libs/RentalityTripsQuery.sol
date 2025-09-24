@@ -20,6 +20,7 @@ import {RentalityInsurance} from '../payments/RentalityInsurance.sol';
 import '../engine/RentalityEnginesService.sol';
 import '../payments/RentalityBaseDiscount.sol';
 import {RentalityDimoService} from '../features/RentalityDimoService.sol';
+import {RentalityHostInsurance} from '../payments/RentalityHostInsurance.sol';
 
 library RentalityTripsQuery {
   /// @notice Checks if a trip intersects with the specified time interval.
@@ -259,12 +260,13 @@ library RentalityTripsQuery {
     address user,
     bool host,
     RentalityPromoService promoService,
-    RentalityDimoService dimoService
+    RentalityDimoService dimoService,
+    RentalityHostInsurance hostInsurance
   ) public view returns (Schemas.TripDTO[] memory) {
     return
       host
-        ? getTripsByHost(contracts, insuranceService, user, promoService, dimoService)
-        : getTripsByGuest(contracts, insuranceService, user, promoService, dimoService);
+        ? getTripsByHost(contracts, insuranceService, user, promoService, dimoService, hostInsurance)
+        : getTripsByGuest(contracts, insuranceService, user, promoService, dimoService, hostInsurance);
   }
 
   /// @notice Retrieves all trips associated with a specific guest.
@@ -277,7 +279,8 @@ library RentalityTripsQuery {
     RentalityInsurance insuranceService,
     address guest,
     RentalityPromoService promoService,
-    RentalityDimoService dimoService
+    RentalityDimoService dimoService,
+    RentalityHostInsurance hostInsurance
   ) private view returns (Schemas.TripDTO[] memory) {
     RentalityTripService tripService = contracts.tripService;
 
@@ -296,7 +299,8 @@ library RentalityTripsQuery {
           promoService,
           dimoService,
           guest,
-          trip
+          trip,
+          hostInsurance
         );
         currentIndex += 1;
       }
@@ -318,7 +322,8 @@ library RentalityTripsQuery {
     RentalityInsurance insuranceService,
     address host,
     RentalityPromoService promoService,
-    RentalityDimoService dimoService
+    RentalityDimoService dimoService,
+    RentalityHostInsurance hostInsurance
   ) private view returns (Schemas.TripDTO[] memory) {
     RentalityTripService tripService = contracts.tripService;
     uint[] memory hostTrips = tripService.getTripsByUser(host);
@@ -336,7 +341,8 @@ library RentalityTripsQuery {
           promoService,
           dimoService,
           host,
-          trip
+          trip,
+          hostInsurance
         );
         currentIndex += 1;
       }
@@ -360,7 +366,8 @@ library RentalityTripsQuery {
     RentalityPromoService promoService,
     RentalityDimoService dimoService,
     address user,
-    Schemas.Trip memory trip
+    Schemas.Trip memory trip,
+    RentalityHostInsurance hostInsurance
   ) public view returns (Schemas.TripDTO memory) {
     RentalityTripService tripService = contracts.tripService;
     RentalityCarToken carService = contracts.carService;
@@ -409,7 +416,12 @@ library RentalityTripsQuery {
         contracts.paymentService.getTripTaxesDTO(tripId),
         contracts.currencyConverterService.getCurrencyInfo(trip.paymentInfo.currencyType),
         userService.getKYCInfo(trip.guest).name,
-        userService.getKYCInfo(trip.host).name
+        userService.getKYCInfo(trip.host).name,
+        contracts.currencyConverterService.getToUsd(
+          trip.paymentInfo.currencyType,
+          hostInsurance.getPaidToInsuranceByTripId(tripId),
+          trip.paymentInfo.currencyRate
+        )
       );
   }
   function getTripInsurancesBy(
@@ -610,9 +622,10 @@ library RentalityTripsQuery {
     address user,
     bool host,
     RentalityPromoService promoService,
-    RentalityDimoService dimoService
+    RentalityDimoService dimoService,
+    RentalityHostInsurance hostInsurance
   ) public view returns (Schemas.ChatInfo[] memory) {
-    Schemas.TripDTO[] memory trips = getTripsAs(addresses, insuranceService, user, host, promoService, dimoService);
+    Schemas.TripDTO[] memory trips = getTripsAs(addresses, insuranceService, user, host, promoService, dimoService, hostInsurance);
 
     RentalityUserService userService = addresses.userService;
     RentalityCarToken carService = addresses.carService;

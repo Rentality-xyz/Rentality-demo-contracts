@@ -169,12 +169,23 @@ async function deployDefaultFixture() {
     ])
     await hostInsurance.waitForDeployment()
 
+    const RentalitySwaps = await ethers.getContractFactory('RentalitySwaps')
+
+    const rentalitySwaps = await upgrades.deployProxy(RentalitySwaps, [
+      ethToken,
+      ethToken,
+      ethToken,
+      await rentalityUserService.getAddress(),
+      ethToken
+    ])
+
   const rentalityPaymentService = await upgrades.deployProxy(RentalityPaymentService, [
     await rentalityUserService.getAddress(),
     await rentalityTaxes.getAddress(),
     await rentalityBaseDiscount.getAddress(),
     await investorsService.getAddress(),
-    await hostInsurance.getAddress()
+    await hostInsurance.getAddress(),
+    await rentalitySwaps.getAddress()
   ])
   
   await rentalityPaymentService.addTaxes(

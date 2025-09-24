@@ -181,6 +181,8 @@ describe('Rentality taxes & discounts', function () {
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },
         ' ',
         { value: result.totalPrice }
@@ -265,6 +267,8 @@ describe('Rentality taxes & discounts', function () {
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },
         ' ',
         { value }

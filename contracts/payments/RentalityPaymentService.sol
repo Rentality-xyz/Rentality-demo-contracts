@@ -10,6 +10,8 @@ import '../investment/RentalityInvestment.sol';
 import './RentalityTaxes.sol';
 import './RentalityHostInsurance.sol';
 import {Schemas} from '../Schemas.sol';
+import {RentalitySwaps} from './RentalitySwaps.sol';
+
 /// @title Rentality Payment Service Contract
 /// @notice This contract manages platform fees and allows the adjustment of the platform fee by the manager.
 /// @dev It is connected to RentalityUserService to check if the caller is an admin.
@@ -28,17 +30,22 @@ contract RentalityPaymentService is UUPSOwnable {
   RentalityTaxes private rentalityTaxes;
 
   RentalityHostInsurance private hostInsurance;
+  RentalitySwaps public rentalitySwaps;
 
   modifier onlyAdmin() {
     require(userService.isAdmin(tx.origin), 'Only admin.');
     _;
   }
 
+  function setSwapContracts(address _swapsRouter) public onlyAdmin {
+    rentalitySwaps = RentalitySwaps(payable(_swapsRouter));
+  }
 
   function setHostInsuranceService(address _hostInsurance) public {
     require(userService.isAdmin(msg.sender), 'only admin');
     hostInsurance = RentalityHostInsurance(payable(_hostInsurance));
   }
+
   function getBaseDiscount() public view returns (RentalityBaseDiscount) {
     address discountAddress = address(discountAddressToDiscountContract[currentDiscount]);
     return RentalityBaseDiscount(discountAddress);
@@ -257,7 +264,7 @@ function getTaxesInfoById(uint taxId) public view returns(Schemas.TaxesInfoDTO m
       if (valueToHost > 0) {
         if(toInsurance > 0) {
           valueToHost = valueToHost - toInsurance;
-          hostInsurance.updateUserAvarage{value:toInsurance}(trip.host);
+          hostInsurance.updateUserAvarage{value:toInsurance}(trip.host, trip.tripId, toInsurance);
         }
         (successHost, ) = payable(trip.host).call{value: valueToHost}('');
       } else {
@@ -272,7 +279,7 @@ function getTaxesInfoById(uint taxId) public view returns(Schemas.TaxesInfoDTO m
       // Handle payment in ERC20 tokens
          if(toInsurance > 0) {
           valueToHost = valueToHost - toInsurance;
-          hostInsurance.updateUserAvarage(trip.host);
+          hostInsurance.updateUserAvarage(trip.host, trip.tripId, toInsurance);
           IERC20(trip.paymentInfo.currencyType).transfer(address(hostInsurance), toInsurance);
         }
       successHost = IERC20(trip.paymentInfo.currencyType).transfer(trip.host, valueToHost);
@@ -306,12 +313,21 @@ function getTaxesInfoById(uint taxId) public view returns(Schemas.TaxesInfoDTO m
   /// @dev This function can only be called by a manager. The function handles both native currency (ETH) and ERC20 tokens.
   /// @param currencyType The type of currency used for payment (address of the ERC20 token or address(0) for ETH).
   /// @param valueSumInCurrency The total amount to be paid, which includes price, discount, taxes, deposit, and delivery fees.
-  function payCreateTrip(address currencyType, uint valueSumInCurrency, address user, uint carId) public payable {
+  function payCreateTrip(address currencyType, uint valueSumInCurrency, address user, uint carId, address currencyFrom, uint256 amountIn, uint24 fee) public payable {
     require(userService.isRentalityPlatform(msg.sender), 'only Rentality platform');
     (, RentalityCarInvestmentPool pool, address currency) = investmentService.getPaymentsInfo(carId);
     if (address(pool) != address(0)) require(currency == currencyType, 'wrong currency type');
 
-    if (currencyType == address(0)) {
+    if (currencyFrom != currencyType) {
+      if(currencyFrom != address(0)) {
+
+      IERC20(currencyFrom).transferFrom(user, address(this), amountIn);
+      IERC20(currencyFrom).approve(address(rentalitySwaps), amountIn);
+    }
+         rentalitySwaps.swapExactInputSingle{value: msg.value}(currencyFrom, currencyType, uint128(amountIn), address(this), uint128(valueSumInCurrency), fee);
+    }
+
+    else if (currencyType == address(0)) {
       // Handle payment in native currency (ETH)
       _checkNativeAmount(valueSumInCurrency);
     } else {
@@ -423,6 +439,7 @@ function getTaxesInfoById(uint taxId) public view returns(Schemas.TaxesInfoDTO m
     require(diff <= value / 100, 'Not enough tokens');
   }
 
+
   receive() external payable {}
   /// @notice Constructor to initialize the RentalityPaymentService.
   /// @param _userService The address of the RentalityUserService contract
@@ -431,7 +448,8 @@ function getTaxesInfoById(uint taxId) public view returns(Schemas.TaxesInfoDTO m
     address _rentalityTaxes,
     address _baseDiscount,
     address _investorService,
-    address _hostInsurance
+    address _hostInsurance,
+    address _rentalitySwaps
   ) public initializer {
     userService = IRentalityAccessControl(_userService);
     platformFeeInPPM = 200_000;
@@ -444,7 +462,8 @@ function getTaxesInfoById(uint taxId) public view returns(Schemas.TaxesInfoDTO m
     rentalityTaxes = RentalityTaxes(_rentalityTaxes);
 
     investmentService = RentalityInvestment(_investorService);
-    hostInsurance =RentalityHostInsurance(payable(_hostInsurance));
+    hostInsurance = RentalityHostInsurance(payable(_hostInsurance));
+    rentalitySwaps = RentalitySwaps(payable(_rentalitySwaps));
     __Ownable_init();
   }
 }
