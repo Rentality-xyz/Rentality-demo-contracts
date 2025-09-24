@@ -29,15 +29,6 @@
     },
     {
       "type": "function",
-      "name": "addToInsurancePool",
-      "constant": false,
-      "stateMutability": "payable",
-      "payable": true,
-      "inputs": [{ "type": "address", "name": "user" }],
-      "outputs": []
-    },
-    {
-      "type": "function",
       "name": "calculateCurrentHostInsuranceSumFrom",
       "constant": true,
       "stateMutability": "view",
@@ -120,6 +111,15 @@
       "payable": false,
       "inputs": [],
       "outputs": [{ "type": "uint256[]", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getPaidToInsuranceByTripId",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "tripId" }],
+      "outputs": [{ "type": "uint256", "name": "" }]
     },
     {
       "type": "function",
@@ -243,7 +243,11 @@
       "constant": false,
       "stateMutability": "payable",
       "payable": true,
-      "inputs": [{ "type": "address", "name": "user" }],
+      "inputs": [
+        { "type": "address", "name": "user" },
+        { "type": "uint256", "name": "tripId" },
+        { "type": "uint256", "name": "value" }
+      ],
       "outputs": []
     },
     {

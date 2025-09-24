@@ -91,7 +91,7 @@
     "RentalityQuery": "0x0a0dE232C3AF8eAC912E2656a33e2e25e12C2c0f",
     "RealMath": "0x91de200b873eD6554E4A7108a92FF86505511687",
     "RentalityCarDelivery": "0x2CBAD9F1Fc7AbA08ecB07e2A1996Aa2E37873c01",
-    "RentalityTripsQuery": "0xB81dF0f168f65361Ea308F97A0A870241acD9873",
+    "RentalityTripsQuery": "0xf6AD93B8281F1b82337Fdd863eb65d05F6A286B9",
     "RentalityPromoService": "0x96687f9B6CBcAA7139f83934e33fa8e96989C153",
     "RentalityDimoService": "0xC0bf7988E46AD5421D574dB819Af43530D98bbe9",
     "RentalityTripsView": "0x327B5381C8CAaBaF7Dfa102DcDc57eD07D425DC1",
@@ -107,7 +107,8 @@
     "RentalityInvestDeployer": "0x46C4A9BeaD5243FcAC108018090f254fF16d2068",
     "RentalityTaxes": "0x2287de614e0CafED95b42c45dd959176F4a9fF14",
     "RentalityAiDamageAnalyzeV2": "0x59156833f041D213c6E1DD8c60E948a99Fef9DEC",
-    "RentalityHostInsurance": "0x7cD8e7aCc9A0Ed08347E6D592AD2B7255e562D08"
+    "RentalityHostInsurance": "0x7cD8e7aCc9A0Ed08347E6D592AD2B7255e562D08",
+    "RentalitySwaps": "0x6616EbC4b2b9C502F3dF820BdE4b224A307E0D99"
   },
   {
     "name": "opBNB_testnet",
@@ -146,7 +147,7 @@
     "RentalityQuery": "0x093E624C561f5c523acBFa3B96C324d19A706ea2",
     "RealMath": "0xD73596cCeB7f34EA76B3bc5eED709f481D00c621",
     "RentalityCarDelivery": "0x24d302C7eAC2ba46dfE406b1FD2cbFB1640B5594",
-    "RentalityTripsQuery": "0x2Af3AA9e1676029ee1B47eC0D594E4544d353916",
+    "RentalityTripsQuery": "0xb70B435ab63FeBCD9E725592cb139046a2F972e3",
     "RentalityPromoService": "0xc61f6425f4E4205750DB33019E5bA11D659A2bBb",
     "RentalityDimoService": "0xB7f1029ecF310d05C9b8514179611d1D9450EcF9",
     "RentalityTripsView": "0x78BcD782E2d34CbD948A4E3896a6060a22dE131e",
@@ -163,7 +164,8 @@
     "RentalityTaxes": "0x5dFb58D2dc2FF33Ec3cb83Fd88f5A8432aF70DEc",
     "RentalityBatchPriceUpdater": "0x9AeDFD14eae95D23D0687Afb7754358A3C83cEc3",
     "RentalityAiDamageAnalyzeV2": "0x11c51C4f7851D02E1aDadae717BE3ED8f9A38Aac",
-    "RentalityHostInsurance": "0x2Eed212aA87AB6f43eAe1a63f7A0D5201f29F852"
+    "RentalityHostInsurance": "0x2Eed212aA87AB6f43eAe1a63f7A0D5201f29F852",
+    "RentalitySwaps": "0x2a3390352Cc6f216D9613A996E17Be6b80D4FA02"
   },
   {
     "name": "opBNB",

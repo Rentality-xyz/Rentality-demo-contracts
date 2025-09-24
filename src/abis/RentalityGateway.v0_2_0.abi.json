@@ -1542,7 +1542,8 @@
               ]
             },
             { "type": "string", "name": "guestNickName" },
-            { "type": "string", "name": "hostNickName" }
+            { "type": "string", "name": "hostNickName" },
+            { "type": "uint256", "name": "paidToInsuranceInUsdCents" }
           ]
         }
       ]
@@ -1759,7 +1760,8 @@
               ]
             },
             { "type": "string", "name": "guestNickName" },
-            { "type": "string", "name": "hostNickName" }
+            { "type": "string", "name": "hostNickName" },
+            { "type": "uint256", "name": "paidToInsuranceInUsdCents" }
           ]
         }
       ]
