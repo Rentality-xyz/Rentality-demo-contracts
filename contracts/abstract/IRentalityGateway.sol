@@ -1,38 +1,24 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.20;
+
+
 
 import '../RentalityCarToken.sol';
 import '../RentalityTripService.sol';
 import '../Schemas.sol';
+import {IRentalityPlatform} from './IRentalityPlatform.sol';
 
 /// @title RentalityGateway
 /// @notice This contract defines the interface for the Rentality Gateway, which facilitates interactions between various services in the Rentality platform.
 /// @dev All functions in this interface are meant to be implemented by the Rentality Gateway contract.
-interface IRentalityGateway {
+interface IRentalityGateway is IRentalityPlatform {
+
   /// ------------------------------
   /// USER PROFILE functions
   /// ------------------------------
 
   /// @notice fullKYCInfo returns KYC(Know Your Customer) with additional info
   function getMyFullKYCInfo() external view returns (Schemas.FullKYCInfoDTO memory fullKYCInfo);
-
-  /// @notice Set KYC (Know Your Customer) information for the caller
-  /// @param nickName The nickname of the user
-  /// @param mobilePhoneNumber The mobile phone number of the user
-  /// @param profilePhoto The profile photo URL of the user
-  /// @param TCSignature The signature of the Terms and Conditions
-  /// @dev This function allows the caller to set their own KYC information
-  function setKYCInfo(
-    string memory nickName,
-    string memory mobilePhoneNumber,
-    string memory profilePhoto,
-    string memory email,
-    bytes memory TCSignature,
-    bytes4 hash
-  ) external;
-
-  function setPhoneNumber(address user, string memory phone, bool isVerified) external;
-
 
   /// @notice Retrieves the KYC commission amount.
   /// @dev Calls the `getKycCommission` function from the `userService` contract.
@@ -44,44 +30,15 @@ interface IRentalityGateway {
   ///  @return kycCommision The calculated KYC commission amount.
   function calculateKycCommission(address currency) external view returns (uint kycCommision);
 
-  /// @notice Pays the KYC commission.
-  /// @dev This function should be called with the appropriate amount of Ether to cover the KYC commission.
-  function payKycCommission(address currency) external payable;
-
   /// @notice Checks if the KYC commission has been paid by a user.
   /// @dev Calls the `isCommissionPaidForUser` function from the `userService` contract.
   /// @param user The address of the user to check.
   /// @return isPaid True if the KYC commission has been paid by the user, false otherwise.
   function isKycCommissionPaid(address user) external view returns (bool isPaid);
 
-  ///  @notice Uses the KYC commission for a specific user.
-  ///  @param user The address of the user whose KYC commission will be used.
-  ///  @dev This function is typically called after the user has paid the KYC commission to apply it to their account.
-  function useKycCommission(address user) external;
-
   /// ------------------------------
   /// HOST CARS functions
   /// ------------------------------
-
-  /// @notice Add a new car to the platform.
-  /// @param request The request parameters for creating a new car.
-  /// @return newTokenId The ID of the newly added car.
-  function addCar(Schemas.CreateCarRequest memory request) external returns (uint newTokenId);
-
-  /// @notice Update information for an existing car with location
-  /// @notice This sets geo verification status to false.
-  /// @param request the Update car parameters
-  /// @param location Single string that contains the car location
-  function updateCarInfoWithLocation(
-    Schemas.UpdateCarInfoRequest memory request,
-    Schemas.SignedLocationInfo memory location
-  ) external;
-
-  /// @notice Updates the token URI for a specific car
-  /// @param carId The ID of the car whose token URI is being updated
-  /// @param tokenUri The new token URI to be associated with the car
-  /// @dev This function allows updating the metadata URI of a car token
-  function updateCarTokenUri(uint256 carId, string memory tokenUri) external;
 
   /// @notice Get information about all cars owned by the caller
   /// @return myCars An array of CarInfo structures containing details about the caller's cars
@@ -115,15 +72,6 @@ interface IRentalityGateway {
   /// @return baseDiscount The discount information for the user.
   function getDiscount(address user) external view returns (Schemas.BaseDiscount memory baseDiscount);
 
-  /// @notice Adds a user discount.
-  /// @param data The discount data.
-  function addUserDiscount(Schemas.BaseDiscount memory data) external;
-
-  /// @notice Adds user delivery prices.
-  /// @param underTwentyFiveMilesInUsdCents The delivery price in USD cents for distances under 25 miles.
-  /// @param aboveTwentyFiveMilesInUsdCents The delivery price in USD cents for distances above 25 miles.
-  function addUserDeliveryPrices(uint64 underTwentyFiveMilesInUsdCents, uint64 aboveTwentyFiveMilesInUsdCents) external;
-
   /// @dev Retrieves delivery data for a given user.
   /// @param user The user address for which delivery data is requested.
   /// @return deliveryPrices The user prices for delivery.
@@ -140,8 +88,6 @@ interface IRentalityGateway {
 
   /// ------------------------------
   /// TRIPS functions
-  /// ------------------------------
-  ///     GENERAL
   /// ------------------------------
 
   /// @notice Get information about all trips where the caller is the host.
@@ -160,53 +106,6 @@ interface IRentalityGateway {
   function getTripContactInfo(
     uint256 tripId
   ) external view returns (string memory guestPhoneNumber, string memory hostPhoneNumber);
-
-  /// ------------------------------
-  ///     HOST
-  /// ------------------------------
-
-  /// @notice Approve a trip request by its ID.
-  /// @param tripId The ID of the trip to approve.
-  function approveTripRequest(uint256 tripId) external;
-
-  /// @notice Reject a trip request by its ID.
-  /// @param tripId The ID of the trip to reject.
-  function rejectTripRequest(uint256 tripId) external;
-
-  /// @notice Allows the host to perform a check-in for a specific trip.
-  /// This action typically occurs at the start of the trip and records key information
-  /// such as fuel level, odometer reading, insurance details, and any other relevant data.
-  /// @param tripId The unique identifier for the trip being checked in.
-  /// @param panelParams An array of numeric parameters representing important vehicle details.
-  ///   - panelParams[0]: Fuel level (e.g., as a percentage)
-  ///   - panelParams[1]: Odometer reading (e.g., in kilometers or miles)
-  ///   - Additional parameters can be added based on the engine and vehicle characteristics.
-  /// @param insuranceCompany The name of the insurance company covering the vehicle.
-  /// @param insuranceNumber The insurance policy number.
-  function checkInByHost(
-    uint256 tripId,
-    uint64[] memory panelParams,
-    string memory insuranceCompany,
-    string memory insuranceNumber
-  ) external;
-
-  /// @notice Performs check-out by the host for a trip.
-  /// @param tripId The ID of the trip.
-  /// @param panelParams An array representing parameters related to fuel, odometer,
-  /// and other relevant details depends on engine.
-  function checkOutByHost(uint256 tripId, uint64[] memory panelParams) external;
-
-  /// @notice Confirms check-out for a trip.
-  /// @param tripId The ID of the trip.
-  function confirmCheckOut(uint256 tripId) external;
-
-  /// @notice Finish a trip as the host.
-  /// @param tripId The ID of the trip to finish.
-  function finishTrip(uint256 tripId) external;
-
-  /// ------------------------------
-  ///     GUEST
-  /// ------------------------------
 
   /// @notice Searches for available cars with delivery based on specified criteria
   /// @dev use an empty fields for latitude and longitude to skip location part
@@ -241,25 +140,6 @@ interface IRentalityGateway {
     string memory promoCode
   ) external view returns (Schemas.CalculatePaymentsDTO memory calculatePaymentsDTO);
 
-  /// @notice Create a trip request.
-  /// @param request The request parameters for creating a new trip.
-  function createTripRequestWithDelivery(
-    Schemas.CreateTripRequestWithDelivery memory request,
-    string memory promoCode
-  ) external payable;
-
-  /// @notice Performs check-in by the guest for a trip.
-  /// @param tripId The ID of the trip.
-  /// @param panelParams An array representing parameters related to fuel, odometer,
-  /// and other relevant details depends on engine.
-  function checkInByGuest(uint256 tripId, uint64[] memory panelParams) external;
-
-  /// @notice Performs check-out by the guest for a trip.
-  /// @param tripId The ID of the trip.
-  /// @param panelParams An array representing parameters related to fuel, odometer,
-  /// and other relevant details depends on engine.
-  function checkOutByGuest(uint256 tripId, uint64[] memory panelParams) external;
-
   /// ------------------------------
   /// CLAIMS functions
   /// ------------------------------
@@ -275,36 +155,10 @@ interface IRentalityGateway {
   /// @return fullClaimInfo Full information about the claim.
   function getClaim(uint256 claimId) external view returns (Schemas.FullClaimInfo memory fullClaimInfo);
 
-  /// @notice Creates a new claim through the Rentality platform.
-  /// @dev This function delegates the claim creation to the Rentality platform contract.
-  /// @param request Details of the claim to be created.
-  function createClaim(Schemas.CreateClaimRequest memory request, bool isHostInsuranceClaim) external;
-
-  /// @notice Rejects a specific claim through the Rentality platform.
-  /// @dev This function delegates the claim rejection to the Rentality platform contract.
-  /// @param claimId ID of the claim to be rejected.
-  function rejectClaim(uint256 claimId) external;
-
   /// @notice Calculates the claim value for a specified insurance claim
   /// @param claimId The ID of the insurance claim for which the value is being calculated
   /// @return calculatedClaimValue The calculated claim value in the specified currency
   function calculateClaimValue(uint claimId) external view returns (uint calculatedClaimValue);
-
-  /// @notice Pays a specific claim through the Rentality platform, transferring funds and handling excess.
-  /// @dev This function delegates the claim payment to the Rentality platform contract.
-  /// @param claimId ID of the claim to be paid.
-  function payClaim(uint256 claimId) external payable;
-
-  /// @notice Updates the status of a specific claim through the Rentality platform.
-  /// @dev This function delegates the claim update to the Rentality platform contract.
-  /// @param claimId ID of the claim to be updated.
-  //  function updateClaim(uint256 claimId) external;
-
-  /// @notice Gets detailed information about a specific claim through the Rentality platform.
-  /// @dev This function retrieves the claim information using the Rentality platform contract.
-  /// @param claimId ID of the claim.
-  /// @return Full information about the claim.
-  //  function getClaim(uint256 claimId) external view returns (Schemas.FullClaimInfo memory);
 
   /// ------------------------------
   /// CHAT functions
@@ -329,27 +183,12 @@ interface IRentalityGateway {
   function getMyInsurancesAsGuest() external view returns (Schemas.InsuranceInfo[] memory insuranceInfo);
 
   function getGuestInsurance(address guest) external view returns (Schemas.InsuranceInfo[] memory insuranceInfo);
-  /// @notice Saves insurance information related to a specific trip
-  /// @param tripId The ID of the trip for which the insurance information is being saved
-  /// @param insuranceInfo A struct containing the details of the insurance to be saved
-  function saveTripInsuranceInfo(uint tripId, Schemas.SaveInsuranceRequest memory insuranceInfo) external;
 
   function getTaxesInfoById(uint taxId) external view returns (Schemas.TaxesInfoDTO memory taxesInfoDTO);
-
-  /// @notice Saves insurance information for a guest
-  /// @param insuranceInfo A struct containing the details of the insurance requested by the guest
-  function saveGuestInsurance(Schemas.SaveInsuranceRequest memory insuranceInfo) external;
-
-  /// ------------------------------
-  /// GENERAL functions
-  /// ------------------------------
 
   /// @dev Returns the owner of the contract.
   /// @return owner The address of the contract owner.
   function owner() external view returns (address owner);
-
-  /// @notice This function retrieves the actual service addresses
-  function updateServiceAddresses() external;
 
   /// ------------------------------
   /// NOT USED ON FRONT
@@ -376,11 +215,11 @@ interface IRentalityGateway {
     Schemas.LocationInfo memory returnInfo
   ) external view returns (Schemas.AvailableCarDTO memory availableCarDTO);
 
-  // function updateCarTokenUri(uint256 carId, string memory tokenUri) external;
   /// @notice Retrieves additional filter information based on the duration of the trip
   /// @param duration The total number of days for the car rental
   /// @return filterInfoDTO Schemas.FilterInfoDTO A data structure containing additional filter information, optimized for the specified rental duration
   function getFilterInfo(uint64 duration) external view returns (Schemas.FilterInfoDTO memory filterInfoDTO);
+
   /// @return carInfo An array of available car information for the specified user.
   function getAvailableCarsForUser(address user) external view returns (Schemas.CarInfo[] memory carInfo);
 
@@ -391,7 +230,6 @@ interface IRentalityGateway {
   ) external view returns (Schemas.CheckPromoDTO memory checkPromoDTO);
 
   function getDimoVihicles() external view returns (uint[] memory dimoVihicles);
-  function saveDimoTokenIds(uint[] memory, uint[] memory) external;
 
   function getAvaibleCurrencies() external view returns (Schemas.Currency[] memory avaibleCurrencies);
 
@@ -402,23 +240,18 @@ interface IRentalityGateway {
 
   function getUserCurrency(address user) external view returns (Schemas.UserCurrencyDTO memory userCurrency);
 
-  function addUserCurrency(address currency) external;
-
   function getTotalCarsAmount() external view returns (uint totalCarsAmount);
 
   function getPlatformInfo() external view returns(Schemas.PlatformInfoDTO memory platformInfo);
 
-  function setEmail(address user, string memory email, bool isVerified) external;
-
   function getHostInsuranceClaims() external view returns(Schemas.FullClaimInfo[] memory claims);
-  function setHostInsurance(uint insuranceId) external;
-
 
   function getHostInsuranceRule(address host) external view returns(Schemas.HostInsuranceRuleDTO memory insuranceRules);
+
   function getAllInsuranceRules() external view returns(Schemas.HostInsuranceRuleDTO[] memory insuranceRules);
 
-  function setPushToken(address user, string memory pushToken) external;
-
   function getAvailableCurrency() external view returns(Schemas.AllowedCurrencyDTO[] memory);
-   function getHostInsuranceBalance() external view returns(uint);
+
+  function getHostInsuranceBalance() external view returns(uint);
 }
+

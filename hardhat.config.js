@@ -69,10 +69,15 @@ module.exports = {
       accounts: [process.env.PRIVATE_KEY],
       chainId: 5611,
     },
+    mainnet: {
+      url: 'https://eth.llamarpc.com' ?? '',
+      accounts: [process.env.PRIVATE_KEY],
+      chainId: 1,
+    },
   },
   loggingEnabled: true,
   solidity: {
-    version: '0.8.19',
+    version: '0.8.20',
     settings: {
       optimizer: {
         enabled: true,

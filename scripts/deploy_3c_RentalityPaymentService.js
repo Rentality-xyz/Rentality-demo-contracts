@@ -48,8 +48,7 @@ async function main() {
     baseDiscount,
     investService,
     rentalityHostInsurace,
-    rentalitySwaps,
-    quoterV2
+    rentalitySwaps
   ])
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()
