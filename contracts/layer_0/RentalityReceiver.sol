@@ -6,6 +6,7 @@ import {OAppReceiver, Origin} from '@layerzerolabs/lz-evm-oapp-v2/contracts/oapp
 import {OAppCore} from '@layerzerolabs/lz-evm-oapp-v2/contracts/oapp/OAppCore.sol';
 import {Ownable} from '@openzeppelin/contracts/access/Ownable.sol';
 import '../RentalityGateway.sol';
+import {EndpointV2} from "@layerzerolabs/lz-evm-protocol-v2/contracts/EndpointV2.sol";
 
 contract RentalityReceiver is OAppReceiver {
   RentalityGateway private gateway;

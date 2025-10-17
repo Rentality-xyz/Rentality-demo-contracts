@@ -163,7 +163,7 @@
     "RentalityAiDamageAnalyzeV2": "0x11c51C4f7851D02E1aDadae717BE3ED8f9A38Aac",
     "RentalityHostInsurance": "0x2Eed212aA87AB6f43eAe1a63f7A0D5201f29F852",
     "RentalitySwaps": "0x2a3390352Cc6f216D9613A996E17Be6b80D4FA02",
-    "RentalitySender": "0xF103293cffA7a6998Be917DCC1A0174540B418Fc"
+    "RentalitySender": "0xa253A36D6Ca39219d1789ce5F2E5c6D41e99Bc83"
   },
   {
     "name": "opBNB",
@@ -217,5 +217,10 @@
     "RentalityChatHelper": "0x22012648CD1840794C50f3AFA09572B9D893c3cC",
     "RentalityAiDamageAnalyzeV2": "0x4d331D083BcD0D0Cb7c6d09eF99e7df58040E36e",
     "RentalityHostInsurance": "0x0e124DF83c567DBB3a515f50Bf20BEB6C2c7383B"
+  },
+  {
+    "name": "sepolia",
+    "chainId": 11155111,
+    "RentalitySender": "0xe8C3646978ad44933EE3A7ddd195098fB554bA76"
   }
 ]

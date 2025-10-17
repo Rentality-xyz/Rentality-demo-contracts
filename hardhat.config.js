@@ -94,6 +94,7 @@ module.exports = {
     apiKey: {
       baseSepolia: process.env.BASE_API_TOKEN,
       base: process.env.BASE_API_TOKEN,
+      sepolia:"H1YWP7KGRAIU443U7W4ZT23GQZWDVFVHS4"
     }, // command to run: npx hardhat verify --network <contract address>
   },
 }
