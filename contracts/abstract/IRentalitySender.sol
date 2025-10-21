@@ -118,4 +118,13 @@ interface IRentalitySender is IRentalityPlatform {
   function quoteSetHostInsurance(uint insuranceId) external view returns (uint);
 
   function quoteSetPushToken(address user, string memory pushToken) external view returns (uint);
+
+
+  function createTripRequestWithDelivery(
+    uint amount,
+    bytes memory encodetData
+  ) external payable;
+
+  function payClaim(uint amount, bytes memory encodetData) external payable;
+
 }

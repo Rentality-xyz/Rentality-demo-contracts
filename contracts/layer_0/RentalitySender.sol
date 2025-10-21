@@ -32,6 +32,7 @@ contract RentalitySender is ARentalitySender, UUPSUpgradeable {
         bytes4(bytes32(data[0:4])) == IRentalitySender.quoteCreateTripRequestWithDelivery.selector
       ) {
         value = uint(bytes32(data[4:36]));
+         _data = abi.encode(data[32:], msg.sender, bytes32(uint(eid)));
       }
       return abi.encode(quote(uint128(value), _data));
     }
@@ -40,8 +41,9 @@ contract RentalitySender is ARentalitySender, UUPSUpgradeable {
     bytes memory options = buildOptions(0);
 
     if (fee.nativeFee < msg.value) {
-      uint value = uint(bytes32(data[4:36]));
+      (uint value, bytes memory rest) = abi.decode(data[4:], (uint, bytes));
       options = buildOptions(uint128(value));
+      _data = abi.encode(rest, msg.sender, bytes32(uint(eid)));
       fee = quotFromOptions(options, _data);
     }
     __lzSend(_data, options, fee, payable(msg.sender));

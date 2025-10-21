@@ -94,7 +94,18 @@ module.exports = {
     apiKey: {
       baseSepolia: process.env.BASE_API_TOKEN,
       base: process.env.BASE_API_TOKEN,
-      sepolia:"H1YWP7KGRAIU443U7W4ZT23GQZWDVFVHS4"
+      sepolia:"H1YWP7KGRAIU443U7W4ZT23GQZWDVFVHS4",
+      optimism_sepolia: 'empty'
     }, // command to run: npx hardhat verify --network <contract address>
+    customChains: [
+      {
+        network: "optimism_sepolia",
+        chainId: 11155420,
+        urls: {
+          apiURL: "https://testnet-explorer.optimism.io/api",
+          browserURL: "https://testnet-explorer.optimism.io"
+        }
+      },
+    ],
   },
 }
