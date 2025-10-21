@@ -1880,8 +1880,8 @@
       "constant": false,
       "payable": false,
       "inputs": [
-        { "type": "uint256[]", "name": "tokenIds1" },
-        { "type": "uint256[]", "name": "tokenIds2" }
+        { "type": "uint256[]", "name": "" },
+        { "type": "uint256[]", "name": "" }
       ],
       "outputs": []
     },
