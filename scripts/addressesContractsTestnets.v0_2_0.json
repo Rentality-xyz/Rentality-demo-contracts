@@ -219,5 +219,10 @@
     "RentalityChatHelper": "0x22012648CD1840794C50f3AFA09572B9D893c3cC",
     "RentalityAiDamageAnalyzeV2": "0x4d331D083BcD0D0Cb7c6d09eF99e7df58040E36e",
     "RentalityHostInsurance": "0x0e124DF83c567DBB3a515f50Bf20BEB6C2c7383B"
+  },
+  {
+    "name": "optimism_sepolia",
+    "chainId": 11155420,
+    "RentalitySender": "0xd281c18CAbDe03B04238BeFAbF5E3c92B1e97250"
   }
 ]

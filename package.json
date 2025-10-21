@@ -19,9 +19,11 @@
   "dependencies": {
     "@chainlink/contracts": "^0.8.0",
     "@identity.com/gateway-protocol-eth": "^0.0.4",
+    "@layerzerolabs/lz-evm-oapp-v2": "^3.0.20",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.8",
     "@openzeppelin/contracts": "^4.9.0",
     "@openzeppelin/contracts-upgradeable": "^4.9.6",
+    "@uniswap/v4-sdk": "^1.21.4",
     "chai": "^4.3.10",
     "child_process": "^1.0.2",
     "dotenv": "^16.0.4",
@@ -38,5 +40,12 @@
     "prettier-plugin-solidity": "^1.3.1",
     "solidity-docgen": "^0.6.0-beta.36",
     "typechain": "^8.3.2"
+  },
+  "overrides": {
+    "@layerzerolabs/lz-evm-oapp-v2": {
+      "@eth-optimism/contracts": {
+        "ethers": "^6.0.0"
+      }
+    }
   }
 }

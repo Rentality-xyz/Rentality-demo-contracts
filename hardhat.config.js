@@ -69,10 +69,15 @@ module.exports = {
       accounts: [process.env.PRIVATE_KEY],
       chainId: 5611,
     },
+    mainnet: {
+      url: 'https://eth.llamarpc.com' ?? '',
+      accounts: [process.env.PRIVATE_KEY],
+      chainId: 1,
+    },
   },
   loggingEnabled: true,
   solidity: {
-    version: '0.8.19',
+    version: '0.8.20',
     settings: {
       optimizer: {
         enabled: true,
@@ -89,6 +94,18 @@ module.exports = {
     apiKey: {
       baseSepolia: process.env.BASE_API_TOKEN,
       base: process.env.BASE_API_TOKEN,
+      sepolia:"H1YWP7KGRAIU443U7W4ZT23GQZWDVFVHS4",
+      optimism_sepolia: 'empty'
     }, // command to run: npx hardhat verify --network <contract address>
+    customChains: [
+      {
+        network: "optimism_sepolia",
+        chainId: 11155420,
+        urls: {
+          apiURL: "https://testnet-explorer.optimism.io/api",
+          browserURL: "https://testnet-explorer.optimism.io"
+        }
+      },
+    ],
   },
 }
