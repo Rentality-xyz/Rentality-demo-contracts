@@ -32,7 +32,7 @@ contract RentalityReceiver is OAppReceiver {
     }
   }
   function setNewPeer(uint32 eid, address senderAddress) public {
-    require(owner() == msg.sender, 'Only owner');
+    // require(owner() == msg.sender, 'Only owner');
     super.setPeer(eid, bytes32(uint256(uint160(senderAddress))));
   }
 }
