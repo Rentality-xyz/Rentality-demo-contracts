@@ -276,15 +276,19 @@ function createTripRequestWithDelivery(
       uint valueToGuest,
       uint valueToHostInUsdCents,
       uint valueToGuestInUsdCents,
-      uint totalIncome
+      uint totalIncome,
+      uint tripCostValue
     ) = addresses.currencyConverterService.calculateTripFinsish(
         trip.paymentInfo,
         rentalityFee,
+         addresses.paymentService.getPlatformFeeFrom(
+      trip.paymentInfo.priceWithDiscount
+    ),
         insurancePrice,
         promoService
       );
 
-    addresses.paymentService.payFinishTrip(trip, valueToHost, valueToGuest, totalIncome);
+    addresses.paymentService.payFinishTrip(trip, valueToHost, valueToGuest, totalIncome, tripCostValue);
     addresses.tripService.saveTransactionInfo(
       tripId,
       rentalityFee,

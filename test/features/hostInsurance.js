@@ -1004,7 +1004,7 @@ it('host can get his insurance info', async function () {
 
     const oneDayInSeconds = 86400
 
-    const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals, rentalityFee, taxes } = await calculatePayments(
+    const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals, rentalityFee, taxes,hostIncomeValue } = await calculatePayments(
       rentalityCurrencyConverter,
       rentalityPaymentService,
       request.pricePerDayInUsdCents,
@@ -1041,11 +1041,14 @@ fee: 0
     )
 
 
-    const returnToHost = rentPriceInEth - depositValue - rentalityFee - taxes
-    const insurancePayment  = returnToHost * BigInt(40) / BigInt(100);
+
+    const insurancePayment  = hostIncomeValue * BigInt(40) / BigInt(100);
+    const returnToHost = rentPriceInEth - depositValue - rentalityFee - taxes - insurancePayment
+    const valueToGuest = depositValue
+    const totalPaidOut = returnToHost + valueToGuest + insurancePayment;
     await expect(rentalityGateway.connect(host).finishTrip(1)).to.changeEtherBalances(
       [host, rentalityPaymentService, hostInsurance],
-      [returnToHost - (insurancePayment), -(rentPriceInEth - rentalityFee - taxes), insurancePayment]
+      [returnToHost, -(totalPaidOut ), insurancePayment]
     )
 
     await expect(rentalityGateway.connect(host).setHostInsurance(0)).to.not.reverted

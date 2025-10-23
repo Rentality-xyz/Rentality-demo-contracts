@@ -237,7 +237,8 @@ function getTaxesInfoById(uint taxId) public view returns(Schemas.TaxesInfoDTO m
     Schemas.Trip memory trip,
     uint valueToHost,
     uint valueToGuest,
-    uint totalIncome
+    uint totalIncome,
+    uint tripCostValue
   ) public payable {
     require(userService.isRentalityPlatform(msg.sender), 'only Rentality platform');
     bool successHost;
@@ -266,7 +267,7 @@ function getTaxesInfoById(uint taxId) public view returns(Schemas.TaxesInfoDTO m
       if (valueToHost > 0) {
         if(toInsurance > 0) {
           valueToHost = valueToHost - toInsurance;
-          hostInsurance.updateUserAvarage{value:toInsurance}(trip.host, trip.tripId, toInsurance);
+          hostInsurance.updateUserAvarage{value: toInsurance}(trip.host, trip.tripId, toInsurance);
         }
         (successHost, ) = payable(trip.host).call{value: valueToHost}('');
       } else {

@@ -120,6 +120,7 @@ const calculatePayments = async (currencyConverter, paymentService, value, tripD
   const feeInUsdCents = await paymentService.getPlatformFeeFrom(priceWithDiscount)
 
   const rentalityFee = await currencyConverter.getFromUsdCents(token, feeInUsdCents, rate)
+  const hostIncomeValue = await currencyConverter.getFromUsdCents(token,  priceWithDiscount - feeInUsdCents, rate)
 
   return {
     rentPriceInEth,
@@ -127,6 +128,7 @@ const calculatePayments = async (currencyConverter, paymentService, value, tripD
     ethToCurrencyDecimals: decimals,
     rentalityFee,
     taxes,
+    hostIncomeValue
   }
 }
 
