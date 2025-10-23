@@ -281,6 +281,9 @@ function createTripRequestWithDelivery(
     ) = addresses.currencyConverterService.calculateTripFinsish(
         trip.paymentInfo,
         rentalityFee,
+         addresses.paymentService.getPlatformFeeFrom(
+      trip.paymentInfo.priceWithDiscount
+    ),
         insurancePrice,
         promoService
       );

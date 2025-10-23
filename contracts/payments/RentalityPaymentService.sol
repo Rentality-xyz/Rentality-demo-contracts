@@ -259,7 +259,7 @@ function getTaxesInfoById(uint taxId) public view returns(Schemas.TaxesInfoDTO m
     }
     uint toInsurance = 0;
     if(address(pool) == address(0)) {
-      toInsurance = hostInsurance.calculateCurrentHostInsuranceSumFrom(trip.host, tripCostValue);
+      toInsurance = hostInsurance.calculateCurrentHostInsuranceSumFrom(trip.host, valueToHost);
     }
     
     if (trip.paymentInfo.currencyType == address(0)) {
