@@ -24,8 +24,16 @@ async function main() {
 
   const rentalityGatewayAddress = checkNotNull(addresses['RentalityGateway'], 'rentalityGatewayAddress')
 
-  
+//   const deployTx = await contractFactory.getDeployTransaction(rentalityGatewayAddress, eindpoint);
 
+//   const signer = contractFactory.runner; // ethers v6
+//   console.log("HERE")
+// const txResponse = await signer.sendTransaction({
+//   data: deployTx.data,
+//   value: deployTx.value ?? 0n,
+//   gasLimit: 10000000
+// });
+// console.log("TX RESPONSE: ", txResponse)
   let contract = await contractFactory.deploy(rentalityGatewayAddress, eindpoint)
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()
