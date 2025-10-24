@@ -33,7 +33,11 @@ async function main() {
   let contract
   if (initializationFunc.length === 0) {
     console.log(`Updating contract ${contractName} in address ${contractAddress}`)
-    contract = await upgrades.upgradeProxy(contractAddress, contractFactory)
+    contract = await upgrades.upgradeProxy(contractAddress, contractFactory, 
+      {
+        redeployImplementation: 'always',
+      }
+    )
   } else {
     const initializationArgs = readlineSync.question(
       `Enter args to ${initializationFunc} function arguments separated by spaces or skip \n`

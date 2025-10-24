@@ -1,62 +1,9 @@
 const { ethers, upgrades } = require('hardhat')
 
 async function main() {
-    let sender = await ethers.getContractAt(
-      'IRentalitySender',
-      '0xF103293cffA7a6998Be917DCC1A0174540B418Fc'
-    )
+const gatewat = await ethers.getContractAt("RentalityGateway",'0xB257FE9D206b60882691a24d5dfF8Aa24929cB73')
 
-    const provider = new ethers.JsonRpcProvider(
-      "https://api-opbnb-testnet.n.dwellir.com/79e509c1-b94b-4146-ac66-efdc56786415"
-    );
-
-    console.log('Encoded data:', sender.interface.encodeFunctionData('quoteAddUserDeliveryPrices', [100, 20]))
-    
-    const trace = await provider.send("debug_traceCall", [
-      {
-        from: "0x03BeA6708d02da771ca60121E2aABa11B375de38", // your address
-        to: "0xF103293cffA7a6998Be917DCC1A0174540B418Fc",
-        gas: "0x30d40", // ~200,000 gas
-        gasPrice: "0x3b9aca00", // 1 gwei
-        value: "0x0",
-        data: sender.interface.encodeFunctionData('quoteAddUserDeliveryPrices', [100, 20])
-      },
-      "latest",
-      {
-        tracer: "callTracer",
-        tracerConfig: {
-          withLog: true
-        }
-      }
-    ]);
-
-    console.log("Trace:", trace);
-
-        const quote = await sender.quoteAddUserDeliveryPrices(100, 20)
-        console.log('Quote result:', quote)
-  
-    
-
-    sender = await ethers.getContractAt(
-      'IRentalityGateway',
-      '0xF103293cffA7a6998Be917DCC1A0174540B418Fc'
-    )
-    
-
-    const data = sender.interface.encodeFunctionData(
-      'addUserDeliveryPrices',
-      [100, 20]
-    );
-    
-    // Manually send transaction (no simulation)
-    const txResponse = await signer.sendTransaction({
-      to: sender.target, // or sender.address depending on ethers version
-      data,
-      value: quote
-    });
-    
-    console.log("TX sent:", txResponse.hash);
-    
+console.log(await gatewat.setLayerZeroSender("0x335cA50Fe7CB4e06a1708e599644361e45F5B153"))
 
 
     
