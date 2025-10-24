@@ -23,7 +23,7 @@ contract RentalityReceiver is OAppReceiver {
 
   constructor(address sendTo, address _endpoint) OAppCore(_endpoint, msg.sender) Ownable() {
     gateway = RentalityGateway(payable(sendTo));
-    gateway.setLayerZeroSender(address(this));
+    // gateway.setLayerZeroSender(address(this));
   }
 
   function _lzReceive(

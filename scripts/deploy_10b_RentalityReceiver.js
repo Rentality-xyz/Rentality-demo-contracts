@@ -39,7 +39,7 @@ async function main() {
   const contractAddress = await contract.getAddress()
 
   const gateway = await ethers.getContractAt("RentalityGateway", rentalityGatewayAddress)
-  console.log(await gateway.setLayerZeroSender(contractAddress))
+  // console.log(await gateway.setLayerZeroSender(contractAddress))
   console.log('Receiver address: ', contractAddress)
   // const addressToSet = readlineSync.question('Address to set:\n')
   // const eidToSet = readlineSync.question('eid to set:\n')
