@@ -108,7 +108,8 @@
     "RentalityTaxes": "0x2287de614e0CafED95b42c45dd959176F4a9fF14",
     "RentalityAiDamageAnalyzeV2": "0x59156833f041D213c6E1DD8c60E948a99Fef9DEC",
     "RentalityHostInsurance": "0x7cD8e7aCc9A0Ed08347E6D592AD2B7255e562D08",
-    "RentalitySwaps": "0x6616EbC4b2b9C502F3dF820BdE4b224A307E0D99"
+    "RentalitySwaps": "0x6616EbC4b2b9C502F3dF820BdE4b224A307E0D99",
+    "RentalityReceiver": "0x335cA50Fe7CB4e06a1708e599644361e45F5B153"
   },
   {
     "name": "opBNB_testnet",
@@ -219,5 +220,10 @@
     "RentalityChatHelper": "0x22012648CD1840794C50f3AFA09572B9D893c3cC",
     "RentalityAiDamageAnalyzeV2": "0x4d331D083BcD0D0Cb7c6d09eF99e7df58040E36e",
     "RentalityHostInsurance": "0x0e124DF83c567DBB3a515f50Bf20BEB6C2c7383B"
+  },
+  {
+    "name": "optimism_sepolia",
+    "chainId": 11155420,
+    "RentalitySender": "0x1C97042e54bAa7ba8d58520b855ec67C6Ff4286C"
   }
 ]

@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.20;
+
+
 
 //deployed 26.05.2023 11:15 to sepolia at 0x12fB29Ed1f0E17605f488F640D49De29050cf855
 //deployed 27.06.2023 11:10 to sepolia at 0x18744A3f7D15930446B1dbc5A837562e468B2D8d
@@ -40,10 +42,19 @@ struct RentalityContract {
 /// @custom:oz-upgrades-unsafe-allow external-library-linking
 contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
   RentalityContract private addresses;
+  address private l0Sender;
   using RentalityQuery for RentalityContract;
 
   fallback(bytes calldata data) external payable returns (bytes memory) {
-    bytes memory dataToSend = _forward(data);
+     bytes memory dataToSend;
+    if(l0Sender == msg.sender) {
+      (bytes memory crossChainData, address user, bytes32 eid) = abi.decode(data, (bytes, address, bytes32));
+      dataToSend = _forward(crossChainData, user);
+    }
+    else {
+      dataToSend = _forward(data, msg.sender);
+
+    }
     (bool ok_view, bytes memory res_view) = address(addresses.viewService).call(dataToSend);
     bytes4 errorSign = 0x403e7fa6;
 
@@ -62,8 +73,13 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
     return result;
   }
 
-  function _forward(bytes calldata data) private view returns (bytes memory result) {
-    result = abi.encodePacked(data, msg.sender);
+  function _forward(bytes memory data, address user) private view returns (bytes memory result) {
+    result = abi.encodePacked(data, user);
+  }
+
+  function setLayerZeroSender(address _layer0Sender) public {
+    require(addresses.userService.isAdmin(tx.origin), "only Admin");
+    l0Sender = _layer0Sender;
   }
   // @dev Updates the addresses of various services used in the Rentality platform.
   //

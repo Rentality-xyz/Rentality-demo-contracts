@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.20;
+
+
 
 /// @title Rentality Admin Gateway Interface
 /// @dev Interface for the RentalityAdminGateway contract,

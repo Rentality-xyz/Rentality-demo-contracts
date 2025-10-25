@@ -1,0 +1,9 @@
+{
+  "receiveUln302": "0x78FEB7Ac068ce5B8363C2fD52B86d8E98E50dA8a",
+  "endpoint": "0x6EDCE65403992e310A62460808c4b910D972f10f",
+  "dvn": "",
+  "config": {
+    "confirmations": 1,
+    "optionalDVNThreshold": 1
+  }
+}

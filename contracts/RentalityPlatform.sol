@@ -1,5 +1,7 @@
 /// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.20;
+
+
 
 import './features/RentalityClaimService.sol';
 import './abstract/IRentalityGateway.sol';
@@ -274,15 +276,19 @@ function createTripRequestWithDelivery(
       uint valueToGuest,
       uint valueToHostInUsdCents,
       uint valueToGuestInUsdCents,
-      uint totalIncome
+      uint totalIncome,
+      uint tripCostValue
     ) = addresses.currencyConverterService.calculateTripFinsish(
         trip.paymentInfo,
         rentalityFee,
+         addresses.paymentService.getPlatformFeeFrom(
+      trip.paymentInfo.priceWithDiscount
+    ),
         insurancePrice,
         promoService
       );
 
-    addresses.paymentService.payFinishTrip(trip, valueToHost, valueToGuest, totalIncome);
+    addresses.paymentService.payFinishTrip(trip, valueToHost, valueToGuest, totalIncome, tripCostValue);
     addresses.tripService.saveTransactionInfo(
       tripId,
       rentalityFee,
