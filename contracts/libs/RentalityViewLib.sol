@@ -236,7 +236,8 @@ library RentalityViewLib {
     string[] memory brandsArray = new string[](totalSupply);
     for (uint i = 1; i <= totalSupply; i++) {
       Schemas.CarInfo memory car = carService.getCarInfoById(i);
-      string memory carBrand = car.brand;
+      string memory carBrand =  RentalityUtils.toLower(car.brand);
+
       if (car.currentlyListed && _isUniqInStringInArray(brandsArray, carBrand, realAmount)) {
         brandsArray[realAmount] = carBrand;
         realAmount += 1;
@@ -254,13 +255,14 @@ library RentalityViewLib {
   ) public view returns (string[] memory modelsArray) {
     uint totalSupply = carService.totalSupply();
     uint realAmount = 0;
-    bytes32 hashedBrand = keccak256(abi.encodePacked(brand));
+    bytes32 hashedBrand = keccak256(abi.encodePacked(RentalityUtils.toLower(brand)));
     modelsArray = new string[](totalSupply);
     for (uint i = 1; i <= totalSupply; i++) {
       Schemas.CarInfo memory car = carService.getCarInfoById(i);
-      if (keccak256(abi.encodePacked(car.brand)) == hashedBrand && car.currentlyListed)
-        if (_isUniqInStringInArray(modelsArray, car.model, realAmount)) {
-          modelsArray[realAmount] = car.model;
+      string memory carModel = RentalityUtils.toLower(car.model);
+      if (keccak256(abi.encodePacked(RentalityUtils.toLower(car.brand))) == hashedBrand && car.currentlyListed)
+        if (_isUniqInStringInArray(modelsArray, carModel, realAmount)) {
+          modelsArray[realAmount] = carModel;
           realAmount += 1;
         }
     }
