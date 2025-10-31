@@ -52,14 +52,13 @@ contract RentalityReceiver is OAppReceiver {
 
     }
   }
-    function _extractRevertReason(bytes memory res) internal pure returns (string memory) {
+ function _extractRevertReason(bytes memory res) internal pure returns (string memory) {
     if (res.length < 68) return "Transaction reverted silently";
-
     assembly {
-        res := add(res, 0x04)
+        res := add(res, 0x04) 
     }
-      }
-
+    return abi.decode(res, (string));
+}
     
   function setNewPeer(uint32 eid, address senderAddress) public {
     // require(owner() == msg.sender, 'Only owner');

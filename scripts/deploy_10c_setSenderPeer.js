@@ -5,7 +5,7 @@ async function main() {
   const addressToSet = '0x467D254DF93C8F6437F3158A9B875f24d9473990'
 
 //   await contract.setPeer('0xbAaE15E3B0688d4a89104caB28c01B2ED3f5373b')
-  console.log(await contract.setPeer('0x335cA50Fe7CB4e06a1708e599644361e45F5B153'))
+  console.log(await contract.setPeer('0xC774418A741b472dD697092766517F8C238972a7'))
 }
 
 main()

@@ -84,7 +84,7 @@
     "RentalityEnginesService": "0x54650c8099492B471c81e6ACa6c8cd50B94D6cE2",
     "RentalityCarToken": "0xCfd84b30b9fddaa275b38a40E08D8bE990688033",
     "RentalityInsurance": "0x7E3D4fa52C23f9E5Ee35E757092B0068d7FA5463",
-    "RentalityViewLib": "0x9706F7965f36ef4BaFaC27c91d1b197dc33C2861",
+    "RentalityViewLib": "0x945C05A6F5475873b0fe9df0041F95b7aCc0E9DC",
     "RentalityInvestment": "0x53F24b40425Ac4424bb58b1B78A065c6648f0D68",
     "RentalityPaymentService": "0x6080F7A1F4fDaED78e01CDC951Bb15588B04EBF7",
     "RentalityTripService": "0xDB00B0aaD3D43590232280d056DCA49d017A10c2",
@@ -109,7 +109,7 @@
     "RentalityAiDamageAnalyzeV2": "0x59156833f041D213c6E1DD8c60E948a99Fef9DEC",
     "RentalityHostInsurance": "0x7cD8e7aCc9A0Ed08347E6D592AD2B7255e562D08",
     "RentalitySwaps": "0x6616EbC4b2b9C502F3dF820BdE4b224A307E0D99",
-    "RentalityReceiver": "0x335cA50Fe7CB4e06a1708e599644361e45F5B153"
+    "RentalityReceiver": "0xC774418A741b472dD697092766517F8C238972a7"
   },
   {
     "name": "opBNB_testnet",

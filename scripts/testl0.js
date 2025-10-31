@@ -1,10 +1,11 @@
 const { ethers, upgrades } = require('hardhat')
 
 async function main() {
-const gatewat = await ethers.getContractAt("RentalityGateway",'0xB257FE9D206b60882691a24d5dfF8Aa24929cB73')
+// const gatewat = await ethers.getContractAt("RentalitySender",'0x1C97042e54bAa7ba8d58520b855ec67C6Ff4286C')
 
-console.log(await gatewat.setLayerZeroSender("0x335cA50Fe7CB4e06a1708e599644361e45F5B153"))
+// console.log(await gatewat.setGasLimit(10_000_000))
 
+console.log((Math.sqrt(4000) * 2 ** 96).toString());
 
     
 }
