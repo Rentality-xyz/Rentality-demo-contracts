@@ -44,7 +44,7 @@ async function main() {
   // const addressToSet = readlineSync.question('Address to set:\n')
   // const eidToSet = readlineSync.question('eid to set:\n')
   // let contract = await ethers.getContractAt('RentalityReceiver','0x265Fa0470e8AFc0d9184e77AF554669f176051E1')
-  await contract.setNewPeer(eid, '0xd281c18CAbDe03B04238BeFAbF5E3c92B1e97250')
+  await contract.setNewPeer(eid, '0x1C97042e54bAa7ba8d58520b855ec67C6Ff4286C')
 
   console.log(`${contractName} was deployed to: ${contractAddress}`)
   addressSaver(contractAddress, contractName, true, chainId)

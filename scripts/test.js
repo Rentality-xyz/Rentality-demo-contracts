@@ -69,7 +69,7 @@ async function main() {
 
   const [deployer] = await ethers.getSigners()
 
-  let linkToken = "0xE4aB69C077896252FAFBD49EFD26B5D171A32410"
+  let linkToken = "0xB24DaDAe370Ff7C9492FA0d1DE99FdfF019Ca46B"
   let amountIn = 25000;
   let poolManager = "0x05E73354cFDd6745C338b50BcFDfA3Aa6fA03408"
   // let usdc = "0x14196f08a4fa0b66b7331bc40dd6bcd8a1deea9f"
@@ -82,8 +82,8 @@ let config = {
   poolKey: {
       currency0: weth,
       currency1: linkToken,
-      fee: 3000,
-      tickSpacing: 60,
+      fee: 51,
+      tickSpacing: 1,
       hooks: ethToken,
   },
   zeroForOne: false,
