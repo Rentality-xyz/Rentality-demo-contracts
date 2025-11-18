@@ -142,7 +142,7 @@ console.log("Currency Added: ", await swapContract.getAllowedCurrencies())
 // console.log("pool: ", pool)
 
 // let pool = await ethers.getContractAt(poolAbi, poolAddress)
-// console.log(await pool.initialize(BigInt("79228162514264337593543950336")))
+console.log(await pool.initialize(BigInt("79228162514264337593543950336")))
  
   const stateViewContract = await ethers.getContractAt(STATE_VIEW_ABI, STATE_VIEW_ADDRESS);
 

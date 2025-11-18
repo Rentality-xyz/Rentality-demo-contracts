@@ -41,6 +41,19 @@ contract RentalitySwaps is Initializable, UUPSAccess {
         allowedCurrency[currency] = true;
         allowedCurrencyList.push(currency);
     }
+
+       function removeAllowedCurrency(address currency) public {
+        // require(userService.isAdmin(msg.sender), "Only Admin");
+        require(allowedCurrency[currency] == true, "Not exists");
+        allowedCurrency[currency] = false;
+        for (uint i = 0; i < allowedCurrencyList.length; i++) {
+            if(allowedCurrencyList[i] == currency) {
+                allowedCurrencyList[i] = allowedCurrencyList[allowedCurrencyList.length - 1];
+                allowedCurrencyList.pop();
+                break;
+            }
+        }
+    }
         function addAllowedCurrencies(address[] memory currencies) public {
         require(userService.isAdmin(msg.sender), "Only Admin");
         for (uint i = 0; i < currencies.length; i++) {
