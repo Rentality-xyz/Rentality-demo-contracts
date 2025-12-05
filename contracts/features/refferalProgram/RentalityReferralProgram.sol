@@ -17,6 +17,7 @@ import {ARentalityRefferalTear} from './ARentalityRefferalTear.sol';
 import {ARentalityRefferal} from './ARentalityRefferal.sol';
 import '../../Schemas.sol';
 import {RentalityPromoService} from '../../features/RentalityPromo.sol';
+import {ARentalityContext} from '../../abstract/ARentalityContext.sol';
 
 struct TripDiscounts {
   uint host;
@@ -30,7 +31,8 @@ contract RentalityReferralProgram is
   ARentalityRefferalDiscountProvider,
   ARentalityRefferalTear,
   Initializable,
-  UUPSAccess
+  UUPSAccess,
+  ARentalityContext
 {
   mapping(address => uint) public addressToPoints;
   mapping(uint => TripDiscounts) private tripIdToDisctount;
@@ -44,6 +46,12 @@ contract RentalityReferralProgram is
   mapping(address => bytes4) internal userToSavedHash;
   mapping(address => bytes4) public referralHashV2;
   mapping(bytes4 => address) private hashToOwnerV2;
+
+    modifier onlyPlatform() {
+  require(isTrustedForwarder(msg.sender), "Only forwarder");
+  _;
+}
+
 
   function getCarDailyClaimedTime(uint carId) public view returns (uint carDailyClaimedTime) {
     return carIdToDailyClaimed[carId];
@@ -112,7 +120,7 @@ contract RentalityReferralProgram is
     return userService;
   }
 
-  function claimPoints(address user) public {
+  function claimPoints(address user) public onlyPlatform {
     Schemas.ReadyToClaim[] memory toClaim = addressToReadyToClaim[user];
     uint daily = updateDaily(user);
     (uint dailiListingPoints, uint[] memory cars) = RentalityRefferalLib.calculateListedCarsPoints(
@@ -202,7 +210,7 @@ contract RentalityReferralProgram is
     return Schemas.RefferalHashDTO(availableToClaim, counter, hash);
   }
 
-  function claimRefferalPoints(address user) public {
+  function claimRefferalPoints(address user) public onlyPlatform {
     Schemas.ReadyToClaimFromHash[] memory availableToClaim = userToReadyToClaimFromHash[user];
     if (availableToClaim.length > 0) {
       uint total = 0;
@@ -274,7 +282,8 @@ contract RentalityReferralProgram is
     return Schemas.AllRefferalInfoDTO(refferalPoints, hashPoints, discounts, getAllTearsInfo());
   }
   function getPointsHistory() public view returns (Schemas.ProgramHistory[] memory programHistory) {
-    return userProgramHistory[msg.sender];
+    address sender = _msgGatewaySender();
+    return userProgramHistory[sender];
   }
 
   function generateReferralHash(address user) public {
@@ -317,6 +326,11 @@ contract RentalityReferralProgram is
     require(userService.isAdmin(msg.sender), 'only Admin');
     refferalLib = refLib;
   }
+
+   function isTrustedForwarder(address forwarder) internal view override returns (bool) {
+    return userService.isRentalityPlatform(forwarder);
+  }
+
 
   function initialize(
     address _userService,

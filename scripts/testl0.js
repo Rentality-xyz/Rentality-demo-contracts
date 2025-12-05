@@ -1,8 +1,8 @@
 const { ethers, upgrades } = require('hardhat')
 
 async function main() {
-const rentalitySwaps = await ethers.getContractAt('RentalityTestUSDC', '0x23805809f496FfB869913FF38667F20C39088225')
-console.log(await rentalitySwaps.transfer('0xd89c758da61e45eee4770888ebe04372f0d55a6a', BigInt(10000 * 10 ** 6)))
+const rentalitySwaps = await ethers.getContractAt('RentalityCurrencyConverter', '0x91C30265daF5Ff11B9151904F363dBA38D1721B5')
+console.log(await rentalitySwaps.addCurrencyType('0x23805809f496FfB869913FF38667F20C39088225','0xDC906a5931C7A7c7B671EFa2b8E92C3503C14cEe','USDC'))
 }
 
 main()

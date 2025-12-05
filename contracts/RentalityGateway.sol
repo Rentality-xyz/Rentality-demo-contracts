@@ -6,17 +6,22 @@ pragma solidity ^0.8.20;
 //deployed 26.05.2023 11:15 to sepolia at 0x12fB29Ed1f0E17605f488F640D49De29050cf855
 //deployed 27.06.2023 11:10 to sepolia at 0x18744A3f7D15930446B1dbc5A837562e468B2D8d
 
+import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import './features/RentalityClaimService.sol';
 import './abstract/IRentalityGateway.sol';
 import './RentalityCarToken.sol';
-import './payments/RentalityCurrencyConverter.sol';
 import './RentalityTripService.sol';
 import './RentalityUserService.sol';
-import './RentalityPlatform.sol';
 import './payments/RentalityPaymentService.sol';
 import './Schemas.sol';
 import './RentalityAdminGateway.sol';
-import './RentalityView.sol';
+import {RentalityCurrencyConverter} from './payments/RentalityCurrencyConverter.sol';
+import {RentalityPlatform} from './RentalityPlatform.sol';
+import {RentalityCarDelivery} from './features/RentalityCarDelivery.sol';
+import {RentalityView} from './RentalityView.sol';
+import {UUPSOwnable} from './proxy/UUPSOwnable.sol';
+import {RentalityQuery} from './libs/RentalityQuery.sol';
+import {LibDiamond} from './libs/LibDiamond.sol';
 
 struct RentalityContract {
   RentalityCarToken carService;
@@ -31,6 +36,7 @@ struct RentalityContract {
   RentalityView viewService;
 }
 
+
 /// @title RentalityGateway
 /// @notice The main gateway contract that connects various services in the Rentality platform.
 /// Users can interact with the car service, trip service, user service, and payment service through this gateway.
@@ -40,13 +46,18 @@ struct RentalityContract {
 ///  selfdestruct, as far as RentalityUtils doesn't has this logic,
 /// it's completely safe for upgrade
 /// @custom:oz-upgrades-unsafe-allow external-library-linking
-contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
-  RentalityContract private addresses;
+contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/, ReentrancyGuardUpgradeable {
   address private l0Sender;
   using RentalityQuery for RentalityContract;
 
-  fallback(bytes calldata data) external payable returns (bytes memory) {
+  fallback(bytes calldata data) external payable nonReentrant returns (bytes memory) {
      bytes memory dataToSend;
+      LibDiamond.DiamondStorage storage ds;
+      bytes32 position = LibDiamond.DIAMOND_STORAGE_POSITION;
+        assembly {
+            ds.slot := position
+        }
+      address facet = ds.selectorToFacetAndPosition[msg.sig].facetAddress;
     if(l0Sender == msg.sender) {
       (bytes memory crossChainData, address user, bytes32 eid) = abi.decode(data, (bytes, address, bytes32));
       dataToSend = _forward(crossChainData, user);
@@ -55,14 +66,9 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
       dataToSend = _forward(data, msg.sender);
 
     }
-    (bool ok_view, bytes memory res_view) = address(addresses.viewService).call(dataToSend);
-    bytes4 errorSign = 0x403e7fa6;
 
-    if (!ok_view && bytes4(res_view) == errorSign) {
-      (bool ok, bytes memory res) = address(addresses.rentalityPlatform).call{value: msg.value}(dataToSend);
-      return _parseResult(ok, res);
-    }
-    return _parseResult(ok_view, res_view);
+    (bool ok, bytes memory res) = address(facet).call{value: msg.value}(dataToSend);
+    return _parseResult(ok, res);
   }
 
   function _parseResult(bool flag, bytes memory result) internal pure returns (bytes memory) {
@@ -77,26 +83,12 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
     result = abi.encodePacked(data, user);
   }
 
-  function setLayerZeroSender(address _layer0Sender) public {
-    require(addresses.userService.isAdmin(tx.origin), "only Admin");
+  function setLayerZeroSender(address _layer0Sender) public onlyOwner {
     l0Sender = _layer0Sender;
   }
-  // @dev Updates the addresses of various services used in the Rentality platform.
-  //
-  // This function retrieves the actual service addresses from the `adminService` and updates
-  // the contract's state variables with these addresses. The services include:
-  // - Car Token Service
-  // - Currency Converter Service
-  // - Trip Service
-  // - User Service
-  // - Platform Service
-  // - Payment Service
-  // - Claim Service
-  //
-  //   This function should be called whenever the addresses of the services change.
-  function updateServiceAddresses() public {
-    require(addresses.userService.isAdmin(tx.origin), 'only Admin.');
-    addresses = addresses.adminService.getRentalityContracts();
+
+  function diamondCut(LibDiamond.FacetCut[] memory _diamondCut) public onlyOwner {
+    LibDiamond.diamondCut(_diamondCut);
   }
 
   //  @dev Initializes the contract with the provided addresses for various services.
@@ -109,30 +101,10 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/ {
   //  Requirements:
   //  - The contract must not have been initialized before.
   function initialize(
-    address carServiceAddress,
-    address currencyConverterServiceAddress,
-    address tripServiceAddress,
-    address userServiceAddress,
-    address rentalityPlatformAddress,
-    address paymentServiceAddress,
-    address claimServiceAddress,
-    address rentalityAdminGatewayAddress,
-    address deliveryServiceAddress,
-    address viewService
+LibDiamond.FacetCut[] memory _diamondCut
   ) public initializer {
-    addresses = RentalityContract(
-      RentalityCarToken(carServiceAddress),
-      RentalityCurrencyConverter(currencyConverterServiceAddress),
-      RentalityTripService(tripServiceAddress),
-      RentalityUserService(userServiceAddress),
-      RentalityPlatform(rentalityPlatformAddress),
-      RentalityPaymentService(payable(paymentServiceAddress)),
-      RentalityClaimService(claimServiceAddress),
-      RentalityAdminGateway(rentalityAdminGatewayAddress),
-      RentalityCarDelivery(deliveryServiceAddress),
-      RentalityView(viewService)
-    );
-
+  LibDiamond.diamondCut(_diamondCut);
     __Ownable_init();
+     __ReentrancyGuard_init();
   }
 }

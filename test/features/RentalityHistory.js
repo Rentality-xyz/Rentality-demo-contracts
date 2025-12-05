@@ -69,7 +69,7 @@ describe('Rentality History Service', function () {
       .connect(guest)
       .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, ' ')
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Date.now(),
@@ -125,7 +125,7 @@ fee: 0,
       request.securityDepositPerTripInUsdCents
     )
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Date.now(),
@@ -211,7 +211,7 @@ fee: 0,
 
     const payments = await rentalityGateway.calculatePayments(1, 7, ethToken)
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Date.now(),

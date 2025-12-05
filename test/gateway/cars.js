@@ -449,7 +449,7 @@ describe('RentalityGateway: car', function () {
     )
     let totalTaxes = await rentalityPaymentService.calculateTaxes(1, 1, priceWithDiscount)
 
-    const taxesData = await rentalityGateway. checkCarAvailabilityWithDelivery(
+    const taxesData = await rentalityGateway.checkCarAvailabilityWithDelivery(
       2,
       new Date().getSeconds(),
       new Date().getSeconds() + oneDayInSeconds,

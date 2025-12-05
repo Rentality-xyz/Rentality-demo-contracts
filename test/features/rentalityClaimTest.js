@@ -546,7 +546,7 @@ fee: 0
       ' '
     )
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Date.now(),
@@ -623,7 +623,7 @@ fee: 0
       ' '
     )
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Date.now(),
@@ -700,7 +700,7 @@ fee: 0
       ' '
     )
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Date.now(),

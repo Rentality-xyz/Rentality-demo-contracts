@@ -156,7 +156,7 @@ interface IRentalityView {
     Schemas.SearchCarParams memory searchParams,
     Schemas.LocationInfo memory pickUpInfo,
     Schemas.LocationInfo memory returnInfo
-  ) external view returns (Schemas.SearchCarWithDistance[] memory);
+  ) external view returns (Schemas.SearchCarsWithDistanceDTO memory);
 
   /// @dev Calculates the KYC commission for a specific currency.
   /// @param currency The address of the currency.
