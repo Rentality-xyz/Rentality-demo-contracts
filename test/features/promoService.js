@@ -151,7 +151,7 @@ describe('Rentality promoService Service', function () {
     expect(result.totalPrice).to.be.not.eq(resultWithoutPromo.totalPrice)
 
     await expect(
-      rentalityPlatform.connect(guest).createTripRequestWithDelivery(
+      rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Math.floor(new Date().getTime() / 1000),
@@ -170,7 +170,7 @@ fee: 0,
     ).to.be.reverted
 
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Math.floor(new Date().getTime() / 1000),
@@ -221,7 +221,7 @@ fee: 0,
       .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, promos[promos.length - 1])
 
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Math.floor(new Date().getTime() / 1000),
@@ -288,7 +288,7 @@ fee: 0,
       .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, 'A12312')
 
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Math.floor(new Date().getTime() / 1000),
@@ -337,7 +337,7 @@ fee: 0,
       .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, 'D12345')
 
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Date.now(),
@@ -393,7 +393,7 @@ fee: 0,
     expect(result.totalPrice).to.not.eq(resultWithoutPromo.totalPrice)
 
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Math.floor(new Date().getTime() / 1000),
@@ -414,7 +414,7 @@ fee: 0,
     await expect(rentalityGateway.connect(guest).rejectTripRequest(1)).to.not.reverted
 
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Math.floor(new Date().getTime() / 1000),
@@ -433,7 +433,7 @@ fee: 0,
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
 
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Math.floor(new Date().getTime() / 1000),
@@ -478,7 +478,7 @@ fee: 0,
       .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, generalPromo)
 
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Math.floor(new Date().getTime() / 1000),
@@ -503,7 +503,7 @@ fee: 0,
     expect(resultWithoutPromo.totalPrice).to.be.not.eq(result.totalPrice)
 
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Math.floor(new Date().getTime() / 1000),
@@ -544,7 +544,7 @@ fee: 0,
       .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, 'D12345')
 
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Date.now(),
@@ -613,7 +613,7 @@ fee: 0,
       .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, promos[0])
 
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Math.floor(new Date().getTime() / 1000),
@@ -691,7 +691,7 @@ fee: 0,
       .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, promos[0])
 
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Math.floor(new Date().getTime() / 1000),
@@ -709,10 +709,10 @@ fee: 0,
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
 
-    await expect(rentalityPlatform.connect(guest).rejectTripRequest(1)).to.not.be.reverted
+    await expect(rentalityGateway.connect(guest).rejectTripRequest(1)).to.not.be.reverted
 
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Math.floor(new Date().getTime() / 1000),
@@ -766,7 +766,7 @@ fee: 0,
     )
 
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Math.floor(new Date().getTime() / 1000),
@@ -857,7 +857,7 @@ fee: 0,
     )
 
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Math.floor(new Date().getTime() / 1000),
@@ -927,13 +927,13 @@ fee: 0,
 
     const ownerSignature = await signTCMessage(owner)
     await rentalityGateway.connect(owner).setKYCInfo('name', 'name', 'name', ownerSignature, promoInBytes32)
-    const readyToClaim = await refferalProgram.getReadyToClaim(owner.address)
+    const readyToClaim = await rentalityGateway.getReadyToClaim(owner.address)
 
     const amount = readyToClaim.toClaim.find((obj) => obj.refType === BigInt(RefferalProgram.SetKYC)).points
     expect(amount).to.be.eq(500)
 
-    await expect(refferalProgram.claimPoints(owner.address)).to.not.reverted
-    expect(await refferalProgram.addressToPoints(owner.address)).to.be.eq(520)
+    await expect(rentalityGateway.claimPoints(owner.address)).to.not.reverted
+    expect(await rentalityGateway.addressToPoints(owner.address)).to.be.eq(520)
   })
 
   it('Promo is not working second time', async function () {
@@ -973,7 +973,7 @@ fee: 0,
       .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, '')
     expect(result.totalPrice).to.be.not.eq(resultWithoutPromo.totalPrice)
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Math.floor(new Date().getTime() / 1000),
@@ -992,7 +992,7 @@ fee: 0,
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
 
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Math.floor(new Date().getTime() / 1000),
@@ -1043,7 +1043,7 @@ fee: 0,
       .calculatePaymentsWithDelivery(1, 1, ethToken, emptyLocationInfo, emptyLocationInfo, '')
     expect(result.totalPrice).to.be.not.eq(resultWithoutPromo.totalPrice)
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Math.floor(new Date().getTime() / 1000),
@@ -1062,7 +1062,7 @@ fee: 0,
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
 
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Math.floor(new Date().getTime() / 1000),

@@ -33,8 +33,6 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
   RentalityInsurance private insuranceService;
   RentalityPromoService private promoService;
   RentalityDimoService private dimoService;
-  address private trustedForwarderAddress;
-
   RentalityAiDamageAnalyzeV2 private aiDamageAnalyzeService;
   RentalityHostInsurance private hostInsurance;
 
@@ -197,17 +195,11 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
       addresses.carService.totalSupply()
     );
   }
-  function trustedForwarder() internal view override returns (address) {
-    return trustedForwarderAddress;
-  }
 
   function isTrustedForwarder(address forwarder) internal view override returns (bool) {
-    return forwarder == trustedForwarderAddress;
+    return addresses.userService.isRentalityPlatform(forwarder);
   }
-  function setTrustedForwarder(address forwarder) public {
-    require(addresses.userService.isAdmin(tx.origin), 'Only for Admin.');
-    trustedForwarderAddress = forwarder;
-  }
+  
  function getHostInsuranceClaims() public view returns(Schemas.FullClaimInfo[] memory claimInfos) {
     uint[] memory claimIds = hostInsurance.getInsuranceClaims();
     claimInfos = new Schemas.FullClaimInfo[](claimIds.length);

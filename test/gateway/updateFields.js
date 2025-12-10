@@ -58,10 +58,6 @@ describe('RentalityGateway: update fields', function () {
     ).to.not.be.reverted
   })
 
-  it('should has right owner', async function () {
-    expect(await rentalityGateway.owner()).to.equal(owner.address)
-  })
-
   it.skip('should allow only admin to update car service address', async function () {
     await expect(rentalityAdminGateway.connect(guest).updateCarService(await rentalityCarToken.getAddress())).to.be
       .reverted

@@ -15,12 +15,13 @@ import {RentalityViewLib} from '../libs/RentalityViewLib.sol';
 import {RentalityUserService} from '../RentalityUserService.sol';
 import {IERC20} from '../payments/abstract/IERC20.sol';
 import {RentalityInvestDeployer} from './RentalityInvestDeployer.sol';
+import {ARentalityContext} from '../abstract/ARentalityContext.sol';
 
 /// @dev SAFETY: The linked library is not supported yet because it can modify the state or call
 ///  selfdestruct, as far as RentalityUtils doesn't has this logic,
 /// it's completely safe for upgrade
 /// @custom:oz-upgrades-unsafe-allow external-library-linking
-contract RentalityInvestment is Initializable, UUPSAccess {
+contract RentalityInvestment is Initializable, UUPSAccess, ARentalityContext {
   uint private investmentId;
   RentalityCurrencyConverter private converter;
   RentalityCarToken private carToken;
@@ -36,8 +37,14 @@ contract RentalityInvestment is Initializable, UUPSAccess {
   mapping(uint => address) private investmentIdToCurrency;
   mapping(uint => bool) private investmentIdToListed;
 
-  function createCarInvestment(Schemas.CarInvestment memory car, string memory name_, address currency) public {
-    require(RentalityUserService(address(userService)).isInvestorManager(msg.sender), 'only Invest Manager');
+    modifier onlyPlatform() {
+  require(isTrustedForwarder(msg.sender), "Only forwarder");
+  _;
+}
+
+  function createCarInvestment(Schemas.CarInvestment memory car, string memory name_, address currency) public onlyPlatform {
+    address sender = _msgGatewaySender();
+    require(RentalityUserService(address(userService)).isInvestorManager(sender), 'only Invest Manager');
         require(converter.currencyTypeIsAvailable(currency), 'currency type is not available');
 
     investmentId += 1;
@@ -48,11 +55,12 @@ contract RentalityInvestment is Initializable, UUPSAccess {
     investIdToNft[investmentId] = RentalityInvestmentNft(
       investDeployer.createNewNft(name_, sym, investmentId, car.car.tokenUri)
     );
-    investmentIdToCreator[investmentId] = msg.sender;
+    investmentIdToCreator[investmentId] = sender;
     investmentIdToListed[investmentId] = true;
   }
 
-  function invest(uint investId, uint amount) public payable {
+  function invest(uint investId, uint amount) public payable onlyPlatform {
+        address sender = _msgGatewaySender();
     Schemas.CarInvestment storage investment = investmentIdToCarInfo[investId];
     require(investmentIdToListed[investId], 'Investment: not listed');
 
@@ -69,21 +77,19 @@ contract RentalityInvestment is Initializable, UUPSAccess {
     if (currency == address(0)) {
       require(msg.value == amount, "amount is not eq to msg.value");
       investmentIdToPayedInETH[investId] += msg.value;
-      investIdToNft[investId].mint(msg.value, msg.sender);
+      investIdToNft[investId].mint(msg.value, sender);
     } else {
-      require(IERC20(currency).allowance(msg.sender, address(this)) >= amount, 'Investment: wrong allowance');
-      bool success = IERC20(currency).transferFrom(msg.sender, address(this), amount);
+      require(IERC20(currency).allowance(sender, address(this)) >= amount, 'Investment: wrong allowance');
+      bool success = IERC20(currency).transferFrom(sender, address(this), amount);
       require(success, 'Transfer failed.');
       investmentIdToPayedInETH[investId] += amount;
-      investIdToNft[investId].mint(amount, msg.sender);
+      investIdToNft[investId].mint(amount, sender);
     }
   }
-  function getUserServiceAddress() public view returns (address) {
-    return address(userService);
-  }
 
-  function claimAndCreatePool(uint investId, Schemas.CreateCarRequest memory createCarRequest) public {
-     bool isInvestorManager = RentalityUserService(address(userService)).isInvestorManager(msg.sender);
+  function claimAndCreatePool(uint investId, Schemas.CreateCarRequest memory createCarRequest) public onlyPlatform {
+    address sender = _msgGatewaySender();
+     bool isInvestorManager = RentalityUserService(address(userService)).isInvestorManager(sender);
     require(isInvestorManager, 'Only for creator');
     require(address(investIdToPool[investId]) == address(0), 'Claimed');
     require(carToken.isUniqueVinNumber(createCarRequest.carVinNumber), 'Car with this VIN number already exists');
@@ -106,36 +112,37 @@ contract RentalityInvestment is Initializable, UUPSAccess {
       )
     );
 
-    uint carId = carToken.addCar(investment.car, msg.sender);
+    uint carId = carToken.addCar(investment.car, sender);
     insuranceService.saveInsuranceRequired(
       carId,
       investment.car.insurancePriceInUsdCents,
       investment.car.insuranceRequired,
-      msg.sender
+      sender
     );
     carIdToInvestId[carId] = investId;
     if (investmentIdToCurrency[investId] == address(0)) {
-      (bool success, ) = payable(msg.sender).call{value: investmentIdToPayedInETH[investId]}('');
+      (bool success, ) = payable(sender).call{value: investmentIdToPayedInETH[investId]}('');
       require(success, 'Fail to transfer.');
     } else {
-      bool success = IERC20(investmentIdToCurrency[investId]).transfer(msg.sender, investmentIdToPayedInETH[investId]);
+      bool success = IERC20(investmentIdToCurrency[investId]).transfer(sender, investmentIdToPayedInETH[investId]);
       require(success, 'Transfer failed.');
     }
   }
 
   function getPaymentsInfo(
     uint carId
-  ) public view returns (uint percents, RentalityCarInvestmentPool pool, address currency) {
+  ) public onlyPlatform view returns (uint percents, RentalityCarInvestmentPool pool, address currency) {
     uint invesment = carIdToInvestId[carId];
     percents = investmentIdToCarInfo[invesment].creatorPercents;
     pool = investIdToPool[invesment];
     currency = investmentIdToCurrency[invesment];
   }
   
-  function getAllInvestments() public view returns (Schemas.InvestmentDTO[] memory investments) {
+  function getAllInvestments() onlyPlatform public view returns (Schemas.InvestmentDTO[] memory investments) {
+    address sender = _msgGatewaySender();
     investments = new Schemas.InvestmentDTO[](investmentId);
     uint totalInvestments = 0;
-    bool isInvestorManager = RentalityUserService(address(userService)).isInvestorManager(msg.sender);
+    bool isInvestorManager = RentalityUserService(address(userService)).isInvestorManager(sender);
     for (uint i = 1; i <= investmentId; i++) {
       Schemas.CarInvestment memory investment = investmentIdToCarInfo[i];
       if(investmentIdToListed[i] || isInvestorManager) {
@@ -145,7 +152,7 @@ contract RentalityInvestment is Initializable, UUPSAccess {
       bool isBought = address(investIdToPool[i]) != address(0);
       address currency = investmentIdToCurrency[i];
       (uint[] memory tokens, uint iInvested, uint totalHolders, uint totalTokens) = RentalityViewLib
-        .getAllMyTokensWithTotalPrice(msg.sender, investIdToNft[i]);
+        .getAllMyTokensWithTotalPrice(sender, investIdToNft[i]);
       (uint payed, , ) = converter.getToUsdLatest(currency, investmentIdToPayedInETH[i]);
       if (isBought) {
         income  = _getTotalIncome(investIdToPool[i]);
@@ -177,7 +184,7 @@ contract RentalityInvestment is Initializable, UUPSAccess {
         totalTokens,
         currency,
         !isBought ? 0 : investIdToPool[i].getTotalEarnings(),
-        !isBought ? 0 : investIdToPool[i].getTotalEarningsByUser(msg.sender),
+        !isBought ? 0 : investIdToPool[i].getTotalEarningsByUser(sender),
         investIdToNft[i].name(),
         investIdToNft[i].symbol(),
         priceInUsdCents,
@@ -192,16 +199,18 @@ contract RentalityInvestment is Initializable, UUPSAccess {
       }
   }
 
-  function changeListingStatus(uint investId) public {
-      require(RentalityUserService(address(userService)).isInvestorManager(msg.sender), 'only Invest manager');
+  function changeListingStatus(uint investId) onlyPlatform public {
+     address sender = _msgGatewaySender();
+    require(RentalityUserService(address(userService)).isInvestorManager(sender), 'only Invest manager');
     bool listed = investmentIdToListed[investId];
     investmentIdToListed[investId] = !listed;
   }
  
 
-  function claimAllMy(uint investId) public {
-    (uint[] memory tokens, , , ) = RentalityViewLib.getAllMyTokensWithTotalPrice(msg.sender, investIdToNft[investId]);
-    investIdToPool[investId].claimAllMy(msg.sender, tokens);
+  function claimAllMy(uint investId) onlyPlatform public {
+    address sender = _msgGatewaySender();
+    (uint[] memory tokens, , , ) = RentalityViewLib.getAllMyTokensWithTotalPrice(sender, investIdToNft[investId]);
+    investIdToPool[investId].claimAllMy(sender, tokens);
   }
 
   function _getTotalIncome(RentalityCarInvestmentPool pool) private view returns (uint) {
@@ -278,7 +287,12 @@ contract RentalityInvestment is Initializable, UUPSAccess {
   }
 
 
-  /// @notice Initializes the contract with the specified addresses
+
+  function isTrustedForwarder(address forwarder) internal view override returns (bool) {
+    return userService.isRentalityPlatform(forwarder);
+  }
+
+
 
   function initialize(
     address _userService,

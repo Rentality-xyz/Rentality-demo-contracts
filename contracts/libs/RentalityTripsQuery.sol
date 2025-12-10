@@ -11,7 +11,6 @@ import '../RentalityUserService.sol';
 import '../RentalityPlatform.sol';
 import '../features/RentalityClaimService.sol';
 import '../RentalityAdminGateway.sol';
-import '../RentalityGateway.sol';
 import {IRentalityGeoService} from '../abstract/IRentalityGeoService.sol';
 import {RentalityCarDelivery} from '../features/RentalityCarDelivery.sol';
 import '../Schemas.sol';

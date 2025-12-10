@@ -15,7 +15,6 @@ import './libs/RentalityQuery.sol';
 import './libs/RentalityViewLib.sol';
 import '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 import '@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol';
-import './RentalityGateway.sol';
 import {RentalityTripsView, FunctionNotFound} from './RentalityTripsView.sol';
 import {RentalityReferralProgram} from './features/refferalProgram/RentalityReferralProgram.sol';
 import {RentalityPromoService} from './features/RentalityPromo.sol';
@@ -40,8 +39,6 @@ contract RentalityView is UUPSUpgradeable, Initializable, ARentalityContext {
 
   RentalityDimoService private dimoService;
 
-  address private trustedForwarderAddress;
-
   function updateServiceAddresses(
     RentalityContract memory contracts,
     address insurance,
@@ -55,20 +52,6 @@ contract RentalityView is UUPSUpgradeable, Initializable, ARentalityContext {
     tripsView = RentalityTripsView(tripsViewAddress);
     promoService = RentalityPromoService(promoServiceAddress);
     dimoService = RentalityDimoService(dimoServiceAddress);
-  }
-
-  fallback(bytes calldata data) external returns (bytes memory) {
-    require(trustedForwarderAddress == msg.sender, 'only trusted forwarder');
-    (bool ok_view, bytes memory res_view) = address(tripsView).call(data);
-    bytes4 errorSign = 0x403e7fa6;
-    if (!ok_view && bytes4(res_view) == errorSign) {
-      revert FunctionNotFound();
-    } else if (!ok_view) {
-      assembly {
-        revert(add(res_view, 32), mload(res_view))
-      }
-    }
-    return res_view;
   }
   
 
@@ -323,16 +306,8 @@ contract RentalityView is UUPSUpgradeable, Initializable, ARentalityContext {
     return insuranceService.getMyInsurancesAsGuest(_msgGatewaySender());
   }
 
-  function trustedForwarder() internal view override returns (address) {
-    return trustedForwarderAddress;
-  }
-
   function isTrustedForwarder(address forwarder) internal view override returns (bool) {
-    return forwarder == trustedForwarderAddress;
-  }
-  function setTrustedForwarder(address forwarder) public {
-    require(addresses.userService.isAdmin(tx.origin), 'Only for Admin.');
-    trustedForwarderAddress = forwarder;
+    return addresses.userService.isRentalityPlatform(forwarder);
   }
 
 
