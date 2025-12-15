@@ -11,7 +11,6 @@ import '../RentalityUserService.sol';
 import '../RentalityPlatform.sol';
 import '../features/RentalityClaimService.sol';
 import '../RentalityAdminGateway.sol';
-import '../RentalityGateway.sol';
 import '../engine/RentalityEnginesService.sol';
 import '../payments/RentalityBaseDiscount.sol';
 import {IRentalityGeoService} from '../abstract/IRentalityGeoService.sol';
@@ -22,6 +21,7 @@ import {CurrencyRate as ClaimCurrencyRate} from '../features/RentalityClaimServi
 import {RentalityInsurance} from '../payments/RentalityInsurance.sol';
 import {RentalityReferralProgram} from '../features/refferalProgram/RentalityReferralProgram.sol';
 import {RentalityDimoService} from '../features/RentalityDimoService.sol';
+import {RentalityContract} from '../RentalityGateway.sol';
 library RentalityQuery {
   // /// @notice Retrieves all claims associated with a specific trip.
   // /// @dev This function fetches detailed claim information for a given trip ID.
