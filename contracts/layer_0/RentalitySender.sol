@@ -11,6 +11,7 @@ import '@layerzerolabs/lz-evm-oapp-v2/contracts/oapp/libs/OptionsBuilder.sol';
 import '../RentalityUserService.sol';
 import '../abstract/IRentalitySender.sol';
 import './ARentalitySender.sol';
+import '../abstract/IRentalityInvestmentSender.sol';
 
 contract RentalitySender is ARentalitySender, UUPSUpgradeable {
   bool private initialized;
@@ -29,6 +30,7 @@ contract RentalitySender is ARentalitySender, UUPSUpgradeable {
       uint value = 0;
       if (
         bytes4(bytes32(data[0:4])) == IRentalitySender.quotePayClaim.selector ||
+        bytes4(bytes32(data[0:4])) == IRentalityInvestmentSender.quoteInvest.selector ||
         bytes4(bytes32(data[0:4])) == IRentalitySender.quoteCreateTripRequestWithDelivery.selector
       ) {
         value = uint(bytes32(data[4:36]));

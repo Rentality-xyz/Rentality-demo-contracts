@@ -1,11 +1,10 @@
 const { ethers, network } = require('hardhat')
 
 async function main() {
-  const contract = await ethers.getContractAt('RentalitySender', '0x1C97042e54bAa7ba8d58520b855ec67C6Ff4286C')
-  const addressToSet = '0x467D254DF93C8F6437F3158A9B875f24d9473990'
+  const contract = await ethers.getContractAt('RentalitySender', '0x2778796c6349a42A73afc6e2904155024cf6E3fb')
 
 //   await contract.setPeer('0xbAaE15E3B0688d4a89104caB28c01B2ED3f5373b')
-  console.log(await contract.setPeer('0xC774418A741b472dD697092766517F8C238972a7'))
+  console.log(await contract.setPeer('0x252086171d2D0363290431fE1ea184BA1fE006A2'))
 }
 
 main()

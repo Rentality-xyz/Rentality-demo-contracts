@@ -6,7 +6,6 @@ pragma solidity ^0.8.20;
 import '../RentalityCarToken.sol';
 import '../RentalityTripService.sol';
 import '../Schemas.sol';
-import {IRentalityPlatform} from './IRentalityPlatform.sol';
 import {IRentalityInvestmentFacet} from './facets/IRentalityInvestmentFacet.sol';
 import {IRentalityPlatformFacet} from './facets/IRentalityPlatformFacet.sol';
 import {IRentalityPlatformHelperFacet} from './facets/IRentalityPlatformHelperFacet.sol';
