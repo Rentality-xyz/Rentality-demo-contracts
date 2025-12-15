@@ -3,9 +3,16 @@
 pragma solidity ^0.8.9;
 
 import '../Schemas.sol';
-import './IRentalityPlatform.sol';
+import './facets/IRentalityPlatformFacet.sol';
+import './facets/IRentalityPlatformHelperFacet.sol';
+import './IRentalityInvestmentSender.sol';
+import './IRentalityRefferalSender.sol';
 
-interface IRentalitySender is IRentalityPlatform {
+interface IRentalitySender is 
+IRentalityPlatformFacet,
+IRentalityPlatformHelperFacet,
+IRentalityInvestmentSender,
+IRentalityRefferalSender {
   // ------------------------------
   /// USER PROFILE quote functions
   /// ------------------------------
@@ -126,5 +133,12 @@ interface IRentalitySender is IRentalityPlatform {
   ) external payable;
 
   function payClaim(uint amount, bytes memory encodetData) external payable;
+
+
+  function invest(
+    uint amount,
+    bytes memory encodetData
+  ) external payable;
+
 
 }

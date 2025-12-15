@@ -73,6 +73,7 @@ async function main() {
   await deployer.destruct(wallet)
   console.log(contractAddress)
 
+  
 
   let contract = await ethers.getContractAt('IRentalitySender', contractAddress)
   console.log(`${contractName} was deployed to: ${contractAddress}`)

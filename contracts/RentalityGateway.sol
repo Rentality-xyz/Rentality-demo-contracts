@@ -60,11 +60,19 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/, ReentrancyGuar
       address facet = ds.selectorToFacetAndPosition[msg.sig].facetAddress;
     if(l0Sender == msg.sender) {
       (bytes memory crossChainData, address user, bytes32 eid) = abi.decode(data, (bytes, address, bytes32));
+      bytes4 selector;
+      assembly {
+        selector := mload(add(crossChainData, 32))
+      }
+      facet = ds.selectorToFacetAndPosition[selector].facetAddress;
       dataToSend = _forward(crossChainData, user);
     }
     else {
       dataToSend = _forward(data, msg.sender);
 
+    }
+    if(address(facet) == address(0)) {
+      revert("Function does not exist");
     }
 
     (bool ok, bytes memory res) = address(facet).call{value: msg.value}(dataToSend);

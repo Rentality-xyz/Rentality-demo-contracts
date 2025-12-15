@@ -25,7 +25,6 @@ async function main() {
     process.exit(1)
   }
   const contractFactory = await ethers.getContractFactory(contractName, {
-    libraries: libs,
   })
 
   const initializationFunc = readlineSync.question("Enter initialization function if needed or 'Enter' to skip:\n")

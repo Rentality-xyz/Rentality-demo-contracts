@@ -24,27 +24,15 @@ async function main() {
 
   const rentalityGatewayAddress = checkNotNull(addresses['RentalityGateway'], 'rentalityGatewayAddress')
 
-//   const deployTx = await contractFactory.getDeployTransaction(rentalityGatewayAddress, eindpoint);
 
-//   const signer = contractFactory.runner; // ethers v6
-//   console.log("HERE")
-// const txResponse = await signer.sendTransaction({
-//   data: deployTx.data,
-//   value: deployTx.value ?? 0n,
-//   gasLimit: 10000000
-// });
-// console.log("TX RESPONSE: ", txResponse)
   let contract = await contractFactory.deploy(rentalityGatewayAddress, eindpoint)
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()
 
   const gateway = await ethers.getContractAt("RentalityGateway", rentalityGatewayAddress)
-  // console.log(await gateway.setLayerZeroSender(contractAddress))
+  console.log(await gateway.setLayerZeroSender(contractAddress))
   console.log('Receiver address: ', contractAddress)
-  // const addressToSet = readlineSync.question('Address to set:\n')
-  // const eidToSet = readlineSync.question('eid to set:\n')
-  // let contract = await ethers.getContractAt('RentalityReceiver','0x265Fa0470e8AFc0d9184e77AF554669f176051E1')
-  await contract.setNewPeer(eid, '0x1C97042e54bAa7ba8d58520b855ec67C6Ff4286C')
+  await contract.setNewPeer(eid, '0x2778796c6349a42A73afc6e2904155024cf6E3fb')
 
   console.log(`${contractName} was deployed to: ${contractAddress}`)
   addressSaver(contractAddress, contractName, true, chainId)
