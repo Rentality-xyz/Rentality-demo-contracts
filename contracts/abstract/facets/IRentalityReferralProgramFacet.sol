@@ -11,7 +11,7 @@ interface IRentalityReferralProgramFacet {
   function getReadyToClaim(address user) external view returns (Schemas.ReadyToClaimDTO memory readyToClaimDTO);
   function getReadyToClaimFromRefferalHash(address) external view returns (Schemas.RefferalHashDTO memory refferalHashDTO);
   function getRefferalPointsInfo() external view returns (Schemas.AllRefferalInfoDTO memory allRefferalInfoDTO);
-  function getPointsHistory(address user) external view returns (Schemas.RefferalHistory[] memory);
+  function getPointsHistory() external view returns (Schemas.RefferalHistory[] memory);
   function getMyRefferalInfo() external view returns (Schemas.MyRefferalInfoDTO memory myRefferalInfoDTO);
   function claimPoints(address user) external;
   function claimRefferalPoints(address) external;

@@ -101,7 +101,7 @@ async function main() {
     createFacetCut(referralFacet),
   ]
 
-  await contract.diamondCut(facetCuts)
+  await contract.diamondCut(facetCuts,{gasLimit: 5000000})
 
   contract = await ethers.getContractAt('IRentalityGateway', contractAddress)
 
