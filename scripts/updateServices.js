@@ -35,7 +35,7 @@ async function main() {
   const adminService = await ethers.getContractAt('RentalityAdminGateway', rentalityAdminGatewayAddress)
   console.log(await adminService.setInsuranceService(rentalityInsurance))
 
-  const platform = await ethers.getContractAt('RentalityPlatform', rentalityPlatformAddress)
+  const platform = await ethers.getContractAt('RentalityView', rentalityPlatformAddress)
   console.log(await platform.updateServiceAddresses(rentalityAdminGatewayAddress))
 }
 
