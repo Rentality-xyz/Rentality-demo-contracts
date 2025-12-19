@@ -87,6 +87,7 @@ contract RentalityInvestment is Initializable, UUPSAccess, ARentalityContext {
     }
   }
 
+
   function claimAndCreatePool(uint investId, Schemas.CreateCarRequest memory createCarRequest) public onlyPlatform {
     address sender = _msgGatewaySender();
      bool isInvestorManager = RentalityUserService(address(userService)).isInvestorManager(sender);
