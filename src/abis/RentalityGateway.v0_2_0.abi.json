@@ -829,9 +829,6 @@
       {
         "type": "function",
         "name": "claimAndCreatePool",
-        "constant": false,
-        "stateMutability": "payable",
-        "payable": true,
         "inputs": [
           {
             "type": "uint256",
@@ -1001,8 +998,7 @@
         "type": "function",
         "name": "createCarInvestment",
         "constant": false,
-        "stateMutability": "payable",
-        "payable": true,
+        "payable": false,
         "inputs": [
           {
             "type": "tuple",
