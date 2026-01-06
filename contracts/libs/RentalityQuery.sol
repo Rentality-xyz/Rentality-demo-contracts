@@ -142,7 +142,7 @@ library RentalityQuery {
             contracts.carService.getCarInfoById(trip.carId).locationHash
           ),
           contracts.claimService.getClaimTypeInfo(claim.claimType),
-          contracts.currencyConverterService.getUserCurrency(trip.host)
+          contracts.currencyConverterService.getCurrencyInfo(trip.paymentInfo.currencyType)
         );
       }
     }
@@ -198,7 +198,7 @@ library RentalityQuery {
             carService.getCarInfoById(trip.carId).locationHash
           ),
           contracts.claimService.getClaimTypeInfo(claim.claimType),
-          contracts.currencyConverterService.getUserCurrency(trip.host)
+          contracts.currencyConverterService.getCurrencyInfo(trip.paymentInfo.currencyType)
         );
       }
     }
