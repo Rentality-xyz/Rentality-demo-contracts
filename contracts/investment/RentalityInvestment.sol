@@ -60,7 +60,7 @@ contract RentalityInvestment is Initializable, UUPSAccess, ARentalityContext {
   }
 
   function invest(uint investId, uint amount) public payable onlyPlatform {
-        address sender = _msgGatewaySender();
+    address sender = _msgGatewaySender();
     Schemas.CarInvestment storage investment = investmentIdToCarInfo[investId];
     require(investmentIdToListed[investId], 'Investment: not listed');
 

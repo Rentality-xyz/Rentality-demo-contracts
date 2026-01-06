@@ -39,6 +39,7 @@ describe('RentalityCarToken: search functions', function () {
   it('Search with brand should work', async function () {
     const { rentalityCarToken, rentalityTripService, guest, rentalityGateway, rentalityLocationVerifier, admin } =
       await loadFixture(deployFixtureWith1Car)
+      console.log(await rentalityCarToken.ownerOf(1))
 
     const request = getMockCarRequest(0, rentalityLocationVerifier, admin)
     const searchCarParams1 = {

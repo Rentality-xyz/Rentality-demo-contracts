@@ -12,8 +12,9 @@ import '../RentalityUserService.sol';
 import '../abstract/IRentalitySender.sol';
 import './ARentalitySender.sol';
 import '../abstract/IRentalityInvestmentSender.sol';
+import '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 
-contract RentalitySender is ARentalitySender, UUPSUpgradeable {
+contract RentalitySender is ARentalitySender, UUPSUpgradeable, Initializable {
   bool private initialized;
   uint32 private distEid;
   uint32 private eid;
@@ -27,27 +28,21 @@ contract RentalitySender is ARentalitySender, UUPSUpgradeable {
     bytes memory _data = abi.encode(data, msg.sender, bytes32(uint(eid)));
 
     if (msg.value == 0) {
-      uint value = 0;
-      if (
-        bytes4(bytes32(data[0:4])) == IRentalitySender.quotePayClaim.selector ||
-        bytes4(bytes32(data[0:4])) == IRentalityInvestmentSender.quoteInvest.selector ||
-        bytes4(bytes32(data[0:4])) == IRentalitySender.quoteCreateTripRequestWithDelivery.selector
-      ) {
-        value = uint(bytes32(data[4:36]));
-         _data = abi.encode(data[32:], msg.sender, bytes32(uint(eid)));
-      }
-      return abi.encode(quote(uint128(value), _data));
+       (uint value, uint _gasLimit, bytes memory rest) = abi.decode(data[4:], (uint, uint, bytes));
+   
+         _data = abi.encode(rest, msg.sender, bytes32(uint(eid)));
+    
+     
+      return abi.encode(quote(uint128(_gasLimit), uint128(value), _data));
     }
+          
+    (uint value, uint _gasLimit, bytes memory rest) = abi.decode(data[4:], (uint, uint, bytes));
 
-    MessagingFee memory fee = quote(0, _data);
-    bytes memory options = buildOptions(0);
 
-    if (fee.nativeFee < msg.value) {
-      (uint value, bytes memory rest) = abi.decode(data[4:], (uint, bytes));
-      options = buildOptions(uint128(value));
-      _data = abi.encode(rest, msg.sender, bytes32(uint(eid)));
-      fee = quotFromOptions(options, _data);
-    }
+    bytes memory options = buildOptions(uint128(value),uint128(_gasLimit));
+    _data = abi.encode(rest, msg.sender, bytes32(uint(eid)));
+    MessagingFee memory fee = quotFromOptions(options, _data);
+
     __lzSend(_data, options, fee, payable(msg.sender));
     return bytes('');
   }
@@ -68,8 +63,8 @@ contract RentalitySender is ARentalitySender, UUPSUpgradeable {
       );
   }
 
-  function quote(uint128 value, bytes memory _message) public view returns (MessagingFee memory fee) {
-    bytes memory options = buildOptions(value);
+  function quote(uint128 _gasLimit, uint128 value, bytes memory _message) public view returns (MessagingFee memory fee) {
+    bytes memory options = buildOptions(value, _gasLimit);
     fee = _quote(distEid, _message, options, false);
   }
 
@@ -82,8 +77,8 @@ contract RentalitySender is ARentalitySender, UUPSUpgradeable {
     _setPeer(distEid, bytes32(uint256(uint160(recAddress))));
   }
 
-  function buildOptions(uint128 value) public view returns (bytes memory) {
-    return OptionsBuilder.newOptions().addExecutorLzReceiveOption(gasLimit, value);
+  function buildOptions(uint128 value, uint128 _gasLimit) public view returns (bytes memory) {
+    return OptionsBuilder.newOptions().addExecutorLzReceiveOption(_gasLimit, value);
   }
 
   function setGasLimit(uint128 gas) public {
