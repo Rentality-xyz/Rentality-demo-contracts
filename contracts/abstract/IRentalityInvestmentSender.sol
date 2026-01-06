@@ -7,7 +7,6 @@ import '../Schemas.sol';
 interface IRentalityInvestmentSender {
 
     
-  function invest(uint investId, uint amount) external payable;
   function quoteInvest(uint,uint investId, uint amount) external view returns (uint);
   function claimAllMy(uint) external;
   function quoteClaimAllMy(uint) external view returns (uint);

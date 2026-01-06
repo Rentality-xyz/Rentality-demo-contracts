@@ -225,6 +225,6 @@
   {
     "name": "optimism_sepolia",
     "chainId": 11155420,
-    "RentalitySender": "0x2778796c6349a42A73afc6e2904155024cf6E3fb"
+    "RentalitySender": "0x59c2C61371b51eDf1076E37A947cA843b234C53D"
   }
 ]

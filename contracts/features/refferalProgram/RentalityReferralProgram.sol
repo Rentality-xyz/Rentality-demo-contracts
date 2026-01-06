@@ -300,7 +300,8 @@ contract RentalityReferralProgram is
     return bytes4(keccak256(abi.encode(this.generateReferralHash.selector, user)));
   }
   function getMyRefferalInfo() public view returns (Schemas.MyRefferalInfoDTO memory myRefferalInfoDTO) {
-    return Schemas.MyRefferalInfoDTO(referralHashV2[msg.sender], userToSavedHash[msg.sender]);
+      address sender = _msgGatewaySender();
+    return Schemas.MyRefferalInfoDTO(referralHashV2[sender], userToSavedHash[sender]);
   }
   function saveRefferalHash(bytes4 hash, bool isGuest, address sender) public {
     require(userService.isRentalityPlatform(msg.sender), 'only Rentality platform');
