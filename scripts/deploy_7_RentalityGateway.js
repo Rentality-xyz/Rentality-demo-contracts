@@ -10,34 +10,9 @@ async function main() {
 
   if (chainId < 0) throw new Error('chainId is not set')
 
-  const rentalityUserServiceAddress = checkNotNull(
-    getContractAddress('RentalityUserService', 'scripts/deploy_1b_RentalityUserService.js', chainId),
-    'RentalityUserService'
-  )
-
-  const rentalityClaimService = checkNotNull(
-    getContractAddress('RentalityClaimService', 'scripts/deploy_2a_RentalityClaimService.js', chainId),
-    'RentalityClaimService'
-  )
-
-  const rentalityCurrencyConverterAddress = checkNotNull(
-    getContractAddress('RentalityCurrencyConverter', 'scripts/deploy_3b_RentalityCurrencyConverter.js', chainId),
-    'RentalityCurrencyConverter'
-  )
-
-  const rentalityPaymentServiceAddress = checkNotNull(
-    getContractAddress('RentalityPaymentService', 'scripts/deploy_3c_RentalityPaymentService.js', chainId),
-    'RentalityPaymentService'
-  )
-
-  const rentalityCarTokenAddress = checkNotNull(
-    getContractAddress('RentalityCarToken', 'scripts/deploy_3_RentalityCarToken.js', chainId),
-    'RentalityCarToken'
-  )
-
-  const rentalityTripServiceAddress = checkNotNull(
-    getContractAddress('RentalityTripService', 'scripts/deploy_4_RentalityTripService.js', chainId),
-    'RentalityTripService'
+  const rentalityNotificationService= checkNotNull(
+    getContractAddress('RentalityNotificationService', 'scripts/deploy_2_RentalityNotificationService.js', chainId),
+    'RentalityNotificationService'
   )
 
   const rentalityPlatformAddress = checkNotNull(
@@ -102,6 +77,7 @@ async function main() {
   ]
 
   await contract.diamondCut(facetCuts,{gasLimit: 5000000})
+  await contract.setNotificationService(rentalityNotificationService)
 
   contract = await ethers.getContractAt('IRentalityGateway', contractAddress)
 

@@ -22,6 +22,7 @@ import {RentalityView} from './RentalityView.sol';
 import {UUPSOwnable} from './proxy/UUPSOwnable.sol';
 import {RentalityQuery} from './libs/RentalityQuery.sol';
 import {LibDiamond} from './libs/LibDiamond.sol';
+import {RentalityNotificationService} from './features/RentalityNotificationService.sol';
 
 struct RentalityContract {
   RentalityCarToken carService;
@@ -48,6 +49,7 @@ struct RentalityContract {
 /// @custom:oz-upgrades-unsafe-allow external-library-linking
 contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/, ReentrancyGuardUpgradeable {
   address private l0Sender;
+  RentalityNotificationService private notificationService;
   using RentalityQuery for RentalityContract;
 
   fallback(bytes calldata data) external payable nonReentrant returns (bytes memory) {
@@ -58,8 +60,11 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/, ReentrancyGuar
             ds.slot := position
         }
       address facet = ds.selectorToFacetAndPosition[msg.sig].facetAddress;
-    if(l0Sender == msg.sender) {
+      bool isCrossChain = msg.sender == l0Sender;
+      address sender = msg.sender;
+    if(isCrossChain) {
       (bytes memory crossChainData, address user, bytes32 eid) = abi.decode(data, (bytes, address, bytes32));
+      sender = user;
       bytes4 selector;
       assembly {
         selector := mload(add(crossChainData, 32))
@@ -76,6 +81,16 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/, ReentrancyGuar
     }
 
     (bool ok, bytes memory res) = address(facet).call{value: msg.value}(dataToSend);
+    if(isCrossChain) {
+      Schemas.CrassChainMessageStatus status = Schemas.CrassChainMessageStatus.Success;
+      if(!ok && msg.value > 0) {
+        status = Schemas.CrassChainMessageStatus.PayableFail;
+      } else if(!ok) {
+        status = Schemas.CrassChainMessageStatus.Fail;
+      }
+
+      notificationService.emitEvent(Schemas.EventType.CrassChainMessage, 0, uint8(status), sender, sender);
+    }
     return _parseResult(ok, res);
   }
 
@@ -93,6 +108,10 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/, ReentrancyGuar
 
   function setLayerZeroSender(address _layer0Sender) public onlyOwner {
     l0Sender = _layer0Sender;
+  }
+  function setNotificationService(address notificationServiceAddress) public onlyOwner {
+    notificationService =  RentalityNotificationService(notificationServiceAddress);
+    
   }
 
   function diamondCut(LibDiamond.FacetCut[] memory _diamondCut) public onlyOwner {
