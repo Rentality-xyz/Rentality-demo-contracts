@@ -866,6 +866,11 @@ interface Schemas {
     Update,
     Burn
   }
+  enum CrassChainMessageStatus {
+    Fail,
+    PayableFail,
+    Success
+  }
   enum EventType {
     Car,
     Claim,
@@ -877,7 +882,8 @@ interface Schemas {
     Delivery,
     Currency,
     AddClaimType, 
-    SaveTripInsurance
+    SaveTripInsurance,
+    CrassChainMessage
   }
 
   enum EventCreator {
