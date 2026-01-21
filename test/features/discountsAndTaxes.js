@@ -118,7 +118,7 @@ describe('Rentality taxes & discounts', function () {
     )
 
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Date.now(),
@@ -126,6 +126,8 @@ describe('Rentality taxes & discounts', function () {
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },
         ' ',
         { value: result.totalPrice }
@@ -155,7 +157,7 @@ describe('Rentality taxes & discounts', function () {
     )
 
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Date.now(),
@@ -163,6 +165,8 @@ describe('Rentality taxes & discounts', function () {
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },
         ' ',
         { value: result.totalPrice }
@@ -191,7 +195,7 @@ describe('Rentality taxes & discounts', function () {
     )
 
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Date.now(),
@@ -199,6 +203,8 @@ describe('Rentality taxes & discounts', function () {
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },
         ' ',
         { value: result.totalPrice }
@@ -229,7 +235,7 @@ describe('Rentality taxes & discounts', function () {
     )
 
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Date.now(),
@@ -237,6 +243,8 @@ describe('Rentality taxes & discounts', function () {
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },
         ' ',
         { value: result.totalPrice }
@@ -275,7 +283,7 @@ describe('Rentality taxes & discounts', function () {
     const value = result[0]
 
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Date.now(),
@@ -283,6 +291,8 @@ describe('Rentality taxes & discounts', function () {
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },
         ' ',
         { value }
@@ -386,7 +396,7 @@ describe('Rentality taxes & discounts', function () {
     expect(contractResult.totalPrice).to.be.eq(rentPriceInEth)
 
     await expect(
-      rentalityPlatform.connect(guest).createTripRequestWithDelivery(
+      rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           host: host.address,
@@ -401,6 +411,8 @@ describe('Rentality taxes & discounts', function () {
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },
         ' ',
         { value: contractResult.totalPrice }

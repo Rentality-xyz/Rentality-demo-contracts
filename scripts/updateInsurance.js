@@ -33,13 +33,13 @@ async function main() {
     'RentalityTripsView'
   )
   const adminService = await ethers.getContractAt('RentalityAdminGateway', rentalityAdminGatewayAddress)
-  await adminService.setInsuranceService(rentalityInsurance)
+  // await adminService.setInsuranceService(rentalityInsurance)
 
   const platform = await ethers.getContractAt('RentalityPlatform', rentalityPlatformAddress)
 
-  await platform.updateServiceAddresses(rentalityAdminGatewayAddress)
+  // await platform.updateServiceAddresses(rentalityAdminGatewayAddress)
 
-  const contracts = await adminService.getRentalityContracts()
+  // const contracts = await adminService.getRentalityContracts()
 
   const view = await ethers.getContractAt('RentalityView', rentalityView)
 
@@ -77,6 +77,16 @@ async function main() {
     getContractAddress('RentalityCarDelivery', 'scripts/deploy_2i_RentalityCarDelivery.js', chainId),
     'RentalityCarDelivery'
   )
+
+  const rentalityPromo= checkNotNull(
+    getContractAddress('RentalityPromoService', 'scripts/deploy_4f_RentalityPromo.js', chainId),
+    'RentalityPromoService'
+  )
+
+  const rentalityDimo= checkNotNull(
+    getContractAddress('RentalityDimoService', 'scripts/deploy_3e_RentalityDimoService.js', chainId),
+    'RentalityDimoService'
+  )
   const contractsAddresses = {
     carService: rentalityCarTokenAddress,
     currencyConverterService: rentalityCurrencyConverterAddress,
@@ -89,7 +99,7 @@ async function main() {
     deliveryService: rentalityCarDelivery,
     viewService: rentalityView,
   }
-  await view.updateServiceAddresses(contractsAddresses, rentalityInsurance, rentalityTripsView)
+  await view.updateServiceAddresses(contractsAddresses, rentalityInsurance, rentalityTripsView, rentalityPromo, rentalityDimo)
 
   console.log('updated!')
 }

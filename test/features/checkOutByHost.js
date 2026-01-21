@@ -97,6 +97,8 @@ describe('Check out without guest', function () {
           photo: '',
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },
         ' ',
         { value: rentPriceInEth }
@@ -146,6 +148,8 @@ describe('Check out without guest', function () {
           photo: '',
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },
         ' ',
         { value: rentPriceInEth }
@@ -209,6 +213,8 @@ describe('Check out without guest', function () {
           photo: '',
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },
         ' ',
         { value: rentPriceInEth }
@@ -258,6 +264,8 @@ describe('Check out without guest', function () {
           photo: '',
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },
         ' ',
         { value: rentPriceInEth }
@@ -322,6 +330,8 @@ describe('Check out without guest', function () {
           photo: '',
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },
         ' ',
         { value: rentPriceInEth }
@@ -388,6 +398,8 @@ describe('Check out without guest', function () {
           photo: '',
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },
         ' ',
         { value: rentPriceInEth }

@@ -117,6 +117,8 @@ describe('Admin trip searching', function () {
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0,
           useRefferalDiscount: false,
         },
         ' ',
@@ -191,6 +193,8 @@ describe('Admin trip searching', function () {
             currencyType: ethToken,
             pickUpInfo: emptySignedLocationInfo,
             returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
           },
           ' ',
           { value: resultPayments.totalPrice }
@@ -289,6 +293,8 @@ describe('Admin trip searching', function () {
             currencyType: ethToken,
             pickUpInfo: emptySignedLocationInfo,
             returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
           },
           ' ',
           { value: resultPayments.totalPrice }
@@ -388,6 +394,8 @@ describe('Admin trip searching', function () {
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },
         ' ',
         { value: resultPayments.totalPrice }
@@ -488,6 +496,8 @@ describe('Admin trip searching', function () {
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },
         ' ',
         { value: resultPayments.totalPrice }
@@ -577,6 +587,8 @@ describe('Admin trip searching', function () {
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },
         ' ',
         { value: resultPayments.totalPrice }
@@ -647,6 +659,8 @@ describe('Admin trip searching', function () {
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },
         ' ',
         { value: resultPayments.totalPrice }
@@ -806,6 +820,8 @@ describe('Admin trip searching', function () {
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },
         ' ',
         { value: resultPayments.totalPrice }
@@ -825,6 +841,8 @@ describe('Admin trip searching', function () {
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },
         ' ',
         { value: resultPayments.totalPrice }

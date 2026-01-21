@@ -1,6 +1,7 @@
 const { ethers, upgrades } = require('hardhat')
+const { createFacetCut } = require('../scripts/utils/createFacetCut')
 const { keccak256 } = require('hardhat/internal/util/keccak')
-const ethToken = ethers.getAddress('0x0000000000000000000000000000000000000000')
+const ethToken = '0x0000000000000000000000000000000000000000'
 const taxesWithoutRentSign = '0x656b0a99'
 const taxesWithRentSign = '0x57ccc04e'
 const taxesWithGovePMM = '0x96746221'
@@ -120,6 +121,7 @@ const calculatePayments = async (currencyConverter, paymentService, value, tripD
   const feeInUsdCents = await paymentService.getPlatformFeeFrom(priceWithDiscount)
 
   const rentalityFee = await currencyConverter.getFromUsdCents(token, feeInUsdCents, rate)
+  const hostIncomeValue = await currencyConverter.getFromUsdCents(token,  priceWithDiscount - feeInUsdCents, rate)
 
   return {
     rentPriceInEth,
@@ -127,6 +129,7 @@ const calculatePayments = async (currencyConverter, paymentService, value, tripD
     ethToCurrencyDecimals: decimals,
     rentalityFee,
     taxes,
+    hostIncomeValue
   }
 }
 
@@ -411,6 +414,17 @@ async function deployDefaultFixture() {
   ])
   await engineService.waitForDeployment()
 
+  const RentalitySwaps = await ethers.getContractFactory('RentalitySwaps')
+
+  const rentalitySwaps = await upgrades.deployProxy(RentalitySwaps, [
+    ethToken,
+    ethToken,
+    ethToken,
+    await rentalityUserService.getAddress(),
+    ethToken
+  ])
+
+
   await rentalityUserService.connect(owner).grantAdminRole(admin.address)
   await rentalityUserService.connect(owner).grantPlatformRole(manager.address)
   await rentalityUserService.connect(owner).grantHostRole(host.address)
@@ -549,7 +563,8 @@ async function deployDefaultFixture() {
     await rentalityTaxes.getAddress(),
     await rentalityBaseDiscount.getAddress(),
     await investorsService.getAddress(),
-    await hostInsurance.getAddress()
+    await hostInsurance.getAddress(),
+    await rentalitySwaps.getAddress()
     
   ])
   await rentalityPaymentService.waitForDeployment()
@@ -572,7 +587,6 @@ async function deployDefaultFixture() {
     {name:"rentTax",value:200, tType:0}
   ]
 )
-
 
   const rentalityTripService = await upgrades.deployProxy(RentalityTripService, [
     await rentalityCurrencyConverter.getAddress(),
@@ -607,6 +621,7 @@ async function deployDefaultFixture() {
     libraries: {
       RentalityTripsQuery: await tripsQuery.getAddress(),
       RentalityViewLib: await viewLib.getAddress(),
+      RentalityQuery: await query.getAddress(),
     },
   })
   const RentalityAiDamageAnalyze = await ethers.getContractFactory('RentalityAiDamageAnalyze')
@@ -659,6 +674,8 @@ async function deployDefaultFixture() {
       RentalityUtils: await utils.getAddress(),
     },
   })
+
+
 
   const rentalityPlatformHelper = await upgrades.deployProxy(RentalityPlatformHelper, [
     await rentalityCarToken.getAddress(),
@@ -744,23 +761,32 @@ async function deployDefaultFixture() {
   await rentalityUserService.connect(owner).grantPlatformRole(await rentalityPlatformHelper.getAddress())
   await rentalityUserService.connect(owner).grantPlatformRole(await investorsService.getAddress())
 
-  let rentalityGateway = await upgrades.deployProxy(RentalityGateway.connect(owner), [
-    await rentalityCarToken.getAddress(),
-    await rentalityCurrencyConverter.getAddress(),
-    await rentalityTripService.getAddress(),
-    await rentalityUserService.getAddress(),
-    await rentalityPlatform.getAddress(),
-    await rentalityPaymentService.getAddress(),
-    await claimService.getAddress(),
-    await rentalityAdminGateway.getAddress(),
-    await deliveryService.getAddress(),
-    await rentalityView.getAddress(),
-  ])
+  let rentalityGateway = await upgrades.deployProxy(RentalityGateway.connect(owner), [[]])
   await rentalityGateway.waitForDeployment()
-  await rentalityPlatform.setTrustedForwarder(await rentalityGateway.getAddress())
-  await rentalityView.setTrustedForwarder(await rentalityGateway.getAddress())
-  await rentalityTripsView.setTrustedForwarder(await rentalityView.getAddress())
-  await rentalityPlatformHelper.setTrustedForwarder(await rentalityPlatform.getAddress())
+
+  const viewFacet = await ethers.getContractAt('IRentalityViewFacet', await rentalityView.getAddress())
+  const platformFacet = await ethers.getContractAt('IRentalityPlatformFacet', await rentalityPlatform.getAddress())
+  const platformHelperFacet = await ethers.getContractAt(
+    'IRentalityPlatformHelperFacet',
+    await rentalityPlatformHelper.getAddress()
+  )
+  const tripsViewFacet = await ethers.getContractAt('IRentalityTripsViewFacet', await rentalityTripsView.getAddress())
+  const investmentFacet = await ethers.getContractAt('IRentalityInvestmentFacet', await investorsService.getAddress())
+  const referralFacet = await ethers.getContractAt(
+    'IRentalityReferralProgramFacet',
+    await refferalProgram.getAddress()
+  )
+
+  const facetCuts = [
+    createFacetCut(viewFacet),
+    createFacetCut(platformFacet),
+    createFacetCut(platformHelperFacet),
+    createFacetCut(tripsViewFacet),
+    createFacetCut(investmentFacet),
+    createFacetCut(referralFacet),
+  ]
+
+  await rentalityGateway.diamondCut(facetCuts)
 
   rentalityGateway = await ethers.getContractAt('IRentalityGateway', await rentalityGateway.getAddress())
 
@@ -782,6 +808,7 @@ async function deployDefaultFixture() {
   const hostSignature = await signTCMessage(host)
   const guestSignature = await signTCMessage(guest)
   const adminSignature = await signTCMessage(admin)
+
   const adminKyc = signKycInfo(await rentalityLocationVerifier.getAddress(), admin)
   await rentalityGateway.connect(host).setKYCInfo(' ', ' ', ' ', ' ', hostSignature, zeroHash)
   await rentalityGateway.connect(admin).setKYCInfo(' ', ' ', ' ', ' ', adminSignature, zeroHash)
@@ -798,6 +825,7 @@ async function deployDefaultFixture() {
 
   mockRequestWithInsurance.insuranceRequired = true
   mockRequestWithInsurance.insurancePriceInUsdCents = insurancePriceInCents
+  
 
   return {
     rentalityGateway,

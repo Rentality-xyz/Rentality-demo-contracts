@@ -267,6 +267,8 @@ describe('Rentality Delivery', function () {
             signature: signLocationInfo(await rentalityLocationVerifier.getAddress(), admin, locationInfo2),
             locationInfo: locationInfo2,
           },
+          amountIn: 0,
+          fee: 0
         },
         ' ',
         { value: result.totalPrice }

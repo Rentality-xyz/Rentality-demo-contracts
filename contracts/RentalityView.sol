@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.20;
+
+
 
 import './Schemas.sol';
 import './RentalityUserService.sol';
@@ -13,7 +15,6 @@ import './libs/RentalityQuery.sol';
 import './libs/RentalityViewLib.sol';
 import '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 import '@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol';
-import './RentalityGateway.sol';
 import {RentalityTripsView, FunctionNotFound} from './RentalityTripsView.sol';
 import {RentalityReferralProgram} from './features/refferalProgram/RentalityReferralProgram.sol';
 import {RentalityPromoService} from './features/RentalityPromo.sol';
@@ -38,8 +39,6 @@ contract RentalityView is UUPSUpgradeable, Initializable, ARentalityContext {
 
   RentalityDimoService private dimoService;
 
-  address private trustedForwarderAddress;
-
   function updateServiceAddresses(
     RentalityContract memory contracts,
     address insurance,
@@ -54,32 +53,7 @@ contract RentalityView is UUPSUpgradeable, Initializable, ARentalityContext {
     promoService = RentalityPromoService(promoServiceAddress);
     dimoService = RentalityDimoService(dimoServiceAddress);
   }
-
-  fallback(bytes calldata data) external returns (bytes memory) {
-    require(trustedForwarderAddress == msg.sender, 'only trusted forwarder');
-    (bool ok_view, bytes memory res_view) = address(tripsView).call(data);
-    bytes4 errorSign = 0x403e7fa6;
-    if (!ok_view && bytes4(res_view) == errorSign) {
-      revert FunctionNotFound();
-    } else if (!ok_view) {
-      assembly {
-        revert(add(res_view, 32), mload(res_view))
-      }
-    }
-    return res_view;
-  }
-  /// @notice Retrieves information about a car by its ID.
-  /// @param carId The ID of the car.
-  /// @return Car information as a struct.
-  function getCarInfoById(uint256 carId) public view returns (Schemas.CarInfoWithInsurance memory) {
-    return
-      Schemas.CarInfoWithInsurance(
-        addresses.carService.getCarInfoById(carId),
-        insuranceService.getCarInsuranceInfo(carId),
-        addresses.carService.tokenURI(carId)
-      );
-  }
-
+  
 
   // not using
   /// @notice Retrieves information about all cars.
@@ -184,6 +158,17 @@ contract RentalityView is UUPSUpgradeable, Initializable, ARentalityContext {
   function getMyCars() public view returns (Schemas.CarInfoDTO[] memory) {
     return RentalityUtils.getCarsOwnedByUserWithEditability(addresses, dimoService, _msgGatewaySender());
   }
+      /// @notice Retrieves information about a car by its ID.
+  /// @param carId The ID of the car.
+  /// @return Car information as a struct.
+  function getCarInfoById(uint256 carId) public view returns (Schemas.CarInfoWithInsurance memory) {
+    return
+      Schemas.CarInfoWithInsurance(
+        addresses.carService.getCarInfoById(carId),
+        insuranceService.getCarInsuranceInfo(carId),
+        addresses.carService.tokenURI(carId)
+      );
+  }
 
   /// @notice Retrieves detailed information about a car.
   /// @param carId The ID of the car for which details are requested.
@@ -277,19 +262,6 @@ contract RentalityView is UUPSUpgradeable, Initializable, ARentalityContext {
         _msgGatewaySender()
       );
   }
-  /// @notice Get chat information for trips hosted by the caller on the Rentality platform.
-  /// @return chatInfo An array of chat information for trips hosted by the caller.
-  function getChatInfoFor(bool host) public view returns (Schemas.ChatInfo[] memory) {
-    return
-      RentalityTripsQuery.populateChatInfo(
-        addresses,
-        insuranceService,
-        _msgGatewaySender(),
-        host,
-        promoService,
-        dimoService
-      );
-  }
 
   /// @dev Retrieves delivery data for a given car.
   /// @param carId The ID of the car for which delivery data is requested.
@@ -334,18 +306,14 @@ contract RentalityView is UUPSUpgradeable, Initializable, ARentalityContext {
     return insuranceService.getMyInsurancesAsGuest(_msgGatewaySender());
   }
 
-  function trustedForwarder() internal view override returns (address) {
-    return trustedForwarderAddress;
-  }
-
   function isTrustedForwarder(address forwarder) internal view override returns (bool) {
-    return forwarder == trustedForwarderAddress;
-  }
-  function setTrustedForwarder(address forwarder) public {
-    require(addresses.userService.isAdmin(tx.origin), 'Only for Admin.');
-    trustedForwarderAddress = forwarder;
+    return addresses.userService.isRentalityPlatform(forwarder);
   }
 
+
+    function getAvailableCurrency() public view returns(Schemas.AllowedCurrencyDTO[] memory) {
+      return addresses.paymentService.rentalitySwaps().getAllowedCurrencies();
+     }
   function initialize(
     address carServiceAddress,
     address currencyConverterServiceAddress,
