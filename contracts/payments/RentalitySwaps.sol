@@ -160,7 +160,8 @@ contract RentalitySwaps is Initializable, UUPSAccess {
    }
     
      function setFactory(address _factory) public {
-  
+        require(userService.isAdmin(msg.sender), "Only Admin");
+
         factory = IUniswapV3Factory(_factory);
 
     }
