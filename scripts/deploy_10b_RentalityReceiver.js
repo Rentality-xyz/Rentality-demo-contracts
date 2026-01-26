@@ -8,8 +8,6 @@ const { readFileSync } = require('fs')
 const chains = require('../chainIdToEid.json')
 /// TODO: create scripts
 async function main() {
-  let targetChainId = 11155420
-  let eid = chains[targetChainId].eid
   const { contractName, chainId } = await startDeploy('RentalityReceiver')
   //
   if (chainId < 0) throw new Error('chainId is not set')
@@ -32,7 +30,6 @@ async function main() {
   const gateway = await ethers.getContractAt("RentalityGateway", rentalityGatewayAddress)
   console.log(await gateway.setLayerZeroSender(contractAddress))
   console.log('Receiver address: ', contractAddress)
-  await contract.setNewPeer(eid, '0x2778796c6349a42A73afc6e2904155024cf6E3fb')
 
   console.log(`${contractName} was deployed to: ${contractAddress}`)
   addressSaver(contractAddress, contractName, true, chainId)
