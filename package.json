@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@chainlink/contracts": "^0.8.0",
+    "@google/genai": "^1.38.0",
     "@identity.com/gateway-protocol-eth": "^0.0.4",
     "@layerzerolabs/lz-evm-oapp-v2": "^3.0.20",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.8",
@@ -28,6 +29,7 @@
     "child_process": "^1.0.2",
     "dotenv": "^16.0.4",
     "hardhat-tracer": "^3.4.0",
+    "openai": "^6.17.0",
     "readline-sync": "^1.4.10"
   },
   "devDependencies": {
