@@ -1,10 +1,30 @@
 const { ethers, network } = require('hardhat')
+const { checkNotNull, startDeploy } = require('./utils/deployHelper')
+const readlineSync = require('readline-sync')
+const { getContractAddress } = require('./utils/contractAddress')
+
 
 async function main() {
-  const contract = await ethers.getContractAt('RentalitySender', '0x59c2C61371b51eDf1076E37A947cA843b234C53D')
 
-//   await contract.setPeer('0xbAaE15E3B0688d4a89104caB28c01B2ED3f5373b')
-  console.log(await contract.setPeer('0x252086171d2D0363290431fE1ea184BA1fE006A2'))
+  const { contractName, chainId } = await startDeploy('')
+  const receiverChainId = readlineSync.question('Target chainId:\n')
+
+  console.log('Receiver chainId: ', receiverChainId)
+
+
+  const senderAddress = checkNotNull(
+    getContractAddress('RentalitySender', 'scripts/deploy_10a_RentalitySender.js', chainId),
+    'RentalitySender'
+  )
+
+  const receiverAddress = checkNotNull(
+    getContractAddress('RentalityReceiver', 'scripts/deploy_10b_RentalityReceiver.js', receiverChainId),
+    'RentalityReceiver'
+  )
+
+   const contract = await ethers.getContractAt('RentalitySender', senderAddress)
+
+  console.log(await contract.setPeer(receiverAddress)) 
 }
 
 main()

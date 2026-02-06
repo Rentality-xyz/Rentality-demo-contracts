@@ -6,6 +6,7 @@ const { buildPath, extractReadVersion, buildPathWithVersion } = require('./pathB
 
 function getContractAddress(contractName, addressToDeployScript, chainId) {
   let address = readFromFile(contractName, chainId)
+  console.log(`Read address for contract ${contractName} on chainId ${chainId}: ${address}`)
 
   if (address === null) {
     const message = `Do you want to deploy ${contractName};`
@@ -63,7 +64,7 @@ function readAddress(path, chain, name) {
   const jsonData = JSON.parse(data)
 
   return jsonData.find(
-    (el) => el.name === network.name && el.chainId === chain && el[name] !== undefined && el[name] !== ''
+    (el) => el.chainId === chain && el[name] !== undefined && el[name] !== ''
   )
 }
 

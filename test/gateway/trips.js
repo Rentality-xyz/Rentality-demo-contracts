@@ -70,6 +70,8 @@ describe('RentalityGateway: trips', function () {
     ).to.not.be.reverted
   })
 
+ 
+
   it('createTripRequest', async function () {
     await expect(
       rentalityGateway.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
@@ -113,6 +115,7 @@ fee: 0
       )
     ).to.changeEtherBalances([guest, rentalityPaymentService], [-result.totalPrice, result.totalPrice])
   })
+
 
   it('Return valid trip data', async function () {
     const mockCreateCarRequest = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
