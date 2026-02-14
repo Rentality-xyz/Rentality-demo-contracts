@@ -1,5 +1,7 @@
 /// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.20;
+
+
 
 import '../RentalityCarToken.sol';
 import '../payments/RentalityCurrencyConverter.sol';
@@ -9,7 +11,6 @@ import '../RentalityUserService.sol';
 import '../RentalityPlatform.sol';
 import '../features/RentalityClaimService.sol';
 import '../RentalityAdminGateway.sol';
-import '../RentalityGateway.sol';
 import {IRentalityGeoService} from '../abstract/IRentalityGeoService.sol';
 import {RentalityCarDelivery} from '../features/RentalityCarDelivery.sol';
 import '../Schemas.sol';
@@ -20,6 +21,7 @@ import {RentalityInsurance} from '../payments/RentalityInsurance.sol';
 import '../engine/RentalityEnginesService.sol';
 import '../payments/RentalityBaseDiscount.sol';
 import {RentalityDimoService} from '../features/RentalityDimoService.sol';
+import {RentalityHostInsurance} from '../payments/RentalityHostInsurance.sol';
 
 library RentalityTripsQuery {
   /// @notice Checks if a trip intersects with the specified time interval.
@@ -259,12 +261,13 @@ library RentalityTripsQuery {
     address user,
     bool host,
     RentalityPromoService promoService,
-    RentalityDimoService dimoService
+    RentalityDimoService dimoService,
+    RentalityHostInsurance hostInsurance
   ) public view returns (Schemas.TripDTO[] memory) {
     return
       host
-        ? getTripsByHost(contracts, insuranceService, user, promoService, dimoService)
-        : getTripsByGuest(contracts, insuranceService, user, promoService, dimoService);
+        ? getTripsByHost(contracts, insuranceService, user, promoService, dimoService, hostInsurance)
+        : getTripsByGuest(contracts, insuranceService, user, promoService, dimoService, hostInsurance);
   }
 
   /// @notice Retrieves all trips associated with a specific guest.
@@ -277,7 +280,8 @@ library RentalityTripsQuery {
     RentalityInsurance insuranceService,
     address guest,
     RentalityPromoService promoService,
-    RentalityDimoService dimoService
+    RentalityDimoService dimoService,
+    RentalityHostInsurance hostInsurance
   ) private view returns (Schemas.TripDTO[] memory) {
     RentalityTripService tripService = contracts.tripService;
 
@@ -296,7 +300,8 @@ library RentalityTripsQuery {
           promoService,
           dimoService,
           guest,
-          trip
+          trip,
+          hostInsurance
         );
         currentIndex += 1;
       }
@@ -318,7 +323,8 @@ library RentalityTripsQuery {
     RentalityInsurance insuranceService,
     address host,
     RentalityPromoService promoService,
-    RentalityDimoService dimoService
+    RentalityDimoService dimoService,
+    RentalityHostInsurance hostInsurance
   ) private view returns (Schemas.TripDTO[] memory) {
     RentalityTripService tripService = contracts.tripService;
     uint[] memory hostTrips = tripService.getTripsByUser(host);
@@ -336,7 +342,8 @@ library RentalityTripsQuery {
           promoService,
           dimoService,
           host,
-          trip
+          trip,
+          hostInsurance
         );
         currentIndex += 1;
       }
@@ -360,7 +367,8 @@ library RentalityTripsQuery {
     RentalityPromoService promoService,
     RentalityDimoService dimoService,
     address user,
-    Schemas.Trip memory trip
+    Schemas.Trip memory trip,
+    RentalityHostInsurance hostInsurance
   ) public view returns (Schemas.TripDTO memory) {
     RentalityTripService tripService = contracts.tripService;
     RentalityCarToken carService = contracts.carService;
@@ -407,7 +415,14 @@ library RentalityTripsQuery {
         promoService.getTripDiscount(tripId),
         dimoService.getDimoTokenId(trip.carId),
         contracts.paymentService.getTripTaxesDTO(tripId),
-        contracts.currencyConverterService.getCurrencyInfo(trip.paymentInfo.currencyType)
+        contracts.currencyConverterService.getCurrencyInfo(trip.paymentInfo.currencyType),
+        userService.getKYCInfo(trip.guest).name,
+        userService.getKYCInfo(trip.host).name,
+        contracts.currencyConverterService.getToUsd(
+          trip.paymentInfo.currencyType,
+          hostInsurance.getPaidToInsuranceByTripId(tripId),
+          trip.paymentInfo.currencyRate
+        )
       );
   }
   function getTripInsurancesBy(
@@ -599,15 +614,19 @@ library RentalityTripsQuery {
   /// @notice Populates an array of chat information using data from trips, user service, and car service.
   /// @return chatInfoList Array of IRentalityGateway.ChatInfo structures.
 
+ /// @notice Populates an array of chat information using data from trips, user service, and car service.
+  /// @return chatInfoList Array of IRentalityGateway.ChatInfo structures.
+
   function populateChatInfo(
     RentalityContract memory addresses,
     RentalityInsurance insuranceService,
     address user,
     bool host,
     RentalityPromoService promoService,
-    RentalityDimoService dimoService
+    RentalityDimoService dimoService,
+    RentalityHostInsurance hostInsurance
   ) public view returns (Schemas.ChatInfo[] memory) {
-    Schemas.TripDTO[] memory trips = getTripsAs(addresses, insuranceService, user, host, promoService, dimoService);
+    Schemas.TripDTO[] memory trips = getTripsAs(addresses, insuranceService, user, host, promoService, dimoService, hostInsurance);
 
     RentalityUserService userService = addresses.userService;
     RentalityCarToken carService = addresses.carService;
@@ -615,31 +634,44 @@ library RentalityTripsQuery {
     Schemas.ChatInfo[] memory chatInfoList = new Schemas.ChatInfo[](trips.length);
 
     for (uint i = 0; i < trips.length; i++) {
-      Schemas.KYCInfo memory guestInfo = userService.getKYCInfo(trips[i].trip.guest);
-      Schemas.KYCInfo memory hostInfo = userService.getKYCInfo(trips[i].trip.host);
-
-      chatInfoList[i].tripId = trips[i].trip.tripId;
-      chatInfoList[i].guestAddress = trips[i].trip.guest;
-      chatInfoList[i].guestName = guestInfo.surname;
-      chatInfoList[i].guestPhotoUrl = guestInfo.profilePhoto;
-      chatInfoList[i].hostAddress = trips[i].trip.host;
-      chatInfoList[i].hostName = hostInfo.surname;
-      chatInfoList[i].hostPhotoUrl = hostInfo.profilePhoto;
-      chatInfoList[i].tripStatus = uint256(trips[i].trip.status);
-
-      Schemas.CarInfo memory carInfo = carService.getCarInfoById(trips[i].trip.carId);
-      chatInfoList[i].carBrand = carInfo.brand;
-      chatInfoList[i].carModel = carInfo.model;
-      chatInfoList[i].carYearOfProduction = carInfo.yearOfProduction;
-      chatInfoList[i].carMetadataUrl = carService.tokenURI(trips[i].trip.carId);
-      chatInfoList[i].startDateTime = trips[i].trip.startDateTime;
-      chatInfoList[i].endDateTime = trips[i].trip.endDateTime;
-      chatInfoList[i].timeZoneId = IRentalityGeoService(carService.getGeoServiceAddress()).getCarTimeZoneId(
-        carInfo.locationHash
-      );
+      chatInfoList[i] = _populateSingleChatInfo(trips[i], userService, carService);
     }
     return chatInfoList;
   }
+
+  function _populateSingleChatInfo(
+    Schemas.TripDTO memory trip,
+    RentalityUserService userService,
+    RentalityCarToken carService
+) internal view returns (Schemas.ChatInfo memory) {
+    Schemas.ChatInfo memory chatInfo;
+
+    Schemas.KYCInfo memory guestInfo = userService.getKYCInfo(trip.trip.guest);
+    Schemas.KYCInfo memory hostInfo = userService.getKYCInfo(trip.trip.host);
+
+    chatInfo.tripId = trip.trip.tripId;
+    chatInfo.guestAddress = trip.trip.guest;
+    chatInfo.guestName = guestInfo.surname;
+    chatInfo.guestPhotoUrl = guestInfo.profilePhoto;
+    chatInfo.hostAddress = trip.trip.host;
+    chatInfo.hostName = hostInfo.surname;
+    chatInfo.hostPhotoUrl = hostInfo.profilePhoto;
+    chatInfo.tripStatus = uint256(trip.trip.status);
+
+    Schemas.CarInfo memory carInfo = carService.getCarInfoById(trip.trip.carId);
+    chatInfo.carBrand = carInfo.brand;
+    chatInfo.carModel = carInfo.model;
+    chatInfo.carYearOfProduction = carInfo.yearOfProduction;
+    chatInfo.carMetadataUrl = carService.tokenURI(trip.trip.carId);
+    chatInfo.startDateTime = trip.trip.startDateTime;
+    chatInfo.endDateTime = trip.trip.endDateTime;
+    chatInfo.timeZoneId = IRentalityGeoService(carService.getGeoServiceAddress())
+        .getCarTimeZoneId(carInfo.locationHash);
+    chatInfo.guestNickname = guestInfo.name;
+    chatInfo.hostNickname = hostInfo.name;
+
+    return chatInfo;
+}
 
   function isCarThatIntersect(
     RentalityContract memory contracts,

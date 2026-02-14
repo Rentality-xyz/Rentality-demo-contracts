@@ -1,0 +1,35 @@
+[
+  {
+    "name": "base",
+    "chainId": 8453,
+    "updateScripts": [
+      "./scripts/deploy_1e_RentalityTripsQuery.js",
+      "./scripts/deploy_1d_RentalityQuery.js",
+      "./scripts/deploy_1h_RentalityUtils2.js",
+      "./scripts/deploy_1g_RentalityViewLib.js",
+      "./scripts/deploy_4b_RentalityTripsView.js",
+      "./scripts/deploy_4c_RentalityView.js",
+      "./scripts/deploy_4g_RentalityPlatformHelper.js",
+      "./scripts/deploy_5_RentalityPlatform.js",
+      "./scripts/deploy_7_RentalityGateway.js",
+      "./scripts/deploy_8_GrandManagerRole.js",
+      "./scripts/deploy_2h_RentalitySwaps.js",
+      "./scripts/update_RentalityProxy.js RentalityReferralProgram",
+      "./scripts/update_RentalityProxy.js RentalityInvestment",
+      "./scripts/update_RentalityProxy.js RentalityAdminGateway",
+      "./scripts/update_RentalityProxy.js RentalityCurrencyConverter",
+      "./scripts/update_RentalityProxy.js RentalityHostInsurance",
+      "./scripts/update_RentalityProxy.js RentalityPaymentService",
+      "./scripts/update_RentalityProxy.js RentalityTaxes",
+      "./scripts/setGatewayNotificationService.js",
+      "./scripts/setSwapsService.js"
+    ]
+  },
+  {
+    "name": "base_sepolia",
+    "chainId": 84532,
+    "updateScripts": [
+        "./scripts/update_RentalityProxy.js RentalityAdminGateway"
+    ]
+  }
+]

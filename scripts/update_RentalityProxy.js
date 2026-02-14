@@ -6,13 +6,19 @@ const { checkNotNull } = require('./utils/deployHelper')
 const getContractLibs = require('./utils/libSearch')
 
 async function main() {
+  const skipInit = true;
+
+  let contractName = process.env.CONTRACT_ARG ?? null
+  let initializationArgs = []
+
   const [deployer] = await ethers.getSigners()
 
   const balance = await ethers.provider.getBalance(deployer.address)
   console.log('Deployer address is:', await deployer.getAddress(), ' with balance:', balance)
 
   const chainId = (await deployer.provider?.getNetwork())?.chainId ?? -1
-  const contractName = readlineSync.question('Enter contract name to update:\n')
+  if(contractName === null)
+  contractName = readlineSync.question('Enter contract name to update:\n')
 
   const libs = getContractLibs(contractName, chainId)
 
@@ -27,8 +33,10 @@ async function main() {
   const contractFactory = await ethers.getContractFactory(contractName, {
     libraries: libs,
   })
+  let initializationFunc = ''
 
-  const initializationFunc = readlineSync.question("Enter initialization function if needed or 'Enter' to skip:\n")
+  if(!skipInit)
+  initializationFunc = readlineSync.question("Enter initialization function if needed or 'Enter' to skip:\n")
 
   let contract
   if (initializationFunc.length === 0) {
@@ -38,7 +46,7 @@ async function main() {
       redeployImplementation: 'always',
     })
   } else {
-    const initializationArgs = readlineSync.question(
+     initializationArgs = readlineSync.question(
       `Enter args to ${initializationFunc} function arguments separated by spaces or skip \n`
     )
 

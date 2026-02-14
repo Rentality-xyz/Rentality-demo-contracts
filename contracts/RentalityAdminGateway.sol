@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.20;
+
+
 
 import {RentalityUserService} from './RentalityUserService.sol';
 import './payments/RentalityPaymentService.sol';
@@ -127,8 +129,8 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
   }
   /// @notice Updates the address of the RentalityReferralProgram contract. Only callable by admins.
   /// @param contractAddress The new address of the RentalityReferralProgram contract.
-  function updateRefferalProgramService(address contractAddress) public onlyAdmin {
-    refferalProgram = RentalityReferralProgram(contractAddress);
+  function updateNotificationService(address contractAddress) public onlyAdmin {
+    notificationService = RentalityNotificationService(contractAddress);
   }
 
   /// @notice Withdraws the specified amount from the RentalityPlatform contract.
@@ -426,39 +428,6 @@ function setDefaultPrices(uint64 underTwentyFiveMilesInUsdCents, uint64 aboveTwe
       return userService.getMyFullKYCInfo(user);
     }
 
-      
-  ///------------------------------------
-  /// NOT USING IN FRONT
-  ///------------------------------------
-  // @notice Sets a new message for the Terms and Conditions (TC) and updates the corresponding hashed message.
-  /// @dev This function can only be called by an admin.
-  /// @param message The new message for the TC.
-  // function setNewTCMessage(string memory message) public {
-  //   userService.setNewTCMessage(message);
-  // }
-
-  /// @notice Adds currency to list of available on Rentality,
-  /// by providing ERC20 token address, and corresponding Rentality service for calculation.
-  // function addCurrency(address tokenAddress, address rentalityTokenService) public onlyAdmin {
-  //   currencyConverterService.addCurrencyType(tokenAddress, rentalityTokenService);
-  // }
-
-  /// @notice Adds a new taxes contract to the payment service.
-  /// param taxesContactAddress The address of the taxes contract to add.
-  // function addTaxesContract(address taxesContactAddress) public {
-  //   paymentService.addTaxesContract(taxesContactAddress);
-  // }
-
-  /// @notice Adds a new discount contract to the payment service.
-  /// param discountContactAddress The address of the discount contract to add.
-  // function addDiscountContract(address discountContactAddress) public {
-  //   paymentService.addDiscountContract(discountContactAddress);
-  // }
-  /// @notice Changes the current discount contract used by the payment service.
-  /// param discountContract The address of the new discount contract.
-  // function changeCurrentDiscountType(address discountContract) public {
-  // paymentService.changeCurrentDiscountType(discountContract);
-  // }
 
   //  @dev Initializes the contract with the provided addresses for various services.
   //  @param carServiceAddress The address of the RentalityCarToken contract.

@@ -71,20 +71,20 @@ describe('Rentality investment with erc20', function () {
       creatorPercents: 10,
     }
     mockCarInvestment.car.pricePerDayInUsdCents = 10000
-    await expect(await investorsService.connect(host).createCarInvestment(mockCarInvestment, 'name', usdt)).to.not
+    await expect(await rentalityGateway.connect(host).createCarInvestment(mockCarInvestment, 'name', usdt)).to.not
       .reverted
 
     let fromUsd = await rentalityCurrencyConverter.getFromUsdCentsLatest(usdt, mockCarInvestment.priceInCurrency)
 
-    await expect(investorsService.connect(guest).invest(1, fromUsd[0])).to.be.revertedWith(
+    await expect(rentalityGateway.connect(guest).invest(1, fromUsd[0])).to.be.revertedWith(
       'Investment: wrong allowance'
     )
 
     await expect(usdtContract.connect(guest).approve(await investorsService.getAddress(), fromUsd[0])).to.not.reverted
-    await expect(investorsService.connect(guest).invest(1, fromUsd[0])).to.not.reverted
+    await expect(rentalityGateway.connect(guest).invest(1, fromUsd[0])).to.not.reverted
 
     const balanceBeforeClaim = await usdtContract.balanceOf(host)
-    await expect(investorsService.connect(host).claimAndCreatePool(1,mockCarInvestment.car)).to.not.reverted
+    await expect(rentalityGateway.connect(host).claimAndCreatePool(1,mockCarInvestment.car)).to.not.reverted
     const balanceAfterClaim = await usdtContract.balanceOf(host)
     expect(balanceBeforeClaim + fromUsd[0]).to.be.eq(balanceAfterClaim)
 
@@ -113,7 +113,7 @@ describe('Rentality investment with erc20', function () {
     await expect(usdtContract.connect(guest).approve(await rentalityPaymentService.getAddress(), result[0])).to.not
       .reverted
     await expect(
-      await rentalityPlatform.connect(guest).createTripRequestWithDelivery(
+      await rentalityGateway.connect(guest).createTripRequestWithDelivery(
         {
           carId: 1,
           startDateTime: Date.now(),
@@ -121,25 +121,27 @@ describe('Rentality investment with erc20', function () {
           currencyType: usdt,
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },
         ''
       )
     ).to.not.reverted
 
-    await expect(rentalityPlatform.connect(host).approveTripRequest(1)).not.to.be.reverted
-    await expect(rentalityPlatform.connect(host).checkInByHost(1, [0, 0], '', '')).not.to.be.reverted
-    await expect(rentalityPlatform.connect(guest).checkInByGuest(1, [0, 0])).not.to.be.reverted
-    await expect(rentalityPlatform.connect(guest).checkOutByGuest(1, [0, 0])).not.to.be.reverted
-    await expect(rentalityPlatform.connect(host).checkOutByHost(1, [0, 0])).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).approveTripRequest(1)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).checkInByHost(1, [0, 0], '', '')).not.to.be.reverted
+    await expect(rentalityGateway.connect(guest).checkInByGuest(1, [0, 0])).not.to.be.reverted
+    await expect(rentalityGateway.connect(guest).checkOutByGuest(1, [0, 0])).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).checkOutByHost(1, [0, 0])).not.to.be.reverted
 
-    await expect(await rentalityPlatform.connect(host).finishTrip(1)).to.not.reverted
+    await expect(await rentalityGateway.connect(host).finishTrip(1)).to.not.reverted
 
-    let claimsGuestCanDo = await investorsService.connect(guest).getAllInvestments()
+    let claimsGuestCanDo = await rentalityGateway.connect(guest).getAllInvestments()
     expect(claimsGuestCanDo[0].isCarBought).to.be.eq(true)
 
     const balanceBeforeClaimTokens = await usdtContract.balanceOf(guest)
 
-    await expect(investorsService.connect(guest).claimAllMy(1)).to.not.reverted
+    await expect(rentalityGateway.connect(guest).claimAllMy(1)).to.not.reverted
 
     let priceForDay = await rentalityCurrencyConverter.getFromUsdCentsLatest(
       usdt,

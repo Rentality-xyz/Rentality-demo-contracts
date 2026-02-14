@@ -287,7 +287,8 @@
         { "type": "address", "name": "_rentalityTaxes" },
         { "type": "address", "name": "_baseDiscount" },
         { "type": "address", "name": "_investorService" },
-        { "type": "address", "name": "_hostInsurance" }
+        { "type": "address", "name": "_hostInsurance" },
+        { "type": "address", "name": "_rentalitySwaps" }
       ],
       "outputs": []
     },
@@ -393,7 +394,10 @@
         { "type": "address", "name": "currencyType" },
         { "type": "uint256", "name": "valueSumInCurrency" },
         { "type": "address", "name": "user" },
-        { "type": "uint256", "name": "carId" }
+        { "type": "uint256", "name": "carId" },
+        { "type": "address", "name": "currencyFrom" },
+        { "type": "uint256", "name": "amountIn" },
+        { "type": "uint24", "name": "fee" }
       ],
       "outputs": []
     },
@@ -590,6 +594,15 @@
     },
     {
       "type": "function",
+      "name": "rentalitySwaps",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
       "name": "setDefaultDiscount",
       "constant": false,
       "payable": false,
@@ -629,6 +642,14 @@
       "constant": false,
       "payable": false,
       "inputs": [{ "type": "uint32", "name": "valueInPPM" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "setSwapContracts",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "_swapsRouter" }],
       "outputs": []
     },
     {

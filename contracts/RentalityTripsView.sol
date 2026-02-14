@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.20;
+
+
 
 import './Schemas.sol';
 import './RentalityUserService.sol';
@@ -31,8 +33,6 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
   RentalityInsurance private insuranceService;
   RentalityPromoService private promoService;
   RentalityDimoService private dimoService;
-  address private trustedForwarderAddress;
-
   RentalityAiDamageAnalyzeV2 private aiDamageAnalyzeService;
   RentalityHostInsurance private hostInsurance;
 
@@ -79,7 +79,8 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
         promoService,
         dimoService,
         _msgGatewaySender(),
-        trip
+        trip,
+        hostInsurance
       );
   }
 
@@ -87,7 +88,7 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
   /// @return An array of trip information.
   function getTripsAs(bool host) public view returns (Schemas.TripDTO[] memory) {
     return
-      RentalityTripsQuery.getTripsAs(addresses, insuranceService, _msgGatewaySender(), host, promoService, dimoService);
+      RentalityTripsQuery.getTripsAs(addresses, insuranceService, _msgGatewaySender(), host, promoService, dimoService, hostInsurance);
   }
 
   /// @notice Calculates the KYC commission in a specific currency based on the current exchange rate.
@@ -194,25 +195,42 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
       addresses.carService.totalSupply()
     );
   }
-  function trustedForwarder() internal view override returns (address) {
-    return trustedForwarderAddress;
-  }
 
   function isTrustedForwarder(address forwarder) internal view override returns (bool) {
-    return forwarder == trustedForwarderAddress;
+    return addresses.userService.isRentalityPlatform(forwarder);
   }
-  function setTrustedForwarder(address forwarder) public {
-    require(addresses.userService.isAdmin(tx.origin), 'Only for Admin.');
-    trustedForwarderAddress = forwarder;
-  }
-  function getHostInsuranceClaims() public view returns(Schemas.ClaimV2[] memory claims) {
+  
+ function getHostInsuranceClaims() public view returns(Schemas.FullClaimInfo[] memory claimInfos) {
     uint[] memory claimIds = hostInsurance.getInsuranceClaims();
-    claims = new Schemas.ClaimV2[](claimIds.length);
+    claimInfos = new Schemas.FullClaimInfo[](claimIds.length);
+    uint counter = 0;
     for (uint i = 0; i < claimIds.length; i++) {
-      claims[i] = addresses.claimService.getClaim(claimIds[i]);
-    }
+      Schemas.ClaimV2 memory claim = addresses.claimService.getClaim(claimIds[i]);
+      Schemas.Trip memory trip = addresses.tripService.getTrip(claim.tripId);
 
-  }
+        claimInfos[counter++] = Schemas.FullClaimInfo(
+          claim,
+          trip.host,
+          trip.guest,
+          addresses.userService.getKYCInfo(trip.guest).mobilePhoneNumber,
+          addresses.userService.getKYCInfo(trip.host).mobilePhoneNumber,
+          addresses.carService.getCarInfoById(trip.carId),
+          RentalityQuery._getClaimValueInCurrency(
+          trip.paymentInfo.currencyType,
+          claim.amountInUsdCents,
+          claim,
+          addresses.claimService,
+          addresses.currencyConverterService
+        ),
+          IRentalityGeoService(addresses.carService.getGeoServiceAddress()).getCarTimeZoneId(
+            addresses.carService.getCarInfoById(trip.carId).locationHash
+          ),
+          addresses.claimService.getClaimTypeInfo(claim.claimType),
+          addresses.currencyConverterService.getUserCurrency(trip.host)
+        );
+      }
+    }
+  
     function getHostInsuranceRule(address host) public view returns(Schemas.HostInsuranceRuleDTO memory insuranceRules) {
     return hostInsurance.getHostInsuranceRule(host);
     }
@@ -223,6 +241,28 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
     require(addresses.userService.isAdmin(tx.origin), 'Only for Admin.');
     hostInsurance = RentalityHostInsurance(payable(_hostInsurance));
   }
+
+
+  function getHostInsuranceBalance() public view returns(uint) {
+       return address(hostInsurance).balance;
+  }
+
+    /// @notice Get chat information for trips hosted by the caller on the Rentality platform.
+  /// @return chatInfo An array of chat information for trips hosted by the caller.
+  function getChatInfoFor(bool host) public view returns (Schemas.ChatInfo[] memory) {
+    return
+      RentalityTripsQuery.populateChatInfo(
+        addresses,
+        insuranceService,
+        _msgGatewaySender(),
+        host,
+        promoService,
+        dimoService,
+        hostInsurance
+      );
+  }
+
+ 
 
   function initialize(
     address carServiceAddress,

@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.20;
+
+
 
 import {UUPSUpgradeable} from '@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol';
 import '../abstract/IRentalityAccessControl.sol';
@@ -12,7 +14,7 @@ abstract contract UUPSAccess is UUPSUpgradeable {
   // @notice Only admins are allowed to authorize upgrades.
   // @dev Ensures that the caller is an admin in the RentalityAccessControl system.
   // @param newImplementation The address of the new implementation contract.
-  function _authorizeUpgrade(address /*newImplementation*/) internal view override {
+  function _authorizeUpgrade(address /*newImplementation*/) internal virtual view override {
     require(userService.isAdmin(msg.sender), 'Only for Admin.');
   }
 }
