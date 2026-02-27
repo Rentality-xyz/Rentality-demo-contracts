@@ -175,3 +175,14 @@ or `n` for no accordingly.
 [rentality-url]: https://demotest.rentality.xyz/
 [ganache-url]: https://archive.trufflesuite.com/ganache/
 [forceImport-example-url]: https://github.com/ericglau/hardhat-deployer/blob/master/scripts/upgrade.js
+
+
+local development:
+run node: npx hardhat node
+run tests: npx hardhat test
+deploy: npx hardhat run --network network_name scripts/...
+
+update npx hardhat run --network network_name scripts/update_RentalityProxy.js
+after question: contractName, 'enter'
+
+To update RentalityGatewat ALWAYS run: npx hardhat run --network network_name scripts/update_RentalityGateway.js
