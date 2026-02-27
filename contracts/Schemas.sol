@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.20;
+
+
 pragma experimental ABIEncoderV2;
 
 interface Schemas {
@@ -114,6 +116,8 @@ interface Schemas {
     address currencyType;
     SignedLocationInfo pickUpInfo;
     SignedLocationInfo returnInfo;
+    uint256 amountIn;
+    uint24 fee;
   }
 
   /// @dev Enumeration representing verious states of a trip.
@@ -200,6 +204,9 @@ interface Schemas {
     TaxValue[] taxesData;
     
     UserCurrencyDTO currency;
+    string guestNickName;
+    string hostNickName;
+    uint paidToInsuranceInUsdCents;
 
   }
 
@@ -222,6 +229,8 @@ interface Schemas {
     uint64 startDateTime;
     uint64 endDateTime;
     string timeZoneId;
+    string guestNickname;
+    string hostNickname;
   }
 
   /// @dev Struct to represent a pair of private and public chat keys
@@ -489,6 +498,10 @@ interface Schemas {
     bool isGuestHasInsurance;
     uint dimoTokenId;
     UserCurrencyDTO hostCurrency;
+    uint fuelPrice;
+    BaseDiscount carDiscounts;
+    TaxValue[] taxesInfo;
+    uint64[] engineParams;
   }
   struct AvailableCarDTO {
     uint carId;
@@ -853,6 +866,11 @@ interface Schemas {
     Update,
     Burn
   }
+  enum CrassChainMessageStatus {
+    Fail,
+    PayableFail,
+    Success
+  }
   enum EventType {
     Car,
     Claim,
@@ -864,7 +882,8 @@ interface Schemas {
     Delivery,
     Currency,
     AddClaimType, 
-    SaveTripInsurance
+    SaveTripInsurance,
+    CrassChainMessage
   }
 
   enum EventCreator {
@@ -1055,6 +1074,7 @@ struct PlatformInfoDTO {
 }
 struct HostInsuranceRule {
   uint partToInsurance;
+  uint insuranceId;
 
 }
 
@@ -1067,6 +1087,13 @@ struct HostInsuranceAvarage {
   uint totalTripsCount;
   uint totalPercents;
 
+}
+
+struct AllowedCurrencyDTO {
+  uint8 decimals;
+  string name;
+  string symbol;
+  address tokenAddress;
 }
 
 

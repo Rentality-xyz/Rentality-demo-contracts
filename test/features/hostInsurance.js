@@ -92,6 +92,8 @@ describe('HostInsurance', function () {
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },
         ' ',
         { value: rentPriceInEth }
@@ -156,6 +158,8 @@ describe('HostInsurance', function () {
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },
         ' ',
         { value: rentPriceInEth }
@@ -221,6 +225,8 @@ describe('HostInsurance', function () {
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },
         ' ',
         { value: rentPriceInEth }
@@ -258,6 +264,8 @@ describe('HostInsurance', function () {
             currencyType: ethToken,
             pickUpInfo: emptySignedLocationInfo,
             returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
           },
           ' ',
           { value: rentPriceInEth }
@@ -317,6 +325,8 @@ describe('HostInsurance', function () {
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },
         ' ',
         { value: rentPriceInEth }
@@ -407,6 +417,8 @@ describe('HostInsurance', function () {
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },
         ' ',
         { value: rentPriceInEth }
@@ -443,6 +455,8 @@ describe('HostInsurance', function () {
             currencyType: ethToken,
             pickUpInfo: emptySignedLocationInfo,
             returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
           },
           ' ',
           { value: rentPriceInEth }
@@ -530,6 +544,8 @@ it('Guesr can not create insurance claim', async function () {
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },
         ' ',
         { value: rentPriceInEth }
@@ -606,6 +622,8 @@ it('Guesr can not create insurance claim', async function () {
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },
         ' ',
         { value: rentPriceInEth }
@@ -642,6 +660,8 @@ it('Guesr can not create insurance claim', async function () {
             currencyType: ethToken,
             pickUpInfo: emptySignedLocationInfo,
             returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
           },
           ' ',
           { value: rentPriceInEth }
@@ -733,6 +753,8 @@ it('admin can get claims list', async function () {
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },
         ' ',
         { value: rentPriceInEth }
@@ -769,6 +791,8 @@ it('admin can get claims list', async function () {
             currencyType: ethToken,
             pickUpInfo: emptySignedLocationInfo,
             returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
           },
           ' ',
           { value: rentPriceInEth }
@@ -820,8 +844,8 @@ it('admin can get claims list', async function () {
     )
     let claims = await rentalityGateway.getHostInsuranceClaims()
     expect(claims.length).to.be.eq(2)
-    expect(claims[0].claimId).to.be.eq(1)
-    expect(claims[1].claimId).to.be.eq(4)
+    expect(claims[0].claim.claimId).to.be.eq(1)
+    expect(claims[1].claim.claimId).to.be.eq(4)
 
 })
 
@@ -864,6 +888,8 @@ it('host can get all his claims list', async function () {
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },
         ' ',
         { value: rentPriceInEth }
@@ -900,6 +926,8 @@ it('host can get all his claims list', async function () {
             currencyType: ethToken,
             pickUpInfo: emptySignedLocationInfo,
             returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
           },
           ' ',
           { value: rentPriceInEth }
@@ -976,7 +1004,7 @@ it('host can get his insurance info', async function () {
 
     const oneDayInSeconds = 86400
 
-    const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals, rentalityFee, taxes } = await calculatePayments(
+    const { rentPriceInEth, ethToCurrencyRate, ethToCurrencyDecimals, rentalityFee, taxes,hostIncomeValue } = await calculatePayments(
       rentalityCurrencyConverter,
       rentalityPaymentService,
       request.pricePerDayInUsdCents,
@@ -992,6 +1020,8 @@ it('host can get his insurance info', async function () {
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },
         ' ',
         { value: rentPriceInEth }
@@ -1011,11 +1041,14 @@ it('host can get his insurance info', async function () {
     )
 
 
-    const returnToHost = rentPriceInEth - depositValue - rentalityFee - taxes
-    const insurancePayment  = returnToHost * BigInt(40) / BigInt(100);
+
+    const insurancePayment  = hostIncomeValue * BigInt(40) / BigInt(100);
+    const returnToHost = rentPriceInEth - depositValue - rentalityFee - taxes - insurancePayment
+    const valueToGuest = depositValue
+    const totalPaidOut = returnToHost + valueToGuest + insurancePayment;
     await expect(rentalityGateway.connect(host).finishTrip(1)).to.changeEtherBalances(
       [host, rentalityPaymentService, hostInsurance],
-      [returnToHost - (insurancePayment), -(rentPriceInEth - rentalityFee - taxes), insurancePayment]
+      [returnToHost, -(totalPaidOut ), insurancePayment]
     )
 
     await expect(rentalityGateway.connect(host).setHostInsurance(0)).to.not.reverted
@@ -1028,6 +1061,8 @@ it('host can get his insurance info', async function () {
             currencyType: ethToken,
             pickUpInfo: emptySignedLocationInfo,
             returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
           },
           ' ',
           { value: rentPriceInEth }

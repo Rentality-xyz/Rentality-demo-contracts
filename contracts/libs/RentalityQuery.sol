@@ -1,5 +1,7 @@
 /// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.20;
+
+
 
 import '../RentalityCarToken.sol';
 import '../payments/RentalityCurrencyConverter.sol';
@@ -9,7 +11,6 @@ import '../RentalityUserService.sol';
 import '../RentalityPlatform.sol';
 import '../features/RentalityClaimService.sol';
 import '../RentalityAdminGateway.sol';
-import '../RentalityGateway.sol';
 import '../engine/RentalityEnginesService.sol';
 import '../payments/RentalityBaseDiscount.sol';
 import {IRentalityGeoService} from '../abstract/IRentalityGeoService.sol';
@@ -20,6 +21,7 @@ import {CurrencyRate as ClaimCurrencyRate} from '../features/RentalityClaimServi
 import {RentalityInsurance} from '../payments/RentalityInsurance.sol';
 import {RentalityReferralProgram} from '../features/refferalProgram/RentalityReferralProgram.sol';
 import {RentalityDimoService} from '../features/RentalityDimoService.sol';
+import {RentalityContract} from '../RentalityGateway.sol';
 library RentalityQuery {
   // /// @notice Retrieves all claims associated with a specific trip.
   // /// @dev This function fetches detailed claim information for a given trip ID.
@@ -140,7 +142,7 @@ library RentalityQuery {
             contracts.carService.getCarInfoById(trip.carId).locationHash
           ),
           contracts.claimService.getClaimTypeInfo(claim.claimType),
-          contracts.currencyConverterService.getUserCurrency(trip.host)
+          contracts.currencyConverterService.getCurrencyInfo(trip.paymentInfo.currencyType)
         );
       }
     }
@@ -196,7 +198,7 @@ library RentalityQuery {
             carService.getCarInfoById(trip.carId).locationHash
           ),
           contracts.claimService.getClaimTypeInfo(claim.claimType),
-          contracts.currencyConverterService.getUserCurrency(trip.host)
+          contracts.currencyConverterService.getCurrencyInfo(trip.paymentInfo.currencyType)
         );
       }
     }
@@ -210,7 +212,7 @@ library RentalityQuery {
     Schemas.ClaimV2 memory claim,
     RentalityClaimService claimService,
     RentalityCurrencyConverter currencyConverterService
-  ) private view returns (uint) {
+  ) public view returns (uint) {
     uint valueInEth = 0;
     if (claim.status == Schemas.ClaimStatus.Paid) {
       (int rate,) = claimService.claimIdToCurrencyRate(claim.claimId);
@@ -300,12 +302,12 @@ library RentalityQuery {
           availableCars[temp[i]].createdBy
         );
       }
-
+      uint fuelPrice = contracts.carService.getEngineService().getFuelPriceFromEngineParams(availableCars[temp[i]].engineType, availableCars[temp[i]].engineParams);
       uint taxId = contracts.paymentService.defineTaxesType(address(contracts.carService),  availableCars[temp[i]].carId);
 
-      uint64 totalTax = taxId == 0
-        ? 0
-        : contracts.paymentService.calculateTaxes(taxId, totalTripDays, priceWithDiscount + pickUp + dropOf);
+    (uint64 totalTax, Schemas.TaxValue[] memory taxes) = taxId == 0
+      ? (0,new Schemas.TaxValue[](0))
+      : contracts.paymentService.calculateTaxesDTO(taxId, totalTripDays, priceWithDiscount + pickUp + dropOf);
 
       result[i] = Schemas.SearchCar(
          availableCars[temp[i]].carId,
@@ -333,7 +335,12 @@ library RentalityQuery {
         insuranceService.getCarInsuranceInfo( availableCars[temp[i]].carId),
         isGuestHasInsurance,
         RentalityDimoService(dimoService).getDimoTokenId( availableCars[temp[i]].carId),
-        contracts.currencyConverterService.getUserCurrency( availableCars[temp[i]].createdBy)
+        contracts.currencyConverterService.getUserCurrency( availableCars[temp[i]].createdBy),
+        fuelPrice,
+        contracts.paymentService.getBaseDiscount().getParsedDiscount(contracts.carService.ownerOf(availableCars[temp[i]].carId)),
+        taxes,
+        availableCars[temp[i]].engineParams
+        
       );
     }
     return (result, carService.totalSupply());

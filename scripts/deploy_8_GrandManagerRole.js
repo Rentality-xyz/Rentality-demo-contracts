@@ -58,7 +58,9 @@ async function main() {
   await rentalityUserServiceContract.grantPlatformRole(refferalProgram)
   await rentalityUserServiceContract.grantPlatformRole(rentalityPlatformHelper)
   await rentalityUserServiceContract.grantPlatformRole(rentalityReferralProgram)
-  await rentalityUserServiceContract.grantPlatformRole(rentalityInvestment)
+  console.log(rentalityUserServiceContract.interface.encodeFunctionData('hasRole', ['0x8d0a41f4672590d8d4e75329cd62358925abfd312a2693a79a6e6e4e97fcdab8','0x6080f7a1f4fdaed78e01cdc951bb15588b04ebf7']))
+
+  await rentalityUserServiceContract.grantPlatformRole('0x6080f7a1f4fdaed78e01cdc951bb15588b04ebf7')
   console.log('manager role was granded')
 }
 

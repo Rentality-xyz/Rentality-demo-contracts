@@ -1,4 +1,5 @@
 const { ethers, upgrades } = require('hardhat')
+const { createFacetCut } = require('../../scripts/utils/createFacetCut')
 const { ethToken, signTCMessage, signKycInfo, emptyKyc, zeroHash, taxesWithoutRentSign, encodeTaxes } = require('../utils')
 
 async function deployDefaultFixture() {
@@ -172,12 +173,23 @@ async function deployDefaultFixture() {
     await rentalityUserService.getAddress(),
   ])
   await hostInsurance.waitForDeployment()
+
+  const RentalitySwaps = await ethers.getContractFactory('RentalitySwaps')
+
+  const rentalitySwaps = await upgrades.deployProxy(RentalitySwaps, [
+    ethToken,
+    ethToken,
+    ethToken,
+    await rentalityUserService.getAddress(),
+    ethToken
+  ])
   const rentalityPaymentService = await upgrades.deployProxy(RentalityPaymentService, [
     await rentalityUserService.getAddress(),
     await rentalityTaxes.getAddress(),
     await rentalityBaseDiscount.getAddress(),
     await investorsService.getAddress(),
-    await hostInsurance.getAddress()
+    await hostInsurance.getAddress(),
+    await rentalitySwaps.getAddress(),
   ])
   await rentalityPaymentService.addTaxes(
     'Florida',
@@ -271,6 +283,7 @@ async function deployDefaultFixture() {
     libraries: {
       RentalityTripsQuery: await tripsQuery.getAddress(),
       RentalityViewLib: await viewLib.getAddress(),
+      RentalityQuery: await query.getAddress()
     },
   })
 
@@ -388,24 +401,32 @@ async function deployDefaultFixture() {
   let RentalityGateway = await ethers.getContractFactory('RentalityGateway', {
     libraries: {},
   })
-  let rentalityGateway = await upgrades.deployProxy(RentalityGateway.connect(owner), [
-    await rentalityCarToken.getAddress(),
-    await rentalityCurrencyConverter.getAddress(),
-    await rentalityTripService.getAddress(),
-    await rentalityUserService.getAddress(),
-    await rentalityPlatform.getAddress(),
-    await rentalityPaymentService.getAddress(),
-    await claimService.getAddress(),
-    await rentalityAdminGateway.getAddress(),
-    await deliveryService.getAddress(),
-    await rentalityView.getAddress(),
-  ])
+  let rentalityGateway = await upgrades.deployProxy(RentalityGateway.connect(owner), [[]])
   await rentalityGateway.waitForDeployment()
 
-  await rentalityPlatform.setTrustedForwarder(await rentalityGateway.getAddress())
-  await rentalityView.setTrustedForwarder(await rentalityGateway.getAddress())
-  await rentalityTripsView.setTrustedForwarder(await rentalityView.getAddress())
-  await rentalityPlatformHelper.setTrustedForwarder(await rentalityPlatform.getAddress())
+  const viewFacet = await ethers.getContractAt('IRentalityViewFacet', await rentalityView.getAddress())
+  const platformFacet = await ethers.getContractAt('IRentalityPlatformFacet', await rentalityPlatform.getAddress())
+  const platformHelperFacet = await ethers.getContractAt(
+    'IRentalityPlatformHelperFacet',
+    await rentalityPlatformHelper.getAddress()
+  )
+  const tripsViewFacet = await ethers.getContractAt('IRentalityTripsViewFacet', await rentalityTripsView.getAddress())
+  const investmentFacet = await ethers.getContractAt('IRentalityInvestmentFacet', await investorsService.getAddress())
+  const referralFacet = await ethers.getContractAt(
+    'IRentalityReferralProgramFacet',
+    await refferalProgram.getAddress()
+  )
+
+  const facetCuts = [
+    createFacetCut(viewFacet),
+    createFacetCut(platformFacet),
+    createFacetCut(platformHelperFacet),
+    createFacetCut(tripsViewFacet),
+    createFacetCut(investmentFacet),
+    createFacetCut(referralFacet),
+  ]
+  await rentalityGateway.diamondCut(facetCuts)
+
 
   rentalityGateway = await ethers.getContractAt('IRentalityGateway', await rentalityGateway.getAddress())
 

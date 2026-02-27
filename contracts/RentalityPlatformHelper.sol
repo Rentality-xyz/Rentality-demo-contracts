@@ -1,5 +1,7 @@
 /// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.20;
+
+
 
 import './features/RentalityClaimService.sol';
 import './abstract/IRentalityGateway.sol';
@@ -38,11 +40,15 @@ contract RentalityPlatformHelper is UUPSOwnable, ARentalityContext {
 
   RentalityReferralProgram private refferalProgram;
   RentalityPromoService private promoService;
-  address private trustedForwarderAddress;
   RentalityNotificationService private notificationService;
   RentalityHostInsurance private hostInsurance;
 
-  function saveGuestInsurance(Schemas.SaveInsuranceRequest memory insuranceInfo) public {
+  modifier onlyPlatform() {
+  require(isTrustedForwarder(msg.sender), "Only forwarder");
+  _;
+}
+
+  function saveGuestInsurance(Schemas.SaveInsuranceRequest memory insuranceInfo) public onlyPlatform {
     address user = _msgGatewaySender();
     insuranceService.saveGuestInsurance(insuranceInfo, user);
     notificationService.emitEvent(Schemas.EventType.Insurance, 0, uint8(insuranceInfo.insuranceType), user, user);
@@ -50,13 +56,13 @@ contract RentalityPlatformHelper is UUPSOwnable, ARentalityContext {
 
   /// @notice Adds a user discount.
   /// @param data The discount data.
-  function addUserDiscount(Schemas.BaseDiscount memory data) public {
+  function addUserDiscount(Schemas.BaseDiscount memory data) public onlyPlatform {
     address user = _msgGatewaySender();
     addresses.paymentService.addBaseDiscount(user, data);
     notificationService.emitEvent(Schemas.EventType.Discount, 0, uint8(Schemas.EventCreator.User), user, user);
   }
 
-  function addUserDeliveryPrices(uint64 underTwentyFiveMilesInUsdCents, uint64 aboveTwentyFiveMilesInUsdCents) public {
+  function addUserDeliveryPrices(uint64 underTwentyFiveMilesInUsdCents, uint64 aboveTwentyFiveMilesInUsdCents) public onlyPlatform {
     address sender = _msgGatewaySender();
     addresses.deliveryService.setUserDeliveryPrices(
       underTwentyFiveMilesInUsdCents,
@@ -65,20 +71,20 @@ contract RentalityPlatformHelper is UUPSOwnable, ARentalityContext {
     );
      notificationService.emitEvent(Schemas.EventType.Delivery, 0, uint8(Schemas.EventCreator.User), sender, sender);
   }
-  function saveDimoTokenIds(uint[] memory dimoTokenIds, uint[] memory carIds) public {
+  function saveDimoTokenIds(uint[] memory dimoTokenIds, uint[] memory carIds) public onlyPlatform {
     dimoService.saveButch(dimoTokenIds, carIds, _msgGatewaySender());
   }
-  function useKycCommission(address user) public {
+  function useKycCommission(address user) public onlyPlatform {
     addresses.userService.useKycCommission(user);
   }
 
-  function addUserCurrency(address currency) public {
+  function addUserCurrency(address currency) public onlyPlatform {
     address sender = _msgGatewaySender();
     addresses.currencyConverterService.addUserCurrency(_msgGatewaySender(), currency);
     notificationService.emitEvent(Schemas.EventType.Currency, 0, uint8(Schemas.EventCreator.User), sender, sender);
   }
 
-  function payKycCommission(address currency) public payable {
+  function payKycCommission(address currency) public payable onlyPlatform {
     (uint valueToPay, , ) = addresses.currencyConverterService.getFromUsdCentsLatest(
       currency,
       addresses.userService.getKycCommission()
@@ -87,7 +93,7 @@ contract RentalityPlatformHelper is UUPSOwnable, ARentalityContext {
     addresses.paymentService.payKycCommission{value: msg.value}(valueToPay, currency, _msgGatewaySender());
   }
 
-  function saveTripInsuranceInfo(uint tripId, Schemas.SaveInsuranceRequest memory insuranceInfo) public {
+  function saveTripInsuranceInfo(uint tripId, Schemas.SaveInsuranceRequest memory insuranceInfo) public onlyPlatform {
     Schemas.Trip memory trip = addresses.tripService.getTrip(tripId);
     address sender = _msgGatewaySender();
     require(trip.host == sender || trip.guest == sender, 'For trip host or guest');
@@ -98,7 +104,7 @@ contract RentalityPlatformHelper is UUPSOwnable, ARentalityContext {
   function updateCarInfoWithLocation(
     Schemas.UpdateCarInfoRequest memory request,
     Schemas.SignedLocationInfo memory location
-  ) public {
+  ) public onlyPlatform {
     require(RentalityUtils.isCarEditable(addresses, request.carId), 'Car is not available for update.');
 
     if (location.signature.length > 0) addresses.carService.verifySignedLocationInfo(location);
@@ -123,14 +129,14 @@ contract RentalityPlatformHelper is UUPSOwnable, ARentalityContext {
       );
   }
 
-  function setPhoneNumber(address user, string memory phone, bool isVerified) public {
+  function setPhoneNumber(address user, string memory phone, bool isVerified) public onlyPlatform {
     addresses.userService.setPhoneNumber(user, phone, isVerified);
   }
 
-   function setEmail(address user, string memory email, bool isVerified) public {
+   function setEmail(address user, string memory email, bool isVerified) public onlyPlatform {
      addresses.userService.setEmail(user, email, isVerified);
    }
-    function setCivicKYCInfo(address user, Schemas.CivicKYCInfo memory civicKycInfo) public {
+    function setCivicKYCInfo(address user, Schemas.CivicKYCInfo memory civicKycInfo) public onlyPlatform {
     refferalProgram.passReferralProgram(Schemas.RefferalProgram.PassCivic, bytes(''), user, promoService);
     addresses.userService.setCivicKYCInfo(user, civicKycInfo);
   }
@@ -142,7 +148,7 @@ contract RentalityPlatformHelper is UUPSOwnable, ARentalityContext {
     string memory email,
     bytes memory TCSignature,
     bytes4 hash
-  ) public {
+  ) public onlyPlatform {
     address sender = _msgGatewaySender();
     refferalProgram.generateReferralHash(sender);
     bool isGuest = addresses.userService.isGuest(sender);
@@ -153,15 +159,8 @@ contract RentalityPlatformHelper is UUPSOwnable, ARentalityContext {
   }
 
 
-  function trustedForwarder() internal view override returns (address) {
-    return trustedForwarderAddress;
-  }
-
   function isTrustedForwarder(address forwarder) internal view override returns (bool) {
-    return forwarder == trustedForwarderAddress;
-  }
-  function setTrustedForwarder(address forwarder) public onlyOwner {
-    trustedForwarderAddress = forwarder;
+     return addresses.userService.isRentalityPlatform(forwarder);
   }
 
    function setNotificationService(address notificationServiceAddress) public {
@@ -169,7 +168,7 @@ contract RentalityPlatformHelper is UUPSOwnable, ARentalityContext {
     notificationService = RentalityNotificationService(notificationServiceAddress);
   }
 
-    function setHostInsurance(uint insuranceId) public {
+    function setHostInsurance(uint insuranceId) public onlyPlatform {
     address sender = _msgGatewaySender();
     hostInsurance.setHostInsurance(insuranceId, sender);
   }
@@ -178,7 +177,7 @@ contract RentalityPlatformHelper is UUPSOwnable, ARentalityContext {
     hostInsurance = RentalityHostInsurance(payable(_hostInsurance));
   }
 
-  function setPushToken(address user, string memory pushToken) public {
+  function setPushToken(address user, string memory pushToken) public onlyPlatform {
     addresses.userService.setPushToken(user, pushToken);
   }
   /// @notice Constructor to initialize the RentalityPlatform with service contract addresses.

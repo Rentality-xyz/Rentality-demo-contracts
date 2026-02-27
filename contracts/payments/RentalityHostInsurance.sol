@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.20;
+
+
 
 import '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 import '../proxy/UUPSAccess.sol';
@@ -13,6 +15,8 @@ contract RentalityHostInsurance is Initializable, UUPSAccess {
     mapping (address => Schemas.HostInsuranceAvarage) private userToAvaragePercents;
     mapping (uint => bool) private claimIdIsInsuranceClaim;
     uint [] private insuranceClaims;
+
+    mapping(uint => uint) private tripIdToValuePaid;
 
     function payClaim(uint amountToPay, Schemas.Trip memory trip) public {
     require(userService.isRentalityPlatform(msg.sender), 'RentalityHostInsurance: only Rentality platform.');
@@ -88,7 +92,7 @@ contract RentalityHostInsurance is Initializable, UUPSAccess {
     receive() external payable {}
 
 
-    function updateUserAvarage(address user) public payable {
+    function updateUserAvarage(address user, uint tripId, uint value) public payable {
         uint hostInsuranceRuleId = userToInsuranceId[user];
         Schemas.HostInsuranceAvarage memory avarage = userToAvaragePercents[user];
 
@@ -100,19 +104,20 @@ contract RentalityHostInsurance is Initializable, UUPSAccess {
         }
         userToAvaragePercents[user].totalPercents = newValue;
         userToAvaragePercents[user].totalTripsCount++;
+        tripIdToValuePaid[tripId] = value;
 
     }
-    function addToInsurancePool(address user) public payable {
-        require(userService.isRentalityPlatform(msg.sender), 'RentalityHostInsurance: only Rentality platform.');
-        updateUserAvarage(user);
-    }
-
+ 
     function getAllInsuranceRules() public view returns(Schemas.HostInsuranceRuleDTO[] memory insuranceRules) {
-    insuranceRules = new Schemas.HostInsuranceRuleDTO[](insuranceId);
+    insuranceRules = new Schemas.HostInsuranceRuleDTO[](insuranceId + 1);
     for (uint i = 0; i < insuranceId; i++) {
         insuranceRules[i] = Schemas.HostInsuranceRuleDTO({
             partToInsurance: insuranceIdToInsurance[i + 1].partToInsurance,
             insuranceId: i + 1
+        });
+        insuranceRules[insuranceId] = Schemas.HostInsuranceRuleDTO({
+            partToInsurance: 0,
+            insuranceId:0
         });
     }
     }
@@ -120,7 +125,7 @@ contract RentalityHostInsurance is Initializable, UUPSAccess {
     uint _insuranceId = userToInsuranceId[host];
     return Schemas.HostInsuranceRuleDTO({
         insuranceId: _insuranceId,
-        partToInsurance: insuranceIdToInsurance[insuranceId].partToInsurance
+        partToInsurance: insuranceIdToInsurance[_insuranceId].partToInsurance
     });
     }
     function isHostInsuranceClaim(uint claimId) public view returns(bool) {
@@ -129,13 +134,16 @@ contract RentalityHostInsurance is Initializable, UUPSAccess {
     function getInsuranceClaims() public view returns(uint[] memory) {
         return insuranceClaims;
     }
+    function getPaidToInsuranceByTripId(uint tripId) public view returns(uint) {
+        return tripIdToValuePaid[tripId];
+    }
 
     function initialize(
     address _userService
   ) public virtual initializer {
     userService = IRentalityAccessControl(_userService);
     insuranceId = 1;
-    insuranceIdToInsurance[1] = Schemas.HostInsuranceRule(40);
+    insuranceIdToInsurance[1] = Schemas.HostInsuranceRule(40, 1);
   }
 
 

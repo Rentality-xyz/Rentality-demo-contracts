@@ -1,5 +1,7 @@
 /// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.20;
+
+
 
 import './features/RentalityClaimService.sol';
 import './abstract/IRentalityGateway.sol';
@@ -29,7 +31,9 @@ struct CreateTripRequestParams {
     bytes32 pickUpHash;
     bytes32 returnHash;
     string promo;
+    
 }
+
 
 
 /// @title Rentality Platform Contract
@@ -42,12 +46,8 @@ struct CreateTripRequestParams {
 contract RentalityPlatform is UUPSOwnable, ARentalityContext {
   RentalityContract private addresses;
 
-  // unused, have to be here, because of proxy
-  address private automationService;
-
   using RentalityTripsQuery for RentalityContract;
-  /// @dev Modifier to restrict access to admin users only.
-
+  
   RentalityInsurance private insuranceService;
 
   RentalityReferralProgram private refferalProgram;
@@ -55,25 +55,13 @@ contract RentalityPlatform is UUPSOwnable, ARentalityContext {
   RentalityDimoService private dimoService;
 
   RentalityPlatformHelper private platformHelper;
-  address private trustedForwarderAddress;
 
   RentalityHostInsurance private hostInsurance;
 
-
-  fallback(bytes calldata data) external returns (bytes memory) {
-    require(trustedForwarderAddress == msg.sender, 'only trusted forwarder');
-    (bool ok_view, bytes memory res_view) = address(platformHelper).call(data);
-    bytes4 errorSign = 0x403e7fa6;
-    if (!ok_view && bytes4(res_view) == errorSign) {
-      revert FunctionNotFound();
-    } else if (!ok_view) {
-      assembly {
-        revert(add(res_view, 32), mload(res_view))
-      }
-    }
-    return res_view;
-  }
-
+modifier onlyPlatform() {
+  require(isTrustedForwarder(msg.sender), "Only forwarder");
+  _;
+}
   // function updateServiceAddresses(
   //   RentalityAdminGateway adminService,
   //   RentalityPlatformHelper platformHelperAddress
@@ -90,7 +78,7 @@ contract RentalityPlatform is UUPSOwnable, ARentalityContext {
 function createTripRequestWithDelivery(
     Schemas.CreateTripRequestWithDelivery memory request,
     string memory promo
-) public payable {
+) public payable onlyPlatform {
     (uint64 pickUp, uint64 dropOf) = RentalityUtils.calculateDelivery(addresses, request);
     bytes32 pickUpHash = IRentalityGeoService(addresses.carService.getGeoServiceAddress()).createSignedLocationInfo(
         request.pickUpInfo
@@ -172,7 +160,10 @@ function createTripRequestWithDelivery(
         currencyType,
         valueSumInCurrency,
         sender,
-        params.request.carId
+        params.request.carId,
+        params.request.currencyType,
+        params.request.amountIn,
+        params.request.fee
     );
 
     addresses.tripService.createNewTrip(
@@ -203,7 +194,7 @@ function createTripRequestWithDelivery(
 
   /// @notice Approve a trip request on the Rentality platform.
   /// @param tripId The ID of the trip to approve.
-  function approveTripRequest(uint256 tripId) public {
+  function approveTripRequest(uint256 tripId) public onlyPlatform {
     addresses.tripService.approveTrip(tripId, _msgGatewaySender());
 
     Schemas.Trip memory trip = addresses.tripService.getTrip(tripId);
@@ -222,7 +213,7 @@ function createTripRequestWithDelivery(
   }
   /// @notice Reject a trip request on the Rentality platform.
   /// @param tripId The ID of the trip to reject.
-  function rejectTripRequest(uint256 tripId) public {
+  function rejectTripRequest(uint256 tripId) public onlyPlatform {
     Schemas.Trip memory trip = addresses.tripService.getTrip(tripId);
 
     uint insurance = insuranceService.getInsurancePriceByTrip(tripId);
@@ -239,14 +230,14 @@ function createTripRequestWithDelivery(
 
   /// @notice Confirms the check-out for a trip.
   /// @param tripId The ID of the trip to be confirmed.
-  function confirmCheckOut(uint256 tripId) public {
+  function confirmCheckOut(uint256 tripId) public onlyPlatform {
     RentalityUtils.verifyConfirmCheckOut(addresses, tripId, _msgGatewaySender());
     _finishTrip(tripId);
   }
 
   /// @notice Finish a trip on the Rentality platform.
   /// @param tripId The ID of the trip to finish.
-  function finishTrip(uint256 tripId) public {
+  function finishTrip(uint256 tripId) public onlyPlatform {
     Schemas.Trip memory trip = addresses.tripService.getTrip(tripId);
     require(
       trip.status == Schemas.TripStatus.CheckedOutByHost && trip.tripFinishedBy == trip.guest,
@@ -270,15 +261,19 @@ function createTripRequestWithDelivery(
       uint valueToGuest,
       uint valueToHostInUsdCents,
       uint valueToGuestInUsdCents,
-      uint totalIncome
+      uint totalIncome,
+      uint tripCostValue
     ) = addresses.currencyConverterService.calculateTripFinsish(
         trip.paymentInfo,
         rentalityFee,
+         addresses.paymentService.getPlatformFeeFrom(
+      trip.paymentInfo.priceWithDiscount
+    ),
         insurancePrice,
         promoService
       );
 
-    addresses.paymentService.payFinishTrip(trip, valueToHost, valueToGuest, totalIncome);
+    addresses.paymentService.payFinishTrip(trip, valueToHost, valueToGuest, totalIncome, tripCostValue);
     addresses.tripService.saveTransactionInfo(
       tripId,
       rentalityFee,
@@ -291,7 +286,7 @@ function createTripRequestWithDelivery(
   /// @notice Creates a new claim for a specific trip.
   /// @dev Only the host of the trip can create a claim, and certain trip status checks are performed.
   /// @param request Details of the claim to be created.
-  function createClaim(Schemas.CreateClaimRequest memory request, bool isInsuranceClaim) public {
+  function createClaim(Schemas.CreateClaimRequest memory request, bool isInsuranceClaim) public onlyPlatform {
     address sender = _msgGatewaySender();
     (address host, address guest) = RentalityUtils.verifyClaim(addresses, request, sender, isInsuranceClaim);
     uint claimId = addresses.claimService.createClaim(request, host, guest, sender);
@@ -302,7 +297,7 @@ function createTripRequestWithDelivery(
   /// @notice Rejects a specific claim.
   /// @dev Only the host or guest of the associated trip can reject the claim.
   /// @param claimId ID of the claim to be rejected.
-  function rejectClaim(uint256 claimId) public {
+  function rejectClaim(uint256 claimId) public onlyPlatform  {
     Schemas.ClaimV2 memory claim = addresses.claimService.getClaim(claimId);
     Schemas.Trip memory trip = addresses.tripService.getTrip(claim.tripId);
     address sender = _msgGatewaySender();
@@ -325,14 +320,15 @@ function createTripRequestWithDelivery(
       .currencyConverterService
       .calculateLatestValueWithFee(trip.paymentInfo.currencyType, claim.amountInUsdCents, commission);
 
+    address sender = _msgGatewaySender();
     addresses.claimService.payClaim(claimId, trip.host, trip.guest, rate, dec);
-    if(!hostInsurance.isHostInsuranceClaim(claimId)) {
+    if(!hostInsurance.isHostInsuranceClaim(claimId) ||  hostInsurance.isHostInsuranceClaim(claimId) && trip.guest == sender) {
     addresses.paymentService.payClaim{value: msg.value}(
       trip,
       valueToPay,
       feeInCurrency,
       commission,
-      _msgGatewaySender()
+      sender
     );
     }
     else {
@@ -369,7 +365,7 @@ function createTripRequestWithDelivery(
     uint64[] memory panelParams,
     string memory insuranceCompany,
     string memory insuranceNumber
-  ) public {
+  ) public onlyPlatform {
     address sender = _msgGatewaySender();
     if (bytes(insuranceNumber).length > 0 || bytes(insuranceCompany).length > 0)
       insuranceService.saveTripInsuranceInfo(
@@ -384,7 +380,7 @@ function createTripRequestWithDelivery(
   /// @param tripId The ID of the trip.
   /// @param panelParams An array representing parameters related to fuel, odometer,
   /// and other relevant details depends on engine.
-  function checkInByGuest(uint256 tripId, uint64[] memory panelParams) public {
+  function checkInByGuest(uint256 tripId, uint64[] memory panelParams) public onlyPlatform {
     return addresses.tripService.checkInByGuest(tripId, panelParams, _msgGatewaySender());
   }
 
@@ -392,7 +388,7 @@ function createTripRequestWithDelivery(
   /// @param tripId The ID of the trip.
   /// @param panelParams An array representing parameters related to fuel, odometer,
   /// and other relevant details depends on engine.
-  function checkOutByGuest(uint256 tripId, uint64[] memory panelParams) public {
+  function checkOutByGuest(uint256 tripId, uint64[] memory panelParams) public onlyPlatform {
     address sender = _msgGatewaySender();
     Schemas.Trip memory trip = addresses.tripService.getTrip(tripId);
     refferalProgram.passReferralProgram(
@@ -408,13 +404,13 @@ function createTripRequestWithDelivery(
   /// @param tripId The ID of the trip.
   /// @param panelParams An array representing parameters related to fuel, odometer,
   /// and other relevant details depends on engine.
-  function checkOutByHost(uint256 tripId, uint64[] memory panelParams) public {
+  function checkOutByHost(uint256 tripId, uint64[] memory panelParams) public onlyPlatform {
     return addresses.tripService.checkOutByHost(tripId, panelParams, _msgGatewaySender());
   }
   /// @notice Adds a new car using the provided request. Grants host role to the caller if not already a host.
   /// @param request The request containing car information.
   /// @return The ID of the newly added car.
-  function addCar(Schemas.CreateCarRequest memory request) public returns (uint) {
+  function addCar(Schemas.CreateCarRequest memory request) public onlyPlatform returns (uint) {
     address sender = _msgGatewaySender();
     refferalProgram.passReferralProgram(
       Schemas.RefferalProgram.AddCar,
@@ -430,17 +426,8 @@ function createTripRequestWithDelivery(
     return carId;
   }
 
-  function trustedForwarder() internal view override returns (address) {
-    return trustedForwarderAddress;
-  }
-
   function isTrustedForwarder(address forwarder) internal view override returns (bool) {
     return addresses.userService.isRentalityPlatform(forwarder);
-  }
-
-
-  function setTrustedForwarder(address forwarder) public onlyOwner {
-    trustedForwarderAddress = forwarder;
   }
 
   function setHostInsuranceAddress(address _hostInsurance) public onlyOwner {
