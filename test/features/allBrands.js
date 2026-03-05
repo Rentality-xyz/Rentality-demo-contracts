@@ -88,18 +88,47 @@ describe('All brands, models by brand filters', function () {
     expect(brands.find((b) => b === 'mercedez')).to.not.be.eq(undefined)
     expect(brands.find((b) => b === 'audi')).to.not.be.eq(undefined)
   })
-  it('can get all models by brand', async function () {
+  it('can get all brands correctly, no matters what case', async function () {
     let request1 = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
     let request2 = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
     let request3 = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
     let request4 = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
     let request5 = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
-    request1.brand = 'bmw'
+    request1.brand = 'Bmw'
+    request1.carVinNumber = '12'
+    request2.brand = 'BMW'
+    request3.carVinNumber = '123'
+    request3.brand = 'Mercedez'
+    request4.brand = 'AUDI'
+    request4.carVinNumber = '1235'
+    request5.brand = 'alfa romeo'
+    request5.carVinNumber = '123124125'
+    request5.currentlyListed = false
+
+    await expect(rentalityGateway.connect(host).addCar(request1)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(request2)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(request3)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(request4)).not.to.be.reverted
+    await expect(rentalityGateway.connect(host).addCar(request5)).not.to.be.reverted
+
+    const brands = await rentalityGateway.getUniqCarsBrand()
+    expect(brands.length).to.be.eq(3)
+    expect(brands.find((b) => b === 'bmw')).to.not.be.eq(undefined)
+    expect(brands.find((b) => b === 'mercedez')).to.not.be.eq(undefined)
+    expect(brands.find((b) => b === 'audi')).to.not.be.eq(undefined)
+  })
+  it('can get all models by brand, no matter what case', async function () {
+    let request1 = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
+    let request2 = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
+    let request3 = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
+    let request4 = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
+    let request5 = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
+    request1.brand = 'BMW'
     request1.model = 'z3'
     request2.carVinNumber = '123'
-    request2.brand = 'bmw'
+    request2.brand = 'bMw'
     request2.model = 'x5'
-    request3.brand = 'bmw'
+    request3.brand = 'bmW'
     request3.model = 'i8'
     request3.carVinNumber = '124'
     request4.brand = 'audi'

@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.20;
+
+
 
 import '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 import '../proxy/UUPSAccess.sol';
@@ -155,7 +157,7 @@ contract RentalityTaxes is Initializable, UUPSAccess {
    
       function setTaxesLocations(uint[] memory taxIds, string[] memory locations) public {
         for(uint i = 0; i < taxIds.length; i++) {
-          taxIdToLocation[i] = locations[i];
+          taxIdToLocation[taxIds[i]] = locations[i];
         }
 }
 

@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.20;
+
+
 
 interface IRentalityDiscount {
   /// @notice Calculates the total cost with applied discount for a trip.

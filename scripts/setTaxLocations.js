@@ -24,7 +24,7 @@ async function main() {
   )
   const taxesContract = await ethers.getContractAt('RentalityTaxes', taxesServiceAddress)
 
-  const numbers = Array.from({ length: 51 }, (_, i) => i + 2)
+  const numbers = Array.from({ length: 51 }, (_, i) => i + 2);
 
   const states = [
     'Florida',

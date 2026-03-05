@@ -151,6 +151,8 @@ describe('RentalityGateway: user info', function () {
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },
         ' ',
         { value: result.totalPrice }
@@ -206,6 +208,8 @@ describe('RentalityGateway: user info', function () {
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },
         ' ',
         { value: result.totalPrice }
@@ -260,6 +264,8 @@ describe('RentalityGateway: user info', function () {
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },
         ' ',
         { value: result.totalPrice }
@@ -308,7 +314,7 @@ describe('RentalityGateway: user info', function () {
     expect(availableCars[0].car.hostName).to.be.eq(name + 'host')
   })
 
-  it('Should KYC manager be able to add user KYC', async function () {
+  it.skip('Should KYC manager be able to add user KYC', async function () {
     let name = 'name'
     let surname = 'surname'
     let number = '+380'

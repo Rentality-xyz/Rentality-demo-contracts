@@ -89,6 +89,8 @@ describe('Rentality insurance', function () {
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },
         ' ',
         { value: result.totalPrice }
@@ -114,6 +116,8 @@ describe('Rentality insurance', function () {
             photo: '',
             pickUpInfo: emptySignedLocationInfo,
             returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
           },
           ' ',
           { value: result.totalPrice }
@@ -149,6 +153,8 @@ describe('Rentality insurance', function () {
           photo: '',
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },
         ' ',
         { value: result.totalPrice }
@@ -179,6 +185,8 @@ describe('Rentality insurance', function () {
           photo: '',
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },
         ' ',
         { value: result.totalPrice }
@@ -291,6 +299,8 @@ describe('Rentality insurance', function () {
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },
         ' ',
         { value: result2.totalPrice }
@@ -306,6 +316,8 @@ describe('Rentality insurance', function () {
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },
         ' ',
         { value: result1.totalPrice }
@@ -329,6 +341,8 @@ describe('Rentality insurance', function () {
           endDateTime: 321,
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+          amountIn: 0,
+          fee: 0,
           currencyType: ethToken,
         },
         '',
@@ -366,6 +380,8 @@ describe('Rentality insurance', function () {
           endDateTime: 321,
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0,
           currencyType: ethToken,
         },
         '',
@@ -415,6 +431,8 @@ describe('Rentality insurance', function () {
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },
         ' ',
         { value: result.totalPrice }
@@ -452,6 +470,8 @@ describe('Rentality insurance', function () {
           endDateTime: 321,
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0,
           currencyType: ethToken,
         },
         '',
@@ -491,6 +511,8 @@ describe('Rentality insurance', function () {
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },
         ' ',
         { value: result.totalPrice }
@@ -559,6 +581,8 @@ describe('Rentality insurance', function () {
           currencyType: ethToken,
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0
         },
         ' ',
         { value: result.totalPrice }
@@ -595,6 +619,8 @@ describe('Rentality insurance', function () {
           endDateTime: 321,
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0,
           currencyType: ethToken,
         },
         '',
@@ -733,6 +759,8 @@ describe('Rentality insurance', function () {
           endDateTime: 321,
           pickUpInfo: emptySignedLocationInfo,
           returnInfo: emptySignedLocationInfo,
+amountIn: 0,
+fee: 0,
           currencyType: ethToken,
         },
         '',
