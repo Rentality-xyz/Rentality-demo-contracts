@@ -28,7 +28,7 @@ async function main() {
   let eid = chains[senderChainId].eid
 
   console.log('Sender chainId: ', senderChainId, ' eid: ', eid)
-  // console.log(await contract.setNewPeer(eid, senderAddress))
+  console.log(await contract.setNewPeer(eid, senderAddress))
 }
 
 main()
