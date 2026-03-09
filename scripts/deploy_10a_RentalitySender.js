@@ -20,7 +20,7 @@ async function main() {
   let wallet
   let [signer] = await ethers.getSigners()
   let value = 3784261028548176
-  let targetChain = 84532
+  let targetChain = 8453
 
   const chainId = (await signer.provider?.getNetwork())?.chainId ?? -1
   let eid = chains[chainId].eid
