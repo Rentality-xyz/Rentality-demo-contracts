@@ -18,7 +18,7 @@ async function main() {
     (i) => i.chainId === Number(chainId) && i.name === network.name
   )
   const contractFactory = await ethers.getContractFactory(contractName)
-  let eindpoint = '0x6EDCE65403992e310A62460808c4b910D972f10f'
+  let eindpoint = '0x1a44076050125825900e736c501f859c50fE728c'
 
   const rentalityGatewayAddress = checkNotNull(addresses['RentalityGateway'], 'rentalityGatewayAddress')
 

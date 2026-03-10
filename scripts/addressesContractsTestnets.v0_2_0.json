@@ -43,7 +43,7 @@
     "RentalityPlatform": "0xcf2f415780f9E87B7692d537d1B24F26e4bFfF17",
     "RentalityViewLib": "0x7056FF05c45aDeD9EEb23f33d7b58e1cB31bEec4",
     "RentalityAdminGateway": "0x19dE77342611e0aF6dD387223309B9397123450b",
-    "RentalityGateway": "0xc25c95f7cc1FC9656c9Cc793162098354768C480",
+    "RentalityGateway": "0x2106343c328C252938868F7bDaE650A8d3899863",
     "RentalityChatHelper": "0xd35fDe915f0E0B79522d20BCFbdc518d81667a1F",
     "RentalityAiDamageAnalyze": "0xbB8505d1c72095215969163B4fbFFFADafDCbF82",
     "RentalityTaxes": "0x383B3812586BD74271b9bE0CaD5648Dd67E094dC",
@@ -54,7 +54,8 @@
     "RentalityAiDamageAnalyzeV2": "0x1200c98eC3B43775Ad23264053491b94059893a4",
     "RentalityHostInsurance": "0x42FD753AC0Cf41B12233FB5D92Fe38f33B56EB5f",
     "RentalityUtils2": "0x957C78Fa60d1302F9D25399B56b839e96C899888",
-    "RentalitySwaps": "0xeafcfB8f41a378003b02CDb341F107c6497f1acD"
+    "RentalitySwaps": "0xeafcfB8f41a378003b02CDb341F107c6497f1acD",
+    "RentalityReceiver": "0xA62aD74FC9AA87487557579Bd632A2e09746E3A7"
   },
   {
     "name": "base_sepolia",
@@ -228,5 +229,10 @@
     "name": "optimism_sepolia",
     "chainId": 11155420,
     "RentalitySender": "0x59c2C61371b51eDf1076E37A947cA843b234C53D"
+  },
+  {
+    "name": "optimism",
+    "chainId": 10,
+    "RentalitySender": "0x4D6eAAC8864De42d7A2Aa8750bF61EE0d5500Fbd"
   }
 ]

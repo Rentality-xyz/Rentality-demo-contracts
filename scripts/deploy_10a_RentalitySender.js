@@ -1,4 +1,4 @@
-const { ethers, artifacts } = require('hardhat')
+const { ethers, artifacts, upgrades } = require('hardhat')
 const addressSaver = require('./utils/addressSaver')
 const saveJsonAbi = require('./utils/abiSaver')
 // const { encodeParams, encodeCall, bytecodeDigest } = require('@openzeppelin/upgrades')
@@ -19,59 +19,73 @@ async function main() {
   ///the fastest way to achieve that, is created new wallet, with nonce zero in all networks
   let wallet
   let [signer] = await ethers.getSigners()
-  let value = 3784261028548176
-  let targetChain = 84532
+  let value = 2942494343164
+  let targetChain = 8453 
 
   const chainId = (await signer.provider?.getNetwork())?.chainId ?? -1
   let eid = chains[chainId].eid
   let dstEid = chains[targetChain].eid
-  let gasLimit = 3_000_000
+  let gasLimit = 2_000_000
   let eindpoint = chains[chainId].eindpoint
 
-  if (process.env.NEW_WALLET === undefined) {
-    wallet = new Wallet(Wallet.createRandom().privateKey, ethers.provider)
-    console.log('New deployer wallet', wallet.privateKey)
+  const sender = await ethers.getContractFactory('RentalitySender', signer)
 
-    let tx = await signer.sendTransaction({
-      to: await wallet.getAddress(),
-      value,
-    })
-    await tx.wait()
-  } else {
-    wallet = new Wallet(process.env.NEW_WALLET, ethers.provider)
-    let tx = await signer.sendTransaction({
-      to: await wallet.getAddress(),
-      value,
-    })
-    await tx.wait()
-  }
+  console.log('delegate', await signer.getAddress(), 'dstEid', dstEid, 'eid', eid, 'gasLimit', gasLimit)
+  const deployed  = await upgrades.deployProxy(sender, [
+     eindpoint,
+        await signer.getAddress(),
+        dstEid,
+        eid,
+        gasLimit]);
+        await deployed.waitForDeployment()
+   
+        const contractAddress = await deployed.getAddress()
+
+
+//   if (process.env.NEW_WALLET === undefined) {
+//     wallet = new Wallet(Wallet.createRandom().privateKey, ethers.provider)
+//     console.log('New deployer wallet', wallet.privateKey)
+
+//     let tx = await signer.sendTransaction({
+//       to: await wallet.getAddress(),
+//       value,
+//     })
+//     await tx.wait()
+//   } else {
+//     wallet = new Wallet(process.env.NEW_WALLET, ethers.provider)
+//     let tx = await signer.sendTransaction({
+//       to: await wallet.getAddress(),
+//       value,
+//     })
+//     await tx.wait()
+//   }
   let { contractName } = await startDeploy('RentalitySender')
 
-  if (chainId < 0) throw new Error('chainId is not set')
-  let r = await ethers.getContractFactory('RentalityDeployer', wallet)
-  let deployer = await r.deploy()
-  await deployer.waitForDeployment()
-  // console.log(await deployer.getAddress())
+//   if (chainId < 0) throw new Error('chainId is not set')
+//   let r = await ethers.getContractFactory('RentalityDeployer', wallet)
+//   let deployer = await r.deploy()
+//   await deployer.waitForDeployment()
+//   // console.log(await deployer.getAddress())
 
-  const defaultAbiCoder = new ethers.AbiCoder()
- const salt = zeroPadBytes( defaultAbiCoder.encode(["uint32"], [10]), 32)
+//   const defaultAbiCoder = new ethers.AbiCoder()
+//  const salt = zeroPadBytes( defaultAbiCoder.encode(["uint32"], [10]), 32)
 
- const iface = new Interface([
-  "function initialize(address endpoint, address owner, uint32 dstEid, uint32 eid, uint128 gasLimit)"
-]);
+//  const iface = new Interface([
+//   "function initialize(address endpoint, address owner, uint32 dstEid, uint32 eid, uint128 gasLimit)"
+// ]);
 
-  const result = iface.encodeFunctionData("initialize", [
-    eindpoint,
-    await signer.getAddress(),
-    dstEid,
-    eid,
-    gasLimit
-  ]);
-  let tx = await deployer.initialize(salt, await signer.getAddress(), result, wallet)
-  await tx.wait()
-  let contractAddress = await deployer.getDeployedAddress()
-  await deployer.destruct(wallet)
-  console.log(contractAddress)
+//   const result = iface.encodeFunctionData("initialize", [
+//     eindpoint,
+//     await signer.getAddress(),
+//     dstEid,
+//     eid,
+//     gasLimit
+//   ]);
+//   let tx = await deployer.initialize(salt, await signer.getAddress(), result)
+//   await tx.wait()
+//   let contractAddress = await deployer.getDeployedAddress()
+//   await deployer.destruct(wallet)
+//   console.log(contractAddress)
 
   
 

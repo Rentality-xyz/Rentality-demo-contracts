@@ -95,7 +95,8 @@ contract RentalitySender is ARentalitySender, UUPSUpgradeable, Initializable {
     eid = _eid;
     distEid = _distEid;
     gasLimit = _gasLimit;
-    _transferOwnership(Ownable(msg.sender).owner());
+    initialized = true;
+   _transferOwnership(msg.sender);
   }
   function _authorizeUpgrade(address /*newImplementation*/) internal view override {
     require(owner() == msg.sender, 'Only for Admin.');
