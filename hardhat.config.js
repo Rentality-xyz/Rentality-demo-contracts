@@ -3,7 +3,7 @@ require('@nomicfoundation/hardhat-toolbox')
 require('@openzeppelin/hardhat-upgrades')
 require('solidity-docgen')
 require("hardhat-tracer");
-
+ 
 module.exports = {
   mocha: {
     timeout: 100000000,
@@ -58,6 +58,11 @@ module.exports = {
       url: process.env.OPTIMISM_SEPOLIA_URL ?? '',
       accounts: [process.env.PRIVATE_KEY],
       chainId: 11155420,
+    },
+    optimism: {
+      url: process.env.OPTIMISM_URL ?? '',
+      accounts: [process.env.PRIVATE_KEY],
+      chainId: 10,
     },
     opBNB: {
       url: process.env.OP_BNB_URL ?? '',
