@@ -3,7 +3,11 @@ require('@nomicfoundation/hardhat-toolbox')
 require('@openzeppelin/hardhat-upgrades')
 require('solidity-docgen')
 require("hardhat-tracer");
- 
+
+//console.log("ENV GANACHE_LOCALHOST_URL:", process.env.GANACHE_LOCALHOST_URL);
+//console.log("ENV GANACHE_PRIVATE_KEY:", process.env.GANACHE_PRIVATE_KEY);
+//console.log("PRIVATE_KEY_WALLET LENGTH:", process.env.PRIVATE_KEY_WALLET?.length);
+
 module.exports = {
   mocha: {
     timeout: 100000000,
@@ -31,53 +35,57 @@ module.exports = {
     },
     ganache: {
       url: process.env.GANACHE_LOCALHOST_URL,
-      accounts: [process.env.GANACHE_PRIVATE_KEY],
+      accounts: process.env.GANACHE_PRIVATE_KEY
+        ? [process.env.GANACHE_PRIVATE_KEY]
+        : [""],
       chainId: 1337,
       timeout: 1_000_000,
     },
     tenderlyVirtual: {
-      url: process.env.TENDERLY_URL ?? '',
-      accounts: [process.env.PRIVATE_KEY],
+      url: process.env.TENDERLY_URL || "",
+      accounts: process.env.PRIVATE_KEY_WALLET
+      ? [process.env.PRIVATE_KEY_WALLET]
+      : [""],
       chainId: 102,
     },
     base: {
-      url: process.env.BASE_URL ?? '',
-      accounts: [process.env.PRIVATE_KEY],
+      url: process.env.BASE_URL || "",
+      accounts: [process.env.PRIVATE_KEY_WALLET],
       chainId: 8453,
     },
     base_sepolia: {
-      url: process.env.BASE_SEPOLIA_URL ?? '',
-      accounts: [process.env.PRIVATE_KEY],
+      url: process.env.BASE_SEPOLIA_URL || "",
+      accounts: [process.env.PRIVATE_KEY_WALLET],
       chainId: 84532,
     },
     sepolia: {
-      url: process.env.SEPOLIA_URL ?? '',
-      accounts: [process.env.PRIVATE_KEY],
+      url: process.env.SEPOLIA_URL || "",
+      accounts: [process.env.PRIVATE_KEY_WALLET],
     },
     optimism_sepolia: {
-      url: process.env.OPTIMISM_SEPOLIA_URL ?? '',
-      accounts: [process.env.PRIVATE_KEY],
+      url: process.env.OPTIMISM_SEPOLIA_URL || "",
+      accounts: [process.env.PRIVATE_KEY_WALLET],
       chainId: 11155420,
     },
     optimism: {
-      url: process.env.OPTIMISM_URL ?? '',
-      accounts: [process.env.PRIVATE_KEY],
+      url: process.env.OPTIMISM_URL || "",
+      accounts: [process.env.PRIVATE_KEY_WALLET],
       chainId: 10,
     },
     opBNB: {
-      url: process.env.OP_BNB_URL ?? '',
-      accounts: [process.env.PRIVATE_KEY],
+      url: process.env.OP_BNB_URL || "",
+      accounts: [process.env.PRIVATE_KEY_WALLET],
       chainId: 204,
       timeout: 1_000_000,
     },
     opBNB_testnet: {
-      url: process.env.OP_BNB_TESTNET_URL ?? '',
-      accounts: [process.env.PRIVATE_KEY],
+      url: process.env.OP_BNB_TESTNET_URL || "",
+      accounts: [process.env.PRIVATE_KEY_WALLET],
       chainId: 5611,
     },
     mainnet: {
-      url: 'https://eth.llamarpc.com' ?? '',
-      accounts: [process.env.PRIVATE_KEY],
+      url: 'https://eth.llamarpc.com' || "",
+      accounts: [process.env.PRIVATE_KEY_WALLET],
       chainId: 1,
     },
   },
