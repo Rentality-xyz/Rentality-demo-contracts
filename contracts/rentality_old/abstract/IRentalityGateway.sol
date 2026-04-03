@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 
 
-import '../RentalityCarToken.sol';
+import "../adapter/ICarGateway.sol";
 import '../RentalityTripService.sol';
 import '../Schemas.sol';
 import {IRentalityInvestmentFacet} from './facets/IRentalityInvestmentFacet.sol';
@@ -26,4 +26,7 @@ IRentalityTripsViewFacet
 
  
 }
+
+
+
 

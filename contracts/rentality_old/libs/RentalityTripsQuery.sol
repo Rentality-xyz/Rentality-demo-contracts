@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 
 
-import '../RentalityCarToken.sol';
+import "../adapter/ICarGateway.sol";
 import '../payments/RentalityCurrencyConverter.sol';
 import '../payments/RentalityPaymentService.sol';
 import '../RentalityTripService.sol';
@@ -371,7 +371,7 @@ library RentalityTripsQuery {
     RentalityHostInsurance hostInsurance
   ) public view returns (Schemas.TripDTO memory) {
     RentalityTripService tripService = contracts.tripService;
-    RentalityCarToken carService = contracts.carService;
+    ICarGateway carService = contracts.carService;
     RentalityUserService userService = contracts.userService;
 
     Schemas.CarInfo memory car = carService.getCarInfoById(trip.carId);
@@ -629,7 +629,7 @@ library RentalityTripsQuery {
     Schemas.TripDTO[] memory trips = getTripsAs(addresses, insuranceService, user, host, promoService, dimoService, hostInsurance);
 
     RentalityUserService userService = addresses.userService;
-    RentalityCarToken carService = addresses.carService;
+    ICarGateway carService = addresses.carService;
 
     Schemas.ChatInfo[] memory chatInfoList = new Schemas.ChatInfo[](trips.length);
 
@@ -642,7 +642,7 @@ library RentalityTripsQuery {
   function _populateSingleChatInfo(
     Schemas.TripDTO memory trip,
     RentalityUserService userService,
-    RentalityCarToken carService
+    ICarGateway carService
 ) internal view returns (Schemas.ChatInfo memory) {
     Schemas.ChatInfo memory chatInfo;
 
@@ -684,3 +684,6 @@ library RentalityTripsQuery {
     return (trip.carId == carId) && (trip.endDateTime > startDateTime) && (trip.startDateTime < endDateTime);
   }
 }
+
+
+

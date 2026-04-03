@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 
 
-import '../RentalityCarToken.sol';
+import "../adapter/ICarGateway.sol";
 import '../payments/RentalityCurrencyConverter.sol';
 import '../payments/RentalityPaymentService.sol';
 import '../RentalityTripService.sol';
@@ -167,7 +167,7 @@ library RentalityViewLib {
     uint64 duration
   ) public view returns (Schemas.FilterInfoDTO memory) {
     uint64 maxCarPrice = 0;
-    RentalityCarToken carService = contracts.carService;
+    ICarGateway carService = contracts.carService;
     uint minCarYearOfProduction = carService.getCarInfoById(1).yearOfProduction;
 
     for (uint i = 2; i <= carService.totalSupply(); i++) {
@@ -229,7 +229,7 @@ library RentalityViewLib {
     return (result, totalPrice, totalHolders, totalSupply);
   }
 
-  function getUniqCarsBrand(RentalityCarToken carService) public view returns (string[] memory) {
+  function getUniqCarsBrand(ICarGateway carService) public view returns (string[] memory) {
     uint totalSupply = carService.totalSupply();
     uint realAmount = 0;
     string[] memory brandsArray = new string[](totalSupply);
@@ -249,7 +249,7 @@ library RentalityViewLib {
   }
 
   function getUniqModelsByBrand(
-    RentalityCarToken carService,
+    ICarGateway carService,
     string memory brand
   ) public view returns (string[] memory modelsArray) {
     uint totalSupply = carService.totalSupply();
@@ -296,9 +296,9 @@ library RentalityViewLib {
     address dimoService
   ) public view returns (Schemas.AvailableCarDTO memory) {
     Schemas.CarInfo memory temp = contracts.carService.getCarInfoById(carId);
-    RentalityCarToken carService = contracts.carService;
+    ICarGateway carService = contracts.carService;
 
-    uint fuelPrice = contracts.carService.getEngineService().getFuelPriceFromEngineParams(temp.engineType, temp.engineParams);
+    uint fuelPrice = RentalityEnginesService(contracts.carService.getEngineService()).getFuelPriceFromEngineParams(temp.engineType, temp.engineParams);
 
     uint64 totalTripDays = uint64(Math.ceilDiv(endDateTime - startDateTime, 1 days));
     totalTripDays = totalTripDays == 0 ? 1 : totalTripDays;
@@ -377,3 +377,7 @@ library RentalityViewLib {
       );
   }
 }
+
+
+
+

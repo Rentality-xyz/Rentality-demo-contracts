@@ -5,7 +5,7 @@ pragma solidity ^0.8.20;
 
 import './Schemas.sol';
 import './RentalityUserService.sol';
-import './RentalityCarToken.sol';
+import "./adapter/ICarGateway.sol";
 import './payments/RentalityInsurance.sol';
 import './features/RentalityClaimService.sol';
 import './payments/RentalityPaymentService.sol';
@@ -329,7 +329,7 @@ contract RentalityView is UUPSUpgradeable, Initializable, ARentalityContext {
     address dimoServiceAddress
   ) public initializer {
     addresses = RentalityContract(
-      RentalityCarToken(carServiceAddress),
+      ICarGateway(carServiceAddress),
       RentalityCurrencyConverter(currencyConverterServiceAddress),
       RentalityTripService(tripServiceAddress),
       RentalityUserService(userServiceAddress),
@@ -352,3 +352,6 @@ contract RentalityView is UUPSUpgradeable, Initializable, ARentalityContext {
     require(addresses.userService.isAdmin(msg.sender), 'Only for Admin.');
   }
 }
+
+
+

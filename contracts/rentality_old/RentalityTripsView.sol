@@ -5,7 +5,7 @@ pragma solidity ^0.8.20;
 
 import './Schemas.sol';
 import './RentalityUserService.sol';
-import './RentalityCarToken.sol';
+import "./adapter/ICarGateway.sol";
 import './payments/RentalityInsurance.sol';
 import './features/RentalityClaimService.sol';
 import './payments/RentalityCurrencyConverter.sol';
@@ -129,7 +129,7 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
   }
   function getFilterInfo(uint64 duration) public view returns (Schemas.FilterInfoDTO memory) {
     uint64 maxCarPrice = 0;
-    RentalityCarToken carService = addresses.carService;
+    ICarGateway carService = addresses.carService;
     uint minCarYearOfProduction = carService.getCarInfoById(1).yearOfProduction;
 
     for (uint i = 2; i <= carService.totalSupply(); i++) {
@@ -279,7 +279,7 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
     address _hostInsurance
   ) public initializer {
     addresses = RentalityContract(
-      RentalityCarToken(carServiceAddress),
+      ICarGateway(carServiceAddress),
       RentalityCurrencyConverter(currencyConverterServiceAddress),
       RentalityTripService(tripServiceAddress),
       RentalityUserService(userServiceAddress),
@@ -301,3 +301,6 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
     require(addresses.userService.isAdmin(msg.sender), 'Only for Admin.');
   }
 }
+
+
+

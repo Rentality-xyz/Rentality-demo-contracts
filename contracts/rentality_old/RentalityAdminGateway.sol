@@ -18,7 +18,7 @@ import {RentalityDimoService} from './features/RentalityDimoService.sol';
 import {RentalityNotificationService} from './features/RentalityNotificationService.sol';
 /// @custom:oz-upgrades-unsafe-allow external-library-linking
 contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
-  RentalityCarToken private carService;
+  ICarGateway private carService;
   RentalityCurrencyConverter private currencyConverterService;
   RentalityTripService private tripService;
   RentalityUserService private userService;
@@ -70,8 +70,8 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
   function getInvestmentAddress() public view returns (address investmentAddress) {
     return address(investment);
   }
-  /// @notice Retrieves the address of the RentalityCarToken contract.
-  /// @return carServiceAddress The address of the RentalityCarToken contract.
+  /// @notice Retrieves the address of the ICarGateway contract.
+  /// @return carServiceAddress The address of the ICarGateway contract.
   function getCarServiceAddress() public view returns (address carServiceAddress) {
     return address(carService);
   }
@@ -430,7 +430,7 @@ function setDefaultPrices(uint64 underTwentyFiveMilesInUsdCents, uint64 aboveTwe
 
 
   //  @dev Initializes the contract with the provided addresses for various services.
-  //  @param carServiceAddress The address of the RentalityCarToken contract.
+  //  @param carServiceAddress The address of the ICarGateway contract.
   //  @param currencyConverterServiceAddress The address of the RentalityCurrencyConverter contract.
   //  @param tripServiceAddress The address of the RentalityTripService contract.
   //  @param userServiceAddress The address of the RentalityUserService contract.
@@ -457,7 +457,7 @@ function setDefaultPrices(uint64 underTwentyFiveMilesInUsdCents, uint64 aboveTwe
     address investmentAddress,
     address notificationServiceAddress
   ) public initializer {
-    carService = RentalityCarToken(carServiceAddress);
+    carService = ICarGateway(carServiceAddress);
     currencyConverterService = RentalityCurrencyConverter(currencyConverterServiceAddress);
     tripService = RentalityTripService(tripServiceAddress);
     userService = RentalityUserService(userServiceAddress);
@@ -483,3 +483,5 @@ function setDefaultPrices(uint64 underTwentyFiveMilesInUsdCents, uint64 aboveTwe
     __Ownable_init();
   }
 }
+
+

@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "./CarMain.sol";
+import "../base/asset/AssetTypes.sol";
+import "./CarTypes.sol";
 
 interface ICarMain {
     function exists(uint256 id) external view returns (bool);
@@ -108,4 +109,6 @@ contract CarQuery {
         return result;
     }
 }
+
+
 

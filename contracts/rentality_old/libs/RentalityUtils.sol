@@ -6,7 +6,7 @@ pragma solidity ^0.8.20;
 import '@openzeppelin/contracts/utils/math/Math.sol';
 import '../Schemas.sol';
 import '../RentalityUserService.sol';
-import '../RentalityCarToken.sol';
+import "../adapter/ICarGateway.sol";
 import '../abstract/IRentalityGeoService.sol';
 import '../RentalityTripService.sol';
 import '../payments/RentalityCurrencyConverter.sol';
@@ -335,7 +335,7 @@ library RentalityUtils {
     address carServiceAddress,
     address geoServiceAddress
   ) public view returns (bool) {
-    RentalityCarToken carService = RentalityCarToken(carServiceAddress);
+    ICarGateway carService = ICarGateway(carServiceAddress);
     IRentalityGeoService geoService = IRentalityGeoService(geoServiceAddress);
 
     Schemas.CarInfo memory car = carService.getCarInfoById(carId);
@@ -685,7 +685,7 @@ library RentalityUtils {
     uint carId,
     RentalityDimoService dimoService
   ) public view returns (Schemas.CarDetails memory details) {
-    RentalityCarToken carService = contracts.carService;
+    ICarGateway carService = contracts.carService;
     IRentalityGeoService geo = IRentalityGeoService(carService.getGeoServiceAddress());
     RentalityUserService userService = contracts.userService;
 
@@ -721,7 +721,7 @@ library RentalityUtils {
     RentalityDimoService dimoService,
     address user
   ) public view returns (Schemas.CarInfoDTO[] memory) {
-    RentalityCarToken carService = contracts.carService;
+    ICarGateway carService = contracts.carService;
 
     Schemas.CarInfo[] memory carInfoes = carService.getCarsOwnedByUser(user);
 
@@ -790,3 +790,6 @@ library RentalityUtils {
     require(trip.status == Schemas.TripStatus.CheckedOutByHost, 'The trip is not in status CheckedOutByHost');
   }
 }
+
+
+

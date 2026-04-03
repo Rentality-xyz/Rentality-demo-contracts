@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 
 
-import '../RentalityCarToken.sol';
+import "../adapter/ICarGateway.sol";
 import '../payments/RentalityCurrencyConverter.sol';
 import '../payments/RentalityPaymentService.sol';
 import '../RentalityTripService.sol';
@@ -34,7 +34,7 @@ library RentalityQuery {
   // ) public view returns (Schemas.FullClaimInfo[] memory) {
   //   RentalityClaimService claimService = contracts.claimService;
   //   RentalityTripService tripService = contracts.tripService;
-  //   RentalityCarToken carService = contracts.carService;
+  //   ICarGateway carService = contracts.carService;
   //   RentalityUserService userService = contracts.userService;
   //   RentalityCurrencyConverter currencyConverterService = contracts.currencyConverterService;
 
@@ -159,7 +159,7 @@ library RentalityQuery {
     RentalityContract memory contracts,
     address guest
   ) private view returns (Schemas.FullClaimInfo[] memory) {
-    RentalityCarToken carService = contracts.carService;
+    ICarGateway carService = contracts.carService;
     RentalityUserService userService = contracts.userService;
     RentalityCurrencyConverter currencyConverterService = contracts.currencyConverterService;
 
@@ -247,7 +247,7 @@ library RentalityQuery {
     uint to
   ) public view returns (Schemas.SearchCar[] memory result, uint totalCars) {
     RentalityInsurance insuranceService = RentalityInsurance(insuranceServiceAddress);
-    RentalityCarToken carService = contracts.carService;
+    ICarGateway carService = contracts.carService;
     Schemas.CarInfo[] memory availableCars = carService.fetchAvailableCarsForUser(user, searchParams, from, to);
     if (availableCars.length == 0) return (new Schemas.SearchCar[](0), 0);
 
@@ -302,7 +302,7 @@ library RentalityQuery {
           availableCars[temp[i]].createdBy
         );
       }
-      uint fuelPrice = contracts.carService.getEngineService().getFuelPriceFromEngineParams(availableCars[temp[i]].engineType, availableCars[temp[i]].engineParams);
+      uint fuelPrice = RentalityEnginesService(contracts.carService.getEngineService()).getFuelPriceFromEngineParams(availableCars[temp[i]].engineType, availableCars[temp[i]].engineParams);
       uint taxId = contracts.paymentService.defineTaxesType(address(contracts.carService),  availableCars[temp[i]].carId);
 
     (uint64 totalTax, Schemas.TaxValue[] memory taxes) = taxId == 0
@@ -395,3 +395,7 @@ library RentalityQuery {
       );
   }
 }
+
+
+
+

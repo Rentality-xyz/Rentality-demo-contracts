@@ -5,7 +5,7 @@ pragma solidity ^0.8.20;
 
 import './features/RentalityClaimService.sol';
 import './abstract/IRentalityGateway.sol';
-import './RentalityCarToken.sol';
+import "./adapter/ICarGateway.sol";
 import './payments/RentalityCurrencyConverter.sol';
 import './RentalityTripService.sol';
 import './RentalityUserService.sol';
@@ -435,7 +435,7 @@ function createTripRequestWithDelivery(
   }
 
   /// @notice Constructor to initialize the RentalityPlatform with service contract addresses.
-  /// @param carServiceAddress The address of the RentalityCarToken contract.
+  /// @param carServiceAddress The address of the ICarGateway contract.
   /// @param currencyConverterServiceAddress The address of the RentalityCurrencyConverter contract.
   /// @param tripServiceAddress The address of the RentalityTripService contract.
   /// @param userServiceAddress The address of the RentalityUserService contract.
@@ -456,7 +456,7 @@ function createTripRequestWithDelivery(
     address rentalityPlatformHelperAddress
   ) public initializer {
     addresses = RentalityContract(
-      RentalityCarToken(carServiceAddress),
+      ICarGateway(carServiceAddress),
       RentalityCurrencyConverter(currencyConverterServiceAddress),
       RentalityTripService(tripServiceAddress),
       RentalityUserService(userServiceAddress),
@@ -476,3 +476,6 @@ function createTripRequestWithDelivery(
     __Ownable_init();
   }
 }
+
+
+

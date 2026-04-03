@@ -12,7 +12,7 @@ import '@openzeppelin/contracts/utils/math/Math.sol';
 
 import './features/RentalityClaimService.sol';
 import './abstract/IRentalityGateway.sol';
-import './RentalityCarToken.sol';
+import "./adapter/ICarGateway.sol";
 import './payments/RentalityCurrencyConverter.sol';
 import './RentalityTripService.sol';
 import './RentalityUserService.sol';
@@ -550,7 +550,7 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     address eventManagerAddress
   ) public initializer {
     addresses = RentalityContract(
-      RentalityCarToken(carServiceAddress),
+      ICarGateway(carServiceAddress),
       RentalityCurrencyConverter(currencyConverterServiceAddress),
       RentalityTripService(address(this)),
       RentalityUserService(userServiceAddress),
@@ -569,3 +569,6 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     require(addresses.userService.isAdmin(msg.sender), 'Only for Admin.');
   }
 }
+
+
+

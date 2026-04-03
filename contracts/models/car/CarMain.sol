@@ -9,7 +9,7 @@ import {
 import "../base/asset/AssetBase.sol";
 import "../base/asset/AssetTypes.sol";
 import "./CarLib.sol";
-import "../../rentality_old/Schemas.sol";
+import "./CarTypes.sol";
 import "../../rentality_old/proxy/UUPSOwnable.sol";
 
 interface ICarUserAccess {
@@ -25,66 +25,15 @@ interface ICarEngineValidator {
 }
 
 interface ICarGeoVerifier {
-    function createLocationInfo(Schemas.LocationInfo memory info) external returns (bytes32);
-    function verifySignedLocationInfo(Schemas.SignedLocationInfo memory signed) external view;
+    function createLocationInfo(LocationInfo memory info) external returns (bytes32);
+    function verifySignedLocationInfo(SignedLocationInfo memory signed) external view;
 }
 
 interface ICarEventEmitter {
-    function emitEvent(Schemas.EventType eType, uint256 id, uint8 objectStatus, address from, address to) external;
+    function emitCarEvent(uint256 id, CarUpdateStatus status, address from, address to) external;
 }
 
-struct CarData {
-    string carVinNumber;
-    bytes32 carVinNumberHash;
-    string brand;
-    string model;
-    uint32 yearOfProduction;
-    uint64 pricePerDayInUsdCents;
-    uint64 securityDepositPerTripInUsdCents;
-    uint8 engineType;
-    uint64[] engineParams;
-    uint64 milesIncludedPerDay;
-    uint32 timeBufferBetweenTripsInSec;
-    bool currentlyListed;
-    bool geoVerified;
-    string timeZoneId;
-    bool insuranceIncluded;
-    bytes32 locationHash;
-}
 
-struct CarInfo {
-    Asset asset;
-    CarData car;
-}
-
-struct CreateCarRequest {
-    CreateAssetRequest asset;
-    string carVinNumber;
-    string brand;
-    string model;
-    uint32 yearOfProduction;
-    uint64 pricePerDayInUsdCents;
-    uint64 securityDepositPerTripInUsdCents;
-    uint64[] engineParams;
-    uint8 engineType;
-    uint64 milesIncludedPerDay;
-    uint32 timeBufferBetweenTripsInSec;
-    Schemas.SignedLocationInfo locationInfo;
-    bool currentlyListed;
-}
-
-struct UpdateCarRequest {
-    UpdateAssetRequest asset;
-    uint64 pricePerDayInUsdCents;
-    uint64 securityDepositPerTripInUsdCents;
-    uint64[] engineParams;
-    uint64 milesIncludedPerDay;
-    uint32 timeBufferBetweenTripsInSec;
-    bool currentlyListed;
-    uint8 engineType;
-    Schemas.LocationInfo location;
-    bool updateLocation;
-}
 
 contract CarMain is AssetBase, ERC721URIStorageUpgradeable, UUPSOwnable {
     ICarGeoVerifier public geoVerifier;
@@ -193,7 +142,7 @@ contract CarMain is AssetBase, ERC721URIStorageUpgradeable, UUPSOwnable {
 
         _approve(address(this), id);
 
-        eventEmitter.emitEvent(Schemas.EventType.Car, id, uint8(Schemas.CarUpdateStatus.Add), user, user);
+        eventEmitter.emitCarEvent(id, CarUpdateStatus.Add, user, user);
         emit CarCreated(id, user, request.brand, request.model);
         return id;
     }
@@ -228,7 +177,7 @@ contract CarMain is AssetBase, ERC721URIStorageUpgradeable, UUPSOwnable {
 
         CarLib.updateListingMoment(listingMomentByAssetId, id, wasListed, request.currentlyListed);
 
-        eventEmitter.emitEvent(Schemas.EventType.Car, id, uint8(Schemas.CarUpdateStatus.Update), user, user);
+        eventEmitter.emitCarEvent(id, CarUpdateStatus.Update, user, user);
         emit CarUpdated(id);
     }
 
@@ -259,7 +208,7 @@ contract CarMain is AssetBase, ERC721URIStorageUpgradeable, UUPSOwnable {
         return listingMomentByAssetId[id];
     }
 
-    function verifySignedLocationInfo(Schemas.SignedLocationInfo memory locationInfo) external view {
+    function verifySignedLocationInfo(SignedLocationInfo memory locationInfo) external view {
         geoVerifier.verifySignedLocationInfo(locationInfo);
     }
 
@@ -296,7 +245,7 @@ contract CarMain is AssetBase, ERC721URIStorageUpgradeable, UUPSOwnable {
         delete cars[id];
         delete assets[id];
 
-        eventEmitter.emitEvent(Schemas.EventType.Car, id, uint8(Schemas.CarUpdateStatus.Burn), msg.sender, msg.sender);
+        eventEmitter.emitCarEvent(id, CarUpdateStatus.Burn, msg.sender, msg.sender);
     }
 
     function updateGeoVerifierAddress(address geoVerifierAddress) external onlyAdmin {
@@ -348,3 +297,9 @@ contract CarMain is AssetBase, ERC721URIStorageUpgradeable, UUPSOwnable {
         super._burn(tokenId);
     }
 }
+
+
+
+
+
+

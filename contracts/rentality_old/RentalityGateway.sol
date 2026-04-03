@@ -9,7 +9,7 @@ pragma solidity ^0.8.20;
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import './features/RentalityClaimService.sol';
 import './abstract/IRentalityGateway.sol';
-import './RentalityCarToken.sol';
+import "./adapter/ICarGateway.sol";
 import './RentalityTripService.sol';
 import './RentalityUserService.sol';
 import './payments/RentalityPaymentService.sol';
@@ -25,7 +25,7 @@ import {LibDiamond} from './libs/LibDiamond.sol';
 import {RentalityNotificationService} from './features/RentalityNotificationService.sol';
 
 struct RentalityContract {
-  RentalityCarToken carService;
+  ICarGateway carService;
   RentalityCurrencyConverter currencyConverterService;
   RentalityTripService tripService;
   RentalityUserService userService;
@@ -119,7 +119,7 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/, ReentrancyGuar
   }
 
   //  @dev Initializes the contract with the provided addresses for various services.
-  //  @param carServiceAddress The address of the RentalityCarToken contract.
+  //  @param carServiceAddress The address of the ICarGateway contract.
   //  @param currencyConverterServiceAddress The address of the RentalityCurrencyConverter contract.
   //  @param tripServiceAddress The address of the RentalityTripService contract.
   //  @param userServiceAddress The address of the RentalityUserService contract.
@@ -135,3 +135,6 @@ LibDiamond.FacetCut[] memory _diamondCut
      __ReentrancyGuard_init();
   }
 }
+
+
+
