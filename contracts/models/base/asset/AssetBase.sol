@@ -24,15 +24,6 @@ abstract contract AssetBase is IAsset {
         _;
     }
 
-    function createAsset(CreateAssetRequest calldata request) external virtual returns (uint256) {
-        return _createAsset(_msgAssetOwner(), request.name, request.metadataURI);
-    }
-
-    function updateAsset(uint256 id, UpdateAssetRequest calldata request) external virtual assetExists(id) {
-        _checkCanManageAsset(id, _msgAssetOwner());
-        _updateAsset(id, request.name, request.metadataURI);
-    }
-
     function getAsset(uint256 id) external view virtual assetExists(id) returns (Asset memory) {
         return assets[id];
     }
@@ -50,7 +41,7 @@ abstract contract AssetBase is IAsset {
         string memory name,
         string memory metadataURI
     ) internal virtual returns (uint256) {
-        _validateCreateRequest(name, metadataURI);
+        _validateAssetData(name, metadataURI);
 
         uint256 id = ++nextAssetId;
 
@@ -63,26 +54,17 @@ abstract contract AssetBase is IAsset {
         });
 
         emit AssetCreated(id, owner, name);
-
-        _afterAssetCreated(id, name, metadataURI);
-
         return id;
     }
 
     function _updateAsset(uint256 id, string memory name, string memory metadataURI) internal virtual assetExists(id) {
-        _validateUpdateRequest(name, metadataURI);
+        _validateAssetData(name, metadataURI);
 
         Asset storage asset = assets[id];
         asset.name = name;
         asset.metadataURI = metadataURI;
 
         emit AssetUpdated(id, name, metadataURI);
-
-        _afterAssetUpdated(id, name, metadataURI);
-    }
-
-    function _msgAssetOwner() internal view virtual returns (address) {
-        return msg.sender;
     }
 
     function _checkCanManageAsset(uint256 id, address caller) internal view virtual {
@@ -91,7 +73,7 @@ abstract contract AssetBase is IAsset {
         }
     }
 
-    function _validateCreateRequest(string memory name, string memory metadataURI) internal pure virtual {
+    function _validateAssetData(string memory name, string memory metadataURI) internal pure virtual {
         if (bytes(name).length == 0) {
             revert InvalidAssetName();
         }
@@ -100,18 +82,4 @@ abstract contract AssetBase is IAsset {
             revert InvalidMetadataURI();
         }
     }
-
-    function _validateUpdateRequest(string memory name, string memory metadataURI) internal pure virtual {
-        if (bytes(name).length == 0) {
-            revert InvalidAssetName();
-        }
-
-        if (bytes(metadataURI).length == 0) {
-            revert InvalidMetadataURI();
-        }
-    }
-
-    function _afterAssetCreated(uint256 id, string memory name, string memory metadataURI) internal virtual {}
-
-    function _afterAssetUpdated(uint256 id, string memory name, string memory metadataURI) internal virtual {}
 }
