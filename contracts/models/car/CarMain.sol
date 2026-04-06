@@ -10,7 +10,7 @@ import "../base/asset/AssetBase.sol";
 import "../base/asset/AssetTypes.sol";
 import "./CarLib.sol";
 import "./CarTypes.sol";
-import "../../rentality_old/proxy/UUPSOwnable.sol";
+import "../../proxy/UUPSOwnable.sol";
 
 interface ICarUserAccess {
     function isRentalityPlatform(address user) external view returns (bool);
@@ -297,6 +297,7 @@ contract CarMain is AssetBase, ERC721URIStorageUpgradeable, UUPSOwnable {
         super._burn(tokenId);
     }
 }
+
 
 
 
