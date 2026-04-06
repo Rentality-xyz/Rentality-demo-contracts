@@ -3,12 +3,12 @@ pragma solidity ^0.8.20;
 
 
 
-import {UUPSUpgradeable} from '@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol';
+import {UUPSUpgradeable as OZUUPSUpgradeable} from '@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol';
 import '../abstract/IRentalityAccessControl.sol';
 
 /// @title UUPSAccess
 /// @dev An upgradeable contract with access control based on UUPS (Universal Upgradeable Proxy Standard).
-abstract contract UUPSAccess is UUPSUpgradeable {
+abstract contract UUPSAccess is OZUUPSUpgradeable {
   IRentalityAccessControl internal userService;
 
   // @notice Only admins are allowed to authorize upgrades.
@@ -18,3 +18,5 @@ abstract contract UUPSAccess is UUPSUpgradeable {
     require(userService.isAdmin(msg.sender), 'Only for Admin.');
   }
 }
+
+

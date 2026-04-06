@@ -23,7 +23,7 @@ describe('Rentality insurance', function () {
     rentalityUserService,
     rentalityTripService,
     rentalityCurrencyConverter,
-    rentalityCarToken,
+    carGatewayAdapter,
     rentalityPaymentService,
     rentalityPlatform,
     engineService,
@@ -50,7 +50,7 @@ describe('Rentality insurance', function () {
       rentalityUserService,
       rentalityTripService,
       rentalityCurrencyConverter,
-      rentalityCarToken,
+      carGatewayAdapter,
       rentalityPaymentService,
       rentalityPlatform,
       engineService,
@@ -777,3 +777,5 @@ fee: 0,
     expect(insurances[0].insuranceInfo.policyNumber).to.be.eq(insurance.policyNumber)
   })
 })
+
+

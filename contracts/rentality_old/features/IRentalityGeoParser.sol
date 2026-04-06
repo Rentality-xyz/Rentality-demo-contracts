@@ -28,3 +28,4 @@ interface IRentalityGeoParser {
   /// @return Parsed geolocation data for the specified car ID.
   function parseGeoResponse(uint256 carId) external view returns (Schemas.ParsedGeolocationData memory);
 }
+

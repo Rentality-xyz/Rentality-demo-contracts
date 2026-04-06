@@ -18,7 +18,7 @@ Constructor to initialize the RentalityPlatform with service contract addresses.
 
 | Name                            | Type    | Description                                             |
 | ------------------------------- | ------- | ------------------------------------------------------- |
-| carServiceAddress               | address | The address of the RentalityCarToken contract.          |
+| carServiceAddress               | address | The address of the CarGatewayAdapter contract.          |
 | currencyConverterServiceAddress | address | The address of the RentalityCurrencyConverter contract. |
 | tripServiceAddress              | address | The address of the RentalityTripService contract.       |
 | userServiceAddress              | address | The address of the RentalityUserService contract.       |
@@ -272,3 +272,5 @@ Get chat information for trips attended by the caller on the Rentality platform.
 | Name | Type                                | Description                                                             |
 | ---- | ----------------------------------- | ----------------------------------------------------------------------- |
 | [0]  | struct IRentalityGateway.ChatInfo[] | chatInfo An array of chat information for trips attended by the caller. |
+
+

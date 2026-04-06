@@ -46,3 +46,4 @@ abstract contract ARentalityContext {
     return 20;
   }
 }
+

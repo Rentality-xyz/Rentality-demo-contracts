@@ -22,7 +22,7 @@ describe('RentalityGateway: time buffer', function () {
     rentalityUserService,
     rentalityTripService,
     rentalityCurrencyConverter,
-    rentalityCarToken,
+    carGatewayAdapter,
     rentalityPaymentService,
     rentalityPlatform,
     rentalityGeoService,
@@ -46,7 +46,7 @@ describe('RentalityGateway: time buffer', function () {
       rentalityUserService,
       rentalityTripService,
       rentalityCurrencyConverter,
-      rentalityCarToken,
+      carGatewayAdapter,
       rentalityPaymentService,
       rentalityPlatform,
       rentalityGeoService,
@@ -69,7 +69,7 @@ describe('RentalityGateway: time buffer', function () {
     ).not.to.be.reverted
 
     await expect(
-      rentalityCarToken.connect(host).burnCar(1)
+      carGatewayAdapter.connect(host).burnCar(1)
     ).to.not.be.reverted
   })
   it('should not show car, while time buffer not expired', async function () {
@@ -131,9 +131,9 @@ fee: 0
 
     const searchParams = getEmptySearchCarParams()
 
-    const value = await rentalityCarToken.fetchAvailableCarsForUser(guest.address, getEmptySearchCarParams(),0, 10)
+    const value = await carGatewayAdapter.fetchAvailableCarsForUser(guest.address, getEmptySearchCarParams(),0, 10)
     // let rentalityContract = {
-    //   carService: await rentalityCarToken.getAddress(),
+    //   carService: await carGatewayAdapter.getAddress(),
     //   currencyConverterService: await rentalityCurrencyConverter.getAddress(),
     //   tripService: await rentalityTripService.getAddress(),
     //   userService: await rentalityUserService.getAddress(),
@@ -393,3 +393,5 @@ fee: 0
     expect(canceledTrip.status).to.be.eq(TripStatus.Canceled)
   })
 })
+
+

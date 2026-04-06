@@ -36,7 +36,7 @@ describe('RentalityGateway: user info', function () {
       rentalityUserService,
       rentalityTripService,
       rentalityCurrencyConverter,
-      rentalityCarToken,
+      carGatewayAdapter,
       rentalityPaymentService,
       rentalityGateway,
       rentalityGeoService,
@@ -58,7 +58,7 @@ describe('RentalityGateway: user info', function () {
     ).not.to.be.reverted
 
     await expect(
-      rentalityCarToken.connect(host).burnCar(1)
+      carGatewayAdapter.connect(host).burnCar(1)
     ).to.not.be.reverted
   })
 
@@ -383,3 +383,5 @@ fee: 0
     expect(kycInfos.kycInfos.length).to.equal(1)
   })
 })
+
+

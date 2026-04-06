@@ -14,13 +14,13 @@ async function main() {
     'RentalityUserService'
   )
 
-  const rentalityCarTokenAddress = checkNotNull(
-    getContractAddress('RentalityCarToken', 'scripts/deploy_3_RentalityCarToken.js', chainId),
-    'RentalityCarToken'
+  const carGatewayAdapterAddress = checkNotNull(
+    getContractAddress('CarGatewayAdapter', 'scripts/deploy_3_CarGatewayAdapter.js', chainId),
+    'CarGatewayAdapter'
   )
   const contractFactory = await ethers.getContractFactory(contractName)
 
-  const contract = await upgrades.deployProxy(contractFactory, [userService, rentalityCarTokenAddress])
+  const contract = await upgrades.deployProxy(contractFactory, [userService, carGatewayAdapterAddress])
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()
 
@@ -35,3 +35,7 @@ main()
     console.error(error)
     process.exit(1)
   })
+
+
+
+

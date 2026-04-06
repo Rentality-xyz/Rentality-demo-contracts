@@ -75,3 +75,4 @@ contract RentalityMockPriceFeed is AggregatorV2V3Interface {
     return 0;
   }
 }
+

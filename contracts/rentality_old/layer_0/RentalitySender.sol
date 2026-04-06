@@ -12,9 +12,10 @@ import '../RentalityUserService.sol';
 import '../abstract/IRentalitySender.sol';
 import './ARentalitySender.sol';
 import '../abstract/IRentalityInvestmentSender.sol';
-import '@openzeppelin/contracts/proxy/utils/Initializable.sol';
+import {Initializable as OZInitializable} from '@openzeppelin/contracts/proxy/utils/Initializable.sol';
+import {UUPSUpgradeable as OZUUPSUpgradeable} from '@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol';
 
-contract RentalitySender is ARentalitySender, UUPSUpgradeable, Initializable {
+contract RentalitySender is ARentalitySender, OZUUPSUpgradeable, OZInitializable {
   bool private initialized;
   uint32 private distEid;
   uint32 private eid;
@@ -102,3 +103,6 @@ contract RentalitySender is ARentalitySender, UUPSUpgradeable, Initializable {
     require(owner() == msg.sender, 'Only for Admin.');
   }
 }
+
+
+

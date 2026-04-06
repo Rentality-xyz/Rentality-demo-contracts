@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 
 
-import '@openzeppelin/contracts/proxy/utils/Initializable.sol';
+import {Initializable as OZInitializable} from '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 import '../proxy/UUPSAccess.sol';
 import '../RentalityUserService.sol';
 import '../libs/RealMath.sol';
@@ -21,7 +21,7 @@ int128 constant COORDINATE_ACCURACY = 10000000000000;
 /// @notice Contract for managing car delivery functionality
 /// @dev SAFETY: only pure functions in RealMath library
 /// @custom:oz-upgrades-unsafe-allow external-library-linking
-contract RentalityCarDelivery is Initializable, UUPSAccess {
+contract RentalityCarDelivery is OZInitializable, UUPSAccess {
   mapping(address => Schemas.DeliveryPrices) private userToDeliveryPrice;
   Schemas.DeliveryPrices private defaultPrices;
 
@@ -248,3 +248,5 @@ contract RentalityCarDelivery is Initializable, UUPSAccess {
     defaultPrices = Schemas.DeliveryPrices(300, 250, false);
   }
 }
+
+

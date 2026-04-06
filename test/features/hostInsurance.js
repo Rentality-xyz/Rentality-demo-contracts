@@ -18,7 +18,7 @@ describe('HostInsurance', function () {
     rentalityUserService,
     rentalityTripService,
     rentalityCurrencyConverter,
-    rentalityCarToken,
+    carGatewayAdapter,
     rentalityPaymentService,
     rentalityPlatform,
     claimService,
@@ -39,7 +39,7 @@ describe('HostInsurance', function () {
       rentalityUserService,
       rentalityTripService,
       rentalityCurrencyConverter,
-      rentalityCarToken,
+      carGatewayAdapter,
       rentalityPaymentService,
       rentalityPlatform,
       claimService,
@@ -1093,3 +1093,4 @@ fee: 0
 
 })
 })
+

@@ -9,7 +9,7 @@ describe('RentalityGateway: update fields', function () {
     rentalityUserService,
     rentalityTripService,
     rentalityCurrencyConverter,
-    rentalityCarToken,
+    carGatewayAdapter,
     rentalityPaymentService,
     rentalityLocationVerifier,
     rentalityPlatform,
@@ -32,7 +32,7 @@ describe('RentalityGateway: update fields', function () {
       rentalityUserService,
       rentalityTripService,
       rentalityCurrencyConverter,
-      rentalityCarToken,
+      carGatewayAdapter,
       rentalityPaymentService,
       rentalityPlatform,
       rentalityGeoService,
@@ -54,21 +54,21 @@ describe('RentalityGateway: update fields', function () {
     ).not.to.be.reverted
 
     await expect(
-      rentalityCarToken.connect(host).burnCar(1)
+      carGatewayAdapter.connect(host).burnCar(1)
     ).to.not.be.reverted
   })
 
   it.skip('should allow only admin to update car service address', async function () {
-    await expect(rentalityAdminGateway.connect(guest).updateCarService(await rentalityCarToken.getAddress())).to.be
+    await expect(rentalityAdminGateway.connect(guest).updateCarService(await carGatewayAdapter.getAddress())).to.be
       .reverted
 
-    await expect(rentalityAdminGateway.connect(host).updateCarService(await rentalityCarToken.getAddress())).to.be
+    await expect(rentalityAdminGateway.connect(host).updateCarService(await carGatewayAdapter.getAddress())).to.be
       .reverted
 
-    await expect(rentalityAdminGateway.connect(anonymous).updateCarService(await rentalityCarToken.getAddress())).to.be
+    await expect(rentalityAdminGateway.connect(anonymous).updateCarService(await carGatewayAdapter.getAddress())).to.be
       .reverted
 
-    await expect(rentalityAdminGateway.connect(admin).updateCarService(await rentalityCarToken.getAddress())).not.be
+    await expect(rentalityAdminGateway.connect(admin).updateCarService(await carGatewayAdapter.getAddress())).not.be
       .reverted
   })
   it.skip('should allow only admin to update rentality platform address', async function () {
@@ -151,3 +151,5 @@ describe('RentalityGateway: update fields', function () {
     expect(await rentalityAdminGateway.getPlatformFeeInPPM()).to.equal(platformFeeInPMM)
   })
 })
+
+

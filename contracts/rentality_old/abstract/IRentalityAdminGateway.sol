@@ -7,8 +7,8 @@ pragma solidity ^0.8.20;
 /// @dev Interface for the RentalityAdminGateway contract,
 /// providing administrative functionalities for the Rentality platform.
 interface IRentalityAdminGateway {
-  /// @notice Retrieves the address of the RentalityCarToken contract.
-  /// @return The address of the RentalityCarToken contract.
+  /// @notice Retrieves the address of the CarGatewayAdapter contract.
+  /// @return The address of the CarGatewayAdapter contract.
   function getCarServiceAddress() external view returns (address);
 
   /// @notice Retrieves the address of the RentalityPayment contract.
@@ -80,3 +80,6 @@ interface IRentalityAdminGateway {
   /// @param message The new message for the TC.
   // function setNewTCMessage(string memory message) external;
 }
+
+
+

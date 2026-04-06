@@ -5,10 +5,10 @@ pragma solidity ^0.8.20;
 
 import '../Schemas.sol';
 import '../proxy/UUPSAccess.sol';
-import '@openzeppelin/contracts/proxy/utils/Initializable.sol';
+import {Initializable as OZInitializable} from '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 import '../payments/RentalityCurrencyConverter.sol';
 import './RentalityInvestmentPool.sol';
-import '../RentalityCarToken.sol';
+import '../adapter/ICarGateway.sol';
 import '../Schemas.sol';
 import {RentalityInsurance} from '../payments/RentalityInsurance.sol';
 import {RentalityViewLib} from '../libs/RentalityViewLib.sol';
@@ -21,10 +21,10 @@ import {ARentalityContext} from '../abstract/ARentalityContext.sol';
 ///  selfdestruct, as far as RentalityUtils doesn't has this logic,
 /// it's completely safe for upgrade
 /// @custom:oz-upgrades-unsafe-allow external-library-linking
-contract RentalityInvestment is Initializable, UUPSAccess, ARentalityContext {
+contract RentalityInvestment is OZInitializable, UUPSAccess, ARentalityContext {
   uint private investmentId;
   RentalityCurrencyConverter private converter;
-  RentalityCarToken private carToken;
+  ICarGateway private carToken;
   RentalityInsurance private insuranceService;
 
   mapping(uint => Schemas.CarInvestment) private investmentIdToCarInfo;
@@ -304,8 +304,11 @@ contract RentalityInvestment is Initializable, UUPSAccess, ARentalityContext {
   ) public initializer {
     userService = IRentalityAccessControl(_userService);
     converter = RentalityCurrencyConverter(_currencyConverter);
-    carToken = RentalityCarToken(_carService);
+    carToken = ICarGateway(_carService);
     insuranceService = RentalityInsurance(_insuranceServce);
     investDeployer = RentalityInvestDeployer(_investDeployer);
   }
 }
+
+
+

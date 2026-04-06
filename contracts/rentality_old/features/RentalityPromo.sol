@@ -3,9 +3,8 @@ pragma solidity ^0.8.20;
 
 
 
-import '@openzeppelin/contracts/proxy/utils/Initializable.sol';
+import {Initializable as OZInitializable} from '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 import '../proxy/UUPSAccess.sol';
-import '../RentalityCarToken.sol';
 import '../Schemas.sol';
 import '@openzeppelin/contracts/utils/Strings.sol';
 
@@ -13,7 +12,7 @@ string constant ONE_HUNDRED_PERCENTS = 'A';
 string constant NINETY_PERCENTS = 'B';
 string constant TWENTY_PERCENTS = 'C';
 
-contract RentalityPromoService is Initializable, UUPSAccess {
+contract RentalityPromoService is OZInitializable, UUPSAccess {
   string[] private promoPrefixes;
   mapping(string => uint) private promoPrefixToDisctount;
 
@@ -317,3 +316,6 @@ contract RentalityPromoService is Initializable, UUPSAccess {
     promoPrefixToDisctount[string('D')] = 20;
   }
 }
+
+
+

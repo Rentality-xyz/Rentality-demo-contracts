@@ -19,7 +19,7 @@ describe('price feed work correctly', function () {
     rentalityUserService,
     rentalityTripService,
     rentalityCurrencyConverter,
-    rentalityCarToken,
+    carGatewayAdapter,
     rentalityPaymentService,
     rentalityPlatform,
     engineService,
@@ -43,7 +43,7 @@ describe('price feed work correctly', function () {
       rentalityUserService,
       rentalityTripService,
       rentalityCurrencyConverter,
-      rentalityCarToken,
+      carGatewayAdapter,
       rentalityPaymentService,
       rentalityPlatform,
       engineService,
@@ -115,3 +115,5 @@ it('batch update', async function () {
     return valueInEthWei.toString();
 }
     
+
+

@@ -27,3 +27,4 @@ interface IRentalityTripsViewFacet {
   function getHostInsuranceBalance() external view returns (uint);
   function getChatInfoFor(bool host) external view returns (Schemas.ChatInfo[] memory);
 }
+

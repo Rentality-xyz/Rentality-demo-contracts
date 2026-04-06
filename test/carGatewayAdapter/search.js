@@ -11,9 +11,9 @@ const {
 } = require('../utils')
 const { deployFixtureWith1Car } = require('./deployments')
 
-describe('RentalityCarToken: search functions', function () {
+describe('CarGatewayAdapter: search functions', function () {
   it('Search with empty should return car', async function () {
-    const { rentalityCarToken, rentalityTripService, guest, rentalityGateway } =
+    const { carGatewayAdapter, rentalityTripService, guest, rentalityGateway } =
       await loadFixture(deployFixtureWith1Car)
 
     const searchCarParams = {
@@ -37,9 +37,9 @@ describe('RentalityCarToken: search functions', function () {
   })
 
   it('Search with brand should work', async function () {
-    const { rentalityCarToken, rentalityTripService, guest, rentalityGateway, rentalityLocationVerifier, admin } =
+    const { carGatewayAdapter, rentalityTripService, guest, rentalityGateway, rentalityLocationVerifier, admin } =
       await loadFixture(deployFixtureWith1Car)
-      console.log(await rentalityCarToken.ownerOf(1))
+      console.log(await carGatewayAdapter.ownerOf(1))
 
     const request = getMockCarRequest(0, rentalityLocationVerifier, admin)
     const searchCarParams1 = {
@@ -81,7 +81,7 @@ describe('RentalityCarToken: search functions', function () {
   })
 
   it('Search with model should work', async function () {
-    const { rentalityCarToken, rentalityTripService, guest, rentalityGateway, rentalityLocationVerifier, admin } =
+    const { carGatewayAdapter, rentalityTripService, guest, rentalityGateway, rentalityLocationVerifier, admin } =
       await loadFixture(deployFixtureWith1Car)
 
     const request = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
@@ -124,7 +124,7 @@ describe('RentalityCarToken: search functions', function () {
   })
 
   it('Search with yearOfProduction should work', async function () {
-    const { rentalityCarToken, rentalityTripService, guest, rentalityGateway, rentalityLocationVerifier, admin } =
+    const { carGatewayAdapter, rentalityTripService, guest, rentalityGateway, rentalityLocationVerifier, admin } =
       await loadFixture(deployFixtureWith1Car)
 
     const request = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
@@ -167,7 +167,7 @@ describe('RentalityCarToken: search functions', function () {
   })
 
   it('Search with country should work', async function () {
-    const { rentalityCarToken, rentalityTripService, guest, rentalityGateway, host, rentalityLocationVerifier, admin } =
+    const { carGatewayAdapter, rentalityTripService, guest, rentalityGateway, host, rentalityLocationVerifier, admin } =
       await loadFixture(deployFixtureWith1Car)
 
     let location = {
@@ -224,7 +224,7 @@ describe('RentalityCarToken: search functions', function () {
 
   it('Search with state should work', async function () {
     const {
-      rentalityCarToken,
+      carGatewayAdapter,
       rentalityTripService,
       guest,
       geoParserMock,
@@ -286,7 +286,7 @@ describe('RentalityCarToken: search functions', function () {
 
   it('Search with city should work', async function () {
     const {
-      rentalityCarToken,
+      carGatewayAdapter,
       rentalityTripService,
       guest,
       geoParserMock,
@@ -347,7 +347,7 @@ describe('RentalityCarToken: search functions', function () {
   })
 
   it('Search with pricePerDayInUsdCentsFrom should work', async function () {
-    const { rentalityCarToken, rentalityTripService, guest, rentalityGateway, rentalityLocationVerifier, admin } =
+    const { carGatewayAdapter, rentalityTripService, guest, rentalityGateway, rentalityLocationVerifier, admin } =
       await loadFixture(deployFixtureWith1Car)
 
     const request = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
@@ -408,7 +408,7 @@ describe('RentalityCarToken: search functions', function () {
   })
 
   it('Search with pricePerDayInUsdCentsTo should work', async function () {
-    const { rentalityCarToken, rentalityTripService, guest, rentalityGateway, rentalityLocationVerifier, admin } =
+    const { carGatewayAdapter, rentalityTripService, guest, rentalityGateway, rentalityLocationVerifier, admin } =
       await loadFixture(deployFixtureWith1Car)
 
     const request = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
@@ -468,3 +468,5 @@ describe('RentalityCarToken: search functions', function () {
     expect(availableCars3.length).to.equal(0)
   })
 })
+
+

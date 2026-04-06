@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 
 
 import './abstract/IERC20.sol';
-import '@openzeppelin/contracts/proxy/utils/Initializable.sol';
+import {Initializable as OZInitializable} from '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 import '../abstract/IRentalityAccessControl.sol';
 import '@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol';
 import '../proxy/UUPSAccess.sol';
@@ -12,7 +12,7 @@ import '../proxy/UUPSAccess.sol';
 /// @notice an abstract contract represent available payment types on Rentality.
 /// for adding new currency type, smart contract should override 3 main functions
 /// getFromUsdCents, getUsd
-abstract contract ARentalityUpgradableCurrencyType is Initializable, UUPSAccess {
+abstract contract ARentalityUpgradableCurrencyType is OZInitializable, UUPSAccess {
   // Current Currency to USD rate and decimals
   int256 internal currentToUsdRate;
   uint8 internal currentToUsdDecimals;
@@ -143,3 +143,5 @@ function getFromUsdCents(uint256 amountInUsdCent, int256 rate) public view virtu
     }
   }
 }
+
+

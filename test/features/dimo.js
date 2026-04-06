@@ -20,7 +20,7 @@ describe('Rentality dimo', function () {
     rentalityUserService,
     rentalityTripService,
     rentalityCurrencyConverter,
-    rentalityCarToken,
+    carGatewayAdapter,
     rentalityPaymentService,
     rentalityPlatform,
     engineService,
@@ -43,7 +43,7 @@ describe('Rentality dimo', function () {
       rentalityUserService,
       rentalityTripService,
       rentalityCurrencyConverter,
-      rentalityCarToken,
+      carGatewayAdapter,
       rentalityPaymentService,
       rentalityPlatform,
       engineService,
@@ -124,3 +124,5 @@ describe('Rentality dimo', function () {
     )
   })
 })
+
+

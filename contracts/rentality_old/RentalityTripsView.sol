@@ -10,8 +10,8 @@ import './payments/RentalityInsurance.sol';
 import './features/RentalityClaimService.sol';
 import './payments/RentalityCurrencyConverter.sol';
 import './libs/RentalityTripsQuery.sol';
-import '@openzeppelin/contracts/proxy/utils/Initializable.sol';
-import '@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol';
+import {Initializable as OZInitializable} from '@openzeppelin/contracts/proxy/utils/Initializable.sol';
+import {UUPSUpgradeable as OZUUPSUpgradeable} from '@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol';
 import './libs/RentalityTripsQuery.sol';
 import {RentalityView} from './RentalityView.sol';
 import {ARentalityContext} from './abstract/ARentalityContext.sol';
@@ -26,7 +26,7 @@ error FunctionNotFound();
 ///  selfdestruct, as far as RentalityTripsQuery doesn't has this logic,
 /// it's completely safe for upgrade
 /// @custom:oz-upgrades-unsafe-allow external-library-linking
-contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext {
+contract RentalityTripsView is OZUUPSUpgradeable, OZInitializable, ARentalityContext {
   RentalityContract private addresses;
   using RentalityTripsQuery for RentalityContract;
 
@@ -301,6 +301,9 @@ contract RentalityTripsView is UUPSUpgradeable, Initializable, ARentalityContext
     require(addresses.userService.isAdmin(msg.sender), 'Only for Admin.');
   }
 }
+
+
+
 
 
 

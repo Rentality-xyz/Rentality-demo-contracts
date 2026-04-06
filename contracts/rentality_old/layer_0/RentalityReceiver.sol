@@ -65,3 +65,4 @@ contract RentalityReceiver is OAppReceiver {
     super.setPeer(eid, bytes32(uint256(uint160(senderAddress))));
   }
 }
+

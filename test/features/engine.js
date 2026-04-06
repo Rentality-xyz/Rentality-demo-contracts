@@ -9,7 +9,7 @@ describe('RentalityEngines', function () {
     rentalityUserService,
     rentalityTripService,
     rentalityCurrencyConverter,
-    rentalityCarToken,
+    carGatewayAdapter,
     rentalityPaymentService,
     rentalityPlatform,
     engineService,
@@ -32,7 +32,7 @@ describe('RentalityEngines', function () {
       rentalityUserService,
       rentalityTripService,
       rentalityCurrencyConverter,
-      rentalityCarToken,
+      carGatewayAdapter,
       rentalityPaymentService,
       rentalityPlatform,
       engineService,
@@ -215,3 +215,5 @@ describe('RentalityEngines', function () {
     })
   })
 })
+
+

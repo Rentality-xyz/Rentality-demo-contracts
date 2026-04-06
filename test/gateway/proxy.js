@@ -9,7 +9,8 @@ describe('RentalityGateway: proxy', function () {
     rentalityUserService,
     rentalityTripService,
     rentalityCurrencyConverter,
-    rentalityCarToken,
+    carMain,
+    carGatewayAdapter,
     rentalityPaymentService,
     rentalityPlatform,
     rentalityGeoService,
@@ -31,7 +32,8 @@ describe('RentalityGateway: proxy', function () {
       rentalityUserService,
       rentalityTripService,
       rentalityCurrencyConverter,
-      rentalityCarToken,
+      carMain,
+      carGatewayAdapter,
       rentalityPaymentService,
       rentalityPlatform,
       rentalityGeoService,
@@ -48,45 +50,25 @@ describe('RentalityGateway: proxy', function () {
     } = await loadFixture(deployDefaultFixture))
   })
 
-  it('should not be able to update carToken without access', async function () {
-    const RentalityCarToken = await ethers.getContractFactory('RentalityCarToken', {
-      libraries: {
-        RentalityUtils: await utils.getAddress(),
-      },
-      signer: anonymous,
-    })
+  it('should not be able to update car main without access', async function () {
+    const CarMainAnon = await ethers.getContractFactory('CarMain', { signer: anonymous })
+    const CarMainHost = await ethers.getContractFactory('CarMain', { signer: host })
+    const CarMainGuest = await ethers.getContractFactory('CarMain', { signer: guest })
+    const CarMainOwner = await ethers.getContractFactory('CarMain', { signer: owner })
+    const carMainAddress = await carMain.getAddress()
 
-    const RentalityCarTokenHost = await ethers.getContractFactory('RentalityCarToken', {
-      libraries: {
-        RentalityUtils: await utils.getAddress(),
-      },
-      signer: host,
-    })
-    const RentalityCarTokenGuest = await ethers.getContractFactory('RentalityCarToken', {
-      libraries: {
-        RentalityUtils: await utils.getAddress(),
-      },
-      signer: guest,
-    })
-    const RentalityCarTokenOwner = await ethers.getContractFactory('RentalityCarToken', {
-      libraries: {
-        RentalityUtils: await utils.getAddress(),
-      },
-      signer: owner,
-    })
-    const carTokenAddress = await rentalityCarToken.getAddress()
-
-    await expect(upgrades.upgradeProxy(carTokenAddress, RentalityCarToken, { kind: 'uups' })).to.be.revertedWith(
+    await expect(upgrades.upgradeProxy(carMainAddress, CarMainAnon, { kind: 'uups' })).to.be.revertedWith(
       'Ownable: caller is not the owner'
     )
-    await expect(upgrades.upgradeProxy(carTokenAddress, RentalityCarTokenHost, { kind: 'uups' })).to.be.revertedWith(
+    await expect(upgrades.upgradeProxy(carMainAddress, CarMainHost, { kind: 'uups' })).to.be.revertedWith(
       'Ownable: caller is not the owner'
     )
-    await expect(upgrades.upgradeProxy(carTokenAddress, RentalityCarTokenGuest, { kind: 'uups' })).to.be.revertedWith(
+    await expect(upgrades.upgradeProxy(carMainAddress, CarMainGuest, { kind: 'uups' })).to.be.revertedWith(
       'Ownable: caller is not the owner'
     )
-    expect(await upgrades.upgradeProxy(carTokenAddress, RentalityCarTokenOwner, { kind: 'uups' })).to.not.reverted
+    expect(await upgrades.upgradeProxy(carMainAddress, CarMainOwner, { kind: 'uups' })).to.not.reverted
   })
+
   it('should not be able to update chatHelper without access', async function () {
     const ChatHelper = await ethers.getContractFactory('RentalityChatHelper', {
       libraries: {},
@@ -111,6 +93,7 @@ describe('RentalityGateway: proxy', function () {
     )
     expect(await upgrades.upgradeProxy(chatHelperAdd, ChatHelperAdmin, { kind: 'uups' })).to.not.reverted
   })
+
   it('should not be able to update gateway without access', async function () {
     const GatewayAnonn = await ethers.getContractFactory('RentalityGateway', {
       libraries: {},

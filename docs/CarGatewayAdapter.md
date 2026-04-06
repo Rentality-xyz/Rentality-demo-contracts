@@ -1,6 +1,6 @@
 # Solidity API
 
-## RentalityCarToken
+## CarGatewayAdapter
 
 ERC-721 token for representing cars in the Rentality platform.
 This contract allows users to add, update, and manage information about cars for rental.
@@ -104,7 +104,7 @@ Event emitted when a car is successfully removed.
 constructor(address _geoServiceAddress, address _rentalityEngine) public
 ```
 
-Constructor to initialize the RentalityCarToken contract.
+Constructor to initialize the CarGatewayAdapter contract.
 
 #### Parameters
 
@@ -130,7 +130,7 @@ Returns the total supply of cars.
 ### getCarInfoById
 
 ```solidity
-function getCarInfoById(uint256 carId) public view returns (struct RentalityCarToken.CarInfo)
+function getCarInfoById(uint256 carId) public view returns (struct CarGatewayAdapter.CarInfo)
 ```
 
 Retrieves information about a car based on its ID.
@@ -145,7 +145,7 @@ Retrieves information about a car based on its ID.
 
 | Name | Type                             | Description                                              |
 | ---- | -------------------------------- | -------------------------------------------------------- |
-| [0]  | struct RentalityCarToken.CarInfo | A struct containing information about the specified car. |
+| [0]  | struct CarGatewayAdapter.CarInfo | A struct containing information about the specified car. |
 
 ### isUniqueVinNumber
 
@@ -170,7 +170,7 @@ Checks if a VIN number is unique among the listed cars.
 ### addCar
 
 ```solidity
-function addCar(struct RentalityCarToken.CreateCarRequest request) public returns (uint256)
+function addCar(struct CarGatewayAdapter.CreateCarRequest request) public returns (uint256)
 ```
 
 Adds a new car to the system with the provided information.
@@ -179,7 +179,7 @@ Adds a new car to the system with the provided information.
 
 | Name    | Type                                      | Description                                    |
 | ------- | ----------------------------------------- | ---------------------------------------------- |
-| request | struct RentalityCarToken.CreateCarRequest | The input parameters for creating the new car. |
+| request | struct CarGatewayAdapter.CreateCarRequest | The input parameters for creating the new car. |
 
 #### Return Values
 
@@ -204,7 +204,7 @@ Verifies the geographic coordinates for a given car.
 ### updateCarInfo
 
 ```solidity
-function updateCarInfo(struct RentalityCarToken.UpdateCarInfoRequest request, string location, string geoApiKey) public
+function updateCarInfo(struct CarGatewayAdapter.UpdateCarInfoRequest request, string location, string geoApiKey) public
 ```
 
 Updates the information for a specific car.
@@ -213,7 +213,7 @@ Updates the information for a specific car.
 
 | Name      | Type                                          | Description                                                                                         |
 | --------- | --------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| request   | struct RentalityCarToken.UpdateCarInfoRequest | The input parameters for updating the car.                                                          |
+| request   | struct CarGatewayAdapter.UpdateCarInfoRequest | The input parameters for updating the car.                                                          |
 | location  | string                                        | The location for verifying geographic coordinates. can be empty, for left old location information. |
 | geoApiKey | string                                        | The API key for the geographic verification service. can be empty, if location param is empty.      |
 
@@ -249,7 +249,7 @@ Burns a specific car token, removing it from the system.
 ### getAllCars
 
 ```solidity
-function getAllCars() public view returns (struct RentalityCarToken.CarInfo[])
+function getAllCars() public view returns (struct CarGatewayAdapter.CarInfo[])
 ```
 
 Retrieves information about all cars in the system.
@@ -258,12 +258,12 @@ Retrieves information about all cars in the system.
 
 | Name | Type                               | Description                                     |
 | ---- | ---------------------------------- | ----------------------------------------------- |
-| [0]  | struct RentalityCarToken.CarInfo[] | An array containing information about all cars. |
+| [0]  | struct CarGatewayAdapter.CarInfo[] | An array containing information about all cars. |
 
 ### getAvailableCarsForUser
 
 ```solidity
-function getAvailableCarsForUser(address user) public view returns (struct RentalityCarToken.CarInfo[])
+function getAvailableCarsForUser(address user) public view returns (struct CarGatewayAdapter.CarInfo[])
 ```
 
 Retrieves available cars for a specific user.
@@ -280,12 +280,12 @@ _Only used by main contract_
 
 | Name | Type                               | Description                                                        |
 | ---- | ---------------------------------- | ------------------------------------------------------------------ |
-| [0]  | struct RentalityCarToken.CarInfo[] | An array containing information about available cars for the user. |
+| [0]  | struct CarGatewayAdapter.CarInfo[] | An array containing information about available cars for the user. |
 
 ### fetchAvailableCarsForUser
 
 ```solidity
-function fetchAvailableCarsForUser(address user, struct RentalityCarToken.SearchCarParams searchCarParams) public view returns (struct RentalityCarToken.CarInfo[])
+function fetchAvailableCarsForUser(address user, struct CarGatewayAdapter.SearchCarParams searchCarParams) public view returns (struct CarGatewayAdapter.CarInfo[])
 ```
 
 Fetches available cars for a specific user based on search parameters.
@@ -297,18 +297,18 @@ _Iterates through all cars to find those that are available for the user._
 | Name            | Type                                     | Description                                               |
 | --------------- | ---------------------------------------- | --------------------------------------------------------- |
 | user            | address                                  | The address of the user for whom to fetch available cars. |
-| searchCarParams | struct RentalityCarToken.SearchCarParams | The parameters used to filter available cars.             |
+| searchCarParams | struct CarGatewayAdapter.SearchCarParams | The parameters used to filter available cars.             |
 
 #### Return Values
 
 | Name | Type                               | Description                                                       |
 | ---- | ---------------------------------- | ----------------------------------------------------------------- |
-| [0]  | struct RentalityCarToken.CarInfo[] | An array of CarInfo representing the available cars for the user. |
+| [0]  | struct CarGatewayAdapter.CarInfo[] | An array of CarInfo representing the available cars for the user. |
 
 ### getCarsOwnedByUser
 
 ```solidity
-function getCarsOwnedByUser(address user) public view returns (struct RentalityCarToken.CarInfo[])
+function getCarsOwnedByUser(address user) public view returns (struct CarGatewayAdapter.CarInfo[])
 ```
 
 Gets the cars owned by a specific user.
@@ -325,4 +325,6 @@ _Iterates through all cars to find those owned by the user._
 
 | Name | Type                               | Description                                                  |
 | ---- | ---------------------------------- | ------------------------------------------------------------ |
-| [0]  | struct RentalityCarToken.CarInfo[] | An array of CarInfo representing the cars owned by the user. |
+| [0]  | struct CarGatewayAdapter.CarInfo[] | An array of CarInfo representing the cars owned by the user. |
+
+

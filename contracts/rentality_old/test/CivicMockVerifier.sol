@@ -14,3 +14,4 @@ contract CivicMockVerifier is IGatewayTokenVerifier {
     return true;
   }
 }
+

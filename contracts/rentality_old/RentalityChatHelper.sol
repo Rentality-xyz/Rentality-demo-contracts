@@ -3,8 +3,8 @@ pragma solidity ^0.8.20;
 
 
 
-import '@openzeppelin/contracts/proxy/utils/Initializable.sol';
-import '@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol';
+import {Initializable as OZInitializable} from '@openzeppelin/contracts/proxy/utils/Initializable.sol';
+import {UUPSUpgradeable as OZUUPSUpgradeable} from '@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol';
 import './abstract/IRentalityAccessControl.sol';
 import './proxy/UUPSAccess.sol';
 import './Schemas.sol';
@@ -12,7 +12,7 @@ import './Schemas.sol';
 /// @title RentalityChatHelper
 /// @notice A contract to manage chat key pairs for users
 /// @dev Users can set and retrieve their chat key pairs, and get public keys of specified addresses.
-contract RentalityChatHelper is Initializable, UUPSAccess {
+contract RentalityChatHelper is OZInitializable, UUPSAccess {
   // Mapping to store chat key pairs associated with Ethereum addresses
   mapping(address => Schemas.ChatKeyPair) private addressToChatKeyPair;
 
@@ -48,3 +48,6 @@ contract RentalityChatHelper is Initializable, UUPSAccess {
     userService = IRentalityAccessControl(_userService);
   }
 }
+
+
+

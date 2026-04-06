@@ -2,7 +2,7 @@ const { extractVersion } = require('./pathBuilder')
 const { readFileSync, writeFileSync } = require('fs')
 const ProxyList = [
   'RentalityPlatform',
-  'RentalityCarToken',
+  'CarMain',
   'RentalityGateway',
   'RentalityTripService',
   'RentalityEnginesService',
@@ -40,3 +40,4 @@ module.exports = {
   ProxyList,
   getChains,
 }
+

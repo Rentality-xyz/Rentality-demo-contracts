@@ -28,3 +28,4 @@ interface IRentalityAccessControl {
 
   function isOracleManager(address user) external view returns (bool);
 }
+

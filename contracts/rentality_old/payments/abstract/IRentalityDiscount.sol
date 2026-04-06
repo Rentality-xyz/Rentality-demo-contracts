@@ -24,3 +24,4 @@ interface IRentalityDiscount {
   /// @return The discount data.
   function getDiscount(address userAddress) external view returns (bytes memory);
 }
+

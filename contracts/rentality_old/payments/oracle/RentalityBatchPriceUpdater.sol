@@ -3,14 +3,14 @@ pragma solidity ^0.8.20;
 
 
 
-import '@openzeppelin/contracts/proxy/utils/Initializable.sol';
+import {Initializable as OZInitializable} from '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 import '../../abstract/IRentalityAccessControl.sol';
 import '../../proxy/UUPSAccess.sol';
 import '../RentalityCurrencyConverter.sol';
 import './RentalityAggregator.sol';
 import '../../Schemas.sol';
 
-contract RentalityBatchPriceUpdater is UUPSAccess, Initializable {
+contract RentalityBatchPriceUpdater is UUPSAccess, OZInitializable {
 
     function updatePrices(Schemas.OracleUpdate[] memory oracleUpdate) public {
             require(userService.isOracleManager(msg.sender), "only Rentality oracle manager");
@@ -28,3 +28,4 @@ contract RentalityBatchPriceUpdater is UUPSAccess, Initializable {
 
 
 }
+

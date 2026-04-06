@@ -13,9 +13,9 @@ async function main() {
     getContractAddress('RentalityUserService', 'scripts/deploy_1b_RentalityUserService.js', chainId),
     'RentalityUserService'
   )
-  const rentalityCarTokenAddress = checkNotNull(
-    getContractAddress('RentalityCarToken', 'scripts/deploy_3_RentalityCarToken.js', chainId),
-    'RentalityCarToken'
+  const carGatewayAdapterAddress = checkNotNull(
+    getContractAddress('CarGatewayAdapter', 'scripts/deploy_3_CarGatewayAdapter.js', chainId),
+    'CarGatewayAdapter'
   )
   const rentalityCurrencyConverterAddress = checkNotNull(
     getContractAddress('RentalityCurrencyConverter', 'scripts/deploy_3b_RentalityCurrencyConverter.js', chainId),
@@ -43,7 +43,7 @@ async function main() {
   const contract = await upgrades.deployProxy(contractFactory, [
     userService,
     rentalityCurrencyConverterAddress,
-    rentalityCarTokenAddress,
+    carGatewayAdapterAddress,
     rentalityInsurance,
     rentalityInvestDeployer,
   ])
@@ -62,3 +62,7 @@ main()
     console.error(error)
     process.exit(1)
   })
+
+
+
+

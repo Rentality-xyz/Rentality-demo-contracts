@@ -13,8 +13,8 @@ import './payments/RentalityCurrencyConverter.sol';
 import './libs/RentalityTripsQuery.sol';
 import './libs/RentalityQuery.sol';
 import './libs/RentalityViewLib.sol';
-import '@openzeppelin/contracts/proxy/utils/Initializable.sol';
-import '@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol';
+import {Initializable as OZInitializable} from '@openzeppelin/contracts/proxy/utils/Initializable.sol';
+import {UUPSUpgradeable as OZUUPSUpgradeable} from '@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol';
 import {RentalityTripsView, FunctionNotFound} from './RentalityTripsView.sol';
 import {RentalityReferralProgram} from './features/refferalProgram/RentalityReferralProgram.sol';
 import {RentalityPromoService} from './features/RentalityPromo.sol';
@@ -25,7 +25,7 @@ import {ARentalityContext} from './abstract/ARentalityContext.sol';
 ///  selfdestruct, as far as RentalityTripsQuery doesn't has this logic,
 /// it's completely safe for upgrade
 /// @custom:oz-upgrades-unsafe-allow external-library-linking
-contract RentalityView is UUPSUpgradeable, Initializable, ARentalityContext {
+contract RentalityView is OZUUPSUpgradeable, OZInitializable, ARentalityContext {
   RentalityContract private addresses;
   using RentalityQuery for RentalityContract;
   using RentalityTripsQuery for RentalityContract;
@@ -352,6 +352,9 @@ contract RentalityView is UUPSUpgradeable, Initializable, ARentalityContext {
     require(addresses.userService.isAdmin(msg.sender), 'Only for Admin.');
   }
 }
+
+
+
 
 
 

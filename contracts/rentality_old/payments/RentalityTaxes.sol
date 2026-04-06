@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 
 
-import '@openzeppelin/contracts/proxy/utils/Initializable.sol';
+import {Initializable as OZInitializable} from '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 import '../proxy/UUPSAccess.sol';
 import './abstract/IRentalityTaxes.sol';
 import '../Schemas.sol';
@@ -12,7 +12,7 @@ import '../RentalityTripService.sol';
 
 /// @title RentalityTaxes
 /// @notice This contract implements tax calculation specific to the state of Florida.
-contract RentalityTaxes is Initializable, UUPSAccess {
+contract RentalityTaxes is OZInitializable, UUPSAccess {
   mapping(uint => Schemas.TaxValue[]) private tripIdToTaxes;
   mapping(uint => Schemas.TaxValue[]) private taxIdToTaxes;
 
@@ -168,3 +168,4 @@ contract RentalityTaxes is Initializable, UUPSAccess {
 
   }
 }
+

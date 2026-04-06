@@ -12,3 +12,4 @@ interface IRentalityInvestmentFacet {
   function claimAndCreatePool(uint carId,Schemas.CreateCarRequest memory createCarRequest) external;
   function changeListingStatus(uint) external;
 }
+

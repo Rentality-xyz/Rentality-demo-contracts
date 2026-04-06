@@ -80,3 +80,4 @@ contract RentalityAiDamageAnalyzeV2 is UUPSAccess, EIP712Upgradeable {
     __EIP712_init('RentalityAiDamageAnalyze', '1');
   }
 }
+

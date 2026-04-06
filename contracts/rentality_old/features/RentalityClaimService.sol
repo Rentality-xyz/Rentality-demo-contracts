@@ -3,9 +3,8 @@ pragma solidity ^0.8.20;
 
 
 
-import '@openzeppelin/contracts/proxy/utils/Initializable.sol';
+import {Initializable as OZInitializable} from '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 import '../proxy/UUPSAccess.sol';
-import '../RentalityCarToken.sol';
 import '../Schemas.sol';
 import './RentalityNotificationService.sol';
 
@@ -15,7 +14,7 @@ struct CurrencyRate {
 }
 /// @title RentalityClaimService - Manages claims and related operations.
 /// @dev This contract allows users with manager roles to create, reject, and pay claims.
-contract RentalityClaimService is Initializable, UUPSAccess {
+contract RentalityClaimService is OZInitializable, UUPSAccess {
   // Private variables for platform configuration
   uint256 private waitingTimeForApproveInSec;
   uint256 private claimId;
@@ -376,3 +375,6 @@ contract RentalityClaimService is Initializable, UUPSAccess {
     claimTypeNumber = 9;
   }
 }
+
+
+

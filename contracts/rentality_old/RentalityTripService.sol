@@ -4,8 +4,8 @@ pragma solidity ^0.8.20;
 
 
 //deployed 26.05.2023 11:15 to sepolia at 0x417886Ca72048E92E8Bf2082cf193ab8DB4ED09f
-import '@openzeppelin/contracts/proxy/utils/Initializable.sol';
-import '@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol';
+import {Initializable as OZInitializable} from '@openzeppelin/contracts/proxy/utils/Initializable.sol';
+import {UUPSUpgradeable as OZUUPSUpgradeable} from '@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol';
 import '@openzeppelin/contracts/utils/Strings.sol';
 import '@openzeppelin/contracts/utils/Counters.sol';
 import '@openzeppelin/contracts/utils/math/Math.sol';
@@ -29,7 +29,7 @@ import './features/RentalityNotificationService.sol';
 ///  selfdestruct, as far as RentalityUtils doesn't has this logic,
 /// it's completely safe for upgrade
 /// @custom:oz-upgrades-unsafe-allow external-library-linking
-contract RentalityTripService is Initializable, UUPSUpgradeable {
+contract RentalityTripService is OZInitializable, OZUUPSUpgradeable {
   using Counters for Counters.Counter;
   Counters.Counter private _tripIdCounter;
 
@@ -569,6 +569,9 @@ contract RentalityTripService is Initializable, UUPSUpgradeable {
     require(addresses.userService.isAdmin(msg.sender), 'Only for Admin.');
   }
 }
+
+
+
 
 
 

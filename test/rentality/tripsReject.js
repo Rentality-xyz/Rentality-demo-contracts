@@ -17,7 +17,7 @@ describe('Rentality: reject Trip Request', function () {
     const {
       rentalityGateway,
       rentalityPaymentService,
-      rentalityCarToken,
+      carGatewayAdapter,
       rentalityCurrencyConverter,
       rentalityTripService,
       host,
@@ -29,7 +29,7 @@ describe('Rentality: reject Trip Request', function () {
     await expect(
       rentalityGateway.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
     ).not.to.be.reverted
-    const myCars = await rentalityCarToken.connect(host).getCarsOwnedByUser(host.address)
+    const myCars = await carGatewayAdapter.connect(host).getCarsOwnedByUser(host.address)
     expect(myCars.length).to.equal(1)
     const availableCars = await rentalityGateway
       .connect(guest)
@@ -83,7 +83,7 @@ fee: 0
     const {
       rentalityGateway,
       rentalityPaymentService,
-      rentalityCarToken,
+      carGatewayAdapter,
       rentalityTripService,
       rentalityCurrencyConverter,
       host,
@@ -95,7 +95,7 @@ fee: 0
     await expect(
       rentalityGateway.connect(host).addCar(getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin))
     ).not.to.be.reverted
-    const myCars = await rentalityCarToken.connect(host).getCarsOwnedByUser(host.address)
+    const myCars = await carGatewayAdapter.connect(host).getCarsOwnedByUser(host.address)
     expect(myCars.length).to.equal(1)
     const availableCars = await rentalityGateway
       .connect(guest)
@@ -147,7 +147,7 @@ fee: 0
   it('Guest reject | trip status Accepted', async function () {
     const {
       rentalityGateway,
-      rentalityCarToken,
+      carGatewayAdapter,
       rentalityTripService,
       rentalityCurrencyConverter,
       rentalityPaymentService,
@@ -160,7 +160,7 @@ fee: 0
     await expect(
       rentalityGateway.connect(host).addCar(getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin))
     ).not.to.be.reverted
-    const myCars = await rentalityCarToken.connect(host).getCarsOwnedByUser(host.address)
+    const myCars = await carGatewayAdapter.connect(host).getCarsOwnedByUser(host.address)
     expect(myCars.length).to.equal(1)
     const availableCars = await rentalityGateway
       .connect(guest)
@@ -199,13 +199,13 @@ fee: 0
   })
 
   it('Guest reject | trip status CheckedInByHost', async function () {
-    const { rentalityGateway, rentalityCarToken, rentalityTripService, host, guest, rentalityLocationVerifier, admin } =
+    const { rentalityGateway, carGatewayAdapter, rentalityTripService, host, guest, rentalityLocationVerifier, admin } =
       await loadFixture(deployDefaultFixture)
 
     await expect(
       rentalityGateway.connect(host).addCar(getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin))
     ).not.to.be.reverted
-    const myCars = await rentalityCarToken.connect(host).getCarsOwnedByUser(host.address)
+    const myCars = await carGatewayAdapter.connect(host).getCarsOwnedByUser(host.address)
     expect(myCars.length).to.equal(1)
     const availableCars = await rentalityGateway
       .connect(guest)
@@ -246,3 +246,5 @@ fee: 0
     expect((await rentalityGateway.connect(host).getTrip(1)).trip.status).to.equal(2)
   })
 })
+
+

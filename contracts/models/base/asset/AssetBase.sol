@@ -83,3 +83,4 @@ abstract contract AssetBase is IAsset {
         }
     }
 }
+

@@ -87,3 +87,4 @@ interface IRentalityGeoService {
   /// @param signed location data
   function verifySignedLocationInfo(Schemas.SignedLocationInfo memory signed) external view;
 }
+

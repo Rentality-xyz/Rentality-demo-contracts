@@ -82,3 +82,4 @@ contract RentalityCarInvestmentPool {
     return totalEarningsByUser[user];
   }
 }
+

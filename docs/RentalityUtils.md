@@ -159,7 +159,7 @@ Calculates the ceiling of the division of two numbers.
 ### populateChatInfo
 
 ```solidity
-function populateChatInfo(struct RentalityTripService.Trip[] trips, contract RentalityUserService userService, contract RentalityCarToken carService) public view returns (struct IRentalityGateway.ChatInfo[])
+function populateChatInfo(struct RentalityTripService.Trip[] trips, contract RentalityUserService userService, contract CarGatewayAdapter carService) public view returns (struct IRentalityGateway.ChatInfo[])
 ```
 
 Populates an array of chat information using data from trips, user service, and car service.
@@ -170,7 +170,7 @@ Populates an array of chat information using data from trips, user service, and 
 | ----------- | ---------------------------------- | ---------------------------------------------- |
 | trips       | struct RentalityTripService.Trip[] | Array of RentalityTripService.Trip structures. |
 | userService | contract RentalityUserService      | RentalityUserService contract instance.        |
-| carService  | contract RentalityCarToken         | RentalityCarToken contract instance.           |
+| carService  | contract CarGatewayAdapter         | CarGatewayAdapter contract instance.           |
 
 #### Return Values
 
@@ -429,3 +429,5 @@ function getResolveAmountInUsdCents(uint8 eType, struct RentalityTripService.Tri
 | ---- | ------ | ------------------------------------------------------------------------ |
 | [0]  | uint64 | Returns the resolved amounts for miles and fuel in USD cents as a tuple. |
 | [1]  | uint64 |                                                                          |
+
+

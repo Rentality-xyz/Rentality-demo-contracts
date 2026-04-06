@@ -19,7 +19,7 @@ describe('All brands, models by brand filters', function () {
     rentalityUserService,
     rentalityTripService,
     rentalityCurrencyConverter,
-    rentalityCarToken,
+    carGatewayAdapter,
     rentalityPaymentService,
     rentalityPlatform,
     engineService,
@@ -41,7 +41,7 @@ describe('All brands, models by brand filters', function () {
       rentalityUserService,
       rentalityTripService,
       rentalityCurrencyConverter,
-      rentalityCarToken,
+      carGatewayAdapter,
       rentalityPaymentService,
       rentalityPlatform,
       engineService,
@@ -154,3 +154,5 @@ describe('All brands, models by brand filters', function () {
     expect(models2[0]).to.be.eq('q7')
   })
 })
+
+

@@ -22,7 +22,7 @@ describe('Rentality taxes & discounts', function () {
     rentalityUserService,
     rentalityTripService,
     rentalityCurrencyConverter,
-    rentalityCarToken,
+    carGatewayAdapter,
     rentalityPaymentService,
     rentalityPlatform,
     engineService,
@@ -46,7 +46,7 @@ describe('Rentality taxes & discounts', function () {
       rentalityUserService,
       rentalityTripService,
       rentalityCurrencyConverter,
-      rentalityCarToken,
+      carGatewayAdapter,
       rentalityPaymentService,
       rentalityPlatform,
       engineService,
@@ -153,10 +153,10 @@ describe('Rentality taxes & discounts', function () {
       }
     
     await expect(rentalityGateway.connect(host).addCar(addCarRequest)).not.to.be.reverted
-    const myCars = await rentalityCarToken.connect(host).getCarsOwnedByUser(host.address)
+    const myCars = await carGatewayAdapter.connect(host).getCarsOwnedByUser(host.address)
     expect(myCars.length).to.equal(1)
 
-    const availableCars = await rentalityCarToken.connect(guest).getAvailableCarsForUser(guest.address)
+    const availableCars = await carGatewayAdapter.connect(guest).getAvailableCarsForUser(guest.address)
     expect(availableCars.length).to.equal(1)
 
     let dayInTrip = 2
@@ -228,10 +228,10 @@ fee: 0
 
     
       await expect(rentalityGateway.connect(host).addCar(addCarRequest)).not.to.be.reverted
-      const myCars = await rentalityCarToken.connect(host).getCarsOwnedByUser(host.address)
+      const myCars = await carGatewayAdapter.connect(host).getCarsOwnedByUser(host.address)
      
       expect(myCars.length).to.equal(1)
-    const availableCars = await rentalityCarToken.connect(guest).getAvailableCarsForUser(guest.address)
+    const availableCars = await carGatewayAdapter.connect(guest).getAvailableCarsForUser(guest.address)
     expect(availableCars.length).to.equal(1)
 
     let sumToPayInUsdCents = addCarRequest.pricePerDayInUsdCents
@@ -294,3 +294,4 @@ fee: 0
     )
   })
 })
+

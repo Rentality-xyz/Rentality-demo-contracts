@@ -53,3 +53,4 @@ contract RentalityLocationVerifier is EIP712Upgradeable, UUPSAccess {
     __EIP712_init('RentalityLocationVerifier', '1');
   }
 }
+

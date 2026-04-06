@@ -4,27 +4,27 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 const { getMockCarRequest, locationInfo, emptySignedLocationInfo, signLocationInfo } = require('../utils')
 const { deployFixtureWith1Car, deployDefaultFixture } = require('./deployments')
 
-describe('RentalityCarToken: deployment and update', function () {
+describe('CarGatewayAdapter: deployment and update', function () {
   it('Should set the right owner', async function () {
-    const { rentalityCarToken, owner } = await loadFixture(deployDefaultFixture)
+    const { carMain, owner } = await loadFixture(deployDefaultFixture)
 
-    expect(await rentalityCarToken.owner()).to.equal(owner.address)
+    expect(await carMain.owner()).to.equal(owner.address)
   })
 
   it("Shouldn't contain tokens when deployed", async function () {
-    const { rentalityCarToken } = await loadFixture(deployDefaultFixture)
+    const { carGatewayAdapter } = await loadFixture(deployDefaultFixture)
 
-    expect(await rentalityCarToken.totalSupply()).to.equal(0)
+    expect(await carGatewayAdapter.totalSupply()).to.equal(0)
   })
 
   it('deployFixtureWith1Car should contain 1 tokens when deployed', async function () {
-    const { rentalityCarToken } = await loadFixture(deployFixtureWith1Car)
+    const { carGatewayAdapter } = await loadFixture(deployFixtureWith1Car)
 
-    expect(await rentalityCarToken.totalSupply()).to.equal(1)
+    expect(await carGatewayAdapter.totalSupply()).to.equal(1)
   })
 })
 it('Update car without location should work fine', async function () {
-  const { rentalityCarToken, rentalityLocationVerifier, admin, rentalityGateway } =
+  const { carGatewayAdapter, rentalityLocationVerifier, admin, rentalityGateway } =
     await loadFixture(deployFixtureWith1Car)
 
   let request = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
@@ -46,7 +46,7 @@ it('Update car without location should work fine', async function () {
 
   await expect(rentalityGateway.updateCarInfoWithLocation(update_params, emptySignedLocationInfo)).not.be.reverted
 
-  let car_info = await rentalityCarToken.getCarInfoById(2)
+  let car_info = await carGatewayAdapter.getCarInfoById(2)
 
   expect(car_info.pricePerDayInUsdCents).to.be.equal(update_params.pricePerDayInUsdCents)
   expect(car_info.securityDepositPerTripInUsdCents).to.be.equal(update_params.securityDepositPerTripInUsdCents)
@@ -55,7 +55,7 @@ it('Update car without location should work fine', async function () {
 })
 //unused
 it.skip('Update car with location, but without api should revert', async function () {
-  const { rentalityCarToken, rentalityLocationVerifier, admin, rentalityGateway } =
+  const { carGatewayAdapter, rentalityLocationVerifier, admin, rentalityGateway } =
     await loadFixture(deployFixtureWith1Car)
 
   let request = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
@@ -79,7 +79,7 @@ it.skip('Update car with location, but without api should revert', async functio
 })
 //unused
 it.skip('Update with location should pass locationVarification param to false', async function () {
-  const { rentalityCarToken, rentalityGeoService, geoParserMock, rentalityLocationVerifier, admin, rentalityGateway } =
+  const { carGatewayAdapter, rentalityGeoService, geoParserMock, rentalityLocationVerifier, admin, rentalityGateway } =
     await loadFixture(deployFixtureWith1Car)
 
   let request = getMockCarRequest(1, await rentalityLocationVerifier.getAddress(), admin)
@@ -99,11 +99,14 @@ it.skip('Update with location should pass locationVarification param to false', 
 
   await geoParserMock.setCarCoordinateValidity(2, true) // mock
 
-  await expect(rentalityCarToken.verifyGeo(2)).to.not.reverted
+  await expect(carGatewayAdapter.verifyGeo(2)).to.not.reverted
 
-  await expect(rentalityCarToken.updateCarInfo(update_params, locationInfo, 'geoApi')).to.not.reverted
+  await expect(carGatewayAdapter.updateCarInfo(update_params, locationInfo, 'geoApi')).to.not.reverted
 
-  let car_info = await rentalityCarToken.getCarInfoById(2)
+  let car_info = await carGatewayAdapter.getCarInfoById(2)
 
   expect(car_info.geoVerified).to.be.equal(false)
 })
+
+
+

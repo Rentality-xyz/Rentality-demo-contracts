@@ -19,7 +19,7 @@ describe('Check out without guest', function () {
     rentalityUserService,
     rentalityTripService,
     rentalityCurrencyConverter,
-    rentalityCarToken,
+    carGatewayAdapter,
     rentalityPaymentService,
     rentalityPlatform,
     engineService,
@@ -41,7 +41,7 @@ describe('Check out without guest', function () {
       rentalityUserService,
       rentalityTripService,
       rentalityCurrencyConverter,
-      rentalityCarToken,
+      carGatewayAdapter,
       rentalityPaymentService,
       rentalityPlatform,
       engineService,
@@ -422,3 +422,5 @@ fee: 0
     expect(trip.status).to.be.eq(TripStatus.Canceled)
   })
 })
+
+

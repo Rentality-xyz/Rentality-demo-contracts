@@ -18,3 +18,4 @@ struct UpdateAssetRequest {
     string name;
     string metadataURI;
 }
+

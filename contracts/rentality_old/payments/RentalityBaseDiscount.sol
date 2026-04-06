@@ -3,14 +3,14 @@ pragma solidity ^0.8.20;
 
 
 
-import '@openzeppelin/contracts/proxy/utils/Initializable.sol';
+import {Initializable as OZInitializable} from '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 import '../proxy/UUPSAccess.sol';
 import './abstract/IRentalityDiscount.sol';
 import '../Schemas.sol';
 
 /// @title RentalityBaseDiscount
 /// @notice This contract provides functionality for managing discounts applied to trip prices.
-contract RentalityBaseDiscount is IRentalityDiscount, Initializable, UUPSAccess {
+contract RentalityBaseDiscount is IRentalityDiscount, OZInitializable, UUPSAccess {
   mapping(address => Schemas.BaseDiscount) private userAddressToBaseDiscount;
   Schemas.BaseDiscount public defaultDiscount;
 
@@ -104,3 +104,5 @@ contract RentalityBaseDiscount is IRentalityDiscount, Initializable, UUPSAccess 
     defaultDiscount = Schemas.BaseDiscount(20_000, 100_000, 150_000, false); // Default discount values
   }
 }
+
+

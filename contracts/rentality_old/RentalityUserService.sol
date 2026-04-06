@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 
 
 import {IGatewayTokenVerifier} from '@identity.com/gateway-protocol-eth/contracts/interfaces/IGatewayTokenVerifier.sol';
-import '@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol';
+import {UUPSUpgradeable as OZUUPSUpgradeable} from '@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol';
 import {AccessControlUpgradeable} from '@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol';
 import './Schemas.sol';
 import '@openzeppelin/contracts/utils/cryptography/ECDSA.sol';
@@ -20,7 +20,7 @@ import {IERC1271} from '@openzeppelin/contracts/interfaces/IERC1271.sol';
 ///
 /// The contract includes functions to set and retrieve KYC information, check for valid KYC,
 /// grant and revoke roles, and check user roles
-contract RentalityUserService is AccessControlUpgradeable, UUPSUpgradeable, IRentalityAccessControl {
+contract RentalityUserService is AccessControlUpgradeable, OZUUPSUpgradeable, IRentalityAccessControl {
   // Role identifiers for access control
   bytes32 public constant MANAGER_ROLE = keccak256('MANAGER_ROLE');
   bytes32 public constant HOST_ROLE = keccak256('HOST_ROLE');
@@ -460,3 +460,5 @@ function getPlatformUsersKYCInfos(uint page, uint itemsPerPage) public view retu
     require(isAdmin(msg.sender), 'Only for Admin.');
   }
 }
+
+

@@ -17,7 +17,7 @@ constructor(address carServiceAddress, address currencyConverterServiceAddress, 
 
 | Name                            | Type    | Description                                             |
 | ------------------------------- | ------- | ------------------------------------------------------- |
-| carServiceAddress               | address | The address of the RentalityCarToken contract.          |
+| carServiceAddress               | address | The address of the CarGatewayAdapter contract.          |
 | currencyConverterServiceAddress | address | The address of the RentalityCurrencyConverter contract. |
 | tripServiceAddress              | address | The address of the RentalityTripService contract.       |
 | userServiceAddress              | address | The address of the RentalityUserService contract.       |
@@ -62,13 +62,13 @@ Ensures that the caller is either a host or a guest.
 function getCarServiceAddress() public view returns (address)
 ```
 
-Retrieves the address of the RentalityCarToken contract.
+Retrieves the address of the CarGatewayAdapter contract.
 
 #### Return Values
 
 | Name | Type    | Description                                    |
 | ---- | ------- | ---------------------------------------------- |
-| [0]  | address | The address of the RentalityCarToken contract. |
+| [0]  | address | The address of the CarGatewayAdapter contract. |
 
 ### updateCarService
 
@@ -76,13 +76,13 @@ Retrieves the address of the RentalityCarToken contract.
 function updateCarService(address contractAddress) public
 ```
 
-Updates the address of the RentalityCarToken contract. Only callable by admins.
+Updates the address of the CarGatewayAdapter contract. Only callable by admins.
 
 #### Parameters
 
 | Name            | Type    | Description                                        |
 | --------------- | ------- | -------------------------------------------------- |
-| contractAddress | address | The new address of the RentalityCarToken contract. |
+| contractAddress | address | The new address of the CarGatewayAdapter contract. |
 
 ### getRentalityPlatformAddress
 
@@ -249,7 +249,7 @@ Withdraws the entire balance from the RentalityPlatform contract.
 ### getCarInfoById
 
 ```solidity
-function getCarInfoById(uint256 carId) public view returns (struct RentalityCarToken.CarInfo)
+function getCarInfoById(uint256 carId) public view returns (struct CarGatewayAdapter.CarInfo)
 ```
 
 Retrieves information about a car by its ID.
@@ -264,7 +264,7 @@ Retrieves information about a car by its ID.
 
 | Name | Type                             | Description                  |
 | ---- | -------------------------------- | ---------------------------- |
-| [0]  | struct RentalityCarToken.CarInfo | Car information as a struct. |
+| [0]  | struct CarGatewayAdapter.CarInfo | Car information as a struct. |
 
 ### getCarMetadataURI
 
@@ -289,7 +289,7 @@ Retrieves the metadata URI of a car by its ID.
 ### addCar
 
 ```solidity
-function addCar(struct RentalityCarToken.CreateCarRequest request) public returns (uint256)
+function addCar(struct CarGatewayAdapter.CreateCarRequest request) public returns (uint256)
 ```
 
 Adds a new car using the provided request. Grants host role to the caller if not already a host.
@@ -298,7 +298,7 @@ Adds a new car using the provided request. Grants host role to the caller if not
 
 | Name    | Type                                      | Description                             |
 | ------- | ----------------------------------------- | --------------------------------------- |
-| request | struct RentalityCarToken.CreateCarRequest | The request containing car information. |
+| request | struct CarGatewayAdapter.CreateCarRequest | The request containing car information. |
 
 #### Return Values
 
@@ -309,7 +309,7 @@ Adds a new car using the provided request. Grants host role to the caller if not
 ### updateCarInfo
 
 ```solidity
-function updateCarInfo(struct RentalityCarToken.UpdateCarInfoRequest request) public
+function updateCarInfo(struct CarGatewayAdapter.UpdateCarInfoRequest request) public
 ```
 
 Updates the information of a car. Only callable by hosts.
@@ -318,12 +318,12 @@ Updates the information of a car. Only callable by hosts.
 
 | Name    | Type                                          | Description                                     |
 | ------- | --------------------------------------------- | ----------------------------------------------- |
-| request | struct RentalityCarToken.UpdateCarInfoRequest | The request containing updated car information. |
+| request | struct CarGatewayAdapter.UpdateCarInfoRequest | The request containing updated car information. |
 
 ### updateCarInfoWithLocation
 
 ```solidity
-function updateCarInfoWithLocation(struct RentalityCarToken.UpdateCarInfoRequest request, string location, string geoApiKey) public
+function updateCarInfoWithLocation(struct CarGatewayAdapter.UpdateCarInfoRequest request, string location, string geoApiKey) public
 ```
 
 Updates the information of a car, including location details. Only callable by hosts.
@@ -332,7 +332,7 @@ Updates the information of a car, including location details. Only callable by h
 
 | Name      | Type                                          | Description                                     |
 | --------- | --------------------------------------------- | ----------------------------------------------- |
-| request   | struct RentalityCarToken.UpdateCarInfoRequest | The request containing updated car information. |
+| request   | struct CarGatewayAdapter.UpdateCarInfoRequest | The request containing updated car information. |
 | location  | string                                        | The new location of the car.                    |
 | geoApiKey | string                                        | The API key for geocoding purposes.             |
 
@@ -368,7 +368,7 @@ Burns (disables) a car. Only callable by hosts.
 ### getAllCars
 
 ```solidity
-function getAllCars() public view returns (struct RentalityCarToken.CarInfo[])
+function getAllCars() public view returns (struct CarGatewayAdapter.CarInfo[])
 ```
 
 Retrieves information about all cars.
@@ -377,12 +377,12 @@ Retrieves information about all cars.
 
 | Name | Type                               | Description                  |
 | ---- | ---------------------------------- | ---------------------------- |
-| [0]  | struct RentalityCarToken.CarInfo[] | An array of car information. |
+| [0]  | struct CarGatewayAdapter.CarInfo[] | An array of car information. |
 
 ### getAvailableCars
 
 ```solidity
-function getAvailableCars() public view returns (struct RentalityCarToken.CarInfo[])
+function getAvailableCars() public view returns (struct CarGatewayAdapter.CarInfo[])
 ```
 
 Retrieves information about available cars.
@@ -391,12 +391,12 @@ Retrieves information about available cars.
 
 | Name | Type                               | Description                            |
 | ---- | ---------------------------------- | -------------------------------------- |
-| [0]  | struct RentalityCarToken.CarInfo[] | An array of available car information. |
+| [0]  | struct CarGatewayAdapter.CarInfo[] | An array of available car information. |
 
 ### getAvailableCarsForUser
 
 ```solidity
-function getAvailableCarsForUser(address user) public view returns (struct RentalityCarToken.CarInfo[])
+function getAvailableCarsForUser(address user) public view returns (struct CarGatewayAdapter.CarInfo[])
 ```
 
 Retrieves information about available cars for a specific user.
@@ -411,12 +411,12 @@ Retrieves information about available cars for a specific user.
 
 | Name | Type                               | Description                                                   |
 | ---- | ---------------------------------- | ------------------------------------------------------------- |
-| [0]  | struct RentalityCarToken.CarInfo[] | An array of available car information for the specified user. |
+| [0]  | struct CarGatewayAdapter.CarInfo[] | An array of available car information for the specified user. |
 
 ### searchAvailableCars
 
 ```solidity
-function searchAvailableCars(uint64 startDateTime, uint64 endDateTime, struct RentalityCarToken.SearchCarParams searchParams) public view returns (struct RentalityTripService.AvailableCarResponse[])
+function searchAvailableCars(uint64 startDateTime, uint64 endDateTime, struct CarGatewayAdapter.SearchCarParams searchParams) public view returns (struct RentalityTripService.AvailableCarResponse[])
 ```
 
 Searches for available cars based on specified criteria.
@@ -427,7 +427,7 @@ Searches for available cars based on specified criteria.
 | ------------- | ---------------------------------------- | -------------------------------------- |
 | startDateTime | uint64                                   | The start date and time of the search. |
 | endDateTime   | uint64                                   | The end date and time of the search.   |
-| searchParams  | struct RentalityCarToken.SearchCarParams | Additional search parameters.          |
+| searchParams  | struct CarGatewayAdapter.SearchCarParams | Additional search parameters.          |
 
 #### Return Values
 
@@ -438,7 +438,7 @@ Searches for available cars based on specified criteria.
 ### searchAvailableCarsForUser
 
 ```solidity
-function searchAvailableCarsForUser(address user, uint64 startDateTime, uint64 endDateTime, struct RentalityCarToken.SearchCarParams searchParams) public view returns (struct RentalityTripService.AvailableCarResponse[])
+function searchAvailableCarsForUser(address user, uint64 startDateTime, uint64 endDateTime, struct CarGatewayAdapter.SearchCarParams searchParams) public view returns (struct RentalityTripService.AvailableCarResponse[])
 ```
 
 Searches for available cars for a specific user based on specified criteria.
@@ -450,7 +450,7 @@ Searches for available cars for a specific user based on specified criteria.
 | user          | address                                  | The address of the user.               |
 | startDateTime | uint64                                   | The start date and time of the search. |
 | endDateTime   | uint64                                   | The end date and time of the search.   |
-| searchParams  | struct RentalityCarToken.SearchCarParams | Additional search parameters.          |
+| searchParams  | struct CarGatewayAdapter.SearchCarParams | Additional search parameters.          |
 
 #### Return Values
 
@@ -461,7 +461,7 @@ Searches for available cars for a specific user based on specified criteria.
 ### getMyCars
 
 ```solidity
-function getMyCars() public view returns (struct RentalityCarToken.CarInfo[])
+function getMyCars() public view returns (struct CarGatewayAdapter.CarInfo[])
 ```
 
 Retrieves information about cars owned by the caller.
@@ -470,7 +470,7 @@ Retrieves information about cars owned by the caller.
 
 | Name | Type                               | Description                                      |
 | ---- | ---------------------------------- | ------------------------------------------------ |
-| [0]  | struct RentalityCarToken.CarInfo[] | An array of car information owned by the caller. |
+| [0]  | struct CarGatewayAdapter.CarInfo[] | An array of car information owned by the caller. |
 
 ### createTripRequest
 
@@ -797,3 +797,5 @@ Retrieves chat information for the caller acting as a guest.
 | Name | Type                                | Description                   |
 | ---- | ----------------------------------- | ----------------------------- |
 | [0]  | struct IRentalityGateway.ChatInfo[] | An array of chat information. |
+
+

@@ -108,3 +108,4 @@ contract RentalityPetrolEngine is ARentalityEngine {
     return uint64(Math.ceilDiv(((priceFor10PercentsMultipliedOn1000 * diffInPercents) / 10), 1000));
   }
 }
+

@@ -77,7 +77,7 @@ contract CarMain is AssetBase, ERC721URIStorageUpgradeable, UUPSOwnable {
         address userAccessAddress,
         address eventEmitterAddress
     ) public initializer {
-        __ERC721_init("RentalityCarToken Test", "RTCT");
+        __ERC721_init("RentalityCar", "RTCAR");
         __ERC721URIStorage_init();
         __Ownable_init();
 
@@ -297,6 +297,9 @@ contract CarMain is AssetBase, ERC721URIStorageUpgradeable, UUPSOwnable {
         super._burn(tokenId);
     }
 }
+
+
+
 
 
 

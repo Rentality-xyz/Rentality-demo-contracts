@@ -3,14 +3,14 @@ pragma solidity ^0.8.20;
 
 
 
-import '@openzeppelin/contracts/proxy/utils/Initializable.sol';
+import {Initializable as OZInitializable} from '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 import '../proxy/UUPSAccess.sol';
 import '../Schemas.sol';
-import '../RentalityCarToken.sol';
 import '@openzeppelin/contracts/utils/math/Math.sol';
 import {IRentalityAccessControl} from '../abstract/IRentalityAccessControl.sol';
 import './swaps/ISwapRouter.sol';
 import {IWETH} from './swaps/IWETH.sol';
+import './abstract/IERC20.sol';
 import './swaps/IUniswapV3Factory.sol';
 import './swaps/IUniswapV3Pool.sol';
 import '../libs/TickMath.sol';
@@ -24,7 +24,7 @@ import '../libs/TickMath.sol';
     }
 
 
-contract RentalitySwaps is Initializable, UUPSAccess {
+contract RentalitySwaps is OZInitializable, UUPSAccess {
     ISwapRouter public router;
     address public weth;
     IUniswapV3Factory public factory;
@@ -238,3 +238,6 @@ function getPrice(address from, address to, uint24 fee)
 
 
 }
+
+
+

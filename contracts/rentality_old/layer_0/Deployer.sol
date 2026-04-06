@@ -25,3 +25,4 @@ contract RentalityDeployer is Ownable {
     return selfdestruct(payable(owner()));
   }
 }
+

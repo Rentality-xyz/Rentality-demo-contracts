@@ -16,7 +16,7 @@ describe('Rentality investment with erc20', function () {
     rentalityUserService,
     rentalityTripService,
     rentalityCurrencyConverter,
-    rentalityCarToken,
+    carGatewayAdapter,
     rentalityPaymentService,
     rentalityPlatform,
     rentalityGeoService,
@@ -41,7 +41,7 @@ describe('Rentality investment with erc20', function () {
       rentalityUserService,
       rentalityTripService,
       rentalityCurrencyConverter,
-      rentalityCarToken,
+      carGatewayAdapter,
       rentalityPaymentService,
       rentalityPlatform,
       rentalityGeoService,
@@ -155,3 +155,5 @@ fee: 0
     )
   })
 })
+
+

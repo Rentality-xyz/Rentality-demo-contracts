@@ -62,3 +62,4 @@ struct UpdateCarRequest {
     LocationInfo location;
     bool updateLocation;
 }
+

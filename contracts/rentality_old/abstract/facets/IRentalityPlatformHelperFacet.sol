@@ -30,3 +30,4 @@ interface IRentalityPlatformHelperFacet {
   function setHostInsurance(uint insuranceId) external;
   function setPushToken(address user, string memory pushToken) external;
 }
+

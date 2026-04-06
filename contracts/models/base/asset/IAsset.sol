@@ -10,3 +10,4 @@ interface IAsset {
 
     function getOwner(uint256 id) external view returns (address);
 }
+

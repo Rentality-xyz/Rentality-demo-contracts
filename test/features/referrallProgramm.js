@@ -21,7 +21,7 @@ describe('Referral program', function () {
     rentalityUserService,
     rentalityTripService,
     rentalityCurrencyConverter,
-    rentalityCarToken,
+    carGatewayAdapter,
     rentalityPaymentService,
     rentalityPlatform,
     claimService,
@@ -44,7 +44,7 @@ describe('Referral program', function () {
       rentalityUserService,
       rentalityTripService,
       rentalityCurrencyConverter,
-      rentalityCarToken,
+      carGatewayAdapter,
       rentalityPaymentService,
       rentalityPlatform,
       claimService,
@@ -623,3 +623,5 @@ fee: 0,
     expect(result.discount.pointsCosts).to.be.eq(5000)
   })
 })
+
+

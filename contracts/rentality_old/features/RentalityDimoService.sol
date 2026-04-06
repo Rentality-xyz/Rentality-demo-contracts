@@ -7,7 +7,7 @@ import '../Schemas.sol';
 import {UUPSAccess} from '../proxy/UUPSAccess.sol';
 import {EIP712Upgradeable} from '@openzeppelin/contracts-upgradeable/utils/cryptography/EIP712Upgradeable.sol';
 import '@openzeppelin/contracts/utils/cryptography/ECDSA.sol';
-import {RentalityCarToken} from '../RentalityCarToken.sol';
+import {ICarGateway} from '../adapter/ICarGateway.sol';
 import {IRentalityAccessControl} from '../abstract/IRentalityAccessControl.sol';
 import '@openzeppelin/contracts/utils/cryptography/ECDSA.sol';
 import '@openzeppelin/contracts/utils/Strings.sol';
@@ -17,7 +17,7 @@ import {RentalityUserService} from '../RentalityUserService.sol';
 contract RentalityDimoService is UUPSAccess, EIP712Upgradeable {
   mapping(uint => uint) private carIdToDimoTokenId;
 
-  RentalityCarToken private carToken;
+  ICarGateway private carToken;
 
   uint[] private dimoVihicles;
 
@@ -51,7 +51,9 @@ contract RentalityDimoService is UUPSAccess, EIP712Upgradeable {
 
   function initialize(address _userService, address _carToken) public initializer {
     userService = IRentalityAccessControl(_userService);
-    carToken = RentalityCarToken(_carToken);
+    carToken = ICarGateway(_carToken);
     __EIP712_init('RentalityDimoService', '1');
   }
 }
+
+

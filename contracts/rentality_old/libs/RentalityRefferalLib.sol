@@ -5,7 +5,7 @@ pragma solidity ^0.8.20;
 
 import '@openzeppelin/contracts/utils/math/Math.sol';
 import {RentalityReferralProgram} from './../features/refferalProgram/RentalityReferralProgram.sol';
-import {RentalityCarToken} from '../RentalityCarToken.sol';
+import {ICarGateway} from '../adapter/ICarGateway.sol';
 import '../Schemas.sol';
 
 library RentalityRefferalLib {
@@ -25,7 +25,7 @@ library RentalityRefferalLib {
   function calculateListedCarsPoints(
     int points,
     address user,
-    RentalityCarToken carService,
+    ICarGateway carService,
     RentalityReferralProgram refferalProgram
   ) internal view returns (uint, uint[] memory) {
     uint totalPoints = 0;
@@ -87,3 +87,5 @@ library RentalityRefferalLib {
   }
   // function addCar(int points)
 }
+
+

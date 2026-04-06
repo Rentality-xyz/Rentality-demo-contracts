@@ -23,7 +23,7 @@ async function main() {
   const RentalityUserServiceJSON = chainId === 1337 ? RentalityUserServiceJSONLocal : RentalityUserServiceJSONNet
 
   const rentalityUtilsAddress = addresses.RentalityUtils
-  const rentalityCarTokenAddress = addresses.RentalityCarToken
+  const carGatewayAdapterAddress = addresses.CarGatewayAdapter
   const rentalityCurrencyConverterAddress = addresses.RentalityCurrencyConverter
   const rentalityTripServiceAddress = addresses.RentalityTripService
   const rentalityUserServiceAddress = addresses.RentalityUserService
@@ -32,8 +32,8 @@ async function main() {
     console.log('rentalityUtilsAddress is not set')
     return
   }
-  if (!rentalityCarTokenAddress) {
-    console.log('rentalityCarTokenAddress is not set')
+  if (!carGatewayAdapterAddress) {
+    console.log('carGatewayAdapterAddress is not set')
     return
   }
   if (!rentalityCurrencyConverterAddress) {
@@ -50,7 +50,7 @@ async function main() {
   }
 
   console.log('rentalityUtilsAddress is:', rentalityUtilsAddress)
-  console.log('rentalityCarTokenAddress is:', rentalityCarTokenAddress)
+  console.log('carGatewayAdapterAddress is:', carGatewayAdapterAddress)
   console.log('rentalityCurrencyConverterAddress is:', rentalityCurrencyConverterAddress)
   console.log('rentalityTripServiceAddress is:', rentalityTripServiceAddress)
   console.log('rentalityUserServiceAddress is:', rentalityUserServiceAddress)
@@ -61,7 +61,7 @@ async function main() {
     },
   })
   const contract = await contractFactory.deploy(
-    rentalityCarTokenAddress,
+    carGatewayAdapterAddress,
     rentalityCurrencyConverterAddress,
     rentalityTripServiceAddress,
     rentalityUserServiceAddress
@@ -91,3 +91,6 @@ main()
     console.error(error)
     process.exit(1)
   })
+
+
+

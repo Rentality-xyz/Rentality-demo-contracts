@@ -23,7 +23,7 @@ describe('RentalityGateway: car', function () {
     rentalityUserService,
     rentalityTripService,
     rentalityCurrencyConverter,
-    rentalityCarToken,
+    carGatewayAdapter,
     rentalityPaymentService,
     rentalityPlatform,
     rentalityGeoService,
@@ -45,7 +45,7 @@ describe('RentalityGateway: car', function () {
       rentalityUserService,
       rentalityTripService,
       rentalityCurrencyConverter,
-      rentalityCarToken,
+      carGatewayAdapter,
       rentalityPaymentService,
       rentalityPlatform,
       rentalityGeoService,
@@ -67,7 +67,7 @@ describe('RentalityGateway: car', function () {
     ).not.to.be.reverted
 
     await expect(
-      rentalityCarToken.connect(host).burnCar(1)
+      carGatewayAdapter.connect(host).burnCar(1)
     ).to.not.be.reverted
   })
 
@@ -345,8 +345,8 @@ describe('RentalityGateway: car', function () {
         .addCar(getMockCarRequest(4, await rentalityLocationVerifier.getAddress(), admin))
     )
 
-    await rentalityCarToken.connect(host).burnCar(3)
-    const hostCars = await rentalityCarToken.getCarsOfHost(host.address)
+    await carGatewayAdapter.connect(host).burnCar(3)
+    const hostCars = await carGatewayAdapter.getCarsOfHost(host.address)
     expect(hostCars.length).to.be.eq(4)
 
     await expect(
@@ -359,14 +359,14 @@ describe('RentalityGateway: car', function () {
         .connect(guest)
         .addCar(getMockCarRequest(6, await rentalityLocationVerifier.getAddress(), admin))
     )
-    await rentalityCarToken.connect(guest).burnCar(7)
+    await carGatewayAdapter.connect(guest).burnCar(7)
     await expect(
       await rentalityGateway
         .connect(guest)
         .addCar(getMockCarRequest(7, await rentalityLocationVerifier.getAddress(), admin))
     )
 
-    const guestCars = await rentalityCarToken.getCarsOfHost(guest.address)
+    const guestCars = await carGatewayAdapter.getCarsOfHost(guest.address)
     expect(guestCars.length).to.be.eq(2)
   })
   it('Impossible to transfer nft', async function () {
@@ -414,7 +414,7 @@ describe('RentalityGateway: car', function () {
 
     const tokenContract = await ethers.getContractAt(
       'ERC721URIStorageUpgradeable',
-      await rentalityCarToken.getAddress()
+      await carGatewayAdapter.getAddress()
     )
     await expect(tokenContract.connect(host).transferFrom(host.address, guest.address, 1)).to.be.revertedWith(
       'Not implemented.'
@@ -481,3 +481,5 @@ describe('RentalityGateway: car', function () {
     expect(availableCars.length).to.equal(6)
   })
 })
+
+

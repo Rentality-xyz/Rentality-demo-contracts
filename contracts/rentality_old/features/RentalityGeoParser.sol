@@ -147,3 +147,4 @@ contract RentalityGeoParser is ChainlinkClient, Ownable, IRentalityGeoParser {
     return result;
   }
 }
+

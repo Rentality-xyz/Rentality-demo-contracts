@@ -3,19 +3,19 @@ pragma solidity ^0.8.20;
 
 
 
-import '@openzeppelin/contracts/proxy/utils/Initializable.sol';
+import {Initializable as OZInitializable} from '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 import '../proxy/UUPSAccess.sol';
 import '../Schemas.sol';
-import '../RentalityCarToken.sol';
+import '../adapter/ICarGateway.sol';
 import '@openzeppelin/contracts/utils/math/Math.sol';
 
 /// Todo add geter to host insurance required
-contract RentalityInsurance is Initializable, UUPSAccess {
+contract RentalityInsurance is OZInitializable, UUPSAccess {
   mapping(uint => Schemas.InsuranceCarInfo) private carIdToInsuranceRequired;
   mapping(address => Schemas.InsuranceInfo[]) private guestToInsuranceInfo;
   mapping(uint => uint) private tripIdToInsurancePaid;
   mapping(uint => Schemas.InsuranceInfo[]) private tripIdToInsuranceInfo;
-  RentalityCarToken private carService;
+  ICarGateway private carService;
 
   function saveInsuranceRequired(uint carId, uint priceInUsdCents, bool required, address user) public {
     require(userService.isRentalityPlatform(msg.sender), 'only Rentality platform');
@@ -151,6 +151,9 @@ contract RentalityInsurance is Initializable, UUPSAccess {
   function initialize(address _userService, address _carService) public initializer {
     userService = IRentalityAccessControl(_userService);
 
-    carService = RentalityCarToken(_carService);
+    carService = ICarGateway(_carService);
   }
 }
+
+
+

@@ -17,9 +17,9 @@ async function main() {
     getContractAddress('RentalityRefferalLib', 'scripts/deploy_1f_RentalityRefferalLib.js', chainId),
     'RentalityRefferalLib'
   )
-  const rentalityCarTokenAddress = checkNotNull(
-    getContractAddress('RentalityCarToken', 'scripts/deploy_3_RentalityCarToken.js', chainId),
-    'RentalityCarToken'
+  const carGatewayAdapterAddress = checkNotNull(
+    getContractAddress('CarGatewayAdapter', 'scripts/deploy_3_CarGatewayAdapter.js', chainId),
+    'CarGatewayAdapter'
   )
 
   const contractFactory = await ethers.getContractFactory(contractName, {
@@ -30,7 +30,7 @@ async function main() {
   const contract = await upgrades.deployProxy(contractFactory, [
     rentalityUserServiceAddress,
     refferalLibAddress,
-    rentalityCarTokenAddress,
+    carGatewayAdapterAddress,
   ])
   await contract.waitForDeployment()
 
@@ -48,3 +48,7 @@ main()
     console.error(error)
     process.exit(1)
   })
+
+
+
+

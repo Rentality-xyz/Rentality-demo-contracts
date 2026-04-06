@@ -26,3 +26,4 @@ interface IRentalityPlatformFacet {
   function checkOutByHost(uint256 tripId, uint64[] memory panelParams) external;
   function addCar(Schemas.CreateCarRequest memory request) external returns (uint newTokenId);
 }
+

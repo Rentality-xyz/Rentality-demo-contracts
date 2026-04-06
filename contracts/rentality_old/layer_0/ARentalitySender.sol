@@ -230,3 +230,4 @@ abstract contract ARentalitySender is IOAppCore, Context {
     emit OwnershipTransferred(oldOwner, newOwner);
   }
 }
+

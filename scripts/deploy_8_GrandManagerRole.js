@@ -25,7 +25,8 @@ async function main() {
   const rentalityGatewayAddress = checkNotNull(addresses['RentalityGateway'], 'rentalityGatewayAddress')
   const rentalityTripServiceAddress = checkNotNull(addresses['RentalityTripService'], 'rentalityTripServiceAddress')
   const rentalityPlatformAddress = checkNotNull(addresses['RentalityPlatform'], 'rentalityPlatformAddress')
-  const rentalityCarTokenAddress = checkNotNull(addresses['RentalityCarToken'], 'rentalityCarTokenAddress')
+  const carMainAddress = checkNotNull(addresses['CarMain'], 'carMainAddress')
+  const carGatewayAdapterAddress = checkNotNull(addresses['CarGatewayAdapter'], 'carGatewayAdapterAddress')
   const rentalityEngineAddress = checkNotNull(addresses['RentalityEnginesService'], 'rentalityEngineAddress')
   const rentalityAdminGatewayAddress = checkNotNull(addresses['RentalityAdminGateway'], 'rentalityAdminGatewayAddress')
   const rentalityPaymentServiceAddress = checkNotNull(
@@ -48,7 +49,8 @@ async function main() {
   await rentalityUserServiceContract.grantPlatformRole(rentalityGatewayAddress)
   await rentalityUserServiceContract.grantPlatformRole(rentalityTripServiceAddress)
   await rentalityUserServiceContract.grantPlatformRole(rentalityPlatformAddress)
-  await rentalityUserServiceContract.grantPlatformRole(rentalityCarTokenAddress)
+  await rentalityUserServiceContract.grantPlatformRole(carMainAddress)
+  await rentalityUserServiceContract.grantPlatformRole(carGatewayAdapterAddress)
   await rentalityUserServiceContract.grantPlatformRole(rentalityAdminGatewayAddress)
   await rentalityUserServiceContract.grantPlatformRole(rentalityEngineAddress)
   await rentalityUserServiceContract.grantPlatformRole(rentalityPaymentServiceAddress)
@@ -70,3 +72,5 @@ main()
     console.error('deploy_8_GrandManagerRole error:', error)
     process.exit(1)
   })
+
+

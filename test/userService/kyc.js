@@ -129,7 +129,7 @@ describe('RentalityUserService: KYC management', function () {
       rentalityPaymentService,
       rentalityCurrencyConverter,
       host,
-      rentalityCarToken,
+      carGatewayAdapter,
       guest,
       rentalityTripService,
       rentalityUserService,
@@ -241,3 +241,5 @@ fee: 0
 
   })
 })
+
+

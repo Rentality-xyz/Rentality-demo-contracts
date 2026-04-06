@@ -5,7 +5,7 @@ pragma solidity ^0.8.20;
 //deployed 26.05.2023 11:15 to sepolia at 0x3E69da2133f87a3CC2602b351869046C2D8Aef2A
 
 import '@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol';
-import '@openzeppelin/contracts/proxy/utils/Initializable.sol';
+import {Initializable as OZInitializable} from '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 import '../abstract/IRentalityAccessControl.sol';
 import '../proxy/UUPSAccess.sol';
 import '../Schemas.sol';
@@ -16,7 +16,7 @@ import {RentalityPromoService} from '../features/RentalityPromo.sol';
 /// @title RentalityCurrencygeter
 /// @notice A contract for getting between available on Rentality currency and United States Dollar (USD) using Chainlink rate feeds
 /// @dev Users can retrieve the latest Currency to USD rate, and cache the rate for efficiency.
-contract RentalityCurrencyConverter is Initializable, UUPSAccess {
+contract RentalityCurrencyConverter is OZInitializable, UUPSAccess {
   mapping(address => ARentalityUpgradableCurrencyType) private tokenAddressToPaymentMethod;
 
   Schemas.Currency[] private availableCurrencies;
@@ -286,3 +286,5 @@ contract RentalityCurrencyConverter is Initializable, UUPSAccess {
     availableCurrencies.push(Schemas.Currency(address(0), nativeCurrencyName));
   }
 }
+
+

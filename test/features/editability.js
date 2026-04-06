@@ -18,7 +18,7 @@ describe('Ability to update car during trip', function () {
     rentalityUserService,
     rentalityTripService,
     rentalityCurrencyConverter,
-    rentalityCarToken,
+    carGatewayAdapter,
     rentalityPaymentService,
     rentalityPlatform,
     claimService,
@@ -39,7 +39,7 @@ describe('Ability to update car during trip', function () {
       rentalityUserService,
       rentalityTripService,
       rentalityCurrencyConverter,
-      rentalityCarToken,
+      carGatewayAdapter,
       rentalityPaymentService,
       rentalityPlatform,
       claimService,
@@ -224,3 +224,5 @@ fee: 0
     expect(myNotEditableCars2[0].isEditable).to.be.equal(true)
   })
 })
+
+

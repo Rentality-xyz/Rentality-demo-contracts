@@ -8,8 +8,8 @@ import {ARentalityRefferalPointsSetter} from './ARentalityRefferalPointsSetter.s
 import {ARentalityRefferalDiscountProvider} from './ARentalityRefferalDiscountProvider.sol';
 import '../../Schemas.sol';
 import '../../proxy/UUPSAccess.sol';
-import '@openzeppelin/contracts/proxy/utils/Initializable.sol';
-import {RentalityCarToken} from '../../RentalityCarToken.sol';
+import {Initializable as OZInitializable} from '@openzeppelin/contracts/proxy/utils/Initializable.sol';
+import {ICarGateway} from '../../adapter/ICarGateway.sol';
 import {RentalityTripService} from '../../RentalityTripService.sol';
 import {RentalityUserService} from '../../RentalityUserService.sol';
 import {RentalityRefferalLib} from '../../libs/RentalityRefferalLib.sol';
@@ -30,7 +30,7 @@ contract RentalityReferralProgram is
   ARentalityRefferalHasher,
   ARentalityRefferalDiscountProvider,
   ARentalityRefferalTear,
-  Initializable,
+  OZInitializable,
   UUPSAccess,
   ARentalityContext
 {
@@ -38,7 +38,7 @@ contract RentalityReferralProgram is
   mapping(uint => TripDiscounts) private tripIdToDisctount;
   mapping(address => Schemas.ReadyToClaim[]) private addressToReadyToClaim;
   mapping(uint => uint) private carIdToDailyClaimed;
-  RentalityCarToken private carService;
+  ICarGateway private carService;
   mapping(address => Schemas.ProgramHistory[]) private userProgramHistory;
 
   mapping(address => Schemas.ReadyToClaimFromHash[]) private userToReadyToClaimFromHash;
@@ -340,7 +340,7 @@ contract RentalityReferralProgram is
   ) public virtual initializer {
     userService = IRentalityAccessControl(_userService);
     refferalLib = _refferalLib;
-    carService = RentalityCarToken(carServiceAddress);
+    carService = ICarGateway(carServiceAddress);
 
     addOneTimeProgram(Schemas.RefferalProgram.SetKYC, 100, 125, bytes4(''));
     addOneTimeProgram(Schemas.RefferalProgram.PassCivic, 500, 625, bytes4(''));
@@ -372,3 +372,6 @@ contract RentalityReferralProgram is
     manageTearInfo(Schemas.Tear.Tear4, 10000, type(uint).max);
   }
 }
+
+
+

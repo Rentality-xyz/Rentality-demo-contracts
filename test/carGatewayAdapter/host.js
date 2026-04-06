@@ -4,7 +4,7 @@ const { loadFixture, time } = require('@nomicfoundation/hardhat-network-helpers'
 const { getMockCarRequest } = require('../utils')
 const { deployFixtureWith1Car, deployDefaultFixture } = require('./deployments')
 
-describe('RentalityCarToken: host functions', function () {
+describe('CarGatewayAdapter: host functions', function () {
   it('Adding car should emit CarAddedSuccess event', async function () {
     const { rentalityGateway, host, rentalityLocationVerifier, admin, rentalityNotificationService } =
       await loadFixture(deployDefaultFixture)
@@ -17,7 +17,7 @@ describe('RentalityCarToken: host functions', function () {
   })
 
   it('Adding car with the same VIN number should be reverted', async function () {
-    const { rentalityCarToken, host, rentalityLocationVerifier, admin, rentalityGateway } =
+    const { carGatewayAdapter, host, rentalityLocationVerifier, admin, rentalityGateway } =
       await loadFixture(deployDefaultFixture)
 
     const request1 = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
@@ -31,7 +31,7 @@ describe('RentalityCarToken: host functions', function () {
   })
 
   it('Adding car with the different VIN number should not be reverted', async function () {
-    const { rentalityCarToken, host, rentalityLocationVerifier, admin, rentalityGateway } =
+    const { carGatewayAdapter, host, rentalityLocationVerifier, admin, rentalityGateway } =
       await loadFixture(deployDefaultFixture)
 
     const request1 = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
@@ -42,25 +42,25 @@ describe('RentalityCarToken: host functions', function () {
   })
 
   it('Only owner of the car can burn token', async function () {
-    const { rentalityCarToken, owner, admin, host, anonymous } = await loadFixture(deployFixtureWith1Car)
+    const { carGatewayAdapter, owner, admin, host, anonymous } = await loadFixture(deployFixtureWith1Car)
 
-    await expect(rentalityCarToken.connect(anonymous).burnCar(1)).to.be.reverted
-    await expect(rentalityCarToken.connect(admin).burnCar(1)).to.be.reverted
-    await expect(rentalityCarToken.connect(owner).burnCar(1)).to.be.reverted
+    await expect(carGatewayAdapter.connect(anonymous).burnCar(1)).to.be.reverted
+    await expect(carGatewayAdapter.connect(admin).burnCar(1)).to.be.reverted
+    await expect(carGatewayAdapter.connect(owner).burnCar(1)).to.be.reverted
 
-    expect(await rentalityCarToken.balanceOf(host.address)).to.equal(1)
-    await expect(rentalityCarToken.connect(host).burnCar(1)).not.be.reverted
-    expect(await rentalityCarToken.balanceOf(host.address)).to.equal(0)
+    expect(await carGatewayAdapter.balanceOf(host.address)).to.equal(1)
+    await expect(carGatewayAdapter.connect(host).burnCar(1)).not.be.reverted
+    expect(await carGatewayAdapter.balanceOf(host.address)).to.equal(0)
   })
 
   it('getCarInfoById should return valid info', async function () {
-    const { rentalityCarToken, host, rentalityLocationVerifier, admin, rentalityGateway } =
+    const { carGatewayAdapter, host, rentalityLocationVerifier, admin, rentalityGateway } =
       await loadFixture(deployFixtureWith1Car)
 
     const TOKEN_ID = 1
     const request = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
 
-    const carInfo = await rentalityCarToken.connect(host).getCarInfoById(TOKEN_ID)
+    const carInfo = await carGatewayAdapter.connect(host).getCarInfoById(TOKEN_ID)
 
     expect(carInfo.carVinNumber).to.equal(request.carVinNumber)
     expect(carInfo.createdBy).to.equal(host.address)
@@ -78,28 +78,28 @@ describe('RentalityCarToken: host functions', function () {
   })
 
   it('getCarsOwnedByUser without cars should return empty array', async function () {
-    const { rentalityCarToken, host } = await loadFixture(deployDefaultFixture)
-    const myCars = await rentalityCarToken.connect(host).getCarsOwnedByUser(host.address)
+    const { carGatewayAdapter, host } = await loadFixture(deployDefaultFixture)
+    const myCars = await carGatewayAdapter.connect(host).getCarsOwnedByUser(host.address)
 
     expect(myCars.length).to.equal(0)
   })
 
   it('getCarsOwnedByUser after burn car should return empty array', async function () {
-    const { rentalityCarToken, host } = await loadFixture(deployFixtureWith1Car)
+    const { carGatewayAdapter, host } = await loadFixture(deployFixtureWith1Car)
 
-    await rentalityCarToken.connect(host).burnCar(1)
-    const myCars = await rentalityCarToken.connect(host).getCarsOwnedByUser(host.address)
+    await carGatewayAdapter.connect(host).burnCar(1)
+    const myCars = await carGatewayAdapter.connect(host).getCarsOwnedByUser(host.address)
 
     expect(myCars.length).to.equal(0)
   })
 
   it('getCarsOwnedByUser with 1 car should return valid info', async function () {
-    const { rentalityCarToken, host, rentalityLocationVerifier, admin, rentalityGateway } =
+    const { carGatewayAdapter, host, rentalityLocationVerifier, admin, rentalityGateway } =
       await loadFixture(deployFixtureWith1Car)
 
     const request = getMockCarRequest(0, await rentalityLocationVerifier.getAddress(), admin)
 
-    const myCars = await rentalityCarToken.connect(host).getCarsOwnedByUser(host.address)
+    const myCars = await carGatewayAdapter.connect(host).getCarsOwnedByUser(host.address)
 
     expect(myCars.length).to.equal(1)
 
@@ -119,9 +119,9 @@ describe('RentalityCarToken: host functions', function () {
   })
 
   it("getAllAvailableCars with 1 car shouldn't return data for car owner", async function () {
-    const { rentalityCarToken, host } = await loadFixture(deployFixtureWith1Car)
+    const { carGatewayAdapter, host } = await loadFixture(deployFixtureWith1Car)
 
-    const availableCars = await rentalityCarToken.getAvailableCarsForUser(host.address)
+    const availableCars = await carGatewayAdapter.getAvailableCarsForUser(host.address)
 
     expect(availableCars.length).to.equal(0)
   })
@@ -152,3 +152,5 @@ describe('RentalityCarToken: host functions', function () {
     expect(availableCars[0].currentlyListed).to.equal(true)
   })
 })
+
+

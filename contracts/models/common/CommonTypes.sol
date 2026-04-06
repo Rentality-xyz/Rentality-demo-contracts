@@ -15,3 +15,4 @@ struct SignedLocationInfo {
     LocationInfo locationInfo;
     bytes signature;
 }
+

@@ -25,3 +25,4 @@ abstract contract ARentalityRefferalDiscountProvider is ARentalityRefferal {
     return (discount.percents, discount.pointsCosts);
   }
 }
+

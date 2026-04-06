@@ -46,3 +46,4 @@ interface IRentalityViewFacet {
   function getMyInsurancesAsGuest() external view returns (Schemas.InsuranceInfo[] memory);
   function getAvailableCurrency() external view returns (Schemas.AllowedCurrencyDTO[] memory);
 }
+

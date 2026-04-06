@@ -6,7 +6,7 @@ pragma solidity ^0.8.20;
 import '../Schemas.sol';
 import './IRentalityGeoParser.sol';
 import '../proxy/UUPSAccess.sol';
-import '@openzeppelin/contracts/proxy/utils/Initializable.sol';
+import {Initializable as OZInitializable} from '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 import '../abstract/IRentalityGeoService.sol';
 import '@openzeppelin/contracts/utils/cryptography/ECDSA.sol';
 import './RentalityLocationVerifier.sol';
@@ -14,7 +14,7 @@ import './RentalityLocationVerifier.sol';
 /// @title Rentality Geo Service Contract
 /// @notice This contract provides geolocation services.
 /// @dev It interacts with an external geolocation API and stores the results for cars.
-contract RentalityGeoService is IRentalityGeoService, Initializable, UUPSAccess {
+contract RentalityGeoService is IRentalityGeoService, OZInitializable, UUPSAccess {
   /// @notice Mapping to store parsed geolocation data for each car ID.
   mapping(uint256 => Schemas.ParsedGeolocationData) public carIdToParsedGeolocationData;
   IRentalityGeoParser private geoParser; // unused
@@ -156,3 +156,5 @@ contract RentalityGeoService is IRentalityGeoService, Initializable, UUPSAccess 
     verifier = RentalityLocationVerifier(locationVerifier);
   }
 }
+
+

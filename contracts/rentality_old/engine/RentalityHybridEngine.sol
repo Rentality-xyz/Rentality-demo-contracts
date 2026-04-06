@@ -12,3 +12,4 @@ contract RentalityHybridEngine is RentalityPetrolEngine {
   /// @param _userService The address of the RentalityUserService contract.
   constructor(address _userService) RentalityPetrolEngine(_userService) {}
 }
+

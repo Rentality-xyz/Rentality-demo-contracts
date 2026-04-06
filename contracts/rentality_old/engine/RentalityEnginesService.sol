@@ -3,13 +3,13 @@ pragma solidity ^0.8.20;
 
 
 
-import '@openzeppelin/contracts/proxy/utils/Initializable.sol';
+import {Initializable as OZInitializable} from '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 import './ARentalityEngine.sol';
 import '../proxy/UUPSAccess.sol';
 
 /// @title RentalityEnginesService - Manages different types of Rentality engines.
 /// @notice This contract allows the addition, update, and interaction with various Rentality engines.
-contract RentalityEnginesService is Initializable, UUPSAccess {
+contract RentalityEnginesService is OZInitializable, UUPSAccess {
   uint8 private eTypeCounter;
   mapping(uint8 => ARentalityEngine) private engineTypeToEngineContract;
 
@@ -171,3 +171,5 @@ contract RentalityEnginesService is Initializable, UUPSAccess {
     }
   }
 }
+
+

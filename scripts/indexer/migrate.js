@@ -92,12 +92,12 @@ async function main() {
   console.log(await notificationContract.emitAll(userEvents.concat(insuranceEvents)))
   console.log("User events, Insurance events emited!")
 
-  const rentalityCarTokenAddress = checkNotNull(
-    getContractAddress('RentalityCarToken', 'scripts/deploy_3_RentalityCarToken.js', chainId),
-    'RentalityCarToken'
+  const carGatewayAdapterAddress = checkNotNull(
+    getContractAddress('CarGatewayAdapter', 'scripts/deploy_3_CarGatewayAdapter.js', chainId),
+    'CarGatewayAdapter'
   )
 
-  let carContract = await ethers.getContractAt('RentalityCarToken', rentalityCarTokenAddress)
+  let carContract = await ethers.getContractAt('ICarGateway', carGatewayAdapterAddress)
 
 
   let totalSupply = await carContract.totalSupply();
@@ -142,3 +142,8 @@ main()
     console.error(error)
     process.exit(1)
   })
+
+
+
+
+

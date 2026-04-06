@@ -10,7 +10,7 @@ describe('Location sign', function () {
     rentalityUserService,
     rentalityTripService,
     rentalityCurrencyConverter,
-    rentalityCarToken,
+    carGatewayAdapter,
     rentalityPaymentService,
     rentalityPlatform,
     engineService,
@@ -37,7 +37,7 @@ describe('Location sign', function () {
       rentalityUserService,
       rentalityTripService,
       rentalityCurrencyConverter,
-      rentalityCarToken,
+      carGatewayAdapter,
       rentalityPaymentService,
       rentalityPlatform,
       engineService,
@@ -114,3 +114,5 @@ describe('Location sign', function () {
     await expect(rentalityGeoService.verifySignedLocationInfo(location)).to.be.reverted
   })
 })
+
+

@@ -17,3 +17,4 @@ abstract contract ARentalityRefferalHasher is ARentalityRefferal {
     selectorHashToPoints[selector] = points;
   }
 }
+

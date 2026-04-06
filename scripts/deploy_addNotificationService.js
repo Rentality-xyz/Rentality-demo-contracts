@@ -27,11 +27,11 @@ async function main() {
   const rentalityUserServiceAddress = checkNotNull(addresses['RentalityUserService'], 'rentalityUserServiceAddress')
   const rentalityClaimService = checkNotNull(addresses['RentalityClaimService'], 'RentalityClaimService')
   const rentalityTripServiceAddress = checkNotNull(addresses['RentalityTripService'], 'rentalityTripServiceAddress')
-  const rentalityCarTokenAddress = checkNotNull(addresses['RentalityCarToken'], 'rentalityCarTokenAddress')
+  const carGatewayAdapterAddress = checkNotNull(addresses['CarGatewayAdapter'], 'carGatewayAdapterAddress')
 
   const userService = await ethers.getContractAt('RentalityUserService', rentalityUserServiceAddress)
   const claimService = await ethers.getContractAt('RentalityClaimService', rentalityClaimService)
-  const carService = await ethers.getContractAt('RentalityCarToken', rentalityCarTokenAddress)
+  const carService = await ethers.getContractAt('ICarGateway', carGatewayAdapterAddress)
   const tripService = await ethers.getContractAt('RentalityTripService', rentalityTripServiceAddress)
 
   await claimService.updateEventServiceAddress(notificationService)
@@ -48,3 +48,6 @@ main()
     console.error(error)
     process.exit(1)
   })
+
+
+

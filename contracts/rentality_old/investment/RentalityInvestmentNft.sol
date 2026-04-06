@@ -47,3 +47,4 @@ contract RentalityInvestmentNft is ERC721 {
     return (tokenId, totalHolders);
   }
 }
+

@@ -18,7 +18,7 @@ describe('RentalityClaim', function () {
     rentalityUserService,
     rentalityTripService,
     rentalityCurrencyConverter,
-    rentalityCarToken,
+    carGatewayAdapter,
     rentalityPaymentService,
     rentalityPlatform,
     claimService,
@@ -38,7 +38,7 @@ describe('RentalityClaim', function () {
       rentalityUserService,
       rentalityTripService,
       rentalityCurrencyConverter,
-      rentalityCarToken,
+      carGatewayAdapter,
       rentalityPaymentService,
       rentalityPlatform,
       claimService,
@@ -967,3 +967,5 @@ fee: 0
     expect(claimTypesForHost.length).to.be.eq(7)
   })
 })
+
+

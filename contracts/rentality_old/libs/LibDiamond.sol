@@ -3,7 +3,6 @@ pragma solidity ^0.8.20;
 
 import '../features/RentalityClaimService.sol';
 import '../abstract/IRentalityGateway.sol';
-import '../RentalityCarToken.sol';
 import '../payments/RentalityCurrencyConverter.sol';
 import '../RentalityTripService.sol';
 import '../RentalityUserService.sol';
@@ -196,3 +195,4 @@ library LibDiamond {
         require(contractSize > 0, _errorMessage);
     }
 }
+

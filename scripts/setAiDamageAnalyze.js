@@ -15,8 +15,8 @@ async function main() {
   )
   const rentalityContract = {
     carService: checkNotNull(
-      getContractAddress('RentalityCarToken', 'scripts/deploy_3_RentalityCarToken.js', chainId),
-      'RentalityCarToken'
+      getContractAddress('CarGatewayAdapter', 'scripts/deploy_3_CarGatewayAdapter.js', chainId),
+      'CarGatewayAdapter'
     ),
     currencyConverterService: checkNotNull(
       getContractAddress('RentalityCurrencyConverter', 'scripts/deploy_3b_RentalityCurrencyConverter.js', chainId),
@@ -94,3 +94,6 @@ main()
     console.error(error)
     process.exit(1)
   })
+
+
+

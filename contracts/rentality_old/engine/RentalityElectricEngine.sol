@@ -93,3 +93,4 @@ contract RentalityElectricEngine is ARentalityEngine {
     return (uint64(difference) * priceForFullBatteryCharge) / 100;
   }
 }
+

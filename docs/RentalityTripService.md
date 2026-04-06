@@ -81,7 +81,7 @@ struct Trip {
 
 ```solidity
 struct AvailableCarResponse {
-  struct RentalityCarToken.CarInfo car;
+  struct CarGatewayAdapter.CarInfo car;
   string hostPhotoUrl;
   string hostName;
 }
@@ -201,7 +201,7 @@ Requirements:
 ### searchAvailableCarsForUser
 
 ```solidity
-function searchAvailableCarsForUser(address user, uint64 startDateTime, uint64 endDateTime, struct RentalityCarToken.SearchCarParams searchParams) public view returns (struct RentalityTripService.AvailableCarResponse[])
+function searchAvailableCarsForUser(address user, uint64 startDateTime, uint64 endDateTime, struct CarGatewayAdapter.SearchCarParams searchParams) public view returns (struct RentalityTripService.AvailableCarResponse[])
 ```
 
 _Searches for available cars for a user within a specified time range and search parameters._
@@ -213,7 +213,7 @@ _Searches for available cars for a user within a specified time range and search
 | user          | address                                  | The address of the user for whom to search available cars. |
 | startDateTime | uint64                                   | The start date and time of the search period.              |
 | endDateTime   | uint64                                   | The end date and time of the search period.                |
-| searchParams  | struct RentalityCarToken.SearchCarParams | The search parameters for filtering available cars.        |
+| searchParams  | struct CarGatewayAdapter.SearchCarParams | The search parameters for filtering available cars.        |
 
 #### Return Values
 
@@ -345,3 +345,5 @@ function getAddressesByTripId(uint256 tripId) external view returns (address hos
 @param tripId The ID of the trip.
 @return hostAddress The address of the host.
 @return guestAddress The address of the guest.
+
+

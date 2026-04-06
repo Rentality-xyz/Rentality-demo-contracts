@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 
 
-import '@openzeppelin/contracts/proxy/utils/Initializable.sol';
+import {Initializable as OZInitializable} from '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 import {IRentalityAccessControl} from '../abstract/IRentalityAccessControl.sol';
 import {UUPSAccess} from '../proxy/UUPSAccess.sol';
 import '../Schemas.sol';
@@ -17,7 +17,7 @@ struct RentaityEvent {
     address to;
 }
 
-contract RentalityNotificationService is UUPSAccess, Initializable {
+contract RentalityNotificationService is UUPSAccess, OZInitializable {
   /// @notice Rentality event for all types of сontracts
   /// eType: Type of event, represent smart contract, where it heppens
   /// id of object (trip id/car id/claim id)
@@ -47,3 +47,5 @@ contract RentalityNotificationService is UUPSAccess, Initializable {
     userService = IRentalityAccessControl(userServiceAddress);
   }
 }
+
+

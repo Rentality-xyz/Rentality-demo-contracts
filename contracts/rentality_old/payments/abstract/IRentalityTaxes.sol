@@ -31,3 +31,4 @@ interface IRentalityTaxes {
 
   function getTotalTripTax(uint tripId) external view returns(uint64);
 }
+

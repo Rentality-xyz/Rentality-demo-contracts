@@ -23,3 +23,4 @@ contract RentalityTestUSDT is ERC20 {
     return 6;
   }
 }
+

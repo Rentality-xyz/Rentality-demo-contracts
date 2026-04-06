@@ -9,7 +9,7 @@ describe('Rentality investment', function () {
     rentalityUserService,
     rentalityTripService,
     rentalityCurrencyConverter,
-    rentalityCarToken,
+    carGatewayAdapter,
     rentalityPaymentService,
     rentalityPlatform,
     rentalityGeoService,
@@ -33,7 +33,7 @@ describe('Rentality investment', function () {
       rentalityUserService,
       rentalityTripService,
       rentalityCurrencyConverter,
-      rentalityCarToken,
+      carGatewayAdapter,
       rentalityPaymentService,
       rentalityPlatform,
       rentalityGeoService,
@@ -731,3 +731,5 @@ fee: 0
    
   })
 })
+
+

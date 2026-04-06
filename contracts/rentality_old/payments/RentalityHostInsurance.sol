@@ -3,12 +3,12 @@ pragma solidity ^0.8.20;
 
 
 
-import '@openzeppelin/contracts/proxy/utils/Initializable.sol';
+import {Initializable as OZInitializable} from '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 import '../proxy/UUPSAccess.sol';
 import '../Schemas.sol';
 import './abstract/IERC20.sol';
 
-contract RentalityHostInsurance is Initializable, UUPSAccess {
+contract RentalityHostInsurance is OZInitializable, UUPSAccess {
     uint private insuranceId;
     mapping (uint => Schemas.HostInsuranceRule) private insuranceIdToInsurance;
     mapping (address => uint) private userToInsuranceId;
@@ -148,3 +148,4 @@ contract RentalityHostInsurance is Initializable, UUPSAccess {
 
 
 }
+

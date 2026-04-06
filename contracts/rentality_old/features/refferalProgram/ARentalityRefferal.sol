@@ -9,3 +9,4 @@ abstract contract ARentalityRefferal {
     return IRentalityAccessControl(address(0));
   }
 }
+

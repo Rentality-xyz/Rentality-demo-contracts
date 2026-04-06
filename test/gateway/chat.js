@@ -20,7 +20,7 @@ describe('RentalityGateway: chat', function () {
     rentalityUserService,
     rentalityTripService,
     rentalityCurrencyConverter,
-    rentalityCarToken,
+    carGatewayAdapter,
     rentalityPaymentService,
     rentalityPlatform,
     rentalityGeoService,
@@ -43,7 +43,7 @@ describe('RentalityGateway: chat', function () {
       rentalityUserService,
       rentalityTripService,
       rentalityCurrencyConverter,
-      rentalityCarToken,
+      carGatewayAdapter,
       rentalityPaymentService,
       rentalityPlatform,
       rentalityGeoService,
@@ -214,3 +214,5 @@ fee: 0
     expect(chatInfo.carYearOfProduction).to.be.equal(Number(addCarRequest.yearOfProduction))
   })
 })
+
+

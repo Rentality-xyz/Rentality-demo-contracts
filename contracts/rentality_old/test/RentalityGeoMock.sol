@@ -331,3 +331,4 @@ contract RentalityGeoMock is IRentalityGeoParser {
     return carIdToParsedGeolocationData[carId];
   }
 }
+

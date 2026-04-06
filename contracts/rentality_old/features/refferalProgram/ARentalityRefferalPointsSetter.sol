@@ -130,3 +130,4 @@ abstract contract ARentalityRefferalPointsSetter is ARentalityRefferal {
     return permanentSelectorToPoints[selector].points != 0;
   }
 }
+

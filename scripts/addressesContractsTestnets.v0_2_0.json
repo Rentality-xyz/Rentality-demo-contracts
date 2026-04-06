@@ -28,7 +28,7 @@
     "RentalityPetrolEngine": "0xef7b5Ed464179C9F0BB4b726E49C7120F76f3ABE",
     "RentalityElectricEngine": "0x3d1be1228427dABD5F89Ca7925CA289e300B21Ed",
     "RentalityEnginesService": "0xF42AB67d69017615C1B96Ce2cBa25627D707a746",
-    "RentalityCarToken": "0x5a450aB8C86BA17655a1ACf03114bD3EE986DD4e",
+    "CarGatewayAdapter": "0x5a450aB8C86BA17655a1ACf03114bD3EE986DD4e",
     "RentalityTripService": "0xE400654d8310EA37953DB7A59E0C80F70Fea39F8",
     "RentalityQuery": "0x8794D646519cEEBf8C01816Cff5938a4ef1e1938",
     "RealMath": "0x123241f97D9B12609f67dbE45738565DD163c23d",
@@ -85,7 +85,7 @@
     "RentalityPetrolEngine": "0xc023b31Ae0FaF7409EBaBe3f8BdbEb111dC00DB4",
     "RentalityElectricEngine": "0x6d161864d412655aC344f40b0fdd1ca76A801F8d",
     "RentalityEnginesService": "0x54650c8099492B471c81e6ACa6c8cd50B94D6cE2",
-    "RentalityCarToken": "0xCfd84b30b9fddaa275b38a40E08D8bE990688033",
+    "CarGatewayAdapter": "0xCfd84b30b9fddaa275b38a40E08D8bE990688033",
     "RentalityInsurance": "0x7E3D4fa52C23f9E5Ee35E757092B0068d7FA5463",
     "RentalityViewLib": "0x945C05A6F5475873b0fe9df0041F95b7aCc0E9DC",
     "RentalityInvestment": "0x53F24b40425Ac4424bb58b1B78A065c6648f0D68",
@@ -143,7 +143,7 @@
     "RentalityPetrolEngine": "0xC90b92180DB8724F4B35765Cc9D87413c2D3E7DF",
     "RentalityElectricEngine": "0x826A482A0754D68D761D1c9F5E8f07A62D59cfb5",
     "RentalityEnginesService": "0x38830c1e9792c7c32B45590BEAd38BaB1A73Ced1",
-    "RentalityCarToken": "0xDCb28ABC427E08C16eA12A442F10006d1F626Dfc",
+    "CarGatewayAdapter": "0xDCb28ABC427E08C16eA12A442F10006d1F626Dfc",
     "RentalityInsurance": "0x28D0580A6E8914c3f19A130Ab003B55c5ae58110",
     "RentalityViewLib": "0xeb573aE39E1CB12F006153CFD3245B89A634a857",
     "RentalityInvestment": "0x730B774E815728513662910adc5Dd2ef7d998CBC",
@@ -199,7 +199,7 @@
     "RentalityPetrolEngine": "0x6749857265D83A77bd82E391ffbd208F1C6fe984",
     "RentalityElectricEngine": "0x012aA3e0DDB17EbF41E334216ccacCb0DfC68065",
     "RentalityEnginesService": "0xB07E2cBc0d8A0cCEC1F4F52Add10ec0Fd8F24905",
-    "RentalityCarToken": "0xA67AD4361873551deE570b2be309ce7be79d52D7",
+    "CarGatewayAdapter": "0xA67AD4361873551deE570b2be309ce7be79d52D7",
     "RentalityTripService": "0xdd895B1b621D3bA59E59aeb6D9e1441DE344dA05",
     "RentalityQuery": "0x5d5ac5c0ddb2802E48Af5a9A670AD1037e46D026",
     "RealMath": "0xE0Fd3D1f0F9A56C8df118BcDdE724c335bC00975",
@@ -236,3 +236,5 @@
     "RentalitySender": "0x4D6eAAC8864De42d7A2Aa8750bF61EE0d5500Fbd"
   }
 ]
+
+

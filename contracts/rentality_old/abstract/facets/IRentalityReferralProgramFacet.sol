@@ -17,3 +17,4 @@ interface IRentalityReferralProgramFacet {
   function claimRefferalPoints(address) external;
   function hashExists(bytes32 referralHash) external view returns (bool);
 }
+

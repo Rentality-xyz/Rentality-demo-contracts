@@ -24,7 +24,7 @@ describe('Admin trip searching', function () {
     rentalityUserService,
     rentalityTripService,
     rentalityCurrencyConverter,
-    rentalityCarToken,
+    carGatewayAdapter,
     rentalityPaymentService,
     rentalityPlatform,
     engineService,
@@ -49,7 +49,7 @@ describe('Admin trip searching', function () {
       rentalityUserService,
       rentalityTripService,
       rentalityCurrencyConverter,
-      rentalityCarToken,
+      carGatewayAdapter,
       rentalityPaymentService,
       rentalityPlatform,
       engineService,
@@ -752,7 +752,7 @@ fee: 0
     expect(result.cars[0].car.carId).to.be.eq(4)
     expect(result.cars[1].car.carId).to.be.eq(5)
     expect(result.cars[2].car.carId).to.be.eq(6)
-    await rentalityCarToken.connect(host).burnCar(4);
+    await carGatewayAdapter.connect(host).burnCar(4);
 
     result = await rentalityAdminGateway.getAllCars(2, 3)
     expect(result.cars.length).to.be.eq(3)
@@ -854,3 +854,5 @@ fee: 0
     await expect(rentalityAdminGateway.connect(admin).refundToGuest(2)).not.to.be.reverted
   })
 })
+
+

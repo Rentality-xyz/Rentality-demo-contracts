@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 
 
-import '@openzeppelin/contracts/proxy/utils/Initializable.sol';
+import {Initializable as OZInitializable} from '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 import './RentalityCurrencyType.sol';
 
 contract RentalityETHConvertor is ARentalityUpgradableCurrencyType {
@@ -12,3 +12,5 @@ contract RentalityETHConvertor is ARentalityUpgradableCurrencyType {
     return 18;
   }
 }
+
+
