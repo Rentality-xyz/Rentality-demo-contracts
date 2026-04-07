@@ -30,12 +30,11 @@ async function main() {
   )
 
   const carMainFactory = await ethers.getContractFactory('CarMain')
-  const carMain = await upgrades.deployProxy(carMainFactory, [
-    geoAddress,
-    engineAddress,
-    userServiceAddress,
-    notificationServiceAddress,
-  ])
+  const carMain = await upgrades.deployProxy(
+    carMainFactory,
+    [geoAddress, engineAddress, userServiceAddress, notificationServiceAddress],
+    { unsafeAllow: ['constructor'] }
+  )
   await carMain.waitForDeployment()
 
   const carQueryFactory = await ethers.getContractFactory('CarQuery')

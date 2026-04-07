@@ -35,12 +35,6 @@ async function main() {
     'RentalitySwaps'
   )
 
-  const quoterV2 = checkNotNull(
-    getContractAddress('QuoterV2', '', chainId),
-    'QuoterV2'
-  )
-
-
   const contractFactory = await ethers.getContractFactory(contractName)
   const contract = await upgrades.deployProxy(contractFactory, [
     userService,

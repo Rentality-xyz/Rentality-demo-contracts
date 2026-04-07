@@ -1,14 +1,102 @@
 const RentalityGatewayJSON_ABI = require('../src/abis/RentalityGateway.v0_2_0.abi.json')
-const testData = require('./testData/testData.json')
+
 const { ethers, network } = require('hardhat')
 const { buildPath } = require('./utils/pathBuilder')
-const { readFileSync } = require('fs')
+const { existsSync, readFileSync } = require('fs')
 const { checkNotNull, startDeploy } = require('./utils/deployHelper')
 const { bigIntReplacer } = require('./utils/json')
 const { error } = require('console')
 const { signTCMessage } = require('../test/utils')
 
 const DEFAULT_HARDHAT_ADDRESS = '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+const DEFAULT_HARDHAT_MNEMONIC = 'test test test test test test test test test test test junk'
+
+const DEFAULT_LOCATION_INFO = {
+  userAddress: 'Miami Riverwalk, Miami, Florida, USA',
+  country: 'USA',
+  state: 'Florida',
+  city: 'Miami',
+  latitude: '45.509248',
+  longitude: '-122.682653',
+  timeZoneId: 'America/New_York',
+}
+
+function deriveHardhatPrivateKey(index) {
+  return ethers.HDNodeWallet.fromPhrase(
+    DEFAULT_HARDHAT_MNEMONIC,
+    undefined,
+    `m/44'/60'/0'/0/${index}`
+  ).privateKey
+}
+
+function makeDefaultCarInfo(index) {
+  const seed = index + 1
+  return {
+    tokenUri: `TOKEN_URI_${seed}`,
+    carVinNumber: `VIN_NUMBER_${seed}`,
+    brand: `BRAND_${seed}`,
+    model: `MODEL_${seed}`,
+    yearOfProduction: Number(`200${seed}`),
+    pricePerDayInUsdCents: seed * 100 + 2,
+    securityDepositPerTripInUsdCents: seed * 100 + 3,
+    engineParams: [seed * 100 + 4, seed * 100 + 5],
+    engineType: 1,
+    milesIncludedPerDay: seed * 100 + 6,
+    timeBufferBetweenTripsInSec: 0,
+    geoApiKey: ' ',
+    locationInfo: {
+      locationInfo: DEFAULT_LOCATION_INFO,
+      signature: '0x',
+    },
+    currentlyListed: true,
+    insuranceIncluded: true,
+    insuranceRequired: false,
+    insurancePriceInUsdCents: 0,
+    dimoTokenId: 0,
+    signedDimoTokenId: '0x',
+  }
+}
+
+function loadTestData() {
+  const customPath = require('path').join(__dirname, 'testData', 'testData.json')
+  if (existsSync(customPath)) {
+    return require(customPath)
+  }
+
+  return {
+    hostWalletPrivateKey: deriveHardhatPrivateKey(1),
+    guestWalletPrivateKey: deriveHardhatPrivateKey(2),
+    adminWalletPrivateKey: deriveHardhatPrivateKey(3),
+    kycManagerWalletPrivateKey: deriveHardhatPrivateKey(4),
+    hostProfileInfo: {
+      nickname: 'host',
+      mobilePhoneNumber: '+15550000001',
+      profilePhoto: 'host-photo',
+      tcSignature: '0x',
+      privateKey: deriveHardhatPrivateKey(1),
+      publicKey: '',
+      name: 'Host',
+      surname: 'Local',
+      licenseNumber: 'HOST-123456',
+      expirationDate: 1893456000,
+    },
+    guestProfileInfo: {
+      nickname: 'guest',
+      mobilePhoneNumber: '+15550000002',
+      profilePhoto: 'guest-photo',
+      tcSignature: '0x',
+      privateKey: deriveHardhatPrivateKey(2),
+      publicKey: '',
+      name: 'Guest',
+      surname: 'Local',
+      licenseNumber: 'GUEST-123456',
+      expirationDate: 1893456000,
+    },
+    carInfos: Array.from({ length: 6 }, (_, index) => makeDefaultCarInfo(index)),
+  }
+}
+
+const testData = loadTestData()
 
 const checkInitialization = async () => {
   const { chainId, deployer } = await startDeploy('')
@@ -31,6 +119,13 @@ const checkInitialization = async () => {
   if (!verifierAddress) {
     throw new Error(`Addresses for RentalityLocationVerifier was not found`)
   }
+
+  const rentalityUserServiceAddress = checkNotNull(addresses['RentalityUserService'], 'rentalityUserServiceAddress')
+  if (!rentalityUserServiceAddress) {
+    throw new Error(`Addresses for RentalityUserService was not found`)
+  }
+
+  const testData = loadTestData()
 
   const HOST_PRIVATE_KEY = testData.hostWalletPrivateKey
   if (!HOST_PRIVATE_KEY) {
@@ -56,7 +151,12 @@ const checkInitialization = async () => {
   }
   const admin = new ethers.Wallet(ADMIN_PRIVATE_KEY, ethers.provider)
 
-  if (chainId === 1337n) {
+  if (Number(chainId) === 1337) {
+    const userServiceContract = await ethers.getContractAt('RentalityUserService', rentalityUserServiceAddress)
+    const roleTx = await userServiceContract.manageRole(4, kycManager.address, true)
+    await roleTx.wait()
+    console.log(`KYC manager role granted to ${kycManager.address}`)
+
     const hardhatAccount = new ethers.Wallet(DEFAULT_HARDHAT_ADDRESS, ethers.provider)
     if ((await ethers.provider.getBalance(hardhatAccount.address)) > 0) {
       console.log('Transfering ETH for host and guest for the Hardhat node')
@@ -169,7 +269,7 @@ async function setGuestKycIfNotSet(guest, kycManager, gateway) {
   if (!kyc.name) {
     await gateway
       .connect(guest)
-      .setKYCInfo(data.nickname, data.mobilePhoneNumber, data.profilePhoto, email, data.tcSignature, '0x00000000')
+      .setKYCInfo(data.nickname, data.mobilePhoneNumber, data.profilePhoto, email, await signTCMessage(guest), '0x00000000')
     console.log('KYC for guest was set')
   }
 
@@ -202,7 +302,7 @@ async function setCarsForHost(host, admin, verifierAddress, gateway) {
     console.log(`Listing car #${index}...`)
 
     const carData = testData.carInfos[index]
-    carData.locationInfo.signature = signLocationInfo(admin, verifierAddress, carData.locationInfo.locationInfo)
+    carData.locationInfo.signature = await signLocationInfo(admin, verifierAddress, carData.locationInfo.locationInfo)
 
     await gateway.connect(host).addCar(carData)
 
@@ -210,7 +310,7 @@ async function setCarsForHost(host, admin, verifierAddress, gateway) {
   }
 
   listedCars = await gateway.connect(host).getMyCars()
-  carIds = listedCars.map((i) => i.carInfo.carId)
+  const carIds = listedCars.map((i) => i.carInfo.carId)
   console.log(`All cars were listed. Car ids: ${JSON.stringify(carIds.map((i) => Number(i)))}`)
 
   return carIds
@@ -250,6 +350,8 @@ async function createPendingTrip(tripIndex, carId, host, guest, gateway) {
       locationInfo: emptyContractLocationInfo,
       signature: '0x',
     },
+    amountIn: 0,
+    fee: 0,
   }
   await gateway.connect(guest).createTripRequestWithDelivery(request, '', {
     value: paymentsNeeded.totalPrice,
@@ -429,3 +531,15 @@ main()
     console.error(error)
     process.exit(1)
   })
+
+
+
+
+
+
+
+
+
+
+
+

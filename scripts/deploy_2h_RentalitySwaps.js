@@ -9,51 +9,51 @@ async function main() {
 
   if (chainId < 0) throw new Error('chainId is not set')
 
-    const rentalityUserServiceAddress = checkNotNull(
-        getContractAddress('RentalityUserService', 'scripts/deploy_1b_RentalityUserService.js', chainId),
-        'RentalityUserService'
+  const isLocalhost = Number(chainId) === 1337
+  const rentalityUserServiceAddress = checkNotNull(
+    getContractAddress('RentalityUserService', 'scripts/deploy_1b_RentalityUserService.js', chainId),
+    'RentalityUserService'
+  )
+  const router = isLocalhost
+    ? ethers.ZeroAddress
+    : checkNotNull(getContractAddress('SwapRouterV2', '', chainId), 'SwapRouterV2')
+  const weth = isLocalhost
+    ? ethers.ZeroAddress
+    : checkNotNull(getContractAddress('WETH', '', chainId), 'WETH')
+  const allowedToken = isLocalhost
+    ? checkNotNull(
+        getContractAddress('RentalityTestUSDT', 'scripts/deploy_2c_RentalityTestUSDT.js', chainId),
+        'RentalityTestUSDT'
       )
-      const router = checkNotNull(
-        getContractAddress('SwapRouterV2', '', chainId),
-        'SwapRouterV2'
-      )
-      const weth = checkNotNull(
-        getContractAddress('WETH', '', chainId),
-        'WETH'
-      )
-      const allowedToken = checkNotNull(
-        getContractAddress('DefaultAllowedToken', '', chainId),
-        'DefaultAllowedToken'
-      )
-      const uniswapFactory = checkNotNull(
-        getContractAddress('UniswapFactory', '', chainId),
-        'UniswapFactory'
-      )
-    
-      
-      const contractFactory = await ethers.getContractFactory(contractName, {
-        libraries: {},
-      })
-    
-      const contract = await upgrades.deployProxy(contractFactory, [
-        router,
-        weth,
-        allowedToken,
-        rentalityUserServiceAddress,
-        uniswapFactory,
-      ])
-      await contract.waitForDeployment()
-      const contractAddress = await contract.getAddress()
-    
-      console.log(`${contractName} was deployed to: ${contractAddress}`)
-      addressSaver(contractAddress, contractName, true, chainId)
-      await saveJsonAbi(contractName, chainId, contract)
-      console.log()
-  }
+    : checkNotNull(getContractAddress('DefaultAllowedToken', '', chainId), 'DefaultAllowedToken')
+  const uniswapFactory = isLocalhost
+    ? ethers.ZeroAddress
+    : checkNotNull(getContractAddress('UniswapFactory', '', chainId), 'UniswapFactory')
 
-  main()
+  const contractFactory = await ethers.getContractFactory(contractName, {
+    libraries: {},
+  })
+
+  const contract = await upgrades.deployProxy(contractFactory, [
+    router,
+    weth,
+    allowedToken,
+    rentalityUserServiceAddress,
+    uniswapFactory,
+  ])
+  await contract.waitForDeployment()
+  const contractAddress = await contract.getAddress()
+
+  console.log(`${contractName} was deployed to: ${contractAddress}`)
+  addressSaver(contractAddress, contractName, true, chainId)
+  await saveJsonAbi(contractName, chainId, contract)
+  console.log()
+}
+
+main()
   .then(() => process.exit(0))
   .catch((error) => {
     console.error(error)
     process.exit(1)
   })
+

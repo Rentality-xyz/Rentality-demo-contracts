@@ -17,6 +17,7 @@ async function main() {
     spawnSync(commands[i].command, {
       shell: true,
       stdio: 'inherit',
+      env: { ...process.env, SILENT: 'true' },
     })
   }
 }
@@ -27,3 +28,4 @@ main()
     console.error('deploy_x_Rentality_full error: ', error)
     process.exit(1)
   })
+

@@ -18,7 +18,8 @@ function getContractAddress(contractName, addressToDeployScript, chainId) {
       }
     console.log(`The contract ${contractName} is not deployed. Starting deployment...`)
 
-    const command = 'npx hardhat run ' + addressToDeployScript
+    const networkFlag = network.name ? ' --network ' + network.name : ''
+    const command = 'npx hardhat run' + networkFlag + ' ' + addressToDeployScript
     try {
       const result = spawnSync(command, {
         shell: true,
@@ -85,3 +86,5 @@ module.exports = {
   readFromFile,
   getContractAddress,
 }
+
+

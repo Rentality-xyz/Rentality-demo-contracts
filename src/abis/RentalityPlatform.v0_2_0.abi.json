@@ -1,6 +1,5 @@
 {
   "abi": [
-    { "type": "error", "name": "FunctionNotFound", "inputs": [] },
     {
       "type": "event",
       "anonymous": false,
@@ -37,7 +36,6 @@
       "name": "Upgraded",
       "inputs": [{ "type": "address", "name": "implementation", "indexed": true }]
     },
-    { "type": "fallback", "stateMutability": "nonpayable" },
     {
       "type": "function",
       "name": "addCar",
@@ -323,14 +321,6 @@
       "constant": false,
       "payable": false,
       "inputs": [{ "type": "address", "name": "_hostInsurance" }],
-      "outputs": []
-    },
-    {
-      "type": "function",
-      "name": "setTrustedForwarder",
-      "constant": false,
-      "payable": false,
-      "inputs": [{ "type": "address", "name": "forwarder" }],
       "outputs": []
     },
     {

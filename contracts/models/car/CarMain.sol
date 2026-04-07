@@ -30,7 +30,7 @@ interface ICarGeoVerifier {
 }
 
 interface ICarEventEmitter {
-    function emitCarEvent(uint256 id, CarUpdateStatus status, address from, address to) external;
+    function emitEvent(uint8 eType, uint256 id, uint8 objectStatus, address from, address to) external;
 }
 
 
@@ -67,6 +67,7 @@ contract CarMain is AssetBase, ERC721URIStorageUpgradeable, UUPSOwnable {
         _;
     }
 
+    /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
         _disableInitializers();
     }
@@ -105,7 +106,6 @@ contract CarMain is AssetBase, ERC721URIStorageUpgradeable, UUPSOwnable {
         if (!userAccess.isHost(user)) {
             userAccess.grantHostRole(user);
         }
-
         uint256 id = _createAsset(
             user,
             CarLib.buildName(request.asset.name, request.brand, request.model),
@@ -142,7 +142,7 @@ contract CarMain is AssetBase, ERC721URIStorageUpgradeable, UUPSOwnable {
 
         _approve(address(this), id);
 
-        eventEmitter.emitCarEvent(id, CarUpdateStatus.Add, user, user);
+        eventEmitter.emitEvent(0, id, uint8(CarUpdateStatus.Add), user, user);
         emit CarCreated(id, user, request.brand, request.model);
         return id;
     }
@@ -177,7 +177,7 @@ contract CarMain is AssetBase, ERC721URIStorageUpgradeable, UUPSOwnable {
 
         CarLib.updateListingMoment(listingMomentByAssetId, id, wasListed, request.currentlyListed);
 
-        eventEmitter.emitCarEvent(id, CarUpdateStatus.Update, user, user);
+        eventEmitter.emitEvent(0, id, uint8(CarUpdateStatus.Update), user, user);
         emit CarUpdated(id);
     }
 
@@ -245,7 +245,7 @@ contract CarMain is AssetBase, ERC721URIStorageUpgradeable, UUPSOwnable {
         delete cars[id];
         delete assets[id];
 
-        eventEmitter.emitCarEvent(id, CarUpdateStatus.Burn, msg.sender, msg.sender);
+        eventEmitter.emitEvent(0, id, uint8(CarUpdateStatus.Burn), msg.sender, msg.sender);
     }
 
     function updateGeoVerifierAddress(address geoVerifierAddress) external onlyAdmin {
@@ -297,6 +297,10 @@ contract CarMain is AssetBase, ERC721URIStorageUpgradeable, UUPSOwnable {
         super._burn(tokenId);
     }
 }
+
+
+
+
 
 
 

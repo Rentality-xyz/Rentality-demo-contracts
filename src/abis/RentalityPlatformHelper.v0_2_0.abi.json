@@ -281,14 +281,6 @@
     },
     {
       "type": "function",
-      "name": "setTrustedForwarder",
-      "constant": false,
-      "payable": false,
-      "inputs": [{ "type": "address", "name": "forwarder" }],
-      "outputs": []
-    },
-    {
-      "type": "function",
       "name": "transferOwnership",
       "constant": false,
       "payable": false,
