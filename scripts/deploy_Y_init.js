@@ -12,12 +12,12 @@ const DEFAULT_HARDHAT_ADDRESS = '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5
 const DEFAULT_HARDHAT_MNEMONIC = 'test test test test test test test test test test test junk'
 
 const DEFAULT_LOCATION_INFO = {
-  userAddress: 'Miami Riverwalk, Miami, Florida, USA',
-  country: 'USA',
+  userAddress: 'Miami Riverwalk, Miami, Florida, US',
+  country: 'US',
   state: 'Florida',
   city: 'Miami',
-  latitude: '45.509248',
-  longitude: '-122.682653',
+  latitude: '25.777747',
+  longitude: '-80.216416',
   timeZoneId: 'America/New_York',
 }
 
