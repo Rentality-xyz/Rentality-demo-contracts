@@ -21,6 +21,18 @@ const DEFAULT_LOCATION_INFO = {
   timeZoneId: 'America/New_York',
 }
 
+const DEFAULT_DISCOUNT_INFO = {
+  threeDaysDiscount: 20_000,
+  sevenDaysDiscount: 100_000,
+  thirtyDaysDiscount: 150_000,
+  initialized: true,
+}
+
+const DEFAULT_DELIVERY_PRICE_INFO = {
+  underTwentyFiveMilesInUsdCents: 300,
+  aboveTwentyFiveMilesInUsdCents: 250,
+}
+
 function deriveHardhatPrivateKey(index) {
   return ethers.HDNodeWallet.fromPhrase(
     DEFAULT_HARDHAT_MNEMONIC,
@@ -124,6 +136,10 @@ const checkInitialization = async () => {
   if (!rentalityUserServiceAddress) {
     throw new Error(`Addresses for RentalityUserService was not found`)
   }
+  const rentalityAdminGatewayAddress = checkNotNull(addresses['RentalityAdminGateway'], 'rentalityAdminGatewayAddress')
+  if (!rentalityAdminGatewayAddress) {
+    throw new Error(`Addresses for RentalityAdminGateway was not found`)
+  }
 
   const testData = loadTestData()
 
@@ -178,8 +194,9 @@ const checkInitialization = async () => {
   }
 
   const gateway = new ethers.Contract(rentalityGatewayAddress, RentalityGatewayJSON_ABI.abi, deployer)
+  const adminGateway = await ethers.getContractAt('RentalityAdminGateway', rentalityAdminGatewayAddress)
 
-  return [host, guest, kycManager, admin, gateway, verifierAddress]
+  return [host, guest, kycManager, admin, gateway, verifierAddress, adminGateway]
 }
 
 const emptyContractLocationInfo = {
@@ -215,6 +232,40 @@ async function signLocationInfo(signer, verifierAddress, locationInfo) {
   }
 
   return signer.signTypedData(domain, types, locationInfo)
+}
+
+async function setDefaultDiscountIfNotSet(gateway, adminGateway) {
+  console.log('\nSetting default discount...')
+
+  const discount = await gateway.getDiscount(ethers.ZeroAddress)
+  const hasExpectedDefaultDiscount =
+    discount.initialized &&
+    Number(discount.threeDaysDiscount) === DEFAULT_DISCOUNT_INFO.threeDaysDiscount &&
+    Number(discount.sevenDaysDiscount) === DEFAULT_DISCOUNT_INFO.sevenDaysDiscount &&
+    Number(discount.thirtyDaysDiscount) === DEFAULT_DISCOUNT_INFO.thirtyDaysDiscount
+
+  if (hasExpectedDefaultDiscount) {
+    console.log('Default discount has already been set')
+    return
+  }
+
+  await adminGateway.setDefaultDiscount(DEFAULT_DISCOUNT_INFO)
+  console.log('Default discount was set')
+}
+
+async function setDefaultDeliveryPrices(adminGateway) {
+  console.log('\nSetting default delivery prices...')
+  await adminGateway.setDefaultPrices(
+    DEFAULT_DELIVERY_PRICE_INFO.underTwentyFiveMilesInUsdCents,
+    DEFAULT_DELIVERY_PRICE_INFO.aboveTwentyFiveMilesInUsdCents
+  )
+  console.log('Default delivery prices were set')
+}
+
+async function setDefaultCurrencyType(adminGateway) {
+  console.log('\nSetting default currency...')
+  await adminGateway.setDefaultCurrencyType(ethers.ZeroAddress)
+  console.log('Default currency was set')
 }
 
 async function setHostKycIfNotSet(host, kycManager, gateway) {
@@ -476,8 +527,11 @@ async function createConfirmedAfterCompletedWithoutGuestComfirmationTrip(tripInd
 }
 
 async function main() {
-  const [host, guest, kycManager, admin, gateway, verifierAddress] = await checkInitialization()
+  const [host, guest, kycManager, admin, gateway, verifierAddress, adminGateway] = await checkInitialization()
 
+  await setDefaultDiscountIfNotSet(gateway, adminGateway)
+  await setDefaultDeliveryPrices(adminGateway)
+  await setDefaultCurrencyType(adminGateway)
   await setHostKycIfNotSet(host, kycManager, gateway)
   await setGuestKycIfNotSet(guest, kycManager, gateway)
 
