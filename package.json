@@ -18,7 +18,8 @@
                     "update":  "npx hardhat run scripts/update_RentalityProxy.js",
                     "local_ganache":  "node scripts/utils/generateSchemas.js \u0026\u0026 npx hardhat run --network ganache scripts/deploy_x_Rentality_full.js \u0026\u0026 npx hardhat run --network ganache scripts/deploy_Y_init.js",
                     "sync_frontend_abis":  "node scripts/utils/syncFrontendAbis.js",
-                    "clean_localhost_addresses":  "node scripts/utils/cleanLocalhostAddresses.js"
+                    "clean_localhost_addresses":  "node scripts/utils/cleanLocalhostAddresses.js",
+                    "generate_local_car_test_data":  "node scripts/testData/generateLocalCarTestData.js"
                 },
     "dependencies":  {
                          "@chainlink/contracts":  "^0.8.0",

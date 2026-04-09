@@ -1,0 +1,62 @@
+[
+  {
+    "carIndex": 1,
+    "brand": "BMW",
+    "model": "X5 M Competition",
+    "localFile": "D:/1/car_bmw.jpg",
+    "imageCid": "QmedynChr1p7jhBvYANqntBrRN4YcDbhgS8CYPaiH3HWnE",
+    "imageUri": "ipfs://QmedynChr1p7jhBvYANqntBrRN4YcDbhgS8CYPaiH3HWnE",
+    "metadataCid": "Qmci11MCmg93noQt6CCqbPHuKa1UWFuLsxjcrf1sEvfLUs",
+    "tokenUri": "ipfs://Qmci11MCmg93noQt6CCqbPHuKa1UWFuLsxjcrf1sEvfLUs"
+  },
+  {
+    "carIndex": 2,
+    "brand": "Audi",
+    "model": "Q8 e-tron",
+    "localFile": "D:/1/audi_e.png",
+    "imageCid": "QmP8QXMiZawnhprNyDYCvTqsDUr4ZNYQC8cVC8SR4xeJeH",
+    "imageUri": "ipfs://QmP8QXMiZawnhprNyDYCvTqsDUr4ZNYQC8cVC8SR4xeJeH",
+    "metadataCid": "QmPtDLvmn4NMmyLbiHySjLiZtZLCFTPauYnYWSq3Zv3NPx",
+    "tokenUri": "ipfs://QmPtDLvmn4NMmyLbiHySjLiZtZLCFTPauYnYWSq3Zv3NPx"
+  },
+  {
+    "carIndex": 3,
+    "brand": "Ferrari",
+    "model": "Portofino",
+    "localFile": "D:/1/Ferrari_3.png",
+    "imageCid": "QmQUf1jNP9EnU446wXfyvJGizphugUUwDVX7SXuk2mAee5",
+    "imageUri": "ipfs://QmQUf1jNP9EnU446wXfyvJGizphugUUwDVX7SXuk2mAee5",
+    "metadataCid": "QmV7WrJCEXVEh5ujWycebAw68YsPYzfc7ys6i1z6L8rNp8",
+    "tokenUri": "ipfs://QmV7WrJCEXVEh5ujWycebAw68YsPYzfc7ys6i1z6L8rNp8"
+  },
+  {
+    "carIndex": 4,
+    "brand": "Tesla",
+    "model": "Model 3",
+    "localFile": "D:/1/tesla.png",
+    "imageCid": "QmWDcpT79CuHkxqA7QoKbEpZmv1MUKhA8EqzBtLsNrN1v3",
+    "imageUri": "ipfs://QmWDcpT79CuHkxqA7QoKbEpZmv1MUKhA8EqzBtLsNrN1v3",
+    "metadataCid": "Qma9T5gS4sxKTjAdjk57GigELDyNQjp4MZEGX4eof81G16",
+    "tokenUri": "ipfs://Qma9T5gS4sxKTjAdjk57GigELDyNQjp4MZEGX4eof81G16"
+  },
+  {
+    "carIndex": 5,
+    "brand": "Hyundai",
+    "model": "Ioniq 5",
+    "localFile": "D:/1/hyundai.jpg",
+    "imageCid": "QmRtoyTd2Rop1QG5PH64KNkHewGJ1WExpWJnKPEbRgKxuP",
+    "imageUri": "ipfs://QmRtoyTd2Rop1QG5PH64KNkHewGJ1WExpWJnKPEbRgKxuP",
+    "metadataCid": "QmXH42Yfb9MbNdnrpRZ1ne18dBJB3yPTZYLzsxUqCnbPX1",
+    "tokenUri": "ipfs://QmXH42Yfb9MbNdnrpRZ1ne18dBJB3yPTZYLzsxUqCnbPX1"
+  },
+  {
+    "carIndex": 6,
+    "brand": "Toyota",
+    "model": "Sienna",
+    "localFile": "D:/1/toyota.png",
+    "imageCid": "QmSJyJHnjZeLszh1MWync2GWsaX2KKE5avWeHY4p86iqer",
+    "imageUri": "ipfs://QmSJyJHnjZeLszh1MWync2GWsaX2KKE5avWeHY4p86iqer",
+    "metadataCid": "QmWHteyyZ5fTmx2Kmk9QcG7TGHd4UUhajHZSom8GugTonJ",
+    "tokenUri": "ipfs://QmWHteyyZ5fTmx2Kmk9QcG7TGHd4UUhajHZSom8GugTonJ"
+  }
+]

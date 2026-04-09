@@ -1,0 +1,290 @@
+{
+  "hostWalletPrivateKey": "0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d",
+  "guestWalletPrivateKey": "0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a",
+  "adminWalletPrivateKey": "0x7c852118294e51e653712a81e05800f419141751be58f605c371e15141b007a6",
+  "kycManagerWalletPrivateKey": "0x47e179ec197488593b187f80a00eb0da91f1b9d0b13f8733639f19c30a34926a",
+  "hostProfileInfo": {
+    "nickname": "host",
+    "mobilePhoneNumber": "+15550000001",
+    "profilePhoto": "host-photo",
+    "tcSignature": "0x",
+    "privateKey": "0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d",
+    "publicKey": "",
+    "name": "Host",
+    "surname": "Local",
+    "licenseNumber": "HOST-123456",
+    "expirationDate": 1893456000
+  },
+  "guestProfileInfo": {
+    "nickname": "guest",
+    "mobilePhoneNumber": "+15550000002",
+    "profilePhoto": "guest-photo",
+    "tcSignature": "0x",
+    "privateKey": "0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a",
+    "publicKey": "",
+    "name": "Guest",
+    "surname": "Local",
+    "licenseNumber": "GUEST-123456",
+    "expirationDate": 1893456000
+  },
+  "carInfos": [
+    {
+      "tokenUri": "ipfs://Qmci11MCmg93noQt6CCqbPHuKa1UWFuLsxjcrf1sEvfLUs",
+      "carVinNumber": "SEEDVIN0000000001",
+      "brand": "BMW",
+      "model": "X5 M Competition",
+      "yearOfProduction": 2024,
+      "color": "Silver",
+      "bodyType": "SUV",
+      "seatsNumber": 5,
+      "doorsNumber": 5,
+      "trunkSize": "Large",
+      "transmission": "Automatic",
+      "wheelDrive": "AWD",
+      "tankVolumeInGal": 22,
+      "pricePerDayInUsdCents": 102,
+      "securityDepositPerTripInUsdCents": 103,
+      "engineParams": [
+        104,
+        105
+      ],
+      "engineType": 1,
+      "milesIncludedPerDay": 106,
+      "timeBufferBetweenTripsInSec": 0,
+      "geoApiKey": " ",
+      "locationInfo": {
+        "locationInfo": {
+          "userAddress": "Miami Riverwalk, Miami, Florida, US",
+          "country": "US",
+          "state": "Florida",
+          "city": "Miami",
+          "latitude": "25.777747",
+          "longitude": "-80.216416",
+          "timeZoneId": "America/New_York"
+        },
+        "signature": "0x"
+      },
+      "currentlyListed": true,
+      "insuranceIncluded": true,
+      "insuranceRequired": false,
+      "insurancePriceInUsdCents": 0,
+      "dimoTokenId": 0,
+      "signedDimoTokenId": "0x"
+    },
+    {
+      "tokenUri": "ipfs://QmPtDLvmn4NMmyLbiHySjLiZtZLCFTPauYnYWSq3Zv3NPx",
+      "carVinNumber": "SEEDVIN0000000002",
+      "brand": "Audi",
+      "model": "Q8 e-tron",
+      "yearOfProduction": 2024,
+      "color": "White",
+      "bodyType": "SUV Coupe",
+      "seatsNumber": 5,
+      "doorsNumber": 5,
+      "trunkSize": "Large",
+      "transmission": "Automatic",
+      "wheelDrive": "AWD",
+      "tankVolumeInGal": 0,
+      "pricePerDayInUsdCents": 202,
+      "securityDepositPerTripInUsdCents": 203,
+      "engineParams": [
+        204,
+        205
+      ],
+      "engineType": 1,
+      "milesIncludedPerDay": 206,
+      "timeBufferBetweenTripsInSec": 0,
+      "geoApiKey": " ",
+      "locationInfo": {
+        "locationInfo": {
+          "userAddress": "Miami Riverwalk, Miami, Florida, US",
+          "country": "US",
+          "state": "Florida",
+          "city": "Miami",
+          "latitude": "25.777747",
+          "longitude": "-80.216416",
+          "timeZoneId": "America/New_York"
+        },
+        "signature": "0x"
+      },
+      "currentlyListed": true,
+      "insuranceIncluded": true,
+      "insuranceRequired": false,
+      "insurancePriceInUsdCents": 0,
+      "dimoTokenId": 0,
+      "signedDimoTokenId": "0x"
+    },
+    {
+      "tokenUri": "ipfs://QmV7WrJCEXVEh5ujWycebAw68YsPYzfc7ys6i1z6L8rNp8",
+      "carVinNumber": "SEEDVIN0000000003",
+      "brand": "Ferrari",
+      "model": "Portofino",
+      "yearOfProduction": 2023,
+      "color": "Red",
+      "bodyType": "Coupe",
+      "seatsNumber": 2,
+      "doorsNumber": 2,
+      "trunkSize": "Medium",
+      "transmission": "Automatic",
+      "wheelDrive": "RWD",
+      "tankVolumeInGal": 21,
+      "pricePerDayInUsdCents": 302,
+      "securityDepositPerTripInUsdCents": 303,
+      "engineParams": [
+        304,
+        305
+      ],
+      "engineType": 1,
+      "milesIncludedPerDay": 306,
+      "timeBufferBetweenTripsInSec": 0,
+      "geoApiKey": " ",
+      "locationInfo": {
+        "locationInfo": {
+          "userAddress": "Miami Riverwalk, Miami, Florida, US",
+          "country": "US",
+          "state": "Florida",
+          "city": "Miami",
+          "latitude": "25.777747",
+          "longitude": "-80.216416",
+          "timeZoneId": "America/New_York"
+        },
+        "signature": "0x"
+      },
+      "currentlyListed": true,
+      "insuranceIncluded": true,
+      "insuranceRequired": false,
+      "insurancePriceInUsdCents": 0,
+      "dimoTokenId": 0,
+      "signedDimoTokenId": "0x"
+    },
+    {
+      "tokenUri": "ipfs://Qma9T5gS4sxKTjAdjk57GigELDyNQjp4MZEGX4eof81G16",
+      "carVinNumber": "SEEDVIN0000000004",
+      "brand": "Tesla",
+      "model": "Model 3",
+      "yearOfProduction": 2024,
+      "color": "Gray",
+      "bodyType": "Sedan",
+      "seatsNumber": 5,
+      "doorsNumber": 4,
+      "trunkSize": "Medium",
+      "transmission": "Automatic",
+      "wheelDrive": "RWD",
+      "tankVolumeInGal": 0,
+      "pricePerDayInUsdCents": 402,
+      "securityDepositPerTripInUsdCents": 403,
+      "engineParams": [
+        404,
+        405
+      ],
+      "engineType": 1,
+      "milesIncludedPerDay": 406,
+      "timeBufferBetweenTripsInSec": 0,
+      "geoApiKey": " ",
+      "locationInfo": {
+        "locationInfo": {
+          "userAddress": "Miami Riverwalk, Miami, Florida, US",
+          "country": "US",
+          "state": "Florida",
+          "city": "Miami",
+          "latitude": "25.777747",
+          "longitude": "-80.216416",
+          "timeZoneId": "America/New_York"
+        },
+        "signature": "0x"
+      },
+      "currentlyListed": true,
+      "insuranceIncluded": true,
+      "insuranceRequired": false,
+      "insurancePriceInUsdCents": 0,
+      "dimoTokenId": 0,
+      "signedDimoTokenId": "0x"
+    },
+    {
+      "tokenUri": "ipfs://QmXH42Yfb9MbNdnrpRZ1ne18dBJB3yPTZYLzsxUqCnbPX1",
+      "carVinNumber": "SEEDVIN0000000005",
+      "brand": "Hyundai",
+      "model": "Ioniq 5",
+      "yearOfProduction": 2024,
+      "color": "White",
+      "bodyType": "Crossover",
+      "seatsNumber": 5,
+      "doorsNumber": 5,
+      "trunkSize": "Medium",
+      "transmission": "Automatic",
+      "wheelDrive": "AWD",
+      "tankVolumeInGal": 0,
+      "pricePerDayInUsdCents": 502,
+      "securityDepositPerTripInUsdCents": 503,
+      "engineParams": [
+        504,
+        505
+      ],
+      "engineType": 1,
+      "milesIncludedPerDay": 506,
+      "timeBufferBetweenTripsInSec": 0,
+      "geoApiKey": " ",
+      "locationInfo": {
+        "locationInfo": {
+          "userAddress": "Miami Riverwalk, Miami, Florida, US",
+          "country": "US",
+          "state": "Florida",
+          "city": "Miami",
+          "latitude": "25.777747",
+          "longitude": "-80.216416",
+          "timeZoneId": "America/New_York"
+        },
+        "signature": "0x"
+      },
+      "currentlyListed": true,
+      "insuranceIncluded": true,
+      "insuranceRequired": false,
+      "insurancePriceInUsdCents": 0,
+      "dimoTokenId": 0,
+      "signedDimoTokenId": "0x"
+    },
+    {
+      "tokenUri": "ipfs://QmWHteyyZ5fTmx2Kmk9QcG7TGHd4UUhajHZSom8GugTonJ",
+      "carVinNumber": "SEEDVIN0000000006",
+      "brand": "Toyota",
+      "model": "Sienna",
+      "yearOfProduction": 2024,
+      "color": "Bronze",
+      "bodyType": "Minivan",
+      "seatsNumber": 7,
+      "doorsNumber": 5,
+      "trunkSize": "Large",
+      "transmission": "Automatic",
+      "wheelDrive": "FWD",
+      "tankVolumeInGal": 18,
+      "pricePerDayInUsdCents": 602,
+      "securityDepositPerTripInUsdCents": 603,
+      "engineParams": [
+        604,
+        605
+      ],
+      "engineType": 1,
+      "milesIncludedPerDay": 606,
+      "timeBufferBetweenTripsInSec": 0,
+      "geoApiKey": " ",
+      "locationInfo": {
+        "locationInfo": {
+          "userAddress": "Miami Riverwalk, Miami, Florida, US",
+          "country": "US",
+          "state": "Florida",
+          "city": "Miami",
+          "latitude": "25.777747",
+          "longitude": "-80.216416",
+          "timeZoneId": "America/New_York"
+        },
+        "signature": "0x"
+      },
+      "currentlyListed": true,
+      "insuranceIncluded": true,
+      "insuranceRequired": false,
+      "insurancePriceInUsdCents": 0,
+      "dimoTokenId": 0,
+      "signedDimoTokenId": "0x"
+    }
+  ]
+}
