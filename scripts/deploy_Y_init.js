@@ -69,12 +69,12 @@ function makeDefaultCarInfo(index) {
   }
 }
 
-function loadTestData() {
-  const customPath = require('path').join(__dirname, 'testData', 'testData.json')
-  if (existsSync(customPath)) {
-    return require(customPath)
-  }
+function getEnvValue(name) {
+  const value = process.env[name]
+  return typeof value === 'string' && value.trim().length > 0 ? value.trim() : undefined
+}
 
+function getDefaultTestData() {
   return {
     hostWalletPrivateKey: deriveHardhatPrivateKey(1),
     guestWalletPrivateKey: deriveHardhatPrivateKey(2),
@@ -108,6 +108,33 @@ function loadTestData() {
   }
 }
 
+function applyEnvOverrides(testData) {
+  const hostWalletPrivateKey = getEnvValue('SEED_HOST_WALLET_PRIVATE_KEY') ?? testData.hostWalletPrivateKey
+  const guestWalletPrivateKey = getEnvValue('SEED_GUEST_WALLET_PRIVATE_KEY') ?? testData.guestWalletPrivateKey
+
+  return {
+    ...testData,
+    hostWalletPrivateKey,
+    guestWalletPrivateKey,
+    adminWalletPrivateKey: getEnvValue('SEED_ADMIN_WALLET_PRIVATE_KEY') ?? testData.adminWalletPrivateKey,
+    kycManagerWalletPrivateKey:
+      getEnvValue('SEED_KYC_MANAGER_WALLET_PRIVATE_KEY') ?? testData.kycManagerWalletPrivateKey,
+    hostProfileInfo: {
+      ...testData.hostProfileInfo,
+      privateKey: hostWalletPrivateKey,
+    },
+    guestProfileInfo: {
+      ...testData.guestProfileInfo,
+      privateKey: guestWalletPrivateKey,
+    },
+  }
+}
+
+function loadTestData() {
+  const customPath = require('path').join(__dirname, 'testData', 'testData.json')
+  const testData = existsSync(customPath) ? require(customPath) : getDefaultTestData()
+  return applyEnvOverrides(testData)
+}
 const testData = loadTestData()
 
 const checkInitialization = async () => {
@@ -585,6 +612,7 @@ main()
     console.error(error)
     process.exit(1)
   })
+
 
 
 
