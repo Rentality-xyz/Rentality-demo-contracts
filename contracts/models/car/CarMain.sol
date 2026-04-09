@@ -10,7 +10,7 @@ import "../base/asset/AssetBase.sol";
 import "../base/asset/AssetTypes.sol";
 import "./CarLib.sol";
 import "./CarTypes.sol";
-import "../../proxy/UUPSOwnable.sol";
+import "../../infrastructure/upgradeable/UUPSOwnable.sol";
 
 interface ICarUserAccess {
     function isRentalityPlatform(address user) external view returns (bool);
