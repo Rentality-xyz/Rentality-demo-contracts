@@ -7,7 +7,6 @@ import "../../models/trip/TripLib.sol";
 import "../../models/car/CarTypes.sol";
 import "../../rentality_old/Schemas.sol";
 import "../../rentality_old/abstract/IRentalityGeoService.sol";
-import "../../rentality_old/adapter/ICarGateway.sol";
 import "./TripGatewayFacetLib.sol";
 
 interface ITripGatewayWriteLibUserService {
@@ -16,7 +15,7 @@ interface ITripGatewayWriteLibUserService {
     function hasPassedKYCAndTC(address user) external view returns (bool);
 }
 
-interface ITripGatewayWriteLibCarQuery {
+interface ITripGatewayWriteLibCarQuery is ITripLibCarQuery {
     function getCar(uint256 id) external view returns (CarInfo memory);
 }
 
@@ -87,7 +86,8 @@ library TripGatewayWriteLib {
     function createTripRequestWithDelivery(
         TripMain tripMain,
         address userServiceAddress,
-        ICarGateway legacyCarGateway,
+        address carQueryAddress,
+        address carTaxAdapterAddress,
         address paymentServiceAddress,
         address currencyConverterAddress,
         address insuranceServiceAddress,
@@ -97,16 +97,17 @@ library TripGatewayWriteLib {
         string memory promo,
         address sender
     ) external {
-        require(address(legacyCarGateway) != address(0), "Car gateway is not configured.");
-        require(legacyCarGateway.exists(request.carId), "Car with this id does not exist.");
+        ITripGatewayWriteLibCarQuery carQuery = ITripGatewayWriteLibCarQuery(carQueryAddress);
+        require(carTaxAdapterAddress != address(0), "Car tax adapter is not configured.");
+        require(carQuery.exists(request.carId), "Car with this id does not exist.");
 
-        address host = legacyCarGateway.ownerOf(request.carId);
+        address host = carQuery.getOwner(request.carId);
         address currencyType = ITripGatewayWriteLibCurrencyConverter(currencyConverterAddress).getUserCurrency(host).currency;
 
         TripLib.validateTripRequest(
             userServiceAddress,
             currencyConverterAddress,
-            legacyCarGateway,
+            carQuery,
             tripMain,
             currencyType,
             request.carId,
@@ -115,15 +116,15 @@ library TripGatewayWriteLib {
             sender
         );
 
-        Schemas.CarInfo memory carInfo = legacyCarGateway.getCarInfoById(request.carId);
-        IRentalityGeoService geoService = IRentalityGeoService(legacyCarGateway.getGeoServiceAddress());
+        CarInfo memory carInfo = carQuery.getCar(request.carId);
         (uint64 pickUp, uint64 dropOf) = TripLib.calculateDelivery(
             deliveryServiceAddress,
-            legacyCarGateway,
+            carQuery,
             request,
-            carInfo,
-            geoService
+            carInfo
         );
+
+        IRentalityGeoService geoService = IRentalityGeoService(carQuery.getGeoVerifierAddress());
         bytes32 pickUpHash = geoService.createSignedLocationInfo(request.pickUpInfo);
         bytes32 returnHash = geoService.createSignedLocationInfo(request.returnInfo);
 
@@ -137,12 +138,12 @@ library TripGatewayWriteLib {
         uint64 priceWithDiscount = ITripGatewayWriteLibPaymentService(paymentServiceAddress).calculateSumWithDiscount(
             host,
             daysOfTrip,
-            carInfo.pricePerDayInUsdCents
+            carInfo.car.pricePerDayInUsdCents
         );
         uint256 tripId = tripMain.totalSupply() + 1;
 
         uint64 taxesSum = ITripGatewayWriteLibPaymentService(paymentServiceAddress).calculateAndSaveTaxes(
-            ITripGatewayWriteLibPaymentService(paymentServiceAddress).defineTaxesType(address(legacyCarGateway), request.carId),
+            ITripGatewayWriteLibPaymentService(paymentServiceAddress).defineTaxesType(carTaxAdapterAddress, request.carId),
             daysOfTrip,
             priceWithDiscount + pickUp + dropOf,
             tripId
@@ -191,16 +192,16 @@ library TripGatewayWriteLib {
                 host: host,
                 guestName: guestInfo.name,
                 hostName: hostInfo.name,
-                pricePerDayInUsdCents: carInfo.pricePerDayInUsdCents,
+                pricePerDayInUsdCents: carInfo.car.pricePerDayInUsdCents,
                 startDateTime: request.startDateTime,
                 endDateTime: request.endDateTime,
-                engineType: carInfo.engineType,
-                milesIncludedPerDay: carInfo.milesIncludedPerDay,
-                fuelPrice: engineService.getFuelPriceFromEngineParams(carInfo.engineType, carInfo.engineParams),
+                engineType: carInfo.car.engineType,
+                milesIncludedPerDay: carInfo.car.milesIncludedPerDay,
+                fuelPrice: engineService.getFuelPriceFromEngineParams(carInfo.car.engineType, carInfo.car.engineParams),
                 paymentInfo: paymentInfo,
                 pickUpHash: pickUpHash,
                 returnHash: returnHash,
-                panelParamsCount: engineService.getPanelParamsAmount(carInfo.engineType),
+                panelParamsCount: engineService.getPanelParamsAmount(carInfo.car.engineType),
                 ethSumInTripCreation: currencyType == address(0) ? msg.value : valueSumInCurrency
             })
         );

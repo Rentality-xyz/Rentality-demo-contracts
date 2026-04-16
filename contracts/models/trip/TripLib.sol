@@ -3,9 +3,9 @@ pragma solidity ^0.8.20;
 
 import "./TripMain.sol";
 import "./TripTypes.sol";
+import "../car/CarTypes.sol";
 import "../../rentality_old/Schemas.sol";
 import "../../rentality_old/abstract/IRentalityGeoService.sol";
-import "../../rentality_old/adapter/ICarGateway.sol";
 
 interface ITripLibUserService {
     function hasPassedKYCAndTC(address user) external view returns (bool);
@@ -31,11 +31,19 @@ interface ITripLibDeliveryService {
     ) external view returns (uint64 pickUpPriceInUsdCents, uint64 returnPriceInUsdCents);
 }
 
+interface ITripLibCarQuery {
+    function exists(uint256 id) external view returns (bool);
+    function getOwner(uint256 id) external view returns (address);
+    function getCar(uint256 id) external view returns (CarInfo memory);
+    function getGeoVerifierAddress() external view returns (address);
+    function verifySignedLocationInfo(SignedLocationInfo memory locationInfo) external view;
+}
+
 library TripLib {
     function validateTripRequest(
         address userServiceAddress,
         address currencyConverterAddress,
-        ICarGateway legacyCarGateway,
+        ITripLibCarQuery carQuery,
         TripMain tripMain,
         address currencyType,
         uint256 carId,
@@ -48,22 +56,20 @@ library TripLib {
             ITripLibCurrencyConverter(currencyConverterAddress).currencyTypeIsAvailable(currencyType),
             "Token is not available."
         );
-        require(legacyCarGateway.ownerOf(carId) != user, "Car is not available for creator");
-        require(
-            !isCarUnavailable(legacyCarGateway, tripMain, carId, startDateTime, endDateTime),
-            "Unavailable for current date."
-        );
+        require(carQuery.exists(carId), "Car with this id does not exist.");
+        require(carQuery.getOwner(carId) != user, "Car is not available for creator");
+        require(!isCarUnavailable(carQuery, tripMain, carId, startDateTime, endDateTime), "Unavailable for current date.");
     }
 
     function isCarUnavailable(
-        ICarGateway legacyCarGateway,
+        ITripLibCarQuery carQuery,
         TripMain tripMain,
         uint256 carId,
         uint64 startDateTime,
         uint64 endDateTime
     ) public view returns (bool) {
         uint256[] memory carTrips = tripMain.getCarTrips(carId);
-        uint32 timeBuffer = legacyCarGateway.getCarInfoById(carId).timeBufferBetweenTripsInSec;
+        uint32 timeBuffer = carQuery.getCar(carId).car.timeBufferBetweenTripsInSec;
 
         for (uint256 i = 0; i < carTrips.length; i++) {
             Trip memory trip = tripMain.getTrip(carTrips[i]);
@@ -88,31 +94,32 @@ library TripLib {
 
     function calculateDelivery(
         address deliveryServiceAddress,
-        ICarGateway legacyCarGateway,
+        ITripLibCarQuery carQuery,
         Schemas.CreateTripRequestWithDelivery memory request,
-        Schemas.CarInfo memory carInfo,
-        IRentalityGeoService geoService
+        CarInfo memory carInfo
     ) external view returns (uint64 pickUp, uint64 dropOf) {
+        IRentalityGeoService geoService = IRentalityGeoService(carQuery.getGeoVerifierAddress());
+
         (pickUp, dropOf) = ITripLibDeliveryService(deliveryServiceAddress).calculatePricesByDeliveryDataInUsdCents(
             request.pickUpInfo.locationInfo,
             request.returnInfo.locationInfo,
-            geoService.getCarLocationLatitude(carInfo.locationHash),
-            geoService.getCarLocationLongitude(carInfo.locationHash),
-            carInfo.createdBy
+            geoService.getCarLocationLatitude(carInfo.car.locationHash),
+            geoService.getCarLocationLongitude(carInfo.car.locationHash),
+            carInfo.asset.owner
         );
 
         if (pickUp > 0) {
-            legacyCarGateway.verifySignedLocationInfo(request.pickUpInfo);
+            carQuery.verifySignedLocationInfo(_toCommonSignedLocationInfo(request.pickUpInfo));
         }
         if (dropOf > 0) {
-            legacyCarGateway.verifySignedLocationInfo(request.returnInfo);
+            carQuery.verifySignedLocationInfo(_toCommonSignedLocationInfo(request.returnInfo));
         }
     }
 
     function createPaymentInfo(
         address promoServiceAddress,
         address currencyConverterAddress,
-        Schemas.CarInfo memory carInfo,
+        CarInfo memory carInfo,
         address currencyType,
         uint64 pickUp,
         uint64 dropOf,
@@ -132,7 +139,7 @@ library TripLib {
         uint64 discount = uint64(ITripLibPromoService(promoServiceAddress).getDiscountByPromo(promo, user));
 
         uint256 valueSum =
-            priceWithDiscount + taxesSum + carInfo.securityDepositPerTripInUsdCents + pickUp + dropOf + insurance;
+            priceWithDiscount + taxesSum + carInfo.car.securityDepositPerTripInUsdCents + pickUp + dropOf + insurance;
 
         uint256 priceWithPromo = 0;
         if (discount > 0) {
@@ -151,7 +158,7 @@ library TripLib {
             hostEarnings = priceWithPromo;
             valueSumInCurrency = ITripLibCurrencyConverter(currencyConverterAddress).getFromUsdCents(
                 currencyType,
-                priceWithPromo + carInfo.securityDepositPerTripInUsdCents + insurance,
+                priceWithPromo + carInfo.car.securityDepositPerTripInUsdCents + insurance,
                 rate
             );
         }
@@ -160,11 +167,11 @@ library TripLib {
             tripId: 0,
             from: user,
             to: paymentRecipient,
-            totalDayPriceInUsdCents: carInfo.pricePerDayInUsdCents * daysOfTrip,
+            totalDayPriceInUsdCents: carInfo.car.pricePerDayInUsdCents * daysOfTrip,
             salesTax: 0,
             governmentTax: 0,
             priceWithDiscount: priceWithDiscount,
-            depositInUsdCents: carInfo.securityDepositPerTripInUsdCents,
+            depositInUsdCents: carInfo.car.securityDepositPerTripInUsdCents,
             resolveAmountInUsdCents: 0,
             currencyType: currencyType,
             currencyRate: rate,
@@ -185,5 +192,28 @@ library TripLib {
     function getCeilDays(uint64 startDateTime, uint64 endDateTime) external pure returns (uint64) {
         uint64 duration = endDateTime - startDateTime;
         return uint64((duration + 1 days - 1) / 1 days);
+    }
+
+    function _toCommonLocationInfo(Schemas.LocationInfo memory location) private pure returns (LocationInfo memory) {
+        return LocationInfo({
+            userAddress: location.userAddress,
+            country: location.country,
+            state: location.state,
+            city: location.city,
+            latitude: location.latitude,
+            longitude: location.longitude,
+            timeZoneId: location.timeZoneId
+        });
+    }
+
+    function _toCommonSignedLocationInfo(Schemas.SignedLocationInfo memory location)
+        private
+        pure
+        returns (SignedLocationInfo memory)
+    {
+        return SignedLocationInfo({
+            locationInfo: _toCommonLocationInfo(location.locationInfo),
+            signature: location.signature
+        });
     }
 }

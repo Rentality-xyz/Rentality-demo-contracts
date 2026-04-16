@@ -8,7 +8,6 @@ import "../../models/car/CarTypes.sol";
 import "../../models/car/CarQuery.sol";
 import "./ICarGateway.sol";
 import "../Schemas.sol";
-import "../abstract/IRentalityGeoService.sol";
 
 contract CarGatewayAdapter is ICarGateway {
     CarMain public immutable carMain;
@@ -57,20 +56,20 @@ contract CarGatewayAdapter is ICarGateway {
     }
 
     function getCarsOfHost(address host) public view returns (Schemas.PublicHostCarDTO[] memory) {
-        CarInfo[] memory cars = carQuery.getCarsOfOwner(host);
+        PublicHostCarInfo[] memory cars = carQuery.getCarsOfHost(host);
         Schemas.PublicHostCarDTO[] memory result = new Schemas.PublicHostCarDTO[](cars.length);
 
         for (uint256 i = 0; i < cars.length; i++) {
             result[i] = Schemas.PublicHostCarDTO({
-                carId: cars[i].asset.id,
-                metadataURI: cars[i].asset.metadataURI,
-                brand: cars[i].car.brand,
-                model: cars[i].car.model,
-                yearOfProduction: cars[i].car.yearOfProduction,
-                pricePerDayInUsdCents: cars[i].car.pricePerDayInUsdCents,
-                securityDepositPerTripInUsdCents: cars[i].car.securityDepositPerTripInUsdCents,
-                milesIncludedPerDay: cars[i].car.milesIncludedPerDay,
-                currentlyListed: cars[i].car.currentlyListed
+                carId: cars[i].carId,
+                metadataURI: cars[i].metadataURI,
+                brand: cars[i].brand,
+                model: cars[i].model,
+                yearOfProduction: cars[i].yearOfProduction,
+                pricePerDayInUsdCents: cars[i].pricePerDayInUsdCents,
+                securityDepositPerTripInUsdCents: cars[i].securityDepositPerTripInUsdCents,
+                milesIncludedPerDay: cars[i].milesIncludedPerDay,
+                currentlyListed: cars[i].currentlyListed
             });
         }
 
@@ -167,32 +166,7 @@ contract CarGatewayAdapter is ICarGateway {
         address sender,
         Schemas.SearchCarParams memory searchCarParams
     ) public view returns (bool) {
-        if (!exists(carId)) {
-            return false;
-        }
-
-        Schemas.CarInfo memory car = getCarInfoById(carId);
-        if (!car.currentlyListed || ownerOf(carId) == sender) {
-            return false;
-        }
-
-        IRentalityGeoService geoService = IRentalityGeoService(getGeoServiceAddress());
-
-        return
-            (bytes(searchCarParams.brand).length == 0 || _containWord(_toLower(car.brand), _toLower(searchCarParams.brand))) &&
-            (bytes(searchCarParams.model).length == 0 || _containWord(_toLower(car.model), _toLower(searchCarParams.model))) &&
-            (bytes(searchCarParams.country).length == 0 ||
-                _compareStrings(_toLower(geoService.getCarCountry(car.locationHash)), _toLower(searchCarParams.country))) &&
-            (bytes(searchCarParams.state).length == 0 ||
-                _compareStrings(_toLower(geoService.getCarState(car.locationHash)), _toLower(searchCarParams.state))) &&
-            (bytes(searchCarParams.city).length == 0 ||
-                _compareStrings(_toLower(geoService.getCarCity(car.locationHash)), _toLower(searchCarParams.city))) &&
-            (searchCarParams.yearOfProductionFrom == 0 || car.yearOfProduction >= searchCarParams.yearOfProductionFrom) &&
-            (searchCarParams.yearOfProductionTo == 0 || car.yearOfProduction <= searchCarParams.yearOfProductionTo) &&
-            (searchCarParams.pricePerDayInUsdCentsFrom == 0 ||
-                car.pricePerDayInUsdCents >= searchCarParams.pricePerDayInUsdCentsFrom) &&
-            (searchCarParams.pricePerDayInUsdCentsTo == 0 ||
-                car.pricePerDayInUsdCents <= searchCarParams.pricePerDayInUsdCentsTo);
+        return carQuery.isCarAvailableForUser(carId, sender, _toModelSearchParams(searchCarParams));
     }
 
     function fetchAvailableCarsForUser(
@@ -201,23 +175,11 @@ contract CarGatewayAdapter is ICarGateway {
         uint256 from,
         uint256 to
     ) public view returns (Schemas.CarInfo[] memory) {
-        uint256 total = totalSupply();
-        if (from > total) from = 0;
-        if (to > total) to = total;
+        CarInfo[] memory cars = carQuery.fetchAvailableCarsForUser(user, _toModelSearchParams(searchCarParams), from, to);
+        Schemas.CarInfo[] memory result = new Schemas.CarInfo[](cars.length);
 
-        uint256[] memory temp = new uint256[](to - from);
-        uint256 itemCount;
-
-        for (uint256 i = from; i < to; i++) {
-            uint256 currentId = i + 1;
-            if (isCarAvailableForUser(currentId, user, searchCarParams)) {
-                temp[itemCount++] = currentId;
-            }
-        }
-
-        Schemas.CarInfo[] memory result = new Schemas.CarInfo[](itemCount);
-        for (uint256 i = 0; i < itemCount; i++) {
-            result[i] = getCarInfoById(temp[i]);
+        for (uint256 i = 0; i < cars.length; i++) {
+            result[i] = _toLegacyCarInfo(cars[i].asset, cars[i].car);
         }
 
         return result;
@@ -300,51 +262,22 @@ contract CarGatewayAdapter is ICarGateway {
         });
     }
 
-    function _toLower(string memory str) internal pure returns (string memory) {
-        bytes memory source = bytes(str);
-        bytes memory lowered = new bytes(source.length);
-
-        for (uint256 i = 0; i < source.length; i++) {
-            uint8 charCode = uint8(source[i]);
-            if (charCode >= 65 && charCode <= 90) {
-                lowered[i] = bytes1(charCode + 32);
-            } else {
-                lowered[i] = source[i];
-            }
-        }
-
-        return string(lowered);
-    }
-
-    function _containWord(string memory where, string memory what) internal pure returns (bool found) {
-        bytes memory needle = bytes(what);
-        bytes memory haystack = bytes(where);
-
-        if (haystack.length < needle.length) {
-            return false;
-        }
-
-        for (uint256 i = 0; i <= haystack.length - needle.length; i++) {
-            bool matches = true;
-            for (uint256 j = 0; j < needle.length; j++) {
-                if (haystack[i + j] != needle[j]) {
-                    matches = false;
-                    break;
-                }
-            }
-
-            if (matches) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    function _compareStrings(string memory a, string memory b) internal pure returns (bool) {
-        return keccak256(bytes(a)) == keccak256(bytes(b));
+    function _toModelSearchParams(Schemas.SearchCarParams memory searchCarParams)
+        internal
+        pure
+        returns (CarSearchParams memory)
+    {
+        return CarSearchParams({
+            country: searchCarParams.country,
+            state: searchCarParams.state,
+            city: searchCarParams.city,
+            brand: searchCarParams.brand,
+            model: searchCarParams.model,
+            yearOfProductionFrom: searchCarParams.yearOfProductionFrom,
+            yearOfProductionTo: searchCarParams.yearOfProductionTo,
+            pricePerDayInUsdCentsFrom: searchCarParams.pricePerDayInUsdCentsFrom,
+            pricePerDayInUsdCentsTo: searchCarParams.pricePerDayInUsdCentsTo,
+            userLocation: _toCommonLocationInfo(searchCarParams.userLocation)
+        });
     }
 }
-
-
-

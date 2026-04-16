@@ -34,6 +34,42 @@ struct CarInfo {
     CarData car;
 }
 
+struct CarInsuranceInfo {
+    bool required;
+    uint256 priceInUsdCents;
+}
+
+struct CarInfoWithInsurance {
+    CarInfo carInfo;
+    CarInsuranceInfo insuranceInfo;
+    string carMetadataURI;
+}
+
+struct PublicHostCarInfo {
+    uint256 carId;
+    string metadataURI;
+    string brand;
+    string model;
+    uint32 yearOfProduction;
+    uint64 pricePerDayInUsdCents;
+    uint64 securityDepositPerTripInUsdCents;
+    uint64 milesIncludedPerDay;
+    bool currentlyListed;
+}
+
+struct CarSearchParams {
+    string country;
+    string state;
+    string city;
+    string brand;
+    string model;
+    uint32 yearOfProductionFrom;
+    uint32 yearOfProductionTo;
+    uint64 pricePerDayInUsdCentsFrom;
+    uint64 pricePerDayInUsdCentsTo;
+    LocationInfo userLocation;
+}
+
 struct CreateCarRequest {
     CreateAssetRequest asset;
     string carVinNumber;
@@ -62,4 +98,3 @@ struct UpdateCarRequest {
     LocationInfo location;
     bool updateLocation;
 }
-

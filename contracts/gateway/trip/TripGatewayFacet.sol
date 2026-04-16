@@ -8,7 +8,6 @@ import "../../models/trip/TripQuery.sol";
 import "../../models/car/CarTypes.sol";
 import "../../rentality_old/Schemas.sol";
 import "../../rentality_old/abstract/ARentalityContext.sol";
-import "../../rentality_old/adapter/ICarGateway.sol";
 import "./TripGatewayFacetLib.sol";
 import "./TripGatewayWriteLib.sol";
 
@@ -106,7 +105,7 @@ contract TripGatewayFacet is UUPSOwnable, ARentalityContext {
     TripQuery public tripQuery;
     ITripGatewayFacetUserService public userService;
     ITripGatewayFacetCarQuery public carQuery;
-    ICarGateway public legacyCarGateway;
+    address public carTaxAdapter;
     ITripGatewayFacetPaymentService public paymentService;
     ITripGatewayFacetCurrencyConverter public currencyConverter;
     ITripGatewayFacetInsuranceService public insuranceService;
@@ -125,7 +124,7 @@ contract TripGatewayFacet is UUPSOwnable, ARentalityContext {
         address tripQueryAddress,
         address userServiceAddress,
         address carQueryAddress,
-        address legacyCarGatewayAddress,
+        address carTaxAdapterAddress,
         address paymentServiceAddress,
         address currencyConverterAddress,
         address insuranceServiceAddress,
@@ -140,7 +139,7 @@ contract TripGatewayFacet is UUPSOwnable, ARentalityContext {
             tripQueryAddress,
             userServiceAddress,
             carQueryAddress,
-            legacyCarGatewayAddress,
+            carTaxAdapterAddress,
             paymentServiceAddress,
             currencyConverterAddress,
             insuranceServiceAddress,
@@ -156,7 +155,7 @@ contract TripGatewayFacet is UUPSOwnable, ARentalityContext {
         address tripQueryAddress,
         address userServiceAddress,
         address carQueryAddress,
-        address legacyCarGatewayAddress,
+        address carTaxAdapterAddress,
         address paymentServiceAddress,
         address currencyConverterAddress,
         address insuranceServiceAddress,
@@ -170,7 +169,7 @@ contract TripGatewayFacet is UUPSOwnable, ARentalityContext {
             tripQueryAddress,
             userServiceAddress,
             carQueryAddress,
-            legacyCarGatewayAddress,
+            carTaxAdapterAddress,
             paymentServiceAddress,
             currencyConverterAddress,
             insuranceServiceAddress,
@@ -212,7 +211,8 @@ contract TripGatewayFacet is UUPSOwnable, ARentalityContext {
         TripGatewayWriteLib.createTripRequestWithDelivery(
             tripMain,
             address(userService),
-            legacyCarGateway,
+            address(carQuery),
+            carTaxAdapter,
             address(paymentService),
             address(currencyConverter),
             address(insuranceService),
@@ -352,7 +352,7 @@ contract TripGatewayFacet is UUPSOwnable, ARentalityContext {
         address tripQueryAddress,
         address userServiceAddress,
         address carQueryAddress,
-        address legacyCarGatewayAddress,
+        address carTaxAdapterAddress,
         address paymentServiceAddress,
         address currencyConverterAddress,
         address insuranceServiceAddress,
@@ -365,7 +365,7 @@ contract TripGatewayFacet is UUPSOwnable, ARentalityContext {
         tripQuery = TripQuery(tripQueryAddress);
         userService = ITripGatewayFacetUserService(userServiceAddress);
         carQuery = ITripGatewayFacetCarQuery(carQueryAddress);
-        legacyCarGateway = ICarGateway(legacyCarGatewayAddress);
+        carTaxAdapter = carTaxAdapterAddress;
         paymentService = ITripGatewayFacetPaymentService(paymentServiceAddress);
         currencyConverter = ITripGatewayFacetCurrencyConverter(currencyConverterAddress);
         insuranceService = ITripGatewayFacetInsuranceService(insuranceServiceAddress);
@@ -376,6 +376,8 @@ contract TripGatewayFacet is UUPSOwnable, ARentalityContext {
     }
 
 }
+
+
 
 
 
