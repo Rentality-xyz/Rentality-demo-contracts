@@ -10,6 +10,7 @@ import './abstract/IRentalityDiscount.sol';
 import './abstract/IRentalityTaxes.sol';
 import '../investment/RentalityInvestment.sol';
 import './RentalityTaxes.sol';
+import './RentalityBaseDiscount.sol';
 import './RentalityHostInsurance.sol';
 import {Schemas} from '../Schemas.sol';
 import {RentalitySwaps} from './RentalitySwaps.sol';

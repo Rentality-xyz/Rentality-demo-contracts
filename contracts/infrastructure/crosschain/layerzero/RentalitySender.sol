@@ -8,10 +8,10 @@ import {OAppSender, MessagingFee, MessagingReceipt, MessagingParams} from '@laye
 import {OAppCore} from '@layerzerolabs/lz-evm-oapp-v2/contracts/oapp/OAppCore.sol';
 import {Ownable} from '@openzeppelin/contracts/access/Ownable.sol';
 import '@layerzerolabs/lz-evm-oapp-v2/contracts/oapp/libs/OptionsBuilder.sol';
-import '../RentalityUserService.sol';
-import '../abstract/IRentalitySender.sol';
+import '../../../rentality_old/RentalityUserService.sol';
+import '../../../rentality_old/abstract/IRentalitySender.sol';
 import './ARentalitySender.sol';
-import '../abstract/IRentalityInvestmentSender.sol';
+import '../../../rentality_old/abstract/IRentalityInvestmentSender.sol';
 import {Initializable as OZInitializable} from '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 import {UUPSUpgradeable as OZUUPSUpgradeable} from '@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol';
 
@@ -103,6 +103,3 @@ contract RentalitySender is ARentalitySender, OZUUPSUpgradeable, OZInitializable
     require(owner() == msg.sender, 'Only for Admin.');
   }
 }
-
-
-

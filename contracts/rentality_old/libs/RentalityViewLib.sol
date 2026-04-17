@@ -21,6 +21,7 @@ import {RentalityInsurance} from '../payments/RentalityInsurance.sol';
 import '../engine/RentalityEnginesService.sol';
 import '../payments/RentalityBaseDiscount.sol';
 import '../investment/RentalityInvestment.sol';
+import {RentalityInvestmentNft} from '../investment/RentalityInvestmentNft.sol';
 import {RentalityCarInvestmentPool} from '../investment/RentalityInvestmentPool.sol';
 
 library RentalityViewLib {
