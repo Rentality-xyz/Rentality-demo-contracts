@@ -5,7 +5,7 @@ const addressSaver = require('./utils/addressSaver')
 const { checkNotNull, startDeploy } = require('./utils/deployHelper')
 
 async function main() {
-  const { contractName, chainId } = await startDeploy('RentalPaymentMain')
+  const { contractName, chainId } = await startDeploy('RentalInvestmentMain')
 
   if (chainId < 0) throw new Error('chainId is not set')
 
@@ -13,26 +13,30 @@ async function main() {
     getContractAddress('UserProfileMain', 'scripts/deploy_1h_UserProfileMain.js', chainId),
     'UserProfileMain'
   )
-  const rentalInvestmentMainAddress = checkNotNull(
-    getContractAddress('RentalInvestmentMain', 'scripts/deploy_3p_RentalInvestmentMain.js', chainId),
-    'RentalInvestmentMain'
+  const rentalityCurrencyConverterAddress = checkNotNull(
+    getContractAddress('RentalityCurrencyConverter', 'scripts/deploy_3b_RentalityCurrencyConverter.js', chainId),
+    'RentalityCurrencyConverter'
+  )
+  const carMainAddress = checkNotNull(
+    getContractAddress('CarMain', 'scripts/deploy_3_CarGatewayAdapter.js', chainId),
+    'CarMain'
   )
   const rentalInsuranceMainAddress = checkNotNull(
     getContractAddress('RentalInsuranceMain', 'scripts/deploy_3l_RentalInsuranceMain.js', chainId),
     'RentalInsuranceMain'
   )
-  const rentalitySwapsAddress = checkNotNull(
-    getContractAddress('RentalitySwaps', 'scripts/deploy_2h_RentalitySwaps.js', chainId),
-    'RentalitySwaps'
+  const rentalityInvestDeployerAddress = checkNotNull(
+    getContractAddress('RentalityInvestDeployer', 'scripts/deploy_3b_RentalityInvestDeployer.js', chainId),
+    'RentalityInvestDeployer'
   )
 
   const contractFactory = await ethers.getContractFactory(contractName)
   const contract = await upgrades.deployProxy(contractFactory, [
     userProfileMainAddress,
-    userProfileMainAddress,
-    rentalInvestmentMainAddress,
+    rentalityCurrencyConverterAddress,
+    carMainAddress,
     rentalInsuranceMainAddress,
-    rentalitySwapsAddress,
+    rentalityInvestDeployerAddress,
   ])
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()

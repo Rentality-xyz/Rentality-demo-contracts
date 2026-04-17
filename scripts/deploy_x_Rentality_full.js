@@ -11,6 +11,8 @@ const commands = [
   { message: 'Deploying rental pricing query..', command: command + 'deploy_3k_RentalPricingQuery.js' },
   { message: 'Deploying rental insurance main..', command: command + 'deploy_3l_RentalInsuranceMain.js' },
   { message: 'Deploying rental insurance query..', command: command + 'deploy_3m_RentalInsuranceQuery.js' },
+  { message: 'Deploying rental investment main..', command: command + 'deploy_3p_RentalInvestmentMain.js' },
+  { message: 'Deploying rental investment query..', command: command + 'deploy_3q_RentalInvestmentQuery.js' },
   { message: 'Deploying rental payment main..', command: command + 'deploy_3h_RentalPaymentMain.js' },
   { message: 'Deploying rental payment query..', command: command + 'deploy_3i_RentalPaymentQuery.js' },
   { message: 'Deploying profile gateway facet..', command: command + 'deploy_4h_ProfileGatewayFacet.js' },
@@ -40,3 +42,4 @@ main()
     console.error('deploy_x_Rentality_full error: ', error)
     process.exit(1)
   })
+

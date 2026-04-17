@@ -5,34 +5,28 @@ const addressSaver = require('./utils/addressSaver')
 const { checkNotNull, startDeploy } = require('./utils/deployHelper')
 
 async function main() {
-  const { contractName, chainId } = await startDeploy('RentalPaymentMain')
+  const { contractName, chainId } = await startDeploy('InvestmentGatewayFacet')
 
   if (chainId < 0) throw new Error('chainId is not set')
 
-  const userProfileMainAddress = checkNotNull(
-    getContractAddress('UserProfileMain', 'scripts/deploy_1h_UserProfileMain.js', chainId),
-    'UserProfileMain'
-  )
   const rentalInvestmentMainAddress = checkNotNull(
     getContractAddress('RentalInvestmentMain', 'scripts/deploy_3p_RentalInvestmentMain.js', chainId),
     'RentalInvestmentMain'
   )
-  const rentalInsuranceMainAddress = checkNotNull(
-    getContractAddress('RentalInsuranceMain', 'scripts/deploy_3l_RentalInsuranceMain.js', chainId),
-    'RentalInsuranceMain'
+  const rentalInvestmentQueryAddress = checkNotNull(
+    getContractAddress('RentalInvestmentQuery', 'scripts/deploy_3q_RentalInvestmentQuery.js', chainId),
+    'RentalInvestmentQuery'
   )
-  const rentalitySwapsAddress = checkNotNull(
-    getContractAddress('RentalitySwaps', 'scripts/deploy_2h_RentalitySwaps.js', chainId),
-    'RentalitySwaps'
+  const userProfileMainAddress = checkNotNull(
+    getContractAddress('UserProfileMain', 'scripts/deploy_1h_UserProfileMain.js', chainId),
+    'UserProfileMain'
   )
 
   const contractFactory = await ethers.getContractFactory(contractName)
   const contract = await upgrades.deployProxy(contractFactory, [
-    userProfileMainAddress,
-    userProfileMainAddress,
     rentalInvestmentMainAddress,
-    rentalInsuranceMainAddress,
-    rentalitySwapsAddress,
+    rentalInvestmentQueryAddress,
+    userProfileMainAddress,
   ])
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()

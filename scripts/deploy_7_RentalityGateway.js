@@ -32,10 +32,6 @@ async function main() {
     getContractAddress('RentalityTripsView', 'scripts/deploy_4b_RentalityTripsView.js', chainId),
     'RentalityTripsView'
   )
-  const rentalityInvestment = checkNotNull(
-    getContractAddress('RentalityInvestment', 'scripts/deploy_3c_RentalityInvestment.js', chainId),
-    'RentalityInvestment'
-  )
   const profileGatewayFacetAddress = checkNotNull(
     getContractAddress('ProfileGatewayFacet', 'scripts/deploy_4h_ProfileGatewayFacet.js', chainId),
     'ProfileGatewayFacet'
@@ -43,6 +39,10 @@ async function main() {
   const referralGatewayFacetAddress = checkNotNull(
     getContractAddress('ReferralGatewayFacet', 'scripts/deploy_4i_ReferralGatewayFacet.js', chainId),
     'ReferralGatewayFacet'
+  )
+  const investmentGatewayFacetAddress = checkNotNull(
+    getContractAddress('InvestmentGatewayFacet', 'scripts/deploy_4j_InvestmentGatewayFacet.js', chainId),
+    'InvestmentGatewayFacet'
   )
 
   const contractFactory = await ethers.getContractFactory(contractName, {
@@ -58,7 +58,7 @@ async function main() {
   const platformFacet = await ethers.getContractAt('IRentalityPlatformFacet', rentalityPlatformAddress)
   const platformHelperFacet = await ethers.getContractAt('IRentalityPlatformHelperCoreFacet', rentalityPlatformHelper)
   const tripsViewFacet = await ethers.getContractAt('IRentalityTripsViewFacet', rentalityTripsView)
-  const investmentFacet = await ethers.getContractAt('IRentalityInvestmentFacet', rentalityInvestment)
+  const investmentFacet = await ethers.getContractAt('IInvestmentGatewayFacet', investmentGatewayFacetAddress)
   const referralFacet = await ethers.getContractAt('IReferralGatewayFacet', referralGatewayFacetAddress)
 
   const facetCuts = [
