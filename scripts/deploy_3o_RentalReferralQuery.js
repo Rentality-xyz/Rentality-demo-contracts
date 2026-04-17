@@ -5,17 +5,17 @@ const addressSaver = require('./utils/addressSaver')
 const { checkNotNull, startDeploy } = require('./utils/deployHelper')
 
 async function main() {
-  const { contractName, chainId } = await startDeploy('UserProfileQuery')
+  const { contractName, chainId } = await startDeploy('RentalReferralQuery')
 
   if (chainId < 0) throw new Error('chainId is not set')
 
-  const userProfileMainAddress = checkNotNull(
-    getContractAddress('UserProfileMain', 'scripts/deploy_1h_UserProfileMain.js', chainId),
-    'UserProfileMain'
+  const rentalReferralMainAddress = checkNotNull(
+    getContractAddress('RentalReferralMain', 'scripts/deploy_3n_RentalReferralMain.js', chainId),
+    'RentalReferralMain'
   )
 
   const contractFactory = await ethers.getContractFactory(contractName)
-  const contract = await contractFactory.deploy(userProfileMainAddress)
+  const contract = await contractFactory.deploy(rentalReferralMainAddress)
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()
 

@@ -17,9 +17,9 @@ async function main() {
     getContractAddress('UserProfileQuery', 'scripts/deploy_1i_UserProfileQuery.js', chainId),
     'UserProfileQuery'
   )
-  const rentalityReferralService = checkNotNull(
-    getContractAddress('RentalityReferralProgram', 'scripts/deploy_3e_RentalityReferralProgram.js', chainId),
-    'RentalityReferralProgram'
+  const rentalReferralMainAddress = checkNotNull(
+    getContractAddress('RentalReferralMain', 'scripts/deploy_3n_RentalReferralMain.js', chainId),
+    'RentalReferralMain'
   )
   const rentalityPromoService = checkNotNull(
     getContractAddress('RentalityPromoService', 'scripts/deploy_4f_RentalityPromo.js', chainId),
@@ -42,7 +42,7 @@ async function main() {
   const contract = await upgrades.deployProxy(contractFactory, [
     userProfileMainAddress,
     userProfileQueryAddress,
-    rentalityReferralService,
+    rentalReferralMainAddress,
     rentalityPromoService,
     notificationService,
     rentalPaymentMainAddress,

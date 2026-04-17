@@ -1,11 +1,11 @@
 const saveJsonAbi = require('./utils/abiSaver')
-const { ethers } = require('hardhat')
+const { ethers, upgrades } = require('hardhat')
 const { getContractAddress } = require('./utils/contractAddress')
 const addressSaver = require('./utils/addressSaver')
 const { checkNotNull, startDeploy } = require('./utils/deployHelper')
 
 async function main() {
-  const { contractName, chainId } = await startDeploy('UserProfileQuery')
+  const { contractName, chainId } = await startDeploy('RentalReferralMain')
 
   if (chainId < 0) throw new Error('chainId is not set')
 
@@ -13,9 +13,21 @@ async function main() {
     getContractAddress('UserProfileMain', 'scripts/deploy_1h_UserProfileMain.js', chainId),
     'UserProfileMain'
   )
+  const refferalLibAddress = checkNotNull(
+    getContractAddress('RentalityRefferalLib', 'scripts/deploy_1f_RentalityRefferalLib.js', chainId),
+    'RentalityRefferalLib'
+  )
+  const carQueryAddress = checkNotNull(
+    getContractAddress('CarQuery', 'scripts/deploy_3_CarGatewayAdapter.js', chainId),
+    'CarQuery'
+  )
 
   const contractFactory = await ethers.getContractFactory(contractName)
-  const contract = await contractFactory.deploy(userProfileMainAddress)
+  const contract = await upgrades.deployProxy(contractFactory, [
+    userProfileMainAddress,
+    carQueryAddress,
+    refferalLibAddress,
+  ])
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()
 

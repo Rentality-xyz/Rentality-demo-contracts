@@ -2,6 +2,7 @@
 pragma solidity ^0.8.20;
 
 import "../../infrastructure/upgradeable/UUPSOwnable.sol";
+import "../../models/base/referral/ReferralTypes.sol";
 import "../../models/trip/TripMain.sol";
 import "../../models/trip/TripTypes.sol";
 import "../../models/trip/TripQuery.sol";
@@ -60,7 +61,7 @@ interface ITripGatewayFacetCurrencyConverter {
         uint256 rentalityFee,
         uint256 feeOfPriceWithDiscount,
         uint256 insurancePriceInUsdCents,
-        address promoService
+        address promoServiceAddress
     ) external view returns (uint256, uint256, uint256, uint256, uint256, uint256);
 }
 
@@ -83,10 +84,10 @@ interface ITripGatewayFacetPromoService {
 
 interface ITripGatewayFacetReferralProgram {
     function passReferralProgram(
-        Schemas.RefferalProgram selector,
+        ReferralProgram selector,
         bytes memory callbackArgs,
         address user,
-        address promoService
+        address promoServiceAddress
     ) external;
 }
 
@@ -332,7 +333,7 @@ contract TripGatewayFacet is UUPSOwnable, ARentalityContext {
         Trip memory tripBefore = tripMain.getTrip(tripId);
 
         referralProgram.passReferralProgram(
-            Schemas.RefferalProgram.FinishTripAsGuest,
+            ReferralProgram.FinishTripAsGuest,
             abi.encode(tripBefore.booking.startDateTime, tripBefore.booking.endDateTime),
             sender,
             address(promoService)
@@ -393,6 +394,8 @@ contract TripGatewayFacet is UUPSOwnable, ARentalityContext {
     }
 
 }
+
+
 
 
 

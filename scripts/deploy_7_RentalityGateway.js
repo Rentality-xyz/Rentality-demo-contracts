@@ -10,7 +10,7 @@ async function main() {
 
   if (chainId < 0) throw new Error('chainId is not set')
 
-  const rentalityNotificationService= checkNotNull(
+  const rentalityNotificationService = checkNotNull(
     getContractAddress('RentalityNotificationService', 'scripts/deploy_2_RentalityNotificationService.js', chainId),
     'RentalityNotificationService'
   )
@@ -20,10 +20,6 @@ async function main() {
     'RentalityPlatform'
   )
 
-  const rentalityCarDelivery = checkNotNull(
-    getContractAddress('RentalityCarDelivery', 'scripts/deploy_2i_RentalityCarDelivery.js', chainId),
-    'RentalityCarDelivery'
-  )
   const rentalityView = checkNotNull(
     getContractAddress('RentalityView', 'scripts/deploy_4c_RentalityView.js', chainId),
     'RentalityView'
@@ -40,13 +36,13 @@ async function main() {
     getContractAddress('RentalityInvestment', 'scripts/deploy_3c_RentalityInvestment.js', chainId),
     'RentalityInvestment'
   )
-  const rentalityReferralProgram = checkNotNull(
-    getContractAddress('RentalityReferralProgram', 'scripts/deploy_3e_RentalityReferralProgram.js', chainId),
-    'RentalityReferralProgram'
-  )
   const profileGatewayFacetAddress = checkNotNull(
     getContractAddress('ProfileGatewayFacet', 'scripts/deploy_4h_ProfileGatewayFacet.js', chainId),
     'ProfileGatewayFacet'
+  )
+  const referralGatewayFacetAddress = checkNotNull(
+    getContractAddress('ReferralGatewayFacet', 'scripts/deploy_4i_ReferralGatewayFacet.js', chainId),
+    'ReferralGatewayFacet'
   )
 
   const contractFactory = await ethers.getContractFactory(contractName, {
@@ -63,7 +59,7 @@ async function main() {
   const platformHelperFacet = await ethers.getContractAt('IRentalityPlatformHelperCoreFacet', rentalityPlatformHelper)
   const tripsViewFacet = await ethers.getContractAt('IRentalityTripsViewFacet', rentalityTripsView)
   const investmentFacet = await ethers.getContractAt('IRentalityInvestmentFacet', rentalityInvestment)
-  const referralFacet = await ethers.getContractAt('IRentalityReferralProgramFacet', rentalityReferralProgram)
+  const referralFacet = await ethers.getContractAt('IReferralGatewayFacet', referralGatewayFacetAddress)
 
   const facetCuts = [
     createFacetCut(viewFacet),
@@ -75,7 +71,7 @@ async function main() {
     createFacetCut(referralFacet),
   ]
 
-  await contract.diamondCut(facetCuts,{gasLimit: 5000000})
+  await contract.diamondCut(facetCuts, { gasLimit: 5000000 })
   await contract.setNotificationService(rentalityNotificationService)
 
   contract = await ethers.getContractAt('IRentalityGateway', contractAddress)

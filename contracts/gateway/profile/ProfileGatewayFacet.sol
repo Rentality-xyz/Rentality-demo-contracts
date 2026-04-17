@@ -2,6 +2,7 @@
 pragma solidity ^0.8.20;
 
 import '../../infrastructure/upgradeable/UUPSOwnable.sol';
+import '../../models/base/referral/ReferralTypes.sol';
 import '../../models/profile/UserProfileMain.sol';
 import '../../models/profile/UserProfileQuery.sol';
 import '../../models/profile/UserProfileTypes.sol';
@@ -11,12 +12,12 @@ import './ProfileGatewayFacetLib.sol';
 
 interface IProfileGatewayFacetReferralProgram {
     function generateReferralHash(address user) external;
-    function saveRefferalHash(bytes4 hash, bool isGuest, address user) external;
+    function saveReferralHash(bytes4 hash, bool isGuest, address user) external;
     function passReferralProgram(
-        Schemas.RefferalProgram selector,
+        ReferralProgram selector,
         bytes memory callbackArgs,
         address user,
-        address promoService
+        address promoServiceAddress
     ) external;
 }
 
@@ -132,8 +133,8 @@ contract ProfileGatewayFacet is UUPSOwnable, ARentalityContext {
         address sender = _msgGatewaySender();
         referralProgram.generateReferralHash(sender);
         bool isGuest = userProfileMain.isGuest(sender);
-        referralProgram.saveRefferalHash(hash, isGuest, sender);
-        referralProgram.passReferralProgram(Schemas.RefferalProgram.SetKYC, bytes(''), sender, address(promoService));
+        referralProgram.saveReferralHash(hash, isGuest, sender);
+        referralProgram.passReferralProgram(ReferralProgram.SetKYC, bytes(''), sender, address(promoService));
 
         userProfileMain.setKYCInfo(
             SetUserProfileRequest({
@@ -158,7 +159,7 @@ contract ProfileGatewayFacet is UUPSOwnable, ARentalityContext {
     }
 
     function setCivicKYCInfo(address user, Schemas.CivicKYCInfo memory civicKycInfo) external {
-        referralProgram.passReferralProgram(Schemas.RefferalProgram.PassCivic, bytes(''), user, address(promoService));
+        referralProgram.passReferralProgram(ReferralProgram.PassCivic, bytes(''), user, address(promoService));
         userProfileMain.setCivicKYCInfo(user, ProfileGatewayFacetLib.toUserCivicInfo(civicKycInfo));
     }
 
@@ -192,3 +193,5 @@ contract ProfileGatewayFacet is UUPSOwnable, ARentalityContext {
         currencyConverter = IProfileGatewayFacetCurrencyConverter(currencyConverterAddress);
     }
 }
+
+

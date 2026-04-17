@@ -1,0 +1,25 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import '../../rentality_old/Schemas.sol';
+
+interface IReferralGatewayFacet {
+    function addressToPoints(address user) external view returns (uint256);
+    function referralHashV2(address user) external view returns (bytes4);
+    function getCarDailyClaimedTime(uint256 carId) external view returns (uint64);
+    function getMyStartDiscount(address user) external view returns (Schemas.RefferalDiscount memory);
+    function getReadyToClaim(address user) external view returns (Schemas.ReadyToClaimDTO memory readyToClaimDTO);
+    function getReadyToClaimFromRefferalHash(address user)
+        external
+        view
+        returns (Schemas.RefferalHashDTO memory refferalHashDTO);
+    function getRefferalPointsInfo()
+        external
+        view
+        returns (Schemas.AllRefferalInfoDTO memory allRefferalInfoDTO);
+    function getPointsHistory() external view returns (Schemas.RefferalHistory[] memory);
+    function getMyRefferalInfo() external view returns (Schemas.MyRefferalInfoDTO memory myRefferalInfoDTO);
+    function claimPoints(address user) external;
+    function claimRefferalPoints(address user) external;
+    function hashExists(bytes32 referralHash) external view returns (bool);
+}
