@@ -4,12 +4,13 @@ pragma solidity ^0.8.20;
 import "./TripMain.sol";
 import "./TripTypes.sol";
 import "./../car/CarTypes.sol";
+import "./../profile/UserProfileTypes.sol";
 import "../common/CommonTypes.sol";
 import "../../rentality_old/Schemas.sol";
 
-interface ITripQueryUserService {
-    function getKYCInfo(address user) external view returns (Schemas.KYCInfo memory);
-    function getMyFullKYCInfo(address user) external view returns (Schemas.FullKYCInfoDTO memory);
+interface ITripQueryUserProfileQuery {
+    function getKYCInfo(address user) external view returns (UserProfileKYCInfo memory);
+    function getMyFullKYCInfo(address user) external view returns (FullUserProfileInfo memory);
 }
 
 interface ITripQueryCarQuery {
@@ -49,7 +50,7 @@ interface ITripQueryHostInsurance {
 
 contract TripQuery {
     TripMain public immutable tripMain;
-    ITripQueryUserService public immutable userService;
+    ITripQueryUserProfileQuery public immutable userProfileQuery;
     ITripQueryCarQuery public immutable carQuery;
     ITripQueryGeoService public immutable geoService;
     ITripQueryInsuranceService public immutable insuranceService;
@@ -72,7 +73,7 @@ contract TripQuery {
         address hostInsuranceAddress
     ) {
         tripMain = TripMain(tripMainAddress);
-        userService = ITripQueryUserService(userServiceAddress);
+        userProfileQuery = ITripQueryUserProfileQuery(userServiceAddress);
         carQuery = ITripQueryCarQuery(carQueryAddress);
         geoService = ITripQueryGeoService(geoServiceAddress);
         insuranceService = ITripQueryInsuranceService(insuranceServiceAddress);
@@ -113,17 +114,17 @@ contract TripQuery {
         returns (string memory guestPhoneNumber, string memory hostPhoneNumber)
     {
         Trip memory trip = getTrip(tripId);
-        Schemas.KYCInfo memory guestInfo = userService.getKYCInfo(trip.booking.customer);
-        Schemas.KYCInfo memory hostInfo = userService.getKYCInfo(trip.booking.provider);
+        UserProfileKYCInfo memory guestInfo = userProfileQuery.getKYCInfo(trip.booking.customer);
+        UserProfileKYCInfo memory hostInfo = userProfileQuery.getKYCInfo(trip.booking.provider);
         return (guestInfo.mobilePhoneNumber, hostInfo.mobilePhoneNumber);
     }
 
     function getTripDTO(uint256 tripId, address viewer) public view returns (TripDTO memory dto) {
         Trip memory trip = getTrip(tripId);
         CarInfo memory car = carQuery.getCar(trip.booking.resourceId);
-        Schemas.KYCInfo memory guestInfo = userService.getKYCInfo(trip.booking.customer);
-        Schemas.KYCInfo memory hostInfo = userService.getKYCInfo(trip.booking.provider);
-        Schemas.FullKYCInfoDTO memory viewerInfo = userService.getMyFullKYCInfo(viewer);
+        UserProfileKYCInfo memory guestInfo = userProfileQuery.getKYCInfo(trip.booking.customer);
+        UserProfileKYCInfo memory hostInfo = userProfileQuery.getKYCInfo(trip.booking.provider);
+        FullUserProfileInfo memory viewerInfo = userProfileQuery.getMyFullKYCInfo(viewer);
 
         bytes32 locationHash = car.car.locationHash;
         LocationInfo memory defaultLocation = _toLocationInfo(geoService.getLocationInfo(locationHash));
@@ -188,8 +189,8 @@ contract TripQuery {
 
         for (uint256 i = 0; i < trips.length; i++) {
             Trip memory trip = trips[i].trip;
-            Schemas.KYCInfo memory guestInfo = userService.getKYCInfo(trip.booking.customer);
-            Schemas.KYCInfo memory hostInfo = userService.getKYCInfo(trip.booking.provider);
+            UserProfileKYCInfo memory guestInfo = userProfileQuery.getKYCInfo(trip.booking.customer);
+            UserProfileKYCInfo memory hostInfo = userProfileQuery.getKYCInfo(trip.booking.provider);
             CarInfo memory car = carQuery.getCar(trip.booking.resourceId);
 
             Schemas.ChatInfo memory chatInfo;
@@ -272,3 +273,5 @@ contract TripQuery {
         return TripUserCurrency({currency: currency.currency, name: currency.name, initialized: currency.initialized});
     }
 }
+
+

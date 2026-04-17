@@ -5,13 +5,14 @@ import "../../models/trip/TripMain.sol";
 import "../../models/trip/TripTypes.sol";
 import "../../models/trip/TripLib.sol";
 import "../../models/car/CarTypes.sol";
+import "../../models/profile/UserProfileTypes.sol";
 import "../../rentality_old/Schemas.sol";
 import "../../rentality_old/abstract/IRentalityGeoService.sol";
 import "./TripGatewayFacetLib.sol";
 
-interface ITripGatewayWriteLibUserService {
+interface ITripGatewayWriteLibUserProfileMain {
     function isAdmin(address user) external view returns (bool);
-    function getKYCInfo(address user) external view returns (Schemas.KYCInfo memory);
+    function getKYCProfile(address user) external view returns (UserProfileKYCInfo memory);
     function hasPassedKYCAndTC(address user) external view returns (bool);
 }
 
@@ -85,7 +86,7 @@ interface ITripGatewayWriteLibEngineService {
 library TripGatewayWriteLib {
     function createTripRequestWithDelivery(
         TripMain tripMain,
-        address userServiceAddress,
+        address userProfileMainAddress,
         address carQueryAddress,
         address carTaxAdapterAddress,
         address paymentServiceAddress,
@@ -105,7 +106,7 @@ library TripGatewayWriteLib {
         address currencyType = ITripGatewayWriteLibCurrencyConverter(currencyConverterAddress).getUserCurrency(host).currency;
 
         TripLib.validateTripRequest(
-            userServiceAddress,
+            userProfileMainAddress,
             currencyConverterAddress,
             carQuery,
             tripMain,
@@ -182,8 +183,8 @@ library TripGatewayWriteLib {
         );
 
         ITripGatewayWriteLibEngineService engineService = ITripGatewayWriteLibEngineService(address(tripMain.engineService()));
-        Schemas.KYCInfo memory guestInfo = ITripGatewayWriteLibUserService(userServiceAddress).getKYCInfo(sender);
-        Schemas.KYCInfo memory hostInfo = ITripGatewayWriteLibUserService(userServiceAddress).getKYCInfo(host);
+        UserProfileKYCInfo memory guestInfo = ITripGatewayWriteLibUserProfileMain(userProfileMainAddress).getKYCProfile(sender);
+        UserProfileKYCInfo memory hostInfo = ITripGatewayWriteLibUserProfileMain(userProfileMainAddress).getKYCProfile(host);
 
         tripMain.createTrip(
             CreateTripRecordRequest({
@@ -295,7 +296,7 @@ library TripGatewayWriteLib {
 
     function confirmCheckOut(
         TripMain tripMain,
-        address userServiceAddress,
+        address userProfileMainAddress,
         address paymentServiceAddress,
         address currencyConverterAddress,
         address insuranceServiceAddress,
@@ -306,7 +307,7 @@ library TripGatewayWriteLib {
     ) external {
         Trip memory trip = tripMain.getTrip(tripId);
         require(
-            trip.booking.customer == sender || ITripGatewayWriteLibUserService(userServiceAddress).isAdmin(sender),
+            trip.booking.customer == sender || ITripGatewayWriteLibUserProfileMain(userProfileMainAddress).isAdmin(sender),
             "For trip guest or admin"
         );
         require(trip.booking.provider == trip.tripFinishedBy, "No needs to confirm.");
@@ -457,6 +458,9 @@ library TripGatewayWriteLib {
         );
     }
 }
+
+
+
 
 
 

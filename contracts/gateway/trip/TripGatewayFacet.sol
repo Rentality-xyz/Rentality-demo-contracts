@@ -6,16 +6,17 @@ import "../../models/trip/TripMain.sol";
 import "../../models/trip/TripTypes.sol";
 import "../../models/trip/TripQuery.sol";
 import "../../models/car/CarTypes.sol";
+import "../../models/profile/UserProfileTypes.sol";
 import "../../rentality_old/Schemas.sol";
 import "../../rentality_old/abstract/ARentalityContext.sol";
 import "./TripGatewayFacetLib.sol";
 import "./TripGatewayWriteLib.sol";
 
-interface ITripGatewayFacetUserService {
+interface ITripGatewayFacetUserProfileMain {
     function isRentalityPlatform(address user) external view returns (bool);
     function isAdmin(address user) external view returns (bool);
     function hasPassedKYCAndTC(address user) external view returns (bool);
-    function getKYCInfo(address user) external view returns (Schemas.KYCInfo memory);
+    function getKYCProfile(address user) external view returns (UserProfileKYCInfo memory);
 }
 
 interface ITripGatewayFacetCarQuery {
@@ -103,7 +104,7 @@ interface ITripGatewayFacetDeliveryService {
 contract TripGatewayFacet is UUPSOwnable, ARentalityContext {
     TripMain public tripMain;
     TripQuery public tripQuery;
-    ITripGatewayFacetUserService public userService;
+    ITripGatewayFacetUserProfileMain public userProfileMain;
     ITripGatewayFacetCarQuery public carQuery;
     address public carTaxAdapter;
     ITripGatewayFacetPaymentService public paymentService;
@@ -122,7 +123,7 @@ contract TripGatewayFacet is UUPSOwnable, ARentalityContext {
     function initialize(
         address tripMainAddress,
         address tripQueryAddress,
-        address userServiceAddress,
+        address userProfileMainAddress,
         address carQueryAddress,
         address carTaxAdapterAddress,
         address paymentServiceAddress,
@@ -137,7 +138,7 @@ contract TripGatewayFacet is UUPSOwnable, ARentalityContext {
         _setServiceAddresses(
             tripMainAddress,
             tripQueryAddress,
-            userServiceAddress,
+            userProfileMainAddress,
             carQueryAddress,
             carTaxAdapterAddress,
             paymentServiceAddress,
@@ -153,7 +154,7 @@ contract TripGatewayFacet is UUPSOwnable, ARentalityContext {
     function updateServiceAddresses(
         address tripMainAddress,
         address tripQueryAddress,
-        address userServiceAddress,
+        address userProfileMainAddress,
         address carQueryAddress,
         address carTaxAdapterAddress,
         address paymentServiceAddress,
@@ -167,7 +168,7 @@ contract TripGatewayFacet is UUPSOwnable, ARentalityContext {
         _setServiceAddresses(
             tripMainAddress,
             tripQueryAddress,
-            userServiceAddress,
+            userProfileMainAddress,
             carQueryAddress,
             carTaxAdapterAddress,
             paymentServiceAddress,
@@ -210,7 +211,7 @@ contract TripGatewayFacet is UUPSOwnable, ARentalityContext {
     ) external payable {
         TripGatewayWriteLib.createTripRequestWithDelivery(
             tripMain,
-            address(userService),
+            address(userProfileMain),
             address(carQuery),
             carTaxAdapter,
             address(paymentService),
@@ -254,7 +255,7 @@ contract TripGatewayFacet is UUPSOwnable, ARentalityContext {
     function confirmCheckOut(uint256 tripId) external {
         TripGatewayWriteLib.confirmCheckOut(
             tripMain,
-            address(userService),
+            address(userProfileMain),
             address(paymentService),
             address(currencyConverter),
             address(insuranceService),
@@ -336,7 +337,7 @@ contract TripGatewayFacet is UUPSOwnable, ARentalityContext {
     }
 
     function isTrustedForwarder(address forwarder) internal view override returns (bool) {
-        return address(userService) != address(0) && userService.isRentalityPlatform(forwarder);
+        return address(userProfileMain) != address(0) && userProfileMain.isRentalityPlatform(forwarder);
     }
 
 
@@ -350,7 +351,7 @@ contract TripGatewayFacet is UUPSOwnable, ARentalityContext {
     function _setServiceAddresses(
         address tripMainAddress,
         address tripQueryAddress,
-        address userServiceAddress,
+        address userProfileMainAddress,
         address carQueryAddress,
         address carTaxAdapterAddress,
         address paymentServiceAddress,
@@ -363,7 +364,7 @@ contract TripGatewayFacet is UUPSOwnable, ARentalityContext {
     ) internal {
         tripMain = TripMain(tripMainAddress);
         tripQuery = TripQuery(tripQueryAddress);
-        userService = ITripGatewayFacetUserService(userServiceAddress);
+        userProfileMain = ITripGatewayFacetUserProfileMain(userProfileMainAddress);
         carQuery = ITripGatewayFacetCarQuery(carQueryAddress);
         carTaxAdapter = carTaxAdapterAddress;
         paymentService = ITripGatewayFacetPaymentService(paymentServiceAddress);
@@ -376,6 +377,8 @@ contract TripGatewayFacet is UUPSOwnable, ARentalityContext {
     }
 
 }
+
+
 
 
 

@@ -20,11 +20,6 @@ async function main() {
     'RentalityPlatform'
   )
 
-  const rentalityAdminGatewayAddress = checkNotNull(
-    getContractAddress('RentalityAdminGateway', 'scripts/deploy_6_RentalityAdminGateway.js', chainId),
-    'RentalityAdminGateway'
-  )
-
   const rentalityCarDelivery = checkNotNull(
     getContractAddress('RentalityCarDelivery', 'scripts/deploy_2i_RentalityCarDelivery.js', chainId),
     'RentalityCarDelivery'
@@ -49,26 +44,30 @@ async function main() {
     getContractAddress('RentalityReferralProgram', 'scripts/deploy_3e_RentalityReferralProgram.js', chainId),
     'RentalityReferralProgram'
   )
+  const profileGatewayFacetAddress = checkNotNull(
+    getContractAddress('ProfileGatewayFacet', 'scripts/deploy_4h_ProfileGatewayFacet.js', chainId),
+    'ProfileGatewayFacet'
+  )
 
   const contractFactory = await ethers.getContractFactory(contractName, {
     libraries: {},
   })
 
-  // Deploy empty and wire facets via diamond cut
   let contract = await upgrades.deployProxy(contractFactory, [[]])
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()
 
-  // Build facet cuts
-  const viewFacet = await ethers.getContractAt('IRentalityViewFacet', rentalityView)
+  const viewFacet = await ethers.getContractAt('IRentalityViewCoreFacet', rentalityView)
+  const profileFacet = await ethers.getContractAt('IProfileGatewayFacet', profileGatewayFacetAddress)
   const platformFacet = await ethers.getContractAt('IRentalityPlatformFacet', rentalityPlatformAddress)
-  const platformHelperFacet = await ethers.getContractAt('IRentalityPlatformHelperFacet', rentalityPlatformHelper)
+  const platformHelperFacet = await ethers.getContractAt('IRentalityPlatformHelperCoreFacet', rentalityPlatformHelper)
   const tripsViewFacet = await ethers.getContractAt('IRentalityTripsViewFacet', rentalityTripsView)
   const investmentFacet = await ethers.getContractAt('IRentalityInvestmentFacet', rentalityInvestment)
   const referralFacet = await ethers.getContractAt('IRentalityReferralProgramFacet', rentalityReferralProgram)
 
   const facetCuts = [
     createFacetCut(viewFacet),
+    createFacetCut(profileFacet),
     createFacetCut(platformFacet),
     createFacetCut(platformHelperFacet),
     createFacetCut(tripsViewFacet),

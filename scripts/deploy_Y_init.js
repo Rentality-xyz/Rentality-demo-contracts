@@ -159,9 +159,9 @@ const checkInitialization = async () => {
     throw new Error(`Addresses for RentalityLocationVerifier was not found`)
   }
 
-  const rentalityUserServiceAddress = checkNotNull(addresses['RentalityUserService'], 'rentalityUserServiceAddress')
-  if (!rentalityUserServiceAddress) {
-    throw new Error(`Addresses for RentalityUserService was not found`)
+  const userProfileMainAddress = checkNotNull(addresses['UserProfileMain'], 'userProfileMainAddress')
+  if (!userProfileMainAddress) {
+    throw new Error(`Addresses for UserProfileMain was not found`)
   }
   const rentalityAdminGatewayAddress = checkNotNull(addresses['RentalityAdminGateway'], 'rentalityAdminGatewayAddress')
   if (!rentalityAdminGatewayAddress) {
@@ -195,8 +195,8 @@ const checkInitialization = async () => {
   const admin = new ethers.Wallet(ADMIN_PRIVATE_KEY, ethers.provider)
 
   if (Number(chainId) === 1337) {
-    const userServiceContract = await ethers.getContractAt('RentalityUserService', rentalityUserServiceAddress)
-    const roleTx = await userServiceContract.manageRole(4, kycManager.address, true)
+    const userProfileMainContract = await ethers.getContractAt('UserProfileMain', userProfileMainAddress)
+    const roleTx = await userProfileMainContract.manageRole(4, kycManager.address, true)
     await roleTx.wait()
     console.log(`KYC manager role granted to ${kycManager.address}`)
 
@@ -612,16 +612,3 @@ main()
     console.error(error)
     process.exit(1)
   })
-
-
-
-
-
-
-
-
-
-
-
-
-
