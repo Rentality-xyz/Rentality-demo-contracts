@@ -7,6 +7,7 @@ import "../../models/trip/TripTypes.sol";
 import "../../models/trip/TripQuery.sol";
 import "../../models/car/CarTypes.sol";
 import "../../models/profile/UserProfileTypes.sol";
+import "../../models/insurance/RentalInsuranceTypes.sol";
 import "../../rentality_old/Schemas.sol";
 import "../../rentality_old/abstract/ARentalityContext.sol";
 import "./TripGatewayFacetLib.sol";
@@ -66,10 +67,10 @@ interface ITripGatewayFacetCurrencyConverter {
 interface ITripGatewayFacetInsuranceService {
     function getInsurancePriceByTrip(uint256 tripId) external view returns (uint256);
     function calculateInsuranceForTrip(uint256 carId, uint64 startDateTime, uint64 endDateTime, address user) external view returns (uint256);
-    function saveGuestinsurancePayment(uint tripId, uint carId, uint totalSum, address user) external;
+    function saveGuestInsurancePayment(uint256 tripId, uint256 carId, uint256 totalSum, address user) external;
     function saveTripInsuranceInfo(
         uint256 tripId,
-        Schemas.SaveInsuranceRequest memory insuranceInfo,
+        RentalSaveInsuranceRequest memory insuranceInfo,
         address user
     ) external;
 }
@@ -303,12 +304,12 @@ contract TripGatewayFacet is UUPSOwnable, ARentalityContext {
         if (bytes(insuranceNumber).length > 0 || bytes(insuranceCompany).length > 0) {
             insuranceService.saveTripInsuranceInfo(
                 tripId,
-                Schemas.SaveInsuranceRequest(
+                RentalSaveInsuranceRequest(
                     insuranceCompany,
                     insuranceNumber,
                     "",
                     "",
-                    Schemas.InsuranceType.OneTime
+                    InsuranceType.OneTime
                 ),
                 sender
             );
@@ -392,6 +393,9 @@ contract TripGatewayFacet is UUPSOwnable, ARentalityContext {
     }
 
 }
+
+
+
 
 
 

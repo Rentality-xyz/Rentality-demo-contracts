@@ -6,6 +6,7 @@ import "../../models/trip/TripTypes.sol";
 import "../../models/trip/TripLib.sol";
 import "../../models/car/CarTypes.sol";
 import "../../models/profile/UserProfileTypes.sol";
+import "../../models/insurance/RentalInsuranceTypes.sol";
 import "../../rentality_old/Schemas.sol";
 import "../../rentality_old/abstract/IRentalityGeoService.sol";
 import "./TripGatewayFacetLib.sol";
@@ -59,8 +60,8 @@ interface ITripGatewayWriteLibCurrencyConverter {
 interface ITripGatewayWriteLibInsuranceService {
     function getInsurancePriceByTrip(uint256 tripId) external view returns (uint256);
     function calculateInsuranceForTrip(uint256 carId, uint64 startDateTime, uint64 endDateTime, address user) external view returns (uint256);
-    function saveGuestinsurancePayment(uint tripId, uint carId, uint totalSum, address user) external;
-    function saveTripInsuranceInfo(uint256 tripId, Schemas.SaveInsuranceRequest memory insuranceInfo, address user) external;
+    function saveGuestInsurancePayment(uint256 tripId, uint256 carId, uint256 totalSum, address user) external;
+    function saveTripInsuranceInfo(uint256 tripId, RentalSaveInsuranceRequest memory insuranceInfo, address user) external;
 }
 
 interface ITripGatewayWriteLibPromoService {
@@ -211,7 +212,7 @@ library TripGatewayWriteLib {
             })
         );
 
-        ITripGatewayWriteLibInsuranceService(insuranceServiceAddress).saveGuestinsurancePayment(
+        ITripGatewayWriteLibInsuranceService(insuranceServiceAddress).saveGuestInsurancePayment(
             tripId,
             request.carId,
             insurance,
@@ -472,6 +473,8 @@ library TripGatewayWriteLib {
         );
     }
 }
+
+
 
 
 

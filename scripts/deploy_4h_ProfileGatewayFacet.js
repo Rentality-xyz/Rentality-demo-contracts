@@ -1,11 +1,11 @@
 const saveJsonAbi = require('./utils/abiSaver')
-const { ethers } = require('hardhat')
+const { ethers, upgrades } = require('hardhat')
 const { getContractAddress } = require('./utils/contractAddress')
 const addressSaver = require('./utils/addressSaver')
 const { checkNotNull, startDeploy } = require('./utils/deployHelper')
 
 async function main() {
-  const { contractName, chainId } = await startDeploy('UserProfileQuery')
+  const { contractName, chainId } = await startDeploy('ProfileGatewayFacet')
 
   if (chainId < 0) throw new Error('chainId is not set')
 
@@ -13,9 +13,41 @@ async function main() {
     getContractAddress('UserProfileMain', 'scripts/deploy_1h_UserProfileMain.js', chainId),
     'UserProfileMain'
   )
+  const userProfileQueryAddress = checkNotNull(
+    getContractAddress('UserProfileQuery', 'scripts/deploy_1i_UserProfileQuery.js', chainId),
+    'UserProfileQuery'
+  )
+  const rentalityReferralService = checkNotNull(
+    getContractAddress('RentalityReferralProgram', 'scripts/deploy_3e_RentalityReferralProgram.js', chainId),
+    'RentalityReferralProgram'
+  )
+  const rentalityPromoService = checkNotNull(
+    getContractAddress('RentalityPromoService', 'scripts/deploy_4f_RentalityPromo.js', chainId),
+    'RentalityPromoService'
+  )
+  const notificationService = checkNotNull(
+    getContractAddress('RentalityNotificationService', 'scripts/deploy_2_RentalityNotificationService.js', chainId),
+    'RentalityNotificationService'
+  )
+  const rentalPaymentMainAddress = checkNotNull(
+    getContractAddress('RentalPaymentMain', 'scripts/deploy_3h_RentalPaymentMain.js', chainId),
+    'RentalPaymentMain'
+  )
+  const rentalityCurrencyConverterAddress = checkNotNull(
+    getContractAddress('RentalityCurrencyConverter', 'scripts/deploy_3b_RentalityCurrencyConverter.js', chainId),
+    'RentalityCurrencyConverter'
+  )
 
   const contractFactory = await ethers.getContractFactory(contractName)
-  const contract = await contractFactory.deploy(userProfileMainAddress)
+  const contract = await upgrades.deployProxy(contractFactory, [
+    userProfileMainAddress,
+    userProfileQueryAddress,
+    rentalityReferralService,
+    rentalityPromoService,
+    notificationService,
+    rentalPaymentMainAddress,
+    rentalityCurrencyConverterAddress,
+  ])
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()
 
