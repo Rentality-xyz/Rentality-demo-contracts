@@ -23,12 +23,15 @@ interface ITripGatewayFacetCarQuery {
     function getCar(uint256 id) external view returns (CarInfo memory);
 }
 
-interface ITripGatewayFacetPaymentService {
+interface ITripGatewayFacetPricingService {
     function getPlatformFeeFrom(uint256 value) external view returns (uint256);
     function getTotalTripTax(uint256 tripId) external view returns (uint64);
     function calculateSumWithDiscount(address user, uint64 daysOfTrip, uint64 value) external view returns (uint64);
     function defineTaxesType(address carService, uint carId) external view returns (uint);
     function calculateAndSaveTaxes(uint taxId, uint64 daysOfTrip, uint64 value, uint tripId) external returns (uint64);
+}
+
+interface ITripGatewayFacetPaymentService {
     function payCreateTrip(address currencyType, uint valueSumInCurrency, address user, uint carId, address currencyFrom, uint256 amountIn, uint24 fee) external payable;
     function payFinishTrip(
         Schemas.Trip memory trip,
@@ -107,6 +110,7 @@ contract TripGatewayFacet is UUPSOwnable, ARentalityContext {
     ITripGatewayFacetUserProfileMain public userProfileMain;
     ITripGatewayFacetCarQuery public carQuery;
     address public carTaxAdapter;
+    ITripGatewayFacetPricingService public pricingService;
     ITripGatewayFacetPaymentService public paymentService;
     ITripGatewayFacetCurrencyConverter public currencyConverter;
     ITripGatewayFacetInsuranceService public insuranceService;
@@ -126,6 +130,7 @@ contract TripGatewayFacet is UUPSOwnable, ARentalityContext {
         address userProfileMainAddress,
         address carQueryAddress,
         address carTaxAdapterAddress,
+        address pricingServiceAddress,
         address paymentServiceAddress,
         address currencyConverterAddress,
         address insuranceServiceAddress,
@@ -141,6 +146,7 @@ contract TripGatewayFacet is UUPSOwnable, ARentalityContext {
             userProfileMainAddress,
             carQueryAddress,
             carTaxAdapterAddress,
+            pricingServiceAddress,
             paymentServiceAddress,
             currencyConverterAddress,
             insuranceServiceAddress,
@@ -157,6 +163,7 @@ contract TripGatewayFacet is UUPSOwnable, ARentalityContext {
         address userProfileMainAddress,
         address carQueryAddress,
         address carTaxAdapterAddress,
+        address pricingServiceAddress,
         address paymentServiceAddress,
         address currencyConverterAddress,
         address insuranceServiceAddress,
@@ -171,6 +178,7 @@ contract TripGatewayFacet is UUPSOwnable, ARentalityContext {
             userProfileMainAddress,
             carQueryAddress,
             carTaxAdapterAddress,
+            pricingServiceAddress,
             paymentServiceAddress,
             currencyConverterAddress,
             insuranceServiceAddress,
@@ -214,6 +222,7 @@ contract TripGatewayFacet is UUPSOwnable, ARentalityContext {
             address(userProfileMain),
             address(carQuery),
             carTaxAdapter,
+            address(pricingService),
             address(paymentService),
             address(currencyConverter),
             address(insuranceService),
@@ -229,6 +238,7 @@ contract TripGatewayFacet is UUPSOwnable, ARentalityContext {
         TripGatewayWriteLib.approveTripRequest(
             tripMain,
             address(carQuery),
+            address(pricingService),
             address(paymentService),
             address(currencyConverter),
             address(insuranceService),
@@ -242,6 +252,7 @@ contract TripGatewayFacet is UUPSOwnable, ARentalityContext {
     function rejectTripRequest(uint256 tripId) external {
         TripGatewayWriteLib.rejectTripRequest(
             tripMain,
+            address(pricingService),
             address(paymentService),
             address(currencyConverter),
             address(insuranceService),
@@ -256,6 +267,7 @@ contract TripGatewayFacet is UUPSOwnable, ARentalityContext {
         TripGatewayWriteLib.confirmCheckOut(
             tripMain,
             address(userProfileMain),
+            address(pricingService),
             address(paymentService),
             address(currencyConverter),
             address(insuranceService),
@@ -269,6 +281,7 @@ contract TripGatewayFacet is UUPSOwnable, ARentalityContext {
     function finishTrip(uint256 tripId) external {
         TripGatewayWriteLib.finishTrip(
             tripMain,
+            address(pricingService),
             address(paymentService),
             address(currencyConverter),
             address(insuranceService),
@@ -354,6 +367,7 @@ contract TripGatewayFacet is UUPSOwnable, ARentalityContext {
         address userProfileMainAddress,
         address carQueryAddress,
         address carTaxAdapterAddress,
+        address pricingServiceAddress,
         address paymentServiceAddress,
         address currencyConverterAddress,
         address insuranceServiceAddress,
@@ -367,6 +381,7 @@ contract TripGatewayFacet is UUPSOwnable, ARentalityContext {
         userProfileMain = ITripGatewayFacetUserProfileMain(userProfileMainAddress);
         carQuery = ITripGatewayFacetCarQuery(carQueryAddress);
         carTaxAdapter = carTaxAdapterAddress;
+        pricingService = ITripGatewayFacetPricingService(pricingServiceAddress);
         paymentService = ITripGatewayFacetPaymentService(paymentServiceAddress);
         currencyConverter = ITripGatewayFacetCurrencyConverter(currencyConverterAddress);
         insuranceService = ITripGatewayFacetInsuranceService(insuranceServiceAddress);
@@ -377,6 +392,9 @@ contract TripGatewayFacet is UUPSOwnable, ARentalityContext {
     }
 
 }
+
+
+
 
 
 

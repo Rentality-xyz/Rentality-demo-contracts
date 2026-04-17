@@ -20,12 +20,15 @@ interface ITripGatewayWriteLibCarQuery is ITripLibCarQuery {
     function getCar(uint256 id) external view returns (CarInfo memory);
 }
 
-interface ITripGatewayWriteLibPaymentService {
+interface ITripGatewayWriteLibPricingService {
     function getPlatformFeeFrom(uint256 value) external view returns (uint256);
     function getTotalTripTax(uint256 tripId) external view returns (uint64);
     function calculateSumWithDiscount(address user, uint64 daysOfTrip, uint64 value) external view returns (uint64);
     function defineTaxesType(address carService, uint carId) external view returns (uint);
     function calculateAndSaveTaxes(uint taxId, uint64 daysOfTrip, uint64 value, uint tripId) external returns (uint64);
+}
+
+interface ITripGatewayWriteLibPaymentService {
     function payCreateTrip(address currencyType, uint valueSumInCurrency, address user, uint carId, address currencyFrom, uint256 amountIn, uint24 fee) external payable;
     function payFinishTrip(
         Schemas.Trip memory trip,
@@ -89,6 +92,7 @@ library TripGatewayWriteLib {
         address userProfileMainAddress,
         address carQueryAddress,
         address carTaxAdapterAddress,
+        address pricingServiceAddress,
         address paymentServiceAddress,
         address currencyConverterAddress,
         address insuranceServiceAddress,
@@ -136,15 +140,15 @@ library TripGatewayWriteLib {
             request.endDateTime,
             sender
         );
-        uint64 priceWithDiscount = ITripGatewayWriteLibPaymentService(paymentServiceAddress).calculateSumWithDiscount(
+        uint64 priceWithDiscount = ITripGatewayWriteLibPricingService(pricingServiceAddress).calculateSumWithDiscount(
             host,
             daysOfTrip,
             carInfo.car.pricePerDayInUsdCents
         );
         uint256 tripId = tripMain.totalSupply() + 1;
 
-        uint64 taxesSum = ITripGatewayWriteLibPaymentService(paymentServiceAddress).calculateAndSaveTaxes(
-            ITripGatewayWriteLibPaymentService(paymentServiceAddress).defineTaxesType(carTaxAdapterAddress, request.carId),
+        uint64 taxesSum = ITripGatewayWriteLibPricingService(pricingServiceAddress).calculateAndSaveTaxes(
+            ITripGatewayWriteLibPricingService(pricingServiceAddress).defineTaxesType(carTaxAdapterAddress, request.carId),
             daysOfTrip,
             priceWithDiscount + pickUp + dropOf,
             tripId
@@ -230,6 +234,7 @@ library TripGatewayWriteLib {
     function approveTripRequest(
         TripMain tripMain,
         address carQueryAddress,
+        address pricingServiceAddress,
         address paymentServiceAddress,
         address currencyConverterAddress,
         address insuranceServiceAddress,
@@ -258,6 +263,7 @@ library TripGatewayWriteLib {
             if (intersects && otherTrip.status == TripStatus.Created) {
                 _rejectTripRequest(
                     tripMain,
+                    pricingServiceAddress,
                     paymentServiceAddress,
                     currencyConverterAddress,
                     insuranceServiceAddress,
@@ -274,6 +280,7 @@ library TripGatewayWriteLib {
 
     function rejectTripRequest(
         TripMain tripMain,
+        address pricingServiceAddress,
         address paymentServiceAddress,
         address currencyConverterAddress,
         address insuranceServiceAddress,
@@ -284,6 +291,7 @@ library TripGatewayWriteLib {
     ) external {
         _rejectTripRequest(
             tripMain,
+            pricingServiceAddress,
             paymentServiceAddress,
             currencyConverterAddress,
             insuranceServiceAddress,
@@ -297,6 +305,7 @@ library TripGatewayWriteLib {
     function confirmCheckOut(
         TripMain tripMain,
         address userProfileMainAddress,
+        address pricingServiceAddress,
         address paymentServiceAddress,
         address currencyConverterAddress,
         address insuranceServiceAddress,
@@ -315,6 +324,7 @@ library TripGatewayWriteLib {
 
         _finishTrip(
             tripMain,
+            pricingServiceAddress,
             paymentServiceAddress,
             currencyConverterAddress,
             insuranceServiceAddress,
@@ -327,6 +337,7 @@ library TripGatewayWriteLib {
 
     function finishTrip(
         TripMain tripMain,
+        address pricingServiceAddress,
         address paymentServiceAddress,
         address currencyConverterAddress,
         address insuranceServiceAddress,
@@ -342,6 +353,7 @@ library TripGatewayWriteLib {
         );
         _finishTrip(
             tripMain,
+            pricingServiceAddress,
             paymentServiceAddress,
             currencyConverterAddress,
             insuranceServiceAddress,
@@ -354,6 +366,7 @@ library TripGatewayWriteLib {
 
     function _rejectTripRequest(
         TripMain tripMain,
+        address pricingServiceAddress,
         address paymentServiceAddress,
         address currencyConverterAddress,
         address insuranceServiceAddress,
@@ -366,7 +379,7 @@ library TripGatewayWriteLib {
         Schemas.Trip memory legacyTrip = TripGatewayFacetLib.toLegacyTrip(trip);
 
         uint256 insurance = ITripGatewayWriteLibInsuranceService(insuranceServiceAddress).getInsurancePriceByTrip(tripId);
-        uint64 totalTax = ITripGatewayWriteLibPaymentService(paymentServiceAddress).getTotalTripTax(tripId);
+        uint64 totalTax = ITripGatewayWriteLibPricingService(pricingServiceAddress).getTotalTripTax(tripId);
         uint256 valueToReturnInUsdCents = ITripGatewayWriteLibCurrencyConverter(currencyConverterAddress)
             .calculateTripReject(legacyTrip.paymentInfo, insurance, totalTax);
 
@@ -389,6 +402,7 @@ library TripGatewayWriteLib {
 
     function _finishTrip(
         TripMain tripMain,
+        address pricingServiceAddress,
         address paymentServiceAddress,
         address currencyConverterAddress,
         address insuranceServiceAddress,
@@ -401,7 +415,7 @@ library TripGatewayWriteLib {
         Trip memory trip = tripMain.getTrip(tripId);
         Schemas.Trip memory legacyTrip = TripGatewayFacetLib.toLegacyTrip(trip);
 
-        uint256 rentalityFee = ITripGatewayWriteLibPaymentService(paymentServiceAddress).getPlatformFeeFrom(
+        uint256 rentalityFee = ITripGatewayWriteLibPricingService(pricingServiceAddress).getPlatformFeeFrom(
             trip.paymentInfo.priceWithDiscount + trip.paymentInfo.pickUpFee + trip.paymentInfo.dropOfFee
         );
         uint256 insurancePrice = ITripGatewayWriteLibInsuranceService(insuranceServiceAddress).getInsurancePriceByTrip(tripId);
@@ -416,7 +430,7 @@ library TripGatewayWriteLib {
         ) = ITripGatewayWriteLibCurrencyConverter(currencyConverterAddress).calculateTripFinsish(
             legacyTrip.paymentInfo,
             rentalityFee,
-            ITripGatewayWriteLibPaymentService(paymentServiceAddress).getPlatformFeeFrom(trip.paymentInfo.priceWithDiscount),
+            ITripGatewayWriteLibPricingService(pricingServiceAddress).getPlatformFeeFrom(trip.paymentInfo.priceWithDiscount),
             insurancePrice,
             promoServiceAddress
         );
@@ -458,6 +472,9 @@ library TripGatewayWriteLib {
         );
     }
 }
+
+
+
 
 
 
