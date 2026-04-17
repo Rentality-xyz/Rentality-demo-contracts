@@ -11,12 +11,17 @@ const commands = [
   { message: 'Deploying rental pricing query..', command: command + 'deploy_3k_RentalPricingQuery.js' },
   { message: 'Deploying rental insurance main..', command: command + 'deploy_3l_RentalInsuranceMain.js' },
   { message: 'Deploying rental insurance query..', command: command + 'deploy_3m_RentalInsuranceQuery.js' },
+  { message: 'Deploying car tax adapter..', command: command + 'deploy_3r_CarTaxAdapter.js' },
+  { message: 'Deploying trip main..', command: command + 'deploy_3s_TripMain.js' },
+  { message: 'Deploying trip query..', command: command + 'deploy_3t_TripQuery.js' },
   { message: 'Deploying rental investment main..', command: command + 'deploy_3p_RentalInvestmentMain.js' },
   { message: 'Deploying rental investment query..', command: command + 'deploy_3q_RentalInvestmentQuery.js' },
   { message: 'Deploying rental payment main..', command: command + 'deploy_3h_RentalPaymentMain.js' },
   { message: 'Deploying rental payment query..', command: command + 'deploy_3i_RentalPaymentQuery.js' },
   { message: 'Deploying profile gateway facet..', command: command + 'deploy_4h_ProfileGatewayFacet.js' },
   { message: 'Deploying referral gateway facet..', command: command + 'deploy_4i_ReferralGatewayFacet.js' },
+  { message: 'Deploying investment gateway facet..', command: command + 'deploy_4j_InvestmentGatewayFacet.js' },
+  { message: 'Deploying trip gateway facet..', command: command + 'deploy_4k_TripGatewayFacet.js' },
   { message: 'Deploying contracts..', command: command + 'deploy_7_RentalityGateway.js' },
   { message: 'Grand manager role...', command: command + 'deploy_8_GrandManagerRole.js' },
   { message: 'Grand KYC manager role...', command: command + 'grandKYCManagerRole.js' },
@@ -42,4 +47,3 @@ main()
     console.error('deploy_x_Rentality_full error: ', error)
     process.exit(1)
   })
-

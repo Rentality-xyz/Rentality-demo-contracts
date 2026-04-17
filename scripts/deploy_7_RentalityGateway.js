@@ -3,7 +3,7 @@ const { ethers, upgrades } = require('hardhat')
 const { getContractAddress } = require('./utils/contractAddress')
 const addressSaver = require('./utils/addressSaver')
 const { checkNotNull, startDeploy } = require('./utils/deployHelper')
-const { createFacetCut } = require('./utils/createFacetCut')
+const { createFacetCut, FacetCutAction } = require('./utils/createFacetCut')
 
 async function main() {
   const { contractName, chainId } = await startDeploy('RentalityGateway')
@@ -44,6 +44,10 @@ async function main() {
     getContractAddress('InvestmentGatewayFacet', 'scripts/deploy_4j_InvestmentGatewayFacet.js', chainId),
     'InvestmentGatewayFacet'
   )
+  const tripGatewayFacetAddress = checkNotNull(
+    getContractAddress('TripGatewayFacet', 'scripts/deploy_4k_TripGatewayFacet.js', chainId),
+    'TripGatewayFacet'
+  )
 
   const contractFactory = await ethers.getContractFactory(contractName, {
     libraries: {},
@@ -58,6 +62,7 @@ async function main() {
   const platformFacet = await ethers.getContractAt('IRentalityPlatformFacet', rentalityPlatformAddress)
   const platformHelperFacet = await ethers.getContractAt('IRentalityPlatformHelperCoreFacet', rentalityPlatformHelper)
   const tripsViewFacet = await ethers.getContractAt('IRentalityTripsViewFacet', rentalityTripsView)
+  const tripFacet = await ethers.getContractAt('ITripGatewayFacet', tripGatewayFacetAddress)
   const investmentFacet = await ethers.getContractAt('IInvestmentGatewayFacet', investmentGatewayFacetAddress)
   const referralFacet = await ethers.getContractAt('IReferralGatewayFacet', referralGatewayFacetAddress)
 
@@ -67,6 +72,7 @@ async function main() {
     createFacetCut(platformFacet),
     createFacetCut(platformHelperFacet),
     createFacetCut(tripsViewFacet),
+    createFacetCut(tripFacet, { action: FacetCutAction.Replace }),
     createFacetCut(investmentFacet),
     createFacetCut(referralFacet),
   ]
