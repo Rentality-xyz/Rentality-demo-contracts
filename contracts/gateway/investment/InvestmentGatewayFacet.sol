@@ -8,7 +8,7 @@ import '../../models/profile/UserProfileMain.sol';
 import '../../rentality_old/Schemas.sol';
 import '../../rentality_old/abstract/ARentalityContext.sol';
 import './IInvestmentGatewayFacet.sol';
-import './InvestmentGatewayFacetLib.sol';
+import './InvestmentMapper.sol';
 
 contract InvestmentGatewayFacet is UUPSOwnable, ARentalityContext, IInvestmentGatewayFacet {
     RentalInvestmentMain public rentalInvestmentMain;
@@ -49,14 +49,14 @@ contract InvestmentGatewayFacet is UUPSOwnable, ARentalityContext, IInvestmentGa
     }
 
     function getAllInvestments() external view returns (Schemas.InvestmentDTO[] memory investments) {
-        return InvestmentGatewayFacetLib.toLegacyInvestmentDTOs(
+        return InvestmentMapper.toLegacyInvestmentDTOs(
             rentalInvestmentQuery.getAllInvestments(_msgGatewaySender(), userProfileMain.isInvestorManager(_msgGatewaySender()))
         );
     }
 
     function createCarInvestment(Schemas.CarInvestment memory car, string memory name_, address currency) external {
         rentalInvestmentMain.createCarInvestment(
-            InvestmentGatewayFacetLib.toModelInvestment(car),
+            InvestmentMapper.toModelInvestment(car),
             name_,
             currency,
             _msgGatewaySender()
@@ -66,7 +66,7 @@ contract InvestmentGatewayFacet is UUPSOwnable, ARentalityContext, IInvestmentGa
     function claimAndCreatePool(uint256 investId, Schemas.CreateCarRequest memory createCarRequest) external {
         rentalInvestmentMain.claimAndCreatePool(
             investId,
-            InvestmentGatewayFacetLib.toModelInvestmentCarRequest(createCarRequest),
+            InvestmentMapper.toModelInvestmentCarRequest(createCarRequest),
             _msgGatewaySender()
         );
     }
@@ -89,3 +89,4 @@ contract InvestmentGatewayFacet is UUPSOwnable, ARentalityContext, IInvestmentGa
         userProfileMain = UserProfileMain(payable(userProfileMainAddress));
     }
 }
+

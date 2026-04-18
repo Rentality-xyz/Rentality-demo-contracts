@@ -1,4 +1,3 @@
-const { ethers, upgrades } = require('hardhat')
 const { getContractAddress } = require('./utils/contractAddress')
 const addressSaver = require('./utils/addressSaver')
 const { checkNotNull, startDeploy } = require('./utils/deployHelper')
@@ -15,6 +14,10 @@ async function main() {
   const carQueryAddress = checkNotNull(
     getContractAddress('CarQuery', 'scripts/deploy_3_CarGatewayAdapter.js', chainId),
     'CarQuery'
+  )
+  const carQueryFacet1Address = checkNotNull(
+    getContractAddress('CarQueryFacet1', 'scripts/deploy_3_CarGatewayAdapter.js', chainId),
+    'CarQueryFacet1'
   )
   const tripQueryAddress = checkNotNull(
     getContractAddress('TripQuery', 'scripts/deploy_3t_TripQuery.js', chainId),
@@ -57,6 +60,7 @@ async function main() {
   const contract = await upgrades.deployProxy(contractFactory, [
     carMainAddress,
     carQueryAddress,
+    carQueryFacet1Address,
     tripQueryAddress,
     userProfileMainAddress,
     userProfileQueryAddress,
@@ -82,3 +86,4 @@ main()
     console.error(error)
     process.exit(1)
   })
+

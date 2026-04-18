@@ -1,36 +1,41 @@
 pragma solidity ^0.8.20;
 
-import './CarLib.sol';
-import './CarTypes.sol';
-import '../profile/UserProfileTypes.sol';
-import '../pricing/RentalPricingTypes.sol';
-import '../base/insurance/InsuranceTypes.sol';
-import '../trip/TripTypes.sol';
-import '../../rentality_old/Schemas.sol';
-import '@openzeppelin/contracts/utils/math/Math.sol';
+import "../common/CommonTypes.sol";
+import "../profile/UserProfileTypes.sol";
+import "../pricing/RentalPricingTypes.sol";
+import "../base/insurance/InsuranceTypes.sol";
+import "../trip/TripTypes.sol";
+import "./CarLib.sol";
+import "./CarTypes.sol";
+import "../../rentality_old/Schemas.sol";
+import "@openzeppelin/contracts/utils/math/Math.sol";
 
-interface ICarAvailabilityCarQuery {
-    function getCar(uint256 id) external view returns (CarInfo memory);
-    function getUserDeliveryPrices(address user) external view returns (DeliveryPrices memory);
+interface ICarQueryFacet1Main {
+    function totalSupply() external view returns (uint256);
+    function getGeoVerifierAddress() external view returns (address);
     function getEngineValidatorAddress() external view returns (address);
+    function getUserDeliveryPrices(address user) external view returns (DeliveryPrices memory);
+}
+
+interface ICarQueryFacet1CarQuery {
+    function getCar(uint256 id) external view returns (CarInfo memory);
     function fetchAvailableCarsForUser(address user, CarSearchParams calldata searchParams, uint256 from, uint256 to)
         external
         view
         returns (CarInfo[] memory);
-    function totalSupply() external view returns (uint256);
 }
 
-interface ICarAvailabilityTripQuery {
+interface ICarQueryFacet1TripQuery {
     function getActiveTrips(uint256 carId) external view returns (uint256[] memory);
     function getTrip(uint256 tripId) external view returns (Trip memory);
 }
 
-interface ICarAvailabilityUserProfileQuery {
+interface ICarQueryFacet1UserProfileQuery {
     function getKYCInfo(address user) external view returns (UserProfileKYCInfo memory);
     function getUserCurrency(address user) external view returns (address currency, bool initialized);
 }
 
-interface ICarAvailabilityPricingService {
+interface ICarQueryFacet1PricingService {
     function calculateSumWithDiscount(address user, uint64 daysOfTrip, uint64 value) external view returns (uint64);
     function defineTaxesType(address carService, uint256 carId) external view returns (uint256);
     function calculateTaxesDTO(uint256 taxId, uint64 tripDays, uint64 totalCost)
@@ -40,43 +45,39 @@ interface ICarAvailabilityPricingService {
     function getBaseDiscount(address user) external view returns (RentalBaseDiscount memory);
 }
 
-interface ICarAvailabilityInsuranceService {
+interface ICarQueryFacet1InsuranceService {
     function getInsuranceRequirement(uint256 objectId) external view returns (InsuranceRequirement memory);
     function isGuestHasInsurance(address guest) external view returns (bool);
 }
 
-interface ICarAvailabilityDimoService {
+interface ICarQueryFacet1DimoService {
     function getDimoTokenId(uint256 carId) external view returns (uint256);
 }
 
-interface ICarAvailabilityGeoService {
+interface ICarQueryFacet1GeoService {
     function getLocationInfo(bytes32 hash) external view returns (Schemas.LocationInfo memory);
 }
 
-interface ICarAvailabilityCurrencyConverter {
+interface ICarQueryFacet1CurrencyConverter {
     function getCurrencyInfo(address currency) external view returns (Schemas.UserCurrencyDTO memory);
     function getDefaultCurrency() external view returns (Schemas.UserCurrencyDTO memory);
 }
 
-interface ICarAvailabilityEngineService {
+interface ICarQueryFacet1EngineService {
     function getFuelPriceFromEngineParams(uint8 eType, uint64[] memory engineParams) external view returns (uint64);
 }
 
-library CarAvailabilityLib {
-    struct AvailabilityDependencies {
-        address carQuery;
-        address tripQuery;
-        address userProfileQuery;
-        address pricingService;
-        address insuranceService;
-        address dimoService;
-        address geoService;
-        address currencyConverter;
-        address carTaxAdapter;
+contract CarQueryFacet1 {
+    ICarQueryFacet1Main public immutable carMain;
+    ICarQueryFacet1CarQuery public immutable carQuery;
+
+    constructor(address carMainAddress, address carQueryAddress) {
+        carMain = ICarQueryFacet1Main(carMainAddress);
+        carQuery = ICarQueryFacet1CarQuery(carQueryAddress);
     }
 
     function buildAvailableCarDTO(
-        AvailabilityDependencies memory deps,
+        CarAvailabilityContext memory context,
         uint256 carId,
         uint64 startDateTime,
         uint64 endDateTime,
@@ -85,9 +86,9 @@ library CarAvailabilityLib {
         Schemas.LocationInfo memory returnInfo,
         address user
     ) external view returns (Schemas.AvailableCarDTO memory) {
-        CarInfo memory car = ICarAvailabilityCarQuery(deps.carQuery).getCar(carId);
+        CarInfo memory car = carQuery.getCar(carId);
         return _buildAvailableCarDTO(
-            deps,
+            context,
             car,
             startDateTime,
             endDateTime,
@@ -99,7 +100,7 @@ library CarAvailabilityLib {
     }
 
     function searchAvailableCarsWithDelivery(
-        AvailabilityDependencies memory deps,
+        CarAvailabilityContext memory context,
         address user,
         uint64 startDateTime,
         uint64 endDateTime,
@@ -109,17 +110,19 @@ library CarAvailabilityLib {
         uint256 from,
         uint256 to
     ) external view returns (Schemas.SearchCarsWithDistanceDTO memory result) {
-        ICarAvailabilityCarQuery carQuery = ICarAvailabilityCarQuery(deps.carQuery);
         CarInfo[] memory candidates = carQuery.fetchAvailableCarsForUser(user, searchParams, from, to);
-        uint256 totalSupply = carQuery.totalSupply();
+        uint256 totalCarsSupply = carMain.totalSupply();
         if (candidates.length == 0) {
-            return Schemas.SearchCarsWithDistanceDTO({cars: new Schemas.SearchCarWithDistance[](0), totalCarsSupply: totalSupply});
+            return Schemas.SearchCarsWithDistanceDTO({
+                cars: new Schemas.SearchCarWithDistance[](0),
+                totalCarsSupply: totalCarsSupply
+            });
         }
 
         uint256[] memory temp = new uint256[](candidates.length);
         uint256 count;
         for (uint256 i = 0; i < candidates.length; i++) {
-            if (!_hasIntersectTrips(deps.tripQuery, candidates[i], startDateTime, endDateTime)) {
+            if (!_hasIntersectTrips(context, candidates[i], startDateTime, endDateTime)) {
                 temp[count++] = i;
             }
         }
@@ -128,7 +131,7 @@ library CarAvailabilityLib {
         for (uint256 i = 0; i < count; i++) {
             CarInfo memory car = candidates[temp[i]];
             Schemas.AvailableCarDTO memory availableCar = _buildAvailableCarDTO(
-                deps,
+                context,
                 car,
                 startDateTime,
                 endDateTime,
@@ -142,12 +145,12 @@ library CarAvailabilityLib {
 
         return Schemas.SearchCarsWithDistanceDTO({
             cars: _sortCarsByDistance(cars, searchParams.userLocation),
-            totalCarsSupply: totalSupply
+            totalCarsSupply: totalCarsSupply
         });
     }
 
     function _buildAvailableCarDTO(
-        AvailabilityDependencies memory deps,
+        CarAvailabilityContext memory context,
         CarInfo memory car,
         uint64 startDateTime,
         uint64 endDateTime,
@@ -155,18 +158,17 @@ library CarAvailabilityLib {
         Schemas.LocationInfo memory pickUpInfo,
         Schemas.LocationInfo memory returnInfo,
         address user
-    ) private view returns (Schemas.AvailableCarDTO memory) {
-        ICarAvailabilityUserProfileQuery userProfileQuery = ICarAvailabilityUserProfileQuery(deps.userProfileQuery);
-        ICarAvailabilityPricingService pricingService = ICarAvailabilityPricingService(deps.pricingService);
-        ICarAvailabilityInsuranceService insuranceService = ICarAvailabilityInsuranceService(deps.insuranceService);
-        ICarAvailabilityGeoService geoService = ICarAvailabilityGeoService(deps.geoService);
-        ICarAvailabilityCarQuery carQuery = ICarAvailabilityCarQuery(deps.carQuery);
+    ) internal view returns (Schemas.AvailableCarDTO memory) {
+        ICarQueryFacet1UserProfileQuery userProfileQuery = ICarQueryFacet1UserProfileQuery(context.userProfileQuery);
+        ICarQueryFacet1PricingService pricingService = ICarQueryFacet1PricingService(context.pricingService);
+        ICarQueryFacet1InsuranceService insuranceService = ICarQueryFacet1InsuranceService(context.insuranceService);
+        ICarQueryFacet1GeoService geoService = ICarQueryFacet1GeoService(context.geoService);
 
         address host = car.asset.owner;
         uint64 totalTripDays = uint64(Math.ceilDiv(endDateTime - startDateTime, 1 days));
         totalTripDays = totalTripDays == 0 ? 1 : totalTripDays;
 
-        DeliveryPrices memory deliveryPrices = carQuery.getUserDeliveryPrices(host);
+        DeliveryPrices memory deliveryPrices = carMain.getUserDeliveryPrices(host);
         Schemas.LocationInfo memory location = geoService.getLocationInfo(car.car.locationHash);
         int128 distance = CarLib.calculateDistance(
             location.latitude,
@@ -193,7 +195,7 @@ library CarAvailabilityLib {
             car.car.pricePerDayInUsdCents
         );
 
-        uint256 taxId = pricingService.defineTaxesType(deps.carTaxAdapter, car.asset.id);
+        uint256 taxId = pricingService.defineTaxesType(context.carTaxAdapter, car.asset.id);
         uint64 totalTax = 0;
         Schemas.TaxValue[] memory taxes = new Schemas.TaxValue[](0);
         if (taxId != 0) {
@@ -209,15 +211,15 @@ library CarAvailabilityLib {
         UserProfileKYCInfo memory hostKyc = userProfileQuery.getKYCInfo(host);
         InsuranceRequirement memory insuranceRequirement = insuranceService.getInsuranceRequirement(car.asset.id);
         RentalBaseDiscount memory discount = pricingService.getBaseDiscount(host);
-        uint256 dimoTokenId = ICarAvailabilityDimoService(deps.dimoService).getDimoTokenId(car.asset.id);
+        uint256 dimoTokenId = ICarQueryFacet1DimoService(context.dimoService).getDimoTokenId(car.asset.id);
         (address selectedCurrency, bool hasSelectedCurrency) = userProfileQuery.getUserCurrency(host);
         Schemas.UserCurrencyDTO memory hostCurrency = hasSelectedCurrency
-            ? ICarAvailabilityCurrencyConverter(deps.currencyConverter).getCurrencyInfo(selectedCurrency)
-            : ICarAvailabilityCurrencyConverter(deps.currencyConverter).getDefaultCurrency();
+            ? ICarQueryFacet1CurrencyConverter(context.currencyConverter).getCurrencyInfo(selectedCurrency)
+            : ICarQueryFacet1CurrencyConverter(context.currencyConverter).getDefaultCurrency();
         if (hasSelectedCurrency) {
             hostCurrency.initialized = true;
         }
-        uint64 fuelPrice = ICarAvailabilityEngineService(carQuery.getEngineValidatorAddress())
+        uint64 fuelPrice = ICarQueryFacet1EngineService(carMain.getEngineValidatorAddress())
             .getFuelPriceFromEngineParams(car.car.engineType, car.car.engineParams);
 
         return Schemas.AvailableCarDTO({
@@ -263,21 +265,21 @@ library CarAvailabilityLib {
     }
 
     function _hasIntersectTrips(
-        address tripQueryAddress,
+        CarAvailabilityContext memory context,
         CarInfo memory car,
         uint64 startDateTime,
         uint64 endDateTime
-    ) private view returns (bool) {
-        ICarAvailabilityTripQuery tripQuery = ICarAvailabilityTripQuery(tripQueryAddress);
+    ) internal view returns (bool) {
+        ICarQueryFacet1TripQuery tripQuery = ICarQueryFacet1TripQuery(context.tripQuery);
         uint256[] memory carTrips = tripQuery.getActiveTrips(car.asset.id);
         uint32 timeBuffer = car.car.timeBufferBetweenTripsInSec;
 
         for (uint256 i = 0; i < carTrips.length; i++) {
             Trip memory trip = tripQuery.getTrip(carTrips[i]);
             if (
-                trip.booking.resourceId == car.asset.id &&
-                trip.booking.endDateTime + timeBuffer > startDateTime &&
-                trip.booking.startDateTime < endDateTime
+                trip.booking.resourceId == car.asset.id
+                    && trip.booking.endDateTime + timeBuffer > startDateTime
+                    && trip.booking.startDateTime < endDateTime
             ) {
                 return true;
             }
@@ -289,7 +291,7 @@ library CarAvailabilityLib {
     function _sortCarsByDistance(
         Schemas.SearchCar[] memory cars,
         LocationInfo memory pickUpLocation
-    ) private pure returns (Schemas.SearchCarWithDistance[] memory result) {
+    ) internal pure returns (Schemas.SearchCarWithDistance[] memory result) {
         result = new Schemas.SearchCarWithDistance[](cars.length);
         int128[] memory distances = new int128[](cars.length);
 
@@ -316,7 +318,7 @@ library CarAvailabilityLib {
     }
 
     function _toSearchCar(Schemas.AvailableCarDTO memory car, uint64[] memory engineParams)
-        private
+        internal
         pure
         returns (Schemas.SearchCar memory)
     {
@@ -354,7 +356,7 @@ library CarAvailabilityLib {
         });
     }
 
-    function _toCommonLocationInfo(Schemas.LocationInfo memory location) private pure returns (LocationInfo memory) {
+    function _toCommonLocationInfo(Schemas.LocationInfo memory location) internal pure returns (LocationInfo memory) {
         return LocationInfo({
             userAddress: location.userAddress,
             country: location.country,
@@ -366,7 +368,7 @@ library CarAvailabilityLib {
         });
     }
 
-    function _toLegacyTaxes(RentalTaxValue[] memory taxes) private pure returns (Schemas.TaxValue[] memory) {
+    function _toLegacyTaxes(RentalTaxValue[] memory taxes) internal pure returns (Schemas.TaxValue[] memory) {
         Schemas.TaxValue[] memory result = new Schemas.TaxValue[](taxes.length);
 
         for (uint256 i = 0; i < taxes.length; i++) {
@@ -380,9 +382,4 @@ library CarAvailabilityLib {
         return result;
     }
 }
-
-
-
-
-
 

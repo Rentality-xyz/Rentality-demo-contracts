@@ -6,7 +6,7 @@ import '../../models/car/CarTypes.sol';
 import '../../models/investment/RentalInvestmentTypes.sol';
 import '../../rentality_old/Schemas.sol';
 
-library InvestmentGatewayFacetLib {
+library InvestmentMapper {
     function toModelInvestment(Schemas.CarInvestment memory legacyInvestment)
         internal
         pure
@@ -150,4 +150,6 @@ library InvestmentGatewayFacetLib {
         });
     }
 }
+
+
 

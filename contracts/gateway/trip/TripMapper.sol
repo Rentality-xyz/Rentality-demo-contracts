@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 import "../../models/trip/TripTypes.sol";
 import "../../rentality_old/Schemas.sol";
 
-library TripGatewayFacetLib {
+library TripMapper {
     function toLegacyTripDTO(TripDTO memory tripDto) external pure returns (Schemas.TripDTO memory) {
         return Schemas.TripDTO({
             trip: toLegacyTrip(tripDto.trip),
@@ -166,3 +166,5 @@ library TripGatewayFacetLib {
         });
     }
 }
+
+

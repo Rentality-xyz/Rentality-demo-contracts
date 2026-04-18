@@ -75,6 +75,17 @@ struct CarSearchParams {
     LocationInfo userLocation;
 }
 
+struct CarAvailabilityContext {
+    address tripQuery;
+    address userProfileQuery;
+    address pricingService;
+    address insuranceService;
+    address dimoService;
+    address geoService;
+    address currencyConverter;
+    address carTaxAdapter;
+}
+
 struct CreateCarRequest {
     CreateAssetRequest asset;
     string carVinNumber;
@@ -103,3 +114,4 @@ struct UpdateCarRequest {
     LocationInfo location;
     bool updateLocation;
 }
+

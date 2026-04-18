@@ -88,6 +88,9 @@ contract CarQuery {
     }
 
     function getListingMoment(uint256 id) external view returns (uint256) {
+        if (!carMain.exists(id)) {
+            return 0;
+        }
         return carMain.getListingMoment(id);
     }
 

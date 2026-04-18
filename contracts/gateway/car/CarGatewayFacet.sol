@@ -11,7 +11,7 @@ import '../../rentality_old/Schemas.sol';
 import '../../rentality_old/abstract/ARentalityContext.sol';
 
 import './ICarGatewayFacet.sol';
-import './CarGatewayFacetLib.sol';
+import './CarMapper.sol';
 
 interface ICarGatewayUserProfileMain {
   function isRentalityPlatform(address user) external view returns (bool);
@@ -104,7 +104,7 @@ contract CarGatewayFacet is UUPSOwnable, ARentalityContext, ICarGatewayFacet {
     referralProgram.passReferralProgram(ReferralProgram.AddCar, abi.encode(request.currentlyListed), sender, promoService);
     require(pricingService.taxExist(request.locationInfo.locationInfo) != 0, 'Tax not exist.');
 
-    newTokenId = carMain.createCar(CarGatewayFacetLib.toCreateCarRequest(request), sender);
+    newTokenId = carMain.createCar(CarMapper.toCreateCarRequest(request), sender);
     dimoService.saveDimoTokenId(request.dimoTokenId, newTokenId, sender, request.signedDimoTokenId);
     insuranceService.saveInsuranceRequired(newTokenId, request.insurancePriceInUsdCents, request.insuranceRequired, sender);
   }
@@ -118,7 +118,7 @@ contract CarGatewayFacet is UUPSOwnable, ARentalityContext, ICarGatewayFacet {
     address sender = _msgGatewaySender();
     bool updateLocation = location.signature.length > 0;
     if (updateLocation) {
-      carQuery.verifySignedLocationInfo(CarGatewayFacetLib.toCommonSignedLocationInfo(location));
+      carQuery.verifySignedLocationInfo(CarMapper.toCommonSignedLocationInfo(location));
     }
 
     bool wasListed = carQuery.getCar(request.carId).car.currentlyListed;
@@ -133,7 +133,7 @@ contract CarGatewayFacet is UUPSOwnable, ARentalityContext, ICarGatewayFacet {
     string memory currentMetadataURI = carQuery.getCar(request.carId).asset.metadataURI;
     carMain.updateCar(
       request.carId,
-      CarGatewayFacetLib.toUpdateCarRequest(request, currentMetadataURI, location.locationInfo, updateLocation),
+      CarMapper.toUpdateCarRequest(request, currentMetadataURI, location.locationInfo, updateLocation),
       sender
     );
   }
@@ -191,3 +191,4 @@ contract CarGatewayFacet is UUPSOwnable, ARentalityContext, ICarGatewayFacet {
     dimoService = ICarGatewayDimoService(dimoServiceAddress);
   }
 }
+

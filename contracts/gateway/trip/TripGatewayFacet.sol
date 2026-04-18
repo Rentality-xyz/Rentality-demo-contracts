@@ -4,6 +4,7 @@ pragma solidity ^0.8.20;
 import "../../infrastructure/upgradeable/UUPSOwnable.sol";
 import "../../models/base/referral/ReferralTypes.sol";
 import "../../models/trip/TripMain.sol";
+import "../../models/trip/TripLib.sol";
 import "../../models/trip/TripTypes.sol";
 import "../../models/trip/TripQuery.sol";
 import "../../models/car/CarTypes.sol";
@@ -12,8 +13,7 @@ import "../../models/profile/UserProfileTypes.sol";
 import "../../models/insurance/RentalInsuranceTypes.sol";
 import "../../rentality_old/Schemas.sol";
 import "../../rentality_old/abstract/ARentalityContext.sol";
-import "./TripGatewayFacetLib.sol";
-import "./TripGatewayWriteLib.sol";
+import "./TripMapper.sol";
 
 interface ITripGatewayFacetUserProfileMain {
     function isRentalityPlatform(address user) external view returns (bool);
@@ -194,14 +194,14 @@ contract TripGatewayFacet is UUPSOwnable, ARentalityContext {
     }
 
     function getTrip(uint256 tripId) external view returns (Schemas.TripDTO memory) {
-        return TripGatewayFacetLib.toLegacyTripDTO(tripQuery.getTripDTO(tripId, _msgGatewaySender()));
+        return TripMapper.toLegacyTripDTO(tripQuery.getTripDTO(tripId, _msgGatewaySender()));
     }
 
     function getTripsAs(bool host) external view returns (Schemas.TripDTO[] memory result) {
         TripDTO[] memory trips = tripQuery.getTripsAs(_msgGatewaySender(), host);
         result = new Schemas.TripDTO[](trips.length);
         for (uint256 i = 0; i < trips.length; i++) {
-            result[i] = TripGatewayFacetLib.toLegacyTripDTO(trips[i]);
+            result[i] = TripMapper.toLegacyTripDTO(trips[i]);
         }
     }
 
@@ -213,7 +213,7 @@ contract TripGatewayFacet is UUPSOwnable, ARentalityContext {
         Schemas.CreateTripRequestWithDelivery memory request,
         string memory promo
     ) external payable {
-        TripGatewayWriteLib.createTripRequestWithDelivery(
+        TripLib.createTripRequestWithDelivery(
             tripMain,
             address(userProfileMain),
             address(carQuery),
@@ -255,7 +255,7 @@ contract TripGatewayFacet is UUPSOwnable, ARentalityContext {
         );
     }
     function approveTripRequest(uint256 tripId) external {
-        TripGatewayWriteLib.approveTripRequest(
+        TripLib.approveTripRequest(
             tripMain,
             address(carQuery),
             address(pricingService),
@@ -270,7 +270,7 @@ contract TripGatewayFacet is UUPSOwnable, ARentalityContext {
     }
 
     function rejectTripRequest(uint256 tripId) external {
-        TripGatewayWriteLib.rejectTripRequest(
+        TripLib.rejectTripRequest(
             tripMain,
             address(pricingService),
             address(paymentService),
@@ -284,7 +284,7 @@ contract TripGatewayFacet is UUPSOwnable, ARentalityContext {
     }
 
     function confirmCheckOut(uint256 tripId) external {
-        TripGatewayWriteLib.confirmCheckOut(
+        TripLib.confirmCheckOut(
             tripMain,
             address(userProfileMain),
             address(pricingService),
@@ -299,7 +299,7 @@ contract TripGatewayFacet is UUPSOwnable, ARentalityContext {
     }
 
     function finishTrip(uint256 tripId) external {
-        TripGatewayWriteLib.finishTrip(
+        TripLib.finishTrip(
             tripMain,
             address(pricingService),
             address(paymentService),
@@ -411,6 +411,10 @@ contract TripGatewayFacet is UUPSOwnable, ARentalityContext {
 
 
 }
+
+
+
+
 
 
 

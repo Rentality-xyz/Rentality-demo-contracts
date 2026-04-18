@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 import '../../models/profile/UserProfileTypes.sol';
 import '../../rentality_old/Schemas.sol';
 
-library ProfileGatewayFacetLib {
+library ProfileMapper {
     function toLegacyKyc(UserProfileKYCInfo memory profile)
         internal
         pure
@@ -85,3 +85,5 @@ library ProfileGatewayFacetLib {
         });
     }
 }
+
+

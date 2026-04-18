@@ -8,7 +8,7 @@ import '../../models/profile/UserProfileQuery.sol';
 import '../../models/profile/UserProfileTypes.sol';
 import '../../rentality_old/Schemas.sol';
 import '../../rentality_old/abstract/ARentalityContext.sol';
-import './ProfileGatewayFacetLib.sol';
+import './ProfileMapper.sol';
 
 interface IProfileGatewayFacetReferralProgram {
     function generateReferralHash(address user) external;
@@ -97,7 +97,7 @@ contract ProfileGatewayFacet is UUPSOwnable, ARentalityContext {
     }
 
     function getMyFullKYCInfo() external view returns (Schemas.FullKYCInfoDTO memory) {
-        return ProfileGatewayFacetLib.toLegacyFull(userProfileQuery.getMyFullKYCInfo(_msgGatewaySender()));
+        return ProfileMapper.toLegacyFull(userProfileQuery.getMyFullKYCInfo(_msgGatewaySender()));
     }
 
     function getPlatformUsersKYCInfos(uint256 page, uint256 itemsPerPage)
@@ -105,11 +105,11 @@ contract ProfileGatewayFacet is UUPSOwnable, ARentalityContext {
         view
         returns (Schemas.AdminKYCInfosDTO memory)
     {
-        return ProfileGatewayFacetLib.toLegacyAdminPage(userProfileQuery.getPlatformUsersKYCInfos(page, itemsPerPage));
+        return ProfileMapper.toLegacyAdminPage(userProfileQuery.getPlatformUsersKYCInfos(page, itemsPerPage));
     }
 
     function getUserFullKYCInfo(address user) external view returns (Schemas.FullKYCInfoDTO memory) {
-        return ProfileGatewayFacetLib.toLegacyFull(userProfileQuery.getMyFullKYCInfo(user));
+        return ProfileMapper.toLegacyFull(userProfileQuery.getMyFullKYCInfo(user));
     }
 
     function getKycCommission() external view returns (uint256) {
@@ -181,7 +181,7 @@ contract ProfileGatewayFacet is UUPSOwnable, ARentalityContext {
 
     function setCivicKYCInfo(address user, Schemas.CivicKYCInfo memory civicKycInfo) external {
         referralProgram.passReferralProgram(ReferralProgram.PassCivic, bytes(''), user, address(promoService));
-        userProfileMain.setCivicKYCInfo(user, ProfileGatewayFacetLib.toUserCivicInfo(civicKycInfo));
+        userProfileMain.setCivicKYCInfo(user, ProfileMapper.toUserCivicInfo(civicKycInfo));
     }
 
     function setPushToken(address user, string memory pushToken) external {
@@ -214,6 +214,7 @@ contract ProfileGatewayFacet is UUPSOwnable, ARentalityContext {
         currencyConverter = IProfileGatewayFacetCurrencyConverter(currencyConverterAddress);
     }
 }
+
 
 
 

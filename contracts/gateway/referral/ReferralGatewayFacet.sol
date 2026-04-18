@@ -7,7 +7,7 @@ import '../../models/referral/RentalReferralQuery.sol';
 import '../../rentality_old/Schemas.sol';
 import '../../rentality_old/abstract/ARentalityContext.sol';
 import './IReferralGatewayFacet.sol';
-import './ReferralGatewayFacetLib.sol';
+import './ReferralMapper.sol';
 
 interface IReferralGatewayFacetAccess {
     function isRentalityPlatform(address user) external view returns (bool);
@@ -56,7 +56,7 @@ contract ReferralGatewayFacet is UUPSOwnable, ARentalityContext, IReferralGatewa
     }
 
     function getReadyToClaim(address user) external view returns (Schemas.ReadyToClaimDTO memory readyToClaimDTO) {
-        return ReferralGatewayFacetLib.toLegacyReadyToClaimDTO(rentalReferralQuery.getReadyToClaim(user));
+        return ReferralMapper.toLegacyReadyToClaimDTO(rentalReferralQuery.getReadyToClaim(user));
     }
 
     function getReadyToClaimFromRefferalHash(address user)
@@ -64,7 +64,7 @@ contract ReferralGatewayFacet is UUPSOwnable, ARentalityContext, IReferralGatewa
         view
         returns (Schemas.RefferalHashDTO memory refferalHashDTO)
     {
-        return ReferralGatewayFacetLib.toLegacyReferralHashDTO(rentalReferralQuery.getReadyToClaimFromHash(user));
+        return ReferralMapper.toLegacyReferralHashDTO(rentalReferralQuery.getReadyToClaimFromHash(user));
     }
 
     function getRefferalPointsInfo()
@@ -72,15 +72,15 @@ contract ReferralGatewayFacet is UUPSOwnable, ARentalityContext, IReferralGatewa
         view
         returns (Schemas.AllRefferalInfoDTO memory allRefferalInfoDTO)
     {
-        return ReferralGatewayFacetLib.toLegacyAllReferralInfoDTO(rentalReferralQuery.getReferralPointsInfo());
+        return ReferralMapper.toLegacyAllReferralInfoDTO(rentalReferralQuery.getReferralPointsInfo());
     }
 
     function getPointsHistory() external view returns (Schemas.RefferalHistory[] memory) {
-        return ReferralGatewayFacetLib.toLegacyHistory(rentalReferralQuery.getPointsHistory(_msgGatewaySender()));
+        return ReferralMapper.toLegacyHistory(rentalReferralQuery.getPointsHistory(_msgGatewaySender()));
     }
 
     function getMyRefferalInfo() external view returns (Schemas.MyRefferalInfoDTO memory myRefferalInfoDTO) {
-        return ReferralGatewayFacetLib.toLegacyMyReferralInfo(
+        return ReferralMapper.toLegacyMyReferralInfo(
             rentalReferralQuery.getMyReferralInfo(_msgGatewaySender())
         );
     }
@@ -111,3 +111,4 @@ contract ReferralGatewayFacet is UUPSOwnable, ARentalityContext, IReferralGatewa
         userAccess = IReferralGatewayFacetAccess(userAccessAddress);
     }
 }
+

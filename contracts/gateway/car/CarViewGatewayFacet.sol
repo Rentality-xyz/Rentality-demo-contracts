@@ -3,9 +3,9 @@ pragma solidity ^0.8.20;
 
 import '../../infrastructure/upgradeable/UUPSOwnable.sol';
 import '../../models/base/insurance/InsuranceTypes.sol';
-import '../../models/car/CarAvailabilityLib.sol';
 import '../../models/car/CarMain.sol';
 import '../../models/car/CarQuery.sol';
+import '../../models/car/CarQueryFacet1.sol';
 import '../../models/car/CarTypes.sol';
 import '../../models/pricing/RentalPricingTypes.sol';
 import '../../models/profile/UserProfileTypes.sol';
@@ -14,7 +14,7 @@ import '../../rentality_old/Schemas.sol';
 import '../../rentality_old/abstract/ARentalityContext.sol';
 
 import './ICarViewGatewayFacet.sol';
-import './CarGatewayFacetLib.sol';
+import './CarMapper.sol';
 
 interface ICarViewGatewayUserProfileMain {
   function isRentalityPlatform(address user) external view returns (bool);
@@ -60,6 +60,7 @@ interface ICarViewGatewayCurrencyConverter {
 contract CarViewGatewayFacet is UUPSOwnable, ARentalityContext, ICarViewGatewayFacet {
   CarMain public carMain;
   CarQuery public carQuery;
+  CarQueryFacet1 public carQueryFacet1;
   ICarViewGatewayTripQuery public tripQuery;
   ICarViewGatewayUserProfileMain public userProfileMain;
   ICarViewGatewayUserProfileQuery public userProfileQuery;
@@ -73,6 +74,7 @@ contract CarViewGatewayFacet is UUPSOwnable, ARentalityContext, ICarViewGatewayF
   function initialize(
     address carMainAddress,
     address carQueryAddress,
+    address carQueryFacet1Address,
     address tripQueryAddress,
     address userProfileMainAddress,
     address userProfileQueryAddress,
@@ -87,6 +89,7 @@ contract CarViewGatewayFacet is UUPSOwnable, ARentalityContext, ICarViewGatewayF
     _setServiceAddresses(
       carMainAddress,
       carQueryAddress,
+      carQueryFacet1Address,
       tripQueryAddress,
       userProfileMainAddress,
       userProfileQueryAddress,
@@ -102,6 +105,7 @@ contract CarViewGatewayFacet is UUPSOwnable, ARentalityContext, ICarViewGatewayF
   function updateServiceAddresses(
     address carMainAddress,
     address carQueryAddress,
+    address carQueryFacet1Address,
     address tripQueryAddress,
     address userProfileMainAddress,
     address userProfileQueryAddress,
@@ -115,6 +119,7 @@ contract CarViewGatewayFacet is UUPSOwnable, ARentalityContext, ICarViewGatewayF
     _setServiceAddresses(
       carMainAddress,
       carQueryAddress,
+      carQueryFacet1Address,
       tripQueryAddress,
       userProfileMainAddress,
       userProfileQueryAddress,
@@ -132,7 +137,7 @@ contract CarViewGatewayFacet is UUPSOwnable, ARentalityContext, ICarViewGatewayF
     Schemas.CarInfo[] memory result = new Schemas.CarInfo[](cars.length);
 
     for (uint256 i = 0; i < cars.length; i++) {
-      result[i] = CarGatewayFacetLib.toLegacyCarInfo(cars[i].asset, cars[i].car);
+      result[i] = CarMapper.toLegacyCarInfo(cars[i].asset, cars[i].car);
     }
 
     return result;
@@ -145,9 +150,8 @@ contract CarViewGatewayFacet is UUPSOwnable, ARentalityContext, ICarViewGatewayF
     Schemas.LocationInfo memory pickUpInfo,
     Schemas.LocationInfo memory returnInfo
   ) external view returns (Schemas.AvailableCarDTO memory) {
-    return CarAvailabilityLib.buildAvailableCarDTO(
-      CarAvailabilityLib.AvailabilityDependencies({
-        carQuery: address(carQuery),
+    return carQueryFacet1.buildAvailableCarDTO(
+      CarAvailabilityContext({
         tripQuery: address(tripQuery),
         userProfileQuery: address(userProfileQuery),
         pricingService: address(pricingService),
@@ -176,9 +180,8 @@ contract CarViewGatewayFacet is UUPSOwnable, ARentalityContext, ICarViewGatewayF
     uint from,
     uint to
   ) external view returns (Schemas.SearchCarsWithDistanceDTO memory) {
-    return CarAvailabilityLib.searchAvailableCarsWithDelivery(
-      CarAvailabilityLib.AvailabilityDependencies({
-        carQuery: address(carQuery),
+    return carQueryFacet1.searchAvailableCarsWithDelivery(
+      CarAvailabilityContext({
         tripQuery: address(tripQuery),
         userProfileQuery: address(userProfileQuery),
         pricingService: address(pricingService),
@@ -191,7 +194,7 @@ contract CarViewGatewayFacet is UUPSOwnable, ARentalityContext, ICarViewGatewayF
       _msgGatewaySender(),
       startDateTime,
       endDateTime,
-      CarGatewayFacetLib.toCommonSearchCarParams(searchParams),
+      CarMapper.toCommonSearchCarParams(searchParams),
       pickUpInfo,
       returnInfo,
       from,
@@ -206,7 +209,7 @@ contract CarViewGatewayFacet is UUPSOwnable, ARentalityContext, ICarViewGatewayF
 
     for (uint256 i = 0; i < cars.length; i++) {
       result[i] = Schemas.CarInfoDTO({
-        carInfo: CarGatewayFacetLib.toLegacyCarInfo(cars[i].asset, cars[i].car),
+        carInfo: CarMapper.toLegacyCarInfo(cars[i].asset, cars[i].car),
         metadataURI: carMain.tokenURI(cars[i].asset.id),
         isEditable: _isCarEditable(cars[i].asset.id),
         dimoTokenId: dimoService.getDimoTokenId(cars[i].asset.id)
@@ -227,7 +230,7 @@ contract CarViewGatewayFacet is UUPSOwnable, ARentalityContext, ICarViewGatewayF
     InsuranceRequirement memory requirement = insuranceService.getInsuranceRequirement(carId);
 
     return Schemas.CarInfoWithInsurance({
-      carInfo: CarGatewayFacetLib.toLegacyCarInfo(car.asset, car.car),
+      carInfo: CarMapper.toLegacyCarInfo(car.asset, car.car),
       insuranceInfo: Schemas.InsuranceCarInfo({required: requirement.required, priceInUsdCents: requirement.priceInUsdCents}),
       carMetadataURI: carMain.tokenURI(carId)
     });
@@ -264,7 +267,7 @@ contract CarViewGatewayFacet is UUPSOwnable, ARentalityContext, ICarViewGatewayF
     Schemas.PublicHostCarDTO[] memory result = new Schemas.PublicHostCarDTO[](cars.length);
 
     for (uint256 i = 0; i < cars.length; i++) {
-      result[i] = CarGatewayFacetLib.toLegacyPublicHostCarDTO(cars[i]);
+      result[i] = CarMapper.toLegacyPublicHostCarDTO(cars[i]);
     }
 
     return result;
@@ -325,6 +328,7 @@ contract CarViewGatewayFacet is UUPSOwnable, ARentalityContext, ICarViewGatewayF
   function _setServiceAddresses(
     address carMainAddress,
     address carQueryAddress,
+    address carQueryFacet1Address,
     address tripQueryAddress,
     address userProfileMainAddress,
     address userProfileQueryAddress,
@@ -337,6 +341,7 @@ contract CarViewGatewayFacet is UUPSOwnable, ARentalityContext, ICarViewGatewayF
   ) internal {
     carMain = CarMain(carMainAddress);
     carQuery = CarQuery(carQueryAddress);
+    carQueryFacet1 = CarQueryFacet1(carQueryFacet1Address);
     tripQuery = ICarViewGatewayTripQuery(tripQueryAddress);
     userProfileMain = ICarViewGatewayUserProfileMain(userProfileMainAddress);
     userProfileQuery = ICarViewGatewayUserProfileQuery(userProfileQueryAddress);
@@ -348,3 +353,14 @@ contract CarViewGatewayFacet is UUPSOwnable, ARentalityContext, ICarViewGatewayF
     geoService = ICarViewGatewayGeoService(geoServiceAddress);
   }
 }
+
+
+
+
+
+
+
+
+
+
+

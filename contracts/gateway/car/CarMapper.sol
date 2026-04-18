@@ -5,7 +5,7 @@ import '../../models/common/CommonTypes.sol';
 import '../../models/car/CarTypes.sol';
 import '../../rentality_old/Schemas.sol';
 
-library CarGatewayFacetLib {
+library CarMapper {
   function toLegacyCarInfo(Asset memory asset, CarData memory car) internal pure returns (Schemas.CarInfo memory) {
     return Schemas.CarInfo({
       carId: asset.id,
@@ -123,3 +123,5 @@ library CarGatewayFacetLib {
     });
   }
 }
+
+

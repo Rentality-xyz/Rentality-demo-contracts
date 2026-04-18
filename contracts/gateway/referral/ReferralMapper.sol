@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 import '../../models/base/referral/ReferralTypes.sol';
 import '../../rentality_old/Schemas.sol';
 
-library ReferralGatewayFacetLib {
+library ReferralMapper {
     function toLegacyReadyToClaimDTO(ReadyToClaimDTO memory dto)
         internal
         pure
@@ -141,3 +141,5 @@ library ReferralGatewayFacetLib {
         return Schemas.RefferalAccrualType(uint8(accrualType));
     }
 }
+
+
