@@ -21,6 +21,8 @@ contract UserProfileMain is ProfileBase, AccessControlUpgradeable, UUPSOwnable {
     mapping(address => UserProfileKYCInfo) internal kycInfos;
     mapping(address => UserProfileAdditionalInfo) internal additionalInfos;
     mapping(address => UserProfileCommissionRecord[]) internal userToKycCommission;
+    mapping(address => address) internal userCurrencies;
+    mapping(address => bool) internal userCurrenciesInitialized;
     address[] internal platformUsers;
     mapping(address => bool) internal userIsInPlatformList;
 
@@ -136,6 +138,12 @@ contract UserProfileMain is ProfileBase, AccessControlUpgradeable, UUPSOwnable {
         _setEmailVerified(user, isVerified);
     }
 
+    function setUserCurrency(address user, address currency) external onlyPlatform {
+        _touchPlatformUser(user);
+        userCurrencies[user] = currency;
+        userCurrenciesInitialized[user] = true;
+    }
+
     function grantAdminRole(address user) external onlyRole(DEFAULT_ADMIN_ROLE) {
         _grantRole(DEFAULT_ADMIN_ROLE, user);
         _grantRole(MANAGER_ROLE, user);
@@ -230,6 +238,10 @@ contract UserProfileMain is ProfileBase, AccessControlUpgradeable, UUPSOwnable {
 
     function getAdditionalProfile(address user) external view returns (UserProfileAdditionalInfo memory) {
         return additionalInfos[user];
+    }
+
+    function getUserCurrency(address user) external view returns (address currency, bool initialized) {
+        return (userCurrencies[user], userCurrenciesInitialized[user]);
     }
 
     function getPlatformUsersCount() external view returns (uint256) {
@@ -335,3 +347,7 @@ contract UserProfileMain is ProfileBase, AccessControlUpgradeable, UUPSOwnable {
         return keccak256(abi.encodePacked(left)) == keccak256(abi.encodePacked(right));
     }
 }
+
+
+
+

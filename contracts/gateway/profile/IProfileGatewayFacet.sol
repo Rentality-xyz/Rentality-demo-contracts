@@ -7,9 +7,11 @@ interface IProfileGatewayFacet {
   function getMyFullKYCInfo() external view returns (Schemas.FullKYCInfoDTO memory);
   function getPlatformUsersKYCInfos(uint256 page, uint256 itemsPerPage) external view returns (Schemas.AdminKYCInfosDTO memory);
   function getUserFullKYCInfo(address user) external view returns (Schemas.FullKYCInfoDTO memory);
+  function getUserCurrency(address user) external view returns (Schemas.UserCurrencyDTO memory);
   function getKycCommission() external view returns (uint256);
   function isKycCommissionPaid(address user) external view returns (bool);
   function payKycCommission(address currency) external payable;
+  function addUserCurrency(address currency) external;
   function setKYCInfo(
     string memory nickName,
     string memory mobilePhoneNumber,
@@ -24,3 +26,5 @@ interface IProfileGatewayFacet {
   function setPushToken(address user, string memory pushToken) external;
   function useKycCommission(address user) external;
 }
+
+

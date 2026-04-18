@@ -15,6 +15,7 @@ interface ITripGatewayWriteLibUserProfileMain {
     function isAdmin(address user) external view returns (bool);
     function getKYCProfile(address user) external view returns (UserProfileKYCInfo memory);
     function hasPassedKYCAndTC(address user) external view returns (bool);
+    function getUserCurrency(address user) external view returns (address currency, bool initialized);
 }
 
 interface ITripGatewayWriteLibCarQuery is ITripLibCarQuery {
@@ -42,7 +43,7 @@ interface ITripGatewayWriteLibPaymentService {
 }
 
 interface ITripGatewayWriteLibCurrencyConverter {
-    function getUserCurrency(address user) external view returns (Schemas.UserCurrencyDTO memory);
+    function getDefaultCurrency() external view returns (Schemas.UserCurrencyDTO memory);
     function calculateTripReject(
         Schemas.PaymentInfo memory paymentInfo,
         uint256 insurance,
@@ -107,7 +108,11 @@ library TripGatewayWriteLib {
         require(carQuery.exists(request.carId), "Car with this id does not exist.");
 
         address host = carQuery.getOwner(request.carId);
-        address currencyType = ITripGatewayWriteLibCurrencyConverter(currencyConverterAddress).getUserCurrency(host).currency;
+        (address hostCurrency, bool hasHostCurrency) = ITripGatewayWriteLibUserProfileMain(userProfileMainAddress)
+            .getUserCurrency(host);
+        address currencyType = hasHostCurrency
+            ? hostCurrency
+            : ITripGatewayWriteLibCurrencyConverter(currencyConverterAddress).getDefaultCurrency().currency;
 
         TripLib.validateTripRequest(
             userProfileMainAddress,
@@ -467,6 +472,9 @@ library TripGatewayWriteLib {
         );
     }
 }
+
+
+
 
 
 

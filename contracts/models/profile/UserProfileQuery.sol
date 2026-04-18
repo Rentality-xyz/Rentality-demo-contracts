@@ -85,4 +85,9 @@ contract UserProfileQuery {
     function isCommissionPaidForUser(address user) external view returns (bool) {
         return userProfileMain.isCommissionPaidForUser(user);
     }
+
+    function getUserCurrency(address user) external view returns (address currency, bool initialized) {
+        return userProfileMain.getUserCurrency(user);
+    }
 }
+

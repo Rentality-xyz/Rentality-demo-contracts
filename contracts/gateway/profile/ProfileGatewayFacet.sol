@@ -32,6 +32,9 @@ interface IProfileGatewayFacetPaymentService {
 }
 
 interface IProfileGatewayFacetCurrencyConverter {
+    function currencyTypeIsAvailable(address tokenAddress) external view returns (bool);
+    function getCurrencyInfo(address currency) external view returns (Schemas.UserCurrencyDTO memory);
+    function getDefaultCurrency() external view returns (Schemas.UserCurrencyDTO memory);
     function getFromUsdCentsLatest(address currencyType, uint256 amount)
         external
         view
@@ -122,6 +125,24 @@ contract ProfileGatewayFacet is UUPSOwnable, ARentalityContext {
         paymentService.payKycCommission{value: msg.value}(valueToPay, currency, _msgGatewaySender());
     }
 
+    function addUserCurrency(address currency) external {
+        require(currencyConverter.currencyTypeIsAvailable(currency), "Currency not available.");
+        address sender = _msgGatewaySender();
+        userProfileMain.setUserCurrency(sender, currency);
+        notificationService.emitEvent(Schemas.EventType.Currency, 0, uint8(Schemas.EventCreator.User), sender, sender);
+    }
+
+    function getUserCurrency(address user) external view returns (Schemas.UserCurrencyDTO memory result) {
+        (address currency, bool initialized) = userProfileQuery.getUserCurrency(user);
+        if (initialized) {
+            result = currencyConverter.getCurrencyInfo(currency);
+            result.initialized = true;
+            return result;
+        }
+
+        return currencyConverter.getDefaultCurrency();
+    }
+
     function setKYCInfo(
         string memory nickName,
         string memory mobilePhoneNumber,
@@ -193,5 +214,7 @@ contract ProfileGatewayFacet is UUPSOwnable, ARentalityContext {
         currencyConverter = IProfileGatewayFacetCurrencyConverter(currencyConverterAddress);
     }
 }
+
+
 
 

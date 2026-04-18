@@ -91,6 +91,13 @@ contract RentalityCurrencyConverter is OZInitializable, UUPSAccess {
     currencyInfo.name = name;
   }
 
+  function getDefaultCurrency() public view returns (Schemas.UserCurrencyDTO memory currencyInfo) {
+    Schemas.UserCurrency memory userCurrency = defaultCurrency;
+    currencyInfo.currency = userCurrency.currency;
+    currencyInfo.name = _getCurrencyName(userCurrency.currency);
+    currencyInfo.initialized = userCurrency.initialized;
+  }
+
   function _getCurrencyName(address currency) private view returns(string memory name) {
     for(uint i = 0; i < availableCurrencies.length; i++) {
       if(availableCurrencies[i].currency == currency)
@@ -286,5 +293,6 @@ contract RentalityCurrencyConverter is OZInitializable, UUPSAccess {
     availableCurrencies.push(Schemas.Currency(address(0), nativeCurrencyName));
   }
 }
+
 
 

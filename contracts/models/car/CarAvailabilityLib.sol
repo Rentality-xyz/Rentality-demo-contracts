@@ -27,6 +27,7 @@ interface ICarAvailabilityTripQuery {
 
 interface ICarAvailabilityUserProfileQuery {
     function getKYCInfo(address user) external view returns (UserProfileKYCInfo memory);
+    function getUserCurrency(address user) external view returns (address currency, bool initialized);
 }
 
 interface ICarAvailabilityPricingService {
@@ -53,7 +54,8 @@ interface ICarAvailabilityGeoService {
 }
 
 interface ICarAvailabilityCurrencyConverter {
-    function getUserCurrency(address user) external view returns (Schemas.UserCurrencyDTO memory);
+    function getCurrencyInfo(address currency) external view returns (Schemas.UserCurrencyDTO memory);
+    function getDefaultCurrency() external view returns (Schemas.UserCurrencyDTO memory);
 }
 
 interface ICarAvailabilityEngineService {
@@ -208,8 +210,13 @@ library CarAvailabilityLib {
         InsuranceRequirement memory insuranceRequirement = insuranceService.getInsuranceRequirement(car.asset.id);
         RentalBaseDiscount memory discount = pricingService.getBaseDiscount(host);
         uint256 dimoTokenId = ICarAvailabilityDimoService(deps.dimoService).getDimoTokenId(car.asset.id);
-        Schemas.UserCurrencyDTO memory hostCurrency = ICarAvailabilityCurrencyConverter(deps.currencyConverter)
-            .getUserCurrency(host);
+        (address selectedCurrency, bool hasSelectedCurrency) = userProfileQuery.getUserCurrency(host);
+        Schemas.UserCurrencyDTO memory hostCurrency = hasSelectedCurrency
+            ? ICarAvailabilityCurrencyConverter(deps.currencyConverter).getCurrencyInfo(selectedCurrency)
+            : ICarAvailabilityCurrencyConverter(deps.currencyConverter).getDefaultCurrency();
+        if (hasSelectedCurrency) {
+            hostCurrency.initialized = true;
+        }
         uint64 fuelPrice = ICarAvailabilityEngineService(carQuery.getEngineValidatorAddress())
             .getFuelPriceFromEngineParams(car.car.engineType, car.car.engineParams);
 
@@ -373,6 +380,9 @@ library CarAvailabilityLib {
         return result;
     }
 }
+
+
+
 
 
 

@@ -8,7 +8,6 @@ interface IRentalityPlatformHelperCoreFacet {
   function addUserDiscount(Schemas.BaseDiscount memory data) external;
   function addUserDeliveryPrices(uint64 underTwentyFiveMilesInUsdCents, uint64 aboveTwentyFiveMilesInUsdCents) external;
   function saveDimoTokenIds(uint[] memory dimoTokenIds, uint[] memory carIds) external;
-  function addUserCurrency(address currency) external;
   function saveTripInsuranceInfo(uint tripId, Schemas.SaveInsuranceRequest memory insuranceInfo) external;
   function updateCarInfoWithLocation(
     Schemas.UpdateCarInfoRequest memory request,
@@ -16,3 +15,5 @@ interface IRentalityPlatformHelperCoreFacet {
   ) external;
   function setHostInsurance(uint insuranceId) external;
 }
+
+

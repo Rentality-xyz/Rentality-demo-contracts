@@ -68,7 +68,7 @@ async function main() {
   const profileFacet = await ethers.getContractAt('IProfileGatewayFacet', profileGatewayFacetAddress)
   const platformFacet = await ethers.getContractAt('IRentalityPlatformFacet', rentalityPlatformAddress)
   const platformHelperFacet = await ethers.getContractAt('IRentalityPlatformHelperCoreFacet', rentalityPlatformHelper)
-  const tripsViewFacet = await ethers.getContractAt('IRentalityTripsViewFacet', rentalityTripsView)
+  const tripsViewFacet = await ethers.getContractAt('IRentalityTripsViewCoreFacet', rentalityTripsView)
   const tripFacet = await ethers.getContractAt('ITripGatewayFacet', tripGatewayFacetAddress)
   const carFacet = await ethers.getContractAt('ICarGatewayFacet', carGatewayFacetAddress)
   const carViewFacet = await ethers.getContractAt('ICarViewGatewayFacet', carViewGatewayFacetAddress)
@@ -105,3 +105,4 @@ main()
     console.error(error)
     process.exit(1)
   })
+
