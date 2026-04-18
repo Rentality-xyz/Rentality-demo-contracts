@@ -98,7 +98,6 @@ library TripGatewayWriteLib {
         address currencyConverterAddress,
         address insuranceServiceAddress,
         address promoServiceAddress,
-        address deliveryServiceAddress,
         Schemas.CreateTripRequestWithDelivery memory request,
         string memory promo,
         address sender
@@ -123,12 +122,7 @@ library TripGatewayWriteLib {
         );
 
         CarInfo memory carInfo = carQuery.getCar(request.carId);
-        (uint64 pickUp, uint64 dropOf) = TripLib.calculateDelivery(
-            deliveryServiceAddress,
-            carQuery,
-            request,
-            carInfo
-        );
+        (uint64 pickUp, uint64 dropOf) = TripLib.calculateDelivery(carQuery, request);
 
         IRentalityGeoService geoService = IRentalityGeoService(carQuery.getGeoVerifierAddress());
         bytes32 pickUpHash = geoService.createSignedLocationInfo(request.pickUpInfo);
@@ -473,6 +467,7 @@ library TripGatewayWriteLib {
         );
     }
 }
+
 
 
 

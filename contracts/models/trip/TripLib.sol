@@ -1,11 +1,9 @@
-// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
 import "./TripMain.sol";
 import "./TripTypes.sol";
 import "../car/CarTypes.sol";
 import "../../rentality_old/Schemas.sol";
-import "../../rentality_old/abstract/IRentalityGeoService.sol";
 
 interface ITripLibUserService {
     function hasPassedKYCAndTC(address user) external view returns (bool);
@@ -21,14 +19,15 @@ interface ITripLibPromoService {
     function getDiscountByPromo(string memory promoCode, address user) external view returns (uint);
 }
 
-interface ITripLibDeliveryService {
-    function calculatePricesByDeliveryDataInUsdCents(
-        Schemas.LocationInfo memory pickUpLocation,
-        Schemas.LocationInfo memory returnLocation,
-        string memory carLat,
-        string memory carLon,
-        address host
-    ) external view returns (uint64 pickUpPriceInUsdCents, uint64 returnPriceInUsdCents);
+interface ITripLibPricingService {
+    function calculateSumWithDiscount(address user, uint64 daysOfTrip, uint64 value) external view returns (uint64);
+    function defineTaxesType(address carService, uint256 carId) external view returns (uint256);
+    function calculateTaxes(uint256 taxId, uint64 tripDays, uint64 totalCost) external view returns (uint64);
+}
+
+interface ITripLibInsuranceService {
+    function getInsurancePriceByCar(uint256 carId) external view returns (uint256);
+    function isGuestHasInsurance(address guest) external view returns (bool);
 }
 
 interface ITripLibCarQuery {
@@ -37,6 +36,11 @@ interface ITripLibCarQuery {
     function getCar(uint256 id) external view returns (CarInfo memory);
     function getGeoVerifierAddress() external view returns (address);
     function verifySignedLocationInfo(SignedLocationInfo memory locationInfo) external view;
+    function calculateDeliveryPrices(
+        uint256 carId,
+        LocationInfo memory pickUpLocation,
+        LocationInfo memory returnLocation
+    ) external view returns (uint64 pickUp, uint64 dropOf);
 }
 
 library TripLib {
@@ -93,19 +97,13 @@ library TripLib {
     }
 
     function calculateDelivery(
-        address deliveryServiceAddress,
         ITripLibCarQuery carQuery,
-        Schemas.CreateTripRequestWithDelivery memory request,
-        CarInfo memory carInfo
+        Schemas.CreateTripRequestWithDelivery memory request
     ) external view returns (uint64 pickUp, uint64 dropOf) {
-        IRentalityGeoService geoService = IRentalityGeoService(carQuery.getGeoVerifierAddress());
-
-        (pickUp, dropOf) = ITripLibDeliveryService(deliveryServiceAddress).calculatePricesByDeliveryDataInUsdCents(
-            request.pickUpInfo.locationInfo,
-            request.returnInfo.locationInfo,
-            geoService.getCarLocationLatitude(carInfo.car.locationHash),
-            geoService.getCarLocationLongitude(carInfo.car.locationHash),
-            carInfo.asset.owner
+        (pickUp, dropOf) = carQuery.calculateDeliveryPrices(
+            request.carId,
+            _toCommonLocationInfo(request.pickUpInfo.locationInfo),
+            _toCommonLocationInfo(request.returnInfo.locationInfo)
         );
 
         if (pickUp > 0) {
@@ -114,6 +112,64 @@ library TripLib {
         if (dropOf > 0) {
             carQuery.verifySignedLocationInfo(_toCommonSignedLocationInfo(request.returnInfo));
         }
+    }
+
+    function calculatePaymentsWithDelivery(
+        address carQueryAddress,
+        address pricingServiceAddress,
+        address insuranceServiceAddress,
+        address promoServiceAddress,
+        address currencyConverterAddress,
+        address carTaxAdapterAddress,
+        uint256 carId,
+        uint64 daysOfTrip,
+        address currency,
+        Schemas.LocationInfo memory pickUpLocation,
+        Schemas.LocationInfo memory returnLocation,
+        string memory promo,
+        address user
+    ) external view returns (Schemas.CalculatePaymentsDTO memory) {
+        ITripLibCarQuery carQuery = ITripLibCarQuery(carQueryAddress);
+        CarInfo memory car = carQuery.getCar(carId);
+        address carOwner = car.asset.owner;
+
+        (uint64 pickUp, uint64 dropOf) = carQuery.calculateDeliveryPrices(
+            carId,
+            _toCommonLocationInfo(pickUpLocation),
+            _toCommonLocationInfo(returnLocation)
+        );
+        uint64 deliveryFee = pickUp + dropOf;
+
+        uint64 discount = uint64(ITripLibPromoService(promoServiceAddress).getDiscountByPromo(promo, user));
+        uint64 sumWithDiscount = ITripLibPricingService(pricingServiceAddress).calculateSumWithDiscount(
+            carOwner,
+            daysOfTrip,
+            car.car.pricePerDayInUsdCents
+        );
+        uint256 taxId = ITripLibPricingService(pricingServiceAddress).defineTaxesType(carTaxAdapterAddress, carId);
+        uint64 totalTaxes = ITripLibPricingService(pricingServiceAddress).calculateTaxes(
+            taxId,
+            daysOfTrip,
+            sumWithDiscount + deliveryFee
+        );
+
+        uint64 priceBeforePromo = sumWithDiscount + totalTaxes + deliveryFee;
+        uint64 discountedPrice = discount > 0
+            ? priceBeforePromo - ((priceBeforePromo * discount) / 100)
+            : priceBeforePromo;
+
+        uint256 totalPrice = car.car.securityDepositPerTripInUsdCents + discountedPrice;
+        if (!ITripLibInsuranceService(insuranceServiceAddress).isGuestHasInsurance(user)) {
+            totalPrice += ITripLibInsuranceService(insuranceServiceAddress).getInsurancePriceByCar(carId) * daysOfTrip;
+        }
+
+        (uint256 valueSumInCurrency, int256 rate, uint8 decimals) = ITripLibCurrencyConverter(currencyConverterAddress)
+            .getFromUsdCentsLatest(currency, totalPrice);
+        if (discount == 100) {
+            valueSumInCurrency = 0;
+        }
+
+        return Schemas.CalculatePaymentsDTO(valueSumInCurrency, rate, decimals);
     }
 
     function createPaymentInfo(

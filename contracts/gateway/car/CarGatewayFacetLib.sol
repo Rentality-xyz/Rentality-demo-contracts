@@ -1,4 +1,3 @@
-// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
 import '../../models/base/asset/AssetTypes.sol';
@@ -62,6 +61,25 @@ library CarGatewayFacetLib {
     returns (SignedLocationInfo memory)
   {
     return SignedLocationInfo({locationInfo: toCommonLocationInfo(location.locationInfo), signature: location.signature});
+  }
+
+  function toCommonSearchCarParams(Schemas.SearchCarParams memory params)
+    internal
+    pure
+    returns (CarSearchParams memory)
+  {
+    return CarSearchParams({
+      country: params.country,
+      state: params.state,
+      city: params.city,
+      brand: params.brand,
+      model: params.model,
+      yearOfProductionFrom: params.yearOfProductionFrom,
+      yearOfProductionTo: params.yearOfProductionTo,
+      pricePerDayInUsdCentsFrom: params.pricePerDayInUsdCentsFrom,
+      pricePerDayInUsdCentsTo: params.pricePerDayInUsdCentsTo,
+      userLocation: toCommonLocationInfo(params.userLocation)
+    });
   }
 
   function toCreateCarRequest(Schemas.CreateCarRequest memory request) internal pure returns (CreateCarRequest memory) {

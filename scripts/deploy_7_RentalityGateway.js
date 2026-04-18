@@ -1,4 +1,3 @@
-const saveJsonAbi = require('./utils/abiSaver')
 const { ethers, upgrades } = require('hardhat')
 const { getContractAddress } = require('./utils/contractAddress')
 const addressSaver = require('./utils/addressSaver')
@@ -48,10 +47,13 @@ async function main() {
     getContractAddress('TripGatewayFacet', 'scripts/deploy_4k_TripGatewayFacet.js', chainId),
     'TripGatewayFacet'
   )
-  
   const carGatewayFacetAddress = checkNotNull(
     getContractAddress('CarGatewayFacet', 'scripts/deploy_4l_CarGatewayFacet.js', chainId),
     'CarGatewayFacet'
+  )
+  const carViewGatewayFacetAddress = checkNotNull(
+    getContractAddress('CarViewGatewayFacet', 'scripts/deploy_4m_CarViewGatewayFacet.js', chainId),
+    'CarViewGatewayFacet'
   )
 
   const contractFactory = await ethers.getContractFactory(contractName, {
@@ -69,6 +71,7 @@ async function main() {
   const tripsViewFacet = await ethers.getContractAt('IRentalityTripsViewFacet', rentalityTripsView)
   const tripFacet = await ethers.getContractAt('ITripGatewayFacet', tripGatewayFacetAddress)
   const carFacet = await ethers.getContractAt('ICarGatewayFacet', carGatewayFacetAddress)
+  const carViewFacet = await ethers.getContractAt('ICarViewGatewayFacet', carViewGatewayFacetAddress)
   const investmentFacet = await ethers.getContractAt('IInvestmentGatewayFacet', investmentGatewayFacetAddress)
   const referralFacet = await ethers.getContractAt('IReferralGatewayFacet', referralGatewayFacetAddress)
 
@@ -80,6 +83,7 @@ async function main() {
     createFacetCut(tripsViewFacet),
     createFacetCut(tripFacet, { action: FacetCutAction.Replace }),
     createFacetCut(carFacet, { action: FacetCutAction.Replace }),
+    createFacetCut(carViewFacet, { action: FacetCutAction.Replace }),
     createFacetCut(investmentFacet),
     createFacetCut(referralFacet),
   ]
@@ -101,4 +105,3 @@ main()
     console.error(error)
     process.exit(1)
   })
-

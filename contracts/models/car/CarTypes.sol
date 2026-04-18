@@ -1,4 +1,3 @@
-// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
 import "../base/asset/AssetTypes.sol";
@@ -37,6 +36,12 @@ struct CarInfo {
 struct CarInsuranceInfo {
     bool required;
     uint256 priceInUsdCents;
+}
+
+struct DeliveryPrices {
+    uint64 underTwentyFiveMilesInUsdCents;
+    uint64 aboveTwentyFiveMilesInUsdCents;
+    bool initialized;
 }
 
 struct CarInfoWithInsurance {

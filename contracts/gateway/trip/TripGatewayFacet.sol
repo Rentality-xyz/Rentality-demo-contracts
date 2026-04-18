@@ -7,6 +7,7 @@ import "../../models/trip/TripMain.sol";
 import "../../models/trip/TripTypes.sol";
 import "../../models/trip/TripQuery.sol";
 import "../../models/car/CarTypes.sol";
+import "../../models/common/CommonTypes.sol";
 import "../../models/profile/UserProfileTypes.sol";
 import "../../models/insurance/RentalInsuranceTypes.sol";
 import "../../rentality_old/Schemas.sol";
@@ -23,6 +24,11 @@ interface ITripGatewayFacetUserProfileMain {
 
 interface ITripGatewayFacetCarQuery {
     function getCar(uint256 id) external view returns (CarInfo memory);
+    function calculateDeliveryPrices(
+        uint256 carId,
+        LocationInfo memory pickUpLocation,
+        LocationInfo memory returnLocation
+    ) external view returns (uint64 pickUp, uint64 dropOf);
 }
 
 interface ITripGatewayFacetPricingService {
@@ -30,6 +36,7 @@ interface ITripGatewayFacetPricingService {
     function getTotalTripTax(uint256 tripId) external view returns (uint64);
     function calculateSumWithDiscount(address user, uint64 daysOfTrip, uint64 value) external view returns (uint64);
     function defineTaxesType(address carService, uint carId) external view returns (uint);
+    function calculateTaxes(uint256 taxId, uint64 tripDays, uint64 totalCost) external view returns (uint64);
     function calculateAndSaveTaxes(uint taxId, uint64 daysOfTrip, uint64 value, uint tripId) external returns (uint64);
 }
 
@@ -67,6 +74,8 @@ interface ITripGatewayFacetCurrencyConverter {
 
 interface ITripGatewayFacetInsuranceService {
     function getInsurancePriceByTrip(uint256 tripId) external view returns (uint256);
+    function getInsurancePriceByCar(uint256 carId) external view returns (uint256);
+    function isGuestHasInsurance(address guest) external view returns (bool);
     function calculateInsuranceForTrip(uint256 carId, uint64 startDateTime, uint64 endDateTime, address user) external view returns (uint256);
     function saveGuestInsurancePayment(uint256 tripId, uint256 carId, uint256 totalSum, address user) external;
     function saveTripInsuranceInfo(
@@ -95,16 +104,6 @@ interface ITripGatewayFacetNotificationService {
     function emitEvent(Schemas.EventType eType, uint256 id, uint8 objectStatus, address from, address to) external;
 }
 
-interface ITripGatewayFacetDeliveryService {
-    function calculatePricesByDeliveryDataInUsdCents(
-        Schemas.LocationInfo memory pickUpLocation,
-        Schemas.LocationInfo memory returnLocation,
-        string memory carLat,
-        string memory carLon,
-        address host
-    ) external view returns (uint64 pickUpPriceInUsdCents, uint64 returnPriceInUsdCents);
-}
-
 
 contract TripGatewayFacet is UUPSOwnable, ARentalityContext {
     TripMain public tripMain;
@@ -119,7 +118,6 @@ contract TripGatewayFacet is UUPSOwnable, ARentalityContext {
     ITripGatewayFacetPromoService public promoService;
     ITripGatewayFacetReferralProgram public referralProgram;
     ITripGatewayFacetNotificationService public notificationService;
-    ITripGatewayFacetDeliveryService public deliveryService;
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
@@ -138,8 +136,7 @@ contract TripGatewayFacet is UUPSOwnable, ARentalityContext {
         address insuranceServiceAddress,
         address promoServiceAddress,
         address referralProgramAddress,
-        address notificationServiceAddress,
-        address deliveryServiceAddress
+        address notificationServiceAddress
     ) public initializer {
         __Ownable_init();
         _setServiceAddresses(
@@ -154,8 +151,7 @@ contract TripGatewayFacet is UUPSOwnable, ARentalityContext {
             insuranceServiceAddress,
             promoServiceAddress,
             referralProgramAddress,
-            notificationServiceAddress,
-            deliveryServiceAddress
+            notificationServiceAddress
         );
     }
 
@@ -171,8 +167,7 @@ contract TripGatewayFacet is UUPSOwnable, ARentalityContext {
         address insuranceServiceAddress,
         address promoServiceAddress,
         address referralProgramAddress,
-        address notificationServiceAddress,
-        address deliveryServiceAddress
+        address notificationServiceAddress
     ) external onlyOwner {
         _setServiceAddresses(
             tripMainAddress,
@@ -186,8 +181,7 @@ contract TripGatewayFacet is UUPSOwnable, ARentalityContext {
             insuranceServiceAddress,
             promoServiceAddress,
             referralProgramAddress,
-            notificationServiceAddress,
-            deliveryServiceAddress
+            notificationServiceAddress
         );
     }
 
@@ -229,13 +223,37 @@ contract TripGatewayFacet is UUPSOwnable, ARentalityContext {
             address(currencyConverter),
             address(insuranceService),
             address(promoService),
-            address(deliveryService),
             request,
             promo,
             _msgGatewaySender()
         );
     }
 
+
+    function calculatePaymentsWithDelivery(
+        uint256 carId,
+        uint64 daysOfTrip,
+        address currency,
+        Schemas.LocationInfo memory pickUpLocation,
+        Schemas.LocationInfo memory returnLocation,
+        string memory promo
+    ) external view returns (Schemas.CalculatePaymentsDTO memory) {
+        return TripLib.calculatePaymentsWithDelivery(
+            address(carQuery),
+            address(pricingService),
+            address(insuranceService),
+            address(promoService),
+            address(currencyConverter),
+            carTaxAdapter,
+            carId,
+            daysOfTrip,
+            currency,
+            pickUpLocation,
+            returnLocation,
+            promo,
+            _msgGatewaySender()
+        );
+    }
     function approveTripRequest(uint256 tripId) external {
         TripGatewayWriteLib.approveTripRequest(
             tripMain,
@@ -375,8 +393,7 @@ contract TripGatewayFacet is UUPSOwnable, ARentalityContext {
         address insuranceServiceAddress,
         address promoServiceAddress,
         address referralProgramAddress,
-        address notificationServiceAddress,
-        address deliveryServiceAddress
+        address notificationServiceAddress
     ) internal {
         tripMain = TripMain(tripMainAddress);
         tripQuery = TripQuery(tripQueryAddress);
@@ -390,16 +407,10 @@ contract TripGatewayFacet is UUPSOwnable, ARentalityContext {
         promoService = ITripGatewayFacetPromoService(promoServiceAddress);
         referralProgram = ITripGatewayFacetReferralProgram(referralProgramAddress);
         notificationService = ITripGatewayFacetNotificationService(notificationServiceAddress);
-        deliveryService = ITripGatewayFacetDeliveryService(deliveryServiceAddress);
     }
 
+
 }
-
-
-
-
-
-
 
 
 

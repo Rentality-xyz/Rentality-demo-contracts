@@ -1,4 +1,3 @@
-// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
 import '../../rentality_old/Schemas.sol';
@@ -15,6 +14,14 @@ interface ITripGatewayFacet {
         Schemas.CreateTripRequestWithDelivery memory request,
         string memory promo
     ) external payable;
+    function calculatePaymentsWithDelivery(
+        uint256 carId,
+        uint64 daysOfTrip,
+        address currency,
+        Schemas.LocationInfo memory pickUpLocation,
+        Schemas.LocationInfo memory returnLocation,
+        string memory promo
+    ) external view returns (Schemas.CalculatePaymentsDTO memory);
     function approveTripRequest(uint256 tripId) external;
     function rejectTripRequest(uint256 tripId) external;
     function confirmCheckOut(uint256 tripId) external;

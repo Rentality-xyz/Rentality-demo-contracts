@@ -44,6 +44,8 @@ contract CarMain is AssetBase, ERC721URIStorageUpgradeable, UUPSOwnable {
     mapping(uint256 => CarData) internal cars;
     mapping(bytes32 => uint256) internal vinHashToAssetId;
     mapping(uint256 => uint256) internal listingMomentByAssetId;
+    mapping(address => DeliveryPrices) internal deliveryPricesByUser;
+    DeliveryPrices internal defaultDeliveryPrices;
 
     error OnlyPlatform();
     error OnlyAdmin();
@@ -86,6 +88,12 @@ contract CarMain is AssetBase, ERC721URIStorageUpgradeable, UUPSOwnable {
         engineValidator = ICarEngineValidator(engineValidatorAddress);
         userAccess = ICarUserAccess(userAccessAddress);
         eventEmitter = ICarEventEmitter(eventEmitterAddress);
+
+        defaultDeliveryPrices = DeliveryPrices({
+            underTwentyFiveMilesInUsdCents: 300,
+            aboveTwentyFiveMilesInUsdCents: 250,
+            initialized: false
+        });
     }
 
     function createCar(CreateCarRequest calldata request, address user) external onlyPlatform returns (uint256) {
@@ -212,6 +220,27 @@ contract CarMain is AssetBase, ERC721URIStorageUpgradeable, UUPSOwnable {
         geoVerifier.verifySignedLocationInfo(locationInfo);
     }
 
+    function setUserDeliveryPrices(
+        uint64 underTwentyFiveMilesInUsdCents,
+        uint64 aboveTwentyFiveMilesInUsdCents,
+        address user
+    ) external onlyPlatform {
+        if (!userAccess.isHost(user)) {
+            userAccess.grantHostRole(user);
+        }
+
+        deliveryPricesByUser[user] = DeliveryPrices({
+            underTwentyFiveMilesInUsdCents: underTwentyFiveMilesInUsdCents,
+            aboveTwentyFiveMilesInUsdCents: aboveTwentyFiveMilesInUsdCents,
+            initialized: true
+        });
+    }
+
+    function getUserDeliveryPrices(address user) external view returns (DeliveryPrices memory) {
+        DeliveryPrices memory prices = deliveryPricesByUser[user];
+        return prices.initialized ? prices : defaultDeliveryPrices;
+    }
+
     function tokenURI(uint256 tokenId)
         public
         view
@@ -262,6 +291,12 @@ contract CarMain is AssetBase, ERC721URIStorageUpgradeable, UUPSOwnable {
 
     function updateEventEmitterAddress(address eventEmitterAddress) external onlyAdmin {
         eventEmitter = ICarEventEmitter(eventEmitterAddress);
+
+        defaultDeliveryPrices = DeliveryPrices({
+            underTwentyFiveMilesInUsdCents: 300,
+            aboveTwentyFiveMilesInUsdCents: 250,
+            initialized: false
+        });
     }
 
     function transferFrom(address, address, uint256) public pure override(ERC721Upgradeable, IERC721Upgradeable) {
@@ -297,6 +332,9 @@ contract CarMain is AssetBase, ERC721URIStorageUpgradeable, UUPSOwnable {
         super._burn(tokenId);
     }
 }
+
+
+
 
 
 

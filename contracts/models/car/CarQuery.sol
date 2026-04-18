@@ -1,8 +1,8 @@
-// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
 import "../base/asset/AssetTypes.sol";
 import "../common/CommonTypes.sol";
+import "./CarLib.sol";
 import "./CarTypes.sol";
 
 interface ICarMain {
@@ -16,12 +16,15 @@ interface ICarMain {
     function getEngineValidatorAddress() external view returns (address);
     function verifySignedLocationInfo(SignedLocationInfo memory locationInfo) external view;
     function tokenURI(uint256 tokenId) external view returns (string memory);
+    function getUserDeliveryPrices(address user) external view returns (DeliveryPrices memory);
 }
 
 interface ICarGeoService {
     function getCarCountry(bytes32 locationHash) external view returns (string memory);
     function getCarState(bytes32 locationHash) external view returns (string memory);
     function getCarCity(bytes32 locationHash) external view returns (string memory);
+    function getCarLocationLatitude(bytes32 locationHash) external view returns (string memory);
+    function getCarLocationLongitude(bytes32 locationHash) external view returns (string memory);
 }
 
 interface ICarInsuranceAdapter {
@@ -90,6 +93,28 @@ contract CarQuery {
 
     function verifySignedLocationInfo(SignedLocationInfo memory locationInfo) external view {
         carMain.verifySignedLocationInfo(locationInfo);
+    }
+
+    function getUserDeliveryPrices(address user) external view returns (DeliveryPrices memory) {
+        return carMain.getUserDeliveryPrices(user);
+    }
+
+    function calculateDeliveryPrices(
+        uint256 carId,
+        LocationInfo memory pickUpLocation,
+        LocationInfo memory returnLocation
+    ) external view returns (uint64 pickUp, uint64 dropOf) {
+        CarInfo memory car = getCar(carId);
+        DeliveryPrices memory prices = carMain.getUserDeliveryPrices(car.asset.owner);
+        ICarGeoService geoService = ICarGeoService(carMain.getGeoVerifierAddress());
+
+        return CarLib.calculateDeliveryPrices(
+            pickUpLocation,
+            returnLocation,
+            geoService.getCarLocationLatitude(car.car.locationHash),
+            geoService.getCarLocationLongitude(car.car.locationHash),
+            prices
+        );
     }
 
     function getAllCars() external view returns (CarInfo[] memory) {

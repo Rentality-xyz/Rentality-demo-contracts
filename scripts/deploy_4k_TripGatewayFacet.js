@@ -57,10 +57,7 @@ async function main() {
     getContractAddress('RentalityNotificationService', 'scripts/deploy_2_RentalityNotificationService.js', chainId),
     'RentalityNotificationService'
   )
-  const deliveryServiceAddress = checkNotNull(
-    getContractAddress('RentalityCarDelivery', 'scripts/deploy_2i_RentalityCarDelivery.js', chainId),
-    'RentalityCarDelivery'
-  )
+
 
   const contractFactory = await ethers.getContractFactory(contractName)
   const contract = await upgrades.deployProxy(contractFactory, [
@@ -76,7 +73,6 @@ async function main() {
     promoServiceAddress,
     referralProgramAddress,
     notificationServiceAddress,
-    deliveryServiceAddress,
   ])
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()
@@ -93,3 +89,7 @@ main()
     console.error(error)
     process.exit(1)
   })
+
+
+
+
