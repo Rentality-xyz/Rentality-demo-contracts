@@ -22,6 +22,7 @@ const commands = [
   { message: 'Deploying referral gateway facet..', command: command + 'deploy_4i_ReferralGatewayFacet.js' },
   { message: 'Deploying investment gateway facet..', command: command + 'deploy_4j_InvestmentGatewayFacet.js' },
   { message: 'Deploying trip gateway facet..', command: command + 'deploy_4k_TripGatewayFacet.js' },
+  { message: 'Deploying car gateway facet..', command: command + 'deploy_4l_CarGatewayFacet.js' },
   { message: 'Deploying contracts..', command: command + 'deploy_7_RentalityGateway.js' },
   { message: 'Grand manager role...', command: command + 'deploy_8_GrandManagerRole.js' },
   { message: 'Grand KYC manager role...', command: command + 'grandKYCManagerRole.js' },
@@ -47,3 +48,5 @@ main()
     console.error('deploy_x_Rentality_full error: ', error)
     process.exit(1)
   })
+
+
