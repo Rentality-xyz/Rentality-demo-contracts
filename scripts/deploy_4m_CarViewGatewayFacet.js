@@ -1,3 +1,5 @@
+const saveJsonAbi = require('./utils/abiSaver')
+const { ethers, upgrades } = require('hardhat')
 const { getContractAddress } = require('./utils/contractAddress')
 const addressSaver = require('./utils/addressSaver')
 const { checkNotNull, startDeploy } = require('./utils/deployHelper')
@@ -18,6 +20,10 @@ async function main() {
   const carQueryFacet1Address = checkNotNull(
     getContractAddress('CarQueryFacet1', 'scripts/deploy_3_CarGatewayAdapter.js', chainId),
     'CarQueryFacet1'
+  )
+  const carQueryFacet2Address = checkNotNull(
+    getContractAddress('CarQueryFacet2', 'scripts/deploy_3w_CarQueryFacet2.js', chainId),
+    'CarQueryFacet2'
   )
   const tripQueryAddress = checkNotNull(
     getContractAddress('TripQuery', 'scripts/deploy_3t_TripQuery.js', chainId),
@@ -61,6 +67,7 @@ async function main() {
     carMainAddress,
     carQueryAddress,
     carQueryFacet1Address,
+    carQueryFacet2Address,
     tripQueryAddress,
     userProfileMainAddress,
     userProfileQueryAddress,
@@ -86,4 +93,3 @@ main()
     console.error(error)
     process.exit(1)
   })
-

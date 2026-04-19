@@ -15,8 +15,8 @@ import './RentalityAdminGateway.sol';
 import {RentalityCarDelivery} from './features/RentalityCarDelivery.sol';
 import {UUPSOwnable} from './proxy/UUPSOwnable.sol';
 import {RentalityUtils} from './libs/RentalityUtils.sol';
+import './libs/RentalityTripsQuery.sol';
 import {RentalityDimoService} from './features/RentalityDimoService.sol';
-import './RentalityView.sol';
 import {RentalityReferralProgram} from './features/refferalProgram/RentalityReferralProgram.sol';
 import './payments/RentalityInsurance.sol';
 import {RentalityPromoService} from './features/RentalityPromo.sol';
@@ -465,7 +465,7 @@ function createTripRequestWithDelivery(
       RentalityClaimService(claimServiceAddress),
       RentalityAdminGateway(address(0)),
       RentalityCarDelivery(carDeliveryAddress),
-      RentalityView(viewService)
+      viewService
     );
     insuranceService = RentalityInsurance(insuranceServiceAddress);
     refferalProgram = RentalityReferralProgram(refferalProgramAddress);
@@ -476,6 +476,8 @@ function createTripRequestWithDelivery(
     __Ownable_init();
   }
 }
+
+
 
 
 

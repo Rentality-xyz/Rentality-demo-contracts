@@ -8,6 +8,7 @@ import '../../models/profile/UserProfileQuery.sol';
 import '../../models/profile/UserProfileTypes.sol';
 import '../../rentality_old/Schemas.sol';
 import '../../rentality_old/abstract/ARentalityContext.sol';
+import './IProfileGatewayFacet.sol';
 import './ProfileMapper.sol';
 
 interface IProfileGatewayFacetReferralProgram {
@@ -41,7 +42,15 @@ interface IProfileGatewayFacetCurrencyConverter {
         returns (uint256, int256, uint8);
 }
 
-contract ProfileGatewayFacet is UUPSOwnable, ARentalityContext {
+interface IProfileGatewayFacetTripService {
+    function totalTripCount() external view returns (uint256);
+}
+
+interface IProfileGatewayFacetCarService {
+    function totalSupply() external view returns (uint256);
+}
+
+contract ProfileGatewayFacet is UUPSOwnable, ARentalityContext, IProfileGatewayFacet {
     UserProfileMain public userProfileMain;
     UserProfileQuery public userProfileQuery;
     IProfileGatewayFacetReferralProgram public referralProgram;
@@ -49,6 +58,8 @@ contract ProfileGatewayFacet is UUPSOwnable, ARentalityContext {
     IProfileGatewayFacetNotificationService public notificationService;
     IProfileGatewayFacetPaymentService public paymentService;
     IProfileGatewayFacetCurrencyConverter public currencyConverter;
+    IProfileGatewayFacetTripService public tripService;
+    IProfileGatewayFacetCarService public carService;
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
@@ -62,7 +73,9 @@ contract ProfileGatewayFacet is UUPSOwnable, ARentalityContext {
         address promoServiceAddress,
         address notificationServiceAddress,
         address paymentServiceAddress,
-        address currencyConverterAddress
+        address currencyConverterAddress,
+        address tripServiceAddress,
+        address carServiceAddress
     ) public initializer {
         __Ownable_init();
         _setServiceAddresses(
@@ -72,7 +85,9 @@ contract ProfileGatewayFacet is UUPSOwnable, ARentalityContext {
             promoServiceAddress,
             notificationServiceAddress,
             paymentServiceAddress,
-            currencyConverterAddress
+            currencyConverterAddress,
+            tripServiceAddress,
+            carServiceAddress
         );
     }
 
@@ -83,7 +98,9 @@ contract ProfileGatewayFacet is UUPSOwnable, ARentalityContext {
         address promoServiceAddress,
         address notificationServiceAddress,
         address paymentServiceAddress,
-        address currencyConverterAddress
+        address currencyConverterAddress,
+        address tripServiceAddress,
+        address carServiceAddress
     ) external onlyOwner {
         _setServiceAddresses(
             userProfileMainAddress,
@@ -92,7 +109,9 @@ contract ProfileGatewayFacet is UUPSOwnable, ARentalityContext {
             promoServiceAddress,
             notificationServiceAddress,
             paymentServiceAddress,
-            currencyConverterAddress
+            currencyConverterAddress,
+            tripServiceAddress,
+            carServiceAddress
         );
     }
 
@@ -116,6 +135,19 @@ contract ProfileGatewayFacet is UUPSOwnable, ARentalityContext {
         return userProfileQuery.getKycCommission();
     }
 
+    function calculateKycCommission(address currency) external view returns (uint256) {
+        (uint256 result, , ) = currencyConverter.getFromUsdCentsLatest(currency, userProfileQuery.getKycCommission());
+        return result;
+    }
+
+    function getPlatformInfo() external view returns (Schemas.PlatformInfoDTO memory) {
+        return Schemas.PlatformInfoDTO({
+            totalUsers: userProfileQuery.getPlatformUsersCount(),
+            totalTrips: tripService.totalTripCount(),
+            totalCars: carService.totalSupply()
+        });
+    }
+
     function isKycCommissionPaid(address user) external view returns (bool) {
         return userProfileQuery.isCommissionPaidForUser(user);
     }
@@ -126,7 +158,7 @@ contract ProfileGatewayFacet is UUPSOwnable, ARentalityContext {
     }
 
     function addUserCurrency(address currency) external {
-        require(currencyConverter.currencyTypeIsAvailable(currency), "Currency not available.");
+        require(currencyConverter.currencyTypeIsAvailable(currency), 'Currency not available.');
         address sender = _msgGatewaySender();
         userProfileMain.setUserCurrency(sender, currency);
         notificationService.emitEvent(Schemas.EventType.Currency, 0, uint8(Schemas.EventCreator.User), sender, sender);
@@ -203,7 +235,9 @@ contract ProfileGatewayFacet is UUPSOwnable, ARentalityContext {
         address promoServiceAddress,
         address notificationServiceAddress,
         address paymentServiceAddress,
-        address currencyConverterAddress
+        address currencyConverterAddress,
+        address tripServiceAddress,
+        address carServiceAddress
     ) internal {
         userProfileMain = UserProfileMain(userProfileMainAddress);
         userProfileQuery = UserProfileQuery(userProfileQueryAddress);
@@ -212,10 +246,7 @@ contract ProfileGatewayFacet is UUPSOwnable, ARentalityContext {
         notificationService = IProfileGatewayFacetNotificationService(notificationServiceAddress);
         paymentService = IProfileGatewayFacetPaymentService(paymentServiceAddress);
         currencyConverter = IProfileGatewayFacetCurrencyConverter(currencyConverterAddress);
+        tripService = IProfileGatewayFacetTripService(tripServiceAddress);
+        carService = IProfileGatewayFacetCarService(carServiceAddress);
     }
 }
-
-
-
-
-

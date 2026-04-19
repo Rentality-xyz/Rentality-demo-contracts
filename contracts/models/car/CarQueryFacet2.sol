@@ -1,0 +1,134 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import '../../rentality_old/Schemas.sol';
+import '../car/CarTypes.sol';
+
+interface ICarQueryFacet2Main {
+  function exists(uint256 id) external view returns (bool);
+  function totalSupply() external view returns (uint256);
+  function getOwner(uint256 id) external view returns (address);
+  function getCarData(uint256 id) external view returns (CarData memory);
+}
+
+interface ICarQueryFacet2PricingService {
+  function calculateSumWithDiscount(address user, uint64 daysOfTrip, uint64 value) external view returns (uint64);
+}
+
+contract CarQueryFacet2 {
+  ICarQueryFacet2Main public immutable carMain;
+
+  constructor(address carMainAddress) {
+    carMain = ICarQueryFacet2Main(carMainAddress);
+  }
+
+  function getUniqCarsBrand() external view returns (string[] memory brandsArray) {
+    uint256 supply = carMain.totalSupply();
+    string[] memory temp = new string[](supply);
+    uint256 count;
+
+    for (uint256 i = 1; i <= supply; i++) {
+      if (!carMain.exists(i)) {
+        continue;
+      }
+
+      string memory brand = carMain.getCarData(i).brand;
+      bool existsBrand;
+      for (uint256 j = 0; j < count; j++) {
+        if (_compareStrings(temp[j], brand)) {
+          existsBrand = true;
+          break;
+        }
+      }
+
+      if (!existsBrand) {
+        temp[count++] = brand;
+      }
+    }
+
+    assembly ('memory-safe') {
+      mstore(temp, count)
+    }
+    return temp;
+  }
+
+  function getUniqModelsByBrand(string memory brand) external view returns (string[] memory modelsArray) {
+    uint256 supply = carMain.totalSupply();
+    string[] memory temp = new string[](supply);
+    uint256 count;
+
+    for (uint256 i = 1; i <= supply; i++) {
+      if (!carMain.exists(i)) {
+        continue;
+      }
+
+      CarData memory car = carMain.getCarData(i);
+      if (!_compareStrings(car.brand, brand)) {
+        continue;
+      }
+
+      bool existsModel;
+      for (uint256 j = 0; j < count; j++) {
+        if (_compareStrings(temp[j], car.model)) {
+          existsModel = true;
+          break;
+        }
+      }
+
+      if (!existsModel) {
+        temp[count++] = car.model;
+      }
+    }
+
+    assembly ('memory-safe') {
+      mstore(temp, count)
+    }
+    return temp;
+  }
+
+  function getFilterInfo(address pricingServiceAddress, uint64 duration)
+    external
+    view
+    returns (Schemas.FilterInfoDTO memory)
+  {
+    uint256 supply = carMain.totalSupply();
+    if (supply == 0) {
+      return Schemas.FilterInfoDTO({maxCarPrice: 0, minCarYearOfProduction: 0});
+    }
+
+    ICarQueryFacet2PricingService pricingService = ICarQueryFacet2PricingService(pricingServiceAddress);
+    uint64 maxCarPrice;
+    uint256 minCarYearOfProduction = type(uint256).max;
+    bool foundCar;
+
+    for (uint256 i = 1; i <= supply; i++) {
+      if (!carMain.exists(i)) {
+        continue;
+      }
+
+      CarData memory car = carMain.getCarData(i);
+      uint64 sumWithDiscount = pricingService.calculateSumWithDiscount(
+        carMain.getOwner(i),
+        duration,
+        car.pricePerDayInUsdCents
+      );
+
+      if (sumWithDiscount > maxCarPrice) {
+        maxCarPrice = sumWithDiscount;
+      }
+      if (car.yearOfProduction < minCarYearOfProduction) {
+        minCarYearOfProduction = car.yearOfProduction;
+      }
+      foundCar = true;
+    }
+
+    return Schemas.FilterInfoDTO({
+      maxCarPrice: maxCarPrice,
+      minCarYearOfProduction: foundCar ? minCarYearOfProduction : 0
+    });
+  }
+
+  function _compareStrings(string memory a, string memory b) internal pure returns (bool) {
+    return keccak256(bytes(a)) == keccak256(bytes(b));
+  }
+}

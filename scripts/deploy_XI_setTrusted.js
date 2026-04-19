@@ -32,15 +32,7 @@ async function main() {
     'RentalityPlatformHelper'
   )
 
-  const rentalityView = checkNotNull(
-    getContractAddress('RentalityView', 'scripts/deploy_4c_RentalityView.js', chainId),
-    'RentalityView'
-  )
 
-  const rentalityTripsView = checkNotNull(
-    getContractAddress('RentalityTripsView', 'scripts/deploy_4b_RentalityTripsView.js', chainId),
-    'RentalityTripsView'
-  )
 
   const rentalityGateway = checkNotNull(
     getContractAddress('RentalityGateway', 'scripts/deploy_7_RentalityGateway.js', chainId),
@@ -48,14 +40,10 @@ async function main() {
   )
 
   const platform = await ethers.getContractAt('RentalityPlatform', rentalityPlatformAddress)
-  const view = await ethers.getContractAt('RentalityView', rentalityView)
   const platformHelper = await ethers.getContractAt('RentalityPlatformHelper', rentalityPlatformHelper)
-  const tripsView = await ethers.getContractAt('RentalityTripsView', rentalityTripsView)
 
   await callIfExists('RentalityPlatform', platform, 'setTrustedForwarder', rentalityGateway)
-  await callIfExists('RentalityView', view, 'setTrustedForwarder', rentalityGateway)
   await callIfExists('RentalityPlatformHelper', platformHelper, 'setTrustedForwarder', rentalityPlatformAddress)
-  await callIfExists('RentalityTripsView', tripsView, 'setTrustedForwarder', rentalityView)
 
   console.log('Trusted forwarder step finished')
 }
@@ -66,3 +54,11 @@ main()
     console.error(error)
     process.exit(1)
   })
+
+
+
+
+
+
+
+

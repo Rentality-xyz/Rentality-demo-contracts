@@ -10,7 +10,6 @@ import {IRentalityInvestmentFacet} from './facets/IRentalityInvestmentFacet.sol'
 import {IRentalityPlatformFacet} from './facets/IRentalityPlatformFacet.sol';
 import {IRentalityPlatformHelperFacet} from './facets/IRentalityPlatformHelperFacet.sol';
 import {IRentalityReferralProgramFacet} from './facets/IRentalityReferralProgramFacet.sol';
-import {IRentalityTripsViewFacet} from './facets/IRentalityTripsViewFacet.sol';
 import {IRentalityViewFacet} from './facets/IRentalityViewFacet.sol';
 /// @title RentalityGateway
 /// @notice This contract defines the interface for the Rentality Gateway, which facilitates interactions between various services in the Rentality platform.
@@ -20,12 +19,12 @@ interface IRentalityGateway is
 IRentalityInvestmentFacet,
 IRentalityPlatformFacet,
 IRentalityPlatformHelperFacet,
-IRentalityReferralProgramFacet,
-IRentalityTripsViewFacet
+IRentalityReferralProgramFacet
   {
 
  
 }
+
 
 
 

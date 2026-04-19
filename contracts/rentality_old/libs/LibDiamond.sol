@@ -10,7 +10,6 @@ import '../RentalityPlatform.sol';
 import '../payments/RentalityPaymentService.sol';
 import '../Schemas.sol';
 import '../RentalityAdminGateway.sol';
-import '../RentalityView.sol';
 
 
 library LibDiamond {
@@ -195,4 +194,5 @@ library LibDiamond {
         require(contractSize > 0, _errorMessage);
     }
 }
+
 

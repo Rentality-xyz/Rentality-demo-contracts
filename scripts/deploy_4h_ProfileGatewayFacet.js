@@ -37,6 +37,14 @@ async function main() {
     getContractAddress('RentalityCurrencyConverter', 'scripts/deploy_3b_RentalityCurrencyConverter.js', chainId),
     'RentalityCurrencyConverter'
   )
+  const rentalityTripServiceAddress = checkNotNull(
+    getContractAddress('RentalityTripService', 'scripts/deploy_4_RentalityTripService.js', chainId),
+    'RentalityTripService'
+  )
+  const carMainAddress = checkNotNull(
+    getContractAddress('CarMain', 'scripts/deploy_3_CarGatewayAdapter.js', chainId),
+    'CarMain'
+  )
 
   const contractFactory = await ethers.getContractFactory(contractName)
   const contract = await upgrades.deployProxy(contractFactory, [
@@ -47,6 +55,8 @@ async function main() {
     notificationService,
     rentalPaymentMainAddress,
     rentalityCurrencyConverterAddress,
+    rentalityTripServiceAddress,
+    carMainAddress,
   ])
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()

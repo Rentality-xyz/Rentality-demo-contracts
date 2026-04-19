@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
 import '../../rentality_old/Schemas.sol';
@@ -25,6 +25,10 @@ interface ICarViewGatewayFacet {
   function getCarInfoById(uint256 carId) external view returns (Schemas.CarInfoWithInsurance memory);
   function getCarDetails(uint256 carId) external view returns (Schemas.CarDetails memory);
   function getCarsOfHost(address host) external view returns (Schemas.PublicHostCarDTO[] memory);
+  function getUniqCarsBrand() external view returns (string[] memory brandsArray);
+  function getUniqModelsByBrand(string memory brand) external view returns (string[] memory modelsArray);
+  function getFilterInfo(uint64 duration) external view returns (Schemas.FilterInfoDTO memory);
+  function getDimoVehicles() external view returns (uint[] memory);
   function getCarMetadataURI(uint256 carId) external view returns (string memory);
   function getTotalCarsAmount() external view returns (uint256);
   function getDeliveryData(uint256 carId) external view returns (Schemas.DeliveryData memory);

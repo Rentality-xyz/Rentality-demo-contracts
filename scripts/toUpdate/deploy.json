@@ -7,9 +7,7 @@
       "./scripts/deploy_1d_RentalityQuery.js",
       "./scripts/deploy_1h_RentalityUtils2.js",
       "./scripts/deploy_1g_RentalityViewLib.js",
-      "./scripts/deploy_4b_RentalityTripsView.js",
-      "./scripts/deploy_4c_RentalityView.js",
-      "./scripts/deploy_4g_RentalityPlatformHelper.js",
+        "./scripts/deploy_4g_RentalityPlatformHelper.js",
       "./scripts/deploy_5_RentalityPlatform.js",
       "./scripts/deploy_7_RentalityGateway.js",
       "./scripts/deploy_8_GrandManagerRole.js",
@@ -33,3 +31,6 @@
     ]
   }
 ]
+
+
+

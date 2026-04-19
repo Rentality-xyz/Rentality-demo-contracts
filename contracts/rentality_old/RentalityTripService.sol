@@ -559,7 +559,7 @@ contract RentalityTripService is OZInitializable, OZUUPSUpgradeable {
       RentalityClaimService(address(0)),
       RentalityAdminGateway(address(0)),
       RentalityCarDelivery(address(0)),
-      RentalityView(address(0))
+      address(0)
     );
     engineService = RentalityEnginesService(engineServiceAddress);
     eventManager = RentalityNotificationService(eventManagerAddress);
@@ -569,6 +569,7 @@ contract RentalityTripService is OZInitializable, OZUUPSUpgradeable {
     require(addresses.userService.isAdmin(msg.sender), 'Only for Admin.');
   }
 }
+
 
 
 

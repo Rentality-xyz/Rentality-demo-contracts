@@ -21,13 +21,6 @@ async function main() {
   const platform = await ethers.getContractAt('RentalityPlatform', rentalityPlatformAddress)
   const platformHelper = await ethers.getContractAt('RentalityPlatformHelper', rentalityPlatformHelperAddress)
 
-  const tripsViewAddress = checkNotNull(
-    getContractAddress('RentalityTripsView', 'scripts/deploy_4b_RentalityTripsView.js', chainId),
-    'RentalityTripsView'
-  )
-
-  const tripsView = await ethers.getContractAt('RentalityTripsView', tripsViewAddress)
-
   const paymentsAddress = checkNotNull(
     getContractAddress('RentalityPaymentService', 'scripts/deploy_3c_RentalityPaymentService.js', chainId),
     'RentalityPaymentService'
@@ -42,7 +35,6 @@ async function main() {
 
   console.log(await platform.setHostInsuranceAddress(rentalityHostInsurace))
   console.log(await payments.setHostInsuranceService(rentalityHostInsurace))
-  console.log(await tripsView.setHostInsuranceAddress(rentalityHostInsurace))
   console.log(await platformHelper.setHostInsuranceAddress(rentalityHostInsurace))
 }
 
@@ -52,3 +44,6 @@ main()
     console.error(error)
     process.exit(1)
   })
+
+
+

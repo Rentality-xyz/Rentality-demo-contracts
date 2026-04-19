@@ -9,6 +9,8 @@ interface IProfileGatewayFacet {
   function getUserFullKYCInfo(address user) external view returns (Schemas.FullKYCInfoDTO memory);
   function getUserCurrency(address user) external view returns (Schemas.UserCurrencyDTO memory);
   function getKycCommission() external view returns (uint256);
+  function calculateKycCommission(address currency) external view returns (uint256);
+  function getPlatformInfo() external view returns (Schemas.PlatformInfoDTO memory);
   function isKycCommissionPaid(address user) external view returns (bool);
   function payKycCommission(address currency) external payable;
   function addUserCurrency(address currency) external;
@@ -26,5 +28,3 @@ interface IProfileGatewayFacet {
   function setPushToken(address user, string memory pushToken) external;
   function useKycCommission(address user) external;
 }
-
-

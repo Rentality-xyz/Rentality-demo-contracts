@@ -17,7 +17,6 @@ const ProxyList = [
   'RentalityUSDTConverter',
   'RentalityAdminGateway',
   'RentalityUserService',
-  'RentalityView',
 ]
 
 function getChains() {
@@ -40,4 +39,5 @@ module.exports = {
   ProxyList,
   getChains,
 }
+
 

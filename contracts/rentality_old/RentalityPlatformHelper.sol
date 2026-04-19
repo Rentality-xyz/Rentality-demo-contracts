@@ -16,7 +16,6 @@ import {RentalityCarDelivery} from './features/RentalityCarDelivery.sol';
 import {UUPSOwnable} from './proxy/UUPSOwnable.sol';
 import {RentalityUtils} from './libs/RentalityUtils.sol';
 import {RentalityDimoService} from './features/RentalityDimoService.sol';
-import './RentalityView.sol';
 import {RentalityReferralProgram} from './features/refferalProgram/RentalityReferralProgram.sol';
 import './payments/RentalityInsurance.sol';
 import {RentalityPromoService} from './features/RentalityPromo.sol';
@@ -212,7 +211,7 @@ contract RentalityPlatformHelper is UUPSOwnable, ARentalityContext {
       RentalityClaimService(claimServiceAddress),
       RentalityAdminGateway(address(0)),
       RentalityCarDelivery(carDeliveryAddress),
-      RentalityView(viewService)
+      viewService
     );
     insuranceService = RentalityInsurance(insuranceServiceAddress);
     refferalProgram = RentalityReferralProgram(refferalProgramAddress);
@@ -224,6 +223,7 @@ contract RentalityPlatformHelper is UUPSOwnable, ARentalityContext {
     __Ownable_init();
   }
 }
+
 
 
 

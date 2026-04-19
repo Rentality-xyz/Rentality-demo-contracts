@@ -18,7 +18,6 @@ import './RentalityAdminGateway.sol';
 import {RentalityCurrencyConverter} from './payments/RentalityCurrencyConverter.sol';
 import {RentalityPlatform} from './RentalityPlatform.sol';
 import {RentalityCarDelivery} from './features/RentalityCarDelivery.sol';
-import {RentalityView} from './RentalityView.sol';
 import {UUPSOwnable} from './proxy/UUPSOwnable.sol';
 import {RentalityQuery} from './libs/RentalityQuery.sol';
 import {LibDiamond} from './libs/LibDiamond.sol';
@@ -34,7 +33,7 @@ struct RentalityContract {
   RentalityClaimService claimService;
   RentalityAdminGateway adminService;
   RentalityCarDelivery deliveryService;
-  RentalityView viewService;
+  address viewService;
 }
 
 
@@ -135,6 +134,7 @@ LibDiamond.FacetCut[] memory _diamondCut
      __ReentrancyGuard_init();
   }
 }
+
 
 
 

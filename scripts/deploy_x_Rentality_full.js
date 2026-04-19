@@ -14,6 +14,10 @@ const commands = [
   { message: 'Deploying car tax adapter..', command: command + 'deploy_3r_CarTaxAdapter.js' },
   { message: 'Deploying trip main..', command: command + 'deploy_3s_TripMain.js' },
   { message: 'Deploying trip query..', command: command + 'deploy_3t_TripQuery.js' },
+  { message: 'Deploying rental claim query..', command: command + 'deploy_3u_RentalClaimQuery.js' },
+  { message: 'Deploying rental insurance query facet 1..', command: command + 'deploy_3v_RentalInsuranceQueryFacet1.js' },
+  { message: 'Deploying car query facet 2..', command: command + 'deploy_3w_CarQueryFacet2.js' },
+  { message: 'Deploying rental insurance query facet 2..', command: command + 'deploy_3x_RentalInsuranceQueryFacet2.js' },
   { message: 'Deploying rental investment main..', command: command + 'deploy_3p_RentalInvestmentMain.js' },
   { message: 'Deploying rental investment query..', command: command + 'deploy_3q_RentalInvestmentQuery.js' },
   { message: 'Deploying rental payment main..', command: command + 'deploy_3h_RentalPaymentMain.js' },
@@ -24,6 +28,9 @@ const commands = [
   { message: 'Deploying trip gateway facet..', command: command + 'deploy_4k_TripGatewayFacet.js' },
   { message: 'Deploying car gateway facet..', command: command + 'deploy_4l_CarGatewayFacet.js' },
   { message: 'Deploying car view gateway facet..', command: command + 'deploy_4m_CarViewGatewayFacet.js' },
+  { message: 'Deploying payment gateway facet..', command: command + 'deploy_4n_PaymentGatewayFacet.js' },
+  { message: 'Deploying claim gateway facet..', command: command + 'deploy_4o_ClaimGatewayFacet.js' },
+  { message: 'Deploying insurance gateway facet..', command: command + 'deploy_4p_InsuranceGatewayFacet.js' },
   { message: 'Deploying contracts..', command: command + 'deploy_7_RentalityGateway.js' },
   { message: 'Grand manager role...', command: command + 'deploy_8_GrandManagerRole.js' },
   { message: 'Grand KYC manager role...', command: command + 'grandKYCManagerRole.js' },
@@ -49,3 +56,6 @@ main()
     console.error('deploy_x_Rentality_full error: ', error)
     process.exit(1)
   })
+
+
+

@@ -8,7 +8,6 @@ import './payments/abstract/IERC20.sol';
 import {RentalityUserService} from './RentalityUserService.sol';
 import {ICarGateway} from './adapter/ICarGateway.sol';
 import {RentalityTripService} from './RentalityTripService.sol';
-import {RentalityView} from './RentalityView.sol';
 import {RentalityCarDelivery} from './features/RentalityCarDelivery.sol';
 import {RentalityClaimService} from './features/RentalityClaimService.sol';
 import {RentalityCurrencyConverter} from './payments/RentalityCurrencyConverter.sol';
@@ -37,7 +36,7 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
   RentalityPaymentService private paymentService;
   RentalityClaimService private claimService;
   RentalityCarDelivery private deliveryService;
-  RentalityView private viewService;
+  address private viewService;
   RentalityInsurance private insuranceService;
   RentalityReferralProgram private refferalProgram;
   RentalityPromoService private promoService;
@@ -461,7 +460,6 @@ function setDefaultPrices(uint64 underTwentyFiveMilesInUsdCents, uint64 aboveTwe
     address carDeliveryAddress,
     address viewServiceAddress,
     address insuranceServiceAddress,
-    address rentalityTripsViewAddress,
     address refferalProgramAddress,
     address promoServiceAddress,
     address dimoServiceAddress,
@@ -476,17 +474,9 @@ function setDefaultPrices(uint64 underTwentyFiveMilesInUsdCents, uint64 aboveTwe
     paymentService = RentalityPaymentService(payable(paymentServiceAddress));
     claimService = RentalityClaimService(claimServiceAddress);
     deliveryService = RentalityCarDelivery(carDeliveryAddress);
-    viewService = RentalityView(viewServiceAddress);
+    viewService = viewServiceAddress;
     promoService = RentalityPromoService(promoServiceAddress);
     dimoService = RentalityDimoService(dimoServiceAddress);
-
-    viewService.updateServiceAddresses(
-      getRentalityContracts(),
-      insuranceServiceAddress,
-      rentalityTripsViewAddress,
-      promoServiceAddress,
-      address(dimoService)
-    );
     refferalProgram = RentalityReferralProgram(refferalProgramAddress);
     insuranceService = RentalityInsurance(insuranceServiceAddress);
     investment = RentalityInvestment(investmentAddress);
@@ -494,6 +484,12 @@ function setDefaultPrices(uint64 underTwentyFiveMilesInUsdCents, uint64 aboveTwe
     __Ownable_init();
   }
 }
+
+
+
+
+
+
 
 
 

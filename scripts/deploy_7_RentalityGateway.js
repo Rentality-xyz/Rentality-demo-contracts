@@ -1,3 +1,4 @@
+const saveJsonAbi = require('./utils/abiSaver')
 const { ethers, upgrades } = require('hardhat')
 const { getContractAddress } = require('./utils/contractAddress')
 const addressSaver = require('./utils/addressSaver')
@@ -19,17 +20,9 @@ async function main() {
     'RentalityPlatform'
   )
 
-  const rentalityView = checkNotNull(
-    getContractAddress('RentalityView', 'scripts/deploy_4c_RentalityView.js', chainId),
-    'RentalityView'
-  )
   const rentalityPlatformHelper = checkNotNull(
     getContractAddress('RentalityPlatformHelper', 'scripts/deploy_4g_RentalityPlatformHelper.js', chainId),
     'RentalityPlatformHelper'
-  )
-  const rentalityTripsView = checkNotNull(
-    getContractAddress('RentalityTripsView', 'scripts/deploy_4b_RentalityTripsView.js', chainId),
-    'RentalityTripsView'
   )
   const profileGatewayFacetAddress = checkNotNull(
     getContractAddress('ProfileGatewayFacet', 'scripts/deploy_4h_ProfileGatewayFacet.js', chainId),
@@ -55,6 +48,18 @@ async function main() {
     getContractAddress('CarViewGatewayFacet', 'scripts/deploy_4m_CarViewGatewayFacet.js', chainId),
     'CarViewGatewayFacet'
   )
+  const paymentGatewayFacetAddress = checkNotNull(
+    getContractAddress('PaymentGatewayFacet', 'scripts/deploy_4n_PaymentGatewayFacet.js', chainId),
+    'PaymentGatewayFacet'
+  )
+  const claimGatewayFacetAddress = checkNotNull(
+    getContractAddress('ClaimGatewayFacet', 'scripts/deploy_4o_ClaimGatewayFacet.js', chainId),
+    'ClaimGatewayFacet'
+  )
+  const insuranceGatewayFacetAddress = checkNotNull(
+    getContractAddress('InsuranceGatewayFacet', 'scripts/deploy_4p_InsuranceGatewayFacet.js', chainId),
+    'InsuranceGatewayFacet'
+  )
 
   const contractFactory = await ethers.getContractFactory(contractName, {
     libraries: {},
@@ -64,26 +69,28 @@ async function main() {
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()
 
-  const viewFacet = await ethers.getContractAt('IRentalityViewCoreFacet', rentalityView)
   const profileFacet = await ethers.getContractAt('IProfileGatewayFacet', profileGatewayFacetAddress)
   const platformFacet = await ethers.getContractAt('IRentalityPlatformFacet', rentalityPlatformAddress)
   const platformHelperFacet = await ethers.getContractAt('IRentalityPlatformHelperCoreFacet', rentalityPlatformHelper)
-  const tripsViewFacet = await ethers.getContractAt('IRentalityTripsViewCoreFacet', rentalityTripsView)
   const tripFacet = await ethers.getContractAt('ITripGatewayFacet', tripGatewayFacetAddress)
   const carFacet = await ethers.getContractAt('ICarGatewayFacet', carGatewayFacetAddress)
   const carViewFacet = await ethers.getContractAt('ICarViewGatewayFacet', carViewGatewayFacetAddress)
+  const paymentFacet = await ethers.getContractAt('IPaymentGatewayFacet', paymentGatewayFacetAddress)
+  const claimFacet = await ethers.getContractAt('IClaimGatewayFacet', claimGatewayFacetAddress)
+  const insuranceFacet = await ethers.getContractAt('IInsuranceGatewayFacet', insuranceGatewayFacetAddress)
   const investmentFacet = await ethers.getContractAt('IInvestmentGatewayFacet', investmentGatewayFacetAddress)
   const referralFacet = await ethers.getContractAt('IReferralGatewayFacet', referralGatewayFacetAddress)
 
   const facetCuts = [
-    createFacetCut(viewFacet),
     createFacetCut(profileFacet),
     createFacetCut(platformFacet),
     createFacetCut(platformHelperFacet),
-    createFacetCut(tripsViewFacet),
     createFacetCut(tripFacet, { action: FacetCutAction.Replace }),
     createFacetCut(carFacet, { action: FacetCutAction.Replace }),
     createFacetCut(carViewFacet, { action: FacetCutAction.Replace }),
+    createFacetCut(paymentFacet),
+    createFacetCut(claimFacet),
+    createFacetCut(insuranceFacet),
     createFacetCut(investmentFacet),
     createFacetCut(referralFacet),
   ]
@@ -105,4 +112,3 @@ main()
     console.error(error)
     process.exit(1)
   })
-

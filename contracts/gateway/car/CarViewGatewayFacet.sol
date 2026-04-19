@@ -6,6 +6,7 @@ import '../../models/base/insurance/InsuranceTypes.sol';
 import '../../models/car/CarMain.sol';
 import '../../models/car/CarQuery.sol';
 import '../../models/car/CarQueryFacet1.sol';
+import '../../models/car/CarQueryFacet2.sol';
 import '../../models/car/CarTypes.sol';
 import '../../models/pricing/RentalPricingTypes.sol';
 import '../../models/profile/UserProfileTypes.sol';
@@ -46,6 +47,7 @@ interface ICarViewGatewayInsuranceService {
 
 interface ICarViewGatewayDimoService {
   function getDimoTokenId(uint256 carId) external view returns (uint256);
+  function getDimoVehicles() external view returns (uint256[] memory);
 }
 
 interface ICarViewGatewayGeoService {
@@ -61,6 +63,7 @@ contract CarViewGatewayFacet is UUPSOwnable, ARentalityContext, ICarViewGatewayF
   CarMain public carMain;
   CarQuery public carQuery;
   CarQueryFacet1 public carQueryFacet1;
+  CarQueryFacet2 public carQueryFacet2;
   ICarViewGatewayTripQuery public tripQuery;
   ICarViewGatewayUserProfileMain public userProfileMain;
   ICarViewGatewayUserProfileQuery public userProfileQuery;
@@ -75,6 +78,7 @@ contract CarViewGatewayFacet is UUPSOwnable, ARentalityContext, ICarViewGatewayF
     address carMainAddress,
     address carQueryAddress,
     address carQueryFacet1Address,
+    address carQueryFacet2Address,
     address tripQueryAddress,
     address userProfileMainAddress,
     address userProfileQueryAddress,
@@ -90,6 +94,7 @@ contract CarViewGatewayFacet is UUPSOwnable, ARentalityContext, ICarViewGatewayF
       carMainAddress,
       carQueryAddress,
       carQueryFacet1Address,
+      carQueryFacet2Address,
       tripQueryAddress,
       userProfileMainAddress,
       userProfileQueryAddress,
@@ -106,6 +111,7 @@ contract CarViewGatewayFacet is UUPSOwnable, ARentalityContext, ICarViewGatewayF
     address carMainAddress,
     address carQueryAddress,
     address carQueryFacet1Address,
+    address carQueryFacet2Address,
     address tripQueryAddress,
     address userProfileMainAddress,
     address userProfileQueryAddress,
@@ -120,6 +126,7 @@ contract CarViewGatewayFacet is UUPSOwnable, ARentalityContext, ICarViewGatewayF
       carMainAddress,
       carQueryAddress,
       carQueryFacet1Address,
+      carQueryFacet2Address,
       tripQueryAddress,
       userProfileMainAddress,
       userProfileQueryAddress,
@@ -273,6 +280,22 @@ contract CarViewGatewayFacet is UUPSOwnable, ARentalityContext, ICarViewGatewayF
     return result;
   }
 
+  function getUniqCarsBrand() external view returns (string[] memory brandsArray) {
+    return carQueryFacet2.getUniqCarsBrand();
+  }
+
+  function getUniqModelsByBrand(string memory brand) external view returns (string[] memory modelsArray) {
+    return carQueryFacet2.getUniqModelsByBrand(brand);
+  }
+
+  function getFilterInfo(uint64 duration) external view returns (Schemas.FilterInfoDTO memory) {
+    return carQueryFacet2.getFilterInfo(address(pricingService), duration);
+  }
+
+  function getDimoVehicles() external view returns (uint[] memory) {
+    return dimoService.getDimoVehicles();
+  }
+
   function getCarMetadataURI(uint256 carId) external view returns (string memory) {
     return carMain.tokenURI(carId);
   }
@@ -329,6 +352,7 @@ contract CarViewGatewayFacet is UUPSOwnable, ARentalityContext, ICarViewGatewayF
     address carMainAddress,
     address carQueryAddress,
     address carQueryFacet1Address,
+    address carQueryFacet2Address,
     address tripQueryAddress,
     address userProfileMainAddress,
     address userProfileQueryAddress,
@@ -342,6 +366,7 @@ contract CarViewGatewayFacet is UUPSOwnable, ARentalityContext, ICarViewGatewayF
     carMain = CarMain(carMainAddress);
     carQuery = CarQuery(carQueryAddress);
     carQueryFacet1 = CarQueryFacet1(carQueryFacet1Address);
+    carQueryFacet2 = CarQueryFacet2(carQueryFacet2Address);
     tripQuery = ICarViewGatewayTripQuery(tripQueryAddress);
     userProfileMain = ICarViewGatewayUserProfileMain(userProfileMainAddress);
     userProfileQuery = ICarViewGatewayUserProfileQuery(userProfileQueryAddress);
@@ -353,14 +378,3 @@ contract CarViewGatewayFacet is UUPSOwnable, ARentalityContext, ICarViewGatewayF
     geoService = ICarViewGatewayGeoService(geoServiceAddress);
   }
 }
-
-
-
-
-
-
-
-
-
-
-

@@ -33,8 +33,6 @@ async function main() {
     addresses['RentalityPaymentService'],
     'rentalityPaymentServiceAddress'
   )
-  const rentalityView = checkNotNull(addresses['RentalityView'], 'RentalityViewAddress')
-  const rentalityTripsView = checkNotNull(addresses['RentalityTripsView'], 'RentalityTripsViewAddress')
   const rentalityCarDelivery = checkNotNull(addresses['RentalityCarDelivery'], 'RentalityCarDelivery')
   const rentalityClaimService = checkNotNull(addresses['RentalityClaimService'], 'RentalityClaimService')
   const refferalProgram = checkNotNull(addresses['RentalityReferralProgram'], 'RentalityReferralProgram')
@@ -45,7 +43,6 @@ async function main() {
   let rentalityUserServiceContract = await ethers.getContractAt('RentalityUserService', rentalityUserServiceAddress)
 
   await rentalityUserServiceContract.grantPlatformRole(deployer.address)
-  await rentalityUserServiceContract.grantPlatformRole(rentalityView)
   await rentalityUserServiceContract.grantPlatformRole(rentalityGatewayAddress)
   await rentalityUserServiceContract.grantPlatformRole(rentalityTripServiceAddress)
   await rentalityUserServiceContract.grantPlatformRole(rentalityPlatformAddress)
@@ -55,7 +52,6 @@ async function main() {
   await rentalityUserServiceContract.grantPlatformRole(rentalityEngineAddress)
   await rentalityUserServiceContract.grantPlatformRole(rentalityPaymentServiceAddress)
   await rentalityUserServiceContract.grantPlatformRole(rentalityCarDelivery)
-  await rentalityUserServiceContract.grantPlatformRole(rentalityTripsView)
   await rentalityUserServiceContract.grantPlatformRole(rentalityClaimService)
   await rentalityUserServiceContract.grantPlatformRole(refferalProgram)
   await rentalityUserServiceContract.grantPlatformRole(rentalityPlatformHelper)
@@ -72,5 +68,8 @@ main()
     console.error('deploy_8_GrandManagerRole error:', error)
     process.exit(1)
   })
+
+
+
 
 

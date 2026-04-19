@@ -56,10 +56,6 @@ async function main() {
     getContractAddress('RentalityCarDelivery', 'scripts/deploy_2i_RentalityCarDelivery.js', chainId),
     'RentalityCarDelivery'
   )
-  const rentalityView = checkNotNull(
-    getContractAddress('RentalityView', 'scripts/deploy_4c_RentalityView.js', chainId),
-    'RentalityView'
-  )
   const rentalityTripsQueryAddress = checkNotNull(
     getContractAddress('RentalityTripsQuery', 'scripts/deploy_1e_RentalityTripsQuery.js', chainId),
     'RentalityTripsQuery'
@@ -76,10 +72,6 @@ async function main() {
   const rentalityRefferalProgram = checkNotNull(
     getContractAddress('RentalityReferralProgram', 'scripts/deploy_3e_RentalityReferralProgram.js', chainId),
     'RentalityReferralProgram'
-  )
-  const rentalityTripsView = checkNotNull(
-    getContractAddress('RentalityTripsView', 'scripts/deploy_4b_RentalityTripsView.js', chainId),
-    'RentalityTripsView'
   )
   const rentalityPromoService = checkNotNull(
     getContractAddress('RentalityPromoService', 'scripts/deploy_4f_RentalityPromo.js', chainId),
@@ -114,9 +106,8 @@ async function main() {
     rentalityPaymentServiceAddress,
     rentalityClaimService,
     rentalityCarDelivery,
-    rentalityView,
+    ethers.ZeroAddress,
     rentalityInsurance,
-    rentalityTripsView,
     rentalityRefferalProgram,
     rentalityPromoService,
     dimoService,
@@ -139,6 +130,10 @@ main()
     console.error(error)
     process.exit(1)
   })
+
+
+
+
 
 
 
