@@ -42,8 +42,8 @@ interface IProfileGatewayFacetCurrencyConverter {
         returns (uint256, int256, uint8);
 }
 
-interface IProfileGatewayFacetTripService {
-    function totalTripCount() external view returns (uint256);
+interface IProfileGatewayFacetTripQuery {
+    function totalSupply() external view returns (uint256);
 }
 
 interface IProfileGatewayFacetCarService {
@@ -58,7 +58,7 @@ contract ProfileGatewayFacet is UUPSOwnable, ARentalityContext, IProfileGatewayF
     IProfileGatewayFacetNotificationService public notificationService;
     IProfileGatewayFacetPaymentService public paymentService;
     IProfileGatewayFacetCurrencyConverter public currencyConverter;
-    IProfileGatewayFacetTripService public tripService;
+    IProfileGatewayFacetTripQuery public tripQuery;
     IProfileGatewayFacetCarService public carService;
 
     /// @custom:oz-upgrades-unsafe-allow constructor
@@ -74,7 +74,7 @@ contract ProfileGatewayFacet is UUPSOwnable, ARentalityContext, IProfileGatewayF
         address notificationServiceAddress,
         address paymentServiceAddress,
         address currencyConverterAddress,
-        address tripServiceAddress,
+        address tripQueryAddress,
         address carServiceAddress
     ) public initializer {
         __Ownable_init();
@@ -86,7 +86,7 @@ contract ProfileGatewayFacet is UUPSOwnable, ARentalityContext, IProfileGatewayF
             notificationServiceAddress,
             paymentServiceAddress,
             currencyConverterAddress,
-            tripServiceAddress,
+            tripQueryAddress,
             carServiceAddress
         );
     }
@@ -99,7 +99,7 @@ contract ProfileGatewayFacet is UUPSOwnable, ARentalityContext, IProfileGatewayF
         address notificationServiceAddress,
         address paymentServiceAddress,
         address currencyConverterAddress,
-        address tripServiceAddress,
+        address tripQueryAddress,
         address carServiceAddress
     ) external onlyOwner {
         _setServiceAddresses(
@@ -110,7 +110,7 @@ contract ProfileGatewayFacet is UUPSOwnable, ARentalityContext, IProfileGatewayF
             notificationServiceAddress,
             paymentServiceAddress,
             currencyConverterAddress,
-            tripServiceAddress,
+            tripQueryAddress,
             carServiceAddress
         );
     }
@@ -143,7 +143,7 @@ contract ProfileGatewayFacet is UUPSOwnable, ARentalityContext, IProfileGatewayF
     function getPlatformInfo() external view returns (Schemas.PlatformInfoDTO memory) {
         return Schemas.PlatformInfoDTO({
             totalUsers: userProfileQuery.getPlatformUsersCount(),
-            totalTrips: tripService.totalTripCount(),
+            totalTrips: tripQuery.totalSupply(),
             totalCars: carService.totalSupply()
         });
     }
@@ -236,7 +236,7 @@ contract ProfileGatewayFacet is UUPSOwnable, ARentalityContext, IProfileGatewayF
         address notificationServiceAddress,
         address paymentServiceAddress,
         address currencyConverterAddress,
-        address tripServiceAddress,
+        address tripQueryAddress,
         address carServiceAddress
     ) internal {
         userProfileMain = UserProfileMain(userProfileMainAddress);
@@ -246,7 +246,7 @@ contract ProfileGatewayFacet is UUPSOwnable, ARentalityContext, IProfileGatewayF
         notificationService = IProfileGatewayFacetNotificationService(notificationServiceAddress);
         paymentService = IProfileGatewayFacetPaymentService(paymentServiceAddress);
         currencyConverter = IProfileGatewayFacetCurrencyConverter(currencyConverterAddress);
-        tripService = IProfileGatewayFacetTripService(tripServiceAddress);
+        tripQuery = IProfileGatewayFacetTripQuery(tripQueryAddress);
         carService = IProfileGatewayFacetCarService(carServiceAddress);
     }
 }

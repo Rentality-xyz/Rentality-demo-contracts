@@ -3,6 +3,7 @@ pragma solidity ^0.8.20;
 
 import '../../rentality_old/Schemas.sol';
 import '../../rentality_old/abstract/IRentalityGeoService.sol';
+import '../trip/TripTypes.sol';
 
 interface IRentalInsuranceQueryFacet2InsuranceService {
   function getMyInsurancesAsGuest(address user) external view returns (Schemas.InsuranceInfo[] memory);
@@ -20,8 +21,8 @@ interface IRentalInsuranceQueryFacet2ClaimService {
   function claimIdToCurrencyRate(uint256 claimId) external view returns (int256 rate, uint8 decimals);
 }
 
-interface IRentalInsuranceQueryFacet2TripService {
-  function getTrip(uint256 tripId) external view returns (Schemas.Trip memory);
+interface IRentalInsuranceQueryFacet2TripQuery {
+  function getTrip(uint256 tripId) external view returns (Trip memory);
 }
 
 interface IRentalInsuranceQueryFacet2UserService {
@@ -46,7 +47,7 @@ contract RentalInsuranceQueryFacet2 {
   IRentalInsuranceQueryFacet2InsuranceService public immutable insuranceService;
   IRentalInsuranceQueryFacet2HostInsurance public immutable hostInsurance;
   IRentalInsuranceQueryFacet2ClaimService public immutable claimService;
-  IRentalInsuranceQueryFacet2TripService public immutable tripService;
+  IRentalInsuranceQueryFacet2TripQuery public immutable tripQuery;
   IRentalInsuranceQueryFacet2UserService public immutable userService;
   IRentalInsuranceQueryFacet2CarService public immutable carService;
   IRentalInsuranceQueryFacet2CurrencyConverter public immutable currencyConverter;
@@ -56,7 +57,7 @@ contract RentalInsuranceQueryFacet2 {
     address insuranceServiceAddress,
     address hostInsuranceContractAddress,
     address claimServiceAddress,
-    address tripServiceAddress,
+    address tripQueryAddress,
     address userServiceAddress,
     address carServiceAddress,
     address currencyConverterAddress
@@ -64,7 +65,7 @@ contract RentalInsuranceQueryFacet2 {
     insuranceService = IRentalInsuranceQueryFacet2InsuranceService(insuranceServiceAddress);
     hostInsurance = IRentalInsuranceQueryFacet2HostInsurance(hostInsuranceContractAddress);
     claimService = IRentalInsuranceQueryFacet2ClaimService(claimServiceAddress);
-    tripService = IRentalInsuranceQueryFacet2TripService(tripServiceAddress);
+    tripQuery = IRentalInsuranceQueryFacet2TripQuery(tripQueryAddress);
     userService = IRentalInsuranceQueryFacet2UserService(userServiceAddress);
     carService = IRentalInsuranceQueryFacet2CarService(carServiceAddress);
     currencyConverter = IRentalInsuranceQueryFacet2CurrencyConverter(currencyConverterAddress);
@@ -81,15 +82,15 @@ contract RentalInsuranceQueryFacet2 {
 
     for (uint256 i = 0; i < claimIds.length; i++) {
       Schemas.ClaimV2 memory claim = claimService.getClaim(claimIds[i]);
-      Schemas.Trip memory trip = tripService.getTrip(claim.tripId);
-      Schemas.CarInfo memory car = carService.getCarInfoById(trip.carId);
+      Trip memory trip = tripQuery.getTrip(claim.tripId);
+      Schemas.CarInfo memory car = carService.getCarInfoById(trip.booking.resourceId);
 
       claimInfos[i] = Schemas.FullClaimInfo(
         claim,
-        trip.host,
-        trip.guest,
-        userService.getKYCInfo(trip.guest).mobilePhoneNumber,
-        userService.getKYCInfo(trip.host).mobilePhoneNumber,
+        trip.booking.provider,
+        trip.booking.customer,
+        userService.getKYCInfo(trip.booking.customer).mobilePhoneNumber,
+        userService.getKYCInfo(trip.booking.provider).mobilePhoneNumber,
         car,
         _getClaimValueInCurrency(trip.paymentInfo.currencyType, claim.amountInUsdCents, claim),
         IRentalityGeoService(carService.getGeoServiceAddress()).getCarTimeZoneId(car.locationHash),

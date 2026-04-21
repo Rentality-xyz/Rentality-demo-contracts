@@ -1,17 +1,6 @@
-const saveJsonAbi = require('./utils/abiSaver')
-const { ethers, upgrades } = require('hardhat')
-const addressSaver = require('./utils/addressSaver')
+const { ethers } = require('hardhat')
 const { startDeploy, checkNotNull } = require('./utils/deployHelper')
-const {
-  emptyLocationInfo,
-  getEmptySearchCarParams,
-  taxesWithGovePMM,
-  taxesWithoutRentSign,
-  taxesWithRentSign,
-  encodeTaxes,
-  taxesGOVConst,
-  TaxesLocationType,
-} = require('../test/utils')
+const { TaxesLocationType } = require('../test/utils')
 const { getContractAddress } = require('./utils/contractAddress')
 
 async function main() {
@@ -31,13 +20,6 @@ async function main() {
     getContractAddress('RentalityPaymentService', 'scripts/deploy_3c_RentalityPaymentService.js', chainId),
     'RentalityPaymentService'
   )
-  const rentalityTripServiceAddress = checkNotNull(
-    getContractAddress('RentalityTripService', 'scripts/deploy_4_RentalityTripService.js', chainId),
-    'RentalityTripService'
-  )
-  const contract = await ethers.getContractAt('RentalityTripService', rentalityTripServiceAddress)
-  const totalTripsCount = await contract.totalTripCount()
-
   let paymentsService = await ethers.getContractAt('RentalityPaymentService', paymentsServiceAddress)
   await paymentsService.addTaxesContract(taxesServiceAddress)
   const rentalityAdminGateway = await ethers.getContractAt('IAdminGatewayFacet', rentalityGatewayAddress)

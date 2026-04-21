@@ -607,7 +607,7 @@ library TripLib {
         address sender
     ) private {
         Trip memory trip = tripMain.getTrip(tripId);
-        Schemas.Trip memory legacyTrip = _toLegacyTrip(trip);
+        Schemas.Trip memory legacyTrip = toLegacyTrip(trip);
 
         uint256 insurance = ITripLibWriteInsuranceService(insuranceServiceAddress).getInsurancePriceByTrip(tripId);
         uint64 totalTax = ITripLibWritePricingService(pricingServiceAddress).getTotalTripTax(tripId);
@@ -644,7 +644,7 @@ library TripLib {
     ) private {
         tripMain.finishTrip(tripId, sender);
         Trip memory trip = tripMain.getTrip(tripId);
-        Schemas.Trip memory legacyTrip = _toLegacyTrip(trip);
+        Schemas.Trip memory legacyTrip = toLegacyTrip(trip);
 
         uint256 rentalityFee = ITripLibWritePricingService(pricingServiceAddress).getPlatformFeeFrom(
             trip.paymentInfo.priceWithDiscount + trip.paymentInfo.pickUpFee + trip.paymentInfo.dropOfFee
@@ -703,7 +703,7 @@ library TripLib {
         );
     }
 
-    function _toLegacyTrip(Trip memory trip) private pure returns (Schemas.Trip memory) {
+    function toLegacyTrip(Trip memory trip) internal pure returns (Schemas.Trip memory) {
         return Schemas.Trip({
             tripId: trip.booking.id,
             carId: trip.booking.resourceId,
@@ -718,7 +718,7 @@ library TripLib {
             engineType: trip.engineType,
             milesIncludedPerDay: trip.milesIncludedPerDay,
             fuelPrice: trip.fuelPrice,
-            paymentInfo: _toLegacyPaymentInfo(trip.paymentInfo),
+            paymentInfo: toLegacyPaymentInfo(trip.paymentInfo),
             createdDateTime: trip.booking.createdAt,
             approvedDateTime: trip.approvedDateTime,
             rejectedDateTime: trip.rejectedDateTime,
@@ -733,14 +733,14 @@ library TripLib {
             tripFinishedBy: trip.tripFinishedBy,
             endParamLevels: trip.endParamLevels,
             checkedOutByHostDateTime: trip.checkedOutByHostDateTime,
-            transactionInfo: _toLegacyTransactionInfo(trip.transactionInfo),
+            transactionInfo: toLegacyTransactionInfo(trip.transactionInfo),
             finishDateTime: trip.finishDateTime,
             pickUpHash: trip.pickUpHash,
             returnHash: trip.returnHash
         });
     }
 
-    function _toLegacyPaymentInfo(TripPaymentInfo memory paymentInfo) private pure returns (Schemas.PaymentInfo memory) {
+    function toLegacyPaymentInfo(TripPaymentInfo memory paymentInfo) internal pure returns (Schemas.PaymentInfo memory) {
         return Schemas.PaymentInfo({
             tripId: paymentInfo.tripId,
             from: paymentInfo.from,
@@ -761,8 +761,8 @@ library TripLib {
         });
     }
 
-    function _toLegacyTransactionInfo(TripTransactionInfo memory transactionInfo)
-        private
+    function toLegacyTransactionInfo(TripTransactionInfo memory transactionInfo)
+        internal
         pure
         returns (Schemas.TransactionInfo memory)
     {

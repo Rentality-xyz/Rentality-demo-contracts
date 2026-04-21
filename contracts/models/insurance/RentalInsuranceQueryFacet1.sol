@@ -2,14 +2,15 @@
 pragma solidity ^0.8.20;
 
 import '../../rentality_old/Schemas.sol';
+import '../trip/TripTypes.sol';
 
 interface IRentalInsuranceQueryFacet1CarService {
   function getCarInfoById(uint256 carId) external view returns (Schemas.CarInfo memory);
 }
 
-interface IRentalInsuranceQueryFacet1TripService {
+interface IRentalInsuranceQueryFacet1TripQuery {
   function getTripsByUser(address user) external view returns (uint256[] memory);
-  function getTrip(uint256 tripId) external view returns (Schemas.Trip memory);
+  function getTrip(uint256 tripId) external view returns (Trip memory);
 }
 
 interface IRentalInsuranceQueryFacet1UserService {
@@ -24,18 +25,18 @@ interface IRentalInsuranceQueryFacet1InsuranceService {
 
 contract RentalInsuranceQueryFacet1 {
   IRentalInsuranceQueryFacet1CarService public immutable carService;
-  IRentalInsuranceQueryFacet1TripService public immutable tripService;
+  IRentalInsuranceQueryFacet1TripQuery public immutable tripQuery;
   IRentalInsuranceQueryFacet1UserService public immutable userService;
   IRentalInsuranceQueryFacet1InsuranceService public immutable insuranceService;
 
   constructor(
     address carServiceAddress,
-    address tripServiceAddress,
+    address tripQueryAddress,
     address userServiceAddress,
     address insuranceServiceAddress
   ) {
     carService = IRentalInsuranceQueryFacet1CarService(carServiceAddress);
-    tripService = IRentalInsuranceQueryFacet1TripService(tripServiceAddress);
+    tripQuery = IRentalInsuranceQueryFacet1TripQuery(tripQueryAddress);
     userService = IRentalInsuranceQueryFacet1UserService(userServiceAddress);
     insuranceService = IRentalInsuranceQueryFacet1InsuranceService(insuranceServiceAddress);
   }
@@ -50,7 +51,7 @@ contract RentalInsuranceQueryFacet1 {
 
   function _getTripInsurancesByGuest(address guest) internal view returns (Schemas.InsuranceDTO[] memory) {
     uint256 itemCount;
-    uint256[] memory userTrips = tripService.getTripsByUser(guest);
+    uint256[] memory userTrips = tripQuery.getTripsByUser(guest);
     for (uint256 i = 0; i < userTrips.length; i++) {
       itemCount += insuranceService.getTripInsurances(userTrips[i]).length;
     }
@@ -62,17 +63,17 @@ contract RentalInsuranceQueryFacet1 {
     Schemas.InsuranceDTO[] memory insurances = new Schemas.InsuranceDTO[](itemCount);
     uint256 counter;
     for (uint256 i = 0; i < userTrips.length; i++) {
-      Schemas.Trip memory trip = tripService.getTrip(userTrips[i]);
+      Trip memory trip = tripQuery.getTrip(userTrips[i]);
       Schemas.InsuranceInfo[] memory tripInsurances = insuranceService.getTripInsurances(userTrips[i]);
       for (uint256 j = 0; j < tripInsurances.length; j++) {
         insurances[counter] = _fullFillInsuranceDTO(
           tripInsurances[j],
           false,
-          trip.startDateTime,
-          trip.endDateTime,
+          trip.booking.startDateTime,
+          trip.booking.endDateTime,
           userTrips[i],
-          tripInsurances[j].createdBy == trip.host,
-          trip.carId,
+          tripInsurances[j].createdBy == trip.booking.provider,
+          trip.booking.resourceId,
           tripInsurances[j].createdBy
         );
         counter += 1;
@@ -175,7 +176,7 @@ contract RentalInsuranceQueryFacet1 {
 
   function _getTripInsurancesByHost(address host) internal view returns (Schemas.InsuranceDTO[] memory) {
     uint256 itemCount;
-    uint256[] memory userTrips = tripService.getTripsByUser(host);
+    uint256[] memory userTrips = tripQuery.getTripsByUser(host);
     for (uint256 i = 0; i < userTrips.length; i++) {
       itemCount += insuranceService.getTripInsurances(userTrips[i]).length;
     }
@@ -183,22 +184,22 @@ contract RentalInsuranceQueryFacet1 {
     Schemas.InsuranceDTO[] memory insurances = new Schemas.InsuranceDTO[](itemCount);
     uint256 counter;
     for (uint256 i = 0; i < userTrips.length; i++) {
-      Schemas.Trip memory trip = tripService.getTrip(userTrips[i]);
+      Trip memory trip = tripQuery.getTrip(userTrips[i]);
       Schemas.InsuranceInfo[] memory tripInsurances = insuranceService.getTripInsurances(userTrips[i]);
       (uint256 oneTimeActual, uint256 generalActual) = insuranceService.findActualInsurance(tripInsurances);
       for (uint256 j = 0; j < tripInsurances.length; j++) {
         Schemas.KYCInfo memory kyc = userService.getKYCInfo(tripInsurances[j].createdBy);
-        Schemas.CarInfo memory car = carService.getCarInfoById(trip.carId);
+        Schemas.CarInfo memory car = carService.getCarInfoById(trip.booking.resourceId);
         insurances[counter].tripId = userTrips[i];
         insurances[counter].carBrand = car.brand;
         insurances[counter].carModel = car.model;
         insurances[counter].carYear = car.yearOfProduction;
         insurances[counter].insuranceInfo = tripInsurances[j];
-        insurances[counter].createdByHost = tripInsurances[j].createdBy == trip.host;
+        insurances[counter].createdByHost = tripInsurances[j].createdBy == trip.booking.provider;
         insurances[counter].creatorPhoneNumber = kyc.mobilePhoneNumber;
         insurances[counter].creatorFullName = kyc.surname;
-        insurances[counter].startDateTime = trip.startDateTime;
-        insurances[counter].endDateTime = trip.endDateTime;
+        insurances[counter].startDateTime = trip.booking.startDateTime;
+        insurances[counter].endDateTime = trip.booking.endDateTime;
         insurances[counter].isActual =
           (j == oneTimeActual && tripInsurances[j].insuranceType == Schemas.InsuranceType.OneTime) ||
           (j == generalActual && tripInsurances[j].insuranceType == Schemas.InsuranceType.General);

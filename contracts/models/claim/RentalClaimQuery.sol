@@ -3,6 +3,8 @@ pragma solidity ^0.8.20;
 
 import '../../rentality_old/Schemas.sol';
 import '../../rentality_old/abstract/IRentalityGeoService.sol';
+import '../trip/TripLib.sol';
+import '../trip/TripTypes.sol';
 
 interface IRentalClaimQueryCarService {
   function getCarInfoById(uint256 carId) external view returns (Schemas.CarInfo memory);
@@ -18,8 +20,8 @@ interface IRentalClaimQueryCurrencyConverter {
   function getCurrencyInfo(address currency) external view returns (Schemas.UserCurrencyDTO memory);
 }
 
-interface IRentalClaimQueryTripService {
-  function getTrip(uint256 tripId) external view returns (Schemas.Trip memory);
+interface IRentalClaimQueryTripQuery {
+  function getTrip(uint256 tripId) external view returns (Trip memory);
 }
 
 interface IRentalClaimQueryUserService {
@@ -43,7 +45,7 @@ interface IRentalClaimQueryAiDamageService {
 contract RentalClaimQuery {
   IRentalClaimQueryCarService public immutable carService;
   IRentalClaimQueryCurrencyConverter public immutable currencyConverter;
-  IRentalClaimQueryTripService public immutable tripService;
+  IRentalClaimQueryTripQuery public immutable tripQuery;
   IRentalClaimQueryUserService public immutable userService;
   IRentalClaimQueryClaimService public immutable claimService;
   IRentalClaimQueryAiDamageService public immutable aiDamageService;
@@ -51,14 +53,14 @@ contract RentalClaimQuery {
   constructor(
     address carServiceAddress,
     address currencyConverterAddress,
-    address tripServiceAddress,
+    address tripQueryAddress,
     address userServiceAddress,
     address claimServiceAddress,
     address aiDamageServiceAddress
   ) {
     carService = IRentalClaimQueryCarService(carServiceAddress);
     currencyConverter = IRentalClaimQueryCurrencyConverter(currencyConverterAddress);
-    tripService = IRentalClaimQueryTripService(tripServiceAddress);
+    tripQuery = IRentalClaimQueryTripQuery(tripQueryAddress);
     userService = IRentalClaimQueryUserService(userServiceAddress);
     claimService = IRentalClaimQueryClaimService(claimServiceAddress);
     aiDamageService = IRentalClaimQueryAiDamageService(aiDamageServiceAddress);
@@ -80,7 +82,7 @@ contract RentalClaimQuery {
 
     uint256 commission = claimService.getPlatformFeeFrom(claim.amountInUsdCents);
     (uint256 result, , ) = currencyConverter.getFromUsdCentsLatest(
-      tripService.getTrip(claim.tripId).paymentInfo.currencyType,
+      TripLib.toLegacyTrip(tripQuery.getTrip(claim.tripId)).paymentInfo.currencyType,
       claim.amountInUsdCents + commission
     );
 
@@ -92,7 +94,7 @@ contract RentalClaimQuery {
     view
     returns (Schemas.AiDamageAnalyzeCaseRequestDTO memory aiDamageAnalyzeCaseRequest)
   {
-    Schemas.CarInfo memory car = carService.getCarInfoById(tripService.getTrip(tripId).carId);
+    Schemas.CarInfo memory car = carService.getCarInfoById(TripLib.toLegacyTrip(tripQuery.getTrip(tripId)).carId);
     Schemas.FullKYCInfoDTO memory kyc = userService.getMyFullKYCInfo(user);
 
     return Schemas.AiDamageAnalyzeCaseRequestDTO(
@@ -110,7 +112,7 @@ contract RentalClaimQuery {
 
     for (uint256 i = 1; i <= claimsAmount; i++) {
       Schemas.ClaimV2 memory claim = claimService.getClaim(i);
-      Schemas.Trip memory trip = tripService.getTrip(claim.tripId);
+      Schemas.Trip memory trip = TripLib.toLegacyTrip(tripQuery.getTrip(claim.tripId));
       if (trip.host == host) {
         arraySize++;
       }
@@ -121,7 +123,7 @@ contract RentalClaimQuery {
 
     for (uint256 i = 1; i <= claimsAmount; i++) {
       Schemas.ClaimV2 memory claim = claimService.getClaim(i);
-      Schemas.Trip memory trip = tripService.getTrip(claim.tripId);
+      Schemas.Trip memory trip = TripLib.toLegacyTrip(tripQuery.getTrip(claim.tripId));
       if (trip.host == host) {
         claimInfos[counter++] = _toFullClaimInfo(claim, trip);
       }
@@ -136,7 +138,7 @@ contract RentalClaimQuery {
 
     for (uint256 i = 1; i <= claimsAmount; i++) {
       Schemas.ClaimV2 memory claim = claimService.getClaim(i);
-      Schemas.Trip memory trip = tripService.getTrip(claim.tripId);
+      Schemas.Trip memory trip = TripLib.toLegacyTrip(tripQuery.getTrip(claim.tripId));
       if (trip.guest == guest) {
         arraySize++;
       }
@@ -147,7 +149,7 @@ contract RentalClaimQuery {
 
     for (uint256 i = 1; i <= claimsAmount; i++) {
       Schemas.ClaimV2 memory claim = claimService.getClaim(i);
-      Schemas.Trip memory trip = tripService.getTrip(claim.tripId);
+      Schemas.Trip memory trip = TripLib.toLegacyTrip(tripQuery.getTrip(claim.tripId));
       if (trip.guest == guest) {
         claimInfos[counter++] = _toFullClaimInfo(claim, trip);
       }

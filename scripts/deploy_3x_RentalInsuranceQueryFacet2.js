@@ -21,9 +21,9 @@ async function main() {
     getContractAddress('RentalityClaimService', 'scripts/deploy_2a_RentalityClaimService.js', chainId),
     'RentalityClaimService'
   )
-  const tripServiceAddress = checkNotNull(
-    getContractAddress('RentalityTripService', 'scripts/deploy_4_RentalityTripService.js', chainId),
-    'RentalityTripService'
+  const tripQueryAddress = checkNotNull(
+    getContractAddress('TripQuery', 'scripts/deploy_3t_TripQuery.js', chainId),
+    'TripQuery'
   )
   const userServiceAddress = checkNotNull(
     getContractAddress('RentalityUserService', 'scripts/deploy_1b_RentalityUserService.js', chainId),
@@ -43,7 +43,7 @@ async function main() {
     insuranceServiceAddress,
     hostInsuranceAddress,
     claimServiceAddress,
-    tripServiceAddress,
+    tripQueryAddress,
     userServiceAddress,
     carGatewayAdapterAddress,
     currencyConverterAddress

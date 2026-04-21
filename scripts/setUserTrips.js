@@ -1,7 +1,5 @@
-const saveJsonAbi = require('./utils/abiSaver')
-const { ethers, upgrades } = require('hardhat')
+const { ethers } = require('hardhat')
 const { getContractAddress } = require('./utils/contractAddress')
-const addressSaver = require('./utils/addressSaver')
 const { checkNotNull, startDeploy } = require('./utils/deployHelper')
 
 async function main() {
@@ -9,14 +7,14 @@ async function main() {
 
   if (chainId < 0) throw new Error('chainId is not set')
 
-  const rentalityTripServiceAddress = checkNotNull(
-    getContractAddress('RentalityTripService', 'scripts/deploy_4_RentalityTripService.js', chainId),
-    'RentalityTripService'
+  const tripMainAddress = checkNotNull(
+    getContractAddress('TripMain', 'scripts/deploy_3s_TripMain.js', chainId),
+    'TripMain'
   )
 
-  const contract = await ethers.getContractAt('RentalityTripService', rentalityTripServiceAddress)
-  console.log('Total trips count: ', await contract.totalTripCount())
-  console.log(await contract.setUserTrips(1, 0))
+  const contract = await ethers.getContractAt('TripMain', tripMainAddress)
+  console.log('Total trips count: ', await contract.totalSupply())
+  console.log(await contract.rebuildUserTrips(1, 0))
 }
 main()
   .then(() => process.exit(0))

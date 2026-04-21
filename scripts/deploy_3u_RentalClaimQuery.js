@@ -17,9 +17,9 @@ async function main() {
     getContractAddress('RentalityCurrencyConverter', 'scripts/deploy_3b_RentalityCurrencyConverter.js', chainId),
     'RentalityCurrencyConverter'
   )
-  const rentalityTripServiceAddress = checkNotNull(
-    getContractAddress('RentalityTripService', 'scripts/deploy_4_RentalityTripService.js', chainId),
-    'RentalityTripService'
+  const tripQueryAddress = checkNotNull(
+    getContractAddress('TripQuery', 'scripts/deploy_3t_TripQuery.js', chainId),
+    'TripQuery'
   )
   const rentalityUserServiceAddress = checkNotNull(
     getContractAddress('RentalityUserService', 'scripts/deploy_1b_RentalityUserService.js', chainId),
@@ -38,7 +38,7 @@ async function main() {
   const contract = await contractFactory.deploy(
     carGatewayAdapterAddress,
     rentalityCurrencyConverterAddress,
-    rentalityTripServiceAddress,
+    tripQueryAddress,
     rentalityUserServiceAddress,
     rentalityClaimServiceAddress,
     aiDamageAnalyzeAddress

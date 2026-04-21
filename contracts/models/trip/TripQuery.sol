@@ -2,6 +2,7 @@
 pragma solidity ^0.8.20;
 
 import "./TripMain.sol";
+import "./TripLib.sol";
 import "./TripTypes.sol";
 import "./../car/CarTypes.sol";
 import "./../profile/UserProfileTypes.sol";
@@ -29,6 +30,7 @@ interface ITripQueryInsuranceService {
 
 interface ITripQueryPromoService {
     function getTripDiscount(uint256 tripId) external view returns (uint256);
+    function getPromoTripInfo(uint256 tripId, address guest) external view returns (Schemas.PromoDTO memory);
 }
 
 interface ITripQueryDimoService {
@@ -183,6 +185,56 @@ contract TripQuery {
         return result;
     }
 
+    function getAllTrips(Schemas.TripFilter memory filter, uint256 page, uint256 itemsPerPage)
+        external
+        view
+        returns (Schemas.AllTripsDTO memory)
+    {
+        uint256 totalTripsCount = tripMain.totalSupply();
+        uint256[] memory matchedTrips = new uint256[](totalTripsCount);
+        uint256 counter;
+
+        for (uint256 i = 1; i <= totalTripsCount; i++) {
+            Trip memory trip = getTrip(i);
+            if (_isTripMatch(filter, TripLib.toLegacyTrip(trip))) {
+                matchedTrips[counter++] = i;
+            }
+        }
+
+        if (counter == 0) {
+            return Schemas.AllTripsDTO(new Schemas.AdminTripDTO[](0), 0);
+        }
+
+        uint256 totalPageCount = (counter + itemsPerPage - 1) / itemsPerPage;
+        if (page > totalPageCount) {
+            page = totalPageCount;
+        }
+        if (page < 1) {
+            page = 1;
+        }
+
+        uint256 startIndex = (page - 1) * itemsPerPage;
+        uint256 endIndex = startIndex + itemsPerPage;
+        if (endIndex > counter) {
+            endIndex = counter;
+        }
+
+        Schemas.AdminTripDTO[] memory result = new Schemas.AdminTripDTO[](endIndex - startIndex);
+        for (uint256 i = startIndex; i < endIndex; i++) {
+            Trip memory trip = getTrip(matchedTrips[i]);
+            Schemas.Trip memory legacyTrip = TripLib.toLegacyTrip(trip);
+            CarInfo memory car = carQuery.getCar(legacyTrip.carId);
+            result[i - startIndex] = Schemas.AdminTripDTO({
+                trip: legacyTrip,
+                carMetadataURI: car.asset.metadataURI,
+                carLocation: geoService.getLocationInfo(car.car.locationHash),
+                promoInfo: promoService.getPromoTripInfo(legacyTrip.tripId, legacyTrip.guest)
+            });
+        }
+
+        return Schemas.AllTripsDTO(result, totalPageCount);
+    }
+
     function getChatInfoFor(address user, bool host) external view returns (Schemas.ChatInfo[] memory result) {
         TripDTO[] memory trips = getTripsAs(user, host);
         result = new Schemas.ChatInfo[](trips.length);
@@ -213,6 +265,150 @@ contract TripQuery {
             chatInfo.hostNickname = hostInfo.name;
             result[i] = chatInfo;
         }
+    }
+
+    function _isTripMatch(Schemas.TripFilter memory filter, Schemas.Trip memory trip) internal view returns (bool) {
+        Schemas.LocationInfo memory locationInfo = geoService.getLocationInfo(carQuery.getCar(trip.carId).car.locationHash);
+
+        return (
+            (bytes(filter.location.country).length == 0 || _containsWord(_toLower(locationInfo.country), _toLower(filter.location.country))) &&
+            (bytes(filter.location.state).length == 0 || _containsWord(_toLower(locationInfo.state), _toLower(filter.location.state))) &&
+            (bytes(filter.location.city).length == 0 || _containsWord(_toLower(locationInfo.city), _toLower(filter.location.city))) &&
+            (filter.startDateTime <= trip.startDateTime && filter.endDateTime >= trip.endDateTime) &&
+            _matchesPaymentStatus(filter.paymentStatus, trip) &&
+            _matchesAdminStatus(filter.status, trip)
+        );
+    }
+
+    function _matchesPaymentStatus(Schemas.PaymentStatus paymentStatus, Schemas.Trip memory trip)
+        internal
+        pure
+        returns (bool)
+    {
+        return
+            paymentStatus == Schemas.PaymentStatus.Any ||
+            (paymentStatus == Schemas.PaymentStatus.PaidToHost && trip.status == Schemas.TripStatus.Finished) ||
+            (
+                paymentStatus == Schemas.PaymentStatus.Prepayment &&
+                    (
+                        trip.status == Schemas.TripStatus.Created ||
+                        trip.status == Schemas.TripStatus.Approved ||
+                        trip.status == Schemas.TripStatus.CheckedInByHost ||
+                        (trip.status == Schemas.TripStatus.CheckedInByGuest && trip.tripStartedBy == trip.guest) ||
+                        (trip.status == Schemas.TripStatus.CheckedOutByGuest && trip.tripFinishedBy == trip.guest) ||
+                        (trip.status == Schemas.TripStatus.CheckedOutByHost && trip.tripFinishedBy == trip.guest)
+                    )
+            ) ||
+            (paymentStatus == Schemas.PaymentStatus.RefundToGuest && trip.status == Schemas.TripStatus.Canceled) ||
+            (
+                paymentStatus == Schemas.PaymentStatus.Unpaid &&
+                    (
+                        (trip.status == Schemas.TripStatus.CheckedInByGuest && trip.tripStartedBy == trip.host) ||
+                        (trip.status == Schemas.TripStatus.CheckedOutByHost && trip.tripFinishedBy == trip.host)
+                    )
+            );
+    }
+
+    function _matchesAdminStatus(Schemas.AdminTripStatus status, Schemas.Trip memory trip)
+        internal
+        view
+        returns (bool)
+    {
+        return
+            status == Schemas.AdminTripStatus.Any ||
+            (status == Schemas.AdminTripStatus.Created && trip.status == Schemas.TripStatus.Created) ||
+            (status == Schemas.AdminTripStatus.Approved && trip.status == Schemas.TripStatus.Approved) ||
+            (status == Schemas.AdminTripStatus.CheckedInByHost && trip.status == Schemas.TripStatus.CheckedInByHost) ||
+            (
+                status == Schemas.AdminTripStatus.CheckedInByGuest &&
+                    trip.status == Schemas.TripStatus.CheckedInByGuest &&
+                    trip.tripStartedBy == trip.guest
+            ) ||
+            (
+                status == Schemas.AdminTripStatus.CheckedOutByGuest &&
+                    trip.status == Schemas.TripStatus.CheckedOutByGuest &&
+                    trip.tripFinishedBy == trip.guest
+            ) ||
+            (
+                status == Schemas.AdminTripStatus.CheckedOutByHost &&
+                    trip.status == Schemas.TripStatus.CheckedOutByHost &&
+                    trip.tripFinishedBy == trip.guest
+            ) ||
+            (status == Schemas.AdminTripStatus.Finished && trip.status == Schemas.TripStatus.Finished) ||
+            (
+                status == Schemas.AdminTripStatus.GuestCanceledBeforeApprove &&
+                    trip.status == Schemas.TripStatus.Canceled &&
+                    trip.approvedDateTime == 0 &&
+                    trip.rejectedBy == trip.guest
+            ) ||
+            (
+                status == Schemas.AdminTripStatus.HostCanceledBeforeApprove &&
+                    trip.status == Schemas.TripStatus.Canceled &&
+                    trip.approvedDateTime == 0 &&
+                    trip.rejectedBy == trip.host
+            ) ||
+            (
+                status == Schemas.AdminTripStatus.GuestCanceledAfterApprove &&
+                    trip.status == Schemas.TripStatus.Canceled &&
+                    trip.approvedDateTime > 0 &&
+                    trip.rejectedBy == trip.guest
+            ) ||
+            (
+                status == Schemas.AdminTripStatus.HostCanceledAfterApprove &&
+                    trip.status == Schemas.TripStatus.Canceled &&
+                    trip.approvedDateTime > 0 &&
+                    trip.rejectedBy == trip.host
+            ) ||
+            (
+                status == Schemas.AdminTripStatus.CompletedWithoutGuestConfirmation &&
+                    trip.status == Schemas.TripStatus.CheckedOutByHost &&
+                    trip.tripFinishedBy == trip.host
+            ) ||
+            (
+                status == Schemas.AdminTripStatus.CompletedByGuest &&
+                    trip.status == Schemas.TripStatus.Finished &&
+                    trip.tripFinishedBy == trip.host
+            ) ||
+            (
+                status == Schemas.AdminTripStatus.CompletedByAdmin &&
+                    trip.status == Schemas.TripStatus.Finished &&
+                    tripMain.isCompletedByAdmin(trip.tripId)
+            );
+    }
+
+    function _containsWord(string memory source, string memory word) internal pure returns (bool) {
+        bytes memory sourceBytes = bytes(source);
+        bytes memory wordBytes = bytes(word);
+        if (wordBytes.length == 0) {
+            return true;
+        }
+        if (wordBytes.length > sourceBytes.length) {
+            return false;
+        }
+
+        for (uint256 i = 0; i <= sourceBytes.length - wordBytes.length; i++) {
+            bool matched = true;
+            for (uint256 j = 0; j < wordBytes.length; j++) {
+                if (sourceBytes[i + j] != wordBytes[j]) {
+                    matched = false;
+                    break;
+                }
+            }
+            if (matched) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function _toLower(string memory value) internal pure returns (string memory) {
+        bytes memory input = bytes(value);
+        bytes memory output = new bytes(input.length);
+        for (uint256 i = 0; i < input.length; i++) {
+            bytes1 char = input[i];
+            output[i] = char >= 0x41 && char <= 0x5A ? bytes1(uint8(char) + 32) : char;
+        }
+        return string(output);
     }
 
     function _resolveLocation(bytes32 hash, LocationInfo memory fallbackLocation) internal view returns (LocationInfo memory) {

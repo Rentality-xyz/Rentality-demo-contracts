@@ -12,23 +12,62 @@ import '../../rentality_old/features/RentalityNotificationService.sol';
 import '../../rentality_old/features/RentalityPromo.sol';
 import '../../rentality_old/features/refferalProgram/RentalityReferralProgram.sol';
 import '../../rentality_old/investment/RentalityInvestment.sol';
-import '../../rentality_old/libs/RentalityUtils.sol';
-import '../../rentality_old/libs/RentalityViewLib.sol';
 import '../../rentality_old/payments/RentalityCurrencyConverter.sol';
 import '../../rentality_old/payments/RentalityInsurance.sol';
 import '../../rentality_old/payments/RentalityPaymentService.sol';
 import '../../rentality_old/payments/abstract/IERC20.sol';
-import '../../rentality_old/RentalityGateway.sol';
-import '../../rentality_old/RentalityTripService.sol';
 import '../../rentality_old/RentalityUserService.sol';
 import '../../rentality_old/Schemas.sol';
 import './IAdminGatewayFacet.sol';
+
+interface IAdminGatewayTripQuery {
+  function getAllTrips(Schemas.TripFilter memory filter, uint256 page, uint256 itemsPerPage)
+    external
+    view
+    returns (Schemas.AllTripsDTO memory);
+}
+
+interface IAdminGatewayCarQueryFacet2 {
+  function getAllCarsForAdmin(
+    address userProfileQueryAddress,
+    address geoServiceAddress,
+    address dimoServiceAddress,
+    uint256 page,
+    uint256 itemsPerPage
+  ) external view returns (Schemas.AllCarsDTO memory);
+}
+
+struct AdminCoreAddresses {
+  address carServiceAddress;
+  address currencyConverterServiceAddress;
+  address userServiceAddress;
+  address paymentServiceAddress;
+  address claimServiceAddress;
+  address carDeliveryAddress;
+  address viewServiceAddress;
+}
+
+struct AdminFeatureAddresses {
+  address insuranceServiceAddress;
+  address refferalProgramAddress;
+  address promoServiceAddress;
+  address dimoServiceAddress;
+  address investmentAddress;
+  address notificationServiceAddress;
+}
+
+struct AdminQueryAddresses {
+  address tripGatewayFacetAddress;
+  address tripQueryAddress;
+  address carQueryFacet2Address;
+  address userProfileQueryAddress;
+  address geoServiceAddress;
+}
 
 /// @custom:oz-upgrades-unsafe-allow external-library-linking
 contract AdminGatewayFacet is UUPSOwnable, ARentalityContext, IAdminGatewayFacet {
   ICarGateway private carService;
   RentalityCurrencyConverter private currencyConverterService;
-  RentalityTripService private tripService;
   RentalityUserService private userService;
   IRentalityAdminGateway private adminService;
   RentalityPaymentService private paymentService;
@@ -42,6 +81,10 @@ contract AdminGatewayFacet is UUPSOwnable, ARentalityContext, IAdminGatewayFacet
   RentalityInvestment private investment;
   RentalityNotificationService private notificationService;
   address private tripGatewayFacet;
+  IAdminGatewayTripQuery private tripQuery;
+  IAdminGatewayCarQueryFacet2 private carQueryFacet2;
+  address private userProfileQuery;
+  address private geoService;
 
   constructor() {
     _disableInitializers();
@@ -54,92 +97,24 @@ contract AdminGatewayFacet is UUPSOwnable, ARentalityContext, IAdminGatewayFacet
   }
 
   function initialize(
-    address carServiceAddress,
-    address currencyConverterServiceAddress,
-    address tripServiceAddress,
-    address userServiceAddress,
-    address paymentServiceAddress,
-    address claimServiceAddress,
-    address carDeliveryAddress,
-    address viewServiceAddress,
-    address insuranceServiceAddress,
-    address refferalProgramAddress,
-    address promoServiceAddress,
-    address dimoServiceAddress,
-    address investmentAddress,
-    address notificationServiceAddress,
-    address tripGatewayFacetAddress
+    AdminCoreAddresses memory coreAddresses,
+    AdminFeatureAddresses memory featureAddresses,
+    AdminQueryAddresses memory queryAddresses
   ) public initializer {
     __Ownable_init();
-    _setServiceAddresses(
-      carServiceAddress,
-      currencyConverterServiceAddress,
-      tripServiceAddress,
-      userServiceAddress,
-      paymentServiceAddress,
-      claimServiceAddress,
-      carDeliveryAddress,
-      viewServiceAddress,
-      insuranceServiceAddress,
-      refferalProgramAddress,
-      promoServiceAddress,
-      dimoServiceAddress,
-      investmentAddress,
-      notificationServiceAddress,
-      tripGatewayFacetAddress
-    );
+    _setCoreServiceAddresses(coreAddresses);
+    _setFeatureServiceAddresses(featureAddresses);
+    _setQueryServiceAddresses(queryAddresses);
   }
 
   function updateServiceAddresses(
-    address carServiceAddress,
-    address currencyConverterServiceAddress,
-    address tripServiceAddress,
-    address userServiceAddress,
-    address paymentServiceAddress,
-    address claimServiceAddress,
-    address carDeliveryAddress,
-    address viewServiceAddress,
-    address insuranceServiceAddress,
-    address refferalProgramAddress,
-    address promoServiceAddress,
-    address dimoServiceAddress,
-    address investmentAddress,
-    address notificationServiceAddress,
-    address tripGatewayFacetAddress
+    AdminCoreAddresses memory coreAddresses,
+    AdminFeatureAddresses memory featureAddresses,
+    AdminQueryAddresses memory queryAddresses
   ) external onlyOwner {
-    _setServiceAddresses(
-      carServiceAddress,
-      currencyConverterServiceAddress,
-      tripServiceAddress,
-      userServiceAddress,
-      paymentServiceAddress,
-      claimServiceAddress,
-      carDeliveryAddress,
-      viewServiceAddress,
-      insuranceServiceAddress,
-      refferalProgramAddress,
-      promoServiceAddress,
-      dimoServiceAddress,
-      investmentAddress,
-      notificationServiceAddress,
-      tripGatewayFacetAddress
-    );
-  }
-
-  function getRentalityContracts() public view returns (RentalityContract memory contracts) {
-    return
-      RentalityContract(
-        carService,
-        currencyConverterService,
-        tripService,
-        userService,
-        address(0),
-        paymentService,
-        claimService,
-        adminService,
-        deliveryService,
-        viewService
-      );
+    _setCoreServiceAddresses(coreAddresses);
+    _setFeatureServiceAddresses(featureAddresses);
+    _setQueryServiceAddresses(queryAddresses);
   }
 
   function getCarServiceAddress() public view returns (address) {
@@ -163,7 +138,7 @@ contract AdminGatewayFacet is UUPSOwnable, ARentalityContext, IAdminGatewayFacet
   }
 
   function getTripServiceAddress() public view returns (address) {
-    return address(tripService);
+    return address(tripQuery);
   }
 
   function getUserServiceAddress() public view returns (address) {
@@ -255,7 +230,7 @@ contract AdminGatewayFacet is UUPSOwnable, ARentalityContext, IAdminGatewayFacet
     view
     returns (Schemas.AllTripsDTO memory)
   {
-    return RentalityViewLib.getAllTrips(getRentalityContracts(), filter, promoService, page, itemsPerPage);
+    return tripQuery.getAllTrips(filter, page, itemsPerPage);
   }
 
   function manageRole(Schemas.Role role, address user, bool grant) public {
@@ -263,52 +238,7 @@ contract AdminGatewayFacet is UUPSOwnable, ARentalityContext, IAdminGatewayFacet
   }
 
   function getAllCars(uint page, uint itemsPerPage) public view returns (Schemas.AllCarsDTO memory allCars) {
-    RentalityContract memory contracts = getRentalityContracts();
-    uint totalCars = carService.totalSupply();
-    uint totalExistingCars = 0;
-
-    for (uint i = 1; i <= totalCars; i++) {
-      if (contracts.carService.exists(i)) {
-        totalExistingCars++;
-      }
-    }
-
-    uint totalPageCount = totalExistingCars == 0 ? 0 : (totalExistingCars + itemsPerPage - 1) / itemsPerPage;
-    if (page > totalPageCount) page = totalPageCount;
-    if (page < 1) page = 1;
-
-    Schemas.AdminCarDTO[] memory cars = new Schemas.AdminCarDTO[](itemsPerPage);
-    uint collected = 0;
-    uint currentId = 1;
-    uint toSkip = (page - 1) * itemsPerPage;
-
-    while (toSkip > 0 && currentId <= totalCars) {
-      if (contracts.carService.exists(currentId)) {
-        toSkip--;
-      }
-      currentId++;
-    }
-
-    while (collected < itemsPerPage && currentId <= totalCars) {
-      if (contracts.carService.exists(currentId)) {
-        cars[collected] = Schemas.AdminCarDTO({
-          car: RentalityUtils.getCarDetails(contracts, currentId, dimoService),
-          carMetadataURI: contracts.carService.tokenURI(currentId)
-        });
-        collected++;
-      }
-      currentId++;
-    }
-
-    if (collected < itemsPerPage) {
-      Schemas.AdminCarDTO[] memory adjustedCars = new Schemas.AdminCarDTO[](collected);
-      for (uint i = 0; i < collected; i++) {
-        adjustedCars[i] = cars[i];
-      }
-      cars = adjustedCars;
-    }
-
-    return Schemas.AllCarsDTO(cars, totalPageCount);
+    return carQueryFacet2.getAllCarsForAdmin(userProfileQuery, geoService, address(dimoService), page, itemsPerPage);
   }
 
   function manageRefferalBonusAccrual(
@@ -405,38 +335,31 @@ contract AdminGatewayFacet is UUPSOwnable, ARentalityContext, IAdminGatewayFacet
     return result;
   }
 
-  function _setServiceAddresses(
-    address carServiceAddress,
-    address currencyConverterServiceAddress,
-    address tripServiceAddress,
-    address userServiceAddress,
-    address paymentServiceAddress,
-    address claimServiceAddress,
-    address carDeliveryAddress,
-    address viewServiceAddress,
-    address insuranceServiceAddress,
-    address refferalProgramAddress,
-    address promoServiceAddress,
-    address dimoServiceAddress,
-    address investmentAddress,
-    address notificationServiceAddress,
-    address tripGatewayFacetAddress
-  ) internal {
-    carService = ICarGateway(carServiceAddress);
-    currencyConverterService = RentalityCurrencyConverter(currencyConverterServiceAddress);
-    tripService = RentalityTripService(tripServiceAddress);
-    userService = RentalityUserService(userServiceAddress);
+  function _setCoreServiceAddresses(AdminCoreAddresses memory coreAddresses) internal {
+    carService = ICarGateway(coreAddresses.carServiceAddress);
+    currencyConverterService = RentalityCurrencyConverter(coreAddresses.currencyConverterServiceAddress);
+    userService = RentalityUserService(coreAddresses.userServiceAddress);
     adminService = IRentalityAdminGateway(address(this));
-    paymentService = RentalityPaymentService(payable(paymentServiceAddress));
-    claimService = RentalityClaimService(claimServiceAddress);
-    deliveryService = RentalityCarDelivery(carDeliveryAddress);
-    viewService = viewServiceAddress;
-    promoService = RentalityPromoService(promoServiceAddress);
-    dimoService = RentalityDimoService(dimoServiceAddress);
-    refferalProgram = RentalityReferralProgram(refferalProgramAddress);
-    insuranceService = RentalityInsurance(insuranceServiceAddress);
-    investment = RentalityInvestment(investmentAddress);
-    notificationService = RentalityNotificationService(notificationServiceAddress);
-    tripGatewayFacet = tripGatewayFacetAddress;
+    paymentService = RentalityPaymentService(payable(coreAddresses.paymentServiceAddress));
+    claimService = RentalityClaimService(coreAddresses.claimServiceAddress);
+    deliveryService = RentalityCarDelivery(coreAddresses.carDeliveryAddress);
+    viewService = coreAddresses.viewServiceAddress;
+  }
+
+  function _setFeatureServiceAddresses(AdminFeatureAddresses memory featureAddresses) internal {
+    promoService = RentalityPromoService(featureAddresses.promoServiceAddress);
+    dimoService = RentalityDimoService(featureAddresses.dimoServiceAddress);
+    refferalProgram = RentalityReferralProgram(featureAddresses.refferalProgramAddress);
+    insuranceService = RentalityInsurance(featureAddresses.insuranceServiceAddress);
+    investment = RentalityInvestment(featureAddresses.investmentAddress);
+    notificationService = RentalityNotificationService(featureAddresses.notificationServiceAddress);
+  }
+
+  function _setQueryServiceAddresses(AdminQueryAddresses memory queryAddresses) internal {
+    tripGatewayFacet = queryAddresses.tripGatewayFacetAddress;
+    tripQuery = IAdminGatewayTripQuery(queryAddresses.tripQueryAddress);
+    carQueryFacet2 = IAdminGatewayCarQueryFacet2(queryAddresses.carQueryFacet2Address);
+    userProfileQuery = queryAddresses.userProfileQueryAddress;
+    geoService = queryAddresses.geoServiceAddress;
   }
 }

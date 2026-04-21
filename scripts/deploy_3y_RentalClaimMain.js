@@ -13,9 +13,9 @@ async function main() {
     getContractAddress('RentalityClaimService', 'scripts/deploy_2a_RentalityClaimService.js', chainId),
     'RentalityClaimService'
   )
-  const rentalityTripServiceAddress = checkNotNull(
-    getContractAddress('RentalityTripService', 'scripts/deploy_4_RentalityTripService.js', chainId),
-    'RentalityTripService'
+  const tripQueryAddress = checkNotNull(
+    getContractAddress('TripQuery', 'scripts/deploy_3t_TripQuery.js', chainId),
+    'TripQuery'
   )
   const rentalityCurrencyConverterAddress = checkNotNull(
     getContractAddress('RentalityCurrencyConverter', 'scripts/deploy_3b_RentalityCurrencyConverter.js', chainId),
@@ -33,7 +33,7 @@ async function main() {
   const contractFactory = await ethers.getContractFactory(contractName)
   const contract = await contractFactory.deploy(
     rentalityClaimServiceAddress,
-    rentalityTripServiceAddress,
+    tripQueryAddress,
     rentalityCurrencyConverterAddress,
     rentalityPaymentServiceAddress,
     rentalInsuranceMainAddress

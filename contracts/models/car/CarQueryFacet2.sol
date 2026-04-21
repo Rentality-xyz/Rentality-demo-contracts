@@ -2,17 +2,40 @@
 pragma solidity ^0.8.20;
 
 import '../../rentality_old/Schemas.sol';
+import '../base/asset/AssetTypes.sol';
 import '../car/CarTypes.sol';
+import '../profile/UserProfileTypes.sol';
+import '../trip/TripTypes.sol';
 
 interface ICarQueryFacet2Main {
   function exists(uint256 id) external view returns (bool);
   function totalSupply() external view returns (uint256);
+  function getAsset(uint256 id) external view returns (Asset memory);
   function getOwner(uint256 id) external view returns (address);
   function getCarData(uint256 id) external view returns (CarData memory);
+  function tokenURI(uint256 id) external view returns (string memory);
 }
 
 interface ICarQueryFacet2PricingService {
   function calculateSumWithDiscount(address user, uint64 daysOfTrip, uint64 value) external view returns (uint64);
+}
+
+interface ICarQueryFacet2TripQuery {
+  function getActiveTrips(uint256 carId) external view returns (uint256[] memory);
+  function getTrip(uint256 tripId) external view returns (Trip memory);
+}
+
+interface ICarQueryFacet2UserProfileQuery {
+  function getKYCInfo(address user) external view returns (UserProfileKYCInfo memory);
+}
+
+interface ICarQueryFacet2GeoService {
+  function getLocationInfo(bytes32 hash) external view returns (Schemas.LocationInfo memory);
+  function getCarCoordinateValidity(uint256 carId) external view returns (bool);
+}
+
+interface ICarQueryFacet2DimoService {
+  function getDimoTokenId(uint256 carId) external view returns (uint256);
 }
 
 contract CarQueryFacet2 {
@@ -125,6 +148,114 @@ contract CarQueryFacet2 {
     return Schemas.FilterInfoDTO({
       maxCarPrice: maxCarPrice,
       minCarYearOfProduction: foundCar ? minCarYearOfProduction : 0
+    });
+  }
+
+  function getAllCarsForAdmin(
+    address userProfileQueryAddress,
+    address geoServiceAddress,
+    address dimoServiceAddress,
+    uint256 page,
+    uint256 itemsPerPage
+  ) external view returns (Schemas.AllCarsDTO memory) {
+    uint256 totalCars = carMain.totalSupply();
+    uint256 totalExistingCars;
+
+    for (uint256 i = 1; i <= totalCars; i++) {
+      if (carMain.exists(i)) {
+        totalExistingCars++;
+      }
+    }
+
+    uint256 totalPageCount = totalExistingCars == 0 ? 0 : (totalExistingCars + itemsPerPage - 1) / itemsPerPage;
+    if (page > totalPageCount) {
+      page = totalPageCount;
+    }
+    if (page < 1) {
+      page = 1;
+    }
+
+    Schemas.AdminCarDTO[] memory cars = new Schemas.AdminCarDTO[](itemsPerPage);
+    uint256 collected;
+    uint256 currentId = 1;
+    uint256 toSkip = (page - 1) * itemsPerPage;
+
+    while (toSkip > 0 && currentId <= totalCars) {
+      if (carMain.exists(currentId)) {
+        toSkip--;
+      }
+      currentId++;
+    }
+
+    while (collected < itemsPerPage && currentId <= totalCars) {
+      if (carMain.exists(currentId)) {
+        cars[collected] = Schemas.AdminCarDTO({
+          car: _getCarDetails(userProfileQueryAddress, geoServiceAddress, dimoServiceAddress, currentId),
+          carMetadataURI: carMain.tokenURI(currentId)
+        });
+        collected++;
+      }
+      currentId++;
+    }
+
+    assembly ('memory-safe') {
+      mstore(cars, collected)
+    }
+
+    return Schemas.AllCarsDTO(cars, totalPageCount);
+  }
+
+  function isCarEditable(address tripQueryAddress, uint256 carId) public view returns (bool) {
+    ICarQueryFacet2TripQuery tripQuery = ICarQueryFacet2TripQuery(tripQueryAddress);
+    uint256[] memory carTrips = tripQuery.getActiveTrips(carId);
+
+    for (uint256 i = 0; i < carTrips.length; i++) {
+      Trip memory tripInfo = tripQuery.getTrip(carTrips[i]);
+      if (
+        tripInfo.booking.resourceId == carId &&
+        (
+          tripInfo.status != TripStatus.Finished &&
+          tripInfo.status != TripStatus.Canceled &&
+          (tripInfo.status != TripStatus.CheckedOutByHost || tripInfo.booking.provider != tripInfo.tripFinishedBy)
+        )
+      ) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  function _getCarDetails(
+    address userProfileQueryAddress,
+    address geoServiceAddress,
+    address dimoServiceAddress,
+    uint256 carId
+  ) internal view returns (Schemas.CarDetails memory) {
+    Asset memory asset = carMain.getAsset(carId);
+    CarData memory car = carMain.getCarData(carId);
+    UserProfileKYCInfo memory hostKyc = ICarQueryFacet2UserProfileQuery(userProfileQueryAddress).getKYCInfo(asset.owner);
+    ICarQueryFacet2GeoService geoService = ICarQueryFacet2GeoService(geoServiceAddress);
+
+    return Schemas.CarDetails({
+      carId: carId,
+      hostName: hostKyc.name,
+      hostPhotoUrl: hostKyc.profilePhoto,
+      host: asset.owner,
+      brand: car.brand,
+      model: car.model,
+      yearOfProduction: car.yearOfProduction,
+      pricePerDayInUsdCents: car.pricePerDayInUsdCents,
+      securityDepositPerTripInUsdCents: car.securityDepositPerTripInUsdCents,
+      milesIncludedPerDay: car.milesIncludedPerDay,
+      engineType: car.engineType,
+      engineParams: car.engineParams,
+      geoVerified: geoService.getCarCoordinateValidity(carId),
+      currentlyListed: car.currentlyListed,
+      locationInfo: geoService.getLocationInfo(car.locationHash),
+      carVinNumber: car.carVinNumber,
+      carMetadataURI: carMain.tokenURI(carId),
+      dimoTokenId: ICarQueryFacet2DimoService(dimoServiceAddress).getDimoTokenId(carId)
     });
   }
 
