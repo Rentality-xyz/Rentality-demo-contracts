@@ -28,7 +28,7 @@ async function main() {
     getContractAddress('RentalityNotificationService', 'scripts/deploy_2_RentalityNotificationService.js', chainId),
     'RentalityNotificationService'
   )
-  const rentalitGatewayContract = await ethers.getContractAt('RentalityGateway', rentalitGateway)
+  const rentalitGatewayContract = await ethers.getContractAt('AppGateway', rentalitGateway)
 
   console.log(await rentalitGatewayContract.setNotificationService(notificationService))
 }

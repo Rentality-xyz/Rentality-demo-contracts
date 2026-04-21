@@ -384,7 +384,7 @@ async function deployDefaultFixture() {
   })
   const RentalityGeoService = await ethers.getContractFactory('RentalityGeoService')
 
-  let RentalityGateway = await ethers.getContractFactory('RentalityGateway', {
+  let RentalityGateway = await ethers.getContractFactory('AppGateway', {
     libraries: {},
   })
 

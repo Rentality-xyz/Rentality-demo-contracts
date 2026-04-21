@@ -27,7 +27,7 @@ async function main() {
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()
 
-  const gateway = await ethers.getContractAt("RentalityGateway", rentalityGatewayAddress)
+  const gateway = await ethers.getContractAt('AppGateway', rentalityGatewayAddress)
   console.log(await gateway.setLayerZeroSender(contractAddress))
   console.log('Receiver address: ', contractAddress)
 

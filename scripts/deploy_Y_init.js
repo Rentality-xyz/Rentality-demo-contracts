@@ -1,5 +1,3 @@
-const RentalityGatewayJSON_ABI = require('../src/abis/RentalityGateway.v0_2_0.abi.json')
-
 const { ethers, network } = require('hardhat')
 const { buildPath } = require('./utils/pathBuilder')
 const { existsSync, readFileSync } = require('fs')
@@ -215,7 +213,7 @@ const checkInitialization = async () => {
     }
   }
 
-  const gateway = new ethers.Contract(rentalityGatewayAddress, RentalityGatewayJSON_ABI.abi, deployer)
+  const gateway = await ethers.getContractAt('IRentalityGateway', rentalityGatewayAddress, deployer)
   const adminGateway = await ethers.getContractAt('IAdminGatewayFacet', rentalityGatewayAddress)
 
   return [host, guest, kycManager, admin, gateway, verifierAddress, adminGateway]

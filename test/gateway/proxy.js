@@ -95,19 +95,19 @@ describe('RentalityGateway: proxy', function () {
   })
 
   it('should not be able to update gateway without access', async function () {
-    const GatewayAnonn = await ethers.getContractFactory('RentalityGateway', {
+    const GatewayAnonn = await ethers.getContractFactory('AppGateway', {
       libraries: {},
       signer: anonymous,
     })
-    const GatewayGuest = await ethers.getContractFactory('RentalityGateway', {
+    const GatewayGuest = await ethers.getContractFactory('AppGateway', {
       libraries: {},
       signer: guest,
     })
-    const GatewayHost = await ethers.getContractFactory('RentalityGateway', {
+    const GatewayHost = await ethers.getContractFactory('AppGateway', {
       libraries: {},
       signer: host,
     })
-    const GatewayOwner = await ethers.getContractFactory('RentalityGateway', {
+    const GatewayOwner = await ethers.getContractFactory('AppGateway', {
       libraries: {},
       signer: owner,
     })
