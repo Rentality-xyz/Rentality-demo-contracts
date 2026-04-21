@@ -9,9 +9,9 @@ async function main() {
 
   if (chainId < 0) throw new Error('chainId is not set')
 
-  const rentalityUserServiceAddress = checkNotNull(
-    getContractAddress('RentalityUserService', 'scripts/deploy_1b_RentalityUserService.js', chainId),
-    'RentalityUserService'
+  const userProfileMainAddress = checkNotNull(
+    getContractAddress('UserProfileMain', 'scripts/deploy_1h_UserProfileMain.js', chainId),
+    'UserProfileMain'
   )
   const rentalityClaimService = checkNotNull(
     getContractAddress('RentalityClaimService', 'scripts/deploy_2a_RentalityClaimService.js', chainId),
@@ -84,7 +84,7 @@ async function main() {
     [
       carGatewayAdapterAddress,
       rentalityCurrencyConverterAddress,
-      rentalityUserServiceAddress,
+      userProfileMainAddress,
       rentalityPaymentServiceAddress,
       rentalityClaimService,
       rentalityCarDelivery,

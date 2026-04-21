@@ -18,7 +18,7 @@ abstract contract ARentalityEngine {
   error EngineParamsNotMatch();
 
   // Internal state variables
-  /// @notice The RentalityUserService contract used for user management.
+  /// @notice The profile/access-control service used for user management.
   IRentalityAccessControl internal userService;
 
   /// @notice The type of the engine.

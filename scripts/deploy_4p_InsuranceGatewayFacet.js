@@ -21,9 +21,9 @@ async function main() {
     getContractAddress('RentalInsuranceMain', 'scripts/deploy_3l_RentalInsuranceMain.js', chainId),
     'RentalInsuranceMain'
   )
-  const rentalityUserServiceAddress = checkNotNull(
-    getContractAddress('RentalityUserService', 'scripts/deploy_1b_RentalityUserService.js', chainId),
-    'RentalityUserService'
+  const userProfileMainAddress = checkNotNull(
+    getContractAddress('UserProfileMain', 'scripts/deploy_1h_UserProfileMain.js', chainId),
+    'UserProfileMain'
   )
   const notificationServiceAddress = checkNotNull(
     getContractAddress('RentalityNotificationService', 'scripts/deploy_2_RentalityNotificationService.js', chainId),
@@ -35,7 +35,7 @@ async function main() {
     insuranceQueryFacet1Address,
     insuranceQueryFacet2Address,
     insuranceMainAddress,
-    rentalityUserServiceAddress,
+    userProfileMainAddress,
     notificationServiceAddress,
   ])
   await contract.waitForDeployment()

@@ -16,7 +16,6 @@ import '../../rentality_old/payments/RentalityCurrencyConverter.sol';
 import '../../rentality_old/payments/RentalityInsurance.sol';
 import '../../rentality_old/payments/RentalityPaymentService.sol';
 import '../../rentality_old/payments/abstract/IERC20.sol';
-import '../../rentality_old/RentalityUserService.sol';
 import '../../rentality_old/Schemas.sol';
 import './IAdminGatewayFacet.sol';
 
@@ -35,6 +34,21 @@ interface IAdminGatewayCarQueryFacet2 {
     uint256 page,
     uint256 itemsPerPage
   ) external view returns (Schemas.AllCarsDTO memory);
+}
+
+interface IAdminGatewayUserAccess {
+  function isAdmin(address user) external view returns (bool);
+  function isRentalityPlatform(address user) external view returns (bool);
+  function setCivicData(address verifier, uint256 gatekeeperNetwork) external;
+  function setKycCommission(uint256 newCommission) external;
+  function manageRole(Schemas.Role newRole, address user, bool grant) external;
+}
+
+interface IAdminGatewayUserProfileQuery {
+  function getPlatformUsersKYCInfos(uint256 page, uint256 itemsPerPage)
+    external
+    view
+    returns (Schemas.AdminKYCInfosDTO memory);
 }
 
 struct AdminCoreAddresses {
@@ -68,7 +82,7 @@ struct AdminQueryAddresses {
 contract AdminGatewayFacet is UUPSOwnable, ARentalityContext, IAdminGatewayFacet {
   ICarGateway private carService;
   RentalityCurrencyConverter private currencyConverterService;
-  RentalityUserService private userService;
+  IAdminGatewayUserAccess private userService;
   IRentalityAdminGateway private adminService;
   RentalityPaymentService private paymentService;
   RentalityClaimService private claimService;
@@ -83,7 +97,8 @@ contract AdminGatewayFacet is UUPSOwnable, ARentalityContext, IAdminGatewayFacet
   address private tripGatewayFacet;
   IAdminGatewayTripQuery private tripQuery;
   IAdminGatewayCarQueryFacet2 private carQueryFacet2;
-  address private userProfileQuery;
+  IAdminGatewayUserProfileQuery private userProfileQuery;
+  address private userProfileQueryAddress;
   address private geoService;
 
   constructor() {
@@ -238,7 +253,7 @@ contract AdminGatewayFacet is UUPSOwnable, ARentalityContext, IAdminGatewayFacet
   }
 
   function getAllCars(uint page, uint itemsPerPage) public view returns (Schemas.AllCarsDTO memory allCars) {
-    return carQueryFacet2.getAllCarsForAdmin(userProfileQuery, geoService, address(dimoService), page, itemsPerPage);
+    return carQueryFacet2.getAllCarsForAdmin(userProfileQueryAddress, geoService, address(dimoService), page, itemsPerPage);
   }
 
   function manageRefferalBonusAccrual(
@@ -275,7 +290,7 @@ contract AdminGatewayFacet is UUPSOwnable, ARentalityContext, IAdminGatewayFacet
     view
     returns (Schemas.AdminKYCInfosDTO memory)
   {
-    return userService.getPlatformUsersKYCInfos(page, itemsPerPage);
+    return userProfileQuery.getPlatformUsersKYCInfos(page, itemsPerPage);
   }
 
   function getAllClaimTypes(bool byHost) public view returns (Schemas.ClaimTypeV2[] memory) {
@@ -338,7 +353,7 @@ contract AdminGatewayFacet is UUPSOwnable, ARentalityContext, IAdminGatewayFacet
   function _setCoreServiceAddresses(AdminCoreAddresses memory coreAddresses) internal {
     carService = ICarGateway(coreAddresses.carServiceAddress);
     currencyConverterService = RentalityCurrencyConverter(coreAddresses.currencyConverterServiceAddress);
-    userService = RentalityUserService(coreAddresses.userServiceAddress);
+    userService = IAdminGatewayUserAccess(coreAddresses.userServiceAddress);
     adminService = IRentalityAdminGateway(address(this));
     paymentService = RentalityPaymentService(payable(coreAddresses.paymentServiceAddress));
     claimService = RentalityClaimService(coreAddresses.claimServiceAddress);
@@ -359,7 +374,8 @@ contract AdminGatewayFacet is UUPSOwnable, ARentalityContext, IAdminGatewayFacet
     tripGatewayFacet = queryAddresses.tripGatewayFacetAddress;
     tripQuery = IAdminGatewayTripQuery(queryAddresses.tripQueryAddress);
     carQueryFacet2 = IAdminGatewayCarQueryFacet2(queryAddresses.carQueryFacet2Address);
-    userProfileQuery = queryAddresses.userProfileQueryAddress;
+    userProfileQuery = IAdminGatewayUserProfileQuery(queryAddresses.userProfileQueryAddress);
+    userProfileQueryAddress = queryAddresses.userProfileQueryAddress;
     geoService = queryAddresses.geoServiceAddress;
   }
 }

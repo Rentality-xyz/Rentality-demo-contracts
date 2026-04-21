@@ -8,7 +8,7 @@ import './ARentalityEngine.sol';
 /// @title RentalityElectricEngine - Implementation of an electric engine in the Rentality system.
 /// @notice This contract extends ARentalityEngine and adds functionality specific to electric engines.
 contract RentalityElectricEngine is ARentalityEngine {
-  /// @dev Constructor to set the RentalityUserService address during deployment.
+  /// @dev Constructor to set the profile/access-control service address during deployment.
   constructor(address _userService) {
     userService = IRentalityAccessControl(_userService);
   }

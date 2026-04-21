@@ -43,7 +43,7 @@ contract RentalityChatHelper is OZInitializable, UUPSAccess {
   }
 
   /// @notice contract initialization function
-  /// @param _userService address to RentalityUserService
+  /// @param _userService address to the profile/access-control service
   function initialize(address _userService) public virtual initializer {
     userService = IRentalityAccessControl(_userService);
   }

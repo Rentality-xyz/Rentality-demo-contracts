@@ -42,7 +42,7 @@ contract RentalityNotificationService is UUPSAccess, OZInitializable {
     }
   }
 
-  /// @param userServiceAddress The address of the RentalityUserService contract.
+  /// @param userServiceAddress The address of the profile/access-control service.
   function initialize(address userServiceAddress) public initializer {
     userService = IRentalityAccessControl(userServiceAddress);
   }

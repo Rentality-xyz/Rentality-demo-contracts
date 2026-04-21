@@ -61,14 +61,14 @@ async function main() {
   }));
   console.log(await notificationContract.emitAll(defaultDataEvents.concat(taxesEvents)))
   console.log("Taxes events, Default events emited!")
-  const userService = checkNotNull(
-    getContractAddress('RentalityUserService', 'scripts/deploy_1b_RentalityUserService.js', chainId),
-    'RentalityUserService'
+  const userProfileQuery = checkNotNull(
+    getContractAddress('UserProfileQuery', 'scripts/deploy_1i_UserProfileQuery.js', chainId),
+    'UserProfileQuery'
   )
 
-  const userServiceContract = await ethers.getContractAt('RentalityUserService', userService)
+  const userProfileQueryContract = await ethers.getContractAt('UserProfileQuery', userProfileQuery)
 
-  let users = await userServiceContract.getPlatformUsers();
+  const users = await userProfileQueryContract.getPlatformUsers();
   let userEvents = users.map((u) => {
     {
         return {

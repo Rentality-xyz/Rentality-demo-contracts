@@ -5,7 +5,7 @@ pragma solidity ^0.8.20;
 
 import '@openzeppelin/contracts/utils/math/Math.sol';
 import '../Schemas.sol';
-import '../RentalityUserService.sol';
+import '../abstract/ILegacyUserProfileSource.sol';
 import "../adapter/ICarGateway.sol";
 import '../abstract/IRentalityGeoService.sol';
 import '../abstract/ITripSource.sol';
@@ -687,7 +687,7 @@ library RentalityUtils {
   ) public view returns (Schemas.CarDetails memory details) {
     ICarGateway carService = contracts.carService;
     IRentalityGeoService geo = IRentalityGeoService(carService.getGeoServiceAddress());
-    RentalityUserService userService = contracts.userService;
+    ILegacyUserProfileSource userService = contracts.userService;
 
     Schemas.CarInfo memory car = carService.getCarInfoById(carId);
 

@@ -16,7 +16,7 @@ contract RentalityEnginesService is OZInitializable, UUPSAccess {
   error Overflow();
 
   /// @notice Constructor to initialize the RentalityEnginesService contract.
-  /// @param _userService The address of the RentalityUserService contract.
+  /// @param _userService The address of the profile/access-control service.
   /// @param engineServices An array of addresses representing existing engine contracts.
 
   /// @notice Modifier to restrict access to only administrators.

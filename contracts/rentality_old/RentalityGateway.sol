@@ -11,14 +11,13 @@ import './features/RentalityClaimService.sol';
 import './abstract/IRentalityGateway.sol';
 import "./adapter/ICarGateway.sol";
 import './abstract/ITripSource.sol';
-import './RentalityUserService.sol';
+import './abstract/ILegacyUserProfileSource.sol';
 import './payments/RentalityPaymentService.sol';
 import './Schemas.sol';
 import './abstract/IRentalityAdminGateway.sol';
 import {RentalityCurrencyConverter} from './payments/RentalityCurrencyConverter.sol';
 import {RentalityCarDelivery} from './features/RentalityCarDelivery.sol';
 import {UUPSOwnable} from './proxy/UUPSOwnable.sol';
-import {RentalityQuery} from './libs/RentalityQuery.sol';
 import {LibDiamond} from './libs/LibDiamond.sol';
 import {RentalityNotificationService} from './features/RentalityNotificationService.sol';
 
@@ -26,7 +25,7 @@ struct RentalityContract {
   ICarGateway carService;
   RentalityCurrencyConverter currencyConverterService;
   ITripSource tripService;
-  RentalityUserService userService;
+  ILegacyUserProfileSource userService;
   address rentalityPlatform;
   RentalityPaymentService paymentService;
   RentalityClaimService claimService;
@@ -48,7 +47,6 @@ struct RentalityContract {
 contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/, ReentrancyGuardUpgradeable {
   address private l0Sender;
   RentalityNotificationService private notificationService;
-  using RentalityQuery for RentalityContract;
 
   fallback(bytes calldata data) external payable nonReentrant returns (bytes memory) {
      bytes memory dataToSend;
@@ -120,7 +118,7 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/, ReentrancyGuar
   //  @param carServiceAddress The address of the ICarGateway contract.
   //  @param currencyConverterServiceAddress The address of the RentalityCurrencyConverter contract.
   //  @param tripServiceAddress The address of the trip query/source contract.
-  //  @param userServiceAddress The address of the RentalityUserService contract.
+  //  @param userServiceAddress The address of the user profile source contract.
   //  @param rentalityPlatformAddress The address of the RentalityPlatform contract.
   //  @param paymentServiceAddress The address of the RentalityPaymentService contract.
   //  Requirements:

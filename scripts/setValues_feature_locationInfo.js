@@ -1,7 +1,5 @@
-const saveJsonAbi = require('./utils/abiSaver')
 const { ethers } = require('hardhat')
-const addressSaver = require('./utils/addressSaver')
-const { startDeploy, checkNotNull } = require('./utils/deployHelper')
+const { checkNotNull } = require('./utils/deployHelper')
 const { getContractAddress } = require('./utils/contractAddress')
 
 async function main() {
@@ -10,13 +8,13 @@ async function main() {
   const chainId = (await deployer.provider?.getNetwork())?.chainId ?? -1
   console.log('ChainId is:', chainId)
 
-  const rentalityUserServiceAddress = checkNotNull(
-    getContractAddress('RentalityUserService', 'scripts/deploy_1b_RentalityUserService.js', chainId),
-    'RentalityUserService'
+  const userProfileMainAddress = checkNotNull(
+    getContractAddress('UserProfileMain', 'scripts/deploy_1h_UserProfileMain.js', chainId),
+    'UserProfileMain'
   )
-  let userService = await ethers.getContractAt('RentalityUserService', rentalityUserServiceAddress)
+  const userProfileMain = await ethers.getContractAt('UserProfileMain', userProfileMainAddress)
   console.log('Start setting kyc message...')
-  let res = await userService.setNewTCMessage(
+  const res = await userProfileMain.setNewTCMessage(
     'I have read and I agree with Terms of service, Cancellation policy, Prohibited uses and Privacy policy of Rentality.'
   )
   console.log(res)
@@ -26,14 +24,14 @@ async function main() {
     'RentalityGeoService'
   )
 
-  let geoService = await ethers.getContractAt('RentalityGeoService', rentalityGeo)
+  const geoService = await ethers.getContractAt('RentalityGeoService', rentalityGeo)
 
   const rentalityVerifier = checkNotNull(
     getContractAddress('RentalityLocationVerifier', 'scripts/deploy_2_RentalityLocationVerifier.js', chainId),
     'RentalityLocationVerifier'
   )
   console.log('Start setting Location verifier...')
-  let result = await geoService.setLocationVerifier(rentalityVerifier)
+  const result = await geoService.setLocationVerifier(rentalityVerifier)
 
   console.log(result)
 }

@@ -12,7 +12,7 @@ import '../adapter/ICarGateway.sol';
 import '../Schemas.sol';
 import {RentalityInsurance} from '../payments/RentalityInsurance.sol';
 import {RentalityViewLib} from '../libs/RentalityViewLib.sol';
-import {RentalityUserService} from '../RentalityUserService.sol';
+import {IUserProfileRuntime} from '../abstract/IUserProfileRuntime.sol';
 import {IERC20} from '../payments/abstract/IERC20.sol';
 import {RentalityInvestDeployer} from './RentalityInvestDeployer.sol';
 import {ARentalityContext} from '../abstract/ARentalityContext.sol';
@@ -44,7 +44,7 @@ contract RentalityInvestment is OZInitializable, UUPSAccess, ARentalityContext {
 
   function createCarInvestment(Schemas.CarInvestment memory car, string memory name_, address currency) public onlyPlatform {
     address sender = _msgGatewaySender();
-    require(RentalityUserService(address(userService)).isInvestorManager(sender), 'only Invest Manager');
+    require(IUserProfileRuntime(address(userService)).isInvestorManager(sender), 'only Invest Manager');
         require(converter.currencyTypeIsAvailable(currency), 'currency type is not available');
 
     investmentId += 1;
@@ -90,7 +90,7 @@ contract RentalityInvestment is OZInitializable, UUPSAccess, ARentalityContext {
 
   function claimAndCreatePool(uint investId, Schemas.CreateCarRequest memory createCarRequest) public onlyPlatform {
     address sender = _msgGatewaySender();
-     bool isInvestorManager = RentalityUserService(address(userService)).isInvestorManager(sender);
+     bool isInvestorManager = IUserProfileRuntime(address(userService)).isInvestorManager(sender);
     require(isInvestorManager, 'Only for creator');
     require(address(investIdToPool[investId]) == address(0), 'Claimed');
     require(carToken.isUniqueVinNumber(createCarRequest.carVinNumber), 'Car with this VIN number already exists');
@@ -143,7 +143,7 @@ contract RentalityInvestment is OZInitializable, UUPSAccess, ARentalityContext {
     address sender = _msgGatewaySender();
     investments = new Schemas.InvestmentDTO[](investmentId);
     uint totalInvestments = 0;
-    bool isInvestorManager = RentalityUserService(address(userService)).isInvestorManager(sender);
+    bool isInvestorManager = IUserProfileRuntime(address(userService)).isInvestorManager(sender);
     for (uint i = 1; i <= investmentId; i++) {
       Schemas.CarInvestment memory investment = investmentIdToCarInfo[i];
       if(investmentIdToListed[i] || isInvestorManager) {
@@ -202,7 +202,7 @@ contract RentalityInvestment is OZInitializable, UUPSAccess, ARentalityContext {
 
   function changeListingStatus(uint investId) onlyPlatform public {
      address sender = _msgGatewaySender();
-    require(RentalityUserService(address(userService)).isInvestorManager(sender), 'only Invest manager');
+    require(IUserProfileRuntime(address(userService)).isInvestorManager(sender), 'only Invest manager');
     bool listed = investmentIdToListed[investId];
     investmentIdToListed[investId] = !listed;
   }

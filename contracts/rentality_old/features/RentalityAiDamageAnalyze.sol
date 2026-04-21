@@ -6,7 +6,6 @@ pragma solidity ^0.8.20;
 import {UUPSAccess} from '../proxy/UUPSAccess.sol';
 import {EIP712Upgradeable} from '@openzeppelin/contracts-upgradeable/utils/cryptography/EIP712Upgradeable.sol';
 import {IRentalityAccessControl} from '../abstract/IRentalityAccessControl.sol';
-import {RentalityUserService} from '../RentalityUserService.sol';
 import '../Schemas.sol';
 
 
@@ -26,7 +25,6 @@ function getInsuranceCaseUrl(string memory iCase) public view returns(string mem
 return insuranceCaseToUrl[keccak256(abi.encodePacked(iCase))];
 }
     function saveInsuranceCaseUrl(string memory iCase, string memory url) public {
-            // require(RentalityUserService(address(userService)).isSignatureManager(tx.origin),"only platform Manager");
             bytes32 hash = keccak256(abi.encodePacked(iCase));
             require(caseExists[hash], "case not exists");
             insuranceCaseToUrl[hash] = url;

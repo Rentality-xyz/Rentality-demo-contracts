@@ -8,7 +8,6 @@ import {OAppSender, MessagingFee, MessagingReceipt, MessagingParams} from '@laye
 import {OAppCore} from '@layerzerolabs/lz-evm-oapp-v2/contracts/oapp/OAppCore.sol';
 import {Ownable} from '@openzeppelin/contracts/access/Ownable.sol';
 import '@layerzerolabs/lz-evm-oapp-v2/contracts/oapp/libs/OptionsBuilder.sol';
-import '../../../rentality_old/RentalityUserService.sol';
 import './abstract/IRentalitySender.sol';
 import './ARentalitySender.sol';
 import './abstract/IRentalityInvestmentSender.sol';
@@ -23,7 +22,6 @@ contract RentalitySender is ARentalitySender, OZUUPSUpgradeable, OZInitializable
   using OptionsBuilder for bytes;
   mapping(address => uint128) private values;
   uint private nonce;
-  RentalityUserService private userService;
 
   fallback(bytes calldata data) external payable returns (bytes memory) {
     bytes memory _data = abi.encode(data, msg.sender, bytes32(uint(eid)));

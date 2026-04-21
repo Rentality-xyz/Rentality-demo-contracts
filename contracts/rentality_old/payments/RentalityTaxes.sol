@@ -161,7 +161,7 @@ contract RentalityTaxes is OZInitializable, UUPSAccess {
 }
 
   /// @notice Initializes the RentalityFloridaTaxes contract.
-  /// @param _userService The address of the RentalityUserService contract.
+  /// @param _userService The address of the profile/access-control service.
   function initialize(address _userService) public initializer {
     userService = IRentalityAccessControl(_userService);
 

@@ -17,9 +17,9 @@ async function main() {
     getContractAddress('TripQuery', 'scripts/deploy_3t_TripQuery.js', chainId),
     'TripQuery'
   )
-  const rentalityUserServiceAddress = checkNotNull(
-    getContractAddress('RentalityUserService', 'scripts/deploy_1b_RentalityUserService.js', chainId),
-    'RentalityUserService'
+  const userProfileQueryAddress = checkNotNull(
+    getContractAddress('UserProfileQuery', 'scripts/deploy_1i_UserProfileQuery.js', chainId),
+    'UserProfileQuery'
   )
   const rentalityInsuranceAddress = checkNotNull(
     getContractAddress('RentalityInsurance', 'scripts/deploy_3d_RentalityInsurance.js', chainId),
@@ -30,7 +30,7 @@ async function main() {
   const contract = await contractFactory.deploy(
     carGatewayAdapterAddress,
     tripQueryAddress,
-    rentalityUserServiceAddress,
+    userProfileQueryAddress,
     rentalityInsuranceAddress
   )
   await contract.waitForDeployment()

@@ -10,7 +10,6 @@ import '../../Schemas.sol';
 import '../../proxy/UUPSAccess.sol';
 import {Initializable as OZInitializable} from '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 import {ICarGateway} from '../../adapter/ICarGateway.sol';
-import {RentalityUserService} from '../../RentalityUserService.sol';
 import {RentalityRefferalLib} from '../../libs/RentalityRefferalLib.sol';
 import {ARentalityRefferalTear} from './ARentalityRefferalTear.sol';
 import {ARentalityRefferal} from './ARentalityRefferal.sol';

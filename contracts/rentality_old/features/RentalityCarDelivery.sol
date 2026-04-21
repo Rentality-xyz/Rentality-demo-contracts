@@ -5,7 +5,7 @@ pragma solidity ^0.8.20;
 
 import {Initializable as OZInitializable} from '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 import '../proxy/UUPSAccess.sol';
-import '../RentalityUserService.sol';
+import {IUserProfileRuntime} from '../abstract/IUserProfileRuntime.sol';
 import '../libs/RealMath.sol';
 import '../libs/RentalityUtils.sol';
 import '../Schemas.sol';
@@ -35,7 +35,7 @@ contract RentalityCarDelivery is OZInitializable, UUPSAccess {
   ) public {
     require(userService.isRentalityPlatform(msg.sender), 'only Rentality platform');
     if (!userService.isHost(user)) {
-      RentalityUserService(address(userService)).grantHostRole(user);
+      IUserProfileRuntime(address(userService)).grantHostRole(user);
     }
     userToDeliveryPrice[user] = Schemas.DeliveryPrices(
       underTwentyFiveMilesInUsdCents,

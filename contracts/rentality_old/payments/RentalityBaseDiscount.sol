@@ -97,7 +97,7 @@ contract RentalityBaseDiscount is IRentalityDiscount, OZInitializable, UUPSAcces
   }
 
   /// @notice Initializes the RentalityBaseDiscount contract.
-  /// @param _userService The address of the RentalityUserService contract.
+  /// @param _userService The address of the profile/access-control service.
   function initialize(address _userService) public initializer {
     userService = IRentalityAccessControl(_userService);
 

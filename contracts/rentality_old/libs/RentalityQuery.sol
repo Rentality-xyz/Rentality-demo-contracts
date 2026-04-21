@@ -6,7 +6,7 @@ pragma solidity ^0.8.20;
 import "../adapter/ICarGateway.sol";
 import '../payments/RentalityCurrencyConverter.sol';
 import '../payments/RentalityPaymentService.sol';
-import '../RentalityUserService.sol';
+import '../abstract/ILegacyUserProfileSource.sol';
 import '../features/RentalityClaimService.sol';
 import '../engine/RentalityEnginesService.sol';
 import '../payments/RentalityBaseDiscount.sol';
@@ -32,7 +32,7 @@ library RentalityQuery {
   //   RentalityClaimService claimService = contracts.claimService;
   //   ITripSource tripService = contracts.tripService;
   //   ICarGateway carService = contracts.carService;
-  //   RentalityUserService userService = contracts.userService;
+  //   ILegacyUserProfileSource userService = contracts.userService;
   //   RentalityCurrencyConverter currencyConverterService = contracts.currencyConverterService;
 
   //   uint256 arraySize = 0;
@@ -98,7 +98,7 @@ library RentalityQuery {
     RentalityContract memory contracts,
     address host
   ) private view returns (Schemas.FullClaimInfo[] memory) {
-    RentalityUserService userService = contracts.userService;
+    ILegacyUserProfileSource userService = contracts.userService;
     RentalityCurrencyConverter currencyConverterService = contracts.currencyConverterService;
 
     uint256 arraySize = 0;
@@ -157,7 +157,7 @@ library RentalityQuery {
     address guest
   ) private view returns (Schemas.FullClaimInfo[] memory) {
     ICarGateway carService = contracts.carService;
-    RentalityUserService userService = contracts.userService;
+    ILegacyUserProfileSource userService = contracts.userService;
     RentalityCurrencyConverter currencyConverterService = contracts.currencyConverterService;
 
     uint256 arraySize = 0;

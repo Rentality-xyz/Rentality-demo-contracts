@@ -11,7 +11,7 @@ import {ICarGateway} from '../adapter/ICarGateway.sol';
 import {IRentalityAccessControl} from '../abstract/IRentalityAccessControl.sol';
 import '@openzeppelin/contracts/utils/cryptography/ECDSA.sol';
 import '@openzeppelin/contracts/utils/Strings.sol';
-import {RentalityUserService} from '../RentalityUserService.sol';
+import {IUserProfileRuntime} from '../abstract/IUserProfileRuntime.sol';
 
 /// @title Rentality Dimo integration service
 contract RentalityDimoService is UUPSAccess, EIP712Upgradeable {
@@ -25,7 +25,7 @@ contract RentalityDimoService is UUPSAccess, EIP712Upgradeable {
     if (dimoTokenId == 0) return require(userService.isRentalityPlatform(msg.sender), 'only Rentality platform');
     require(carToken.ownerOf(carId) == user, 'Not car owner');
 
-    bool isCorrectSignature = RentalityUserService(address(userService)).isSignatureManager(
+    bool isCorrectSignature = IUserProfileRuntime(address(userService)).isSignatureManager(
       ECDSA.recover(ECDSA.toEthSignedMessageHash(bytes(Strings.toString(dimoTokenId))), signature)
     );
     require(isCorrectSignature, 'dimo: wrong signature');

@@ -7,7 +7,7 @@ import "../adapter/ICarGateway.sol";
 import '../payments/RentalityCurrencyConverter.sol';
 import '../payments/RentalityPaymentService.sol';
 import '../abstract/ITripSource.sol';
-import '../RentalityUserService.sol';
+import '../abstract/ILegacyUserProfileSource.sol';
 import {RentalityContract} from '../RentalityGateway.sol';
 import '../features/RentalityClaimService.sol';
 import {IRentalityGeoService} from '../abstract/IRentalityGeoService.sol';
@@ -248,8 +248,8 @@ library RentalityTripsQuery {
   ) public view returns (string memory guestPhoneNumber, string memory hostPhoneNumber) {
     Schemas.Trip memory trip = ITripSource(tripService).getTrip(tripId);
 
-    Schemas.KYCInfo memory guestInfo = RentalityUserService(userService).getKYCInfo(trip.guest);
-    Schemas.KYCInfo memory hostInfo = RentalityUserService(userService).getKYCInfo(trip.host);
+    Schemas.KYCInfo memory guestInfo = ILegacyUserProfileSource(userService).getKYCInfo(trip.guest);
+    Schemas.KYCInfo memory hostInfo = ILegacyUserProfileSource(userService).getKYCInfo(trip.host);
 
     return (guestInfo.mobilePhoneNumber, hostInfo.mobilePhoneNumber);
   }
@@ -371,7 +371,7 @@ library RentalityTripsQuery {
   ) public view returns (Schemas.TripDTO memory) {
     ITripSource tripService = contracts.tripService;
     ICarGateway carService = contracts.carService;
-    RentalityUserService userService = contracts.userService;
+    ILegacyUserProfileSource userService = contracts.userService;
 
     Schemas.CarInfo memory car = carService.getCarInfoById(trip.carId);
 
@@ -627,7 +627,7 @@ library RentalityTripsQuery {
   ) public view returns (Schemas.ChatInfo[] memory) {
     Schemas.TripDTO[] memory trips = getTripsAs(addresses, insuranceService, user, host, promoService, dimoService, hostInsurance);
 
-    RentalityUserService userService = addresses.userService;
+    ILegacyUserProfileSource userService = addresses.userService;
     ICarGateway carService = addresses.carService;
 
     Schemas.ChatInfo[] memory chatInfoList = new Schemas.ChatInfo[](trips.length);
@@ -640,7 +640,7 @@ library RentalityTripsQuery {
 
   function _populateSingleChatInfo(
     Schemas.TripDTO memory trip,
-    RentalityUserService userService,
+    ILegacyUserProfileSource userService,
     ICarGateway carService
 ) internal view returns (Schemas.ChatInfo memory) {
     Schemas.ChatInfo memory chatInfo;

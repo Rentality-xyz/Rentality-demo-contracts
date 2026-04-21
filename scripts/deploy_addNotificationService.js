@@ -1,4 +1,4 @@
-const { ethers } = require('hardhat')
+const { ethers, network } = require('hardhat')
 const { checkNotNull } = require('./utils/deployHelper')
 const { getContractAddress } = require('./utils/contractAddress')
 const { buildPath } = require('./utils/pathBuilder')
@@ -24,17 +24,17 @@ async function main() {
     getContractAddress('RentalityNotificationService', 'scripts/deploy_2_RentalityNotificationService.js', chainId),
     'RentalityUserServRentalityNotificationServiceice'
   )
-  const rentalityUserServiceAddress = checkNotNull(addresses['RentalityUserService'], 'rentalityUserServiceAddress')
+  const userProfileMainAddress = checkNotNull(addresses['UserProfileMain'], 'userProfileMainAddress')
   const rentalityClaimService = checkNotNull(addresses['RentalityClaimService'], 'RentalityClaimService')
   const carGatewayAdapterAddress = checkNotNull(addresses['CarGatewayAdapter'], 'carGatewayAdapterAddress')
 
-  const userService = await ethers.getContractAt('RentalityUserService', rentalityUserServiceAddress)
+  const userProfileMain = await ethers.getContractAt('UserProfileMain', userProfileMainAddress)
   const claimService = await ethers.getContractAt('RentalityClaimService', rentalityClaimService)
   const carService = await ethers.getContractAt('ICarGateway', carGatewayAdapterAddress)
 
   await claimService.updateEventServiceAddress(notificationService)
   await carService.updateEventServiceAddress(notificationService)
-  await userService.grantPlatformRole(claimService)
+  await userProfileMain.grantPlatformRole(await claimService.getAddress())
 
   console.log('Event service added!')
 }

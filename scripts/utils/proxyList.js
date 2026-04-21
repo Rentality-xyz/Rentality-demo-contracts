@@ -13,7 +13,6 @@ const ProxyList = [
   'RentalityFloridaTaxes',
   'RentalityPaymentService',
   'RentalityUSDTConverter',
-  'RentalityUserService',
 ]
 
 function getChains() {

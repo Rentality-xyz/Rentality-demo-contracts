@@ -1,9 +1,8 @@
-const RentalityUserServiceJSON_ABI = require('../src/abis/RentalityUserService.v0_2_0.abi.json')
 const { ethers, network } = require('hardhat')
 const { buildPath } = require('./utils/pathBuilder')
 const { readFileSync } = require('fs')
 
-const { checkNotNull, startDeploy } = require('./utils/deployHelper')
+const { startDeploy } = require('./utils/deployHelper')
 
 function getOptionalAddress(addresses, key) {
   return addresses[key] || null
@@ -34,58 +33,43 @@ async function main() {
     return
   }
 
-  const rentalityUserServiceAddress = checkNotNull(addresses['RentalityUserService'], 'rentalityUserServiceAddress')
-  const rentalityUserServiceContract = await ethers.getContractAt(
-    RentalityUserServiceJSON_ABI,
-    rentalityUserServiceAddress
-  )
-
   const userProfileMainAddress = getOptionalAddress(addresses, 'UserProfileMain')
-  const userProfileMainContract = userProfileMainAddress
-    ? await ethers.getContractAt('UserProfileMain', userProfileMainAddress)
-    : null
+  if (!userProfileMainAddress) {
+    throw new Error('UserProfileMain address was not found')
+  }
+  const userProfileMainContract = await ethers.getContractAt('UserProfileMain', userProfileMainAddress)
 
-  const legacyPlatformCallers = [
+  const platformCallers = [
     ['Deployer', deployer.address],
     ['RentalityGateway', getOptionalAddress(addresses, 'RentalityGateway')],
-    ['CarMain', getOptionalAddress(addresses, 'CarMain')],
-    ['CarGatewayAdapter', getOptionalAddress(addresses, 'CarGatewayAdapter')],
+    ['ProfileGatewayFacet', getOptionalAddress(addresses, 'ProfileGatewayFacet')],
+    ['ReferralGatewayFacet', getOptionalAddress(addresses, 'ReferralGatewayFacet')],
+    ['InvestmentGatewayFacet', getOptionalAddress(addresses, 'InvestmentGatewayFacet')],
+    ['TripGatewayFacet', getOptionalAddress(addresses, 'TripGatewayFacet')],
+    ['CarGatewayFacet', getOptionalAddress(addresses, 'CarGatewayFacet')],
+    ['CarViewGatewayFacet', getOptionalAddress(addresses, 'CarViewGatewayFacet')],
+    ['PaymentGatewayFacet', getOptionalAddress(addresses, 'PaymentGatewayFacet')],
+    ['ClaimGatewayFacet', getOptionalAddress(addresses, 'ClaimGatewayFacet')],
+    ['InsuranceGatewayFacet', getOptionalAddress(addresses, 'InsuranceGatewayFacet')],
     ['AdminGatewayFacet', getOptionalAddress(addresses, 'AdminGatewayFacet')],
+    ['CarMain', getOptionalAddress(addresses, 'CarMain')],
+    ['TripMain', getOptionalAddress(addresses, 'TripMain')],
+    ['RentalClaimMain', getOptionalAddress(addresses, 'RentalClaimMain')],
+    ['RentalInsuranceMain', getOptionalAddress(addresses, 'RentalInsuranceMain')],
+    ['RentalInvestmentMain', getOptionalAddress(addresses, 'RentalInvestmentMain')],
+    ['RentalReferralMain', getOptionalAddress(addresses, 'RentalReferralMain')],
+    ['RentalPaymentMain', getOptionalAddress(addresses, 'RentalPaymentMain')],
+    ['CarGatewayAdapter', getOptionalAddress(addresses, 'CarGatewayAdapter')],
     ['RentalityEnginesService', getOptionalAddress(addresses, 'RentalityEnginesService')],
     ['RentalityPaymentService', getOptionalAddress(addresses, 'RentalityPaymentService')],
     ['RentalityCarDelivery', getOptionalAddress(addresses, 'RentalityCarDelivery')],
     ['RentalityClaimService', getOptionalAddress(addresses, 'RentalityClaimService')],
     ['RentalityReferralProgram', getOptionalAddress(addresses, 'RentalityReferralProgram')],
     ['RentalityInvestment', getOptionalAddress(addresses, 'RentalityInvestment')],
-    ['CarGatewayFacet', getOptionalAddress(addresses, 'CarGatewayFacet')],
-    ['PaymentGatewayFacet', getOptionalAddress(addresses, 'PaymentGatewayFacet')],
-    ['InsuranceGatewayFacet', getOptionalAddress(addresses, 'InsuranceGatewayFacet')],
-    ['RentalClaimMain', getOptionalAddress(addresses, 'RentalClaimMain')],
   ]
 
-  for (const [label, address] of legacyPlatformCallers) {
-    await grantPlatformRoleIfPresent(rentalityUserServiceContract, label, address)
-  }
-
-  if (userProfileMainContract) {
-    const modelPlatformCallers = [
-      ['RentalityGateway', getOptionalAddress(addresses, 'RentalityGateway')],
-      ['ProfileGatewayFacet', getOptionalAddress(addresses, 'ProfileGatewayFacet')],
-      ['ReferralGatewayFacet', getOptionalAddress(addresses, 'ReferralGatewayFacet')],
-      ['InvestmentGatewayFacet', getOptionalAddress(addresses, 'InvestmentGatewayFacet')],
-      ['TripGatewayFacet', getOptionalAddress(addresses, 'TripGatewayFacet')],
-      ['CarGatewayFacet', getOptionalAddress(addresses, 'CarGatewayFacet')],
-      ['CarViewGatewayFacet', getOptionalAddress(addresses, 'CarViewGatewayFacet')],
-      ['PaymentGatewayFacet', getOptionalAddress(addresses, 'PaymentGatewayFacet')],
-      ['ClaimGatewayFacet', getOptionalAddress(addresses, 'ClaimGatewayFacet')],
-      ['InsuranceGatewayFacet', getOptionalAddress(addresses, 'InsuranceGatewayFacet')],
-      ['AdminGatewayFacet', getOptionalAddress(addresses, 'AdminGatewayFacet')],
-      ['RentalClaimMain', getOptionalAddress(addresses, 'RentalClaimMain')],
-    ]
-
-    for (const [label, address] of modelPlatformCallers) {
-      await grantPlatformRoleIfPresent(userProfileMainContract, label, address)
-    }
+  for (const [label, address] of platformCallers) {
+    await grantPlatformRoleIfPresent(userProfileMainContract, label, address)
   }
 
   console.log('manager role was granted')

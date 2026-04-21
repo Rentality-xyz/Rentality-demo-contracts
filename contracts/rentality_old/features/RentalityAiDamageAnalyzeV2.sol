@@ -6,7 +6,7 @@ pragma solidity ^0.8.20;
 import {UUPSAccess} from '../proxy/UUPSAccess.sol';
 import {EIP712Upgradeable} from '@openzeppelin/contracts-upgradeable/utils/cryptography/EIP712Upgradeable.sol';
 import {IRentalityAccessControl} from '../abstract/IRentalityAccessControl.sol';
-import {RentalityUserService} from '../RentalityUserService.sol';
+import {IUserProfileRuntime} from '../abstract/IUserProfileRuntime.sol';
 import '../Schemas.sol';
 
 /// @title Rentality AiDamageAnalyze integration service
@@ -58,7 +58,7 @@ contract RentalityAiDamageAnalyzeV2 is UUPSAccess, EIP712Upgradeable {
   }
 
   function saveInsuranceCaseUrl(string memory caseToken, string memory url) public {
-    require(RentalityUserService(address(userService)).isSignatureManager(tx.origin), 'only platform Manager');
+    require(IUserProfileRuntime(address(userService)).isSignatureManager(tx.origin), 'only platform Manager');
     bytes32 hash = keccak256(abi.encodePacked(caseToken));
     require(isCaseTokenExists(caseToken), 'case not exists');
     caseTokenToCaseTokenInfo[hash].url = url;

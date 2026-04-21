@@ -1,18 +1,16 @@
-const { ethers, network, upgrades } = require('hardhat')
-const saveJsonAbi = require('./utils/abiSaver')
-const addressSaver = require('./utils/addressSaver')
+const { ethers } = require('hardhat')
 const { getContractAddress } = require('./utils/contractAddress')
-const { checkNotNull, startDeploy } = require('./utils/deployHelper')
+const { checkNotNull } = require('./utils/deployHelper')
 
 async function main() {
   const [deployer] = await ethers.getSigners()
   const chainId = (await deployer.provider?.getNetwork())?.chainId ?? -1
-  const userService = checkNotNull(
-    getContractAddress('RentalityUserService', 'scripts/deploy_1b_RentalityUserService.js', chainId),
-    'RentalityUserService'
+  const userProfileMain = checkNotNull(
+    getContractAddress('UserProfileMain', 'scripts/deploy_1h_UserProfileMain.js', chainId),
+    'UserProfileMain'
   )
-  const userServiceContract = await ethers.getContractAt('RentalityUserService', userService)
-  const result = await userServiceContract.setCivicData(
+  const userProfileMainContract = await ethers.getContractAt('UserProfileMain', userProfileMain)
+  const result = await userProfileMainContract.setCivicData(
     '0xF65b6396dF6B7e2D8a6270E3AB6c7BB08BAEF22E',
     process.env.CIVIC_GATEKEEPER_NETWORK || 10
   )

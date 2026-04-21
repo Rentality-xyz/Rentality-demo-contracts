@@ -4,6 +4,7 @@ pragma solidity ^0.8.20;
 
 
 import '../abstract/IRentalityAccessControl.sol';
+import {IUserProfileRuntime} from '../abstract/IUserProfileRuntime.sol';
 import '../proxy/UUPSOwnable.sol';
 import './abstract/IRentalityDiscount.sol';
 import './abstract/IRentalityTaxes.sol';
@@ -18,10 +19,10 @@ import '../abstract/IRentalityGeoService.sol';
 
 /// @title Rentality Payment Service Contract
 /// @notice This contract manages platform fees and allows the adjustment of the platform fee by the manager.
-/// @dev It is connected to RentalityUserService to check if the caller is an admin.
+/// @dev It is connected to the profile/access-control service to check if the caller is an admin.
 contract RentalityPaymentService is UUPSOwnable {
   uint32 platformFeeInPPM;
-  IRentalityAccessControl private userService;
+  IUserProfileRuntime private userService;
 
   mapping(address => IRentalityDiscount) private discountAddressToDiscountContract;
   mapping(uint => IRentalityTaxes) private taxesIdToTaxesContract;
@@ -149,7 +150,7 @@ contract RentalityPaymentService is UUPSOwnable {
   function addBaseDiscount(address user, Schemas.BaseDiscount memory data) public {
     require(userService.isRentalityPlatform(msg.sender), 'Manager only.');
     if (!userService.isHost(user)) {
-      RentalityUserService(address(userService)).grantHostRole(user);
+      userService.grantHostRole(user);
     }
     discountAddressToDiscountContract[currentDiscount].addUserDiscount(user, abi.encode(data));
   }
@@ -301,7 +302,7 @@ function getTaxesInfoById(uint taxId) public view returns(Schemas.TaxesInfoDTO m
   /// @param currencyType The type of currency used for payment (address of the ERC20 token or address(0) for ETH).
   function payKycCommission(uint valueInCurrency, address currencyType, address user) public payable {
     require(userService.isRentalityPlatform(msg.sender), 'only Rentality platform');
-    require(!RentalityUserService(address(userService)).isCommissionPaidForUser(user), 'Commission paid');
+    require(!userService.isCommissionPaidForUser(user), 'Commission paid');
 
     if (currencyType == address(0)) {
       _checkNativeAmount(valueInCurrency);
@@ -312,7 +313,7 @@ function getTaxesInfoById(uint taxId) public view returns(Schemas.TaxesInfoDTO m
       require(success, 'Fail to pay');
     }
 
-    RentalityUserService(address(userService)).payCommission(user);
+    userService.payCommission(user);
   }
 
   /// @notice Handles the payment required to create a trip.
@@ -448,7 +449,7 @@ function getTaxesInfoById(uint taxId) public view returns(Schemas.TaxesInfoDTO m
 
   receive() external payable {}
   /// @notice Constructor to initialize the RentalityPaymentService.
-  /// @param _userService The address of the RentalityUserService contract
+  /// @param _userService The address of the profile/access-control service
   function initialize(
     address _userService,
     address _rentalityTaxes,
@@ -457,7 +458,7 @@ function getTaxesInfoById(uint taxId) public view returns(Schemas.TaxesInfoDTO m
     address _hostInsurance,
     address _rentalitySwaps
   ) public initializer {
-    userService = IRentalityAccessControl(_userService);
+    userService = IUserProfileRuntime(_userService);
     platformFeeInPPM = 200_000;
 
     currentDiscount = _baseDiscount;

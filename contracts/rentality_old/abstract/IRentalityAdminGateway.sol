@@ -34,8 +34,8 @@ interface IRentalityAdminGateway {
   function getTripServiceAddress() external view returns (address);
 
 
-  /// @notice Retrieves the address of the RentalityUserService contract.
-  /// @return The address of the RentalityUserService contract.
+  /// @notice Retrieves the address of the profile/access-control service.
+  /// @return The address of the profile/access-control service.
   function getUserServiceAddress() external view returns (address);
 
   /// @notice Retrieves the address of the RentalityCarDelivery contract.

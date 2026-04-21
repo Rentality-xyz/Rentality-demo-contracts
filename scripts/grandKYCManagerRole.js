@@ -1,6 +1,4 @@
-const saveJsonAbi = require('./utils/abiSaver')
 const { ethers } = require('hardhat')
-const addressSaver = require('./utils/addressSaver')
 const { startDeploy, checkNotNull } = require('./utils/deployHelper')
 const { Role } = require('./utils/consts')
 const { getContractAddress } = require('./utils/contractAddress')
@@ -12,13 +10,13 @@ async function main() {
   const chainId = (await deployer.provider?.getNetwork())?.chainId ?? -1
   console.log('ChainId is:', chainId)
 
-  const rentalityUserServiceAddress = checkNotNull(
-    getContractAddress('RentalityUserService', 'scripts/deploy_1b_RentalityUserService.js', chainId),
-    'RentalityUserService'
+  const userProfileMainAddress = checkNotNull(
+    getContractAddress('UserProfileMain', 'scripts/deploy_1h_UserProfileMain.js', chainId),
+    'UserProfileMain'
   )
-  const userServiceContract = await ethers.getContractAt('RentalityUserService', rentalityUserServiceAddress)
+  const userProfileMainContract = await ethers.getContractAt('UserProfileMain', userProfileMainAddress)
 
-  const result = await userServiceContract.manageRole(
+  const result = await userProfileMainContract.manageRole(
     Role.KYCManager,
     '0x84E6e418B55440b8Ae17fd0326BE7f33d1553295',
     true
