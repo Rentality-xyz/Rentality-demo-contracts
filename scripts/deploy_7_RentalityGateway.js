@@ -51,6 +51,10 @@ async function main() {
     getContractAddress('InsuranceGatewayFacet', 'scripts/deploy_4p_InsuranceGatewayFacet.js', chainId),
     'InsuranceGatewayFacet'
   )
+  const adminGatewayFacetAddress = checkNotNull(
+    getContractAddress('AdminGatewayFacet', 'scripts/deploy_4q_AdminGatewayFacet.js', chainId),
+    'AdminGatewayFacet'
+  )
 
   const contractFactory = await ethers.getContractFactory(contractName, {
     libraries: {},
@@ -69,8 +73,10 @@ async function main() {
   const insuranceFacet = await ethers.getContractAt('IInsuranceGatewayFacet', insuranceGatewayFacetAddress)
   const investmentFacet = await ethers.getContractAt('IInvestmentGatewayFacet', investmentGatewayFacetAddress)
   const referralFacet = await ethers.getContractAt('IReferralGatewayFacet', referralGatewayFacetAddress)
+  const adminFacet = await ethers.getContractAt('IAdminGatewayFacet', adminGatewayFacetAddress)
 
   const facetCuts = [
+    createFacetCut(adminFacet),
     createFacetCut(profileFacet),
     createFacetCut(tripFacet),
     createFacetCut(carFacet),

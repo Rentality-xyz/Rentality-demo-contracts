@@ -18,7 +18,7 @@ import './RentalityTripService.sol';
 import './RentalityUserService.sol';
 import './payments/RentalityPaymentService.sol';
 import './Schemas.sol';
-import './RentalityAdminGateway.sol';
+import './abstract/IRentalityAdminGateway.sol';
 import './features/RentalityCarDelivery.sol';
 import './features/RentalityNotificationService.sol';
 import './libs/RentalityQuery.sol';
@@ -557,7 +557,7 @@ contract RentalityTripService is OZInitializable, OZUUPSUpgradeable {
       address(0),
       RentalityPaymentService(payable(paymentServiceAddress)),
       RentalityClaimService(address(0)),
-      RentalityAdminGateway(address(0)),
+      IRentalityAdminGateway(address(0)),
       RentalityCarDelivery(address(0)),
       address(0)
     );

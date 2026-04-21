@@ -23,9 +23,9 @@ async function main() {
     'RentalityTaxes'
   )
 
-  const adminGatewayAddress = checkNotNull(
-    getContractAddress('RentalityAdminGateway', 'scripts/deploy_6_RentalityAdminGateway.js', chainId),
-    'RentalityAdminGateway'
+  const rentalityGatewayAddress = checkNotNull(
+    getContractAddress('RentalityGateway', 'scripts/deploy_7_RentalityGateway.js', chainId),
+    'RentalityGateway'
   )
   const paymentsServiceAddress = checkNotNull(
     getContractAddress('RentalityPaymentService', 'scripts/deploy_3c_RentalityPaymentService.js', chainId),
@@ -40,7 +40,7 @@ async function main() {
 
   let paymentsService = await ethers.getContractAt('RentalityPaymentService', paymentsServiceAddress)
   await paymentsService.addTaxesContract(taxesServiceAddress)
-  const rentalityAdminGateway = await ethers.getContractAt('RentalityAdminGateway', adminGatewayAddress)
+  const rentalityAdminGateway = await ethers.getContractAt('IAdminGatewayFacet', rentalityGatewayAddress)
 
   // Florida
   await rentalityAdminGateway.addTaxes('Florida', TaxesLocationType.State, [

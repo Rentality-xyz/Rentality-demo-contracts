@@ -32,6 +32,7 @@ const commands = [
   { message: 'Deploying payment gateway facet..', command: command + 'deploy_4n_PaymentGatewayFacet.js' },
   { message: 'Deploying claim gateway facet..', command: command + 'deploy_4o_ClaimGatewayFacet.js' },
   { message: 'Deploying insurance gateway facet..', command: command + 'deploy_4p_InsuranceGatewayFacet.js' },
+  { message: 'Deploying admin gateway facet..', command: command + 'deploy_4q_AdminGatewayFacet.js' },
   { message: 'Deploying contracts..', command: command + 'deploy_7_RentalityGateway.js' },
   { message: 'Grand manager role...', command: command + 'deploy_8_GrandManagerRole.js' },
   { message: 'Grand KYC manager role...', command: command + 'grandKYCManagerRole.js' },

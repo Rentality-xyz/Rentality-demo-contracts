@@ -38,6 +38,10 @@ interface IRentalityAdminGateway {
   /// @return The address of the RentalityUserService contract.
   function getUserServiceAddress() external view returns (address);
 
+  /// @notice Retrieves the address of the RentalityCarDelivery contract.
+  /// @return The address of the RentalityCarDelivery contract.
+  function getDeliveryServiceAddress() external view returns (address);
+
 
   /// @notice Withdraws the specified amount from the RentalityPlatform contract.
   /// @param amount The amount to withdraw.

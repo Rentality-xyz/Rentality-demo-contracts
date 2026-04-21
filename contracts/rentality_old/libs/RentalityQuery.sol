@@ -9,7 +9,6 @@ import '../payments/RentalityPaymentService.sol';
 import '../RentalityTripService.sol';
 import '../RentalityUserService.sol';
 import '../features/RentalityClaimService.sol';
-import '../RentalityAdminGateway.sol';
 import '../engine/RentalityEnginesService.sol';
 import '../payments/RentalityBaseDiscount.sol';
 import {IRentalityGeoService} from '../abstract/IRentalityGeoService.sol';

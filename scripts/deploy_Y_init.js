@@ -163,11 +163,6 @@ const checkInitialization = async () => {
   if (!userProfileMainAddress) {
     throw new Error(`Addresses for UserProfileMain was not found`)
   }
-  const rentalityAdminGatewayAddress = checkNotNull(addresses['RentalityAdminGateway'], 'rentalityAdminGatewayAddress')
-  if (!rentalityAdminGatewayAddress) {
-    throw new Error(`Addresses for RentalityAdminGateway was not found`)
-  }
-
   const testData = loadTestData()
 
   const HOST_PRIVATE_KEY = testData.hostWalletPrivateKey
@@ -221,7 +216,7 @@ const checkInitialization = async () => {
   }
 
   const gateway = new ethers.Contract(rentalityGatewayAddress, RentalityGatewayJSON_ABI.abi, deployer)
-  const adminGateway = await ethers.getContractAt('RentalityAdminGateway', rentalityAdminGatewayAddress)
+  const adminGateway = await ethers.getContractAt('IAdminGatewayFacet', rentalityGatewayAddress)
 
   return [host, guest, kycManager, admin, gateway, verifierAddress, adminGateway]
 }

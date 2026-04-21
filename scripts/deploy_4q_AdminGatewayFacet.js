@@ -5,7 +5,7 @@ const addressSaver = require('./utils/addressSaver')
 const { checkNotNull, startDeploy } = require('./utils/deployHelper')
 
 async function main() {
-  const { contractName, chainId } = await startDeploy('RentalityAdminGateway')
+  const { contractName, chainId } = await startDeploy('AdminGatewayFacet')
 
   if (chainId < 0) throw new Error('chainId is not set')
 
@@ -17,55 +17,38 @@ async function main() {
     getContractAddress('RentalityViewLib', 'scripts/deploy_1g_RentalityViewLib.js', chainId),
     'RentalityViewLib'
   )
-
   const rentalityUserServiceAddress = checkNotNull(
     getContractAddress('RentalityUserService', 'scripts/deploy_1b_RentalityUserService.js', chainId),
     'RentalityUserService'
   )
-
   const rentalityClaimService = checkNotNull(
     getContractAddress('RentalityClaimService', 'scripts/deploy_2a_RentalityClaimService.js', chainId),
     'RentalityClaimService'
   )
-
   const rentalityCurrencyConverterAddress = checkNotNull(
     getContractAddress('RentalityCurrencyConverter', 'scripts/deploy_3b_RentalityCurrencyConverter.js', chainId),
     'RentalityCurrencyConverter'
   )
-
   const rentalityPaymentServiceAddress = checkNotNull(
     getContractAddress('RentalityPaymentService', 'scripts/deploy_3c_RentalityPaymentService.js', chainId),
     'RentalityPaymentService'
   )
-
   const carGatewayAdapterAddress = checkNotNull(
     getContractAddress('CarGatewayAdapter', 'scripts/deploy_3_CarGatewayAdapter.js', chainId),
     'CarGatewayAdapter'
   )
-
   const rentalityTripServiceAddress = checkNotNull(
     getContractAddress('RentalityTripService', 'scripts/deploy_4_RentalityTripService.js', chainId),
     'RentalityTripService'
   )
-
-  const rentalityPlatformAddress = ethers.ZeroAddress
   const rentalityCarDelivery = checkNotNull(
     getContractAddress('RentalityCarDelivery', 'scripts/deploy_2i_RentalityCarDelivery.js', chainId),
     'RentalityCarDelivery'
-  )
-  const rentalityTripsQueryAddress = checkNotNull(
-    getContractAddress('RentalityTripsQuery', 'scripts/deploy_1e_RentalityTripsQuery.js', chainId),
-    'RentalityTripsQuery'
-  )
-  const rentalityQueryAddress = checkNotNull(
-    getContractAddress('RentalityQuery', 'scripts/deploy_1d_RentalityQuery.js', chainId),
-    'RentalityQuery'
   )
   const rentalityInsurance = checkNotNull(
     getContractAddress('RentalityInsurance', 'scripts/deploy_3d_RentalityInsurance.js', chainId),
     'RentalityInsurance'
   )
-
   const rentalityRefferalProgram = checkNotNull(
     getContractAddress('RentalityReferralProgram', 'scripts/deploy_3e_RentalityReferralProgram.js', chainId),
     'RentalityReferralProgram'
@@ -86,6 +69,10 @@ async function main() {
     getContractAddress('RentalityNotificationService', 'scripts/deploy_2_RentalityNotificationService.js', chainId),
     'RentalityNotificationService'
   )
+  const tripGatewayFacetAddress = checkNotNull(
+    getContractAddress('TripGatewayFacet', 'scripts/deploy_4k_TripGatewayFacet.js', chainId),
+    'TripGatewayFacet'
+  )
 
   const contractFactory = await ethers.getContractFactory(contractName, {
     libraries: {
@@ -99,7 +86,6 @@ async function main() {
     rentalityCurrencyConverterAddress,
     rentalityTripServiceAddress,
     rentalityUserServiceAddress,
-    rentalityPlatformAddress,
     rentalityPaymentServiceAddress,
     rentalityClaimService,
     rentalityCarDelivery,
@@ -110,6 +96,7 @@ async function main() {
     dimoService,
     investService,
     notificationService,
+    tripGatewayFacetAddress,
   ])
 
   await contract.waitForDeployment()
@@ -127,11 +114,3 @@ main()
     console.error(error)
     process.exit(1)
   })
-
-
-
-
-
-
-
-

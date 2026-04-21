@@ -8,7 +8,6 @@ import '../RentalityTripService.sol';
 import '../RentalityUserService.sol';
 import '../payments/RentalityPaymentService.sol';
 import '../Schemas.sol';
-import '../RentalityAdminGateway.sol';
 
 
 library LibDiamond {

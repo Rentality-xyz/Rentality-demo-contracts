@@ -7,9 +7,9 @@ async function main() {
 
   if (chainId < 0) throw new Error('chainId is not set')
 
-  const rentalityAdminGateway = checkNotNull(
-    getContractAddress('RentalityAdminGateway', 'scripts/deploy_6_RentalityAdminGateway.js', chainId),
-    'RentalityAdminGateway'
+  const rentalityGateway = checkNotNull(
+    getContractAddress('RentalityGateway', 'scripts/deploy_7_RentalityGateway.js', chainId),
+    'RentalityGateway'
   )
 
   const notificationService = checkNotNull(
@@ -17,7 +17,7 @@ async function main() {
     'RentalityNotificationService'
   )
 
-  const adminGateway = await ethers.getContractAt('RentalityAdminGateway', rentalityAdminGateway)
+  const adminGateway = await ethers.getContractAt('IAdminGatewayFacet', rentalityGateway)
 
   console.log(await adminGateway.updateNotificationService(notificationService))
 }

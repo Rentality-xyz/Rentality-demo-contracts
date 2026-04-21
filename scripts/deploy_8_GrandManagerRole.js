@@ -51,7 +51,7 @@ async function main() {
     ['RentalityTripService', getOptionalAddress(addresses, 'RentalityTripService')],
     ['CarMain', getOptionalAddress(addresses, 'CarMain')],
     ['CarGatewayAdapter', getOptionalAddress(addresses, 'CarGatewayAdapter')],
-    ['RentalityAdminGateway', getOptionalAddress(addresses, 'RentalityAdminGateway')],
+    ['AdminGatewayFacet', getOptionalAddress(addresses, 'AdminGatewayFacet')],
     ['RentalityEnginesService', getOptionalAddress(addresses, 'RentalityEnginesService')],
     ['RentalityPaymentService', getOptionalAddress(addresses, 'RentalityPaymentService')],
     ['RentalityCarDelivery', getOptionalAddress(addresses, 'RentalityCarDelivery')],
@@ -80,6 +80,7 @@ async function main() {
       ['PaymentGatewayFacet', getOptionalAddress(addresses, 'PaymentGatewayFacet')],
       ['ClaimGatewayFacet', getOptionalAddress(addresses, 'ClaimGatewayFacet')],
       ['InsuranceGatewayFacet', getOptionalAddress(addresses, 'InsuranceGatewayFacet')],
+      ['AdminGatewayFacet', getOptionalAddress(addresses, 'AdminGatewayFacet')],
       ['RentalClaimMain', getOptionalAddress(addresses, 'RentalClaimMain')],
     ]
 

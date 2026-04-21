@@ -14,7 +14,7 @@ import './RentalityTripService.sol';
 import './RentalityUserService.sol';
 import './payments/RentalityPaymentService.sol';
 import './Schemas.sol';
-import './RentalityAdminGateway.sol';
+import './abstract/IRentalityAdminGateway.sol';
 import {RentalityCurrencyConverter} from './payments/RentalityCurrencyConverter.sol';
 import {RentalityCarDelivery} from './features/RentalityCarDelivery.sol';
 import {UUPSOwnable} from './proxy/UUPSOwnable.sol';
@@ -30,7 +30,7 @@ struct RentalityContract {
   address rentalityPlatform;
   RentalityPaymentService paymentService;
   RentalityClaimService claimService;
-  RentalityAdminGateway adminService;
+  IRentalityAdminGateway adminService;
   RentalityCarDelivery deliveryService;
   address viewService;
 }
