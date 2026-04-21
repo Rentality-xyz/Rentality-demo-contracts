@@ -4,7 +4,20 @@ const { buildPath } = require('./utils/pathBuilder')
 const { readFileSync } = require('fs')
 
 const { checkNotNull, startDeploy } = require('./utils/deployHelper')
-const { getContractAddress } = require('./utils/contractAddress')
+
+function getOptionalAddress(addresses, key) {
+  return addresses[key] || null
+}
+
+async function grantPlatformRoleIfPresent(contract, label, user) {
+  if (!user) {
+    console.log(`${label}: address not found, skipping platform role`)
+    return
+  }
+
+  const tx = await contract.grantPlatformRole(user)
+  console.log(`${label}: platform role tx -> ${tx.hash ?? tx}`)
+}
 
 async function main() {
   const { chainId, deployer } = await startDeploy('')
@@ -22,44 +35,60 @@ async function main() {
   }
 
   const rentalityUserServiceAddress = checkNotNull(addresses['RentalityUserService'], 'rentalityUserServiceAddress')
-  const rentalityGatewayAddress = checkNotNull(addresses['RentalityGateway'], 'rentalityGatewayAddress')
-  const rentalityTripServiceAddress = checkNotNull(addresses['RentalityTripService'], 'rentalityTripServiceAddress')
-  const rentalityPlatformAddress = checkNotNull(addresses['RentalityPlatform'], 'rentalityPlatformAddress')
-  const carMainAddress = checkNotNull(addresses['CarMain'], 'carMainAddress')
-  const carGatewayAdapterAddress = checkNotNull(addresses['CarGatewayAdapter'], 'carGatewayAdapterAddress')
-  const rentalityEngineAddress = checkNotNull(addresses['RentalityEnginesService'], 'rentalityEngineAddress')
-  const rentalityAdminGatewayAddress = checkNotNull(addresses['RentalityAdminGateway'], 'rentalityAdminGatewayAddress')
-  const rentalityPaymentServiceAddress = checkNotNull(
-    addresses['RentalityPaymentService'],
-    'rentalityPaymentServiceAddress'
+  const rentalityUserServiceContract = await ethers.getContractAt(
+    RentalityUserServiceJSON_ABI,
+    rentalityUserServiceAddress
   )
-  const rentalityCarDelivery = checkNotNull(addresses['RentalityCarDelivery'], 'RentalityCarDelivery')
-  const rentalityClaimService = checkNotNull(addresses['RentalityClaimService'], 'RentalityClaimService')
-  const refferalProgram = checkNotNull(addresses['RentalityReferralProgram'], 'RentalityReferralProgram')
-  const rentalityPlatformHelper = checkNotNull(addresses['RentalityPlatformHelper'], 'RentalityPlatformHelper')
-  const rentalityReferralProgram = checkNotNull(addresses['RentalityReferralProgram'], 'RentalityReferralProgram')
-  const rentalityInvestment = checkNotNull(addresses['RentalityInvestment'], 'RentalityInvestment')
 
-  let rentalityUserServiceContract = await ethers.getContractAt('RentalityUserService', rentalityUserServiceAddress)
+  const userProfileMainAddress = getOptionalAddress(addresses, 'UserProfileMain')
+  const userProfileMainContract = userProfileMainAddress
+    ? await ethers.getContractAt('UserProfileMain', userProfileMainAddress)
+    : null
 
-  await rentalityUserServiceContract.grantPlatformRole(deployer.address)
-  await rentalityUserServiceContract.grantPlatformRole(rentalityGatewayAddress)
-  await rentalityUserServiceContract.grantPlatformRole(rentalityTripServiceAddress)
-  await rentalityUserServiceContract.grantPlatformRole(rentalityPlatformAddress)
-  await rentalityUserServiceContract.grantPlatformRole(carMainAddress)
-  await rentalityUserServiceContract.grantPlatformRole(carGatewayAdapterAddress)
-  await rentalityUserServiceContract.grantPlatformRole(rentalityAdminGatewayAddress)
-  await rentalityUserServiceContract.grantPlatformRole(rentalityEngineAddress)
-  await rentalityUserServiceContract.grantPlatformRole(rentalityPaymentServiceAddress)
-  await rentalityUserServiceContract.grantPlatformRole(rentalityCarDelivery)
-  await rentalityUserServiceContract.grantPlatformRole(rentalityClaimService)
-  await rentalityUserServiceContract.grantPlatformRole(refferalProgram)
-  await rentalityUserServiceContract.grantPlatformRole(rentalityPlatformHelper)
-  await rentalityUserServiceContract.grantPlatformRole(rentalityReferralProgram)
-  console.log(rentalityUserServiceContract.interface.encodeFunctionData('hasRole', ['0x8d0a41f4672590d8d4e75329cd62358925abfd312a2693a79a6e6e4e97fcdab8','0x6080f7a1f4fdaed78e01cdc951bb15588b04ebf7']))
+  const legacyPlatformCallers = [
+    ['Deployer', deployer.address],
+    ['RentalityGateway', getOptionalAddress(addresses, 'RentalityGateway')],
+    ['RentalityTripService', getOptionalAddress(addresses, 'RentalityTripService')],
+    ['CarMain', getOptionalAddress(addresses, 'CarMain')],
+    ['CarGatewayAdapter', getOptionalAddress(addresses, 'CarGatewayAdapter')],
+    ['RentalityAdminGateway', getOptionalAddress(addresses, 'RentalityAdminGateway')],
+    ['RentalityEnginesService', getOptionalAddress(addresses, 'RentalityEnginesService')],
+    ['RentalityPaymentService', getOptionalAddress(addresses, 'RentalityPaymentService')],
+    ['RentalityCarDelivery', getOptionalAddress(addresses, 'RentalityCarDelivery')],
+    ['RentalityClaimService', getOptionalAddress(addresses, 'RentalityClaimService')],
+    ['RentalityReferralProgram', getOptionalAddress(addresses, 'RentalityReferralProgram')],
+    ['RentalityInvestment', getOptionalAddress(addresses, 'RentalityInvestment')],
+    ['CarGatewayFacet', getOptionalAddress(addresses, 'CarGatewayFacet')],
+    ['PaymentGatewayFacet', getOptionalAddress(addresses, 'PaymentGatewayFacet')],
+    ['InsuranceGatewayFacet', getOptionalAddress(addresses, 'InsuranceGatewayFacet')],
+    ['RentalClaimMain', getOptionalAddress(addresses, 'RentalClaimMain')],
+  ]
 
-  await rentalityUserServiceContract.grantPlatformRole('0x6080f7a1f4fdaed78e01cdc951bb15588b04ebf7')
-  console.log('manager role was granded')
+  for (const [label, address] of legacyPlatformCallers) {
+    await grantPlatformRoleIfPresent(rentalityUserServiceContract, label, address)
+  }
+
+  if (userProfileMainContract) {
+    const modelPlatformCallers = [
+      ['RentalityGateway', getOptionalAddress(addresses, 'RentalityGateway')],
+      ['ProfileGatewayFacet', getOptionalAddress(addresses, 'ProfileGatewayFacet')],
+      ['ReferralGatewayFacet', getOptionalAddress(addresses, 'ReferralGatewayFacet')],
+      ['InvestmentGatewayFacet', getOptionalAddress(addresses, 'InvestmentGatewayFacet')],
+      ['TripGatewayFacet', getOptionalAddress(addresses, 'TripGatewayFacet')],
+      ['CarGatewayFacet', getOptionalAddress(addresses, 'CarGatewayFacet')],
+      ['CarViewGatewayFacet', getOptionalAddress(addresses, 'CarViewGatewayFacet')],
+      ['PaymentGatewayFacet', getOptionalAddress(addresses, 'PaymentGatewayFacet')],
+      ['ClaimGatewayFacet', getOptionalAddress(addresses, 'ClaimGatewayFacet')],
+      ['InsuranceGatewayFacet', getOptionalAddress(addresses, 'InsuranceGatewayFacet')],
+      ['RentalClaimMain', getOptionalAddress(addresses, 'RentalClaimMain')],
+    ]
+
+    for (const [label, address] of modelPlatformCallers) {
+      await grantPlatformRoleIfPresent(userProfileMainContract, label, address)
+    }
+  }
+
+  console.log('manager role was granted')
 }
 
 main()
@@ -68,8 +97,3 @@ main()
     console.error('deploy_8_GrandManagerRole error:', error)
     process.exit(1)
   })
-
-
-
-
-

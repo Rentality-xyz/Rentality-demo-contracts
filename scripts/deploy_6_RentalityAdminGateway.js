@@ -48,10 +48,7 @@ async function main() {
     'RentalityTripService'
   )
 
-  const rentalityPlatformAddress = checkNotNull(
-    getContractAddress('RentalityPlatform', 'scripts/deploy_5_RentalityPlatform.js', chainId),
-    'RentalityPlatform'
-  )
+  const rentalityPlatformAddress = ethers.ZeroAddress
   const rentalityCarDelivery = checkNotNull(
     getContractAddress('RentalityCarDelivery', 'scripts/deploy_2i_RentalityCarDelivery.js', chainId),
     'RentalityCarDelivery'

@@ -36,6 +36,11 @@ interface ICarGatewayReferralService {
 
 interface ICarGatewayDimoService {
   function saveDimoTokenId(uint256 dimoTokenId, uint256 carId, address user, bytes memory signature) external;
+  function saveButch(uint[] memory dimoTokenIds, uint[] memory carIds, address user) external;
+}
+
+interface ICarGatewayNotificationService {
+  function emitEvent(Schemas.EventType eType, uint256 id, uint8 objectStatus, address from, address to) external;
 }
 
 contract CarGatewayFacet is UUPSOwnable, ARentalityContext, ICarGatewayFacet {
@@ -48,6 +53,7 @@ contract CarGatewayFacet is UUPSOwnable, ARentalityContext, ICarGatewayFacet {
   ICarGatewayReferralService public referralProgram;
   address public promoService;
   ICarGatewayDimoService public dimoService;
+  ICarGatewayNotificationService public notificationService;
 
   function initialize(
     address carMainAddress,
@@ -58,7 +64,8 @@ contract CarGatewayFacet is UUPSOwnable, ARentalityContext, ICarGatewayFacet {
     address insuranceServiceAddress,
     address referralProgramAddress,
     address promoServiceAddress,
-    address dimoServiceAddress
+    address dimoServiceAddress,
+    address notificationServiceAddress
   ) public initializer {
     __Ownable_init();
     _setServiceAddresses(
@@ -70,7 +77,8 @@ contract CarGatewayFacet is UUPSOwnable, ARentalityContext, ICarGatewayFacet {
       insuranceServiceAddress,
       referralProgramAddress,
       promoServiceAddress,
-      dimoServiceAddress
+      dimoServiceAddress,
+      notificationServiceAddress
     );
   }
 
@@ -83,7 +91,8 @@ contract CarGatewayFacet is UUPSOwnable, ARentalityContext, ICarGatewayFacet {
     address insuranceServiceAddress,
     address referralProgramAddress,
     address promoServiceAddress,
-    address dimoServiceAddress
+    address dimoServiceAddress,
+    address notificationServiceAddress
   ) external onlyOwner {
     _setServiceAddresses(
       carMainAddress,
@@ -94,7 +103,8 @@ contract CarGatewayFacet is UUPSOwnable, ARentalityContext, ICarGatewayFacet {
       insuranceServiceAddress,
       referralProgramAddress,
       promoServiceAddress,
-      dimoServiceAddress
+      dimoServiceAddress,
+      notificationServiceAddress
     );
   }
 
@@ -139,11 +149,17 @@ contract CarGatewayFacet is UUPSOwnable, ARentalityContext, ICarGatewayFacet {
   }
 
   function addUserDeliveryPrices(uint64 underTwentyFiveMilesInUsdCents, uint64 aboveTwentyFiveMilesInUsdCents) external {
+    address sender = _msgGatewaySender();
     carMain.setUserDeliveryPrices(
       underTwentyFiveMilesInUsdCents,
       aboveTwentyFiveMilesInUsdCents,
-      _msgGatewaySender()
+      sender
     );
+    notificationService.emitEvent(Schemas.EventType.Delivery, 0, uint8(Schemas.EventCreator.User), sender, sender);
+  }
+
+  function saveDimoTokenIds(uint[] memory dimoTokenIds, uint[] memory carIds) external {
+    dimoService.saveButch(dimoTokenIds, carIds, _msgGatewaySender());
   }
 
   function isTrustedForwarder(address forwarder) internal view override returns (bool) {
@@ -178,7 +194,8 @@ contract CarGatewayFacet is UUPSOwnable, ARentalityContext, ICarGatewayFacet {
     address insuranceServiceAddress,
     address referralProgramAddress,
     address promoServiceAddress,
-    address dimoServiceAddress
+    address dimoServiceAddress,
+    address notificationServiceAddress
   ) internal {
     carMain = CarMain(carMainAddress);
     carQuery = CarQuery(carQueryAddress);
@@ -189,6 +206,6 @@ contract CarGatewayFacet is UUPSOwnable, ARentalityContext, ICarGatewayFacet {
     referralProgram = ICarGatewayReferralService(referralProgramAddress);
     promoService = promoServiceAddress;
     dimoService = ICarGatewayDimoService(dimoServiceAddress);
+    notificationService = ICarGatewayNotificationService(notificationServiceAddress);
   }
 }
-

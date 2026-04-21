@@ -10,4 +10,5 @@ interface ICarGatewayFacet {
     Schemas.SignedLocationInfo memory location
   ) external;
   function addUserDeliveryPrices(uint64 underTwentyFiveMilesInUsdCents, uint64 aboveTwentyFiveMilesInUsdCents) external;
+  function saveDimoTokenIds(uint[] memory dimoTokenIds, uint[] memory carIds) external;
 }

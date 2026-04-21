@@ -9,4 +9,5 @@ interface IPaymentGatewayFacet {
   function checkPromo(string memory promo, uint startDateTime, uint endDateTime) external view returns (Schemas.CheckPromoDTO memory);
   function getAvaibleCurrencies() external view returns (Schemas.Currency[] memory);
   function getTaxesInfoById(uint taxId) external view returns (Schemas.TaxesInfoDTO memory);
+  function addUserDiscount(Schemas.BaseDiscount memory data) external;
 }

@@ -25,6 +25,14 @@ async function main() {
     getContractAddress('RentalityCurrencyConverter', 'scripts/deploy_3b_RentalityCurrencyConverter.js', chainId),
     'RentalityCurrencyConverter'
   )
+  const userProfileMainAddress = checkNotNull(
+    getContractAddress('UserProfileMain', 'scripts/deploy_1h_UserProfileMain.js', chainId),
+    'UserProfileMain'
+  )
+  const notificationServiceAddress = checkNotNull(
+    getContractAddress('RentalityNotificationService', 'scripts/deploy_2_RentalityNotificationService.js', chainId),
+    'RentalityNotificationService'
+  )
 
   const contractFactory = await ethers.getContractFactory(contractName)
   const contract = await upgrades.deployProxy(contractFactory, [
@@ -32,6 +40,8 @@ async function main() {
     legacyPaymentServiceAddress,
     promoServiceAddress,
     currencyConverterAddress,
+    userProfileMainAddress,
+    notificationServiceAddress,
   ])
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()

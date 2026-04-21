@@ -16,12 +16,12 @@ import "./adapter/ICarGateway.sol";
 import './payments/RentalityCurrencyConverter.sol';
 import './RentalityTripService.sol';
 import './RentalityUserService.sol';
-import './RentalityPlatform.sol';
 import './payments/RentalityPaymentService.sol';
 import './Schemas.sol';
 import './RentalityAdminGateway.sol';
 import './features/RentalityCarDelivery.sol';
 import './features/RentalityNotificationService.sol';
+import './libs/RentalityQuery.sol';
 
 /// @title RentalityTripService
 /// @dev Manages the lifecycle of rental trips, including creation, approval, and completion.
@@ -554,7 +554,7 @@ contract RentalityTripService is OZInitializable, OZUUPSUpgradeable {
       RentalityCurrencyConverter(currencyConverterServiceAddress),
       RentalityTripService(address(this)),
       RentalityUserService(userServiceAddress),
-      RentalityPlatform(address(0)),
+      address(0),
       RentalityPaymentService(payable(paymentServiceAddress)),
       RentalityClaimService(address(0)),
       RentalityAdminGateway(address(0)),

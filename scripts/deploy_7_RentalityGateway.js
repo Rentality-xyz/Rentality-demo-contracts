@@ -3,7 +3,7 @@ const { ethers, upgrades } = require('hardhat')
 const { getContractAddress } = require('./utils/contractAddress')
 const addressSaver = require('./utils/addressSaver')
 const { checkNotNull, startDeploy } = require('./utils/deployHelper')
-const { createFacetCut, FacetCutAction } = require('./utils/createFacetCut')
+const { createFacetCut } = require('./utils/createFacetCut')
 
 async function main() {
   const { contractName, chainId } = await startDeploy('RentalityGateway')
@@ -15,15 +15,6 @@ async function main() {
     'RentalityNotificationService'
   )
 
-  const rentalityPlatformAddress = checkNotNull(
-    getContractAddress('RentalityPlatform', 'scripts/deploy_5_RentalityPlatform.js', chainId),
-    'RentalityPlatform'
-  )
-
-  const rentalityPlatformHelper = checkNotNull(
-    getContractAddress('RentalityPlatformHelper', 'scripts/deploy_4g_RentalityPlatformHelper.js', chainId),
-    'RentalityPlatformHelper'
-  )
   const profileGatewayFacetAddress = checkNotNull(
     getContractAddress('ProfileGatewayFacet', 'scripts/deploy_4h_ProfileGatewayFacet.js', chainId),
     'ProfileGatewayFacet'
@@ -70,8 +61,6 @@ async function main() {
   const contractAddress = await contract.getAddress()
 
   const profileFacet = await ethers.getContractAt('IProfileGatewayFacet', profileGatewayFacetAddress)
-  const platformFacet = await ethers.getContractAt('IRentalityPlatformFacet', rentalityPlatformAddress)
-  const platformHelperFacet = await ethers.getContractAt('IRentalityPlatformHelperCoreFacet', rentalityPlatformHelper)
   const tripFacet = await ethers.getContractAt('ITripGatewayFacet', tripGatewayFacetAddress)
   const carFacet = await ethers.getContractAt('ICarGatewayFacet', carGatewayFacetAddress)
   const carViewFacet = await ethers.getContractAt('ICarViewGatewayFacet', carViewGatewayFacetAddress)
@@ -83,11 +72,9 @@ async function main() {
 
   const facetCuts = [
     createFacetCut(profileFacet),
-    createFacetCut(platformFacet),
-    createFacetCut(platformHelperFacet),
-    createFacetCut(tripFacet, { action: FacetCutAction.Replace }),
-    createFacetCut(carFacet, { action: FacetCutAction.Replace }),
-    createFacetCut(carViewFacet, { action: FacetCutAction.Replace }),
+    createFacetCut(tripFacet),
+    createFacetCut(carFacet),
+    createFacetCut(carViewFacet),
     createFacetCut(paymentFacet),
     createFacetCut(claimFacet),
     createFacetCut(insuranceFacet),

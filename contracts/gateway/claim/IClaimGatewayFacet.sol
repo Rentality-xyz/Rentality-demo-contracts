@@ -11,4 +11,7 @@ interface IClaimGatewayFacet {
     external
     view
     returns (Schemas.AiDamageAnalyzeCaseRequestDTO memory aiDamageAnalyzeCaseRequest);
+  function createClaim(Schemas.CreateClaimRequest memory request, bool isInsuranceClaim) external;
+  function rejectClaim(uint256 claimId) external;
+  function payClaim(uint256 claimId) external payable;
 }

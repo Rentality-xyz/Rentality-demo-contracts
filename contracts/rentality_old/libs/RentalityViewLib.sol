@@ -8,7 +8,6 @@ import '../payments/RentalityCurrencyConverter.sol';
 import '../payments/RentalityPaymentService.sol';
 import '../RentalityTripService.sol';
 import '../RentalityUserService.sol';
-import '../RentalityPlatform.sol';
 import '../features/RentalityClaimService.sol';
 import '../RentalityAdminGateway.sol';
 import {IRentalityGeoService} from '../abstract/IRentalityGeoService.sol';

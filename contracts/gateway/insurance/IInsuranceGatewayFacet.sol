@@ -11,4 +11,7 @@ interface IInsuranceGatewayFacet {
   function getHostInsuranceRule(address host) external view returns (Schemas.HostInsuranceRuleDTO memory insuranceRules);
   function getAllInsuranceRules() external view returns (Schemas.HostInsuranceRuleDTO[] memory insuranceRules);
   function getHostInsuranceBalance() external view returns (uint);
+  function saveGuestInsurance(Schemas.SaveInsuranceRequest memory insuranceInfo) external;
+  function saveTripInsuranceInfo(uint tripId, Schemas.SaveInsuranceRequest memory insuranceInfo) external;
+  function setHostInsurance(uint insuranceId) external;
 }

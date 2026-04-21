@@ -6,6 +6,7 @@ import '../../infrastructure/upgradeable/UUPSOwnable.sol';
 import '../../rentality_old/abstract/ARentalityContext.sol';
 import '../../rentality_old/Schemas.sol';
 import '../../models/claim/RentalClaimQuery.sol';
+import '../../models/claim/RentalClaimMain.sol';
 import './IClaimGatewayFacet.sol';
 
 interface IClaimGatewayUserAccess {
@@ -14,20 +15,23 @@ interface IClaimGatewayUserAccess {
 
 contract ClaimGatewayFacet is UUPSOwnable, ARentalityContext, IClaimGatewayFacet {
   RentalClaimQuery public claimQuery;
+  RentalClaimMain public claimMain;
   IClaimGatewayUserAccess public userAccess;
 
   constructor() {
     _disableInitializers();
   }
 
-  function initialize(address claimQueryAddress, address userServiceAddress) public initializer {
+  function initialize(address claimQueryAddress, address claimMainAddress, address userServiceAddress) public initializer {
     __Ownable_init();
     claimQuery = RentalClaimQuery(claimQueryAddress);
+    claimMain = RentalClaimMain(claimMainAddress);
     userAccess = IClaimGatewayUserAccess(userServiceAddress);
   }
 
-  function updateServiceAddresses(address claimQueryAddress, address userServiceAddress) external onlyOwner {
+  function updateServiceAddresses(address claimQueryAddress, address claimMainAddress, address userServiceAddress) external onlyOwner {
     claimQuery = RentalClaimQuery(claimQueryAddress);
+    claimMain = RentalClaimMain(claimMainAddress);
     userAccess = IClaimGatewayUserAccess(userServiceAddress);
   }
 
@@ -49,6 +53,18 @@ contract ClaimGatewayFacet is UUPSOwnable, ARentalityContext, IClaimGatewayFacet
     returns (Schemas.AiDamageAnalyzeCaseRequestDTO memory aiDamageAnalyzeCaseRequest)
   {
     return claimQuery.getAiDamageAnalyzeCaseRequest(tripId, caseType, _msgGatewaySender());
+  }
+
+  function createClaim(Schemas.CreateClaimRequest memory request, bool isInsuranceClaim) external {
+    claimMain.createClaim(request, isInsuranceClaim, _msgGatewaySender());
+  }
+
+  function rejectClaim(uint256 claimId) external {
+    claimMain.rejectClaim(claimId, _msgGatewaySender());
+  }
+
+  function payClaim(uint256 claimId) external payable {
+    claimMain.payClaim{value: msg.value}(claimId, _msgGatewaySender());
   }
 
   function isTrustedForwarder(address forwarder) internal view override returns (bool) {

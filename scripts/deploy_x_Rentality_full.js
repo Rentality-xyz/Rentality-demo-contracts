@@ -15,6 +15,7 @@ const commands = [
   { message: 'Deploying trip main..', command: command + 'deploy_3s_TripMain.js' },
   { message: 'Deploying trip query..', command: command + 'deploy_3t_TripQuery.js' },
   { message: 'Deploying rental claim query..', command: command + 'deploy_3u_RentalClaimQuery.js' },
+  { message: 'Deploying rental claim main..', command: command + 'deploy_3y_RentalClaimMain.js' },
   { message: 'Deploying rental insurance query facet 1..', command: command + 'deploy_3v_RentalInsuranceQueryFacet1.js' },
   { message: 'Deploying car query facet 2..', command: command + 'deploy_3w_CarQueryFacet2.js' },
   { message: 'Deploying rental insurance query facet 2..', command: command + 'deploy_3x_RentalInsuranceQueryFacet2.js' },
@@ -56,6 +57,7 @@ main()
     console.error('deploy_x_Rentality_full error: ', error)
     process.exit(1)
   })
+
 
 
 

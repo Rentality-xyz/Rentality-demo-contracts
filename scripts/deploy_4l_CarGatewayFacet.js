@@ -1,4 +1,5 @@
 const { ethers, upgrades } = require('hardhat')
+const saveJsonAbi = require('./utils/abiSaver')
 const { getContractAddress } = require('./utils/contractAddress')
 const addressSaver = require('./utils/addressSaver')
 const { checkNotNull, startDeploy } = require('./utils/deployHelper')
@@ -44,6 +45,10 @@ async function main() {
     getContractAddress('RentalityDimoService', 'scripts/deploy_3e_RentalityDimoService.js', chainId),
     'RentalityDimoService'
   )
+  const notificationServiceAddress = checkNotNull(
+    getContractAddress('RentalityNotificationService', 'scripts/deploy_2_RentalityNotificationService.js', chainId),
+    'RentalityNotificationService'
+  )
 
   const contractFactory = await ethers.getContractFactory(contractName)
   const contract = await upgrades.deployProxy(contractFactory, [
@@ -56,6 +61,7 @@ async function main() {
     referralProgramAddress,
     promoServiceAddress,
     dimoServiceAddress,
+    notificationServiceAddress,
   ])
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()

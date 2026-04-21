@@ -17,16 +17,26 @@ async function main() {
     getContractAddress('RentalInsuranceQueryFacet2', 'scripts/deploy_3x_RentalInsuranceQueryFacet2.js', chainId),
     'RentalInsuranceQueryFacet2'
   )
+  const insuranceMainAddress = checkNotNull(
+    getContractAddress('RentalInsuranceMain', 'scripts/deploy_3l_RentalInsuranceMain.js', chainId),
+    'RentalInsuranceMain'
+  )
   const rentalityUserServiceAddress = checkNotNull(
     getContractAddress('RentalityUserService', 'scripts/deploy_1b_RentalityUserService.js', chainId),
     'RentalityUserService'
+  )
+  const notificationServiceAddress = checkNotNull(
+    getContractAddress('RentalityNotificationService', 'scripts/deploy_2_RentalityNotificationService.js', chainId),
+    'RentalityNotificationService'
   )
 
   const contractFactory = await ethers.getContractFactory(contractName)
   const contract = await upgrades.deployProxy(contractFactory, [
     insuranceQueryFacet1Address,
     insuranceQueryFacet2Address,
+    insuranceMainAddress,
     rentalityUserServiceAddress,
+    notificationServiceAddress,
   ])
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()

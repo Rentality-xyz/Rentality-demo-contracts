@@ -13,7 +13,6 @@ import {RentalityClaimService} from './features/RentalityClaimService.sol';
 import {RentalityCurrencyConverter} from './payments/RentalityCurrencyConverter.sol';
 import {RentalityInsurance} from './payments/RentalityInsurance.sol';
 import './payments/RentalityPaymentService.sol';
-import './RentalityPlatform.sol';
 import './abstract/IRentalityAdminGateway.sol';
 import {RentalityContract, RentalityGateway} from './RentalityGateway.sol';
 import {UUPSOwnable} from './proxy/UUPSOwnable.sol';
@@ -32,7 +31,7 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
   RentalityCurrencyConverter private currencyConverterService;
   RentalityTripService private tripService;
   RentalityUserService private userService;
-  RentalityPlatform private rentalityPlatform;
+  address private rentalityPlatform;
   RentalityPaymentService private paymentService;
   RentalityClaimService private claimService;
   RentalityCarDelivery private deliveryService;
@@ -101,7 +100,7 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
   /// @notice Retrieves the address of the RentalityPlatform contract.
   /// @return rentalityPlatformAddress The address of the RentalityPlatform contract.
   function getRentalityPlatformAddress() public view returns (address rentalityPlatformAddress) {
-    return address(rentalityPlatform);
+    return rentalityPlatform;
   }
 
   /// @notice Retrieves the address of the RentalityCurrencyConverter contract.
@@ -289,7 +288,7 @@ contract RentalityAdminGateway is UUPSOwnable, IRentalityAdminGateway {
 
   function _callWithForwarding(bytes memory data) private returns (bytes memory) {
     bytes memory dataToSend = _forward(data);
-    (bool ok, bytes memory res) = address(rentalityPlatform).call{value: 0}(dataToSend);
+    (bool ok, bytes memory res) = rentalityPlatform.call{value: 0}(dataToSend);
     return _parseResult(ok, res);
   }
 
@@ -470,7 +469,7 @@ function setDefaultPrices(uint64 underTwentyFiveMilesInUsdCents, uint64 aboveTwe
     currencyConverterService = RentalityCurrencyConverter(currencyConverterServiceAddress);
     tripService = RentalityTripService(tripServiceAddress);
     userService = RentalityUserService(userServiceAddress);
-    rentalityPlatform = RentalityPlatform(rentalityPlatformAddress);
+    rentalityPlatform = rentalityPlatformAddress;
     paymentService = RentalityPaymentService(payable(paymentServiceAddress));
     claimService = RentalityClaimService(claimServiceAddress);
     deliveryService = RentalityCarDelivery(carDeliveryAddress);
