@@ -6,7 +6,7 @@ pragma solidity ^0.8.20;
 import "../adapter/ICarGateway.sol";
 import '../payments/RentalityCurrencyConverter.sol';
 import '../payments/RentalityPaymentService.sol';
-import '../RentalityTripService.sol';
+import '../abstract/ITripSource.sol';
 import '../RentalityUserService.sol';
 import {RentalityContract} from '../RentalityGateway.sol';
 import '../features/RentalityClaimService.sol';
@@ -57,7 +57,7 @@ library RentalityTripsQuery {
     uint64 endDateTime
   ) internal view returns (Schemas.Trip[] memory) {
     uint itemCount = 0;
-    RentalityTripService tripService = contracts.tripService;
+    ITripSource tripService = contracts.tripService;
 
     uint32 timeBuffer = contracts.carService.getCarInfoById(carId).timeBufferBetweenTripsInSec;
     uint[] memory trips = tripService.getActiveTrips(carId);
@@ -91,7 +91,7 @@ library RentalityTripsQuery {
     RentalityContract memory contracts,
     uint256 carId
   ) public view returns (Schemas.Trip[] memory) {
-    RentalityTripService tripService = contracts.tripService;
+    ITripSource tripService = contracts.tripService;
 
     uint[] memory trips = tripService.getCarTrips(carId);
 
@@ -192,7 +192,7 @@ library RentalityTripsQuery {
   //   address paymentService,
   //   address carService
   // ) public view returns (Schemas.TripReceiptDTO memory) {
-  //   RentalityTripService tripService = RentalityTripService(tripServiceAddress);
+  //   ITripSource tripService = ITripSource(tripServiceAddress);
 
   //   Schemas.Trip memory trip = tripService.getTrip(tripId);
   //   uint64 ceilDays = RentalityUtils.getCeilDays(trip.startDateTime, trip.endDateTime);
@@ -246,7 +246,7 @@ library RentalityTripsQuery {
     address tripService,
     address userService
   ) public view returns (string memory guestPhoneNumber, string memory hostPhoneNumber) {
-    Schemas.Trip memory trip = RentalityTripService(tripService).getTrip(tripId);
+    Schemas.Trip memory trip = ITripSource(tripService).getTrip(tripId);
 
     Schemas.KYCInfo memory guestInfo = RentalityUserService(userService).getKYCInfo(trip.guest);
     Schemas.KYCInfo memory hostInfo = RentalityUserService(userService).getKYCInfo(trip.host);
@@ -282,7 +282,7 @@ library RentalityTripsQuery {
     RentalityDimoService dimoService,
     RentalityHostInsurance hostInsurance
   ) private view returns (Schemas.TripDTO[] memory) {
-    RentalityTripService tripService = contracts.tripService;
+    ITripSource tripService = contracts.tripService;
 
     uint[] memory guestTrips = tripService.getTripsByUser(guest);
 
@@ -325,7 +325,7 @@ library RentalityTripsQuery {
     RentalityDimoService dimoService,
     RentalityHostInsurance hostInsurance
   ) private view returns (Schemas.TripDTO[] memory) {
-    RentalityTripService tripService = contracts.tripService;
+    ITripSource tripService = contracts.tripService;
     uint[] memory hostTrips = tripService.getTripsByUser(host);
 
     Schemas.TripDTO[] memory result = new Schemas.TripDTO[](hostTrips.length);
@@ -369,7 +369,7 @@ library RentalityTripsQuery {
     Schemas.Trip memory trip,
     RentalityHostInsurance hostInsurance
   ) public view returns (Schemas.TripDTO memory) {
-    RentalityTripService tripService = contracts.tripService;
+    ITripSource tripService = contracts.tripService;
     ICarGateway carService = contracts.carService;
     RentalityUserService userService = contracts.userService;
 
@@ -441,7 +441,7 @@ library RentalityTripsQuery {
     RentalityInsurance insuranceService,
     address guest
   ) internal view returns (Schemas.InsuranceDTO[] memory) {
-    RentalityTripService tripService = contracts.tripService;
+    ITripSource tripService = contracts.tripService;
     uint itemCount = 0;
     uint[] memory userTrips = tripService.getTripsByUser(guest);
     for (uint i = 0; i < userTrips.length; i++) {
@@ -573,7 +573,7 @@ library RentalityTripsQuery {
     RentalityInsurance insuranceService,
     address host
   ) internal view returns (Schemas.InsuranceDTO[] memory) {
-    RentalityTripService tripService = contracts.tripService;
+    ITripSource tripService = contracts.tripService;
     uint itemCount = 0;
 
     uint[] memory userTrips = tripService.getTripsByUser(host);

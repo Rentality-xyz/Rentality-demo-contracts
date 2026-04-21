@@ -48,7 +48,6 @@ async function main() {
   const legacyPlatformCallers = [
     ['Deployer', deployer.address],
     ['RentalityGateway', getOptionalAddress(addresses, 'RentalityGateway')],
-    ['RentalityTripService', getOptionalAddress(addresses, 'RentalityTripService')],
     ['CarMain', getOptionalAddress(addresses, 'CarMain')],
     ['CarGatewayAdapter', getOptionalAddress(addresses, 'CarGatewayAdapter')],
     ['AdminGatewayFacet', getOptionalAddress(addresses, 'AdminGatewayFacet')],

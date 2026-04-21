@@ -26,17 +26,14 @@ async function main() {
   )
   const rentalityUserServiceAddress = checkNotNull(addresses['RentalityUserService'], 'rentalityUserServiceAddress')
   const rentalityClaimService = checkNotNull(addresses['RentalityClaimService'], 'RentalityClaimService')
-  const rentalityTripServiceAddress = checkNotNull(addresses['RentalityTripService'], 'rentalityTripServiceAddress')
   const carGatewayAdapterAddress = checkNotNull(addresses['CarGatewayAdapter'], 'carGatewayAdapterAddress')
 
   const userService = await ethers.getContractAt('RentalityUserService', rentalityUserServiceAddress)
   const claimService = await ethers.getContractAt('RentalityClaimService', rentalityClaimService)
   const carService = await ethers.getContractAt('ICarGateway', carGatewayAdapterAddress)
-  const tripService = await ethers.getContractAt('RentalityTripService', rentalityTripServiceAddress)
 
   await claimService.updateEventServiceAddress(notificationService)
   await carService.updateEventServiceAddress(notificationService)
-  await tripService.updateEventServiceAddress(notificationService)
   await userService.grantPlatformRole(claimService)
 
   console.log('Event service added!')

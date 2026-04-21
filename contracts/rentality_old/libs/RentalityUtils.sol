@@ -8,7 +8,7 @@ import '../Schemas.sol';
 import '../RentalityUserService.sol';
 import "../adapter/ICarGateway.sol";
 import '../abstract/IRentalityGeoService.sol';
-import '../RentalityTripService.sol';
+import '../abstract/ITripSource.sol';
 import '../payments/RentalityCurrencyConverter.sol';
 import '../payments/RentalityPaymentService.sol';
 import {RentalityContract} from '../RentalityGateway.sol';
@@ -742,7 +742,7 @@ library RentalityUtils {
   /// @param carId The ID of the car to check for editability.
   /// @return Returns true if the car is editable, otherwise false.
   function isCarEditable(RentalityContract memory contracts, uint carId) public view returns (bool) {
-    RentalityTripService tripService = contracts.tripService;
+    ITripSource tripService = contracts.tripService;
     uint[] memory carTrips = tripService.getActiveTrips(carId);
 
     for (uint i = 0; i < carTrips.length; i++) {

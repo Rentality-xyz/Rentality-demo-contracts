@@ -10,7 +10,7 @@ import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.
 import './features/RentalityClaimService.sol';
 import './abstract/IRentalityGateway.sol';
 import "./adapter/ICarGateway.sol";
-import './RentalityTripService.sol';
+import './abstract/ITripSource.sol';
 import './RentalityUserService.sol';
 import './payments/RentalityPaymentService.sol';
 import './Schemas.sol';
@@ -25,7 +25,7 @@ import {RentalityNotificationService} from './features/RentalityNotificationServ
 struct RentalityContract {
   ICarGateway carService;
   RentalityCurrencyConverter currencyConverterService;
-  RentalityTripService tripService;
+  ITripSource tripService;
   RentalityUserService userService;
   address rentalityPlatform;
   RentalityPaymentService paymentService;
@@ -119,7 +119,7 @@ contract RentalityGateway is UUPSOwnable /*, IRentalityGateway*/, ReentrancyGuar
   //  @dev Initializes the contract with the provided addresses for various services.
   //  @param carServiceAddress The address of the ICarGateway contract.
   //  @param currencyConverterServiceAddress The address of the RentalityCurrencyConverter contract.
-  //  @param tripServiceAddress The address of the RentalityTripService contract.
+  //  @param tripServiceAddress The address of the trip query/source contract.
   //  @param userServiceAddress The address of the RentalityUserService contract.
   //  @param rentalityPlatformAddress The address of the RentalityPlatform contract.
   //  @param paymentServiceAddress The address of the RentalityPaymentService contract.

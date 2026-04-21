@@ -6,7 +6,7 @@ pragma solidity ^0.8.20;
 import "../adapter/ICarGateway.sol";
 import '../payments/RentalityCurrencyConverter.sol';
 import '../payments/RentalityPaymentService.sol';
-import '../RentalityTripService.sol';
+import '../abstract/ITripSource.sol';
 import '../RentalityUserService.sol';
 import {RentalityContract} from '../RentalityGateway.sol';
 import '../features/RentalityClaimService.sol';

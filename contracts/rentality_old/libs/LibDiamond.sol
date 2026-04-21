@@ -4,7 +4,6 @@ pragma solidity ^0.8.20;
 import '../features/RentalityClaimService.sol';
 import '../abstract/IRentalityGateway.sol';
 import '../payments/RentalityCurrencyConverter.sol';
-import '../RentalityTripService.sol';
 import '../RentalityUserService.sol';
 import '../payments/RentalityPaymentService.sol';
 import '../Schemas.sol';

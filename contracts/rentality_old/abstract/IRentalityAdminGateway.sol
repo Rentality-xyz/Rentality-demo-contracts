@@ -29,8 +29,8 @@ interface IRentalityAdminGateway {
 
 
 
-  /// @notice Retrieves the address of the RentalityTripService contract.
-  /// @return The address of the RentalityTripService contract.
+  /// @notice Retrieves the address of the trip query/source contract.
+  /// @return The address of the trip query/source contract.
   function getTripServiceAddress() external view returns (address);
 
 

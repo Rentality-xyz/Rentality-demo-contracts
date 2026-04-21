@@ -112,14 +112,11 @@ async function main() {
   console.log(await notificationContract.emitAll(carEvents.concat()))
   console.log("Car events emited!")
 
-  let tripsAddress = checkNotNull(
-    getContractAddress('RentalityTripService', 'scripts/deploy_4_RentalityTripService.js', chainId),
-    'RentalityTripService'
-  )
+  let tripsAddress = checkNotNull(getContractAddress('TripQuery', 'scripts/deploy_3t_TripQuery.js', chainId), 'TripQuery')
 
-  let tripsContract = await ethers.getContractAt('RentalityTripService', tripsAddress)
+  let tripsContract = await ethers.getContractAt('TripQuery', tripsAddress)
 
-  let totalTrips = await tripsContract.totalTripCount();
+  let totalTrips = await tripsContract.totalSupply();
 
   let tripsEvents = Array.from({ length: Number(totalTrips) }, (_, i) => ({
     eType: EventType.Trip,

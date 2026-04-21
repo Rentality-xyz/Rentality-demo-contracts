@@ -5,7 +5,6 @@ pragma solidity ^0.8.20;
 
 import '../abstract/IRentalityAccessControl.sol';
 import '../proxy/UUPSOwnable.sol';
-import '../RentalityTripService.sol';
 import './abstract/IRentalityDiscount.sol';
 import './abstract/IRentalityTaxes.sol';
 import '../investment/RentalityInvestment.sol';

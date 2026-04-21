@@ -6,7 +6,6 @@ pragma solidity ^0.8.20;
 import "../adapter/ICarGateway.sol";
 import '../payments/RentalityCurrencyConverter.sol';
 import '../payments/RentalityPaymentService.sol';
-import '../RentalityTripService.sol';
 import '../RentalityUserService.sol';
 import '../features/RentalityClaimService.sol';
 import '../engine/RentalityEnginesService.sol';
@@ -31,7 +30,7 @@ library RentalityQuery {
   //   uint256 tripId
   // ) public view returns (Schemas.FullClaimInfo[] memory) {
   //   RentalityClaimService claimService = contracts.claimService;
-  //   RentalityTripService tripService = contracts.tripService;
+  //   ITripSource tripService = contracts.tripService;
   //   ICarGateway carService = contracts.carService;
   //   RentalityUserService userService = contracts.userService;
   //   RentalityCurrencyConverter currencyConverterService = contracts.currencyConverterService;

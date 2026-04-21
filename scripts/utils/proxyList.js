@@ -3,7 +3,6 @@ const { readFileSync, writeFileSync } = require('fs')
 const ProxyList = [
   'CarMain',
   'RentalityGateway',
-  'RentalityTripService',
   'RentalityEnginesService',
   'RentalityCarDelivery',
   'RentalityClaimService',

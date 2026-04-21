@@ -7,7 +7,6 @@ import {Initializable as OZInitializable} from '@openzeppelin/contracts/proxy/ut
 import '../proxy/UUPSAccess.sol';
 import './abstract/IRentalityTaxes.sol';
 import '../Schemas.sol';
-import '../RentalityTripService.sol';
 
 
 /// @title RentalityTaxes
