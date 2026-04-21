@@ -8,7 +8,7 @@ import '../payments/RentalityCurrencyConverter.sol';
 import '../payments/RentalityPaymentService.sol';
 import '../abstract/ITripSource.sol';
 import '../abstract/ILegacyUserProfileSource.sol';
-import {RentalityContract} from '../RentalityGateway.sol';
+import {RentalityContract} from '../abstract/RentalityContractTypes.sol';
 import '../features/RentalityClaimService.sol';
 import {IRentalityGeoService} from '../abstract/IRentalityGeoService.sol';
 import {RentalityCarDelivery} from '../features/RentalityCarDelivery.sol';

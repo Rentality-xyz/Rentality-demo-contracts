@@ -13,6 +13,7 @@ async function main() {
 
   const chainId = (await deployer.provider?.getNetwork())?.chainId ?? -1
   const contractName = 'RentalityGateway'
+  const implementationName = 'AppGateway'
 
   const libs = getContractLibs(contractName, chainId)
 
@@ -24,7 +25,7 @@ async function main() {
     console.log(`Contract address ${contractName}: not found. Finishing... `)
     process.exit(1)
   }
-  const contractFactory = await ethers.getContractFactory(contractName, {
+  const contractFactory = await ethers.getContractFactory(implementationName, {
   })
 
   const initializationFunc = readlineSync.question("Enter initialization function if needed or 'Enter' to skip:\n")

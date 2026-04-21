@@ -11,7 +11,7 @@ import '../abstract/IRentalityGeoService.sol';
 import '../abstract/ITripSource.sol';
 import '../payments/RentalityCurrencyConverter.sol';
 import '../payments/RentalityPaymentService.sol';
-import {RentalityContract} from '../RentalityGateway.sol';
+import {RentalityContract} from '../abstract/RentalityContractTypes.sol';
 import {RentalityCarDelivery} from '../features/RentalityCarDelivery.sol';
 import {RentalityInsurance} from '../payments/RentalityInsurance.sol';
 import {RentalityReferralProgram} from '../features/refferalProgram/RentalityReferralProgram.sol';

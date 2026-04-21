@@ -5,7 +5,7 @@ pragma solidity ^0.8.2;
 import {OAppReceiver, Origin} from '@layerzerolabs/lz-evm-oapp-v2/contracts/oapp/OAppReceiver.sol';
 import {OAppCore} from '@layerzerolabs/lz-evm-oapp-v2/contracts/oapp/OAppCore.sol';
 import {Ownable} from '@openzeppelin/contracts/access/Ownable.sol';
-import '../../../rentality_old/RentalityGateway.sol';
+import {AppGateway} from '../../../gateway/AppGateway.sol';
 import {EndpointV2} from "@layerzerolabs/lz-evm-protocol-v2/contracts/EndpointV2.sol";
 
 contract RentalityReceiver is OAppReceiver {
@@ -17,10 +17,10 @@ contract RentalityReceiver is OAppReceiver {
   uint valueBack
 
 );
-  RentalityGateway private gateway;
+  AppGateway private gateway;
 
   constructor(address sendTo, address _endpoint) OAppCore(_endpoint, msg.sender) Ownable() {
-    gateway = RentalityGateway(payable(sendTo));
+    gateway = AppGateway(payable(sendTo));
     // gateway.setLayerZeroSender(address(this));
   }
 

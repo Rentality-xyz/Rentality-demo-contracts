@@ -6,7 +6,9 @@ const { checkNotNull, startDeploy } = require('./utils/deployHelper')
 const { createFacetCut } = require('./utils/createFacetCut')
 
 async function main() {
-  const { contractName, chainId } = await startDeploy('RentalityGateway')
+  const deploymentName = 'RentalityGateway'
+  const implementationName = 'AppGateway'
+  const { chainId } = await startDeploy(deploymentName)
 
   if (chainId < 0) throw new Error('chainId is not set')
 
@@ -56,7 +58,7 @@ async function main() {
     'AdminGatewayFacet'
   )
 
-  const contractFactory = await ethers.getContractFactory(contractName, {
+  const contractFactory = await ethers.getContractFactory(implementationName, {
     libraries: {},
   })
 
@@ -93,9 +95,11 @@ async function main() {
 
   contract = await ethers.getContractAt('IRentalityGateway', contractAddress)
 
-  console.log(`${contractName} was deployed to: ${contractAddress}`)
-  addressSaver(contractAddress, contractName, true, chainId)
-  await saveJsonAbi(contractName, chainId, contract)
+  console.log(`${implementationName} was deployed to: ${contractAddress}`)
+  addressSaver(contractAddress, deploymentName, true, chainId)
+  addressSaver(contractAddress, implementationName, true, chainId)
+  await saveJsonAbi(deploymentName, chainId, contract)
+  await saveJsonAbi(implementationName, chainId, contract)
   console.log()
 }
 

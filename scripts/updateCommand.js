@@ -30,7 +30,8 @@ async function main() {
       process.exit(1)
     }
     console.log(contractName)
-    const contractFactory = await ethers.getContractFactory(contractName, {
+    const implementationName = contractName === 'RentalityGateway' ? 'AppGateway' : contractName
+    const contractFactory = await ethers.getContractFactory(implementationName, {
       libraries: libs,
     })
     console.log(`Updating contract ${contractName} in address ${contractAddress}`)

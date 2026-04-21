@@ -1,13 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import '../features/RentalityClaimService.sol';
-import '../abstract/IRentalityGateway.sol';
-import '../payments/RentalityCurrencyConverter.sol';
-import '../payments/RentalityPaymentService.sol';
-import '../Schemas.sol';
-
-
 library LibDiamond {
     bytes32 constant DIAMOND_STORAGE_POSITION = keccak256("diamond.standard.diamond.storage");
     bytes32 constant RENTALITY_STORAGE_POSITION = keccak256("rentality.contract.diamond.storage");
