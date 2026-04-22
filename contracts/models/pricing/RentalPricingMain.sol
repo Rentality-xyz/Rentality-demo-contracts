@@ -3,6 +3,7 @@ pragma solidity ^0.8.20;
 
 import '../../infrastructure/upgradeable/UUPSOwnable.sol';
 import '../../models/base/pricing/PricingBase.sol';
+import '../common/CommonTypes.sol';
 import '../common/Schemas.sol';
 import '../../rentality_old/payments/abstract/IRentalityDiscount.sol';
 import '../../infrastructure/geo/IRentalityGeoService.sol';
@@ -224,7 +225,7 @@ contract RentalPricingMain is PricingBase, UUPSOwnable {
         });
     }
 
-    function taxExist(Schemas.LocationInfo memory locationInfo) external view returns (uint256) {
+    function taxExist(LocationInfo memory locationInfo) external view returns (uint256) {
         bytes32 cityHash = keccak256(abi.encode(locationInfo.city));
         bytes32 stateHash = keccak256(abi.encode(locationInfo.state));
         bytes32 countryHash = keccak256(abi.encode(locationInfo.country));

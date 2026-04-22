@@ -16,3 +16,23 @@ struct SignedLocationInfo {
     bytes signature;
 }
 
+struct ParsedGeolocationData {
+    string status;
+    bool validCoordinates;
+    string locationLat;
+    string locationLng;
+    string northeastLat;
+    string northeastLng;
+    string southwestLat;
+    string southwestLng;
+    string city;
+    string state;
+    string country;
+    string timeZoneId;
+}
+
+struct UserCurrencyInfo {
+    address currency;
+    string name;
+    bool initialized;
+}

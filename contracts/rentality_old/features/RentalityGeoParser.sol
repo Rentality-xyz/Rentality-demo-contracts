@@ -5,7 +5,7 @@ pragma solidity ^0.8.20;
 
 import '@chainlink/contracts/src/v0.8/ChainlinkClient.sol';
 import '../libs/RentalityUtils.sol';
-import '../../models/common/Schemas.sol';
+import '../../models/common/CommonTypes.sol';
 import '../../infrastructure/geo/IRentalityGeoService.sol';
 import '@chainlink/contracts/src/v0.8/shared/access/ConfirmedOwner.sol';
 import './IRentalityGeoParser.sol';
@@ -97,14 +97,14 @@ contract RentalityGeoParser is ChainlinkClient, Ownable, IRentalityGeoParser {
   /// @notice Function to parse the geolocation response and store parsed data.
   /// @param carId The ID of the car for which geolocation is parsed.
   /// @return Parsed geolocation data for the specified car ID.
-  function parseGeoResponse(uint256 carId) public view returns (Schemas.ParsedGeolocationData memory) {
+  function parseGeoResponse(uint256 carId) public view returns (ParsedGeolocationData memory) {
     string memory response = carIdToGeolocationResponse[carId];
 
     //        require(bytes(response).length > 0, 'Response is not exist.');
 
     string[] memory pairs = RentalityUtils.splitString(response, bytes('|'));
 
-    Schemas.ParsedGeolocationData memory result;
+    ParsedGeolocationData memory result;
     for (uint256 i = 0; i < pairs.length; i++) {
       string[] memory keyValue = RentalityUtils.splitKeyValue(pairs[i]);
       string memory key = keyValue[0];

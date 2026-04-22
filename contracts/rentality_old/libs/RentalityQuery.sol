@@ -14,6 +14,7 @@ import {IRentalityGeoService} from '../../infrastructure/geo/IRentalityGeoServic
 import {RentalityCarDelivery} from '../features/RentalityCarDelivery.sol';
 import '../../models/common/Schemas.sol';
 import {RentalityTripsQuery} from './RentalityTripsQuery.sol';
+import './RentalityUtils.sol';
 import {CurrencyRate as ClaimCurrencyRate} from '../features/RentalityClaimService.sol';
 import {RentalityInsurance} from '../payments/RentalityInsurance.sol';
 import {RentalityReferralProgram} from '../features/refferalProgram/RentalityReferralProgram.sol';
@@ -328,7 +329,9 @@ library RentalityQuery {
         pickUp,
         dropOf,
          availableCars[temp[i]].insuranceIncluded,
-        IRentalityGeoService(carService.getGeoServiceAddress()).getLocationInfo( availableCars[temp[i]].locationHash),
+        RentalityUtils.toLegacyLocationInfo(
+          IRentalityGeoService(carService.getGeoServiceAddress()).getLocationInfo(availableCars[temp[i]].locationHash)
+        ),
         insuranceService.getCarInsuranceInfo( availableCars[temp[i]].carId),
         isGuestHasInsurance,
         RentalityDimoService(dimoService).getDimoTokenId( availableCars[temp[i]].carId),

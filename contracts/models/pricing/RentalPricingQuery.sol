@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import '../common/Schemas.sol';
+import '../common/CommonTypes.sol';
 import './RentalPricingMain.sol';
 import './RentalPricingTypes.sol';
 
@@ -56,7 +56,7 @@ contract RentalPricingQuery {
         return rentalPricingMain.defineTaxesType(carServiceAddress, carId);
     }
 
-    function taxExist(Schemas.LocationInfo memory locationInfo) external view returns (uint256) {
+    function taxExist(LocationInfo memory locationInfo) external view returns (uint256) {
         return rentalPricingMain.taxExist(locationInfo);
     }
 }

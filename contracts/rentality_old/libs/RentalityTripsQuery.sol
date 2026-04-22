@@ -375,10 +375,12 @@ library RentalityTripsQuery {
 
     Schemas.CarInfo memory car = carService.getCarInfoById(trip.carId);
 
-    Schemas.LocationInfo memory pickUpLocation = IRentalityGeoService(carService.getGeoServiceAddress())
-      .getLocationInfo(trip.pickUpHash);
-    Schemas.LocationInfo memory returnLocation = IRentalityGeoService(carService.getGeoServiceAddress())
-      .getLocationInfo(trip.returnHash);
+    Schemas.LocationInfo memory pickUpLocation = RentalityUtils.toLegacyLocationInfo(
+      IRentalityGeoService(carService.getGeoServiceAddress()).getLocationInfo(trip.pickUpHash)
+    );
+    Schemas.LocationInfo memory returnLocation = RentalityUtils.toLegacyLocationInfo(
+      IRentalityGeoService(carService.getGeoServiceAddress()).getLocationInfo(trip.returnHash)
+    );
     (string memory guestPhoneNumber, string memory hostPhoneNumber) = getTripContactInfo(
       tripId,
       address(tripService),
@@ -401,10 +403,14 @@ library RentalityTripsQuery {
         car.brand,
         car.yearOfProduction,
         bytes(pickUpLocation.latitude).length == 0
-          ? IRentalityGeoService(carService.getGeoServiceAddress()).getLocationInfo(car.locationHash)
+          ? RentalityUtils.toLegacyLocationInfo(
+            IRentalityGeoService(carService.getGeoServiceAddress()).getLocationInfo(car.locationHash)
+          )
           : pickUpLocation,
         bytes(pickUpLocation.latitude).length == 0
-          ? IRentalityGeoService(carService.getGeoServiceAddress()).getLocationInfo(car.locationHash)
+          ? RentalityUtils.toLegacyLocationInfo(
+            IRentalityGeoService(carService.getGeoServiceAddress()).getLocationInfo(car.locationHash)
+          )
           : returnLocation,
         guestPhoneNumber,
         hostPhoneNumber,

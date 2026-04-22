@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 
 
-import '../../models/common/Schemas.sol';
+import '../../models/common/CommonTypes.sol';
 import './IRentalityGeoParser.sol';
 import '../proxy/UUPSAccess.sol';
 import {Initializable as OZInitializable} from '@openzeppelin/contracts/proxy/utils/Initializable.sol';
@@ -16,10 +16,10 @@ import './RentalityLocationVerifier.sol';
 /// @dev It interacts with an external geolocation API and stores the results for cars.
 contract RentalityGeoService is IRentalityGeoService, OZInitializable, UUPSAccess {
   /// @notice Mapping to store parsed geolocation data for each car ID.
-  mapping(uint256 => Schemas.ParsedGeolocationData) public carIdToParsedGeolocationData;
+  mapping(uint256 => ParsedGeolocationData) public carIdToParsedGeolocationData;
   IRentalityGeoParser private geoParser; // unused
 
-  mapping(bytes32 => Schemas.LocationInfo) public locationDictionary;
+  mapping(bytes32 => LocationInfo) public locationDictionary;
 
   RentalityLocationVerifier private verifier;
 
@@ -108,13 +108,13 @@ contract RentalityGeoService is IRentalityGeoService, OZInitializable, UUPSAcces
     return locationDictionary[hash].timeZoneId;
   }
 
-  function createLocationInfo(Schemas.LocationInfo memory info) public returns (bytes32) {
+  function createLocationInfo(LocationInfo memory info) public returns (bytes32) {
     bytes32 hash = hashLocationInfo(info);
     locationDictionary[hash] = info;
 
     return hash;
   }
-  function createSignedLocationInfo(Schemas.SignedLocationInfo memory info) public returns (bytes32) {
+  function createSignedLocationInfo(SignedLocationInfo memory info) public returns (bytes32) {
     if (info.signature.length == 0) {
       return bytes32('');
     }
@@ -122,7 +122,7 @@ contract RentalityGeoService is IRentalityGeoService, OZInitializable, UUPSAcces
     return createLocationInfo(info.locationInfo);
   }
 
-  function hashLocationInfo(Schemas.LocationInfo memory info) public pure returns (bytes32) {
+  function hashLocationInfo(LocationInfo memory info) public pure returns (bytes32) {
     if (bytes(info.longitude).length == 0) {
       return bytes32('');
     }
@@ -133,11 +133,11 @@ contract RentalityGeoService is IRentalityGeoService, OZInitializable, UUPSAcces
     return hash;
   }
 
-  function getLocationInfo(bytes32 hash) public view returns (Schemas.LocationInfo memory) {
+  function getLocationInfo(bytes32 hash) public view returns (LocationInfo memory) {
     return locationDictionary[hash];
   }
 
-  function verifySignedLocationInfo(Schemas.SignedLocationInfo memory locationInfo) public view {
+  function verifySignedLocationInfo(SignedLocationInfo memory locationInfo) public view {
     verifier.verifySignedLocationInfo(locationInfo);
   }
 

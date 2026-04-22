@@ -361,8 +361,8 @@ library TripLib {
         (uint64 pickUp, uint64 dropOf) = calculateDelivery(carQuery, request);
 
         IRentalityGeoService geoService = IRentalityGeoService(carQuery.getGeoVerifierAddress());
-        bytes32 pickUpHash = geoService.createSignedLocationInfo(request.pickUpInfo);
-        bytes32 returnHash = geoService.createSignedLocationInfo(request.returnInfo);
+        bytes32 pickUpHash = geoService.createSignedLocationInfo(_toCommonSignedLocationInfo(request.pickUpInfo));
+        bytes32 returnHash = geoService.createSignedLocationInfo(_toCommonSignedLocationInfo(request.returnInfo));
 
         uint64 daysOfTrip = getCeilDays(request.startDateTime, request.endDateTime);
         uint256 insurance = ITripLibWriteInsuranceService(insuranceServiceAddress).calculateInsuranceForTrip(

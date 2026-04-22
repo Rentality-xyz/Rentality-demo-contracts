@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import '../common/Schemas.sol';
+import '../common/CommonTypes.sol';
 import '../base/asset/AssetTypes.sol';
 import '../car/CarTypes.sol';
 import '../profile/UserProfileTypes.sol';
@@ -30,7 +30,7 @@ interface ICarQueryFacet2UserProfileQuery {
 }
 
 interface ICarQueryFacet2GeoService {
-  function getLocationInfo(bytes32 hash) external view returns (Schemas.LocationInfo memory);
+  function getLocationInfo(bytes32 hash) external view returns (LocationInfo memory);
   function getCarCoordinateValidity(uint256 carId) external view returns (bool);
 }
 
@@ -112,11 +112,11 @@ contract CarQueryFacet2 {
   function getFilterInfo(address pricingServiceAddress, uint64 duration)
     external
     view
-    returns (Schemas.FilterInfoDTO memory)
+    returns (CarFilterInfo memory)
   {
     uint256 supply = carMain.totalSupply();
     if (supply == 0) {
-      return Schemas.FilterInfoDTO({maxCarPrice: 0, minCarYearOfProduction: 0});
+      return CarFilterInfo({maxCarPrice: 0, minCarYearOfProduction: 0});
     }
 
     ICarQueryFacet2PricingService pricingService = ICarQueryFacet2PricingService(pricingServiceAddress);
@@ -145,7 +145,7 @@ contract CarQueryFacet2 {
       foundCar = true;
     }
 
-    return Schemas.FilterInfoDTO({
+    return CarFilterInfo({
       maxCarPrice: maxCarPrice,
       minCarYearOfProduction: foundCar ? minCarYearOfProduction : 0
     });
@@ -157,7 +157,7 @@ contract CarQueryFacet2 {
     address dimoServiceAddress,
     uint256 page,
     uint256 itemsPerPage
-  ) external view returns (Schemas.AllCarsDTO memory) {
+  ) external view returns (AllCarsInfo memory) {
     uint256 totalCars = carMain.totalSupply();
     uint256 totalExistingCars;
 
@@ -175,7 +175,7 @@ contract CarQueryFacet2 {
       page = 1;
     }
 
-    Schemas.AdminCarDTO[] memory cars = new Schemas.AdminCarDTO[](itemsPerPage);
+    AdminCarInfo[] memory cars = new AdminCarInfo[](itemsPerPage);
     uint256 collected;
     uint256 currentId = 1;
     uint256 toSkip = (page - 1) * itemsPerPage;
@@ -189,7 +189,7 @@ contract CarQueryFacet2 {
 
     while (collected < itemsPerPage && currentId <= totalCars) {
       if (carMain.exists(currentId)) {
-        cars[collected] = Schemas.AdminCarDTO({
+        cars[collected] = AdminCarInfo({
           car: _getCarDetails(userProfileQueryAddress, geoServiceAddress, dimoServiceAddress, currentId),
           carMetadataURI: carMain.tokenURI(currentId)
         });
@@ -202,7 +202,7 @@ contract CarQueryFacet2 {
       mstore(cars, collected)
     }
 
-    return Schemas.AllCarsDTO(cars, totalPageCount);
+    return AllCarsInfo(cars, totalPageCount);
   }
 
   function isCarEditable(address tripQueryAddress, uint256 carId) public view returns (bool) {
@@ -231,13 +231,13 @@ contract CarQueryFacet2 {
     address geoServiceAddress,
     address dimoServiceAddress,
     uint256 carId
-  ) internal view returns (Schemas.CarDetails memory) {
+  ) internal view returns (CarDetails memory) {
     Asset memory asset = carMain.getAsset(carId);
     CarData memory car = carMain.getCarData(carId);
     UserProfileKYCInfo memory hostKyc = ICarQueryFacet2UserProfileQuery(userProfileQueryAddress).getKYCInfo(asset.owner);
     ICarQueryFacet2GeoService geoService = ICarQueryFacet2GeoService(geoServiceAddress);
 
-    return Schemas.CarDetails({
+    return CarDetails({
       carId: carId,
       hostName: hostKyc.name,
       hostPhotoUrl: hostKyc.profilePhoto,
@@ -262,4 +262,5 @@ contract CarQueryFacet2 {
   function _compareStrings(string memory a, string memory b) internal pure returns (bool) {
     return keccak256(bytes(a)) == keccak256(bytes(b));
   }
+
 }

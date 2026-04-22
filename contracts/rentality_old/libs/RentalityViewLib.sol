@@ -68,7 +68,9 @@ library RentalityViewLib {
       result[i - startIndex] = Schemas.AdminTripDTO(
         trip,
         contracts.carService.tokenURI(trip.carId),
-        IRentalityGeoService(contracts.carService.getGeoServiceAddress()).getLocationInfo(car.locationHash),
+        RentalityUtils.toLegacyLocationInfo(
+          IRentalityGeoService(contracts.carService.getGeoServiceAddress()).getLocationInfo(car.locationHash)
+        ),
         promoService.getPromoTripInfo(trip.tripId, trip.guest)
       );
     }
@@ -87,8 +89,8 @@ library RentalityViewLib {
     Schemas.Trip memory trip
   ) internal view returns (bool) {
     IRentalityGeoService geoService = IRentalityGeoService(contracts.carService.getGeoServiceAddress());
-    Schemas.LocationInfo memory locationInfo = geoService.getLocationInfo(
-      contracts.carService.getCarInfoById(trip.carId).locationHash
+    Schemas.LocationInfo memory locationInfo = RentalityUtils.toLegacyLocationInfo(
+      geoService.getLocationInfo(contracts.carService.getCarInfoById(trip.carId).locationHash)
     );
     return ((bytes(filter.location.country).length == 0 ||
       RentalityUtils.containWord(
@@ -305,8 +307,8 @@ library RentalityViewLib {
     Schemas.DeliveryPrices memory deliveryPrices = RentalityCarDelivery(deliveryServiceAddress).getUserDeliveryPrices(
       temp.createdBy
     );
-    Schemas.LocationInfo memory location = IRentalityGeoService(carService.getGeoServiceAddress()).getLocationInfo(
-      temp.locationHash
+    Schemas.LocationInfo memory location = RentalityUtils.toLegacyLocationInfo(
+      IRentalityGeoService(carService.getGeoServiceAddress()).getLocationInfo(temp.locationHash)
     );
     int128 distance = RentalityCarDelivery(deliveryServiceAddress).calculateDistance(
       location.latitude,
@@ -363,7 +365,9 @@ library RentalityViewLib {
         pickUp,
         dropOf,
         temp.insuranceIncluded,
-        IRentalityGeoService(carService.getGeoServiceAddress()).getLocationInfo(temp.locationHash),
+        RentalityUtils.toLegacyLocationInfo(
+          IRentalityGeoService(carService.getGeoServiceAddress()).getLocationInfo(temp.locationHash)
+        ),
         RentalityInsurance(insuranceServiceAddress).getCarInsuranceInfo(temp.carId),
         fuelPrice,
         contracts.paymentService.getBaseDiscount().getParsedDiscount(contracts.carService.ownerOf(carId)),

@@ -4,6 +4,7 @@ pragma solidity ^0.8.20;
 
 
 import '@openzeppelin/contracts/utils/math/Math.sol';
+import '../../models/common/CommonTypes.sol';
 import '../../models/common/Schemas.sol';
 import '../abstract/ILegacyUserProfileSource.sol';
 import "../adapter/ICarGateway.sol";
@@ -28,6 +29,18 @@ import {RentalityPromoService} from '../features/RentalityPromo.sol';
 library RentalityUtils {
   // Constant multiplier for converting decimal coordinates to integers
   uint256 constant multiplier = 10 ** 7;
+
+  function toLegacyLocationInfo(LocationInfo memory location) internal pure returns (Schemas.LocationInfo memory) {
+    return Schemas.LocationInfo({
+      userAddress: location.userAddress,
+      country: location.country,
+      state: location.state,
+      city: location.city,
+      latitude: location.latitude,
+      longitude: location.longitude,
+      timeZoneId: location.timeZoneId
+    });
+  }
 
   /// @notice Checks if a set of coordinates falls within a specified bounding box.
   /// @param locationLat Latitude of the location to check.
@@ -612,7 +625,7 @@ library RentalityUtils {
 
     return
       Schemas.DeliveryData(
-        geoService.getLocationInfo(addresses.carService.getCarInfoById(carId).locationHash),
+        toLegacyLocationInfo(geoService.getLocationInfo(addresses.carService.getCarInfoById(carId).locationHash)),
         deliveryPrices.underTwentyFiveMilesInUsdCents,
         deliveryPrices.aboveTwentyFiveMilesInUsdCents,
         addresses.carService.getCarInfoById(carId).insuranceIncluded
@@ -706,7 +719,7 @@ library RentalityUtils {
       car.engineParams,
       geo.getCarCoordinateValidity(carId),
       car.currentlyListed,
-      geo.getLocationInfo(car.locationHash),
+      toLegacyLocationInfo(geo.getLocationInfo(car.locationHash)),
       car.carVinNumber,
       carService.tokenURI(carId),
       dimoService.getDimoTokenId(carId)

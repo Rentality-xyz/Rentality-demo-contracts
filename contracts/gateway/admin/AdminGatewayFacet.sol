@@ -16,7 +16,9 @@ import '../../rentality_old/payments/RentalityCurrencyConverter.sol';
 import '../../rentality_old/payments/RentalityInsurance.sol';
 import '../../rentality_old/payments/RentalityPaymentService.sol';
 import '../../rentality_old/payments/abstract/IERC20.sol';
+import '../../models/car/CarTypes.sol';
 import '../../models/common/Schemas.sol';
+import '../car/CarMapper.sol';
 import './IAdminGatewayFacet.sol';
 
 interface IAdminGatewayTripQuery {
@@ -33,7 +35,7 @@ interface IAdminGatewayCarQueryFacet2 {
     address dimoServiceAddress,
     uint256 page,
     uint256 itemsPerPage
-  ) external view returns (Schemas.AllCarsDTO memory);
+  ) external view returns (AllCarsInfo memory);
 }
 
 interface IAdminGatewayUserAccess {
@@ -253,7 +255,9 @@ contract AdminGatewayFacet is GatewayUUPSOwnable, ARentalityContext, IAdminGatew
   }
 
   function getAllCars(uint page, uint itemsPerPage) public view returns (Schemas.AllCarsDTO memory allCars) {
-    return carQueryFacet2.getAllCarsForAdmin(userProfileQueryAddress, geoService, address(dimoService), page, itemsPerPage);
+    return CarMapper.toLegacyAllCarsInfo(
+      carQueryFacet2.getAllCarsForAdmin(userProfileQueryAddress, geoService, address(dimoService), page, itemsPerPage)
+    );
   }
 
   function manageRefferalBonusAccrual(

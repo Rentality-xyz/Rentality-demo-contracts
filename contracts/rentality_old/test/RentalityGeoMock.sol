@@ -7,12 +7,13 @@ import '../libs/RentalityUtils.sol';
 import 'hardhat/console.sol';
 import '../features/IRentalityGeoParser.sol';
 import '../../infrastructure/geo/IRentalityGeoService.sol';
+import '../../models/common/CommonTypes.sol';
 // For testing purposes
 
 contract RentalityGeoMock is IRentalityGeoParser {
   mapping(string => string) public countryToTimeZoneId;
   mapping(string => string) public cityToTimeZoneId;
-  mapping(uint256 => Schemas.ParsedGeolocationData) public carIdToParsedGeolocationData;
+  mapping(uint256 => ParsedGeolocationData) public carIdToParsedGeolocationData;
   IRentalityGeoService private geoService;
   bool private hasGeoServiceLink;
 
@@ -274,7 +275,7 @@ contract RentalityGeoMock is IRentalityGeoParser {
     uint256 carId
   ) external returns (bytes32) {
     string[] memory parts = RentalityUtils.splitString(addr, bytes(','));
-    Schemas.ParsedGeolocationData storage carData = carIdToParsedGeolocationData[carId];
+    ParsedGeolocationData storage carData = carIdToParsedGeolocationData[carId];
 
     carData.locationLat = locationLatitude;
     carData.locationLng = locationLongitude;
@@ -327,7 +328,7 @@ contract RentalityGeoMock is IRentalityGeoParser {
     return string(inputBytes);
   }
 
-  function parseGeoResponse(uint256 carId) public view returns (Schemas.ParsedGeolocationData memory result) {
+  function parseGeoResponse(uint256 carId) public view returns (ParsedGeolocationData memory result) {
     return carIdToParsedGeolocationData[carId];
   }
 }

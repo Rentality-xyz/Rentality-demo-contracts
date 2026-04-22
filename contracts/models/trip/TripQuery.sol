@@ -20,7 +20,7 @@ interface ITripQueryCarQuery {
 
 interface ITripQueryGeoService {
     function getCarTimeZoneId(bytes32 hash) external view returns (string memory);
-    function getLocationInfo(bytes32 hash) external view returns (Schemas.LocationInfo memory);
+    function getLocationInfo(bytes32 hash) external view returns (LocationInfo memory);
 }
 
 interface ITripQueryInsuranceService {
@@ -129,7 +129,7 @@ contract TripQuery {
         FullUserProfileInfo memory viewerInfo = userProfileQuery.getMyFullKYCInfo(viewer);
 
         bytes32 locationHash = car.car.locationHash;
-        LocationInfo memory defaultLocation = _toLocationInfo(geoService.getLocationInfo(locationHash));
+        LocationInfo memory defaultLocation = geoService.getLocationInfo(locationHash);
 
         dto.trip = trip;
         dto.guestPhotoUrl = guestInfo.profilePhoto;
@@ -227,7 +227,7 @@ contract TripQuery {
             result[i - startIndex] = Schemas.AdminTripDTO({
                 trip: legacyTrip,
                 carMetadataURI: car.asset.metadataURI,
-                carLocation: geoService.getLocationInfo(car.car.locationHash),
+                carLocation: _toLegacyLocationInfo(geoService.getLocationInfo(car.car.locationHash)),
                 promoInfo: promoService.getPromoTripInfo(legacyTrip.tripId, legacyTrip.guest)
             });
         }
@@ -268,7 +268,7 @@ contract TripQuery {
     }
 
     function _isTripMatch(Schemas.TripFilter memory filter, Schemas.Trip memory trip) internal view returns (bool) {
-        Schemas.LocationInfo memory locationInfo = geoService.getLocationInfo(carQuery.getCar(trip.carId).car.locationHash);
+        LocationInfo memory locationInfo = geoService.getLocationInfo(carQuery.getCar(trip.carId).car.locationHash);
 
         return (
             (bytes(filter.location.country).length == 0 || _containsWord(_toLower(locationInfo.country), _toLower(filter.location.country))) &&
@@ -412,15 +412,15 @@ contract TripQuery {
     }
 
     function _resolveLocation(bytes32 hash, LocationInfo memory fallbackLocation) internal view returns (LocationInfo memory) {
-        LocationInfo memory location = _toLocationInfo(geoService.getLocationInfo(hash));
+        LocationInfo memory location = geoService.getLocationInfo(hash);
         if (bytes(location.latitude).length == 0) {
             return fallbackLocation;
         }
         return location;
     }
 
-    function _toLocationInfo(Schemas.LocationInfo memory location) internal pure returns (LocationInfo memory) {
-        return LocationInfo({
+    function _toLegacyLocationInfo(LocationInfo memory location) internal pure returns (Schemas.LocationInfo memory) {
+        return Schemas.LocationInfo({
             userAddress: location.userAddress,
             country: location.country,
             state: location.state,

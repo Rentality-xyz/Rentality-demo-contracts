@@ -7,7 +7,6 @@ import "../base/insurance/InsuranceTypes.sol";
 import "../trip/TripTypes.sol";
 import "./CarLib.sol";
 import "./CarTypes.sol";
-import "../common/Schemas.sol";
 import "@openzeppelin/contracts/utils/math/Math.sol";
 
 interface ICarQueryFacet1Main {
@@ -55,12 +54,12 @@ interface ICarQueryFacet1DimoService {
 }
 
 interface ICarQueryFacet1GeoService {
-    function getLocationInfo(bytes32 hash) external view returns (Schemas.LocationInfo memory);
+    function getLocationInfo(bytes32 hash) external view returns (LocationInfo memory);
 }
 
 interface ICarQueryFacet1CurrencyConverter {
-    function getCurrencyInfo(address currency) external view returns (Schemas.UserCurrencyDTO memory);
-    function getDefaultCurrency() external view returns (Schemas.UserCurrencyDTO memory);
+    function getCurrencyInfo(address currency) external view returns (UserCurrencyInfo memory);
+    function getDefaultCurrency() external view returns (UserCurrencyInfo memory);
 }
 
 interface ICarQueryFacet1EngineService {
@@ -82,10 +81,10 @@ contract CarQueryFacet1 {
         uint64 startDateTime,
         uint64 endDateTime,
         string memory metadataURI,
-        Schemas.LocationInfo memory pickUpInfo,
-        Schemas.LocationInfo memory returnInfo,
+        LocationInfo memory pickUpInfo,
+        LocationInfo memory returnInfo,
         address user
-    ) external view returns (Schemas.AvailableCarDTO memory) {
+    ) external view returns (AvailableCarInfo memory) {
         CarInfo memory car = carQuery.getCar(carId);
         return _buildAvailableCarDTO(
             context,
@@ -105,16 +104,16 @@ contract CarQueryFacet1 {
         uint64 startDateTime,
         uint64 endDateTime,
         CarSearchParams memory searchParams,
-        Schemas.LocationInfo memory pickUpInfo,
-        Schemas.LocationInfo memory returnInfo,
+        LocationInfo memory pickUpInfo,
+        LocationInfo memory returnInfo,
         uint256 from,
         uint256 to
-    ) external view returns (Schemas.SearchCarsWithDistanceDTO memory result) {
+    ) external view returns (SearchCarsWithDistanceInfo memory result) {
         CarInfo[] memory candidates = carQuery.fetchAvailableCarsForUser(user, searchParams, from, to);
         uint256 totalCarsSupply = carMain.totalSupply();
         if (candidates.length == 0) {
-            return Schemas.SearchCarsWithDistanceDTO({
-                cars: new Schemas.SearchCarWithDistance[](0),
+            return SearchCarsWithDistanceInfo({
+                cars: new SearchCarWithDistanceInfo[](0),
                 totalCarsSupply: totalCarsSupply
             });
         }
@@ -127,10 +126,10 @@ contract CarQueryFacet1 {
             }
         }
 
-        Schemas.SearchCar[] memory cars = new Schemas.SearchCar[](count);
+        SearchCarInfo[] memory cars = new SearchCarInfo[](count);
         for (uint256 i = 0; i < count; i++) {
             CarInfo memory car = candidates[temp[i]];
-            Schemas.AvailableCarDTO memory availableCar = _buildAvailableCarDTO(
+            AvailableCarInfo memory availableCar = _buildAvailableCarDTO(
                 context,
                 car,
                 startDateTime,
@@ -143,7 +142,7 @@ contract CarQueryFacet1 {
             cars[i] = _toSearchCar(availableCar, car.car.engineParams);
         }
 
-        return Schemas.SearchCarsWithDistanceDTO({
+        return SearchCarsWithDistanceInfo({
             cars: _sortCarsByDistance(cars, searchParams.userLocation),
             totalCarsSupply: totalCarsSupply
         });
@@ -155,10 +154,10 @@ contract CarQueryFacet1 {
         uint64 startDateTime,
         uint64 endDateTime,
         string memory metadataURI,
-        Schemas.LocationInfo memory pickUpInfo,
-        Schemas.LocationInfo memory returnInfo,
+        LocationInfo memory pickUpInfo,
+        LocationInfo memory returnInfo,
         address user
-    ) internal view returns (Schemas.AvailableCarDTO memory) {
+    ) internal view returns (AvailableCarInfo memory) {
         ICarQueryFacet1UserProfileQuery userProfileQuery = ICarQueryFacet1UserProfileQuery(context.userProfileQuery);
         ICarQueryFacet1PricingService pricingService = ICarQueryFacet1PricingService(context.pricingService);
         ICarQueryFacet1InsuranceService insuranceService = ICarQueryFacet1InsuranceService(context.insuranceService);
@@ -169,7 +168,7 @@ contract CarQueryFacet1 {
         totalTripDays = totalTripDays == 0 ? 1 : totalTripDays;
 
         DeliveryPrices memory deliveryPrices = carMain.getUserDeliveryPrices(host);
-        Schemas.LocationInfo memory location = geoService.getLocationInfo(car.car.locationHash);
+        LocationInfo memory location = geoService.getLocationInfo(car.car.locationHash);
         int128 distance = CarLib.calculateDistance(
             location.latitude,
             location.longitude,
@@ -181,8 +180,8 @@ contract CarQueryFacet1 {
         uint64 dropOf = 0;
         if (bytes(pickUpInfo.latitude).length != 0 || bytes(returnInfo.longitude).length != 0) {
             (pickUp, dropOf) = CarLib.calculateDeliveryPrices(
-                _toCommonLocationInfo(pickUpInfo),
-                _toCommonLocationInfo(returnInfo),
+                pickUpInfo,
+                returnInfo,
                 location.latitude,
                 location.longitude,
                 deliveryPrices
@@ -197,7 +196,7 @@ contract CarQueryFacet1 {
 
         uint256 taxId = pricingService.defineTaxesType(context.carTaxAdapter, car.asset.id);
         uint64 totalTax = 0;
-        Schemas.TaxValue[] memory taxes = new Schemas.TaxValue[](0);
+        RentalTaxValue[] memory taxes = new RentalTaxValue[](0);
         if (taxId != 0) {
             RentalTaxValue[] memory rentalTaxes;
             (totalTax, rentalTaxes) = pricingService.calculateTaxesDTO(
@@ -205,7 +204,7 @@ contract CarQueryFacet1 {
                 totalTripDays,
                 priceWithDiscount + pickUp + dropOf
             );
-            taxes = _toLegacyTaxes(rentalTaxes);
+            taxes = rentalTaxes;
         }
 
         UserProfileKYCInfo memory hostKyc = userProfileQuery.getKYCInfo(host);
@@ -213,7 +212,7 @@ contract CarQueryFacet1 {
         RentalBaseDiscount memory discount = pricingService.getBaseDiscount(host);
         uint256 dimoTokenId = ICarQueryFacet1DimoService(context.dimoService).getDimoTokenId(car.asset.id);
         (address selectedCurrency, bool hasSelectedCurrency) = userProfileQuery.getUserCurrency(host);
-        Schemas.UserCurrencyDTO memory hostCurrency = hasSelectedCurrency
+        UserCurrencyInfo memory hostCurrency = hasSelectedCurrency
             ? ICarQueryFacet1CurrencyConverter(context.currencyConverter).getCurrencyInfo(selectedCurrency)
             : ICarQueryFacet1CurrencyConverter(context.currencyConverter).getDefaultCurrency();
         if (hasSelectedCurrency) {
@@ -222,7 +221,7 @@ contract CarQueryFacet1 {
         uint64 fuelPrice = ICarQueryFacet1EngineService(carMain.getEngineValidatorAddress())
             .getFuelPriceFromEngineParams(car.car.engineType, car.car.engineParams);
 
-        return Schemas.AvailableCarDTO({
+        return AvailableCarInfo({
             carId: car.asset.id,
             brand: car.car.brand,
             model: car.car.model,
@@ -244,12 +243,12 @@ contract CarQueryFacet1 {
             dropOf: dropOf,
             insuranceIncluded: car.car.insuranceIncluded,
             locationInfo: location,
-            insuranceInfo: Schemas.InsuranceCarInfo({
+            insuranceInfo: CarInsuranceInfo({
                 required: insuranceRequirement.required,
                 priceInUsdCents: insuranceRequirement.priceInUsdCents
             }),
             fuelPrice: fuelPrice,
-            carDiscounts: Schemas.BaseDiscount({
+            carDiscounts: RentalBaseDiscount({
                 threeDaysDiscount: discount.threeDaysDiscount,
                 sevenDaysDiscount: discount.sevenDaysDiscount,
                 thirtyDaysDiscount: discount.thirtyDaysDiscount,
@@ -289,14 +288,14 @@ contract CarQueryFacet1 {
     }
 
     function _sortCarsByDistance(
-        Schemas.SearchCar[] memory cars,
+        SearchCarInfo[] memory cars,
         LocationInfo memory pickUpLocation
-    ) internal pure returns (Schemas.SearchCarWithDistance[] memory result) {
-        result = new Schemas.SearchCarWithDistance[](cars.length);
+    ) internal pure returns (SearchCarWithDistanceInfo[] memory result) {
+        result = new SearchCarWithDistanceInfo[](cars.length);
         int128[] memory distances = new int128[](cars.length);
 
         for (uint256 i = 0; i < cars.length; i++) {
-            result[i] = Schemas.SearchCarWithDistance({car: cars[i], distance: 0});
+            result[i] = SearchCarWithDistanceInfo({car: cars[i], distance: 0});
             distances[i] = CarLib.calculateDistance(
                 cars[i].locationInfo.latitude,
                 cars[i].locationInfo.longitude,
@@ -309,7 +308,7 @@ contract CarQueryFacet1 {
         for (uint256 i = 0; i < result.length; i++) {
             for (uint256 j = i + 1; j < result.length; j++) {
                 if (result[i].distance > result[j].distance) {
-                    Schemas.SearchCarWithDistance memory temp = result[i];
+                    SearchCarWithDistanceInfo memory temp = result[i];
                     result[i] = result[j];
                     result[j] = temp;
                 }
@@ -317,12 +316,12 @@ contract CarQueryFacet1 {
         }
     }
 
-    function _toSearchCar(Schemas.AvailableCarDTO memory car, uint64[] memory engineParams)
+    function _toSearchCar(AvailableCarInfo memory car, uint64[] memory engineParams)
         internal
         pure
-        returns (Schemas.SearchCar memory)
+        returns (SearchCarInfo memory)
     {
-        return Schemas.SearchCar({
+        return SearchCarInfo({
             carId: car.carId,
             brand: car.brand,
             model: car.model,
@@ -354,32 +353,6 @@ contract CarQueryFacet1 {
             taxesInfo: car.taxes,
             engineParams: engineParams
         });
-    }
-
-    function _toCommonLocationInfo(Schemas.LocationInfo memory location) internal pure returns (LocationInfo memory) {
-        return LocationInfo({
-            userAddress: location.userAddress,
-            country: location.country,
-            state: location.state,
-            city: location.city,
-            latitude: location.latitude,
-            longitude: location.longitude,
-            timeZoneId: location.timeZoneId
-        });
-    }
-
-    function _toLegacyTaxes(RentalTaxValue[] memory taxes) internal pure returns (Schemas.TaxValue[] memory) {
-        Schemas.TaxValue[] memory result = new Schemas.TaxValue[](taxes.length);
-
-        for (uint256 i = 0; i < taxes.length; i++) {
-            result[i] = Schemas.TaxValue({
-                name: taxes[i].name,
-                value: taxes[i].value,
-                tType: Schemas.TaxesType(uint8(taxes[i].tType))
-            });
-        }
-
-        return result;
     }
 }
 

@@ -7,6 +7,7 @@ import '../../models/car/CarMain.sol';
 import '../../models/car/CarQuery.sol';
 import '../../models/base/referral/ReferralTypes.sol';
 import '../../models/trip/TripTypes.sol';
+import '../../models/common/CommonTypes.sol';
 import '../../models/common/Schemas.sol';
 import '../ARentalityContext.sol';
 
@@ -23,7 +24,7 @@ interface ICarGatewayTripQuery {
 }
 
 interface ICarGatewayPricingService {
-  function taxExist(Schemas.LocationInfo memory locationInfo) external view returns (uint256);
+  function taxExist(LocationInfo memory locationInfo) external view returns (uint256);
 }
 
 interface ICarGatewayInsuranceService {
@@ -112,7 +113,7 @@ contract CarGatewayFacet is UUPSOwnable, ARentalityContext, ICarGatewayFacet {
     address sender = _msgGatewaySender();
 
     referralProgram.passReferralProgram(ReferralProgram.AddCar, abi.encode(request.currentlyListed), sender, promoService);
-    require(pricingService.taxExist(request.locationInfo.locationInfo) != 0, 'Tax not exist.');
+    require(pricingService.taxExist(CarMapper.toCommonLocationInfo(request.locationInfo.locationInfo)) != 0, 'Tax not exist.');
 
     newTokenId = carMain.createCar(CarMapper.toCreateCarRequest(request), sender);
     dimoService.saveDimoTokenId(request.dimoTokenId, newTokenId, sender, request.signedDimoTokenId);

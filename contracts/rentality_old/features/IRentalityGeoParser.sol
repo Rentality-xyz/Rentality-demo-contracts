@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 
 
-import '../../models/common/Schemas.sol';
+import '../../models/common/CommonTypes.sol';
 
 /// @title Rentality Geo Parser Interface
 /// @notice This interface defines the methods for interacting with the Rentality Geo Parser contract.
@@ -26,6 +26,5 @@ interface IRentalityGeoParser {
   /// @notice Parses the geolocation response for a specific car ID.
   /// @param carId The ID of the car for which geolocation response is parsed.
   /// @return Parsed geolocation data for the specified car ID.
-  function parseGeoResponse(uint256 carId) external view returns (Schemas.ParsedGeolocationData memory);
+  function parseGeoResponse(uint256 carId) external view returns (ParsedGeolocationData memory);
 }
-

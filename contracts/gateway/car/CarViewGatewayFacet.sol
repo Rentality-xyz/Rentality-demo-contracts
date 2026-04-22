@@ -11,6 +11,7 @@ import '../../models/car/CarTypes.sol';
 import '../../models/pricing/RentalPricingTypes.sol';
 import '../../models/profile/UserProfileTypes.sol';
 import '../../models/trip/TripTypes.sol';
+import '../../models/common/CommonTypes.sol';
 import '../../models/common/Schemas.sol';
 import '../ARentalityContext.sol';
 
@@ -51,7 +52,7 @@ interface ICarViewGatewayDimoService {
 }
 
 interface ICarViewGatewayGeoService {
-  function getLocationInfo(bytes32 hash) external view returns (Schemas.LocationInfo memory);
+  function getLocationInfo(bytes32 hash) external view returns (LocationInfo memory);
   function getCarCoordinateValidity(uint256 carId) external view returns (bool);
 }
 
@@ -157,7 +158,7 @@ contract CarViewGatewayFacet is UUPSOwnable, ARentalityContext, ICarViewGatewayF
     Schemas.LocationInfo memory pickUpInfo,
     Schemas.LocationInfo memory returnInfo
   ) external view returns (Schemas.AvailableCarDTO memory) {
-    return carQueryFacet1.buildAvailableCarDTO(
+    return CarMapper.toLegacyAvailableCarInfo(carQueryFacet1.buildAvailableCarDTO(
       CarAvailabilityContext({
         tripQuery: address(tripQuery),
         userProfileQuery: address(userProfileQuery),
@@ -172,10 +173,10 @@ contract CarViewGatewayFacet is UUPSOwnable, ARentalityContext, ICarViewGatewayF
       startDateTime,
       endDateTime,
       carMain.tokenURI(carId),
-      pickUpInfo,
-      returnInfo,
+      CarMapper.toCommonLocationInfo(pickUpInfo),
+      CarMapper.toCommonLocationInfo(returnInfo),
       _msgGatewaySender()
-    );
+    ));
   }
 
   function searchAvailableCarsWithDelivery(
@@ -187,7 +188,7 @@ contract CarViewGatewayFacet is UUPSOwnable, ARentalityContext, ICarViewGatewayF
     uint from,
     uint to
   ) external view returns (Schemas.SearchCarsWithDistanceDTO memory) {
-    return carQueryFacet1.searchAvailableCarsWithDelivery(
+    return CarMapper.toLegacySearchCarsWithDistanceInfo(carQueryFacet1.searchAvailableCarsWithDelivery(
       CarAvailabilityContext({
         tripQuery: address(tripQuery),
         userProfileQuery: address(userProfileQuery),
@@ -202,11 +203,11 @@ contract CarViewGatewayFacet is UUPSOwnable, ARentalityContext, ICarViewGatewayF
       startDateTime,
       endDateTime,
       CarMapper.toCommonSearchCarParams(searchParams),
-      pickUpInfo,
-      returnInfo,
+      CarMapper.toCommonLocationInfo(pickUpInfo),
+      CarMapper.toCommonLocationInfo(returnInfo),
       from,
       to
-    );
+    ));
   }
 
   function getMyCars() external view returns (Schemas.CarInfoDTO[] memory) {
@@ -262,7 +263,7 @@ contract CarViewGatewayFacet is UUPSOwnable, ARentalityContext, ICarViewGatewayF
       engineParams: car.car.engineParams,
       geoVerified: geoService.getCarCoordinateValidity(carId),
       currentlyListed: car.car.currentlyListed,
-      locationInfo: geoService.getLocationInfo(car.car.locationHash),
+      locationInfo: _toLegacyLocationInfo(geoService.getLocationInfo(car.car.locationHash)),
       carVinNumber: car.car.carVinNumber,
       carMetadataURI: carMain.tokenURI(carId),
       dimoTokenId: dimoService.getDimoTokenId(carId)
@@ -289,7 +290,7 @@ contract CarViewGatewayFacet is UUPSOwnable, ARentalityContext, ICarViewGatewayF
   }
 
   function getFilterInfo(uint64 duration) external view returns (Schemas.FilterInfoDTO memory) {
-    return carQueryFacet2.getFilterInfo(address(pricingService), duration);
+    return CarMapper.toLegacyFilterInfo(carQueryFacet2.getFilterInfo(address(pricingService), duration));
   }
 
   function getDimoVehicles() external view returns (uint[] memory) {
@@ -309,7 +310,7 @@ contract CarViewGatewayFacet is UUPSOwnable, ARentalityContext, ICarViewGatewayF
     DeliveryPrices memory prices = carQuery.getUserDeliveryPrices(car.asset.owner);
 
     return Schemas.DeliveryData({
-      locationInfo: geoService.getLocationInfo(car.car.locationHash),
+      locationInfo: _toLegacyLocationInfo(geoService.getLocationInfo(car.car.locationHash)),
       underTwentyFiveMilesInUsdCents: prices.underTwentyFiveMilesInUsdCents,
       aboveTwentyFiveMilesInUsdCents: prices.aboveTwentyFiveMilesInUsdCents,
       insuranceIncluded: car.car.insuranceIncluded
@@ -376,5 +377,17 @@ contract CarViewGatewayFacet is UUPSOwnable, ARentalityContext, ICarViewGatewayF
     currencyConverter = ICarViewGatewayCurrencyConverter(currencyConverterAddress);
     dimoService = ICarViewGatewayDimoService(dimoServiceAddress);
     geoService = ICarViewGatewayGeoService(geoServiceAddress);
+  }
+
+  function _toLegacyLocationInfo(LocationInfo memory location) internal pure returns (Schemas.LocationInfo memory) {
+    return Schemas.LocationInfo({
+      userAddress: location.userAddress,
+      country: location.country,
+      state: location.state,
+      city: location.city,
+      latitude: location.latitude,
+      longitude: location.longitude,
+      timeZoneId: location.timeZoneId
+    });
   }
 }

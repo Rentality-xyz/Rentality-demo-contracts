@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 
 
-import '../../models/common/Schemas.sol';
+import '../../models/common/CommonTypes.sol';
 import '../proxy/UUPSAccess.sol';
 import {EIP712Upgradeable} from '@openzeppelin/contracts-upgradeable/utils/cryptography/EIP712Upgradeable.sol';
 import '@openzeppelin/contracts/utils/cryptography/ECDSA.sol';
@@ -14,20 +14,20 @@ import '@openzeppelin/contracts/utils/cryptography/ECDSA.sol';
 contract RentalityLocationVerifier is EIP712Upgradeable, UUPSAccess {
   address private adminAddress;
 
-  function verifySignedLocationInfo(Schemas.SignedLocationInfo memory locationInfo) public view {
+  function verifySignedLocationInfo(SignedLocationInfo memory locationInfo) public view {
     // require(_verify(locationInfo) == adminAddress, 'Wrong signature');
   }
 
-  function _verify(Schemas.SignedLocationInfo memory location) internal view returns (address) {
+  function _verify(SignedLocationInfo memory location) internal view returns (address) {
     bytes32 digest = _hash(location.locationInfo);
     return ECDSA.recover(digest, location.signature);
   }
-  function verify(Schemas.SignedLocationInfo memory location) public view returns (address user) {
+  function verify(SignedLocationInfo memory location) public view returns (address user) {
     bytes32 digest = _hash(location.locationInfo);
     return ECDSA.recover(digest, location.signature);
   }
 
-  function _hash(Schemas.LocationInfo memory location) internal view returns (bytes32) {
+  function _hash(LocationInfo memory location) internal view returns (bytes32) {
     return
       _hashTypedDataV4(
         keccak256(

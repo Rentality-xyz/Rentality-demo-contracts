@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import '../../models/common/Schemas.sol';
+import '../../models/common/CommonTypes.sol';
 
 /// @title IRentalityGeoService
 /// @notice Shared interface for Rentality geolocation services.
@@ -30,13 +30,13 @@ interface IRentalityGeoService {
 
   function getCarLocationLongitude(bytes32 hash) external view returns (string memory);
 
-  function createLocationInfo(Schemas.LocationInfo memory info) external returns (bytes32);
+  function createLocationInfo(LocationInfo memory info) external returns (bytes32);
 
-  function createSignedLocationInfo(Schemas.SignedLocationInfo memory info) external returns (bytes32);
+  function createSignedLocationInfo(SignedLocationInfo memory info) external returns (bytes32);
 
-  function hashLocationInfo(Schemas.LocationInfo memory info) external returns (bytes32);
+  function hashLocationInfo(LocationInfo memory info) external returns (bytes32);
 
-  function getLocationInfo(bytes32 hash) external view returns (Schemas.LocationInfo memory);
+  function getLocationInfo(bytes32 hash) external view returns (LocationInfo memory);
 
-  function verifySignedLocationInfo(Schemas.SignedLocationInfo memory signed) external view;
+  function verifySignedLocationInfo(SignedLocationInfo memory signed) external view;
 }
