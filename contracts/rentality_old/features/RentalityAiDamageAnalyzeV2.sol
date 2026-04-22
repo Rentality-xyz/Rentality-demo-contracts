@@ -7,7 +7,7 @@ import {UUPSAccess} from '../proxy/UUPSAccess.sol';
 import {EIP712Upgradeable} from '@openzeppelin/contracts-upgradeable/utils/cryptography/EIP712Upgradeable.sol';
 import {IRentalityAccessControl} from '../abstract/IRentalityAccessControl.sol';
 import {IUserProfileRuntime} from '../abstract/IUserProfileRuntime.sol';
-import '../Schemas.sol';
+import '../../models/common/Schemas.sol';
 
 /// @title Rentality AiDamageAnalyze integration service
 contract RentalityAiDamageAnalyzeV2 is UUPSAccess, EIP712Upgradeable {

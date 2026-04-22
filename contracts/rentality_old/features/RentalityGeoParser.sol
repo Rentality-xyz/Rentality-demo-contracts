@@ -5,8 +5,8 @@ pragma solidity ^0.8.20;
 
 import '@chainlink/contracts/src/v0.8/ChainlinkClient.sol';
 import '../libs/RentalityUtils.sol';
-import '../Schemas.sol';
-import '../abstract/IRentalityGeoService.sol';
+import '../../models/common/Schemas.sol';
+import '../../infrastructure/geo/IRentalityGeoService.sol';
 import '@chainlink/contracts/src/v0.8/shared/access/ConfirmedOwner.sol';
 import './IRentalityGeoParser.sol';
 import {Ownable} from '@openzeppelin/contracts/access/Ownable.sol';
@@ -147,4 +147,5 @@ contract RentalityGeoParser is ChainlinkClient, Ownable, IRentalityGeoParser {
     return result;
   }
 }
+
 

@@ -7,7 +7,7 @@ import "../base/insurance/InsuranceTypes.sol";
 import "../trip/TripTypes.sol";
 import "./CarLib.sol";
 import "./CarTypes.sol";
-import "../../rentality_old/Schemas.sol";
+import "../common/Schemas.sol";
 import "@openzeppelin/contracts/utils/math/Math.sol";
 
 interface ICarQueryFacet1Main {

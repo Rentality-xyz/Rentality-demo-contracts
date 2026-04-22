@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import '../Schemas.sol';
+import '../../models/common/Schemas.sol';
 
 interface ITripSource {
   function getTrip(uint256 tripId) external view returns (Schemas.Trip memory);

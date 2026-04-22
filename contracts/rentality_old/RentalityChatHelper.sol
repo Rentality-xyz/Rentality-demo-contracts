@@ -7,7 +7,7 @@ import {Initializable as OZInitializable} from '@openzeppelin/contracts/proxy/ut
 import {UUPSUpgradeable as OZUUPSUpgradeable} from '@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol';
 import './abstract/IRentalityAccessControl.sol';
 import './proxy/UUPSAccess.sol';
-import './Schemas.sol';
+import '../models/common/Schemas.sol';
 
 /// @title RentalityChatHelper
 /// @notice A contract to manage chat key pairs for users

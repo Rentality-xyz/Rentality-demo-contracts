@@ -2,7 +2,7 @@
 pragma solidity ^0.8.20;
 
 import "../../models/trip/TripTypes.sol";
-import "../../rentality_old/Schemas.sol";
+import "../../models/common/Schemas.sol";
 
 library TripMapper {
     function toLegacyTripDTO(TripDTO memory tripDto) external pure returns (Schemas.TripDTO memory) {

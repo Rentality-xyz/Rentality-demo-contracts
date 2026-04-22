@@ -11,8 +11,8 @@ import '../../models/car/CarTypes.sol';
 import '../../models/pricing/RentalPricingTypes.sol';
 import '../../models/profile/UserProfileTypes.sol';
 import '../../models/trip/TripTypes.sol';
-import '../../rentality_old/Schemas.sol';
-import '../../rentality_old/abstract/ARentalityContext.sol';
+import '../../models/common/Schemas.sol';
+import '../ARentalityContext.sol';
 
 import './ICarViewGatewayFacet.sol';
 import './CarMapper.sol';

@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol';
 import '../infrastructure/upgradeable/UUPSOwnable.sol';
-import '../rentality_old/Schemas.sol';
+import '../models/common/Schemas.sol';
 import {LibDiamond} from './LibDiamond.sol';
 import {RentalityNotificationService} from '../rentality_old/features/RentalityNotificationService.sol';
 

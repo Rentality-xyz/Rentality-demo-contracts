@@ -9,10 +9,10 @@ import '../payments/RentalityPaymentService.sol';
 import '../abstract/ITripSource.sol';
 import {RentalityContract} from '../abstract/RentalityContractTypes.sol';
 import '../features/RentalityClaimService.sol';
-import {IRentalityGeoService} from '../abstract/IRentalityGeoService.sol';
+import {IRentalityGeoService} from '../../infrastructure/geo/IRentalityGeoService.sol';
 import {RentalityCarDelivery} from '../features/RentalityCarDelivery.sol';
 import {RentalityDimoService} from '../features/RentalityDimoService.sol';
-import '../Schemas.sol';
+import '../../models/common/Schemas.sol';
 import './RentalityUtils.sol';
 import '@openzeppelin/contracts/utils/math/Math.sol';
 import {RentalityInsurance} from '../payments/RentalityInsurance.sol';
@@ -376,6 +376,7 @@ library RentalityViewLib {
       );
   }
 }
+
 
 
 

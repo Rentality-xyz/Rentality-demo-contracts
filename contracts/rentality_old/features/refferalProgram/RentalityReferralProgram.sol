@@ -6,16 +6,16 @@ pragma solidity ^0.8.20;
 import {ARentalityRefferalHasher} from './ARentalityRefferalHasher.sol';
 import {ARentalityRefferalPointsSetter} from './ARentalityRefferalPointsSetter.sol';
 import {ARentalityRefferalDiscountProvider} from './ARentalityRefferalDiscountProvider.sol';
-import '../../Schemas.sol';
+import '../../../models/common/Schemas.sol';
 import '../../proxy/UUPSAccess.sol';
 import {Initializable as OZInitializable} from '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 import {ICarGateway} from '../../adapter/ICarGateway.sol';
 import {RentalityRefferalLib} from '../../libs/RentalityRefferalLib.sol';
 import {ARentalityRefferalTear} from './ARentalityRefferalTear.sol';
 import {ARentalityRefferal} from './ARentalityRefferal.sol';
-import '../../Schemas.sol';
+import '../../../models/common/Schemas.sol';
 import {RentalityPromoService} from '../../features/RentalityPromo.sol';
-import {ARentalityContext} from '../../abstract/ARentalityContext.sol';
+import {ARentalityContext} from '../../../gateway/ARentalityContext.sol';
 
 struct TripDiscounts {
   uint host;

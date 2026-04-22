@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import '../../Schemas.sol';
+import '../../../models/common/Schemas.sol';
 
 interface IRentalityViewFacet {
   function getAvailableCarsForUser(address user) external view returns (Schemas.CarInfo[] memory);

@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 import "../../models/car/CarQuery.sol";
 import "../../models/car/CarTypes.sol";
 import "../../models/base/asset/AssetTypes.sol";
-import "../../rentality_old/Schemas.sol";
+import "../../models/common/Schemas.sol";
 
 contract CarTaxAdapter {
     CarQuery public immutable carQuery;

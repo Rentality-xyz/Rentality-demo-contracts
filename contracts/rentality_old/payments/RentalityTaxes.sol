@@ -6,7 +6,7 @@ pragma solidity ^0.8.20;
 import {Initializable as OZInitializable} from '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 import '../proxy/UUPSAccess.sol';
 import './abstract/IRentalityTaxes.sol';
-import '../Schemas.sol';
+import '../../models/common/Schemas.sol';
 
 
 /// @title RentalityTaxes

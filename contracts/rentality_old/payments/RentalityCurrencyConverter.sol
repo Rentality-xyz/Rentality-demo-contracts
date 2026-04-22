@@ -8,7 +8,7 @@ import '@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol';
 import {Initializable as OZInitializable} from '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 import '../abstract/IRentalityAccessControl.sol';
 import '../proxy/UUPSAccess.sol';
-import '../Schemas.sol';
+import '../../models/common/Schemas.sol';
 import './RentalityCurrencyType.sol';
 import {RentalityPromoService} from '../features/RentalityPromo.sol';
 

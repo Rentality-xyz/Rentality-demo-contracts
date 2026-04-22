@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 import '../../models/base/asset/AssetTypes.sol';
 import '../../models/car/CarTypes.sol';
 import '../../models/investment/RentalInvestmentTypes.sol';
-import '../../rentality_old/Schemas.sol';
+import '../../models/common/Schemas.sol';
 
 library InvestmentMapper {
     function toModelInvestment(Schemas.CarInvestment memory legacyInvestment)

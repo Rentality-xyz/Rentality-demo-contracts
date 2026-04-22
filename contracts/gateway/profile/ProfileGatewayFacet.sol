@@ -6,8 +6,8 @@ import '../../models/base/referral/ReferralTypes.sol';
 import '../../models/profile/UserProfileMain.sol';
 import '../../models/profile/UserProfileQuery.sol';
 import '../../models/profile/UserProfileTypes.sol';
-import '../../rentality_old/Schemas.sol';
-import '../../rentality_old/abstract/ARentalityContext.sol';
+import '../../models/common/Schemas.sol';
+import '../ARentalityContext.sol';
 import './IProfileGatewayFacet.sol';
 import './ProfileMapper.sol';
 

@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import '../../rentality_old/Schemas.sol';
-import '../../rentality_old/abstract/IRentalityGeoService.sol';
+import '../common/Schemas.sol';
+import '../../infrastructure/geo/IRentalityGeoService.sol';
 import '../trip/TripTypes.sol';
 
 interface IRentalInsuranceQueryFacet2InsuranceService {
@@ -127,4 +127,5 @@ contract RentalInsuranceQueryFacet2 {
     }
   }
 }
+
 

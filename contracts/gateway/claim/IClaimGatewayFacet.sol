@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import '../../rentality_old/Schemas.sol';
+import '../../models/common/Schemas.sol';
 
 interface IClaimGatewayFacet {
   function getMyClaimsAs(bool host) external view returns (Schemas.FullClaimInfo[] memory);

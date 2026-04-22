@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 
 
 import '../../abstract/IRentalityAccessControl.sol';
-import '../../Schemas.sol';
+import '../../../models/common/Schemas.sol';
 import {ARentalityRefferal} from './ARentalityRefferal.sol';
 
 abstract contract ARentalityRefferalHasher is ARentalityRefferal {

@@ -2,7 +2,7 @@
 pragma solidity ^0.8.20;
 
 import '../../models/base/referral/ReferralTypes.sol';
-import '../../rentality_old/Schemas.sol';
+import '../../models/common/Schemas.sol';
 
 library ReferralMapper {
     function toLegacyReadyToClaimDTO(ReadyToClaimDTO memory dto)

@@ -10,9 +10,9 @@ import '../abstract/ILegacyUserProfileSource.sol';
 import '../features/RentalityClaimService.sol';
 import '../engine/RentalityEnginesService.sol';
 import '../payments/RentalityBaseDiscount.sol';
-import {IRentalityGeoService} from '../abstract/IRentalityGeoService.sol';
+import {IRentalityGeoService} from '../../infrastructure/geo/IRentalityGeoService.sol';
 import {RentalityCarDelivery} from '../features/RentalityCarDelivery.sol';
-import '../Schemas.sol';
+import '../../models/common/Schemas.sol';
 import {RentalityTripsQuery} from './RentalityTripsQuery.sol';
 import {CurrencyRate as ClaimCurrencyRate} from '../features/RentalityClaimService.sol';
 import {RentalityInsurance} from '../payments/RentalityInsurance.sol';
@@ -392,6 +392,7 @@ library RentalityQuery {
       );
   }
 }
+
 
 
 

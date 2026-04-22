@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import '../../rentality_old/proxy/UUPSOwnable.sol';
-import '../../rentality_old/abstract/ARentalityContext.sol';
+import {UUPSOwnable as GatewayUUPSOwnable} from '../../infrastructure/upgradeable/UUPSOwnable.sol';
+import '../ARentalityContext.sol';
 import '../../rentality_old/adapter/ICarGateway.sol';
 import '../../rentality_old/abstract/IRentalityAdminGateway.sol';
 import '../../rentality_old/features/RentalityCarDelivery.sol';
@@ -16,7 +16,7 @@ import '../../rentality_old/payments/RentalityCurrencyConverter.sol';
 import '../../rentality_old/payments/RentalityInsurance.sol';
 import '../../rentality_old/payments/RentalityPaymentService.sol';
 import '../../rentality_old/payments/abstract/IERC20.sol';
-import '../../rentality_old/Schemas.sol';
+import '../../models/common/Schemas.sol';
 import './IAdminGatewayFacet.sol';
 
 interface IAdminGatewayTripQuery {
@@ -79,7 +79,7 @@ struct AdminQueryAddresses {
 }
 
 /// @custom:oz-upgrades-unsafe-allow external-library-linking
-contract AdminGatewayFacet is UUPSOwnable, ARentalityContext, IAdminGatewayFacet {
+contract AdminGatewayFacet is GatewayUUPSOwnable, ARentalityContext, IAdminGatewayFacet {
   ICarGateway private carService;
   RentalityCurrencyConverter private currencyConverterService;
   IAdminGatewayUserAccess private userService;

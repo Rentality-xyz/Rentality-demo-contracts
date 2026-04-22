@@ -3,9 +3,9 @@ pragma solidity ^0.8.20;
 
 import '../../infrastructure/upgradeable/UUPSOwnable.sol';
 import '../../models/base/pricing/PricingBase.sol';
-import '../../rentality_old/Schemas.sol';
+import '../common/Schemas.sol';
 import '../../rentality_old/payments/abstract/IRentalityDiscount.sol';
-import '../../rentality_old/abstract/IRentalityGeoService.sol';
+import '../../infrastructure/geo/IRentalityGeoService.sol';
 import '../profile/UserProfileTypes.sol';
 import './RentalPricingTypes.sol';
 
@@ -341,5 +341,6 @@ contract RentalPricingMain is PricingBase, UUPSOwnable {
         return RentalPricingTaxesType.PPM;
     }
 }
+
 
 

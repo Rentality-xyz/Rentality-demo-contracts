@@ -8,7 +8,7 @@ import '../../abstract/IRentalityAccessControl.sol';
 import '../../proxy/UUPSAccess.sol';
 import '../RentalityCurrencyConverter.sol';
 import './RentalityAggregator.sol';
-import '../../Schemas.sol';
+import '../../../models/common/Schemas.sol';
 
 contract RentalityBatchPriceUpdater is UUPSAccess, OZInitializable {
 

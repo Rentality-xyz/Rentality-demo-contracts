@@ -5,8 +5,8 @@ import '../../infrastructure/upgradeable/UUPSOwnable.sol';
 import '../../models/investment/RentalInvestmentMain.sol';
 import '../../models/investment/RentalInvestmentQuery.sol';
 import '../../models/profile/UserProfileMain.sol';
-import '../../rentality_old/Schemas.sol';
-import '../../rentality_old/abstract/ARentalityContext.sol';
+import '../../models/common/Schemas.sol';
+import '../ARentalityContext.sol';
 import './IInvestmentGatewayFacet.sol';
 import './InvestmentMapper.sol';
 

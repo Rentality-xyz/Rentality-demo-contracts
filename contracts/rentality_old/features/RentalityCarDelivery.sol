@@ -6,9 +6,9 @@ pragma solidity ^0.8.20;
 import {Initializable as OZInitializable} from '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 import '../proxy/UUPSAccess.sol';
 import {IUserProfileRuntime} from '../abstract/IUserProfileRuntime.sol';
-import '../libs/RealMath.sol';
+import '../../models/common/RealMath.sol';
 import '../libs/RentalityUtils.sol';
-import '../Schemas.sol';
+import '../../models/common/Schemas.sol';
 
 struct Distance {
   int distance;
@@ -248,5 +248,6 @@ contract RentalityCarDelivery is OZInitializable, UUPSAccess {
     defaultPrices = Schemas.DeliveryPrices(300, 250, false);
   }
 }
+
 
 

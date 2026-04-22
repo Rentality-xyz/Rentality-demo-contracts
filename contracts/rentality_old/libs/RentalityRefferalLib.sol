@@ -6,7 +6,7 @@ pragma solidity ^0.8.20;
 import '@openzeppelin/contracts/utils/math/Math.sol';
 import {RentalityReferralProgram} from './../features/refferalProgram/RentalityReferralProgram.sol';
 import {ICarGateway} from '../adapter/ICarGateway.sol';
-import '../Schemas.sol';
+import '../../models/common/Schemas.sol';
 
 library RentalityRefferalLib {
   function finishTrip(int points, bytes memory data) public pure returns (int) {

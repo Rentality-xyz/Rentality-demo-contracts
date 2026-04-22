@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 
 
-import '../Schemas.sol';
+import '../../models/common/Schemas.sol';
 import {UUPSAccess} from '../proxy/UUPSAccess.sol';
 import {EIP712Upgradeable} from '@openzeppelin/contracts-upgradeable/utils/cryptography/EIP712Upgradeable.sol';
 import '@openzeppelin/contracts/utils/cryptography/ECDSA.sol';

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import '../../rentality_old/Schemas.sol';
+import '../../models/common/Schemas.sol';
 
 interface IReferralGatewayFacet {
     function addressToPoints(address user) external view returns (uint256);

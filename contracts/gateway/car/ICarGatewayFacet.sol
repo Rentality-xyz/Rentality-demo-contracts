@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.20;
 
-import '../../rentality_old/Schemas.sol';
+import '../../models/common/Schemas.sol';
 
 interface ICarGatewayFacet {
   function addCar(Schemas.CreateCarRequest memory request) external returns (uint newTokenId);

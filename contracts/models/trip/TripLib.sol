@@ -5,8 +5,8 @@ import "./TripTypes.sol";
 import "../car/CarTypes.sol";
 import "../profile/UserProfileTypes.sol";
 import "../insurance/RentalInsuranceTypes.sol";
-import "../../rentality_old/Schemas.sol";
-import "../../rentality_old/abstract/IRentalityGeoService.sol";
+import "../common/Schemas.sol";
+import "../../infrastructure/geo/IRentalityGeoService.sol";
 
 interface ITripLibUserService {
     function hasPassedKYCAndTC(address user) external view returns (bool);
@@ -797,6 +797,7 @@ library TripLib {
         });
     }
 }
+
 
 
 

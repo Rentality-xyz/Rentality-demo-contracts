@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 
 
-import '../Schemas.sol';
+import '../../models/common/Schemas.sol';
 
 /// @title Rentality Geo Parser Interface
 /// @notice This interface defines the methods for interacting with the Rentality Geo Parser contract.

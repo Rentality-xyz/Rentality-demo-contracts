@@ -10,9 +10,9 @@ import '../abstract/ITripSource.sol';
 import '../abstract/ILegacyUserProfileSource.sol';
 import {RentalityContract} from '../abstract/RentalityContractTypes.sol';
 import '../features/RentalityClaimService.sol';
-import {IRentalityGeoService} from '../abstract/IRentalityGeoService.sol';
+import {IRentalityGeoService} from '../../infrastructure/geo/IRentalityGeoService.sol';
 import {RentalityCarDelivery} from '../features/RentalityCarDelivery.sol';
-import '../Schemas.sol';
+import '../../models/common/Schemas.sol';
 import './RentalityUtils.sol';
 import './RentalityQuery.sol';
 import '@openzeppelin/contracts/utils/math/Math.sol';
@@ -683,6 +683,7 @@ library RentalityTripsQuery {
     return (trip.carId == carId) && (trip.endDateTime > startDateTime) && (trip.startDateTime < endDateTime);
   }
 }
+
 
 
 

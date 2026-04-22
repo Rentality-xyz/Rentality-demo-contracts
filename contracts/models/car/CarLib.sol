@@ -2,7 +2,7 @@ pragma solidity ^0.8.20;
 
 import "../common/CommonTypes.sol";
 import "./CarTypes.sol";
-import "../../rentality_old/libs/RealMath.sol";
+import "../common/RealMath.sol";
 
 library CarLib {
     error InvalidCarPrice();
@@ -156,3 +156,4 @@ library CarLib {
         return haystack.length;
     }
 }
+

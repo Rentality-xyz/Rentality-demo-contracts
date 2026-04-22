@@ -7,7 +7,7 @@ import "../../models/car/CarMain.sol";
 import "../../models/car/CarTypes.sol";
 import "../../models/car/CarQuery.sol";
 import "./ICarGateway.sol";
-import "../Schemas.sol";
+import "../../models/common/Schemas.sol";
 
 contract CarGatewayAdapter is ICarGateway {
     CarMain public immutable carMain;

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import '../../rentality_old/Schemas.sol';
+import '../common/Schemas.sol';
 import '../insurance/RentalInsuranceTypes.sol';
 import '../trip/TripLib.sol';
 import '../trip/TripTypes.sol';

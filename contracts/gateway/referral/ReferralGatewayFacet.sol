@@ -4,8 +4,8 @@ pragma solidity ^0.8.20;
 import '../../infrastructure/upgradeable/UUPSOwnable.sol';
 import '../../models/referral/RentalReferralMain.sol';
 import '../../models/referral/RentalReferralQuery.sol';
-import '../../rentality_old/Schemas.sol';
-import '../../rentality_old/abstract/ARentalityContext.sol';
+import '../../models/common/Schemas.sol';
+import '../ARentalityContext.sol';
 import './IReferralGatewayFacet.sol';
 import './ReferralMapper.sol';
 

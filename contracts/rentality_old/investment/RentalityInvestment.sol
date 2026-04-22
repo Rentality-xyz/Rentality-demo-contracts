@@ -3,19 +3,19 @@ pragma solidity ^0.8.20;
 
 
 
-import '../Schemas.sol';
+import '../../models/common/Schemas.sol';
 import '../proxy/UUPSAccess.sol';
 import {Initializable as OZInitializable} from '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 import '../payments/RentalityCurrencyConverter.sol';
 import './RentalityInvestmentPool.sol';
 import '../adapter/ICarGateway.sol';
-import '../Schemas.sol';
+import '../../models/common/Schemas.sol';
 import {RentalityInsurance} from '../payments/RentalityInsurance.sol';
 import {RentalityViewLib} from '../libs/RentalityViewLib.sol';
 import {IUserProfileRuntime} from '../abstract/IUserProfileRuntime.sol';
 import {IERC20} from '../payments/abstract/IERC20.sol';
 import {RentalityInvestDeployer} from './RentalityInvestDeployer.sol';
-import {ARentalityContext} from '../abstract/ARentalityContext.sol';
+import {ARentalityContext} from '../../gateway/ARentalityContext.sol';
 
 /// @dev SAFETY: The linked library is not supported yet because it can modify the state or call
 ///  selfdestruct, as far as RentalityUtils doesn't has this logic,

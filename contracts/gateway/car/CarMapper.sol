@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 import '../../models/base/asset/AssetTypes.sol';
 import '../../models/common/CommonTypes.sol';
 import '../../models/car/CarTypes.sol';
-import '../../rentality_old/Schemas.sol';
+import '../../models/common/Schemas.sol';
 
 library CarMapper {
   function toLegacyCarInfo(Asset memory asset, CarData memory car) internal pure returns (Schemas.CarInfo memory) {

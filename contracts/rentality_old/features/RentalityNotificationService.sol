@@ -6,7 +6,7 @@ pragma solidity ^0.8.20;
 import {Initializable as OZInitializable} from '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 import {IRentalityAccessControl} from '../abstract/IRentalityAccessControl.sol';
 import {UUPSAccess} from '../proxy/UUPSAccess.sol';
-import '../Schemas.sol';
+import '../../models/common/Schemas.sol';
 
 
 struct RentaityEvent {

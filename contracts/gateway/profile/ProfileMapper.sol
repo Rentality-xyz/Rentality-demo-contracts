@@ -2,7 +2,7 @@
 pragma solidity ^0.8.20;
 
 import '../../models/profile/UserProfileTypes.sol';
-import '../../rentality_old/Schemas.sol';
+import '../../models/common/Schemas.sol';
 
 library ProfileMapper {
     function toLegacyKyc(UserProfileKYCInfo memory profile)

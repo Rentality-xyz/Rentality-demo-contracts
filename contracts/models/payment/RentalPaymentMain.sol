@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import '../../infrastructure/upgradeable/UUPSOwnable.sol';
 import '../../models/base/payment/PaymentBase.sol';
-import '../../rentality_old/Schemas.sol';
+import '../common/Schemas.sol';
 import './RentalPaymentTypes.sol';
 
 interface IRentalPaymentAccess {

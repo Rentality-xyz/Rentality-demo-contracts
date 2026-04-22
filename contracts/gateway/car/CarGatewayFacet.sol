@@ -7,8 +7,8 @@ import '../../models/car/CarMain.sol';
 import '../../models/car/CarQuery.sol';
 import '../../models/base/referral/ReferralTypes.sol';
 import '../../models/trip/TripTypes.sol';
-import '../../rentality_old/Schemas.sol';
-import '../../rentality_old/abstract/ARentalityContext.sol';
+import '../../models/common/Schemas.sol';
+import '../ARentalityContext.sol';
 
 import './ICarGatewayFacet.sol';
 import './CarMapper.sol';

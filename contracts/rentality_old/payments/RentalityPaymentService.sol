@@ -12,10 +12,10 @@ import '../investment/RentalityInvestment.sol';
 import './RentalityTaxes.sol';
 import './RentalityBaseDiscount.sol';
 import './RentalityHostInsurance.sol';
-import {Schemas} from '../Schemas.sol';
+import {Schemas} from '../../models/common/Schemas.sol';
 import {RentalitySwaps} from './RentalitySwaps.sol';
 import '../adapter/ICarGateway.sol';
-import '../abstract/IRentalityGeoService.sol';
+import '../../infrastructure/geo/IRentalityGeoService.sol';
 
 /// @title Rentality Payment Service Contract
 /// @notice This contract manages platform fees and allows the adjustment of the platform fee by the manager.
@@ -474,6 +474,7 @@ function getTaxesInfoById(uint taxId) public view returns(Schemas.TaxesInfoDTO m
     __Ownable_init();
   }
 }
+
 
 
 

@@ -3,11 +3,11 @@ pragma solidity ^0.8.20;
 
 
 
-import '../Schemas.sol';
+import '../../models/common/Schemas.sol';
 import './IRentalityGeoParser.sol';
 import '../proxy/UUPSAccess.sol';
 import {Initializable as OZInitializable} from '@openzeppelin/contracts/proxy/utils/Initializable.sol';
-import '../abstract/IRentalityGeoService.sol';
+import '../../infrastructure/geo/IRentalityGeoService.sol';
 import '@openzeppelin/contracts/utils/cryptography/ECDSA.sol';
 import './RentalityLocationVerifier.sol';
 
@@ -156,5 +156,6 @@ contract RentalityGeoService is IRentalityGeoService, OZInitializable, UUPSAcces
     verifier = RentalityLocationVerifier(locationVerifier);
   }
 }
+
 
 

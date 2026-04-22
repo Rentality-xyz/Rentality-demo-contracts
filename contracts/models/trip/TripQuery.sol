@@ -7,7 +7,7 @@ import "./TripTypes.sol";
 import "./../car/CarTypes.sol";
 import "./../profile/UserProfileTypes.sol";
 import "../common/CommonTypes.sol";
-import "../../rentality_old/Schemas.sol";
+import "../common/Schemas.sol";
 
 interface ITripQueryUserProfileQuery {
     function getKYCInfo(address user) external view returns (UserProfileKYCInfo memory);

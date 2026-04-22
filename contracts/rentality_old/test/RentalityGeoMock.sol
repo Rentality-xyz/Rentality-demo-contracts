@@ -6,7 +6,7 @@ pragma solidity ^0.8.20;
 import '../libs/RentalityUtils.sol';
 import 'hardhat/console.sol';
 import '../features/IRentalityGeoParser.sol';
-import '../abstract/IRentalityGeoService.sol';
+import '../../infrastructure/geo/IRentalityGeoService.sol';
 // For testing purposes
 
 contract RentalityGeoMock is IRentalityGeoParser {
@@ -331,4 +331,5 @@ contract RentalityGeoMock is IRentalityGeoParser {
     return carIdToParsedGeolocationData[carId];
   }
 }
+
 

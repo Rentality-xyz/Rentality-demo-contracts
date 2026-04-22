@@ -6,7 +6,7 @@ pragma solidity ^0.8.20;
 import {UUPSAccess} from '../proxy/UUPSAccess.sol';
 import {EIP712Upgradeable} from '@openzeppelin/contracts-upgradeable/utils/cryptography/EIP712Upgradeable.sol';
 import {IRentalityAccessControl} from '../abstract/IRentalityAccessControl.sol';
-import '../Schemas.sol';
+import '../../models/common/Schemas.sol';
 
 
 

@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 
 
-import '../../Schemas.sol';
+import '../../../models/common/Schemas.sol';
 
 /// @title IRentalityTaxes
 /// @notice This interface defines the functions for managing taxes in the Rentality platform.

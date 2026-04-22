@@ -1,6 +1,6 @@
 pragma solidity ^0.8.20;
 
-import '../../../../rentality_old/Schemas.sol';
+import '../../../../models/common/Schemas.sol';
 
 interface IRentalityInvestmentSender {
   function quoteInvest(uint, uint investId, uint amount) external view returns (uint);

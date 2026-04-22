@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 
 
 import '../abstract/IRentalityAccessControl.sol';
-import '../Schemas.sol';
+import '../../models/common/Schemas.sol';
 import '@openzeppelin/contracts/utils/math/Math.sol';
 
 /// @title ARentalityEngine - Abstract contract for a rental engine in the Rentality system.

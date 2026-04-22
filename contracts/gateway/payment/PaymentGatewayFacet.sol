@@ -4,8 +4,8 @@ pragma solidity ^0.8.20;
 import {Initializable as OZInitializable} from '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 import '../../infrastructure/upgradeable/UUPSOwnable.sol';
 import '../../models/payment/RentalPaymentQuery.sol';
-import '../../rentality_old/abstract/ARentalityContext.sol';
-import '../../rentality_old/Schemas.sol';
+import '../ARentalityContext.sol';
+import '../../models/common/Schemas.sol';
 import './IPaymentGatewayFacet.sol';
 
 interface IPaymentGatewayFacetSwaps {

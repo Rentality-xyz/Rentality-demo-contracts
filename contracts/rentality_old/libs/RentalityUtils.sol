@@ -4,10 +4,10 @@ pragma solidity ^0.8.20;
 
 
 import '@openzeppelin/contracts/utils/math/Math.sol';
-import '../Schemas.sol';
+import '../../models/common/Schemas.sol';
 import '../abstract/ILegacyUserProfileSource.sol';
 import "../adapter/ICarGateway.sol";
-import '../abstract/IRentalityGeoService.sol';
+import '../../infrastructure/geo/IRentalityGeoService.sol';
 import '../abstract/ITripSource.sol';
 import '../payments/RentalityCurrencyConverter.sol';
 import '../payments/RentalityPaymentService.sol';
@@ -790,6 +790,7 @@ library RentalityUtils {
     require(trip.status == Schemas.TripStatus.CheckedOutByHost, 'The trip is not in status CheckedOutByHost');
   }
 }
+
 
 
 

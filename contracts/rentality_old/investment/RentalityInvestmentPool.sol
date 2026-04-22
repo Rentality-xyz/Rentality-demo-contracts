@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 
 
-import '../Schemas.sol';
+import '../../models/common/Schemas.sol';
 import '../proxy/UUPSAccess.sol';
 import './RentalityInvestmentNft.sol';
 import {IERC20} from '../payments/abstract/IERC20.sol';
