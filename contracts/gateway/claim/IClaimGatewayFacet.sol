@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import '../../infrastructure/services/AiDamageTypes.sol';
+import '../../infrastructure/services/ai-damage/AiDamageTypes.sol';
 import '../../models/referral/ReferralTypes.sol';
 
 interface IClaimGatewayFacet {

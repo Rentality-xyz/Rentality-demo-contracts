@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 import {Initializable as OZInitializable} from '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 import '../../infrastructure/upgradeable/UUPSOwnable.sol';
-import '../../infrastructure/services/AiDamageTypes.sol';
+import '../../infrastructure/services/ai-damage/AiDamageTypes.sol';
 import '../ARentalityContext.sol';
 import '../../models/referral/ReferralQuery.sol';
 import '../../models/referral/ReferralMainFacet1.sol';

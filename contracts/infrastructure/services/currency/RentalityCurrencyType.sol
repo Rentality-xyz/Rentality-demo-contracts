@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 import '@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol';
 import '@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol';
-import '../upgradeable/UUPSOwnable.sol';
+import '../../upgradeable/UUPSOwnable.sol';
 
 interface IRentalityCurrencyTypeAccess {
   function isAdmin(address user) external view returns (bool);

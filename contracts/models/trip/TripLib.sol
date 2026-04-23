@@ -7,7 +7,7 @@ import "../car/CarTypes.sol";
 import "../profile/UserProfileTypes.sol";
 import "../insurance/InsuranceTypes.sol";
 import "../common/CommonTypes.sol";
-import "../../infrastructure/geo/IRentalityGeoService.sol";
+import "../../infrastructure/services/geo/IRentalityGeoService.sol";
 
 interface ITripLibUserService {
     function hasPassedKYCAndTC(address user) external view returns (bool);

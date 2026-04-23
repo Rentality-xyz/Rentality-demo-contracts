@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import '../../models/common/CommonTypes.sol';
-import '../../models/payment/PaymentTypes.sol';
-import '../../models/trip/TripTypes.sol';
-import '../upgradeable/UUPSOwnable.sol';
+import '../../../models/common/CommonTypes.sol';
+import '../../../models/payment/PaymentTypes.sol';
+import '../../../models/trip/TripTypes.sol';
+import '../../upgradeable/UUPSOwnable.sol';
 import './RentalityCurrencyType.sol';
 
 interface IRentalityCurrencyConverterAccess {

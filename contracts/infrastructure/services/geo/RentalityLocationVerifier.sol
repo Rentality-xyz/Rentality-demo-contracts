@@ -3,8 +3,8 @@ pragma solidity ^0.8.20;
 
 import '@openzeppelin/contracts-upgradeable/utils/cryptography/EIP712Upgradeable.sol';
 import '@openzeppelin/contracts/utils/cryptography/ECDSA.sol';
-import '../../models/common/CommonTypes.sol';
-import '../upgradeable/UUPSOwnable.sol';
+import '../../../models/common/CommonTypes.sol';
+import '../../upgradeable/UUPSOwnable.sol';
 
 interface IRentalityLocationVerifierAccess {
   function isAdmin(address user) external view returns (bool);

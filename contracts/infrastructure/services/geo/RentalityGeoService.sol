@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import '../../models/common/CommonTypes.sol';
+import '../../../models/common/CommonTypes.sol';
 import './IRentalityGeoService.sol';
 import './RentalityLocationVerifier.sol';
-import '../upgradeable/UUPSOwnable.sol';
+import '../../upgradeable/UUPSOwnable.sol';
 
 interface IRentalityGeoAccess {
   function isAdmin(address user) external view returns (bool);

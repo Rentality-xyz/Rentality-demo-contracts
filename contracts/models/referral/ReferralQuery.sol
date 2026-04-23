@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import '../../infrastructure/geo/IRentalityGeoService.sol';
-import '../../infrastructure/services/AiDamageTypes.sol';
+import '../../infrastructure/services/geo/IRentalityGeoService.sol';
+import '../../infrastructure/services/ai-damage/AiDamageTypes.sol';
 import '../car/CarTypes.sol';
 import '../common/CommonTypes.sol';
 import '../profile/UserProfileTypes.sol';

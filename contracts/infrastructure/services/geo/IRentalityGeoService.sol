@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import '../../models/common/CommonTypes.sol';
+import '../../../models/common/CommonTypes.sol';
 
 /// @title IRentalityGeoService
 /// @notice Shared interface for Rentality geolocation services.
