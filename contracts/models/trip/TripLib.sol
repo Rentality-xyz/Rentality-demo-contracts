@@ -5,7 +5,7 @@ import "./TripTypes.sol";
 import "../car/CarTypes.sol";
 import "../profile/UserProfileTypes.sol";
 import "../insurance/RentalInsuranceTypes.sol";
-import "../common/Schemas.sol";
+import "../common/CommonTypes.sol";
 import "../../infrastructure/geo/IRentalityGeoService.sol";
 
 interface ITripLibUserService {
@@ -67,24 +67,24 @@ interface ITripLibWritePricingService {
 interface ITripLibWritePaymentService {
     function payCreateTrip(address currencyType, uint valueSumInCurrency, address user, uint carId, address currencyFrom, uint256 amountIn, uint24 fee) external payable;
     function payFinishTrip(
-        Schemas.Trip memory trip,
+        TripGatewayTypes.GatewayTrip memory trip,
         uint256 valueToHost,
         uint256 valueToGuest,
         uint256 totalIncome,
         uint256 tripCostValue
     ) external payable;
-    function payRejectTrip(Schemas.Trip memory trip, uint256 valueToReturnInToken) external;
+    function payRejectTrip(TripGatewayTypes.GatewayTrip memory trip, uint256 valueToReturnInToken) external;
 }
 
 interface ITripLibWriteCurrencyConverter {
-    function getDefaultCurrency() external view returns (Schemas.UserCurrencyDTO memory);
+    function getDefaultCurrency() external view returns (UserCurrencyInfo memory);
     function calculateTripReject(
-        Schemas.PaymentInfo memory paymentInfo,
+        TripGatewayTypes.GatewayPaymentInfo memory paymentInfo,
         uint256 insurance,
         uint64 totalTax
     ) external pure returns (uint256);
     function calculateTripFinsish(
-        Schemas.PaymentInfo memory paymentInfo,
+        TripGatewayTypes.GatewayPaymentInfo memory paymentInfo,
         uint256 rentalityFee,
         uint256 feeOfPriceWithDiscount,
         uint256 insurancePriceInUsdCents,
@@ -105,7 +105,7 @@ interface ITripLibWritePromoService {
 }
 
 interface ITripLibWriteNotificationService {
-    function emitEvent(Schemas.EventType eType, uint256 id, uint8 objectStatus, address from, address to) external;
+    function emitEvent(EventType eType, uint256 id, uint8 objectStatus, address from, address to) external;
 }
 
 interface ITripLibWriteEngineService {
@@ -167,12 +167,12 @@ library TripLib {
 
     function calculateDelivery(
         ITripLibCarQuery carQuery,
-        Schemas.CreateTripRequestWithDelivery memory request
+        TripGatewayTypes.GatewayCreateTripRequestWithDelivery memory request
     ) internal view returns (uint64 pickUp, uint64 dropOf) {
         (pickUp, dropOf) = carQuery.calculateDeliveryPrices(
             request.carId,
-            _toCommonLocationInfo(request.pickUpInfo.locationInfo),
-            _toCommonLocationInfo(request.returnInfo.locationInfo)
+            request.pickUpInfo.locationInfo,
+            request.returnInfo.locationInfo
         );
 
         if (pickUp > 0) {
@@ -193,19 +193,19 @@ library TripLib {
         uint256 carId,
         uint64 daysOfTrip,
         address currency,
-        Schemas.LocationInfo memory pickUpLocation,
-        Schemas.LocationInfo memory returnLocation,
+        LocationInfo memory pickUpLocation,
+        LocationInfo memory returnLocation,
         string memory promo,
         address user
-    ) external view returns (Schemas.CalculatePaymentsDTO memory) {
+    ) external view returns (TripGatewayTypes.GatewayCalculatePaymentsDTO memory) {
         ITripLibCarQuery carQuery = ITripLibCarQuery(carQueryAddress);
         CarInfo memory car = carQuery.getCar(carId);
         address carOwner = car.asset.owner;
 
         (uint64 pickUp, uint64 dropOf) = carQuery.calculateDeliveryPrices(
             carId,
-            _toCommonLocationInfo(pickUpLocation),
-            _toCommonLocationInfo(returnLocation)
+            pickUpLocation,
+            returnLocation
         );
         uint64 deliveryFee = pickUp + dropOf;
 
@@ -238,7 +238,7 @@ library TripLib {
             valueSumInCurrency = 0;
         }
 
-        return Schemas.CalculatePaymentsDTO(valueSumInCurrency, rate, decimals);
+        return TripGatewayTypes.GatewayCalculatePaymentsDTO(valueSumInCurrency, rate, decimals);
     }
 
     function createPaymentInfo(
@@ -330,7 +330,7 @@ library TripLib {
         address currencyConverterAddress,
         address insuranceServiceAddress,
         address promoServiceAddress,
-        Schemas.CreateTripRequestWithDelivery memory request,
+        TripGatewayTypes.GatewayCreateTripRequestWithDelivery memory request,
         string memory promo,
         address sender
     ) external {
@@ -506,7 +506,7 @@ library TripLib {
             }
         }
 
-        _emitTripEvent(notificationServiceAddress, tripId, Schemas.TripStatus.Approved, sender, trip.booking.customer);
+        _emitTripEvent(notificationServiceAddress, tripId, TripStatus.Approved, sender, trip.booking.customer);
     }
 
     function rejectTripRequest(
@@ -607,7 +607,7 @@ library TripLib {
         address sender
     ) private {
         Trip memory trip = tripMain.getTrip(tripId);
-        Schemas.Trip memory legacyTrip = toLegacyTrip(trip);
+        TripGatewayTypes.GatewayTrip memory legacyTrip = toLegacyTrip(trip);
 
         uint256 insurance = ITripLibWriteInsuranceService(insuranceServiceAddress).getInsurancePriceByTrip(tripId);
         uint64 totalTax = ITripLibWritePricingService(pricingServiceAddress).getTotalTripTax(tripId);
@@ -625,7 +625,7 @@ library TripLib {
         _emitTripEvent(
             notificationServiceAddress,
             tripId,
-            Schemas.TripStatus.Canceled,
+            TripStatus.Canceled,
             sender,
             sender == updatedTrip.booking.customer ? updatedTrip.booking.customer : updatedTrip.booking.provider
         );
@@ -644,7 +644,7 @@ library TripLib {
     ) private {
         tripMain.finishTrip(tripId, sender);
         Trip memory trip = tripMain.getTrip(tripId);
-        Schemas.Trip memory legacyTrip = toLegacyTrip(trip);
+        TripGatewayTypes.GatewayTrip memory legacyTrip = toLegacyTrip(trip);
 
         uint256 rentalityFee = ITripLibWritePricingService(pricingServiceAddress).getPlatformFeeFrom(
             trip.paymentInfo.priceWithDiscount + trip.paymentInfo.pickUpFee + trip.paymentInfo.dropOfFee
@@ -681,13 +681,13 @@ library TripLib {
             valueToHostInUsdCents - trip.paymentInfo.resolveAmountInUsdCents - insurancePrice
         );
 
-        _emitTripEvent(notificationServiceAddress, tripId, Schemas.TripStatus.Finished, trip.booking.provider, trip.booking.customer);
+        _emitTripEvent(notificationServiceAddress, tripId, TripStatus.Finished, trip.booking.provider, trip.booking.customer);
     }
 
     function _emitTripEvent(
         address notificationServiceAddress,
         uint256 tripId,
-        Schemas.TripStatus status,
+        TripStatus status,
         address from,
         address to
     ) private {
@@ -695,7 +695,7 @@ library TripLib {
             return;
         }
         ITripLibWriteNotificationService(notificationServiceAddress).emitEvent(
-            Schemas.EventType.Trip,
+            EventType.Trip,
             tripId,
             uint8(status),
             from,
@@ -703,11 +703,11 @@ library TripLib {
         );
     }
 
-    function toLegacyTrip(Trip memory trip) internal pure returns (Schemas.Trip memory) {
-        return Schemas.Trip({
+    function toLegacyTrip(Trip memory trip) internal pure returns (TripGatewayTypes.GatewayTrip memory) {
+        return TripGatewayTypes.GatewayTrip({
             tripId: trip.booking.id,
             carId: trip.booking.resourceId,
-            status: Schemas.TripStatus(uint8(trip.status)),
+            status: TripGatewayTypes.GatewayTripStatus(uint8(trip.status)),
             guest: trip.booking.customer,
             host: trip.booking.provider,
             guestName: trip.guestName,
@@ -740,8 +740,8 @@ library TripLib {
         });
     }
 
-    function toLegacyPaymentInfo(TripPaymentInfo memory paymentInfo) internal pure returns (Schemas.PaymentInfo memory) {
-        return Schemas.PaymentInfo({
+    function toLegacyPaymentInfo(TripPaymentInfo memory paymentInfo) internal pure returns (TripGatewayTypes.GatewayPaymentInfo memory) {
+        return TripGatewayTypes.GatewayPaymentInfo({
             tripId: paymentInfo.tripId,
             from: paymentInfo.from,
             to: paymentInfo.to,
@@ -764,37 +764,22 @@ library TripLib {
     function toLegacyTransactionInfo(TripTransactionInfo memory transactionInfo)
         internal
         pure
-        returns (Schemas.TransactionInfo memory)
+        returns (TripGatewayTypes.GatewayTransactionInfo memory)
     {
-        return Schemas.TransactionInfo({
+        return TripGatewayTypes.GatewayTransactionInfo({
             rentalityFee: transactionInfo.rentalityFee,
             depositRefund: transactionInfo.depositRefund,
             tripEarnings: transactionInfo.tripEarnings,
             dateTime: transactionInfo.dateTime,
-            statusBeforeCancellation: Schemas.TripStatus(uint8(transactionInfo.statusBeforeCancellation))
+            statusBeforeCancellation: TripGatewayTypes.GatewayTripStatus(uint8(transactionInfo.statusBeforeCancellation))
         });
     }
-    function _toCommonLocationInfo(Schemas.LocationInfo memory location) private pure returns (LocationInfo memory) {
-        return LocationInfo({
-            userAddress: location.userAddress,
-            country: location.country,
-            state: location.state,
-            city: location.city,
-            latitude: location.latitude,
-            longitude: location.longitude,
-            timeZoneId: location.timeZoneId
-        });
-    }
-
-    function _toCommonSignedLocationInfo(Schemas.SignedLocationInfo memory location)
+    function _toCommonSignedLocationInfo(SignedLocationInfo memory location)
         private
         pure
         returns (SignedLocationInfo memory)
     {
-        return SignedLocationInfo({
-            locationInfo: _toCommonLocationInfo(location.locationInfo),
-            signature: location.signature
-        });
+        return location;
     }
 }
 

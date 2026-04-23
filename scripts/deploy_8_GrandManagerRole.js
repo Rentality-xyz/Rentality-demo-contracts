@@ -48,6 +48,7 @@ async function main() {
     ['TripGatewayFacet', getOptionalAddress(addresses, 'TripGatewayFacet')],
     ['CarGatewayFacet', getOptionalAddress(addresses, 'CarGatewayFacet')],
     ['CarViewGatewayFacet', getOptionalAddress(addresses, 'CarViewGatewayFacet')],
+    ['CarViewGatewayFacet1', getOptionalAddress(addresses, 'CarViewGatewayFacet1')],
     ['PaymentGatewayFacet', getOptionalAddress(addresses, 'PaymentGatewayFacet')],
     ['ClaimGatewayFacet', getOptionalAddress(addresses, 'ClaimGatewayFacet')],
     ['InsuranceGatewayFacet', getOptionalAddress(addresses, 'InsuranceGatewayFacet')],

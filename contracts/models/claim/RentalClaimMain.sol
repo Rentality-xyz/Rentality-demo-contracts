@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import '../common/Schemas.sol';
 import '../insurance/RentalInsuranceTypes.sol';
 import '../trip/TripLib.sol';
 import '../trip/TripTypes.sol';
+import './RentalClaimTypes.sol';
 
 interface IRentalClaimMainClaimService {
-  function createClaim(Schemas.CreateClaimRequest memory request, address host, address guest, address user) external returns (uint256);
-  function getClaim(uint256 claimId) external view returns (Schemas.ClaimV2 memory);
+  function createClaim(CreateClaimRequest memory request, address host, address guest, address user) external returns (uint256);
+  function getClaim(uint256 claimId) external view returns (RentalClaimInfoV2 memory);
   function rejectClaim(uint256 claimId, address rejectedBy, address host, address guest) external;
   function payClaim(uint256 claimId, address host, address guest, int256 rate, uint8 decimals) external;
   function getPlatformFeeFrom(uint256 value) external view returns (uint256);
@@ -28,7 +28,7 @@ interface IRentalClaimMainCurrencyConverter {
 
 interface IRentalClaimMainPaymentService {
   function payClaim(
-    Schemas.Trip memory trip,
+    TripGatewayTypes.GatewayTrip memory trip,
     uint256 valueToPay,
     uint256 feeInCurrency,
     uint256 commission,
@@ -63,11 +63,11 @@ contract RentalClaimMain {
     insuranceMain = IRentalClaimMainInsuranceMain(insuranceMainAddress);
   }
 
-  function createClaim(Schemas.CreateClaimRequest memory request, bool isInsuranceClaim, address sender)
+  function createClaim(CreateClaimRequest memory request, bool isInsuranceClaim, address sender)
     external
     returns (uint256 claimId)
   {
-    Schemas.Trip memory trip = TripLib.toLegacyTrip(tripQuery.getTrip(request.tripId));
+    TripGatewayTypes.GatewayTrip memory trip = TripLib.toLegacyTrip(tripQuery.getTrip(request.tripId));
     require(!isInsuranceClaim || trip.host == sender, 'RentalClaimMain: insurance claim only for hosts');
     require(
       (trip.host == sender && claimService.claimTypeExists(request.claimType, true)) ||
@@ -75,7 +75,7 @@ contract RentalClaimMain {
       'Only for trip host or guest, or wrong claim type.'
     );
     require(
-      trip.status != Schemas.TripStatus.Canceled && trip.status != Schemas.TripStatus.Created,
+      trip.status != TripGatewayTypes.GatewayTripStatus.Canceled && trip.status != TripGatewayTypes.GatewayTripStatus.Created,
       'Wrong trip status.'
     );
 
@@ -86,16 +86,16 @@ contract RentalClaimMain {
   }
 
   function rejectClaim(uint256 claimId, address sender) external {
-    Schemas.ClaimV2 memory claim = claimService.getClaim(claimId);
-    Schemas.Trip memory trip = TripLib.toLegacyTrip(tripQuery.getTrip(claim.tripId));
+    RentalClaimInfoV2 memory claim = claimService.getClaim(claimId);
+    TripGatewayTypes.GatewayTrip memory trip = TripLib.toLegacyTrip(tripQuery.getTrip(claim.tripId));
     require(trip.host == sender || trip.guest == sender, 'For trip guest or host.');
 
     claimService.rejectClaim(claimId, sender, trip.host, trip.guest);
   }
 
   function payClaim(uint256 claimId, address sender) external payable {
-    Schemas.ClaimV2 memory claim = claimService.getClaim(claimId);
-    Schemas.Trip memory trip = TripLib.toLegacyTrip(tripQuery.getTrip(claim.tripId));
+    RentalClaimInfoV2 memory claim = claimService.getClaim(claimId);
+    TripGatewayTypes.GatewayTrip memory trip = TripLib.toLegacyTrip(tripQuery.getTrip(claim.tripId));
     uint256 commission = claimService.getPlatformFeeFrom(claim.amountInUsdCents);
 
     (uint256 valueToPay, uint256 feeInCurrency, int256 rate, uint8 decimals) = currencyConverter.calculateLatestValueWithFee(

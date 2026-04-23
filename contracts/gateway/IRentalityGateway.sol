@@ -4,6 +4,7 @@ pragma solidity ^0.8.20;
 import './admin/IAdminGatewayFacet.sol';
 import './car/ICarGatewayFacet.sol';
 import './car/ICarViewGatewayFacet.sol';
+import './car/ICarViewGatewayFacet1.sol';
 import './claim/IClaimGatewayFacet.sol';
 import './insurance/IInsuranceGatewayFacet.sol';
 import './investment/IInvestmentGatewayFacet.sol';
@@ -18,6 +19,7 @@ interface IRentalityGateway is
   IAdminGatewayFacet,
   ICarGatewayFacet,
   ICarViewGatewayFacet,
+  ICarViewGatewayFacet1,
   IClaimGatewayFacet,
   IInsuranceGatewayFacet,
   IInvestmentGatewayFacet,

@@ -2,15 +2,14 @@
 pragma solidity ^0.8.20;
 
 import '../../models/profile/UserProfileTypes.sol';
-import '../../models/common/Schemas.sol';
 
 library ProfileMapper {
     function toLegacyKyc(UserProfileKYCInfo memory profile)
         internal
         pure
-        returns (Schemas.KYCInfo memory)
+        returns (GatewayUserProfileKYCInfo memory)
     {
-        return Schemas.KYCInfo({
+        return GatewayUserProfileKYCInfo({
             name: profile.name,
             surname: profile.surname,
             mobilePhoneNumber: profile.mobilePhoneNumber,
@@ -26,17 +25,17 @@ library ProfileMapper {
     function toLegacyAdditional(UserProfileAdditionalInfo memory info)
         internal
         pure
-        returns (Schemas.AdditionalKYCInfo memory)
+        returns (GatewayUserProfileAdditionalInfo memory)
     {
-        return Schemas.AdditionalKYCInfo({issueCountry: info.issueCountry, email: info.email});
+        return GatewayUserProfileAdditionalInfo({issueCountry: info.issueCountry, email: info.email});
     }
 
     function toLegacyFull(FullUserProfileInfo memory profile)
         internal
         pure
-        returns (Schemas.FullKYCInfoDTO memory)
+        returns (GatewayFullUserProfileInfo memory)
     {
-        return Schemas.FullKYCInfoDTO({
+        return GatewayFullUserProfileInfo({
             kyc: toLegacyKyc(profile.kyc),
             additionalKYC: toLegacyAdditional(profile.additionalKYC),
             isPhoneVerified: profile.contact.isPhoneVerified,
@@ -48,9 +47,9 @@ library ProfileMapper {
     function toLegacyAdmin(AdminUserProfileInfo memory profile)
         internal
         pure
-        returns (Schemas.AdminKYCInfoDTO memory)
+        returns (GatewayAdminUserProfileInfo memory)
     {
-        return Schemas.AdminKYCInfoDTO({
+        return GatewayAdminUserProfileInfo({
             kyc: toLegacyKyc(profile.kyc),
             additionalKYC: toLegacyAdditional(profile.additionalKYC),
             wallet: profile.wallet,
@@ -62,16 +61,16 @@ library ProfileMapper {
     function toLegacyAdminPage(AdminUserProfilePage memory page)
         internal
         pure
-        returns (Schemas.AdminKYCInfosDTO memory result)
+        returns (GatewayAdminUserProfilePage memory result)
     {
-        Schemas.AdminKYCInfoDTO[] memory items = new Schemas.AdminKYCInfoDTO[](page.profiles.length);
+        GatewayAdminUserProfileInfo[] memory items = new GatewayAdminUserProfileInfo[](page.profiles.length);
         for (uint256 i = 0; i < page.profiles.length; i++) {
             items[i] = toLegacyAdmin(page.profiles[i]);
         }
-        result = Schemas.AdminKYCInfosDTO({kycInfos: items, totalPageCount: page.totalPageCount});
+        result = GatewayAdminUserProfilePage({kycInfos: items, totalPageCount: page.totalPageCount});
     }
 
-    function toUserCivicInfo(Schemas.CivicKYCInfo memory info)
+    function toUserCivicInfo(GatewayCivicUserProfileInfo memory info)
         internal
         pure
         returns (CivicUserProfileInfo memory)

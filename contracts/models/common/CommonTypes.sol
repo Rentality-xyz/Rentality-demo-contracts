@@ -36,3 +36,29 @@ struct UserCurrencyInfo {
     string name;
     bool initialized;
 }
+
+enum CrassChainMessageStatus {
+    Fail,
+    PayableFail,
+    Success
+}
+
+enum EventType {
+    Car,
+    Claim,
+    Trip,
+    User,
+    Insurance,
+    Taxes,
+    Discount,
+    Delivery,
+    Currency,
+    AddClaimType,
+    SaveTripInsurance,
+    CrassChainMessage
+}
+
+enum EventCreator {
+    User,
+    Admin
+}

@@ -8,7 +8,6 @@ import '../../models/car/CarQuery.sol';
 import '../../models/base/referral/ReferralTypes.sol';
 import '../../models/trip/TripTypes.sol';
 import '../../models/common/CommonTypes.sol';
-import '../../models/common/Schemas.sol';
 import '../ARentalityContext.sol';
 
 import './ICarGatewayFacet.sol';
@@ -41,7 +40,7 @@ interface ICarGatewayDimoService {
 }
 
 interface ICarGatewayNotificationService {
-  function emitEvent(Schemas.EventType eType, uint256 id, uint8 objectStatus, address from, address to) external;
+  function emitEvent(EventType eType, uint256 id, uint8 objectStatus, address from, address to) external;
 }
 
 contract CarGatewayFacet is UUPSOwnable, ARentalityContext, ICarGatewayFacet {
@@ -109,7 +108,7 @@ contract CarGatewayFacet is UUPSOwnable, ARentalityContext, ICarGatewayFacet {
     );
   }
 
-  function addCar(Schemas.CreateCarRequest memory request) external returns (uint newTokenId) {
+  function addCar(CarGatewayTypes.GatewayCreateCarRequest memory request) external returns (uint newTokenId) {
     address sender = _msgGatewaySender();
 
     referralProgram.passReferralProgram(ReferralProgram.AddCar, abi.encode(request.currentlyListed), sender, promoService);
@@ -121,8 +120,8 @@ contract CarGatewayFacet is UUPSOwnable, ARentalityContext, ICarGatewayFacet {
   }
 
   function updateCarInfoWithLocation(
-    Schemas.UpdateCarInfoRequest memory request,
-    Schemas.SignedLocationInfo memory location
+    CarGatewayTypes.UpdateCarInfoRequest memory request,
+    SignedLocationInfo memory location
   ) external {
     require(_isCarEditable(request.carId), 'Car is not available for update.');
 
@@ -156,7 +155,7 @@ contract CarGatewayFacet is UUPSOwnable, ARentalityContext, ICarGatewayFacet {
       aboveTwentyFiveMilesInUsdCents,
       sender
     );
-    notificationService.emitEvent(Schemas.EventType.Delivery, 0, uint8(Schemas.EventCreator.User), sender, sender);
+    notificationService.emitEvent(EventType.Delivery, 0, uint8(EventCreator.User), sender, sender);
   }
 
   function saveDimoTokenIds(uint[] memory dimoTokenIds, uint[] memory carIds) external {

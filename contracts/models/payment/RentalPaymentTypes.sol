@@ -24,3 +24,15 @@ struct RentalClaimPaymentRequest {
     uint256 commission;
     address user;
 }
+
+struct RentalCurrency {
+    address currency;
+    string name;
+}
+
+struct RentalAllowedCurrencyDTO {
+    uint8 decimals;
+    string name;
+    string symbol;
+    address tokenAddress;
+}

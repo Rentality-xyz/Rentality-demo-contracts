@@ -31,3 +31,10 @@ struct RentalTaxesInfo {
     RentalPricingTaxesLocationType locationType;
     RentalTaxValue[] taxes;
 }
+
+struct RentalCheckPromoDTO {
+    bool isFound;
+    bool isValid;
+    bool isDiscount;
+    uint256 value;
+}

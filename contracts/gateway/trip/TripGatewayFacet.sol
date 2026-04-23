@@ -11,7 +11,6 @@ import "../../models/car/CarTypes.sol";
 import "../../models/common/CommonTypes.sol";
 import "../../models/profile/UserProfileTypes.sol";
 import "../../models/insurance/RentalInsuranceTypes.sol";
-import "../../models/common/Schemas.sol";
 import "../ARentalityContext.sol";
 import "./TripMapper.sol";
 
@@ -43,28 +42,28 @@ interface ITripGatewayFacetPricingService {
 interface ITripGatewayFacetPaymentService {
     function payCreateTrip(address currencyType, uint valueSumInCurrency, address user, uint carId, address currencyFrom, uint256 amountIn, uint24 fee) external payable;
     function payFinishTrip(
-        Schemas.Trip memory trip,
+        TripGatewayTypes.GatewayTrip memory trip,
         uint256 valueToHost,
         uint256 valueToGuest,
         uint256 totalIncome,
         uint256 tripCostValue
     ) external payable;
-    function payRejectTrip(Schemas.Trip memory trip, uint256 valueToReturnInToken) external;
+    function payRejectTrip(TripGatewayTypes.GatewayTrip memory trip, uint256 valueToReturnInToken) external;
 }
 
 interface ITripGatewayFacetCurrencyConverter {
-    function getUserCurrency(address user) external view returns (Schemas.UserCurrencyDTO memory);
+    function getUserCurrency(address user) external view returns (UserCurrencyInfo memory);
     function currencyTypeIsAvailable(address tokenAddress) external view returns (bool);
     function getFromUsdCentsLatest(address currencyType, uint256 amount) external view returns (uint256, int256, uint8);
     function getFromUsdCents(address currencyType, uint256 amountInUsdCents, int256 rate) external view returns (uint256);
     function calculateTripReject(
-        Schemas.PaymentInfo memory paymentInfo,
+        TripGatewayTypes.GatewayPaymentInfo memory paymentInfo,
         uint256 insurance,
         uint64 totalTax
     ) external pure returns (uint256);
 
     function calculateTripFinsish(
-        Schemas.PaymentInfo memory paymentInfo,
+        TripGatewayTypes.GatewayPaymentInfo memory paymentInfo,
         uint256 rentalityFee,
         uint256 feeOfPriceWithDiscount,
         uint256 insurancePriceInUsdCents,
@@ -101,7 +100,7 @@ interface ITripGatewayFacetReferralProgram {
 }
 
 interface ITripGatewayFacetNotificationService {
-    function emitEvent(Schemas.EventType eType, uint256 id, uint8 objectStatus, address from, address to) external;
+    function emitEvent(EventType eType, uint256 id, uint8 objectStatus, address from, address to) external;
 }
 
 
@@ -193,24 +192,24 @@ contract TripGatewayFacet is UUPSOwnable, ARentalityContext {
         return tripQuery.getTripContactInfo(tripId);
     }
 
-    function getTrip(uint256 tripId) external view returns (Schemas.TripDTO memory) {
+    function getTrip(uint256 tripId) external view returns (TripGatewayTypes.GatewayTripDTO memory) {
         return TripMapper.toLegacyTripDTO(tripQuery.getTripDTO(tripId, _msgGatewaySender()));
     }
 
-    function getTripsAs(bool host) external view returns (Schemas.TripDTO[] memory result) {
+    function getTripsAs(bool host) external view returns (TripGatewayTypes.GatewayTripDTO[] memory result) {
         TripDTO[] memory trips = tripQuery.getTripsAs(_msgGatewaySender(), host);
-        result = new Schemas.TripDTO[](trips.length);
+        result = new TripGatewayTypes.GatewayTripDTO[](trips.length);
         for (uint256 i = 0; i < trips.length; i++) {
             result[i] = TripMapper.toLegacyTripDTO(trips[i]);
         }
     }
 
-    function getChatInfoFor(bool host) external view returns (Schemas.ChatInfo[] memory result) {
+    function getChatInfoFor(bool host) external view returns (TripGatewayTypes.GatewayChatInfo[] memory result) {
         return tripQuery.getChatInfoFor(_msgGatewaySender(), host);
     }
 
     function createTripRequestWithDelivery(
-        Schemas.CreateTripRequestWithDelivery memory request,
+        TripGatewayTypes.GatewayCreateTripRequestWithDelivery memory request,
         string memory promo
     ) external payable {
         TripLib.createTripRequestWithDelivery(
@@ -234,10 +233,10 @@ contract TripGatewayFacet is UUPSOwnable, ARentalityContext {
         uint256 carId,
         uint64 daysOfTrip,
         address currency,
-        Schemas.LocationInfo memory pickUpLocation,
-        Schemas.LocationInfo memory returnLocation,
+        LocationInfo memory pickUpLocation,
+        LocationInfo memory returnLocation,
         string memory promo
-    ) external view returns (Schemas.CalculatePaymentsDTO memory) {
+    ) external view returns (TripGatewayTypes.GatewayCalculatePaymentsDTO memory) {
         return TripLib.calculatePaymentsWithDelivery(
             address(carQuery),
             address(pricingService),
@@ -336,14 +335,14 @@ contract TripGatewayFacet is UUPSOwnable, ARentalityContext {
 
         tripMain.checkInByHost(tripId, panelParams, insuranceCompany, insuranceNumber, sender);
         Trip memory trip = tripMain.getTrip(tripId);
-        _emitTripEvent(tripId, Schemas.TripStatus.CheckedInByHost, trip.booking.provider, trip.booking.customer);
+        _emitTripEvent(tripId, TripStatus.CheckedInByHost, trip.booking.provider, trip.booking.customer);
     }
 
     function checkInByGuest(uint256 tripId, uint64[] memory panelParams) external {
         address sender = _msgGatewaySender();
         tripMain.checkInByGuest(tripId, panelParams, sender);
         Trip memory trip = tripMain.getTrip(tripId);
-        _emitTripEvent(tripId, Schemas.TripStatus.CheckedInByGuest, trip.booking.customer, trip.booking.provider);
+        _emitTripEvent(tripId, TripStatus.CheckedInByGuest, trip.booking.customer, trip.booking.provider);
     }
 
     function checkOutByGuest(uint256 tripId, uint64[] memory panelParams) external {
@@ -359,14 +358,14 @@ contract TripGatewayFacet is UUPSOwnable, ARentalityContext {
 
         tripMain.checkOutByGuest(tripId, panelParams, sender);
         Trip memory trip = tripMain.getTrip(tripId);
-        _emitTripEvent(tripId, Schemas.TripStatus.CheckedOutByGuest, trip.booking.customer, trip.booking.provider);
+        _emitTripEvent(tripId, TripStatus.CheckedOutByGuest, trip.booking.customer, trip.booking.provider);
     }
 
     function checkOutByHost(uint256 tripId, uint64[] memory panelParams) external {
         address sender = _msgGatewaySender();
         tripMain.checkOutByHost(tripId, panelParams, sender);
         Trip memory trip = tripMain.getTrip(tripId);
-        _emitTripEvent(tripId, Schemas.TripStatus.CheckedOutByHost, trip.booking.provider, trip.booking.customer);
+        _emitTripEvent(tripId, TripStatus.CheckedOutByHost, trip.booking.provider, trip.booking.customer);
     }
 
     function isTrustedForwarder(address forwarder) internal view override returns (bool) {
@@ -374,11 +373,11 @@ contract TripGatewayFacet is UUPSOwnable, ARentalityContext {
     }
 
 
-    function _emitTripEvent(uint256 tripId, Schemas.TripStatus status, address from, address to) internal {
+    function _emitTripEvent(uint256 tripId, TripStatus status, address from, address to) internal {
         if (address(notificationService) == address(0)) {
             return;
         }
-        notificationService.emitEvent(Schemas.EventType.Trip, tripId, uint8(status), from, to);
+        notificationService.emitEvent(EventType.Trip, tripId, uint8(status), from, to);
     }
 
     function _setServiceAddresses(

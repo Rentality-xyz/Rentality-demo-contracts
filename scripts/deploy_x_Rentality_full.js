@@ -29,6 +29,7 @@ const commands = [
   { message: 'Deploying trip gateway facet..', command: command + 'deploy_4k_TripGatewayFacet.js' },
   { message: 'Deploying car gateway facet..', command: command + 'deploy_4l_CarGatewayFacet.js' },
   { message: 'Deploying car view gateway facet..', command: command + 'deploy_4m_CarViewGatewayFacet.js' },
+  { message: 'Deploying car view gateway facet 1..', command: command + 'deploy_4m1_CarViewGatewayFacet1.js' },
   { message: 'Deploying payment gateway facet..', command: command + 'deploy_4n_PaymentGatewayFacet.js' },
   { message: 'Deploying claim gateway facet..', command: command + 'deploy_4o_ClaimGatewayFacet.js' },
   { message: 'Deploying insurance gateway facet..', command: command + 'deploy_4p_InsuranceGatewayFacet.js' },

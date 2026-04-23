@@ -2,12 +2,11 @@
 pragma solidity ^0.8.20;
 
 import '../../infrastructure/upgradeable/UUPSOwnable.sol';
+import '../../models/base/referral/ReferralTypes.sol';
 import '../../models/referral/RentalReferralMain.sol';
 import '../../models/referral/RentalReferralQuery.sol';
-import '../../models/common/Schemas.sol';
 import '../ARentalityContext.sol';
 import './IReferralGatewayFacet.sol';
-import './ReferralMapper.sol';
 
 interface IReferralGatewayFacetAccess {
     function isRentalityPlatform(address user) external view returns (bool);
@@ -51,38 +50,36 @@ contract ReferralGatewayFacet is UUPSOwnable, ARentalityContext, IReferralGatewa
         return uint64(rentalReferralQuery.getCarDailyClaimedTime(carId));
     }
 
-    function getMyStartDiscount(address user) external view returns (Schemas.RefferalDiscount memory) {
-        return Schemas.RefferalDiscount({pointsCosts: 0, percents: rentalReferralQuery.getMyStartDiscount(user)});
+    function getMyStartDiscount(address user) external view returns (ReferralDiscount memory) {
+        return ReferralDiscount({pointsCosts: 0, percents: rentalReferralQuery.getMyStartDiscount(user)});
     }
 
-    function getReadyToClaim(address user) external view returns (Schemas.ReadyToClaimDTO memory readyToClaimDTO) {
-        return ReferralMapper.toLegacyReadyToClaimDTO(rentalReferralQuery.getReadyToClaim(user));
+    function getReadyToClaim(address user) external view returns (ReadyToClaimDTO memory readyToClaimDTO) {
+        return rentalReferralQuery.getReadyToClaim(user);
     }
 
     function getReadyToClaimFromRefferalHash(address user)
         external
         view
-        returns (Schemas.RefferalHashDTO memory refferalHashDTO)
+        returns (ReferralHashDTO memory refferalHashDTO)
     {
-        return ReferralMapper.toLegacyReferralHashDTO(rentalReferralQuery.getReadyToClaimFromHash(user));
+        return rentalReferralQuery.getReadyToClaimFromHash(user);
     }
 
     function getRefferalPointsInfo()
         external
         view
-        returns (Schemas.AllRefferalInfoDTO memory allRefferalInfoDTO)
+        returns (AllReferralInfoDTO memory allRefferalInfoDTO)
     {
-        return ReferralMapper.toLegacyAllReferralInfoDTO(rentalReferralQuery.getReferralPointsInfo());
+        return rentalReferralQuery.getReferralPointsInfo();
     }
 
-    function getPointsHistory() external view returns (Schemas.RefferalHistory[] memory) {
-        return ReferralMapper.toLegacyHistory(rentalReferralQuery.getPointsHistory(_msgGatewaySender()));
+    function getPointsHistory() external view returns (ReferralProgramHistory[] memory) {
+        return rentalReferralQuery.getPointsHistory(_msgGatewaySender());
     }
 
-    function getMyRefferalInfo() external view returns (Schemas.MyRefferalInfoDTO memory myRefferalInfoDTO) {
-        return ReferralMapper.toLegacyMyReferralInfo(
-            rentalReferralQuery.getMyReferralInfo(_msgGatewaySender())
-        );
+    function getMyRefferalInfo() external view returns (MyReferralInfoDTO memory myRefferalInfoDTO) {
+        return rentalReferralQuery.getMyReferralInfo(_msgGatewaySender());
     }
 
     function claimPoints(address user) external {

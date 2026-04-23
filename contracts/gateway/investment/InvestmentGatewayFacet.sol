@@ -4,11 +4,10 @@ pragma solidity ^0.8.20;
 import '../../infrastructure/upgradeable/UUPSOwnable.sol';
 import '../../models/investment/RentalInvestmentMain.sol';
 import '../../models/investment/RentalInvestmentQuery.sol';
+import '../../models/investment/RentalInvestmentTypes.sol';
 import '../../models/profile/UserProfileMain.sol';
-import '../../models/common/Schemas.sol';
 import '../ARentalityContext.sol';
 import './IInvestmentGatewayFacet.sol';
-import './InvestmentMapper.sol';
 
 contract InvestmentGatewayFacet is UUPSOwnable, ARentalityContext, IInvestmentGatewayFacet {
     RentalInvestmentMain public rentalInvestmentMain;
@@ -48,25 +47,23 @@ contract InvestmentGatewayFacet is UUPSOwnable, ARentalityContext, IInvestmentGa
         return rentalInvestmentQuery.getPaymentsInfo(carId);
     }
 
-    function getAllInvestments() external view returns (Schemas.InvestmentDTO[] memory investments) {
-        return InvestmentMapper.toLegacyInvestmentDTOs(
-            rentalInvestmentQuery.getAllInvestments(_msgGatewaySender(), userProfileMain.isInvestorManager(_msgGatewaySender()))
-        );
+    function getAllInvestments() external view returns (RentalInvestmentDTO[] memory investments) {
+        return rentalInvestmentQuery.getAllInvestments(_msgGatewaySender(), userProfileMain.isInvestorManager(_msgGatewaySender()));
     }
 
-    function createCarInvestment(Schemas.CarInvestment memory car, string memory name_, address currency) external {
+    function createCarInvestment(RentalCarInvestment memory car, string memory name_, address currency) external {
         rentalInvestmentMain.createCarInvestment(
-            InvestmentMapper.toModelInvestment(car),
+            car,
             name_,
             currency,
             _msgGatewaySender()
         );
     }
 
-    function claimAndCreatePool(uint256 investId, Schemas.CreateCarRequest memory createCarRequest) external {
+    function claimAndCreatePool(uint256 investId, RentalInvestmentCarRequest memory createCarRequest) external {
         rentalInvestmentMain.claimAndCreatePool(
             investId,
-            InvestmentMapper.toModelInvestmentCarRequest(createCarRequest),
+            createCarRequest,
             _msgGatewaySender()
         );
     }

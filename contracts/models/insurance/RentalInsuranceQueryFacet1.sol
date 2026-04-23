@@ -1,11 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import '../common/Schemas.sol';
+import '../car/CarTypes.sol';
+import '../profile/UserProfileTypes.sol';
+import '../base/insurance/InsuranceTypes.sol';
+import './RentalInsuranceTypes.sol';
 import '../trip/TripTypes.sol';
 
 interface IRentalInsuranceQueryFacet1CarService {
-  function getCarInfoById(uint256 carId) external view returns (Schemas.CarInfo memory);
+  function getCarInfoById(uint256 carId) external view returns (CarGatewayTypes.GatewayCarInfo memory);
 }
 
 interface IRentalInsuranceQueryFacet1TripQuery {
@@ -14,13 +17,13 @@ interface IRentalInsuranceQueryFacet1TripQuery {
 }
 
 interface IRentalInsuranceQueryFacet1UserService {
-  function getKYCInfo(address user) external view returns (Schemas.KYCInfo memory);
+  function getKYCInfo(address user) external view returns (UserProfileKYCInfo memory);
 }
 
 interface IRentalInsuranceQueryFacet1InsuranceService {
-  function getTripInsurances(uint256 tripId) external view returns (Schemas.InsuranceInfo[] memory);
-  function getMyInsurancesAsGuest(address user) external view returns (Schemas.InsuranceInfo[] memory);
-  function findActualInsurance(Schemas.InsuranceInfo[] memory insurances) external pure returns (uint256, uint256);
+  function getTripInsurances(uint256 tripId) external view returns (InsuranceInfo[] memory);
+  function getMyInsurancesAsGuest(address user) external view returns (InsuranceInfo[] memory);
+  function findActualInsurance(InsuranceInfo[] memory insurances) external pure returns (uint256, uint256);
 }
 
 contract RentalInsuranceQueryFacet1 {
@@ -41,30 +44,30 @@ contract RentalInsuranceQueryFacet1 {
     insuranceService = IRentalInsuranceQueryFacet1InsuranceService(insuranceServiceAddress);
   }
 
-  function getInsurancesBy(bool host, address user) external view returns (Schemas.InsuranceDTO[] memory) {
+  function getInsurancesBy(bool host, address user) external view returns (RentalInsuranceDTO[] memory) {
     return host ? _getTripInsurancesByHost(user) : _getTripInsurancesByGuest(user);
   }
 
-  function getMyInsurancesAsGuest(address user) external view returns (Schemas.InsuranceInfo[] memory) {
+  function getMyInsurancesAsGuest(address user) external view returns (InsuranceInfo[] memory) {
     return insuranceService.getMyInsurancesAsGuest(user);
   }
 
-  function _getTripInsurancesByGuest(address guest) internal view returns (Schemas.InsuranceDTO[] memory) {
+  function _getTripInsurancesByGuest(address guest) internal view returns (RentalInsuranceDTO[] memory) {
     uint256 itemCount;
     uint256[] memory userTrips = tripQuery.getTripsByUser(guest);
     for (uint256 i = 0; i < userTrips.length; i++) {
       itemCount += insuranceService.getTripInsurances(userTrips[i]).length;
     }
 
-    Schemas.InsuranceInfo[] memory guestInsurances = insuranceService.getMyInsurancesAsGuest(guest);
+    InsuranceInfo[] memory guestInsurances = insuranceService.getMyInsurancesAsGuest(guest);
     uint256 itemCountWithoutGuestInsurances = itemCount;
     itemCount += guestInsurances.length;
 
-    Schemas.InsuranceDTO[] memory insurances = new Schemas.InsuranceDTO[](itemCount);
+    RentalInsuranceDTO[] memory insurances = new RentalInsuranceDTO[](itemCount);
     uint256 counter;
     for (uint256 i = 0; i < userTrips.length; i++) {
       Trip memory trip = tripQuery.getTrip(userTrips[i]);
-      Schemas.InsuranceInfo[] memory tripInsurances = insuranceService.getTripInsurances(userTrips[i]);
+      InsuranceInfo[] memory tripInsurances = insuranceService.getTripInsurances(userTrips[i]);
       for (uint256 j = 0; j < tripInsurances.length; j++) {
         insurances[counter] = _fullFillInsuranceDTO(
           tripInsurances[j],
@@ -84,11 +87,11 @@ contract RentalInsuranceQueryFacet1 {
   }
 
   function _addGuestInsurances(
-    Schemas.InsuranceDTO[] memory insurances,
-    Schemas.InsuranceInfo[] memory guestInsurances,
+    RentalInsuranceDTO[] memory insurances,
+    InsuranceInfo[] memory guestInsurances,
     address guest,
     uint256 currentCount
-  ) internal view returns (Schemas.InsuranceDTO[] memory result) {
+  ) internal view returns (RentalInsuranceDTO[] memory result) {
     uint256 lastOneTimeTimestamp;
     uint256 lastGeneralTimestamp;
     uint256 lastOneTimeIndex;
@@ -98,13 +101,13 @@ contract RentalInsuranceQueryFacet1 {
     for (uint256 i = 0; i < guestInsurances.length; i++) {
       bool alreadyExists = false;
       for (uint256 j = 0; j < currentCount; j++) {
-        if (insurances[j].insuranceInfo.insuranceType == Schemas.InsuranceType.OneTime) {
+        if (insurances[j].insuranceInfo.insuranceType == InsuranceType.OneTime) {
           if (lastOneTimeTimestamp < insurances[j].insuranceInfo.createdTime) {
             lastOneTimeTimestamp = insurances[j].insuranceInfo.createdTime;
             lastOneTimeIndex = j;
           }
         }
-        if (insurances[j].insuranceInfo.insuranceType == Schemas.InsuranceType.General) {
+        if (insurances[j].insuranceInfo.insuranceType == InsuranceType.General) {
           if (lastGeneralTimestamp < insurances[j].insuranceInfo.createdTime) {
             lastGeneralTimestamp = insurances[j].insuranceInfo.createdTime;
             lastGeneralIndex = j;
@@ -150,7 +153,7 @@ contract RentalInsuranceQueryFacet1 {
   }
 
   function _fullFillInsuranceDTO(
-    Schemas.InsuranceInfo memory insuranceInfo,
+    InsuranceInfo memory insuranceInfo,
     bool isActual,
     uint64 startDateTime,
     uint64 endDateTime,
@@ -158,9 +161,9 @@ contract RentalInsuranceQueryFacet1 {
     bool createdByHost,
     uint256 carId,
     address creator
-  ) internal view returns (Schemas.InsuranceDTO memory result) {
-    Schemas.KYCInfo memory kyc = userService.getKYCInfo(creator);
-    Schemas.CarInfo memory car = carService.getCarInfoById(carId);
+  ) internal view returns (RentalInsuranceDTO memory result) {
+    UserProfileKYCInfo memory kyc = userService.getKYCInfo(creator);
+    CarGatewayTypes.GatewayCarInfo memory car = carService.getCarInfoById(carId);
     result.tripId = tripId;
     result.carBrand = car.brand;
     result.carModel = car.model;
@@ -174,22 +177,22 @@ contract RentalInsuranceQueryFacet1 {
     result.isActual = isActual;
   }
 
-  function _getTripInsurancesByHost(address host) internal view returns (Schemas.InsuranceDTO[] memory) {
+  function _getTripInsurancesByHost(address host) internal view returns (RentalInsuranceDTO[] memory) {
     uint256 itemCount;
     uint256[] memory userTrips = tripQuery.getTripsByUser(host);
     for (uint256 i = 0; i < userTrips.length; i++) {
       itemCount += insuranceService.getTripInsurances(userTrips[i]).length;
     }
 
-    Schemas.InsuranceDTO[] memory insurances = new Schemas.InsuranceDTO[](itemCount);
+    RentalInsuranceDTO[] memory insurances = new RentalInsuranceDTO[](itemCount);
     uint256 counter;
     for (uint256 i = 0; i < userTrips.length; i++) {
       Trip memory trip = tripQuery.getTrip(userTrips[i]);
-      Schemas.InsuranceInfo[] memory tripInsurances = insuranceService.getTripInsurances(userTrips[i]);
+      InsuranceInfo[] memory tripInsurances = insuranceService.getTripInsurances(userTrips[i]);
       (uint256 oneTimeActual, uint256 generalActual) = insuranceService.findActualInsurance(tripInsurances);
       for (uint256 j = 0; j < tripInsurances.length; j++) {
-        Schemas.KYCInfo memory kyc = userService.getKYCInfo(tripInsurances[j].createdBy);
-        Schemas.CarInfo memory car = carService.getCarInfoById(trip.booking.resourceId);
+        UserProfileKYCInfo memory kyc = userService.getKYCInfo(tripInsurances[j].createdBy);
+        CarGatewayTypes.GatewayCarInfo memory car = carService.getCarInfoById(trip.booking.resourceId);
         insurances[counter].tripId = userTrips[i];
         insurances[counter].carBrand = car.brand;
         insurances[counter].carModel = car.model;
@@ -201,8 +204,8 @@ contract RentalInsuranceQueryFacet1 {
         insurances[counter].startDateTime = trip.booking.startDateTime;
         insurances[counter].endDateTime = trip.booking.endDateTime;
         insurances[counter].isActual =
-          (j == oneTimeActual && tripInsurances[j].insuranceType == Schemas.InsuranceType.OneTime) ||
-          (j == generalActual && tripInsurances[j].insuranceType == Schemas.InsuranceType.General);
+          (j == oneTimeActual && tripInsurances[j].insuranceType == InsuranceType.OneTime) ||
+          (j == generalActual && tripInsurances[j].insuranceType == InsuranceType.General);
         counter += 1;
       }
     }

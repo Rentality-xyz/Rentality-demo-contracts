@@ -1,27 +1,29 @@
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import '../../models/common/Schemas.sol';
+import '../../models/common/CommonTypes.sol';
+import '../../models/trip/TripTypes.sol';
 
 interface ITripGatewayFacet {
     function getTripContactInfo(uint256 tripId)
         external
         view
         returns (string memory guestPhoneNumber, string memory hostPhoneNumber);
-    function getTrip(uint256 tripId) external view returns (Schemas.TripDTO memory);
-    function getTripsAs(bool host) external view returns (Schemas.TripDTO[] memory result);
-    function getChatInfoFor(bool host) external view returns (Schemas.ChatInfo[] memory result);
+    function getTrip(uint256 tripId) external view returns (TripGatewayTypes.GatewayTripDTO memory);
+    function getTripsAs(bool host) external view returns (TripGatewayTypes.GatewayTripDTO[] memory result);
+    function getChatInfoFor(bool host) external view returns (TripGatewayTypes.GatewayChatInfo[] memory result);
     function createTripRequestWithDelivery(
-        Schemas.CreateTripRequestWithDelivery memory request,
+        TripGatewayTypes.GatewayCreateTripRequestWithDelivery memory request,
         string memory promo
     ) external payable;
     function calculatePaymentsWithDelivery(
         uint256 carId,
         uint64 daysOfTrip,
         address currency,
-        Schemas.LocationInfo memory pickUpLocation,
-        Schemas.LocationInfo memory returnLocation,
+        LocationInfo memory pickUpLocation,
+        LocationInfo memory returnLocation,
         string memory promo
-    ) external view returns (Schemas.CalculatePaymentsDTO memory);
+    ) external view returns (TripGatewayTypes.GatewayCalculatePaymentsDTO memory);
     function approveTripRequest(uint256 tripId) external;
     function rejectTripRequest(uint256 tripId) external;
     function confirmCheckOut(uint256 tripId) external;

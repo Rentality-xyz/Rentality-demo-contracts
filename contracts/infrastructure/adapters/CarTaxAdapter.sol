@@ -4,7 +4,6 @@ pragma solidity ^0.8.20;
 import "../../models/car/CarQuery.sol";
 import "../../models/car/CarTypes.sol";
 import "../../models/base/asset/AssetTypes.sol";
-import "../../models/common/Schemas.sol";
 
 contract CarTaxAdapter {
     CarQuery public immutable carQuery;
@@ -17,9 +16,9 @@ contract CarTaxAdapter {
         return carQuery.getGeoVerifierAddress();
     }
 
-    function getCarInfoById(uint256 carId) external view returns (Schemas.CarInfo memory) {
+    function getCarInfoById(uint256 carId) external view returns (CarGatewayTypes.GatewayCarInfo memory) {
         if (!carQuery.exists(carId)) {
-            Schemas.CarInfo memory empty;
+            CarGatewayTypes.GatewayCarInfo memory empty;
             return empty;
         }
 
@@ -27,8 +26,8 @@ contract CarTaxAdapter {
         return _toLegacyCarInfo(car.asset, car.car);
     }
 
-    function _toLegacyCarInfo(Asset memory asset, CarData memory car) internal pure returns (Schemas.CarInfo memory) {
-        return Schemas.CarInfo({
+    function _toLegacyCarInfo(Asset memory asset, CarData memory car) internal pure returns (CarGatewayTypes.GatewayCarInfo memory) {
+        return CarGatewayTypes.GatewayCarInfo({
             carId: asset.id,
             carVinNumber: car.carVinNumber,
             carVinNumberHash: car.carVinNumberHash,

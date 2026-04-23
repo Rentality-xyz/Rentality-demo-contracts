@@ -3,10 +3,11 @@ pragma solidity ^0.8.20;
 
 import {Initializable as OZInitializable} from '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 import '../../infrastructure/upgradeable/UUPSOwnable.sol';
+import '../../infrastructure/services/AiDamageTypes.sol';
 import '../ARentalityContext.sol';
-import '../../models/common/Schemas.sol';
 import '../../models/claim/RentalClaimQuery.sol';
 import '../../models/claim/RentalClaimMain.sol';
+import '../../models/claim/RentalClaimTypes.sol';
 import './IClaimGatewayFacet.sol';
 
 interface IClaimGatewayUserAccess {
@@ -35,11 +36,11 @@ contract ClaimGatewayFacet is UUPSOwnable, ARentalityContext, IClaimGatewayFacet
     userAccess = IClaimGatewayUserAccess(userServiceAddress);
   }
 
-  function getMyClaimsAs(bool host) external view returns (Schemas.FullClaimInfo[] memory) {
+  function getMyClaimsAs(bool host) external view returns (FullClaimInfo[] memory) {
     return claimQuery.getMyClaimsAs(host, _msgGatewaySender());
   }
 
-  function getClaim(uint256 claimId) external view returns (Schemas.ClaimV2 memory) {
+  function getClaim(uint256 claimId) external view returns (RentalClaimInfoV2 memory) {
     return claimQuery.getClaim(claimId);
   }
 
@@ -47,15 +48,15 @@ contract ClaimGatewayFacet is UUPSOwnable, ARentalityContext, IClaimGatewayFacet
     return claimQuery.calculateClaimValue(claimId);
   }
 
-  function getAiDamageAnalyzeCaseRequest(uint tripId, Schemas.CaseType caseType)
+  function getAiDamageAnalyzeCaseRequest(uint tripId, CaseType caseType)
     external
     view
-    returns (Schemas.AiDamageAnalyzeCaseRequestDTO memory aiDamageAnalyzeCaseRequest)
+    returns (AiDamageAnalyzeCaseRequestDTO memory aiDamageAnalyzeCaseRequest)
   {
     return claimQuery.getAiDamageAnalyzeCaseRequest(tripId, caseType, _msgGatewaySender());
   }
 
-  function createClaim(Schemas.CreateClaimRequest memory request, bool isInsuranceClaim) external {
+  function createClaim(CreateClaimRequest memory request, bool isInsuranceClaim) external {
     claimMain.createClaim(request, isInsuranceClaim, _msgGatewaySender());
   }
 

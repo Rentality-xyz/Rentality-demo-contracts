@@ -4,29 +4,31 @@ pragma solidity ^0.8.20;
 import {Initializable as OZInitializable} from '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 import '../../infrastructure/upgradeable/UUPSOwnable.sol';
 import '../../models/payment/RentalPaymentQuery.sol';
+import '../../models/payment/RentalPaymentTypes.sol';
+import '../../models/pricing/RentalPricingTypes.sol';
+import '../../models/common/CommonTypes.sol';
 import '../ARentalityContext.sol';
-import '../../models/common/Schemas.sol';
 import './IPaymentGatewayFacet.sol';
 
 interface IPaymentGatewayFacetSwaps {
-  function getAllowedCurrencies() external view returns (Schemas.AllowedCurrencyDTO[] memory);
+  function getAllowedCurrencies() external view returns (RentalAllowedCurrencyDTO[] memory);
 }
 
 interface IPaymentGatewayFacetLegacyPaymentService {
-  function getBaseDiscount(address user) external view returns (Schemas.BaseDiscount memory);
-  function getTaxesInfoById(uint taxId) external view returns (Schemas.TaxesInfoDTO memory);
-  function addBaseDiscount(address user, Schemas.BaseDiscount memory data) external;
+  function getBaseDiscount(address user) external view returns (RentalBaseDiscount memory);
+  function getTaxesInfoById(uint taxId) external view returns (RentalTaxesInfo memory);
+  function addBaseDiscount(address user, RentalBaseDiscount memory data) external;
 }
 
 interface IPaymentGatewayFacetPromoService {
   function checkPromo(string memory promo, uint startDateTime, uint endDateTime)
     external
     view
-    returns (Schemas.CheckPromoDTO memory);
+    returns (RentalCheckPromoDTO memory);
 }
 
 interface IPaymentGatewayFacetCurrencyConverter {
-  function getAllCurrencies() external view returns (Schemas.Currency[] memory);
+  function getAllCurrencies() external view returns (RentalCurrency[] memory);
 }
 
 interface IPaymentGatewayFacetUserAccess {
@@ -34,7 +36,7 @@ interface IPaymentGatewayFacetUserAccess {
 }
 
 interface IPaymentGatewayFacetNotificationService {
-  function emitEvent(Schemas.EventType eType, uint256 id, uint8 objectStatus, address from, address to) external;
+  function emitEvent(EventType eType, uint256 id, uint8 objectStatus, address from, address to) external;
 }
 
 contract PaymentGatewayFacet is UUPSOwnable, ARentalityContext, IPaymentGatewayFacet {
@@ -86,34 +88,34 @@ contract PaymentGatewayFacet is UUPSOwnable, ARentalityContext, IPaymentGatewayF
     );
   }
 
-  function getAvailableCurrency() external view returns (Schemas.AllowedCurrencyDTO[] memory) {
+  function getAvailableCurrency() external view returns (RentalAllowedCurrencyDTO[] memory) {
     return IPaymentGatewayFacetSwaps(paymentQuery.getSwapsAddress()).getAllowedCurrencies();
   }
 
-  function getDiscount(address user) external view returns (Schemas.BaseDiscount memory) {
+  function getDiscount(address user) external view returns (RentalBaseDiscount memory) {
     return legacyPaymentService.getBaseDiscount(user);
   }
 
   function checkPromo(string memory promo, uint startDateTime, uint endDateTime)
     external
     view
-    returns (Schemas.CheckPromoDTO memory)
+    returns (RentalCheckPromoDTO memory)
   {
     return promoService.checkPromo(promo, startDateTime, endDateTime);
   }
 
-  function getAvaibleCurrencies() external view returns (Schemas.Currency[] memory) {
+  function getAvaibleCurrencies() external view returns (RentalCurrency[] memory) {
     return currencyConverter.getAllCurrencies();
   }
 
-  function getTaxesInfoById(uint taxId) external view returns (Schemas.TaxesInfoDTO memory) {
+  function getTaxesInfoById(uint taxId) external view returns (RentalTaxesInfo memory) {
     return legacyPaymentService.getTaxesInfoById(taxId);
   }
 
-  function addUserDiscount(Schemas.BaseDiscount memory data) external {
+  function addUserDiscount(RentalBaseDiscount memory data) external {
     address sender = _msgGatewaySender();
     legacyPaymentService.addBaseDiscount(sender, data);
-    notificationService.emitEvent(Schemas.EventType.Discount, 0, uint8(Schemas.EventCreator.User), sender, sender);
+    notificationService.emitEvent(EventType.Discount, 0, uint8(EventCreator.User), sender, sender);
   }
 
   function isTrustedForwarder(address forwarder) internal view override returns (bool) {

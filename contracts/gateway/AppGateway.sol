@@ -3,15 +3,18 @@ pragma solidity ^0.8.20;
 
 import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol';
 import '../infrastructure/upgradeable/UUPSOwnable.sol';
-import '../models/common/Schemas.sol';
+import '../models/common/CommonTypes.sol';
 import {LibDiamond} from './LibDiamond.sol';
-import {RentalityNotificationService} from '../rentality_old/features/RentalityNotificationService.sol';
+
+interface IAppGatewayNotificationService {
+  function emitEvent(EventType eType, uint256 id, uint8 objectStatus, address from, address to) external;
+}
 
 /// @title AppGateway
 /// @notice Single external Rentality entrypoint that routes selectors to gateway facets.
 contract AppGateway is UUPSOwnable, ReentrancyGuardUpgradeable {
   address private l0Sender;
-  RentalityNotificationService private notificationService;
+  IAppGatewayNotificationService private notificationService;
 
   fallback(bytes calldata data) external payable nonReentrant returns (bytes memory) {
     bytes memory dataToSend;
@@ -44,14 +47,14 @@ contract AppGateway is UUPSOwnable, ReentrancyGuardUpgradeable {
 
     (bool ok, bytes memory res) = address(facet).call{value: msg.value}(dataToSend);
     if (isCrossChain) {
-      Schemas.CrassChainMessageStatus status = Schemas.CrassChainMessageStatus.Success;
+      CrassChainMessageStatus status = CrassChainMessageStatus.Success;
       if (!ok && msg.value > 0) {
-        status = Schemas.CrassChainMessageStatus.PayableFail;
+        status = CrassChainMessageStatus.PayableFail;
       } else if (!ok) {
-        status = Schemas.CrassChainMessageStatus.Fail;
+        status = CrassChainMessageStatus.Fail;
       }
 
-      notificationService.emitEvent(Schemas.EventType.CrassChainMessage, 0, uint8(status), sender, sender);
+      notificationService.emitEvent(EventType.CrassChainMessage, 0, uint8(status), sender, sender);
     }
     return _parseResult(ok, res);
   }
@@ -74,7 +77,7 @@ contract AppGateway is UUPSOwnable, ReentrancyGuardUpgradeable {
   }
 
   function setNotificationService(address notificationServiceAddress) public onlyOwner {
-    notificationService = RentalityNotificationService(notificationServiceAddress);
+    notificationService = IAppGatewayNotificationService(notificationServiceAddress);
   }
 
   function diamondCut(LibDiamond.FacetCut[] memory _diamondCut) public onlyOwner {

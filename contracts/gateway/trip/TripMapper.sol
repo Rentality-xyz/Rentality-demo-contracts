@@ -2,11 +2,11 @@
 pragma solidity ^0.8.20;
 
 import "../../models/trip/TripTypes.sol";
-import "../../models/common/Schemas.sol";
+import "../../models/common/CommonTypes.sol";
 
 library TripMapper {
-    function toLegacyTripDTO(TripDTO memory tripDto) external pure returns (Schemas.TripDTO memory) {
-        return Schemas.TripDTO({
+    function toLegacyTripDTO(TripDTO memory tripDto) external pure returns (TripGatewayTypes.GatewayTripDTO memory) {
+        return TripGatewayTypes.GatewayTripDTO({
             trip: toLegacyTrip(tripDto.trip),
             guestPhotoUrl: tripDto.guestPhotoUrl,
             hostPhotoUrl: tripDto.hostPhotoUrl,
@@ -36,11 +36,11 @@ library TripMapper {
         });
     }
 
-    function toLegacyTrip(Trip memory trip) public pure returns (Schemas.Trip memory) {
-        return Schemas.Trip({
+    function toLegacyTrip(Trip memory trip) public pure returns (TripGatewayTypes.GatewayTrip memory) {
+        return TripGatewayTypes.GatewayTrip({
             tripId: trip.booking.id,
             carId: trip.booking.resourceId,
-            status: Schemas.TripStatus(uint8(trip.status)),
+            status: TripGatewayTypes.GatewayTripStatus(uint8(trip.status)),
             guest: trip.booking.customer,
             host: trip.booking.provider,
             guestName: trip.guestName,
@@ -73,8 +73,8 @@ library TripMapper {
         });
     }
 
-    function toLegacyPaymentInfo(TripPaymentInfo memory paymentInfo) public pure returns (Schemas.PaymentInfo memory) {
-        return Schemas.PaymentInfo({
+    function toLegacyPaymentInfo(TripPaymentInfo memory paymentInfo) public pure returns (TripGatewayTypes.GatewayPaymentInfo memory) {
+        return TripGatewayTypes.GatewayPaymentInfo({
             tripId: paymentInfo.tripId,
             from: paymentInfo.from,
             to: paymentInfo.to,
@@ -97,19 +97,19 @@ library TripMapper {
     function toLegacyTransactionInfo(TripTransactionInfo memory transactionInfo)
         public
         pure
-        returns (Schemas.TransactionInfo memory)
+        returns (TripGatewayTypes.GatewayTransactionInfo memory)
     {
-        return Schemas.TransactionInfo({
+        return TripGatewayTypes.GatewayTransactionInfo({
             rentalityFee: transactionInfo.rentalityFee,
             depositRefund: transactionInfo.depositRefund,
             tripEarnings: transactionInfo.tripEarnings,
             dateTime: transactionInfo.dateTime,
-            statusBeforeCancellation: Schemas.TripStatus(uint8(transactionInfo.statusBeforeCancellation))
+            statusBeforeCancellation: TripGatewayTypes.GatewayTripStatus(uint8(transactionInfo.statusBeforeCancellation))
         });
     }
 
-    function toLegacyLocation(LocationInfo memory location) public pure returns (Schemas.LocationInfo memory) {
-        return Schemas.LocationInfo({
+    function toLegacyLocation(LocationInfo memory location) public pure returns (LocationInfo memory) {
+        return LocationInfo({
             userAddress: location.userAddress,
             country: location.country,
             state: location.state,
@@ -123,16 +123,16 @@ library TripMapper {
     function toLegacyInsuranceInfos(TripInsuranceInfo[] memory insurances)
         public
         pure
-        returns (Schemas.InsuranceInfo[] memory result)
+        returns (TripGatewayTypes.GatewayInsuranceInfo[] memory result)
     {
-        result = new Schemas.InsuranceInfo[](insurances.length);
+        result = new TripGatewayTypes.GatewayInsuranceInfo[](insurances.length);
         for (uint256 i = 0; i < insurances.length; i++) {
-            result[i] = Schemas.InsuranceInfo({
+            result[i] = TripGatewayTypes.GatewayInsuranceInfo({
                 companyName: insurances[i].companyName,
                 policyNumber: insurances[i].policyNumber,
                 photo: insurances[i].photo,
                 comment: insurances[i].comment,
-                insuranceType: Schemas.InsuranceType(insurances[i].insuranceType),
+                insuranceType: TripGatewayTypes.GatewayInsuranceType(insurances[i].insuranceType),
                 createdTime: insurances[i].createdTime,
                 createdBy: insurances[i].createdBy
             });
@@ -142,14 +142,14 @@ library TripMapper {
     function toLegacyTaxValues(TripTaxValue[] memory taxes)
         public
         pure
-        returns (Schemas.TaxValue[] memory result)
+        returns (TripGatewayTypes.GatewayTaxValue[] memory result)
     {
-        result = new Schemas.TaxValue[](taxes.length);
+        result = new TripGatewayTypes.GatewayTaxValue[](taxes.length);
         for (uint256 i = 0; i < taxes.length; i++) {
-            result[i] = Schemas.TaxValue({
+            result[i] = TripGatewayTypes.GatewayTaxValue({
                 name: taxes[i].name,
                 value: taxes[i].value,
-                tType: Schemas.TaxesType(taxes[i].taxType)
+                tType: TripGatewayTypes.GatewayTaxesType(taxes[i].taxType)
             });
         }
     }
@@ -157,9 +157,9 @@ library TripMapper {
     function toLegacyUserCurrency(TripUserCurrency memory currency)
         public
         pure
-        returns (Schemas.UserCurrencyDTO memory)
+        returns (TripGatewayTypes.GatewayUserCurrencyDTO memory)
     {
-        return Schemas.UserCurrencyDTO({
+        return TripGatewayTypes.GatewayUserCurrencyDTO({
             currency: currency.currency,
             name: currency.name,
             initialized: currency.initialized

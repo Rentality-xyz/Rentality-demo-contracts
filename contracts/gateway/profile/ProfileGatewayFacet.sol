@@ -3,10 +3,10 @@ pragma solidity ^0.8.20;
 
 import '../../infrastructure/upgradeable/UUPSOwnable.sol';
 import '../../models/base/referral/ReferralTypes.sol';
+import '../../models/common/CommonTypes.sol';
 import '../../models/profile/UserProfileMain.sol';
 import '../../models/profile/UserProfileQuery.sol';
 import '../../models/profile/UserProfileTypes.sol';
-import '../../models/common/Schemas.sol';
 import '../ARentalityContext.sol';
 import './IProfileGatewayFacet.sol';
 import './ProfileMapper.sol';
@@ -25,7 +25,7 @@ interface IProfileGatewayFacetReferralProgram {
 interface IProfileGatewayFacetPromoService {}
 
 interface IProfileGatewayFacetNotificationService {
-    function emitEvent(Schemas.EventType eType, uint256 id, uint8 objectStatus, address from, address to) external;
+    function emitEvent(EventType eType, uint256 id, uint8 objectStatus, address from, address to) external;
 }
 
 interface IProfileGatewayFacetPaymentService {
@@ -34,8 +34,8 @@ interface IProfileGatewayFacetPaymentService {
 
 interface IProfileGatewayFacetCurrencyConverter {
     function currencyTypeIsAvailable(address tokenAddress) external view returns (bool);
-    function getCurrencyInfo(address currency) external view returns (Schemas.UserCurrencyDTO memory);
-    function getDefaultCurrency() external view returns (Schemas.UserCurrencyDTO memory);
+    function getCurrencyInfo(address currency) external view returns (UserCurrencyInfo memory);
+    function getDefaultCurrency() external view returns (UserCurrencyInfo memory);
     function getFromUsdCentsLatest(address currencyType, uint256 amount)
         external
         view
@@ -115,19 +115,19 @@ contract ProfileGatewayFacet is UUPSOwnable, ARentalityContext, IProfileGatewayF
         );
     }
 
-    function getMyFullKYCInfo() external view returns (Schemas.FullKYCInfoDTO memory) {
+    function getMyFullKYCInfo() external view returns (GatewayFullUserProfileInfo memory) {
         return ProfileMapper.toLegacyFull(userProfileQuery.getMyFullKYCInfo(_msgGatewaySender()));
     }
 
     function getPlatformUsersKYCInfos(uint256 page, uint256 itemsPerPage)
         external
         view
-        returns (Schemas.AdminKYCInfosDTO memory)
+        returns (GatewayAdminUserProfilePage memory)
     {
         return ProfileMapper.toLegacyAdminPage(userProfileQuery.getPlatformUsersKYCInfos(page, itemsPerPage));
     }
 
-    function getUserFullKYCInfo(address user) external view returns (Schemas.FullKYCInfoDTO memory) {
+    function getUserFullKYCInfo(address user) external view returns (GatewayFullUserProfileInfo memory) {
         return ProfileMapper.toLegacyFull(userProfileQuery.getMyFullKYCInfo(user));
     }
 
@@ -140,8 +140,8 @@ contract ProfileGatewayFacet is UUPSOwnable, ARentalityContext, IProfileGatewayF
         return result;
     }
 
-    function getPlatformInfo() external view returns (Schemas.PlatformInfoDTO memory) {
-        return Schemas.PlatformInfoDTO({
+    function getPlatformInfo() external view returns (PlatformInfoDTO memory) {
+        return PlatformInfoDTO({
             totalUsers: userProfileQuery.getPlatformUsersCount(),
             totalTrips: tripQuery.totalSupply(),
             totalCars: carService.totalSupply()
@@ -161,10 +161,10 @@ contract ProfileGatewayFacet is UUPSOwnable, ARentalityContext, IProfileGatewayF
         require(currencyConverter.currencyTypeIsAvailable(currency), 'Currency not available.');
         address sender = _msgGatewaySender();
         userProfileMain.setUserCurrency(sender, currency);
-        notificationService.emitEvent(Schemas.EventType.Currency, 0, uint8(Schemas.EventCreator.User), sender, sender);
+        notificationService.emitEvent(EventType.Currency, 0, uint8(EventCreator.User), sender, sender);
     }
 
-    function getUserCurrency(address user) external view returns (Schemas.UserCurrencyDTO memory result) {
+    function getUserCurrency(address user) external view returns (UserCurrencyInfo memory result) {
         (address currency, bool initialized) = userProfileQuery.getUserCurrency(user);
         if (initialized) {
             result = currencyConverter.getCurrencyInfo(currency);
@@ -200,7 +200,7 @@ contract ProfileGatewayFacet is UUPSOwnable, ARentalityContext, IProfileGatewayF
             sender
         );
 
-        notificationService.emitEvent(Schemas.EventType.User, 0, 0, sender, sender);
+        notificationService.emitEvent(EventType.User, 0, 0, sender, sender);
     }
 
     function setPhoneNumber(address user, string memory phone, bool isVerified) external {
@@ -211,7 +211,7 @@ contract ProfileGatewayFacet is UUPSOwnable, ARentalityContext, IProfileGatewayF
         userProfileMain.setEmail(user, email, isVerified);
     }
 
-    function setCivicKYCInfo(address user, Schemas.CivicKYCInfo memory civicKycInfo) external {
+    function setCivicKYCInfo(address user, GatewayCivicUserProfileInfo memory civicKycInfo) external {
         referralProgram.passReferralProgram(ReferralProgram.PassCivic, bytes(''), user, address(promoService));
         userProfileMain.setCivicKYCInfo(user, ProfileMapper.toUserCivicInfo(civicKycInfo));
     }

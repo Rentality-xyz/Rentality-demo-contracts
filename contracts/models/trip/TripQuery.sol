@@ -7,7 +7,6 @@ import "./TripTypes.sol";
 import "./../car/CarTypes.sol";
 import "./../profile/UserProfileTypes.sol";
 import "../common/CommonTypes.sol";
-import "../common/Schemas.sol";
 
 interface ITripQueryUserProfileQuery {
     function getKYCInfo(address user) external view returns (UserProfileKYCInfo memory);
@@ -24,13 +23,13 @@ interface ITripQueryGeoService {
 }
 
 interface ITripQueryInsuranceService {
-    function getTripInsurances(uint256 tripId) external view returns (Schemas.InsuranceInfo[] memory);
+    function getTripInsurances(uint256 tripId) external view returns (TripGatewayTypes.GatewayInsuranceInfo[] memory);
     function getInsurancePriceByTrip(uint256 tripId) external view returns (uint256);
 }
 
 interface ITripQueryPromoService {
     function getTripDiscount(uint256 tripId) external view returns (uint256);
-    function getPromoTripInfo(uint256 tripId, address guest) external view returns (Schemas.PromoDTO memory);
+    function getPromoTripInfo(uint256 tripId, address guest) external view returns (TripGatewayTypes.GatewayPromoDTO memory);
 }
 
 interface ITripQueryDimoService {
@@ -38,11 +37,11 @@ interface ITripQueryDimoService {
 }
 
 interface ITripQueryPaymentService {
-    function getTripTaxesDTO(uint256 tripId) external view returns (Schemas.TaxValue[] memory);
+    function getTripTaxesDTO(uint256 tripId) external view returns (TripGatewayTypes.GatewayTaxValue[] memory);
 }
 
 interface ITripQueryCurrencyConverter {
-    function getCurrencyInfo(address currency) external view returns (Schemas.UserCurrencyDTO memory);
+    function getCurrencyInfo(address currency) external view returns (TripGatewayTypes.GatewayUserCurrencyDTO memory);
     function getToUsd(address tokenAddress, uint256 tokenValue, int256 tokenToUsd) external view returns (uint256);
 }
 
@@ -185,10 +184,10 @@ contract TripQuery {
         return result;
     }
 
-    function getAllTrips(Schemas.TripFilter memory filter, uint256 page, uint256 itemsPerPage)
+    function getAllTrips(TripGatewayTypes.GatewayTripFilter memory filter, uint256 page, uint256 itemsPerPage)
         external
         view
-        returns (Schemas.AllTripsDTO memory)
+        returns (TripGatewayTypes.GatewayAllTripsDTO memory)
     {
         uint256 totalTripsCount = tripMain.totalSupply();
         uint256[] memory matchedTrips = new uint256[](totalTripsCount);
@@ -202,7 +201,7 @@ contract TripQuery {
         }
 
         if (counter == 0) {
-            return Schemas.AllTripsDTO(new Schemas.AdminTripDTO[](0), 0);
+            return TripGatewayTypes.GatewayAllTripsDTO(new TripGatewayTypes.GatewayAdminTripDTO[](0), 0);
         }
 
         uint256 totalPageCount = (counter + itemsPerPage - 1) / itemsPerPage;
@@ -219,25 +218,25 @@ contract TripQuery {
             endIndex = counter;
         }
 
-        Schemas.AdminTripDTO[] memory result = new Schemas.AdminTripDTO[](endIndex - startIndex);
+        TripGatewayTypes.GatewayAdminTripDTO[] memory result = new TripGatewayTypes.GatewayAdminTripDTO[](endIndex - startIndex);
         for (uint256 i = startIndex; i < endIndex; i++) {
             Trip memory trip = getTrip(matchedTrips[i]);
-            Schemas.Trip memory legacyTrip = TripLib.toLegacyTrip(trip);
+            TripGatewayTypes.GatewayTrip memory legacyTrip = TripLib.toLegacyTrip(trip);
             CarInfo memory car = carQuery.getCar(legacyTrip.carId);
-            result[i - startIndex] = Schemas.AdminTripDTO({
+            result[i - startIndex] = TripGatewayTypes.GatewayAdminTripDTO({
                 trip: legacyTrip,
                 carMetadataURI: car.asset.metadataURI,
-                carLocation: _toLegacyLocationInfo(geoService.getLocationInfo(car.car.locationHash)),
+                carLocation: geoService.getLocationInfo(car.car.locationHash),
                 promoInfo: promoService.getPromoTripInfo(legacyTrip.tripId, legacyTrip.guest)
             });
         }
 
-        return Schemas.AllTripsDTO(result, totalPageCount);
+        return TripGatewayTypes.GatewayAllTripsDTO(result, totalPageCount);
     }
 
-    function getChatInfoFor(address user, bool host) external view returns (Schemas.ChatInfo[] memory result) {
+    function getChatInfoFor(address user, bool host) external view returns (TripGatewayTypes.GatewayChatInfo[] memory result) {
         TripDTO[] memory trips = getTripsAs(user, host);
-        result = new Schemas.ChatInfo[](trips.length);
+        result = new TripGatewayTypes.GatewayChatInfo[](trips.length);
 
         for (uint256 i = 0; i < trips.length; i++) {
             Trip memory trip = trips[i].trip;
@@ -245,7 +244,7 @@ contract TripQuery {
             UserProfileKYCInfo memory hostInfo = userProfileQuery.getKYCInfo(trip.booking.provider);
             CarInfo memory car = carQuery.getCar(trip.booking.resourceId);
 
-            Schemas.ChatInfo memory chatInfo;
+            TripGatewayTypes.GatewayChatInfo memory chatInfo;
             chatInfo.tripId = trip.booking.id;
             chatInfo.guestAddress = trip.booking.customer;
             chatInfo.guestName = guestInfo.surname;
@@ -267,7 +266,7 @@ contract TripQuery {
         }
     }
 
-    function _isTripMatch(Schemas.TripFilter memory filter, Schemas.Trip memory trip) internal view returns (bool) {
+    function _isTripMatch(TripGatewayTypes.GatewayTripFilter memory filter, TripGatewayTypes.GatewayTrip memory trip) internal view returns (bool) {
         LocationInfo memory locationInfo = geoService.getLocationInfo(carQuery.getCar(trip.carId).car.locationHash);
 
         return (
@@ -280,98 +279,98 @@ contract TripQuery {
         );
     }
 
-    function _matchesPaymentStatus(Schemas.PaymentStatus paymentStatus, Schemas.Trip memory trip)
+    function _matchesPaymentStatus(TripGatewayTypes.GatewayPaymentStatus paymentStatus, TripGatewayTypes.GatewayTrip memory trip)
         internal
         pure
         returns (bool)
     {
         return
-            paymentStatus == Schemas.PaymentStatus.Any ||
-            (paymentStatus == Schemas.PaymentStatus.PaidToHost && trip.status == Schemas.TripStatus.Finished) ||
+            paymentStatus == TripGatewayTypes.GatewayPaymentStatus.Any ||
+            (paymentStatus == TripGatewayTypes.GatewayPaymentStatus.PaidToHost && trip.status == TripGatewayTypes.GatewayTripStatus.Finished) ||
             (
-                paymentStatus == Schemas.PaymentStatus.Prepayment &&
+                paymentStatus == TripGatewayTypes.GatewayPaymentStatus.Prepayment &&
                     (
-                        trip.status == Schemas.TripStatus.Created ||
-                        trip.status == Schemas.TripStatus.Approved ||
-                        trip.status == Schemas.TripStatus.CheckedInByHost ||
-                        (trip.status == Schemas.TripStatus.CheckedInByGuest && trip.tripStartedBy == trip.guest) ||
-                        (trip.status == Schemas.TripStatus.CheckedOutByGuest && trip.tripFinishedBy == trip.guest) ||
-                        (trip.status == Schemas.TripStatus.CheckedOutByHost && trip.tripFinishedBy == trip.guest)
+                        trip.status == TripGatewayTypes.GatewayTripStatus.Created ||
+                        trip.status == TripGatewayTypes.GatewayTripStatus.Approved ||
+                        trip.status == TripGatewayTypes.GatewayTripStatus.CheckedInByHost ||
+                        (trip.status == TripGatewayTypes.GatewayTripStatus.CheckedInByGuest && trip.tripStartedBy == trip.guest) ||
+                        (trip.status == TripGatewayTypes.GatewayTripStatus.CheckedOutByGuest && trip.tripFinishedBy == trip.guest) ||
+                        (trip.status == TripGatewayTypes.GatewayTripStatus.CheckedOutByHost && trip.tripFinishedBy == trip.guest)
                     )
             ) ||
-            (paymentStatus == Schemas.PaymentStatus.RefundToGuest && trip.status == Schemas.TripStatus.Canceled) ||
+            (paymentStatus == TripGatewayTypes.GatewayPaymentStatus.RefundToGuest && trip.status == TripGatewayTypes.GatewayTripStatus.Canceled) ||
             (
-                paymentStatus == Schemas.PaymentStatus.Unpaid &&
+                paymentStatus == TripGatewayTypes.GatewayPaymentStatus.Unpaid &&
                     (
-                        (trip.status == Schemas.TripStatus.CheckedInByGuest && trip.tripStartedBy == trip.host) ||
-                        (trip.status == Schemas.TripStatus.CheckedOutByHost && trip.tripFinishedBy == trip.host)
+                        (trip.status == TripGatewayTypes.GatewayTripStatus.CheckedInByGuest && trip.tripStartedBy == trip.host) ||
+                        (trip.status == TripGatewayTypes.GatewayTripStatus.CheckedOutByHost && trip.tripFinishedBy == trip.host)
                     )
             );
     }
 
-    function _matchesAdminStatus(Schemas.AdminTripStatus status, Schemas.Trip memory trip)
+    function _matchesAdminStatus(TripGatewayTypes.GatewayAdminTripStatus status, TripGatewayTypes.GatewayTrip memory trip)
         internal
         view
         returns (bool)
     {
         return
-            status == Schemas.AdminTripStatus.Any ||
-            (status == Schemas.AdminTripStatus.Created && trip.status == Schemas.TripStatus.Created) ||
-            (status == Schemas.AdminTripStatus.Approved && trip.status == Schemas.TripStatus.Approved) ||
-            (status == Schemas.AdminTripStatus.CheckedInByHost && trip.status == Schemas.TripStatus.CheckedInByHost) ||
+            status == TripGatewayTypes.GatewayAdminTripStatus.Any ||
+            (status == TripGatewayTypes.GatewayAdminTripStatus.Created && trip.status == TripGatewayTypes.GatewayTripStatus.Created) ||
+            (status == TripGatewayTypes.GatewayAdminTripStatus.Approved && trip.status == TripGatewayTypes.GatewayTripStatus.Approved) ||
+            (status == TripGatewayTypes.GatewayAdminTripStatus.CheckedInByHost && trip.status == TripGatewayTypes.GatewayTripStatus.CheckedInByHost) ||
             (
-                status == Schemas.AdminTripStatus.CheckedInByGuest &&
-                    trip.status == Schemas.TripStatus.CheckedInByGuest &&
+                status == TripGatewayTypes.GatewayAdminTripStatus.CheckedInByGuest &&
+                    trip.status == TripGatewayTypes.GatewayTripStatus.CheckedInByGuest &&
                     trip.tripStartedBy == trip.guest
             ) ||
             (
-                status == Schemas.AdminTripStatus.CheckedOutByGuest &&
-                    trip.status == Schemas.TripStatus.CheckedOutByGuest &&
+                status == TripGatewayTypes.GatewayAdminTripStatus.CheckedOutByGuest &&
+                    trip.status == TripGatewayTypes.GatewayTripStatus.CheckedOutByGuest &&
                     trip.tripFinishedBy == trip.guest
             ) ||
             (
-                status == Schemas.AdminTripStatus.CheckedOutByHost &&
-                    trip.status == Schemas.TripStatus.CheckedOutByHost &&
+                status == TripGatewayTypes.GatewayAdminTripStatus.CheckedOutByHost &&
+                    trip.status == TripGatewayTypes.GatewayTripStatus.CheckedOutByHost &&
                     trip.tripFinishedBy == trip.guest
             ) ||
-            (status == Schemas.AdminTripStatus.Finished && trip.status == Schemas.TripStatus.Finished) ||
+            (status == TripGatewayTypes.GatewayAdminTripStatus.Finished && trip.status == TripGatewayTypes.GatewayTripStatus.Finished) ||
             (
-                status == Schemas.AdminTripStatus.GuestCanceledBeforeApprove &&
-                    trip.status == Schemas.TripStatus.Canceled &&
+                status == TripGatewayTypes.GatewayAdminTripStatus.GuestCanceledBeforeApprove &&
+                    trip.status == TripGatewayTypes.GatewayTripStatus.Canceled &&
                     trip.approvedDateTime == 0 &&
                     trip.rejectedBy == trip.guest
             ) ||
             (
-                status == Schemas.AdminTripStatus.HostCanceledBeforeApprove &&
-                    trip.status == Schemas.TripStatus.Canceled &&
+                status == TripGatewayTypes.GatewayAdminTripStatus.HostCanceledBeforeApprove &&
+                    trip.status == TripGatewayTypes.GatewayTripStatus.Canceled &&
                     trip.approvedDateTime == 0 &&
                     trip.rejectedBy == trip.host
             ) ||
             (
-                status == Schemas.AdminTripStatus.GuestCanceledAfterApprove &&
-                    trip.status == Schemas.TripStatus.Canceled &&
+                status == TripGatewayTypes.GatewayAdminTripStatus.GuestCanceledAfterApprove &&
+                    trip.status == TripGatewayTypes.GatewayTripStatus.Canceled &&
                     trip.approvedDateTime > 0 &&
                     trip.rejectedBy == trip.guest
             ) ||
             (
-                status == Schemas.AdminTripStatus.HostCanceledAfterApprove &&
-                    trip.status == Schemas.TripStatus.Canceled &&
+                status == TripGatewayTypes.GatewayAdminTripStatus.HostCanceledAfterApprove &&
+                    trip.status == TripGatewayTypes.GatewayTripStatus.Canceled &&
                     trip.approvedDateTime > 0 &&
                     trip.rejectedBy == trip.host
             ) ||
             (
-                status == Schemas.AdminTripStatus.CompletedWithoutGuestConfirmation &&
-                    trip.status == Schemas.TripStatus.CheckedOutByHost &&
+                status == TripGatewayTypes.GatewayAdminTripStatus.CompletedWithoutGuestConfirmation &&
+                    trip.status == TripGatewayTypes.GatewayTripStatus.CheckedOutByHost &&
                     trip.tripFinishedBy == trip.host
             ) ||
             (
-                status == Schemas.AdminTripStatus.CompletedByGuest &&
-                    trip.status == Schemas.TripStatus.Finished &&
+                status == TripGatewayTypes.GatewayAdminTripStatus.CompletedByGuest &&
+                    trip.status == TripGatewayTypes.GatewayTripStatus.Finished &&
                     trip.tripFinishedBy == trip.host
             ) ||
             (
-                status == Schemas.AdminTripStatus.CompletedByAdmin &&
-                    trip.status == Schemas.TripStatus.Finished &&
+                status == TripGatewayTypes.GatewayAdminTripStatus.CompletedByAdmin &&
+                    trip.status == TripGatewayTypes.GatewayTripStatus.Finished &&
                     tripMain.isCompletedByAdmin(trip.tripId)
             );
     }
@@ -419,19 +418,7 @@ contract TripQuery {
         return location;
     }
 
-    function _toLegacyLocationInfo(LocationInfo memory location) internal pure returns (Schemas.LocationInfo memory) {
-        return Schemas.LocationInfo({
-            userAddress: location.userAddress,
-            country: location.country,
-            state: location.state,
-            city: location.city,
-            latitude: location.latitude,
-            longitude: location.longitude,
-            timeZoneId: location.timeZoneId
-        });
-    }
-
-    function _toTripInsuranceInfos(Schemas.InsuranceInfo[] memory insurances)
+    function _toTripInsuranceInfos(TripGatewayTypes.GatewayInsuranceInfo[] memory insurances)
         internal
         pure
         returns (TripInsuranceInfo[] memory result)
@@ -450,7 +437,7 @@ contract TripQuery {
         }
     }
 
-    function _toTripTaxValues(Schemas.TaxValue[] memory taxes)
+    function _toTripTaxValues(TripGatewayTypes.GatewayTaxValue[] memory taxes)
         internal
         pure
         returns (TripTaxValue[] memory result)
@@ -461,7 +448,7 @@ contract TripQuery {
         }
     }
 
-    function _toTripUserCurrency(Schemas.UserCurrencyDTO memory currency)
+    function _toTripUserCurrency(TripGatewayTypes.GatewayUserCurrencyDTO memory currency)
         internal
         pure
         returns (TripUserCurrency memory)

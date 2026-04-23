@@ -204,3 +204,230 @@ struct TripFilter {
     uint256 startDateTime;
     uint256 endDateTime;
 }
+
+library TripGatewayTypes {
+    enum GatewayTripStatus {
+        Created,
+        Approved,
+        CheckedInByHost,
+        CheckedInByGuest,
+        CheckedOutByGuest,
+        CheckedOutByHost,
+        Finished,
+        Canceled
+    }
+
+    enum GatewayInsuranceType {
+        None,
+        General,
+        OneTime
+    }
+
+    enum GatewayTaxesType {
+        InUsdCentsPerDay,
+        InUsdCents,
+        PPM
+    }
+
+    enum GatewayPaymentStatus {
+        Any,
+        PaidToHost,
+        Unpaid,
+        RefundToGuest,
+        Prepayment
+    }
+
+    enum GatewayAdminTripStatus {
+        Any,
+        Created,
+        Approved,
+        CheckedInByHost,
+        CheckedInByGuest,
+        CheckedOutByGuest,
+        CheckedOutByHost,
+        Finished,
+        GuestCanceledBeforeApprove,
+        HostCanceledBeforeApprove,
+        GuestCanceledAfterApprove,
+        HostCanceledAfterApprove,
+        CompletedWithoutGuestConfirmation,
+        CompletedByGuest,
+        CompletedByAdmin
+    }
+
+    struct GatewayPaymentInfo {
+        uint256 tripId;
+        address from;
+        address to;
+        uint64 totalDayPriceInUsdCents;
+        uint64 salesTax;
+        uint64 governmentTax;
+        uint64 priceWithDiscount;
+        uint64 depositInUsdCents;
+        uint64 resolveAmountInUsdCents;
+        address currencyType;
+        int256 currencyRate;
+        uint8 currencyDecimals;
+        uint64 resolveFuelAmountInUsdCents;
+        uint64 resolveMilesAmountInUsdCents;
+        uint128 pickUpFee;
+        uint128 dropOfFee;
+    }
+
+    struct GatewayTransactionInfo {
+        uint256 rentalityFee;
+        uint256 depositRefund;
+        uint256 tripEarnings;
+        uint256 dateTime;
+        GatewayTripStatus statusBeforeCancellation;
+    }
+
+    struct GatewayTrip {
+        uint256 tripId;
+        uint256 carId;
+        GatewayTripStatus status;
+        address guest;
+        address host;
+        string guestName;
+        string hostName;
+        uint64 pricePerDayInUsdCents;
+        uint64 startDateTime;
+        uint64 endDateTime;
+        uint8 engineType;
+        uint64 milesIncludedPerDay;
+        uint64 fuelPrice;
+        GatewayPaymentInfo paymentInfo;
+        uint256 createdDateTime;
+        uint256 approvedDateTime;
+        uint256 rejectedDateTime;
+        string guestInsuranceCompanyName;
+        string guestInsurancePolicyNumber;
+        address rejectedBy;
+        uint256 checkedInByHostDateTime;
+        uint64[] startParamLevels;
+        uint256 checkedInByGuestDateTime;
+        address tripStartedBy;
+        uint256 checkedOutByGuestDateTime;
+        address tripFinishedBy;
+        uint64[] endParamLevels;
+        uint256 checkedOutByHostDateTime;
+        GatewayTransactionInfo transactionInfo;
+        uint256 finishDateTime;
+        bytes32 pickUpHash;
+        bytes32 returnHash;
+    }
+
+    struct GatewayInsuranceInfo {
+        string companyName;
+        string policyNumber;
+        string photo;
+        string comment;
+        GatewayInsuranceType insuranceType;
+        uint256 createdTime;
+        address createdBy;
+    }
+
+    struct GatewayTaxValue {
+        string name;
+        uint32 value;
+        GatewayTaxesType tType;
+    }
+
+    struct GatewayUserCurrencyDTO {
+        address currency;
+        string name;
+        bool initialized;
+    }
+
+    struct GatewayTripDTO {
+        GatewayTrip trip;
+        string guestPhotoUrl;
+        string hostPhotoUrl;
+        string metadataURI;
+        string timeZoneId;
+        string hostDrivingLicenseNumber;
+        uint64 hostDrivingLicenseExpirationDate;
+        string guestDrivingLicenseNumber;
+        uint64 guestDrivingLicenseExpirationDate;
+        string model;
+        string brand;
+        uint32 yearOfProduction;
+        LocationInfo pickUpLocation;
+        LocationInfo returnLocation;
+        string guestPhoneNumber;
+        string hostPhoneNumber;
+        GatewayInsuranceInfo[] insurancesInfo;
+        uint256 paidForInsuranceInUsdCents;
+        string guestDrivingLicenseIssueCountry;
+        uint256 promoDiscount;
+        uint256 dimoTokenId;
+        GatewayTaxValue[] taxesData;
+        GatewayUserCurrencyDTO currency;
+        string guestNickName;
+        string hostNickName;
+        uint256 paidToInsuranceInUsdCents;
+    }
+
+    struct GatewayChatInfo {
+        uint256 tripId;
+        address guestAddress;
+        string guestName;
+        string guestPhotoUrl;
+        address hostAddress;
+        string hostName;
+        string hostPhotoUrl;
+        uint256 tripStatus;
+        string carBrand;
+        string carModel;
+        uint32 carYearOfProduction;
+        string carMetadataUrl;
+        uint64 startDateTime;
+        uint64 endDateTime;
+        string timeZoneId;
+        string guestNickname;
+        string hostNickname;
+    }
+
+    struct GatewayCreateTripRequestWithDelivery {
+        uint256 carId;
+        uint64 startDateTime;
+        uint64 endDateTime;
+        address currencyType;
+        SignedLocationInfo pickUpInfo;
+        SignedLocationInfo returnInfo;
+        uint256 amountIn;
+        uint24 fee;
+    }
+
+    struct GatewayCalculatePaymentsDTO {
+        uint256 totalPrice;
+        int256 currencyRate;
+        uint8 currencyDecimals;
+    }
+
+    struct GatewayTripFilter {
+        GatewayPaymentStatus paymentStatus;
+        GatewayAdminTripStatus status;
+        LocationInfo location;
+        uint256 startDateTime;
+        uint256 endDateTime;
+    }
+
+    struct GatewayPromoDTO {
+        string promoCode;
+        uint256 promoCodeValueInPercents;
+        uint256 promoCodeEnterDate;
+    }
+
+    struct GatewayAdminTripDTO {
+        GatewayTrip trip;
+        string carMetadataURI;
+        LocationInfo carLocation;
+        GatewayPromoDTO promoInfo;
+    }
+
+    struct GatewayAllTripsDTO {
+        GatewayAdminTripDTO[] trips;
+        uint256 totalPageCount;
+    }
+}

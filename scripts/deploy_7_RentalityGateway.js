@@ -41,6 +41,10 @@ async function main() {
     getContractAddress('CarViewGatewayFacet', 'scripts/deploy_4m_CarViewGatewayFacet.js', chainId),
     'CarViewGatewayFacet'
   )
+  const carViewGatewayFacet1Address = checkNotNull(
+    getContractAddress('CarViewGatewayFacet1', 'scripts/deploy_4m1_CarViewGatewayFacet1.js', chainId),
+    'CarViewGatewayFacet1'
+  )
   const paymentGatewayFacetAddress = checkNotNull(
     getContractAddress('PaymentGatewayFacet', 'scripts/deploy_4n_PaymentGatewayFacet.js', chainId),
     'PaymentGatewayFacet'
@@ -70,6 +74,7 @@ async function main() {
   const tripFacet = await ethers.getContractAt('ITripGatewayFacet', tripGatewayFacetAddress)
   const carFacet = await ethers.getContractAt('ICarGatewayFacet', carGatewayFacetAddress)
   const carViewFacet = await ethers.getContractAt('ICarViewGatewayFacet', carViewGatewayFacetAddress)
+  const carViewFacet1 = await ethers.getContractAt('ICarViewGatewayFacet1', carViewGatewayFacet1Address)
   const paymentFacet = await ethers.getContractAt('IPaymentGatewayFacet', paymentGatewayFacetAddress)
   const claimFacet = await ethers.getContractAt('IClaimGatewayFacet', claimGatewayFacetAddress)
   const insuranceFacet = await ethers.getContractAt('IInsuranceGatewayFacet', insuranceGatewayFacetAddress)
@@ -83,6 +88,7 @@ async function main() {
     createFacetCut(tripFacet),
     createFacetCut(carFacet),
     createFacetCut(carViewFacet),
+    createFacetCut(carViewFacet1),
     createFacetCut(paymentFacet),
     createFacetCut(claimFacet),
     createFacetCut(insuranceFacet),

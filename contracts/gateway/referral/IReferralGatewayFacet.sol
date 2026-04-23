@@ -1,24 +1,24 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import '../../models/common/Schemas.sol';
+import '../../models/base/referral/ReferralTypes.sol';
 
 interface IReferralGatewayFacet {
     function addressToPoints(address user) external view returns (uint256);
     function referralHashV2(address user) external view returns (bytes4);
     function getCarDailyClaimedTime(uint256 carId) external view returns (uint64);
-    function getMyStartDiscount(address user) external view returns (Schemas.RefferalDiscount memory);
-    function getReadyToClaim(address user) external view returns (Schemas.ReadyToClaimDTO memory readyToClaimDTO);
+    function getMyStartDiscount(address user) external view returns (ReferralDiscount memory);
+    function getReadyToClaim(address user) external view returns (ReadyToClaimDTO memory readyToClaimDTO);
     function getReadyToClaimFromRefferalHash(address user)
         external
         view
-        returns (Schemas.RefferalHashDTO memory refferalHashDTO);
+        returns (ReferralHashDTO memory refferalHashDTO);
     function getRefferalPointsInfo()
         external
         view
-        returns (Schemas.AllRefferalInfoDTO memory allRefferalInfoDTO);
-    function getPointsHistory() external view returns (Schemas.RefferalHistory[] memory);
-    function getMyRefferalInfo() external view returns (Schemas.MyRefferalInfoDTO memory myRefferalInfoDTO);
+        returns (AllReferralInfoDTO memory allRefferalInfoDTO);
+    function getPointsHistory() external view returns (ReferralProgramHistory[] memory);
+    function getMyRefferalInfo() external view returns (MyReferralInfoDTO memory myRefferalInfoDTO);
     function claimPoints(address user) external;
     function claimRefferalPoints(address user) external;
     function hashExists(bytes32 referralHash) external view returns (bool);

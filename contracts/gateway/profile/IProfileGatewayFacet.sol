@@ -1,16 +1,17 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import '../../models/common/Schemas.sol';
+import '../../models/common/CommonTypes.sol';
+import '../../models/profile/UserProfileTypes.sol';
 
 interface IProfileGatewayFacet {
-  function getMyFullKYCInfo() external view returns (Schemas.FullKYCInfoDTO memory);
-  function getPlatformUsersKYCInfos(uint256 page, uint256 itemsPerPage) external view returns (Schemas.AdminKYCInfosDTO memory);
-  function getUserFullKYCInfo(address user) external view returns (Schemas.FullKYCInfoDTO memory);
-  function getUserCurrency(address user) external view returns (Schemas.UserCurrencyDTO memory);
+  function getMyFullKYCInfo() external view returns (GatewayFullUserProfileInfo memory);
+  function getPlatformUsersKYCInfos(uint256 page, uint256 itemsPerPage) external view returns (GatewayAdminUserProfilePage memory);
+  function getUserFullKYCInfo(address user) external view returns (GatewayFullUserProfileInfo memory);
+  function getUserCurrency(address user) external view returns (UserCurrencyInfo memory);
   function getKycCommission() external view returns (uint256);
   function calculateKycCommission(address currency) external view returns (uint256);
-  function getPlatformInfo() external view returns (Schemas.PlatformInfoDTO memory);
+  function getPlatformInfo() external view returns (PlatformInfoDTO memory);
   function isKycCommissionPaid(address user) external view returns (bool);
   function payKycCommission(address currency) external payable;
   function addUserCurrency(address currency) external;
@@ -24,7 +25,7 @@ interface IProfileGatewayFacet {
   ) external;
   function setPhoneNumber(address user, string memory phone, bool isVerified) external;
   function setEmail(address user, string memory email, bool isVerified) external;
-  function setCivicKYCInfo(address user, Schemas.CivicKYCInfo memory civicKycInfo) external;
+  function setCivicKYCInfo(address user, GatewayCivicUserProfileInfo memory civicKycInfo) external;
   function setPushToken(address user, string memory pushToken) external;
   function useKycCommission(address user) external;
 }

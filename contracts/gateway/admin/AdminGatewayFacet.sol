@@ -3,29 +3,22 @@ pragma solidity ^0.8.20;
 
 import {UUPSOwnable as GatewayUUPSOwnable} from '../../infrastructure/upgradeable/UUPSOwnable.sol';
 import '../ARentalityContext.sol';
-import '../../rentality_old/adapter/ICarGateway.sol';
-import '../../rentality_old/abstract/IRentalityAdminGateway.sol';
-import '../../rentality_old/features/RentalityCarDelivery.sol';
-import '../../rentality_old/features/RentalityClaimService.sol';
-import '../../rentality_old/features/RentalityDimoService.sol';
-import '../../rentality_old/features/RentalityNotificationService.sol';
-import '../../rentality_old/features/RentalityPromo.sol';
-import '../../rentality_old/features/refferalProgram/RentalityReferralProgram.sol';
-import '../../rentality_old/investment/RentalityInvestment.sol';
-import '../../rentality_old/payments/RentalityCurrencyConverter.sol';
-import '../../rentality_old/payments/RentalityInsurance.sol';
-import '../../rentality_old/payments/RentalityPaymentService.sol';
-import '../../rentality_old/payments/abstract/IERC20.sol';
+import '../../models/base/referral/ReferralTypes.sol';
 import '../../models/car/CarTypes.sol';
-import '../../models/common/Schemas.sol';
+import '../../models/claim/RentalClaimTypes.sol';
+import '../../models/common/CommonTypes.sol';
+import '../../models/pricing/RentalPricingTypes.sol';
+import '../../models/profile/UserProfileTypes.sol';
+import '../../models/trip/TripTypes.sol';
 import '../car/CarMapper.sol';
+import '../profile/ProfileMapper.sol';
 import './IAdminGatewayFacet.sol';
 
 interface IAdminGatewayTripQuery {
-  function getAllTrips(Schemas.TripFilter memory filter, uint256 page, uint256 itemsPerPage)
+  function getAllTrips(TripGatewayTypes.GatewayTripFilter memory filter, uint256 page, uint256 itemsPerPage)
     external
     view
-    returns (Schemas.AllTripsDTO memory);
+    returns (TripGatewayTypes.GatewayAllTripsDTO memory);
 }
 
 interface IAdminGatewayCarQueryFacet2 {
@@ -43,14 +36,71 @@ interface IAdminGatewayUserAccess {
   function isRentalityPlatform(address user) external view returns (bool);
   function setCivicData(address verifier, uint256 gatekeeperNetwork) external;
   function setKycCommission(uint256 newCommission) external;
-  function manageRole(Schemas.Role newRole, address user, bool grant) external;
+  function manageRole(UserProfileRole newRole, address user, bool grant) external;
 }
 
 interface IAdminGatewayUserProfileQuery {
   function getPlatformUsersKYCInfos(uint256 page, uint256 itemsPerPage)
     external
     view
-    returns (Schemas.AdminKYCInfosDTO memory);
+    returns (AdminUserProfilePage memory);
+}
+
+interface IAdminGatewayClaimService {
+  function setWaitingTime(uint256 timeInSec) external;
+  function getWaitingTime() external view returns (uint256);
+  function setPlatformFee(uint256 value) external;
+  function getClaimTypesForHost() external view returns (RentalClaimTypeInfo[] memory);
+  function getClaimTypesForGuest() external view returns (RentalClaimTypeInfo[] memory);
+  function addClaimType(string memory name, RentalClaimCreator creator) external returns (uint256);
+  function removeClaimType(uint8 claimType) external;
+}
+
+interface IAdminGatewayPaymentService {
+  function withdrawFromPlatform(uint256 amount, address tokenAddress) external;
+  function setPlatformFeeInPPM(uint32 valueInPPM) external;
+  function getPlatformFeeInPPM() external view returns (uint32);
+  function calculateSumWithDiscount(address user, uint64 daysOfTrip, uint64 value) external view returns (uint64);
+  function calculateTaxes(uint256 taxesId, uint64 daysOfTrip, uint64 value) external view returns (uint64);
+  function calculateTaxesDTO(uint256 taxesId, uint64 daysOfTrip, uint64 value)
+    external
+    view
+    returns (uint64 totalTax, RentalTaxValue[] memory taxValues);
+  function setDefaultDiscount(RentalBaseDiscount memory data) external;
+  function addTaxes(
+    string memory location,
+    RentalPricingTaxesLocationType locationType,
+    RentalTaxValue[] memory taxes
+  ) external returns (uint256);
+}
+
+interface IAdminGatewayCurrencyConverter {
+  function isETH(address tokenAddress) external view returns (bool);
+  function setDefaultCurrencyType(address currency) external;
+}
+
+interface IAdminGatewayDeliveryService {
+  function setDefaultPrices(uint64 underTwentyFiveMilesInUsdCents, uint64 aboveTwentyFiveMilesInUsdCents) external;
+}
+
+interface IAdminGatewayPromoService {
+  function addPrefix(string memory prefix, uint256 discount) external;
+}
+
+interface IAdminGatewayReferralProgram {
+  function addOneTimeProgram(ReferralProgram program, int256 points, int256 pointsWithReffHash, bytes4 selector) external;
+  function addPermanentProgram(ReferralProgram program, int256 points, bytes4 selector) external;
+  function manageRefHashesProgram(ReferralProgram program, uint256 points) external;
+  function manageRefferalDiscount(ReferralProgram program, ReferralTier tier, uint256 points, uint256 percents) external;
+  function manageTearInfo(ReferralTier tier, uint256 from, uint256 to) external;
+}
+
+interface IAdminGatewayNotificationService {
+  function emitEvent(EventType eType, uint256 id, uint8 objectStatus, address from, address to) external;
+}
+
+interface IAdminGatewayERC20 {
+  function balanceOf(address account) external view returns (uint256);
 }
 
 struct AdminCoreAddresses {
@@ -82,20 +132,19 @@ struct AdminQueryAddresses {
 
 /// @custom:oz-upgrades-unsafe-allow external-library-linking
 contract AdminGatewayFacet is GatewayUUPSOwnable, ARentalityContext, IAdminGatewayFacet {
-  ICarGateway private carService;
-  RentalityCurrencyConverter private currencyConverterService;
+  address private carService;
+  IAdminGatewayCurrencyConverter private currencyConverterService;
   IAdminGatewayUserAccess private userService;
-  IRentalityAdminGateway private adminService;
-  RentalityPaymentService private paymentService;
-  RentalityClaimService private claimService;
-  RentalityCarDelivery private deliveryService;
+  IAdminGatewayPaymentService private paymentService;
+  IAdminGatewayClaimService private claimService;
+  IAdminGatewayDeliveryService private deliveryService;
   address private viewService;
-  RentalityInsurance private insuranceService;
-  RentalityReferralProgram private refferalProgram;
-  RentalityPromoService private promoService;
-  RentalityDimoService private dimoService;
-  RentalityInvestment private investment;
-  RentalityNotificationService private notificationService;
+  address private insuranceService;
+  IAdminGatewayReferralProgram private refferalProgram;
+  IAdminGatewayPromoService private promoService;
+  address private dimoService;
+  address private investment;
+  IAdminGatewayNotificationService private notificationService;
   address private tripGatewayFacet;
   IAdminGatewayTripQuery private tripQuery;
   IAdminGatewayCarQueryFacet2 private carQueryFacet2;
@@ -135,7 +184,7 @@ contract AdminGatewayFacet is GatewayUUPSOwnable, ARentalityContext, IAdminGatew
   }
 
   function getCarServiceAddress() public view returns (address) {
-    return address(carService);
+    return carService;
   }
 
   function getPaymentService() public view returns (address) {
@@ -171,7 +220,7 @@ contract AdminGatewayFacet is GatewayUUPSOwnable, ARentalityContext, IAdminGatew
   }
 
   function updateNotificationService(address contractAddress) public onlyAdmin {
-    notificationService = RentalityNotificationService(contractAddress);
+    notificationService = IAdminGatewayNotificationService(contractAddress);
   }
 
   function withdrawFromPlatform(uint256 amount, address tokenAddress) public {
@@ -181,7 +230,7 @@ contract AdminGatewayFacet is GatewayUUPSOwnable, ARentalityContext, IAdminGatew
   function withdrawAllFromPlatform(address tokenAddress) public {
     uint balance = currencyConverterService.isETH(tokenAddress)
       ? address(paymentService).balance
-      : IERC20(tokenAddress).balanceOf(address(paymentService));
+      : IAdminGatewayERC20(tokenAddress).balanceOf(address(paymentService));
 
     paymentService.withdrawFromPlatform(balance, tokenAddress);
   }
@@ -217,7 +266,7 @@ contract AdminGatewayFacet is GatewayUUPSOwnable, ARentalityContext, IAdminGatew
   function calculateTaxesDTO(uint taxesId, uint64 daysOfTrip, uint64 value)
     public
     view
-    returns (uint64 totalTax, Schemas.TaxValue[] memory taxValues)
+    returns (uint64 totalTax, RentalTaxValue[] memory taxValues)
   {
     return paymentService.calculateTaxesDTO(taxesId, daysOfTrip, value);
   }
@@ -242,49 +291,49 @@ contract AdminGatewayFacet is GatewayUUPSOwnable, ARentalityContext, IAdminGatew
     userService.setKycCommission(value);
   }
 
-  function getAllTrips(Schemas.TripFilter memory filter, uint page, uint itemsPerPage)
+  function getAllTrips(TripGatewayTypes.GatewayTripFilter memory filter, uint page, uint itemsPerPage)
     public
     view
-    returns (Schemas.AllTripsDTO memory)
+    returns (TripGatewayTypes.GatewayAllTripsDTO memory)
   {
     return tripQuery.getAllTrips(filter, page, itemsPerPage);
   }
 
-  function manageRole(Schemas.Role role, address user, bool grant) public {
+  function manageRole(UserProfileRole role, address user, bool grant) public {
     userService.manageRole(role, user, grant);
   }
 
-  function getAllCars(uint page, uint itemsPerPage) public view returns (Schemas.AllCarsDTO memory allCars) {
+  function getAllCars(uint page, uint itemsPerPage) public view returns (CarGatewayTypes.AllCarsDTO memory allCars) {
     return CarMapper.toLegacyAllCarsInfo(
-      carQueryFacet2.getAllCarsForAdmin(userProfileQueryAddress, geoService, address(dimoService), page, itemsPerPage)
+      carQueryFacet2.getAllCarsForAdmin(userProfileQueryAddress, geoService, dimoService, page, itemsPerPage)
     );
   }
 
   function manageRefferalBonusAccrual(
-    Schemas.RefferalAccrualType accrualType,
-    Schemas.RefferalProgram program,
+    ReferralAccrualType accrualType,
+    ReferralProgram program,
     int points,
     int pointsWithReffHash
   ) public {
     require(userService.isAdmin(_msgGatewaySender()), 'only Admin');
-    if (Schemas.RefferalAccrualType.OneTime == accrualType) {
+    if (ReferralAccrualType.OneTime == accrualType) {
       refferalProgram.addOneTimeProgram(program, points, pointsWithReffHash, bytes4(''));
     } else {
       refferalProgram.addPermanentProgram(program, points, bytes4(''));
     }
   }
 
-  function manageRefferalHashPoints(Schemas.RefferalProgram program, uint points) public {
+  function manageRefferalHashPoints(ReferralProgram program, uint points) public {
     require(userService.isAdmin(_msgGatewaySender()), 'only Admin');
     refferalProgram.manageRefHashesProgram(program, points);
   }
 
-  function manageRefferalDiscount(Schemas.RefferalProgram program, Schemas.Tear tear, uint points, uint percents) public {
+  function manageRefferalDiscount(ReferralProgram program, ReferralTier tear, uint points, uint percents) public {
     require(userService.isAdmin(_msgGatewaySender()), 'only Admin');
     refferalProgram.manageRefferalDiscount(program, tear, points, percents);
   }
 
-  function manageTearInfo(Schemas.Tear tear, uint from, uint to) public {
+  function manageTearInfo(ReferralTier tear, uint from, uint to) public {
     require(userService.isAdmin(_msgGatewaySender()), 'only Admin');
     refferalProgram.manageTearInfo(tear, from, to);
   }
@@ -292,19 +341,19 @@ contract AdminGatewayFacet is GatewayUUPSOwnable, ARentalityContext, IAdminGatew
   function getPlatformUsersInfo(uint page, uint itemsPerPage)
     public
     view
-    returns (Schemas.AdminKYCInfosDTO memory)
+    returns (GatewayAdminUserProfilePage memory)
   {
-    return userProfileQuery.getPlatformUsersKYCInfos(page, itemsPerPage);
+    return ProfileMapper.toLegacyAdminPage(userProfileQuery.getPlatformUsersKYCInfos(page, itemsPerPage));
   }
 
-  function getAllClaimTypes(bool byHost) public view returns (Schemas.ClaimTypeV2[] memory) {
+  function getAllClaimTypes(bool byHost) public view returns (RentalClaimTypeInfo[] memory) {
     return byHost ? claimService.getClaimTypesForHost() : claimService.getClaimTypesForGuest();
   }
 
-  function addClaimType(string memory name, Schemas.ClaimCreator creator) public {
+  function addClaimType(string memory name, RentalClaimCreator creator) public {
     address sender = _msgGatewaySender();
     uint claimTypeId = claimService.addClaimType(name, creator);
-    notificationService.emitEvent(Schemas.EventType.AddClaimType, claimTypeId, uint8(Schemas.EventCreator.Admin), sender, sender);
+    notificationService.emitEvent(EventType.AddClaimType, claimTypeId, uint8(EventCreator.Admin), sender, sender);
   }
 
   function removeClaimType(uint8 claimType) public {
@@ -314,25 +363,25 @@ contract AdminGatewayFacet is GatewayUUPSOwnable, ARentalityContext, IAdminGatew
   function setDefaultCurrencyType(address currency) public {
     address sender = _msgGatewaySender();
     currencyConverterService.setDefaultCurrencyType(currency);
-    notificationService.emitEvent(Schemas.EventType.Currency, 0, uint8(Schemas.EventCreator.Admin), sender, sender);
+    notificationService.emitEvent(EventType.Currency, 0, uint8(EventCreator.Admin), sender, sender);
   }
 
   function setDefaultPrices(uint64 underTwentyFiveMilesInUsdCents, uint64 aboveTwentyFiveMilesInUsdCents) public {
     address sender = _msgGatewaySender();
     deliveryService.setDefaultPrices(underTwentyFiveMilesInUsdCents, aboveTwentyFiveMilesInUsdCents);
-    notificationService.emitEvent(Schemas.EventType.Delivery, 0, uint8(Schemas.EventCreator.Admin), sender, sender);
+    notificationService.emitEvent(EventType.Delivery, 0, uint8(EventCreator.Admin), sender, sender);
   }
 
-  function setDefaultDiscount(Schemas.BaseDiscount memory newDiscounts) public {
+  function setDefaultDiscount(RentalBaseDiscount memory newDiscounts) public {
     address sender = _msgGatewaySender();
     paymentService.setDefaultDiscount(newDiscounts);
-    notificationService.emitEvent(Schemas.EventType.Discount, 0, uint8(Schemas.EventCreator.Admin), sender, sender);
+    notificationService.emitEvent(EventType.Discount, 0, uint8(EventCreator.Admin), sender, sender);
   }
 
-  function addTaxes(string memory location, Schemas.TaxesLocationType locationType, Schemas.TaxValue[] memory taxes) public {
+  function addTaxes(string memory location, RentalPricingTaxesLocationType locationType, RentalTaxValue[] memory taxes) public {
     address sender = _msgGatewaySender();
     uint taxId = paymentService.addTaxes(location, locationType, taxes);
-    notificationService.emitEvent(Schemas.EventType.Taxes, taxId, uint8(locationType), sender, sender);
+    notificationService.emitEvent(EventType.Taxes, taxId, uint8(locationType), sender, sender);
   }
 
   function isTrustedForwarder(address forwarder) internal view override returns (bool) {
@@ -355,23 +404,22 @@ contract AdminGatewayFacet is GatewayUUPSOwnable, ARentalityContext, IAdminGatew
   }
 
   function _setCoreServiceAddresses(AdminCoreAddresses memory coreAddresses) internal {
-    carService = ICarGateway(coreAddresses.carServiceAddress);
-    currencyConverterService = RentalityCurrencyConverter(coreAddresses.currencyConverterServiceAddress);
+    carService = coreAddresses.carServiceAddress;
+    currencyConverterService = IAdminGatewayCurrencyConverter(coreAddresses.currencyConverterServiceAddress);
     userService = IAdminGatewayUserAccess(coreAddresses.userServiceAddress);
-    adminService = IRentalityAdminGateway(address(this));
-    paymentService = RentalityPaymentService(payable(coreAddresses.paymentServiceAddress));
-    claimService = RentalityClaimService(coreAddresses.claimServiceAddress);
-    deliveryService = RentalityCarDelivery(coreAddresses.carDeliveryAddress);
+    paymentService = IAdminGatewayPaymentService(coreAddresses.paymentServiceAddress);
+    claimService = IAdminGatewayClaimService(coreAddresses.claimServiceAddress);
+    deliveryService = IAdminGatewayDeliveryService(coreAddresses.carDeliveryAddress);
     viewService = coreAddresses.viewServiceAddress;
   }
 
   function _setFeatureServiceAddresses(AdminFeatureAddresses memory featureAddresses) internal {
-    promoService = RentalityPromoService(featureAddresses.promoServiceAddress);
-    dimoService = RentalityDimoService(featureAddresses.dimoServiceAddress);
-    refferalProgram = RentalityReferralProgram(featureAddresses.refferalProgramAddress);
-    insuranceService = RentalityInsurance(featureAddresses.insuranceServiceAddress);
-    investment = RentalityInvestment(featureAddresses.investmentAddress);
-    notificationService = RentalityNotificationService(featureAddresses.notificationServiceAddress);
+    promoService = IAdminGatewayPromoService(featureAddresses.promoServiceAddress);
+    dimoService = featureAddresses.dimoServiceAddress;
+    refferalProgram = IAdminGatewayReferralProgram(featureAddresses.refferalProgramAddress);
+    insuranceService = featureAddresses.insuranceServiceAddress;
+    investment = featureAddresses.investmentAddress;
+    notificationService = IAdminGatewayNotificationService(featureAddresses.notificationServiceAddress);
   }
 
   function _setQueryServiceAddresses(AdminQueryAddresses memory queryAddresses) internal {

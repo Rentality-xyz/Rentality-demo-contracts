@@ -3,12 +3,18 @@ pragma solidity ^0.8.20;
 
 import '../../infrastructure/upgradeable/UUPSOwnable.sol';
 import '../../models/base/pricing/PricingBase.sol';
+import '../car/CarTypes.sol';
 import '../common/CommonTypes.sol';
-import '../common/Schemas.sol';
-import '../../rentality_old/payments/abstract/IRentalityDiscount.sol';
 import '../../infrastructure/geo/IRentalityGeoService.sol';
 import '../profile/UserProfileTypes.sol';
 import './RentalPricingTypes.sol';
+
+interface IRentalityDiscount {
+    function calculateSumWithDiscount(address user, uint64 daysOfTrip, uint64 price) external view returns (uint64);
+    function setDiscount(bytes memory newDiscounts) external;
+    function addUserDiscount(address user, bytes memory newDiscounts) external;
+    function getDiscount(address userAddress) external view returns (bytes memory);
+}
 
 interface IRentalPricingAccess {
     function isAdmin(address user) external view returns (bool);
@@ -19,27 +25,27 @@ interface IRentalPricingAccess {
 
 interface IRentalPricingCarTaxLookup {
     function getGeoServiceAddress() external view returns (address);
-    function getCarInfoById(uint256 carId) external view returns (Schemas.CarInfo memory);
+    function getCarInfoById(uint256 carId) external view returns (CarGatewayTypes.GatewayCarInfo memory);
 }
 
 interface IRentalPricingTaxes {
     function addTaxes(
         uint256 taxId,
         string memory location,
-        Schemas.TaxesLocationType locationType,
-        Schemas.TaxValue[] memory taxes
+        RentalPricingTaxesLocationType locationType,
+        RentalTaxValue[] memory taxes
     ) external;
 
-    function getTaxesIdByHash(bytes32 hash) external view returns (uint256, Schemas.TaxesLocationType);
+    function getTaxesIdByHash(bytes32 hash) external view returns (uint256, RentalPricingTaxesLocationType);
     function calculateAndSaveTaxes(uint256 taxId, uint64 tripDays, uint64 totalCost, uint256 tripId) external returns (uint64);
     function calculateTaxes(uint256 taxId, uint64 tripDays, uint64 totalCost) external view returns (uint64);
     function calculateTaxesDTO(uint256 taxId, uint64 tripDays, uint64 totalCost)
         external
         view
-        returns (uint64 totalTax, Schemas.TaxValue[] memory taxes);
-    function getTripTaxesDTO(uint256 tripId) external view returns (Schemas.TaxValue[] memory);
+        returns (uint64 totalTax, RentalTaxValue[] memory taxes);
+    function getTripTaxesDTO(uint256 tripId) external view returns (RentalTaxValue[] memory);
     function getTotalTripTax(uint256 tripId) external view returns (uint64);
-    function getTaxInfoById(uint256 taxId) external view returns (Schemas.TaxesInfoDTO memory);
+    function getTaxInfoById(uint256 taxId) external view returns (RentalTaxesInfo memory);
 }
 contract RentalPricingMain is PricingBase, UUPSOwnable {
     IRentalPricingAccess public userAccess;
@@ -116,7 +122,7 @@ contract RentalPricingMain is PricingBase, UUPSOwnable {
     }
 
     function setDefaultDiscount(RentalBaseDiscount memory data) external onlyAdmin {
-        discountAddressToDiscountContract[currentDiscount].setDiscount(abi.encode(_toLegacyDiscount(data)));
+        discountAddressToDiscountContract[currentDiscount].setDiscount(abi.encode(data));
         emit DefaultDiscountUpdated();
     }
 
@@ -125,13 +131,11 @@ contract RentalPricingMain is PricingBase, UUPSOwnable {
             userAccess.manageRole(UserProfileRole.Host, user, true);
         }
 
-        discountAddressToDiscountContract[currentDiscount].addUserDiscount(user, abi.encode(_toLegacyDiscount(data)));
+        discountAddressToDiscountContract[currentDiscount].addUserDiscount(user, abi.encode(data));
     }
 
     function getBaseDiscount(address user) public view returns (RentalBaseDiscount memory) {
-        return _fromLegacyDiscount(
-            abi.decode(discountAddressToDiscountContract[currentDiscount].getDiscount(user), (Schemas.BaseDiscount))
-        );
+        return abi.decode(discountAddressToDiscountContract[currentDiscount].getDiscount(user), (RentalBaseDiscount));
     }
 
     function calculateSumWithDiscount(address user, uint64 daysOfTrip, uint64 value) public view returns (uint64) {
@@ -149,7 +153,7 @@ contract RentalPricingMain is PricingBase, UUPSOwnable {
         RentalTaxValue[] memory taxes
     ) external onlyAdmin returns (uint256) {
         taxesId += 1;
-        rentalityTaxes.addTaxes(taxesId, location, _toLegacyLocationType(locationType), _toLegacyTaxes(taxes));
+        rentalityTaxes.addTaxes(taxesId, location, locationType, taxes);
         emit TaxesAdded(taxesId, location, locationType);
         return taxesId;
     }
@@ -168,18 +172,18 @@ contract RentalPricingMain is PricingBase, UUPSOwnable {
         bytes32 stateHash = keccak256(abi.encode(geoService.getCarState(carLocationHash)));
         bytes32 countryHash = keccak256(abi.encode(geoService.getCarCountry(carLocationHash)));
 
-        (uint256 taxId, Schemas.TaxesLocationType locationType) = rentalityTaxes.getTaxesIdByHash(countryHash);
-        if (taxId > 0 && locationType == Schemas.TaxesLocationType.Country) {
+        (uint256 taxId, RentalPricingTaxesLocationType locationType) = rentalityTaxes.getTaxesIdByHash(countryHash);
+        if (taxId > 0 && locationType == RentalPricingTaxesLocationType.Country) {
             return taxId;
         }
 
         (taxId, locationType) = rentalityTaxes.getTaxesIdByHash(stateHash);
-        if (taxId > 0 && locationType == Schemas.TaxesLocationType.State) {
+        if (taxId > 0 && locationType == RentalPricingTaxesLocationType.State) {
             return taxId;
         }
 
         (taxId, locationType) = rentalityTaxes.getTaxesIdByHash(cityHash);
-        if (taxId > 0 && locationType == Schemas.TaxesLocationType.City) {
+        if (taxId > 0 && locationType == RentalPricingTaxesLocationType.City) {
             return taxId;
         }
 
@@ -203,13 +207,11 @@ contract RentalPricingMain is PricingBase, UUPSOwnable {
         view
         returns (uint64 totalTax, RentalTaxValue[] memory taxes)
     {
-        Schemas.TaxValue[] memory legacyTaxes;
-        (totalTax, legacyTaxes) = rentalityTaxes.calculateTaxesDTO(taxId, tripDays, totalCost);
-        taxes = _fromLegacyTaxes(legacyTaxes);
+        return rentalityTaxes.calculateTaxesDTO(taxId, tripDays, totalCost);
     }
 
     function getTripTaxesDTO(uint256 tripId) external view returns (RentalTaxValue[] memory) {
-        return _fromLegacyTaxes(rentalityTaxes.getTripTaxesDTO(tripId));
+        return rentalityTaxes.getTripTaxesDTO(tripId);
     }
 
     function getTotalTripTax(uint256 tripId) external view returns (uint64) {
@@ -217,12 +219,7 @@ contract RentalPricingMain is PricingBase, UUPSOwnable {
     }
 
     function getTaxesInfoById(uint256 taxId) external view returns (RentalTaxesInfo memory) {
-        Schemas.TaxesInfoDTO memory info = rentalityTaxes.getTaxInfoById(taxId);
-        return RentalTaxesInfo({
-            location: info.location,
-            locationType: _fromLegacyLocationType(info.locationType),
-            taxes: _fromLegacyTaxes(info.taxes)
-        });
+        return rentalityTaxes.getTaxInfoById(taxId);
     }
 
     function taxExist(LocationInfo memory locationInfo) external view returns (uint256) {
@@ -230,18 +227,18 @@ contract RentalPricingMain is PricingBase, UUPSOwnable {
         bytes32 stateHash = keccak256(abi.encode(locationInfo.state));
         bytes32 countryHash = keccak256(abi.encode(locationInfo.country));
 
-        (uint256 taxId, Schemas.TaxesLocationType locationType) = rentalityTaxes.getTaxesIdByHash(countryHash);
-        if (taxId > 0 && locationType == Schemas.TaxesLocationType.Country) {
+        (uint256 taxId, RentalPricingTaxesLocationType locationType) = rentalityTaxes.getTaxesIdByHash(countryHash);
+        if (taxId > 0 && locationType == RentalPricingTaxesLocationType.Country) {
             return taxId;
         }
 
         (taxId, locationType) = rentalityTaxes.getTaxesIdByHash(stateHash);
-        if (taxId > 0 && locationType == Schemas.TaxesLocationType.State) {
+        if (taxId > 0 && locationType == RentalPricingTaxesLocationType.State) {
             return taxId;
         }
 
         (taxId, locationType) = rentalityTaxes.getTaxesIdByHash(cityHash);
-        if (taxId > 0 && locationType == Schemas.TaxesLocationType.City) {
+        if (taxId > 0 && locationType == RentalPricingTaxesLocationType.City) {
             return taxId;
         }
 
@@ -252,95 +249,6 @@ contract RentalPricingMain is PricingBase, UUPSOwnable {
         userAccess = IRentalPricingAccess(userAccessAddress);
     }
 
-    function _toLegacyDiscount(RentalBaseDiscount memory data) internal pure returns (Schemas.BaseDiscount memory) {
-        return Schemas.BaseDiscount({
-            threeDaysDiscount: data.threeDaysDiscount,
-            sevenDaysDiscount: data.sevenDaysDiscount,
-            thirtyDaysDiscount: data.thirtyDaysDiscount,
-            initialized: data.initialized
-        });
-    }
-
-    function _fromLegacyDiscount(Schemas.BaseDiscount memory data) internal pure returns (RentalBaseDiscount memory) {
-        return RentalBaseDiscount({
-            threeDaysDiscount: data.threeDaysDiscount,
-            sevenDaysDiscount: data.sevenDaysDiscount,
-            thirtyDaysDiscount: data.thirtyDaysDiscount,
-            initialized: data.initialized
-        });
-    }
-
-    function _toLegacyTaxes(RentalTaxValue[] memory values) internal pure returns (Schemas.TaxValue[] memory) {
-        Schemas.TaxValue[] memory legacyValues = new Schemas.TaxValue[](values.length);
-        for (uint256 i = 0; i < values.length; i++) {
-            legacyValues[i] = Schemas.TaxValue({
-                name: values[i].name,
-                value: values[i].value,
-                tType: _toLegacyTaxesType(values[i].tType)
-            });
-        }
-        return legacyValues;
-    }
-
-    function _fromLegacyTaxes(Schemas.TaxValue[] memory values) internal pure returns (RentalTaxValue[] memory) {
-        RentalTaxValue[] memory nativeValues = new RentalTaxValue[](values.length);
-        for (uint256 i = 0; i < values.length; i++) {
-            nativeValues[i] = RentalTaxValue({
-                name: values[i].name,
-                value: values[i].value,
-                tType: _fromLegacyTaxesType(values[i].tType)
-            });
-        }
-        return nativeValues;
-    }
-
-    function _toLegacyLocationType(RentalPricingTaxesLocationType locationType)
-        internal
-        pure
-        returns (Schemas.TaxesLocationType)
-    {
-        if (locationType == RentalPricingTaxesLocationType.City) {
-            return Schemas.TaxesLocationType.City;
-        }
-        if (locationType == RentalPricingTaxesLocationType.Country) {
-            return Schemas.TaxesLocationType.Country;
-        }
-        return Schemas.TaxesLocationType.State;
-    }
-
-    function _fromLegacyLocationType(Schemas.TaxesLocationType locationType)
-        internal
-        pure
-        returns (RentalPricingTaxesLocationType)
-    {
-        if (locationType == Schemas.TaxesLocationType.City) {
-            return RentalPricingTaxesLocationType.City;
-        }
-        if (locationType == Schemas.TaxesLocationType.Country) {
-            return RentalPricingTaxesLocationType.Country;
-        }
-        return RentalPricingTaxesLocationType.State;
-    }
-
-    function _toLegacyTaxesType(RentalPricingTaxesType taxesType) internal pure returns (Schemas.TaxesType) {
-        if (taxesType == RentalPricingTaxesType.InUsdCentsPerDay) {
-            return Schemas.TaxesType.InUsdCentsPerDay;
-        }
-        if (taxesType == RentalPricingTaxesType.InUsdCents) {
-            return Schemas.TaxesType.InUsdCents;
-        }
-        return Schemas.TaxesType.PPM;
-    }
-
-    function _fromLegacyTaxesType(Schemas.TaxesType taxesType) internal pure returns (RentalPricingTaxesType) {
-        if (taxesType == Schemas.TaxesType.InUsdCentsPerDay) {
-            return RentalPricingTaxesType.InUsdCentsPerDay;
-        }
-        if (taxesType == Schemas.TaxesType.InUsdCents) {
-            return RentalPricingTaxesType.InUsdCents;
-        }
-        return RentalPricingTaxesType.PPM;
-    }
 }
 
 

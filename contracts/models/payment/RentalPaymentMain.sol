@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import '../../infrastructure/upgradeable/UUPSOwnable.sol';
 import '../../models/base/payment/PaymentBase.sol';
-import '../common/Schemas.sol';
+import '../trip/TripTypes.sol';
 import './RentalPaymentTypes.sol';
 
 interface IRentalPaymentAccess {
@@ -183,7 +183,7 @@ contract RentalPaymentMain is PaymentBase, UUPSOwnable {
     }
 
     function payFinishTrip(
-        Schemas.Trip memory trip,
+        TripGatewayTypes.GatewayTrip memory trip,
         uint256 valueToHost,
         uint256 valueToGuest,
         uint256 totalIncome,
@@ -245,7 +245,7 @@ contract RentalPaymentMain is PaymentBase, UUPSOwnable {
     }
 
     function payClaim(
-        Schemas.Trip memory trip,
+        TripGatewayTypes.GatewayTrip memory trip,
         uint256 valueToPay,
         uint256 feeInCurrency,
         uint256 commission,
@@ -277,7 +277,7 @@ contract RentalPaymentMain is PaymentBase, UUPSOwnable {
         require(successHost, 'Transfer to host failed.');
     }
 
-    function payRejectTrip(Schemas.Trip memory trip, uint256 valueToReturnInToken) external onlyPlatform {
+    function payRejectTrip(TripGatewayTypes.GatewayTrip memory trip, uint256 valueToReturnInToken) external onlyPlatform {
         bool successGuest;
         if (trip.paymentInfo.currencyType == address(0)) {
             (successGuest, ) = payable(trip.guest).call{value: valueToReturnInToken}("");
