@@ -9,9 +9,9 @@ async function main() {
 
   if (chainId < 0) throw new Error('chainId is not set')
 
-  const carGatewayAdapterAddress = checkNotNull(
-    getContractAddress('CarGatewayAdapter', 'scripts/deploy_3_CarGatewayAdapter.js', chainId),
-    'CarGatewayAdapter'
+  const carQueryAddress = checkNotNull(
+    getContractAddress('CarQuery', 'scripts/deploy_3_CarModel.js', chainId),
+    'CarQuery'
   )
   const rentalityCurrencyConverterAddress = checkNotNull(
     getContractAddress('RentalityCurrencyConverter', 'scripts/deploy_3b_RentalityCurrencyConverter.js', chainId),
@@ -25,9 +25,9 @@ async function main() {
     getContractAddress('UserProfileQuery', 'scripts/deploy_1i_UserProfileQuery.js', chainId),
     'UserProfileQuery'
   )
-  const rentalityClaimServiceAddress = checkNotNull(
-    getContractAddress('RentalityClaimService', 'scripts/deploy_2a_RentalityClaimService.js', chainId),
-    'RentalityClaimService'
+  const claimStoreAddress = checkNotNull(
+    getContractAddress('RentalClaimStore', 'scripts/deploy_2a_RentalClaimStore.js', chainId),
+    'RentalClaimStore'
   )
   const aiDamageAnalyzeAddress = checkNotNull(
     getContractAddress('RentalityAiDamageAnalyzeV2', 'scripts/deploy_3f_RentalityAiDamageAnalyze.js', chainId),
@@ -36,11 +36,11 @@ async function main() {
 
   const contractFactory = await ethers.getContractFactory(contractName)
   const contract = await contractFactory.deploy(
-    carGatewayAdapterAddress,
+    carQueryAddress,
     rentalityCurrencyConverterAddress,
     tripQueryAddress,
     userProfileQueryAddress,
-    rentalityClaimServiceAddress,
+    claimStoreAddress,
     aiDamageAnalyzeAddress
   )
   await contract.waitForDeployment()

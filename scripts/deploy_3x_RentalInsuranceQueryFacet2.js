@@ -10,16 +10,16 @@ async function main() {
   if (chainId < 0) throw new Error('chainId is not set')
 
   const insuranceServiceAddress = checkNotNull(
-    getContractAddress('RentalityInsurance', 'scripts/deploy_3d_RentalityInsurance.js', chainId),
-    'RentalityInsurance'
+    getContractAddress('RentalInsuranceMain', 'scripts/deploy_3l_RentalInsuranceMain.js', chainId),
+    'RentalInsuranceMain'
   )
   const hostInsuranceAddress = checkNotNull(
-    getContractAddress('RentalityHostInsurance', 'scripts/deploy_3g_RentalityHostInsurance.js', chainId),
-    'RentalityHostInsurance'
+    getContractAddress('RentalInsuranceMain', 'scripts/deploy_3l_RentalInsuranceMain.js', chainId),
+    'RentalInsuranceMain'
   )
   const claimServiceAddress = checkNotNull(
-    getContractAddress('RentalityClaimService', 'scripts/deploy_2a_RentalityClaimService.js', chainId),
-    'RentalityClaimService'
+    getContractAddress('RentalClaimStore', 'scripts/deploy_2a_RentalClaimStore.js', chainId),
+    'RentalClaimStore'
   )
   const tripQueryAddress = checkNotNull(
     getContractAddress('TripQuery', 'scripts/deploy_3t_TripQuery.js', chainId),
@@ -29,9 +29,9 @@ async function main() {
     getContractAddress('UserProfileQuery', 'scripts/deploy_1i_UserProfileQuery.js', chainId),
     'UserProfileQuery'
   )
-  const carGatewayAdapterAddress = checkNotNull(
-    getContractAddress('CarGatewayAdapter', 'scripts/deploy_3_CarGatewayAdapter.js', chainId),
-    'CarGatewayAdapter'
+  const carQueryAddress = checkNotNull(
+    getContractAddress('CarQuery', 'scripts/deploy_3_CarModel.js', chainId),
+    'CarQuery'
   )
   const currencyConverterAddress = checkNotNull(
     getContractAddress('RentalityCurrencyConverter', 'scripts/deploy_3b_RentalityCurrencyConverter.js', chainId),
@@ -45,7 +45,7 @@ async function main() {
     claimServiceAddress,
     tripQueryAddress,
     userProfileQueryAddress,
-    carGatewayAdapterAddress,
+    carQueryAddress,
     currencyConverterAddress
   )
   await contract.waitForDeployment()

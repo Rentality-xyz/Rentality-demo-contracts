@@ -10,8 +10,8 @@ async function main() {
   if (chainId < 0) throw new Error('chainId is not set')
 
   const userService = checkNotNull(
-    getContractAddress('RentalityUserService', 'scripts/deploy_1b_RentalityUserService.js', chainId),
-    'RentalityUserService'
+    getContractAddress('UserProfileMain', 'scripts/deploy_1h_UserProfileMain.js', chainId),
+    'UserProfileMain'
   )
   const ethToUsdPriceFeedAddress = checkNotNull(
     getContractAddress('EthToUsdPriceFeedAddress', 'scripts/deploy_0b_RentalityMockPriceFeed.js', chainId),

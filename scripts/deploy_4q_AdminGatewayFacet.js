@@ -13,21 +13,25 @@ async function main() {
     getContractAddress('UserProfileMain', 'scripts/deploy_1h_UserProfileMain.js', chainId),
     'UserProfileMain'
   )
-  const rentalityClaimService = checkNotNull(
-    getContractAddress('RentalityClaimService', 'scripts/deploy_2a_RentalityClaimService.js', chainId),
-    'RentalityClaimService'
+  const claimStoreAddress = checkNotNull(
+    getContractAddress('RentalClaimStore', 'scripts/deploy_2a_RentalClaimStore.js', chainId),
+    'RentalClaimStore'
   )
   const rentalityCurrencyConverterAddress = checkNotNull(
     getContractAddress('RentalityCurrencyConverter', 'scripts/deploy_3b_RentalityCurrencyConverter.js', chainId),
     'RentalityCurrencyConverter'
   )
-  const rentalityPaymentServiceAddress = checkNotNull(
-    getContractAddress('RentalityPaymentService', 'scripts/deploy_3c_RentalityPaymentService.js', chainId),
-    'RentalityPaymentService'
+  const paymentMainAddress = checkNotNull(
+    getContractAddress('RentalPaymentMain', 'scripts/deploy_3h_RentalPaymentMain.js', chainId),
+    'RentalPaymentMain'
   )
-  const carGatewayAdapterAddress = checkNotNull(
-    getContractAddress('CarGatewayAdapter', 'scripts/deploy_3_CarGatewayAdapter.js', chainId),
-    'CarGatewayAdapter'
+  const rentalPricingMainAddress = checkNotNull(
+    getContractAddress('RentalPricingMain', 'scripts/deploy_3j_RentalPricingMain.js', chainId),
+    'RentalPricingMain'
+  )
+  const carMainAddress = checkNotNull(
+    getContractAddress('CarMain', 'scripts/deploy_3_CarModel.js', chainId),
+    'CarMain'
   )
   const carQueryFacet2Address = checkNotNull(
     getContractAddress('CarQueryFacet2', 'scripts/deploy_3w_CarQueryFacet2.js', chainId),
@@ -41,19 +45,19 @@ async function main() {
     getContractAddress('RentalityGeoService', 'scripts/deploy_2f_RentalityGeoService.js', chainId),
     'RentalityGeoService'
   )
-  const rentalityCarDelivery = checkNotNull(
-    getContractAddress('RentalityCarDelivery', 'scripts/deploy_2i_RentalityCarDelivery.js', chainId),
-    'RentalityCarDelivery'
+  const carDeliveryAddress = checkNotNull(
+    getContractAddress('CarMain', 'scripts/deploy_3_CarModel.js', chainId),
+    'CarMain'
   )
-  const rentalityInsurance = checkNotNull(
-    getContractAddress('RentalityInsurance', 'scripts/deploy_3d_RentalityInsurance.js', chainId),
-    'RentalityInsurance'
+  const insuranceMainAddress = checkNotNull(
+    getContractAddress('RentalInsuranceMain', 'scripts/deploy_3l_RentalInsuranceMain.js', chainId),
+    'RentalInsuranceMain'
   )
-  const rentalityRefferalProgram = checkNotNull(
-    getContractAddress('RentalityReferralProgram', 'scripts/deploy_3e_RentalityReferralProgram.js', chainId),
-    'RentalityReferralProgram'
+  const referralMainAddress = checkNotNull(
+    getContractAddress('RentalReferralMain', 'scripts/deploy_3n_RentalReferralMain.js', chainId),
+    'RentalReferralMain'
   )
-  const rentalityPromoService = checkNotNull(
+  const promoServiceAddress = checkNotNull(
     getContractAddress('RentalityPromoService', 'scripts/deploy_4f_RentalityPromo.js', chainId),
     'RentalityPromoService'
   )
@@ -62,8 +66,8 @@ async function main() {
     'RentalityDimoService'
   )
   const investService = checkNotNull(
-    getContractAddress('RentalityInvestment', 'scripts/deploy_3c_RentalityInvestment.js', chainId),
-    'RentalityInvestment'
+    getContractAddress('RentalInvestmentMain', 'scripts/deploy_3p_RentalInvestmentMain.js', chainId),
+    'RentalInvestmentMain'
   )
   const notificationService = checkNotNull(
     getContractAddress('RentalityNotificationService', 'scripts/deploy_2_RentalityNotificationService.js', chainId),
@@ -82,18 +86,19 @@ async function main() {
 
   const contract = await upgrades.deployProxy(contractFactory, [
     [
-      carGatewayAdapterAddress,
+      carMainAddress,
       rentalityCurrencyConverterAddress,
       userProfileMainAddress,
-      rentalityPaymentServiceAddress,
-      rentalityClaimService,
-      rentalityCarDelivery,
+      paymentMainAddress,
+      rentalPricingMainAddress,
+      claimStoreAddress,
+      carDeliveryAddress,
       ethers.ZeroAddress,
     ],
     [
-      rentalityInsurance,
-      rentalityRefferalProgram,
-      rentalityPromoService,
+      insuranceMainAddress,
+      referralMainAddress,
+      promoServiceAddress,
       dimoService,
       investService,
       notificationService,

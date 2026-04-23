@@ -17,7 +17,7 @@ async function main() {
   )
 
   console.log(`Trusted forwarder is resolved by gateway facets through platform role: ${rentalityGateway}`)
-  console.log('No legacy RentalityPlatform/RentalityPlatformHelper trusted-forwarder wiring is required')
+  console.log('No deprecated platform helper trusted-forwarder wiring is required')
 }
 
 main()

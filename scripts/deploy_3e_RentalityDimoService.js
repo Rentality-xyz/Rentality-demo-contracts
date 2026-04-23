@@ -9,22 +9,21 @@ async function main() {
 
   if (chainId < 0) throw new Error('chainId is not set')
 
-  const rentalityUserServiceAddress = checkNotNull(
-    getContractAddress('RentalityUserService', 'scripts/deploy_1b_RentalityUserService.js', chainId),
-    'RentalityUserService'
+  const userProfileMainAddress = checkNotNull(
+    getContractAddress('UserProfileMain', 'scripts/deploy_1h_UserProfileMain.js', chainId),
+    'UserProfileMain'
   )
 
-  const carGatewayAdapterAddress = checkNotNull(
-    getContractAddress('CarGatewayAdapter', 'scripts/deploy_3_CarGatewayAdapter.js', chainId),
-    'CarGatewayAdapter'
+  const carMainAddress = checkNotNull(
+    getContractAddress('CarMain', 'scripts/deploy_3_CarModel.js', chainId),
+    'CarMain'
   )
-  const adminPubkey = process.env.ADMIN_PUBLIC_KEY // saved on api
 
   const contractFactory = await ethers.getContractFactory(contractName, {
     libraries: {},
   })
 
-  const contract = await upgrades.deployProxy(contractFactory, [rentalityUserServiceAddress, carGatewayAdapterAddress])
+  const contract = await upgrades.deployProxy(contractFactory, [userProfileMainAddress, carMainAddress])
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()
 

@@ -11,10 +11,10 @@ async function main() {
   if (chainId < 0) throw new Error('chainId is not set')
 
   const userService = checkNotNull(
-    getContractAddress('RentalityUserService', 'scripts/deploy_1b_RentalityUserService.js', chainId),
-    'RentalityUserService'
+    getContractAddress('UserProfileMain', 'scripts/deploy_1h_UserProfileMain.js', chainId),
+    'UserProfileMain'
   )
-  const adminPubkey = process.env.ADMIN_PUBLIC_KEY // saved on api
+  const adminPubkey = process.env.ADMIN_PUBLIC_KEY || (await ethers.getSigners())[0].address
 
   const contractFactory = await ethers.getContractFactory(contractName)
 

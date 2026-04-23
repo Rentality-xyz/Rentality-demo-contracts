@@ -16,8 +16,8 @@ async function main() {
   )
 
   const userService = checkNotNull(
-    getContractAddress('RentalityUserService', 'scripts/deploy_1b_RentalityUserService.js', chainId),
-    'RentalityUserService'
+    getContractAddress('UserProfileMain', 'scripts/deploy_1h_UserProfileMain.js', chainId),
+    'UserProfileMain'
   )
   const rentalityUsdtService = checkNotNull(
     getContractAddress('RentalityUSDTConverter', 'scripts/deploy_2f_RentalityUsdtService.js', chainId),

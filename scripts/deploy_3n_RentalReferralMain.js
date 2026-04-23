@@ -18,7 +18,7 @@ async function main() {
     'RentalityRefferalLib'
   )
   const carQueryAddress = checkNotNull(
-    getContractAddress('CarQuery', 'scripts/deploy_3_CarGatewayAdapter.js', chainId),
+    getContractAddress('CarQuery', 'scripts/deploy_3_CarModel.js', chainId),
     'CarQuery'
   )
 

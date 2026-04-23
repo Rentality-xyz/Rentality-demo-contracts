@@ -14,14 +14,14 @@ async function main() {
     'RentalityLocationVerifier'
   )
 
-  const rentalityUserServiceAddress = checkNotNull(
-    getContractAddress('RentalityUserService', 'scripts/deploy_1b_RentalityUserService.js', chainId),
-    'RentalityUserService'
+  const userProfileMainAddress = checkNotNull(
+    getContractAddress('UserProfileMain', 'scripts/deploy_1h_UserProfileMain.js', chainId),
+    'UserProfileMain'
   )
 
   const contractFactory = await ethers.getContractFactory(contractName)
 
-  const contract = await upgrades.deployProxy(contractFactory, [rentalityUserServiceAddress, rentalityVerifier])
+  const contract = await upgrades.deployProxy(contractFactory, [userProfileMainAddress, rentalityVerifier])
   await contract.waitForDeployment()
 
   const contractAddress = await contract.getAddress()

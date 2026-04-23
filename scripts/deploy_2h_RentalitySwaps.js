@@ -10,9 +10,9 @@ async function main() {
   if (chainId < 0) throw new Error('chainId is not set')
 
   const isLocalhost = Number(chainId) === 1337
-  const rentalityUserServiceAddress = checkNotNull(
-    getContractAddress('RentalityUserService', 'scripts/deploy_1b_RentalityUserService.js', chainId),
-    'RentalityUserService'
+  const userProfileMainAddress = checkNotNull(
+    getContractAddress('UserProfileMain', 'scripts/deploy_1h_UserProfileMain.js', chainId),
+    'UserProfileMain'
   )
   const router = isLocalhost
     ? ethers.ZeroAddress
@@ -22,7 +22,7 @@ async function main() {
     : checkNotNull(getContractAddress('WETH', '', chainId), 'WETH')
   const allowedToken = isLocalhost
     ? checkNotNull(
-        getContractAddress('RentalityTestUSDT', 'scripts/deploy_2c_RentalityTestUSDT.js', chainId),
+        getContractAddress('RentalityTestUSDT', 'scripts/deploy_0a_RentalityTestUSDT.js', chainId),
         'RentalityTestUSDT'
       )
     : checkNotNull(getContractAddress('DefaultAllowedToken', '', chainId), 'DefaultAllowedToken')
@@ -38,7 +38,7 @@ async function main() {
     router,
     weth,
     allowedToken,
-    rentalityUserServiceAddress,
+    userProfileMainAddress,
     uniswapFactory,
   ])
   await contract.waitForDeployment()

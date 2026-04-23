@@ -9,9 +9,9 @@ async function main() {
 
   if (chainId < 0) throw new Error('chainId is not set')
 
-  const rentalityClaimServiceAddress = checkNotNull(
-    getContractAddress('RentalityClaimService', 'scripts/deploy_2a_RentalityClaimService.js', chainId),
-    'RentalityClaimService'
+  const claimStoreAddress = checkNotNull(
+    getContractAddress('RentalClaimStore', 'scripts/deploy_2a_RentalClaimStore.js', chainId),
+    'RentalClaimStore'
   )
   const tripQueryAddress = checkNotNull(
     getContractAddress('TripQuery', 'scripts/deploy_3t_TripQuery.js', chainId),
@@ -21,9 +21,9 @@ async function main() {
     getContractAddress('RentalityCurrencyConverter', 'scripts/deploy_3b_RentalityCurrencyConverter.js', chainId),
     'RentalityCurrencyConverter'
   )
-  const rentalityPaymentServiceAddress = checkNotNull(
-    getContractAddress('RentalityPaymentService', 'scripts/deploy_3c_RentalityPaymentService.js', chainId),
-    'RentalityPaymentService'
+  const paymentMainAddress = checkNotNull(
+    getContractAddress('RentalPaymentMain', 'scripts/deploy_3h_RentalPaymentMain.js', chainId),
+    'RentalPaymentMain'
   )
   const rentalInsuranceMainAddress = checkNotNull(
     getContractAddress('RentalInsuranceMain', 'scripts/deploy_3l_RentalInsuranceMain.js', chainId),
@@ -32,10 +32,10 @@ async function main() {
 
   const contractFactory = await ethers.getContractFactory(contractName)
   const contract = await contractFactory.deploy(
-    rentalityClaimServiceAddress,
+    claimStoreAddress,
     tripQueryAddress,
     rentalityCurrencyConverterAddress,
-    rentalityPaymentServiceAddress,
+    paymentMainAddress,
     rentalInsuranceMainAddress
   )
   await contract.waitForDeployment()

@@ -58,6 +58,9 @@ interface IAdminGatewayClaimService {
 
 interface IAdminGatewayPaymentService {
   function withdrawFromPlatform(uint256 amount, address tokenAddress) external;
+}
+
+interface IAdminGatewayPricingService {
   function setPlatformFeeInPPM(uint32 valueInPPM) external;
   function getPlatformFeeInPPM() external view returns (uint32);
   function calculateSumWithDiscount(address user, uint64 daysOfTrip, uint64 value) external view returns (uint64);
@@ -90,9 +93,9 @@ interface IAdminGatewayPromoService {
 interface IAdminGatewayReferralProgram {
   function addOneTimeProgram(ReferralProgram program, int256 points, int256 pointsWithReffHash, bytes4 selector) external;
   function addPermanentProgram(ReferralProgram program, int256 points, bytes4 selector) external;
-  function manageRefHashesProgram(ReferralProgram program, uint256 points) external;
-  function manageRefferalDiscount(ReferralProgram program, ReferralTier tier, uint256 points, uint256 percents) external;
-  function manageTearInfo(ReferralTier tier, uint256 from, uint256 to) external;
+  function manageReferralHashProgram(ReferralProgram program, uint256 points) external;
+  function manageReferralDiscount(ReferralProgram program, ReferralTier tier, uint256 points, uint256 percents) external;
+  function manageTierInfo(ReferralTier tier, uint256 from, uint256 to) external;
 }
 
 interface IAdminGatewayNotificationService {
@@ -108,6 +111,7 @@ struct AdminCoreAddresses {
   address currencyConverterServiceAddress;
   address userServiceAddress;
   address paymentServiceAddress;
+  address pricingServiceAddress;
   address claimServiceAddress;
   address carDeliveryAddress;
   address viewServiceAddress;
@@ -136,6 +140,7 @@ contract AdminGatewayFacet is GatewayUUPSOwnable, ARentalityContext, IAdminGatew
   IAdminGatewayCurrencyConverter private currencyConverterService;
   IAdminGatewayUserAccess private userService;
   IAdminGatewayPaymentService private paymentService;
+  IAdminGatewayPricingService private pricingService;
   IAdminGatewayClaimService private claimService;
   IAdminGatewayDeliveryService private deliveryService;
   address private viewService;
@@ -236,7 +241,7 @@ contract AdminGatewayFacet is GatewayUUPSOwnable, ARentalityContext, IAdminGatew
   }
 
   function setPlatformFeeInPPM(uint32 valueInPPM) public onlyAdmin {
-    paymentService.setPlatformFeeInPPM(valueInPPM);
+    pricingService.setPlatformFeeInPPM(valueInPPM);
   }
 
   function updatePromoData(string memory prefix, uint discount) public {
@@ -252,15 +257,15 @@ contract AdminGatewayFacet is GatewayUUPSOwnable, ARentalityContext, IAdminGatew
   }
 
   function getPlatformFeeInPPM() public view returns (uint32) {
-    return paymentService.getPlatformFeeInPPM();
+    return pricingService.getPlatformFeeInPPM();
   }
 
   function calculateSumWithDiscount(address user, uint64 daysOfTrip, uint64 value) public view returns (uint64) {
-    return paymentService.calculateSumWithDiscount(user, daysOfTrip, value);
+    return pricingService.calculateSumWithDiscount(user, daysOfTrip, value);
   }
 
   function calculateTaxes(uint taxesId, uint64 daysOfTrip, uint64 value) public view returns (uint64) {
-    return paymentService.calculateTaxes(taxesId, daysOfTrip, value);
+    return pricingService.calculateTaxes(taxesId, daysOfTrip, value);
   }
 
   function calculateTaxesDTO(uint taxesId, uint64 daysOfTrip, uint64 value)
@@ -268,7 +273,7 @@ contract AdminGatewayFacet is GatewayUUPSOwnable, ARentalityContext, IAdminGatew
     view
     returns (uint64 totalTax, RentalTaxValue[] memory taxValues)
   {
-    return paymentService.calculateTaxesDTO(taxesId, daysOfTrip, value);
+    return pricingService.calculateTaxesDTO(taxesId, daysOfTrip, value);
   }
 
   function payToHost(uint256 tripId) public {
@@ -325,17 +330,17 @@ contract AdminGatewayFacet is GatewayUUPSOwnable, ARentalityContext, IAdminGatew
 
   function manageRefferalHashPoints(ReferralProgram program, uint points) public {
     require(userService.isAdmin(_msgGatewaySender()), 'only Admin');
-    refferalProgram.manageRefHashesProgram(program, points);
+    refferalProgram.manageReferralHashProgram(program, points);
   }
 
   function manageRefferalDiscount(ReferralProgram program, ReferralTier tear, uint points, uint percents) public {
     require(userService.isAdmin(_msgGatewaySender()), 'only Admin');
-    refferalProgram.manageRefferalDiscount(program, tear, points, percents);
+    refferalProgram.manageReferralDiscount(program, tear, points, percents);
   }
 
   function manageTearInfo(ReferralTier tear, uint from, uint to) public {
     require(userService.isAdmin(_msgGatewaySender()), 'only Admin');
-    refferalProgram.manageTearInfo(tear, from, to);
+    refferalProgram.manageTierInfo(tear, from, to);
   }
 
   function getPlatformUsersInfo(uint page, uint itemsPerPage)
@@ -374,13 +379,13 @@ contract AdminGatewayFacet is GatewayUUPSOwnable, ARentalityContext, IAdminGatew
 
   function setDefaultDiscount(RentalBaseDiscount memory newDiscounts) public {
     address sender = _msgGatewaySender();
-    paymentService.setDefaultDiscount(newDiscounts);
+    pricingService.setDefaultDiscount(newDiscounts);
     notificationService.emitEvent(EventType.Discount, 0, uint8(EventCreator.Admin), sender, sender);
   }
 
   function addTaxes(string memory location, RentalPricingTaxesLocationType locationType, RentalTaxValue[] memory taxes) public {
     address sender = _msgGatewaySender();
-    uint taxId = paymentService.addTaxes(location, locationType, taxes);
+    uint taxId = pricingService.addTaxes(location, locationType, taxes);
     notificationService.emitEvent(EventType.Taxes, taxId, uint8(locationType), sender, sender);
   }
 
@@ -408,6 +413,7 @@ contract AdminGatewayFacet is GatewayUUPSOwnable, ARentalityContext, IAdminGatew
     currencyConverterService = IAdminGatewayCurrencyConverter(coreAddresses.currencyConverterServiceAddress);
     userService = IAdminGatewayUserAccess(coreAddresses.userServiceAddress);
     paymentService = IAdminGatewayPaymentService(coreAddresses.paymentServiceAddress);
+    pricingService = IAdminGatewayPricingService(coreAddresses.pricingServiceAddress);
     claimService = IAdminGatewayClaimService(coreAddresses.claimServiceAddress);
     deliveryService = IAdminGatewayDeliveryService(coreAddresses.carDeliveryAddress);
     viewService = coreAddresses.viewServiceAddress;

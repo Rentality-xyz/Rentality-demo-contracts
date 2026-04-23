@@ -18,7 +18,7 @@ async function main() {
     'UserProfileQuery'
   )
   const carQueryAddress = checkNotNull(
-    getContractAddress('CarQuery', 'scripts/deploy_3_CarGatewayAdapter.js', chainId),
+    getContractAddress('CarQuery', 'scripts/deploy_3_CarModel.js', chainId),
     'CarQuery'
   )
   const geoServiceAddress = checkNotNull(
@@ -46,8 +46,8 @@ async function main() {
     'RentalityCurrencyConverter'
   )
   const hostInsuranceAddress = checkNotNull(
-    getContractAddress('RentalityHostInsurance', 'scripts/deploy_3g_RentalityHostInsurance.js', chainId),
-    'RentalityHostInsurance'
+    getContractAddress('RentalInsuranceMain', 'scripts/deploy_3l_RentalInsuranceMain.js', chainId),
+    'RentalInsuranceMain'
   )
 
   const contractFactory = await ethers.getContractFactory(contractName)

@@ -5,26 +5,21 @@ const addressSaver = require('./utils/addressSaver')
 const { checkNotNull, startDeploy } = require('./utils/deployHelper')
 
 async function main() {
-  const { contractName, chainId } = await startDeploy('RentalityUSDTConverter')
+  const { contractName, chainId } = await startDeploy('RentalClaimStore')
 
   if (chainId < 0) throw new Error('chainId is not set')
 
-  const userService = checkNotNull(
+  const userProfileMainAddress = checkNotNull(
     getContractAddress('UserProfileMain', 'scripts/deploy_1h_UserProfileMain.js', chainId),
     'UserProfileMain'
   )
-  let usdtToken = checkNotNull(
-    getContractAddress('RentalityTestUSDT', 'scripts/deploy_0a_RentalityTestUSDT.js', chainId),
-    'RentalityTestUSDT'
-  )
-  const usdtToUsdPriceFeedAddress = checkNotNull(
-    getContractAddress('UsdtToUsdPriceFeedAddress', 'scripts/deploy_0c_RentalityMockUsdtPriceFeed.js', chainId),
-    'UsdtToUsdPriceFeedAddress'
+  const notificationServiceAddress = checkNotNull(
+    getContractAddress('RentalityNotificationService', 'scripts/deploy_2_RentalityNotificationService.js', chainId),
+    'RentalityNotificationService'
   )
 
   const contractFactory = await ethers.getContractFactory(contractName)
-
-  const contract = await upgrades.deployProxy(contractFactory, [userService, usdtToken, usdtToUsdPriceFeedAddress])
+  const contract = await upgrades.deployProxy(contractFactory, [userProfileMainAddress, notificationServiceAddress])
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()
 

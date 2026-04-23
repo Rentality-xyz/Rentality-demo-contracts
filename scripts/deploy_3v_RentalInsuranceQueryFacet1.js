@@ -9,9 +9,9 @@ async function main() {
 
   if (chainId < 0) throw new Error('chainId is not set')
 
-  const carGatewayAdapterAddress = checkNotNull(
-    getContractAddress('CarGatewayAdapter', 'scripts/deploy_3_CarGatewayAdapter.js', chainId),
-    'CarGatewayAdapter'
+  const carQueryAddress = checkNotNull(
+    getContractAddress('CarQuery', 'scripts/deploy_3_CarModel.js', chainId),
+    'CarQuery'
   )
   const tripQueryAddress = checkNotNull(
     getContractAddress('TripQuery', 'scripts/deploy_3t_TripQuery.js', chainId),
@@ -22,13 +22,13 @@ async function main() {
     'UserProfileQuery'
   )
   const rentalityInsuranceAddress = checkNotNull(
-    getContractAddress('RentalityInsurance', 'scripts/deploy_3d_RentalityInsurance.js', chainId),
-    'RentalityInsurance'
+    getContractAddress('RentalInsuranceMain', 'scripts/deploy_3l_RentalInsuranceMain.js', chainId),
+    'RentalInsuranceMain'
   )
 
   const contractFactory = await ethers.getContractFactory(contractName)
   const contract = await contractFactory.deploy(
-    carGatewayAdapterAddress,
+    carQueryAddress,
     tripQueryAddress,
     userProfileQueryAddress,
     rentalityInsuranceAddress

@@ -236,6 +236,17 @@ contract CarMain is AssetBase, ERC721URIStorageUpgradeable, UUPSOwnable {
         });
     }
 
+    function setDefaultPrices(uint64 underTwentyFiveMilesInUsdCents, uint64 aboveTwentyFiveMilesInUsdCents)
+        external
+        onlyAdmin
+    {
+        defaultDeliveryPrices = DeliveryPrices({
+            underTwentyFiveMilesInUsdCents: underTwentyFiveMilesInUsdCents,
+            aboveTwentyFiveMilesInUsdCents: aboveTwentyFiveMilesInUsdCents,
+            initialized: true
+        });
+    }
+
     function getUserDeliveryPrices(address user) external view returns (DeliveryPrices memory) {
         DeliveryPrices memory prices = deliveryPricesByUser[user];
         return prices.initialized ? prices : defaultDeliveryPrices;

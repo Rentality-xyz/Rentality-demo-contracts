@@ -13,9 +13,9 @@ async function main() {
     getContractAddress('RentalPaymentQuery', 'scripts/deploy_3i_RentalPaymentQuery.js', chainId),
     'RentalPaymentQuery'
   )
-  const legacyPaymentServiceAddress = checkNotNull(
-    getContractAddress('RentalityPaymentService', 'scripts/deploy_3c_RentalityPaymentService.js', chainId),
-    'RentalityPaymentService'
+  const pricingMainAddress = checkNotNull(
+    getContractAddress('RentalPricingMain', 'scripts/deploy_3j_RentalPricingMain.js', chainId),
+    'RentalPricingMain'
   )
   const promoServiceAddress = checkNotNull(
     getContractAddress('RentalityPromoService', 'scripts/deploy_4f_RentalityPromo.js', chainId),
@@ -37,7 +37,7 @@ async function main() {
   const contractFactory = await ethers.getContractFactory(contractName)
   const contract = await upgrades.deployProxy(contractFactory, [
     paymentQueryAddress,
-    legacyPaymentServiceAddress,
+    pricingMainAddress,
     promoServiceAddress,
     currencyConverterAddress,
     userProfileMainAddress,

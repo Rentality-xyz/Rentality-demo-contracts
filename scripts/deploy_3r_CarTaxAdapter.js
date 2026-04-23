@@ -10,7 +10,7 @@ async function main() {
   if (chainId < 0) throw new Error('chainId is not set')
 
   const carQueryAddress = checkNotNull(
-    getContractAddress('CarQuery', 'scripts/deploy_3_CarGatewayAdapter.js', chainId),
+    getContractAddress('CarQuery', 'scripts/deploy_3_CarModel.js', chainId),
     'CarQuery'
   )
 

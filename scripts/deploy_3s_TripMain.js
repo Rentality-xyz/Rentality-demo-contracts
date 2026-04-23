@@ -18,7 +18,7 @@ async function main() {
     'RentalityEnginesService'
   )
   const carMainAddress = checkNotNull(
-    getContractAddress('CarMain', 'scripts/deploy_3_CarGatewayAdapter.js', chainId),
+    getContractAddress('CarMain', 'scripts/deploy_3_CarModel.js', chainId),
     'CarMain'
   )
 

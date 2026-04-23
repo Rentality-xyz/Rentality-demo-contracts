@@ -14,7 +14,7 @@ interface IPaymentGatewayFacetSwaps {
   function getAllowedCurrencies() external view returns (RentalAllowedCurrencyDTO[] memory);
 }
 
-interface IPaymentGatewayFacetLegacyPaymentService {
+interface IPaymentGatewayFacetPricingService {
   function getBaseDiscount(address user) external view returns (RentalBaseDiscount memory);
   function getTaxesInfoById(uint taxId) external view returns (RentalTaxesInfo memory);
   function addBaseDiscount(address user, RentalBaseDiscount memory data) external;
@@ -41,7 +41,7 @@ interface IPaymentGatewayFacetNotificationService {
 
 contract PaymentGatewayFacet is UUPSOwnable, ARentalityContext, IPaymentGatewayFacet {
   RentalPaymentQuery public paymentQuery;
-  IPaymentGatewayFacetLegacyPaymentService public legacyPaymentService;
+  IPaymentGatewayFacetPricingService public pricingService;
   IPaymentGatewayFacetPromoService public promoService;
   IPaymentGatewayFacetCurrencyConverter public currencyConverter;
   IPaymentGatewayFacetUserAccess public userAccess;
@@ -53,7 +53,7 @@ contract PaymentGatewayFacet is UUPSOwnable, ARentalityContext, IPaymentGatewayF
 
   function initialize(
     address paymentQueryAddress,
-    address legacyPaymentServiceAddress,
+    address pricingServiceAddress,
     address promoServiceAddress,
     address currencyConverterAddress,
     address userAccessAddress,
@@ -62,7 +62,7 @@ contract PaymentGatewayFacet is UUPSOwnable, ARentalityContext, IPaymentGatewayF
     __Ownable_init();
     _setServiceAddresses(
       paymentQueryAddress,
-      legacyPaymentServiceAddress,
+      pricingServiceAddress,
       promoServiceAddress,
       currencyConverterAddress,
       userAccessAddress,
@@ -72,7 +72,7 @@ contract PaymentGatewayFacet is UUPSOwnable, ARentalityContext, IPaymentGatewayF
 
   function updateServiceAddresses(
     address paymentQueryAddress,
-    address legacyPaymentServiceAddress,
+    address pricingServiceAddress,
     address promoServiceAddress,
     address currencyConverterAddress,
     address userAccessAddress,
@@ -80,7 +80,7 @@ contract PaymentGatewayFacet is UUPSOwnable, ARentalityContext, IPaymentGatewayF
   ) external onlyOwner {
     _setServiceAddresses(
       paymentQueryAddress,
-      legacyPaymentServiceAddress,
+      pricingServiceAddress,
       promoServiceAddress,
       currencyConverterAddress,
       userAccessAddress,
@@ -93,7 +93,7 @@ contract PaymentGatewayFacet is UUPSOwnable, ARentalityContext, IPaymentGatewayF
   }
 
   function getDiscount(address user) external view returns (RentalBaseDiscount memory) {
-    return legacyPaymentService.getBaseDiscount(user);
+    return pricingService.getBaseDiscount(user);
   }
 
   function checkPromo(string memory promo, uint startDateTime, uint endDateTime)
@@ -109,12 +109,12 @@ contract PaymentGatewayFacet is UUPSOwnable, ARentalityContext, IPaymentGatewayF
   }
 
   function getTaxesInfoById(uint taxId) external view returns (RentalTaxesInfo memory) {
-    return legacyPaymentService.getTaxesInfoById(taxId);
+    return pricingService.getTaxesInfoById(taxId);
   }
 
   function addUserDiscount(RentalBaseDiscount memory data) external {
     address sender = _msgGatewaySender();
-    legacyPaymentService.addBaseDiscount(sender, data);
+    pricingService.addBaseDiscount(sender, data);
     notificationService.emitEvent(EventType.Discount, 0, uint8(EventCreator.User), sender, sender);
   }
 
@@ -124,14 +124,14 @@ contract PaymentGatewayFacet is UUPSOwnable, ARentalityContext, IPaymentGatewayF
 
   function _setServiceAddresses(
     address paymentQueryAddress,
-    address legacyPaymentServiceAddress,
+    address pricingServiceAddress,
     address promoServiceAddress,
     address currencyConverterAddress,
     address userAccessAddress,
     address notificationServiceAddress
   ) internal {
     paymentQuery = RentalPaymentQuery(paymentQueryAddress);
-    legacyPaymentService = IPaymentGatewayFacetLegacyPaymentService(legacyPaymentServiceAddress);
+    pricingService = IPaymentGatewayFacetPricingService(pricingServiceAddress);
     promoService = IPaymentGatewayFacetPromoService(promoServiceAddress);
     currencyConverter = IPaymentGatewayFacetCurrencyConverter(currencyConverterAddress);
     userAccess = IPaymentGatewayFacetUserAccess(userAccessAddress);

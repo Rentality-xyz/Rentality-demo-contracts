@@ -10,18 +10,8 @@ async function main() {
   if (chainId < 0) throw new Error('chainId is not set')
 
   const userService = checkNotNull(
-    getContractAddress('RentalityUserService', 'scripts/deploy_1b_RentalityUserService.js', chainId),
-    'RentalityUserService'
-  )
-
-  const patrolEngine = checkNotNull(
-    getContractAddress('RentalityPetrolEngine', 'scripts/deploy_2b_1_RentalityPatrolEngine.js', chainId),
-    'RentalityPetrolEngine'
-  )
-
-  const electricEngine = checkNotNull(
-    getContractAddress('RentalityElectricEngine', 'scripts/deploy_2b_2_RentalityElectricEngine.js', chainId),
-    'RentalityElectricEngine'
+    getContractAddress('UserProfileMain', 'scripts/deploy_1h_UserProfileMain.js', chainId),
+    'UserProfileMain'
   )
 
   if (network.name === 'hardhat') {
@@ -29,7 +19,7 @@ async function main() {
   }
 
   const contractFactory = await ethers.getContractFactory(contractName)
-  const contract = await upgrades.deployProxy(contractFactory, [userService, [patrolEngine, electricEngine]])
+  const contract = await upgrades.deployProxy(contractFactory, [userService, []])
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()
 
