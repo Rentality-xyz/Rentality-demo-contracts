@@ -10,8 +10,8 @@ import '../../models/common/CommonTypes.sol';
 import '../../models/pricing/PricingTypes.sol';
 import '../../models/profile/UserProfileTypes.sol';
 import '../../models/trip/TripTypes.sol';
-import '../car/CarMapper.sol';
-import '../profile/ProfileMapper.sol';
+import '../mappers/CarMapper.sol';
+import '../mappers/ProfileMapper.sol';
 import './IAdminGatewayFacet.sol';
 
 interface IAdminGatewayTripQuery {

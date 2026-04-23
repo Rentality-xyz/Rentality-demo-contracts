@@ -12,7 +12,7 @@ import "../../models/common/CommonTypes.sol";
 import "../../models/profile/UserProfileTypes.sol";
 import "../../models/insurance/InsuranceTypes.sol";
 import "../ARentalityContext.sol";
-import "./TripMapper.sol";
+import "../mappers/TripMapper.sol";
 
 interface ITripGatewayFacetUserProfileMain {
     function isRentalityPlatform(address user) external view returns (bool);

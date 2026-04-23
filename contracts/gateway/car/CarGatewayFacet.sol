@@ -11,7 +11,7 @@ import '../../models/common/CommonTypes.sol';
 import '../ARentalityContext.sol';
 
 import './ICarGatewayFacet.sol';
-import './CarMapper.sol';
+import '../mappers/CarMapper.sol';
 
 interface ICarGatewayUserProfileMain {
   function isRentalityPlatform(address user) external view returns (bool);

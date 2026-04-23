@@ -11,7 +11,7 @@ import '../../models/profile/UserProfileTypes.sol';
 import '../../models/trip/TripTypes.sol';
 import '../ARentalityContext.sol';
 
-import './CarMapper.sol';
+import '../mappers/CarMapper.sol';
 import './ICarViewGatewayFacet1.sol';
 
 interface ICarViewGatewayFacet1UserProfileMain {

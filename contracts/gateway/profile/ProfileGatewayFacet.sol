@@ -9,7 +9,7 @@ import '../../models/profile/UserProfileQuery.sol';
 import '../../models/profile/UserProfileTypes.sol';
 import '../ARentalityContext.sol';
 import './IProfileGatewayFacet.sol';
-import './ProfileMapper.sol';
+import '../mappers/ProfileMapper.sol';
 
 interface IProfileGatewayFacetReferralProgram {
     function generateReferralHash(address user) external;
