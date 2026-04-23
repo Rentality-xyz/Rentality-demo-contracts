@@ -2,7 +2,7 @@
 pragma solidity ^0.8.20;
 
 import '@openzeppelin/contracts/utils/Strings.sol';
-import '../../models/pricing/RentalPricingTypes.sol';
+import '../../models/pricing/PricingTypes.sol';
 import '../../models/trip/TripTypes.sol';
 import '../upgradeable/UUPSOwnable.sol';
 
@@ -156,7 +156,7 @@ contract RentalityPromoService is UUPSOwnable {
   function checkPromo(string memory promo, uint256 startDateTime, uint256 endDateTime)
     public
     view
-    returns (RentalCheckPromoDTO memory)
+    returns (PricingCheckPromoDTO memory)
   {
     RentalityPromo memory promoData = promoToPromoData[promo];
     string memory prefix = _getPrefix(promo);
@@ -166,7 +166,7 @@ contract RentalityPromoService is UUPSOwnable {
       promoData = generalCode;
     }
 
-    return RentalCheckPromoDTO(
+    return PricingCheckPromoDTO(
       promoData.createdAt > 0,
       promoData.status == RentalityPromoStatus.Active
         && promoData.expireDate >= endDateTime

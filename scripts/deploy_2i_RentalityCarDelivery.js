@@ -9,7 +9,6 @@ async function main() {
 
   if (chainId < 0) throw new Error('chainId is not set')
 
-  const realMath = checkNotNull(getContractAddress('RealMath', 'scripts/deploy_1c_RealMath.js', chainId), 'RealMath')
   const rentalityUserServiceAddress = checkNotNull(
     getContractAddress('RentalityUserService', 'scripts/deploy_1b_RentalityUserService.js', chainId),
     'RentalityUserService'
@@ -21,7 +20,6 @@ async function main() {
   )
   const contractFactory = await ethers.getContractFactory(contractName, {
     libraries: {
-      RealMath: realMath,
       RentalityUtils: rentalityUtilsAddress,
     },
   })

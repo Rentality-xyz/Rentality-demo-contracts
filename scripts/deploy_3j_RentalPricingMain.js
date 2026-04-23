@@ -5,7 +5,7 @@ const addressSaver = require('./utils/addressSaver')
 const { checkNotNull, startDeploy } = require('./utils/deployHelper')
 
 async function main() {
-  const { contractName, chainId } = await startDeploy('RentalPricingMain')
+  const { contractName, chainId } = await startDeploy('PricingMain')
 
   if (chainId < 0) throw new Error('chainId is not set')
 
@@ -13,20 +13,15 @@ async function main() {
     getContractAddress('UserProfileMain', 'scripts/deploy_1h_UserProfileMain.js', chainId),
     'UserProfileMain'
   )
-  const rentalityTaxesAddress = checkNotNull(
-    getContractAddress('RentalityTaxes', 'scripts/deploy_2e_RentalityTaxes.js', chainId),
-    'RentalityTaxes'
-  )
-  const rentalityBaseDiscountAddress = checkNotNull(
-    getContractAddress('RentalityBaseDiscount', 'scripts/deploy_2g_RentalityBaseDiscount.js', chainId),
-    'RentalityBaseDiscount'
+  const pricingMainFacet1Address = checkNotNull(
+    getContractAddress('PricingMainFacet1', 'scripts/deploy_3j1_PricingMainFacet1.js', chainId),
+    'PricingMainFacet1'
   )
 
   const contractFactory = await ethers.getContractFactory(contractName)
   const contract = await upgrades.deployProxy(contractFactory, [
     userProfileMainAddress,
-    rentalityTaxesAddress,
-    rentalityBaseDiscountAddress,
+    pricingMainFacet1Address,
   ])
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()

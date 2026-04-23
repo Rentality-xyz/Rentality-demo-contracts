@@ -18,11 +18,11 @@ async function main() {
   const { contractName, chainId } = await startDeploy('')
 
   if (chainId < 0) throw new Error('chainId is not set')
-  const taxesServiceAddress = checkNotNull(
-    getContractAddress('RentalityTaxes', 'scripts/deploy_2e_RentalityTaxes.js', chainId),
-    'RentalityTaxes'
+  const pricingMainAddress = checkNotNull(
+    getContractAddress('PricingMain', 'scripts/deploy_3j_PricingMain.js', chainId),
+    'PricingMain'
   )
-  const taxesContract = await ethers.getContractAt('RentalityTaxes', taxesServiceAddress)
+  const pricingMain = await ethers.getContractAt('PricingMain', pricingMainAddress)
 
   const numbers = Array.from({ length: 51 }, (_, i) => i + 2);
 
@@ -80,7 +80,7 @@ async function main() {
     'District of Columbia',
   ]
 
-  console.log(await taxesContract.setTaxesLocations(numbers, states))
+  console.log(await pricingMain.setTaxesLocations(numbers, states))
 }
 
 main()

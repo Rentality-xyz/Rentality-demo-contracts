@@ -5,7 +5,7 @@ import '../../models/base/asset/AssetTypes.sol';
 import '../../models/base/insurance/InsuranceTypes.sol';
 import '../../models/common/CommonTypes.sol';
 import '../../models/car/CarTypes.sol';
-import '../../models/pricing/RentalPricingTypes.sol';
+import '../../models/pricing/PricingTypes.sol';
 
 library CarMapper {
   function toLegacyCarInfo(Asset memory asset, CarData memory car) internal pure returns (CarGatewayTypes.GatewayCarInfo memory) {
@@ -271,8 +271,8 @@ library CarMapper {
     });
   }
 
-  function toLegacyBaseDiscount(RentalBaseDiscount memory discount) internal pure returns (RentalBaseDiscount memory) {
-    return RentalBaseDiscount({
+  function toLegacyBaseDiscount(PricingBaseDiscount memory discount) internal pure returns (PricingBaseDiscount memory) {
+    return PricingBaseDiscount({
       threeDaysDiscount: discount.threeDaysDiscount,
       sevenDaysDiscount: discount.sevenDaysDiscount,
       thirtyDaysDiscount: discount.thirtyDaysDiscount,
@@ -280,14 +280,14 @@ library CarMapper {
     });
   }
 
-  function toLegacyTaxes(RentalTaxValue[] memory taxes) internal pure returns (RentalTaxValue[] memory) {
-    RentalTaxValue[] memory result = new RentalTaxValue[](taxes.length);
+  function toLegacyTaxes(PricingTaxValue[] memory taxes) internal pure returns (PricingTaxValue[] memory) {
+    PricingTaxValue[] memory result = new PricingTaxValue[](taxes.length);
 
     for (uint256 i = 0; i < taxes.length; i++) {
-      result[i] = RentalTaxValue({
+      result[i] = PricingTaxValue({
         name: taxes[i].name,
         value: taxes[i].value,
-        tType: RentalPricingTaxesType(uint8(taxes[i].tType))
+        tType: PricingTaxesType(uint8(taxes[i].tType))
       });
     }
 

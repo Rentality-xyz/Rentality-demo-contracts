@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-struct RentalTripCreationPaymentRequest {
+struct TripCreationPaymentRequest {
     address currencyType;
     uint256 valueSumInCurrency;
     address user;
@@ -11,26 +11,26 @@ struct RentalTripCreationPaymentRequest {
     uint24 fee;
 }
 
-struct RentalTripSettlement {
+struct TripSettlement {
     uint256 valueToHost;
     uint256 valueToGuest;
     uint256 totalIncome;
     uint256 tripCostValue;
 }
 
-struct RentalClaimPaymentRequest {
+struct ClaimPaymentRequest {
     uint256 valueToPay;
     uint256 feeInCurrency;
     uint256 commission;
     address user;
 }
 
-struct RentalCurrency {
+struct PaymentCurrency {
     address currency;
     string name;
 }
 
-struct RentalAllowedCurrencyDTO {
+struct AllowedCurrencyDTO {
     uint8 decimals;
     string name;
     string symbol;

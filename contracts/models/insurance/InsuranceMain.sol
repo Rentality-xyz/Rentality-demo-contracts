@@ -5,20 +5,20 @@ import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import '@openzeppelin/contracts/utils/math/Math.sol';
 import '../../infrastructure/upgradeable/UUPSOwnable.sol';
 import '../base/insurance/InsuranceBase.sol';
-import './RentalInsuranceTypes.sol';
+import './InsuranceTypes.sol';
 
-interface IRentalInsuranceAccess {
+interface IInsuranceAccess {
     function isAdmin(address user) external view returns (bool);
     function isRentalityPlatform(address user) external view returns (bool);
 }
 
-interface IRentalInsuranceCarQuery {
+interface IInsuranceCarQuery {
     function getOwner(uint256 carId) external view returns (address);
 }
 
-contract RentalInsuranceMain is InsuranceBase, UUPSOwnable {
-    IRentalInsuranceAccess public userAccess;
-    IRentalInsuranceCarQuery public carQuery;
+contract InsuranceMain is InsuranceBase, UUPSOwnable {
+    IInsuranceAccess public userAccess;
+    IInsuranceCarQuery public carQuery;
 
     uint256 public insuranceRuleId;
     mapping(uint256 => InsuranceRule) private insuranceIdToRule;
@@ -57,19 +57,19 @@ contract RentalInsuranceMain is InsuranceBase, UUPSOwnable {
 
     function initialize(address userAccessAddress, address carQueryAddress) public initializer {
         __Ownable_init();
-        userAccess = IRentalInsuranceAccess(userAccessAddress);
-        carQuery = IRentalInsuranceCarQuery(carQueryAddress);
+        userAccess = IInsuranceAccess(userAccessAddress);
+        carQuery = IInsuranceCarQuery(carQueryAddress);
 
         insuranceRuleId = 1;
         insuranceIdToRule[1] = InsuranceRule({partToInsurance: 40, insuranceId: 1});
     }
 
     function updateUserAccess(address userAccessAddress) external onlyOwner {
-        userAccess = IRentalInsuranceAccess(userAccessAddress);
+        userAccess = IInsuranceAccess(userAccessAddress);
     }
 
     function updateCarQuery(address carQueryAddress) external onlyOwner {
-        carQuery = IRentalInsuranceCarQuery(carQueryAddress);
+        carQuery = IInsuranceCarQuery(carQueryAddress);
     }
 
     function saveInsuranceRequired(uint256 carId, uint256 priceInUsdCents, bool required, address user) external onlyPlatform {
@@ -81,7 +81,7 @@ contract RentalInsuranceMain is InsuranceBase, UUPSOwnable {
         _saveInsuranceRequirement(carId, InsuranceRequirement({required: required, priceInUsdCents: priceInUsdCents}));
     }
 
-    function saveGuestInsurance(RentalSaveInsuranceRequest memory insuranceInfo, address user) external onlyPlatform {
+    function saveGuestInsurance(SaveInsuranceRequest memory insuranceInfo, address user) external onlyPlatform {
         if (insuranceInfo.insuranceType == InsuranceType.OneTime) {
             revert InvalidInsuranceType();
         }
@@ -115,7 +115,7 @@ contract RentalInsuranceMain is InsuranceBase, UUPSOwnable {
         return userToInsuranceInfo[user];
     }
 
-    function saveTripInsuranceInfo(uint256 tripId, RentalSaveInsuranceRequest memory insuranceInfo, address user) external onlyPlatform {
+    function saveTripInsuranceInfo(uint256 tripId, SaveInsuranceRequest memory insuranceInfo, address user) external onlyPlatform {
         if (insuranceInfo.insuranceType == InsuranceType.None) {
             revert InvalidInsuranceType();
         }
@@ -205,7 +205,7 @@ contract RentalInsuranceMain is InsuranceBase, UUPSOwnable {
         return (lastOneTimeIndex, lastGeneralIndex);
     }
 
-    function payHostInsuranceClaim(uint256 amountToPay, RentalHostInsurancePayoutContext memory context) external payable onlyPlatform {
+    function payHostInsuranceClaim(uint256 amountToPay, HostInsurancePayoutContext memory context) external payable onlyPlatform {
         uint256 hostInsuranceId = userToInsuranceRuleId[context.host];
         if (hostInsuranceId == 0) {
             revert HostHasNoInsuranceRule(context.host);

@@ -15,7 +15,6 @@ async function main() {
   let contracts = getChains().find((contracts) => BigInt(contracts.chainId) === chainId)
   await deployLib('RentalityUtils')
   await deployLib('RentalityQuery')
-  await deployLib('RealMath')
   await deployLib('RentalityTripsQuery')
   await deployLib('RentalityViewLib')
   await deployLib('RentalityRefferalLib')

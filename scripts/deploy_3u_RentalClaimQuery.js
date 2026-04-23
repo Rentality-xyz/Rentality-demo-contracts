@@ -5,7 +5,7 @@ const addressSaver = require('./utils/addressSaver')
 const { checkNotNull, startDeploy } = require('./utils/deployHelper')
 
 async function main() {
-  const { contractName, chainId } = await startDeploy('RentalClaimQuery')
+  const { contractName, chainId } = await startDeploy('ReferralClaimQuery')
 
   if (chainId < 0) throw new Error('chainId is not set')
 
@@ -26,8 +26,8 @@ async function main() {
     'UserProfileQuery'
   )
   const claimStoreAddress = checkNotNull(
-    getContractAddress('RentalClaimStore', 'scripts/deploy_2a_RentalClaimStore.js', chainId),
-    'RentalClaimStore'
+    getContractAddress('ReferralClaimStore', 'scripts/deploy_2a_RentalClaimStore.js', chainId),
+    'ReferralClaimStore'
   )
   const aiDamageAnalyzeAddress = checkNotNull(
     getContractAddress('RentalityAiDamageAnalyzeV2', 'scripts/deploy_3f_RentalityAiDamageAnalyze.js', chainId),

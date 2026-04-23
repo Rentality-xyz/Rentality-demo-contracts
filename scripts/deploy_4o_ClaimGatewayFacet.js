@@ -10,12 +10,12 @@ async function main() {
   if (chainId < 0) throw new Error('chainId is not set')
 
   const claimQueryAddress = checkNotNull(
-    getContractAddress('RentalClaimQuery', 'scripts/deploy_3u_RentalClaimQuery.js', chainId),
-    'RentalClaimQuery'
+    getContractAddress('ReferralQuery', 'scripts/deploy_3o_RentalReferralQuery.js', chainId),
+    'ReferralQuery'
   )
   const claimMainAddress = checkNotNull(
-    getContractAddress('RentalClaimMain', 'scripts/deploy_3y_RentalClaimMain.js', chainId),
-    'RentalClaimMain'
+    getContractAddress('ReferralMainFacet1', 'scripts/deploy_3n1_ReferralMainFacet1.js', chainId),
+    'ReferralMainFacet1'
   )
   const userProfileMainAddress = checkNotNull(
     getContractAddress('UserProfileMain', 'scripts/deploy_1h_UserProfileMain.js', chainId),

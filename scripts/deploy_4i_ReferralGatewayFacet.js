@@ -9,13 +9,13 @@ async function main() {
 
   if (chainId < 0) throw new Error('chainId is not set')
 
-  const rentalReferralMainAddress = checkNotNull(
-    getContractAddress('RentalReferralMain', 'scripts/deploy_3n_RentalReferralMain.js', chainId),
-    'RentalReferralMain'
+  const referralMainAddress = checkNotNull(
+    getContractAddress('ReferralMain', 'scripts/deploy_3n_ReferralMain.js', chainId),
+    'ReferralMain'
   )
-  const rentalReferralQueryAddress = checkNotNull(
-    getContractAddress('RentalReferralQuery', 'scripts/deploy_3o_RentalReferralQuery.js', chainId),
-    'RentalReferralQuery'
+  const referralQueryAddress = checkNotNull(
+    getContractAddress('ReferralQuery', 'scripts/deploy_3o_ReferralQuery.js', chainId),
+    'ReferralQuery'
   )
   const userProfileMainAddress = checkNotNull(
     getContractAddress('UserProfileMain', 'scripts/deploy_1h_UserProfileMain.js', chainId),
@@ -24,8 +24,8 @@ async function main() {
 
   const contractFactory = await ethers.getContractFactory(contractName)
   const contract = await upgrades.deployProxy(contractFactory, [
-    rentalReferralMainAddress,
-    rentalReferralQueryAddress,
+    referralMainAddress,
+    referralQueryAddress,
     userProfileMainAddress,
   ])
   await contract.waitForDeployment()

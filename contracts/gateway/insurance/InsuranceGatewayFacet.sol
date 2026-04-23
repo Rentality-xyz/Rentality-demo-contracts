@@ -4,12 +4,12 @@ pragma solidity ^0.8.20;
 import {Initializable as OZInitializable} from '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 import '../../infrastructure/upgradeable/UUPSOwnable.sol';
 import '../ARentalityContext.sol';
-import '../../models/claim/RentalClaimTypes.sol';
+import '../../models/referral/ReferralTypes.sol';
 import '../../models/common/CommonTypes.sol';
 import '../../models/base/insurance/InsuranceTypes.sol';
-import '../../models/insurance/RentalInsuranceTypes.sol';
-import '../../models/insurance/RentalInsuranceQueryFacet1.sol';
-import '../../models/insurance/RentalInsuranceQueryFacet2.sol';
+import '../../models/insurance/InsuranceTypes.sol';
+import '../../models/insurance/InsuranceQueryFacet1.sol';
+import '../../models/insurance/InsuranceQueryFacet2.sol';
 import './IInsuranceGatewayFacet.sol';
 
 interface IInsuranceGatewayUserAccess {
@@ -17,8 +17,8 @@ interface IInsuranceGatewayUserAccess {
 }
 
 interface IInsuranceGatewayMain {
-  function saveGuestInsurance(RentalSaveInsuranceRequest memory insuranceInfo, address user) external;
-  function saveTripInsuranceInfo(uint256 tripId, RentalSaveInsuranceRequest memory insuranceInfo, address user) external;
+  function saveGuestInsurance(SaveInsuranceRequest memory insuranceInfo, address user) external;
+  function saveTripInsuranceInfo(uint256 tripId, SaveInsuranceRequest memory insuranceInfo, address user) external;
   function setHostInsurance(uint256 insuranceIdToUse, address user) external;
 }
 
@@ -27,8 +27,8 @@ interface IInsuranceGatewayNotificationService {
 }
 
 contract InsuranceGatewayFacet is UUPSOwnable, ARentalityContext, IInsuranceGatewayFacet {
-  RentalInsuranceQueryFacet1 public insuranceQueryFacet1;
-  RentalInsuranceQueryFacet2 public insuranceQueryFacet2;
+  InsuranceQueryFacet1 public insuranceQueryFacet1;
+  InsuranceQueryFacet2 public insuranceQueryFacet2;
   IInsuranceGatewayMain public insuranceMain;
   IInsuranceGatewayUserAccess public userAccess;
   IInsuranceGatewayNotificationService public notificationService;
@@ -70,7 +70,7 @@ contract InsuranceGatewayFacet is UUPSOwnable, ARentalityContext, IInsuranceGate
     );
   }
 
-  function getInsurancesBy(bool host) external view returns (RentalInsuranceDTO[] memory) {
+  function getInsurancesBy(bool host) external view returns (InsuranceDTO[] memory) {
     return insuranceQueryFacet1.getInsurancesBy(host, _msgGatewaySender());
   }
 
@@ -82,15 +82,15 @@ contract InsuranceGatewayFacet is UUPSOwnable, ARentalityContext, IInsuranceGate
     return insuranceQueryFacet2.getGuestInsurance(guest);
   }
 
-  function getHostInsuranceClaims() external view returns (FullClaimInfo[] memory claimInfos) {
+  function getHostInsuranceClaims() external view returns (FullReferralClaimInfo[] memory claimInfos) {
     return insuranceQueryFacet2.getHostInsuranceClaims();
   }
 
-  function getHostInsuranceRule(address host) external view returns (RentalHostInsuranceRuleDTO memory insuranceRules) {
+  function getHostInsuranceRule(address host) external view returns (HostInsuranceRuleDTO memory insuranceRules) {
     return insuranceQueryFacet2.getHostInsuranceRule(host);
   }
 
-  function getAllInsuranceRules() external view returns (RentalHostInsuranceRuleDTO[] memory insuranceRules) {
+  function getAllInsuranceRules() external view returns (HostInsuranceRuleDTO[] memory insuranceRules) {
     return insuranceQueryFacet2.getAllInsuranceRules();
   }
 
@@ -98,13 +98,13 @@ contract InsuranceGatewayFacet is UUPSOwnable, ARentalityContext, IInsuranceGate
     return insuranceQueryFacet2.getHostInsuranceBalance();
   }
 
-  function saveGuestInsurance(RentalSaveInsuranceRequest memory insuranceInfo) external {
+  function saveGuestInsurance(SaveInsuranceRequest memory insuranceInfo) external {
     address sender = _msgGatewaySender();
     insuranceMain.saveGuestInsurance(insuranceInfo, sender);
     notificationService.emitEvent(EventType.Insurance, 0, uint8(insuranceInfo.insuranceType), sender, sender);
   }
 
-  function saveTripInsuranceInfo(uint tripId, RentalSaveInsuranceRequest memory insuranceInfo) external {
+  function saveTripInsuranceInfo(uint tripId, SaveInsuranceRequest memory insuranceInfo) external {
     address sender = _msgGatewaySender();
     insuranceMain.saveTripInsuranceInfo(tripId, insuranceInfo, sender);
     notificationService.emitEvent(EventType.SaveTripInsurance, tripId, 0, sender, sender);
@@ -125,8 +125,8 @@ contract InsuranceGatewayFacet is UUPSOwnable, ARentalityContext, IInsuranceGate
     address userServiceAddress,
     address notificationServiceAddress
   ) internal {
-    insuranceQueryFacet1 = RentalInsuranceQueryFacet1(insuranceQueryFacet1Address);
-    insuranceQueryFacet2 = RentalInsuranceQueryFacet2(insuranceQueryFacet2Address);
+    insuranceQueryFacet1 = InsuranceQueryFacet1(insuranceQueryFacet1Address);
+    insuranceQueryFacet2 = InsuranceQueryFacet2(insuranceQueryFacet2Address);
     insuranceMain = IInsuranceGatewayMain(insuranceMainAddress);
     userAccess = IInsuranceGatewayUserAccess(userServiceAddress);
     notificationService = IInsuranceGatewayNotificationService(notificationServiceAddress);

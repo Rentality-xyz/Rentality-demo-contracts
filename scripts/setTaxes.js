@@ -7,10 +7,6 @@ async function main() {
   const { contractName, chainId } = await startDeploy('')
 
   if (chainId < 0) throw new Error('chainId is not set')
-  const taxesServiceAddress = checkNotNull(
-    getContractAddress('RentalityTaxes', 'scripts/deploy_2e_RentalityTaxes.js', chainId),
-    'RentalityTaxes'
-  )
 
   const rentalityGatewayAddress = checkNotNull(
     getContractAddress('RentalityGateway', 'scripts/deploy_7_RentalityGateway.js', chainId),

@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import './RentalPaymentMain.sol';
+import './PaymentMain.sol';
 
-contract RentalPaymentQuery {
-    RentalPaymentMain public paymentMain;
+contract PaymentQuery {
+    PaymentMain public paymentMain;
 
     constructor(address paymentMainAddress) {
-        paymentMain = RentalPaymentMain(paymentMainAddress);
+        paymentMain = PaymentMain(paymentMainAddress);
     }
 
     function getTreasuryBalance(address currencyType) external view returns (uint256) {

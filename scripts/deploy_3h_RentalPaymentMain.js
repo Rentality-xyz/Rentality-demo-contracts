@@ -5,7 +5,7 @@ const addressSaver = require('./utils/addressSaver')
 const { checkNotNull, startDeploy } = require('./utils/deployHelper')
 
 async function main() {
-  const { contractName, chainId } = await startDeploy('RentalPaymentMain')
+  const { contractName, chainId } = await startDeploy('PaymentMain')
 
   if (chainId < 0) throw new Error('chainId is not set')
 
@@ -13,13 +13,13 @@ async function main() {
     getContractAddress('UserProfileMain', 'scripts/deploy_1h_UserProfileMain.js', chainId),
     'UserProfileMain'
   )
-  const rentalInvestmentMainAddress = checkNotNull(
-    getContractAddress('RentalInvestmentMain', 'scripts/deploy_3p_RentalInvestmentMain.js', chainId),
-    'RentalInvestmentMain'
+  const investmentMainAddress = checkNotNull(
+    getContractAddress('InvestmentMain', 'scripts/deploy_3p_InvestmentMain.js', chainId),
+    'InvestmentMain'
   )
-  const rentalInsuranceMainAddress = checkNotNull(
-    getContractAddress('RentalInsuranceMain', 'scripts/deploy_3l_RentalInsuranceMain.js', chainId),
-    'RentalInsuranceMain'
+  const insuranceMainAddress = checkNotNull(
+    getContractAddress('InsuranceMain', 'scripts/deploy_3l_InsuranceMain.js', chainId),
+    'InsuranceMain'
   )
   const rentalitySwapsAddress = checkNotNull(
     getContractAddress('RentalitySwaps', 'scripts/deploy_2h_RentalitySwaps.js', chainId),
@@ -30,8 +30,8 @@ async function main() {
   const contract = await upgrades.deployProxy(contractFactory, [
     userProfileMainAddress,
     userProfileMainAddress,
-    rentalInvestmentMainAddress,
-    rentalInsuranceMainAddress,
+    investmentMainAddress,
+    insuranceMainAddress,
     rentalitySwapsAddress,
   ])
   await contract.waitForDeployment()

@@ -1,38 +1,38 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-enum RentalPricingTaxesLocationType {
+enum PricingTaxesLocationType {
     State,
     City,
     Country
 }
 
-enum RentalPricingTaxesType {
+enum PricingTaxesType {
     InUsdCentsPerDay,
     InUsdCents,
     PPM
 }
 
-struct RentalBaseDiscount {
+struct PricingBaseDiscount {
     uint32 threeDaysDiscount;
     uint32 sevenDaysDiscount;
     uint32 thirtyDaysDiscount;
     bool initialized;
 }
 
-struct RentalTaxValue {
+struct PricingTaxValue {
     string name;
     uint32 value;
-    RentalPricingTaxesType tType;
+    PricingTaxesType tType;
 }
 
-struct RentalTaxesInfo {
+struct PricingTaxesInfo {
     string location;
-    RentalPricingTaxesLocationType locationType;
-    RentalTaxValue[] taxes;
+    PricingTaxesLocationType locationType;
+    PricingTaxValue[] taxes;
 }
 
-struct RentalCheckPromoDTO {
+struct PricingCheckPromoDTO {
     bool isFound;
     bool isValid;
     bool isDiscount;

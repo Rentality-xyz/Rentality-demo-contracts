@@ -7,52 +7,52 @@ import '../../infrastructure/upgradeable/UUPSOwnable.sol';
 import '../base/investment/InvestmentBase.sol';
 import '../base/investment/InvestmentTypes.sol';
 import '../car/CarTypes.sol';
-import './RentalInvestmentTypes.sol';
+import './InvestmentTypes.sol';
 
-interface IRentalInvestmentAccess {
+interface IInvestmentAccess {
     function isRentalityPlatform(address user) external view returns (bool);
     function isInvestorManager(address user) external view returns (bool);
 }
 
-interface IRentalInvestmentCurrencyConverter {
+interface IInvestmentCurrencyConverter {
     function currencyTypeIsAvailable(address tokenAddress) external view returns (bool);
     function getToUsdLatest(address currencyType, uint256 amount) external view returns (uint256, int256, uint8);
 }
 
-interface IRentalInvestmentCarMain {
+interface IInvestmentCarMain {
     function createCar(CreateCarRequest calldata request, address user) external returns (uint256);
     function isUniqueVinNumber(string memory carVinNumber) external view returns (bool);
 }
 
-interface IRentalInvestmentInsuranceMain {
+interface IInvestmentInsuranceMain {
     function saveInsuranceRequired(uint256 carId, uint256 priceInUsdCents, bool required, address user) external;
 }
 
-interface IRentalInvestmentDeployer {
+interface IInvestmentDeployer {
     function createNewPool(uint256 id, address nft, uint256 totalPayed, address currency) external returns (address);
     function createNewNft(string memory name, string memory sym, uint256 id, string memory tokenUri)
         external
         returns (address);
 }
 
-interface IRentalInvestmentPool {
+interface IInvestmentPool {
     function claimAllMy(address user, uint256[] memory tokens) external;
 }
 
-interface IRentalInvestmentNft {
+interface IInvestmentNft {
     function balanceOf(address owner) external view returns (uint256);
     function ownerOf(uint256 tokenId) external view returns (address);
     function totalSupplyWithTotalHolders() external view returns (uint256, uint256);
 }
 
-contract RentalInvestmentMain is InvestmentBase, UUPSOwnable {
-    IRentalInvestmentAccess public userAccess;
-    IRentalInvestmentCurrencyConverter public converter;
-    IRentalInvestmentCarMain public carMain;
-    IRentalInvestmentInsuranceMain public insuranceService;
-    IRentalInvestmentDeployer public investDeployer;
+contract InvestmentMain is InvestmentBase, UUPSOwnable {
+    IInvestmentAccess public userAccess;
+    IInvestmentCurrencyConverter public converter;
+    IInvestmentCarMain public carMain;
+    IInvestmentInsuranceMain public insuranceService;
+    IInvestmentDeployer public investDeployer;
 
-    mapping(uint256 => RentalCarInvestment) internal investmentIdToCarInfo;
+    mapping(uint256 => CarInvestment) internal investmentIdToCarInfo;
     mapping(uint256 => address) internal investmentIdToPool;
     mapping(uint256 => address) internal investmentIdToNft;
 
@@ -88,15 +88,15 @@ contract RentalInvestmentMain is InvestmentBase, UUPSOwnable {
         address investDeployerAddress
     ) public initializer {
         __Ownable_init();
-        userAccess = IRentalInvestmentAccess(userAccessAddress);
-        converter = IRentalInvestmentCurrencyConverter(currencyConverterAddress);
-        carMain = IRentalInvestmentCarMain(carMainAddress);
-        insuranceService = IRentalInvestmentInsuranceMain(insuranceServiceAddress);
-        investDeployer = IRentalInvestmentDeployer(investDeployerAddress);
+        userAccess = IInvestmentAccess(userAccessAddress);
+        converter = IInvestmentCurrencyConverter(currencyConverterAddress);
+        carMain = IInvestmentCarMain(carMainAddress);
+        insuranceService = IInvestmentInsuranceMain(insuranceServiceAddress);
+        investDeployer = IInvestmentDeployer(investDeployerAddress);
     }
 
     function createCarInvestment(
-        RentalCarInvestment calldata investment,
+        CarInvestment calldata investment,
         string memory name_,
         address currency,
         address sender
@@ -122,7 +122,7 @@ contract RentalInvestmentMain is InvestmentBase, UUPSOwnable {
     }
 
     function invest(uint256 investId, uint256 amount, address sender) external payable onlyPlatform {
-        RentalCarInvestment storage investment = investmentIdToCarInfo[investId];
+        CarInvestment storage investment = investmentIdToCarInfo[investId];
         if (!investmentIdToListed[investId]) {
             revert InvestmentNotListed(investId);
         }
@@ -158,7 +158,7 @@ contract RentalInvestmentMain is InvestmentBase, UUPSOwnable {
 
     function claimAndCreatePool(
         uint256 investId,
-        RentalInvestmentCarRequest calldata createCarRequest,
+        InvestmentCarRequest calldata createCarRequest,
         address sender
     ) external onlyPlatform returns (uint256 carId) {
         if (!userAccess.isInvestorManager(sender)) {
@@ -171,7 +171,7 @@ contract RentalInvestmentMain is InvestmentBase, UUPSOwnable {
             revert DuplicateVin(createCarRequest.car.carVinNumber);
         }
 
-        RentalCarInvestment storage investment = investmentIdToCarInfo[investId];
+        CarInvestment storage investment = investmentIdToCarInfo[investId];
         investment.car = createCarRequest;
 
         uint256 amountInvested = investmentIdToFundedAmount[investId];
@@ -204,7 +204,7 @@ contract RentalInvestmentMain is InvestmentBase, UUPSOwnable {
     }
 
     function getFundingInfo(uint256 investmentId) public view returns (InvestmentFundingInfo memory) {
-        RentalCarInvestment memory investment = investmentIdToCarInfo[investmentId];
+        CarInvestment memory investment = investmentIdToCarInfo[investmentId];
         return InvestmentFundingInfo({
             targetAmount: investment.priceInCurrency,
             fundedAmount: investmentIdToFundedAmount[investmentId],
@@ -223,7 +223,7 @@ contract RentalInvestmentMain is InvestmentBase, UUPSOwnable {
         });
     }
 
-    function getInvestment(uint256 investmentId) external view returns (RentalCarInvestment memory) {
+    function getInvestment(uint256 investmentId) external view returns (CarInvestment memory) {
         return investmentIdToCarInfo[investmentId];
     }
 
@@ -255,29 +255,29 @@ contract RentalInvestmentMain is InvestmentBase, UUPSOwnable {
     }
 
     function claimAllMy(uint256 investId, address sender) external onlyPlatform {
-        IRentalInvestmentNft nft = IRentalInvestmentNft(investmentIdToNft[investId]);
+        IInvestmentNft nft = IInvestmentNft(investmentIdToNft[investId]);
         uint256[] memory tokens = _getAllMyTokens(sender, nft);
-        IRentalInvestmentPool(investmentIdToPool[investId]).claimAllMy(sender, tokens);
+        IInvestmentPool(investmentIdToPool[investId]).claimAllMy(sender, tokens);
     }
 
     function updateUserAccess(address userAccessAddress) external onlyOwner {
-        userAccess = IRentalInvestmentAccess(userAccessAddress);
+        userAccess = IInvestmentAccess(userAccessAddress);
     }
 
     function updateConverter(address currencyConverterAddress) external onlyOwner {
-        converter = IRentalInvestmentCurrencyConverter(currencyConverterAddress);
+        converter = IInvestmentCurrencyConverter(currencyConverterAddress);
     }
 
     function updateCarMain(address carMainAddress) external onlyOwner {
-        carMain = IRentalInvestmentCarMain(carMainAddress);
+        carMain = IInvestmentCarMain(carMainAddress);
     }
 
     function updateInsuranceService(address insuranceServiceAddress) external onlyOwner {
-        insuranceService = IRentalInvestmentInsuranceMain(insuranceServiceAddress);
+        insuranceService = IInvestmentInsuranceMain(insuranceServiceAddress);
     }
 
     function updateInvestDeployer(address investDeployerAddress) external onlyOwner {
-        investDeployer = IRentalInvestmentDeployer(investDeployerAddress);
+        investDeployer = IInvestmentDeployer(investDeployerAddress);
     }
 
     function _mintInvestmentNft(uint256 investId, uint256 amount, address user) internal {
@@ -287,7 +287,7 @@ contract RentalInvestmentMain is InvestmentBase, UUPSOwnable {
         require(success, string(data));
     }
 
-    function _getAllMyTokens(address user, IRentalInvestmentNft nft) internal view returns (uint256[] memory) {
+    function _getAllMyTokens(address user, IInvestmentNft nft) internal view returns (uint256[] memory) {
         uint256[] memory result = new uint256[](nft.balanceOf(user));
         uint256 counter = 0;
         (uint256 totalSupply,) = nft.totalSupplyWithTotalHolders();

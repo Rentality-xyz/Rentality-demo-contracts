@@ -5,30 +5,30 @@ import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import '../../infrastructure/upgradeable/UUPSOwnable.sol';
 import '../../models/base/payment/PaymentBase.sol';
 import '../trip/TripTypes.sol';
-import './RentalPaymentTypes.sol';
+import './PaymentTypes.sol';
 
-interface IRentalPaymentAccess {
+interface IPaymentAccess {
     function isAdmin(address user) external view returns (bool);
     function isRentalityPlatform(address user) external view returns (bool);
 }
 
-interface IRentalPaymentInvestmentPool {
+interface IPaymentInvestmentPool {
     function deposit(uint256 totalIncome, uint256 depositToPool) external payable;
 }
 
-interface IRentalPaymentInvestmentService {
+interface IPaymentInvestmentService {
     function getPaymentsInfo(uint256 carId)
         external
         view
-        returns (uint256 percents, IRentalPaymentInvestmentPool pool, address currency);
+        returns (uint256 percents, IPaymentInvestmentPool pool, address currency);
 }
 
-interface IRentalPaymentInsuranceService {
+interface IPaymentInsuranceService {
     function calculateCurrentHostInsuranceSumFrom(address user, uint256 amount) external view returns (uint256);
     function updateUserInsuranceAverage(address user, uint256 tripId, uint256 value) external payable;
 }
 
-interface IRentalPaymentSwaps {
+interface IPaymentSwaps {
     function swapExactInputSingle(
         address from,
         address to,
@@ -39,17 +39,17 @@ interface IRentalPaymentSwaps {
     ) external payable returns (uint256 amountOut);
 }
 
-interface IRentalPaymentProfileMain {
+interface IPaymentProfileMain {
     function isCommissionPaidForUser(address user) external view returns (bool);
     function payCommission(address user) external;
 }
 
-contract RentalPaymentMain is PaymentBase, UUPSOwnable {
-    IRentalPaymentAccess public userAccess;
-    IRentalPaymentProfileMain public profileMain;
-    IRentalPaymentInvestmentService public investmentService;
-    IRentalPaymentInsuranceService public insuranceService;
-    IRentalPaymentSwaps public rentalitySwaps;
+contract PaymentMain is PaymentBase, UUPSOwnable {
+    IPaymentAccess public userAccess;
+    IPaymentProfileMain public profileMain;
+    IPaymentInvestmentService public investmentService;
+    IPaymentInsuranceService public insuranceService;
+    IPaymentSwaps public rentalitySwaps;
 
     error OnlyAdmin();
     error OnlyPlatform();
@@ -85,11 +85,11 @@ contract RentalPaymentMain is PaymentBase, UUPSOwnable {
         address swapsAddress
     ) public initializer {
         __Ownable_init();
-        userAccess = IRentalPaymentAccess(userAccessAddress);
-        profileMain = IRentalPaymentProfileMain(profileMainAddress);
-        investmentService = IRentalPaymentInvestmentService(investmentServiceAddress);
-        insuranceService = IRentalPaymentInsuranceService(insuranceServiceAddress);
-        rentalitySwaps = IRentalPaymentSwaps(swapsAddress);
+        userAccess = IPaymentAccess(userAccessAddress);
+        profileMain = IPaymentProfileMain(profileMainAddress);
+        investmentService = IPaymentInvestmentService(investmentServiceAddress);
+        insuranceService = IPaymentInsuranceService(insuranceServiceAddress);
+        rentalitySwaps = IPaymentSwaps(swapsAddress);
     }
 
     function withdrawFromTreasury(uint256 amount, address currencyType, address receiver)
@@ -105,23 +105,23 @@ contract RentalPaymentMain is PaymentBase, UUPSOwnable {
     }
 
     function setSwapContracts(address swapsAddress) external onlyAdmin {
-        rentalitySwaps = IRentalPaymentSwaps(swapsAddress);
+        rentalitySwaps = IPaymentSwaps(swapsAddress);
     }
 
     function setInsuranceService(address insuranceServiceAddress) external onlyAdmin {
-        insuranceService = IRentalPaymentInsuranceService(insuranceServiceAddress);
+        insuranceService = IPaymentInsuranceService(insuranceServiceAddress);
     }
 
     function updateUserAccess(address userAccessAddress) external onlyOwner {
-        userAccess = IRentalPaymentAccess(userAccessAddress);
+        userAccess = IPaymentAccess(userAccessAddress);
     }
 
     function updateProfileMain(address profileMainAddress) external onlyOwner {
-        profileMain = IRentalPaymentProfileMain(profileMainAddress);
+        profileMain = IPaymentProfileMain(profileMainAddress);
     }
 
     function updateInvestmentService(address investmentServiceAddress) external onlyOwner {
-        investmentService = IRentalPaymentInvestmentService(investmentServiceAddress);
+        investmentService = IPaymentInvestmentService(investmentServiceAddress);
     }
 
     function payKycCommission(uint256 valueInCurrency, address currencyType, address user) external payable onlyPlatform {
@@ -149,7 +149,7 @@ contract RentalPaymentMain is PaymentBase, UUPSOwnable {
         uint256 amountIn,
         uint24 fee
     ) external payable onlyPlatform {
-        (, IRentalPaymentInvestmentPool pool, address poolCurrency) = investmentService.getPaymentsInfo(carId);
+        (, IPaymentInvestmentPool pool, address poolCurrency) = investmentService.getPaymentsInfo(carId);
         if (address(pool) != address(0) && poolCurrency != currencyType) {
             revert WrongCurrencyType(poolCurrency, currencyType);
         }
@@ -191,7 +191,7 @@ contract RentalPaymentMain is PaymentBase, UUPSOwnable {
     ) external payable onlyPlatform {
         bool successHost;
         bool successGuest;
-        (uint256 hostPercents, IRentalPaymentInvestmentPool pool, address currency) = investmentService.getPaymentsInfo(
+        (uint256 hostPercents, IPaymentInvestmentPool pool, address currency) = investmentService.getPaymentsInfo(
             trip.carId
         );
 

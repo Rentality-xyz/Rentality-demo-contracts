@@ -2,7 +2,7 @@
 pragma solidity ^0.8.20;
 
 import '../../models/common/CommonTypes.sol';
-import '../../models/payment/RentalPaymentTypes.sol';
+import '../../models/payment/PaymentTypes.sol';
 import '../../models/trip/TripTypes.sol';
 import '../upgradeable/UUPSOwnable.sol';
 import './RentalityCurrencyType.sol';
@@ -19,7 +19,7 @@ interface IRentalityCurrencyConverterPromo {
 contract RentalityCurrencyConverter is UUPSOwnable {
   IRentalityCurrencyConverterAccess public userAccess;
   mapping(address => ARentalityUpgradableCurrencyType) private tokenAddressToPaymentMethod;
-  RentalCurrency[] private availableCurrencies;
+  PaymentCurrency[] private availableCurrencies;
   mapping(address => UserCurrencyInfo) private userToCurrency;
   UserCurrencyInfo private defaultCurrency;
 
@@ -39,7 +39,7 @@ contract RentalityCurrencyConverter is UUPSOwnable {
     __Ownable_init();
     userAccess = IRentalityCurrencyConverterAccess(userAccessAddress);
     tokenAddressToPaymentMethod[address(0)] = ARentalityUpgradableCurrencyType(ethPaymentAddress);
-    availableCurrencies.push(RentalCurrency(address(0), nativeCurrencyName));
+    availableCurrencies.push(PaymentCurrency(address(0), nativeCurrencyName));
     defaultCurrency = UserCurrencyInfo(address(0), nativeCurrencyName, false);
   }
 
@@ -70,7 +70,7 @@ contract RentalityCurrencyConverter is UUPSOwnable {
     }
 
     tokenAddressToPaymentMethod[tokenAddress] = ARentalityUpgradableCurrencyType(rentalityTokenService);
-    availableCurrencies.push(RentalCurrency(tokenAddress, name));
+    availableCurrencies.push(PaymentCurrency(tokenAddress, name));
   }
 
   function removeCurrencyType(address tokenAddress) public {
@@ -218,7 +218,7 @@ contract RentalityCurrencyConverter is UUPSOwnable {
     return tokenAddress == address(0);
   }
 
-  function getAllCurrencies() public view returns (RentalCurrency[] memory) {
+  function getAllCurrencies() public view returns (PaymentCurrency[] memory) {
     return availableCurrencies;
   }
 

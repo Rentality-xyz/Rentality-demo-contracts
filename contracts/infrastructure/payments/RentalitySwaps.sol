@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import '@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol';
-import '../../models/payment/RentalPaymentTypes.sol';
+import '../../models/payment/PaymentTypes.sol';
 import '../upgradeable/UUPSOwnable.sol';
 
 interface IRentalitySwapsAccess {
@@ -55,12 +55,12 @@ contract RentalitySwaps is UUPSOwnable {
     return minimumAmountOut;
   }
 
-  function getAllowedCurrencies() external view returns (RentalAllowedCurrencyDTO[] memory currencies) {
+  function getAllowedCurrencies() external view returns (AllowedCurrencyDTO[] memory currencies) {
     uint256 length = allowedToken == address(0) ? 1 : 2;
-    currencies = new RentalAllowedCurrencyDTO[](length);
-    currencies[0] = RentalAllowedCurrencyDTO(18, 'Native', 'NATIVE', address(0));
+    currencies = new AllowedCurrencyDTO[](length);
+    currencies[0] = AllowedCurrencyDTO(18, 'Native', 'NATIVE', address(0));
     if (allowedToken != address(0)) {
-      currencies[1] = RentalAllowedCurrencyDTO(
+      currencies[1] = AllowedCurrencyDTO(
         IERC20Metadata(allowedToken).decimals(),
         IERC20Metadata(allowedToken).name(),
         IERC20Metadata(allowedToken).symbol(),

@@ -2,9 +2,9 @@
 pragma solidity ^0.8.20;
 
 import '../../models/car/CarTypes.sol';
-import '../../models/claim/RentalClaimTypes.sol';
+import '../../models/referral/ReferralTypes.sol';
 import '../../models/base/referral/ReferralTypes.sol';
-import '../../models/pricing/RentalPricingTypes.sol';
+import '../../models/pricing/PricingTypes.sol';
 import '../../models/profile/UserProfileTypes.sol';
 import '../../models/trip/TripTypes.sol';
 
@@ -31,7 +31,7 @@ interface IAdminGatewayFacet {
   function calculateTaxesDTO(uint taxesId, uint64 daysOfTrip, uint64 value)
     external
     view
-    returns (uint64 totalTax, RentalTaxValue[] memory taxValues);
+    returns (uint64 totalTax, PricingTaxValue[] memory taxValues);
   function setPlatformFee(uint value) external;
   function payToHost(uint256 tripId) external;
   function refundToGuest(uint256 tripId) external;
@@ -57,12 +57,12 @@ interface IAdminGatewayFacet {
     external
     view
     returns (GatewayAdminUserProfilePage memory result);
-  function getAllClaimTypes(bool byHost) external view returns (RentalClaimTypeInfo[] memory claimTypes);
-  function addClaimType(string memory name, RentalClaimCreator creator) external;
+  function getAllClaimTypes(bool byHost) external view returns (ReferralClaimTypeInfo[] memory claimTypes);
+  function addClaimType(string memory name, ReferralClaimCreator creator) external;
   function removeClaimType(uint8 claimType) external;
   function setDefaultCurrencyType(address currency) external;
   function setDefaultPrices(uint64 underTwentyFiveMilesInUsdCents, uint64 aboveTwentyFiveMilesInUsdCents) external;
-  function setDefaultDiscount(RentalBaseDiscount memory newDiscounts) external;
-  function addTaxes(string memory location, RentalPricingTaxesLocationType locationType, RentalTaxValue[] memory taxes)
+  function setDefaultDiscount(PricingBaseDiscount memory newDiscounts) external;
+  function addTaxes(string memory location, PricingTaxesLocationType locationType, PricingTaxValue[] memory taxes)
     external;
 }

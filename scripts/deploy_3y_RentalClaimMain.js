@@ -5,13 +5,13 @@ const addressSaver = require('./utils/addressSaver')
 const { checkNotNull, startDeploy } = require('./utils/deployHelper')
 
 async function main() {
-  const { contractName, chainId } = await startDeploy('RentalClaimMain')
+  const { contractName, chainId } = await startDeploy('ReferralClaimMain')
 
   if (chainId < 0) throw new Error('chainId is not set')
 
   const claimStoreAddress = checkNotNull(
-    getContractAddress('RentalClaimStore', 'scripts/deploy_2a_RentalClaimStore.js', chainId),
-    'RentalClaimStore'
+    getContractAddress('ReferralClaimStore', 'scripts/deploy_2a_RentalClaimStore.js', chainId),
+    'ReferralClaimStore'
   )
   const tripQueryAddress = checkNotNull(
     getContractAddress('TripQuery', 'scripts/deploy_3t_TripQuery.js', chainId),
@@ -22,12 +22,12 @@ async function main() {
     'RentalityCurrencyConverter'
   )
   const paymentMainAddress = checkNotNull(
-    getContractAddress('RentalPaymentMain', 'scripts/deploy_3h_RentalPaymentMain.js', chainId),
-    'RentalPaymentMain'
+    getContractAddress('PaymentMain', 'scripts/deploy_3h_PaymentMain.js', chainId),
+    'PaymentMain'
   )
-  const rentalInsuranceMainAddress = checkNotNull(
-    getContractAddress('RentalInsuranceMain', 'scripts/deploy_3l_RentalInsuranceMain.js', chainId),
-    'RentalInsuranceMain'
+  const insuranceMainAddress = checkNotNull(
+    getContractAddress('InsuranceMain', 'scripts/deploy_3l_InsuranceMain.js', chainId),
+    'InsuranceMain'
   )
 
   const contractFactory = await ethers.getContractFactory(contractName)
@@ -36,7 +36,7 @@ async function main() {
     tripQueryAddress,
     rentalityCurrencyConverterAddress,
     paymentMainAddress,
-    rentalInsuranceMainAddress
+    insuranceMainAddress
   )
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()

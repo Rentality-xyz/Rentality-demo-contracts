@@ -1,10 +1,11 @@
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
 import "./TripMain.sol";
 import "./TripTypes.sol";
 import "../car/CarTypes.sol";
 import "../profile/UserProfileTypes.sol";
-import "../insurance/RentalInsuranceTypes.sol";
+import "../insurance/InsuranceTypes.sol";
 import "../common/CommonTypes.sol";
 import "../../infrastructure/geo/IRentalityGeoService.sol";
 
@@ -96,7 +97,7 @@ interface ITripLibWriteInsuranceService {
     function getInsurancePriceByTrip(uint256 tripId) external view returns (uint256);
     function calculateInsuranceForTrip(uint256 carId, uint64 startDateTime, uint64 endDateTime, address user) external view returns (uint256);
     function saveGuestInsurancePayment(uint256 tripId, uint256 carId, uint256 totalSum, address user) external;
-    function saveTripInsuranceInfo(uint256 tripId, RentalSaveInsuranceRequest memory insuranceInfo, address user) external;
+    function saveTripInsuranceInfo(uint256 tripId, SaveInsuranceRequest memory insuranceInfo, address user) external;
 }
 
 interface ITripLibWritePromoService {

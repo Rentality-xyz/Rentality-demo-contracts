@@ -4,33 +4,33 @@ pragma solidity ^0.8.20;
 import '../car/CarTypes.sol';
 import '../profile/UserProfileTypes.sol';
 import '../base/insurance/InsuranceTypes.sol';
-import './RentalInsuranceTypes.sol';
+import './InsuranceTypes.sol';
 import '../trip/TripTypes.sol';
 
-interface IRentalInsuranceQueryFacet1CarService {
+interface IInsuranceQueryFacet1CarService {
   function getCarInfoById(uint256 carId) external view returns (CarGatewayTypes.GatewayCarInfo memory);
 }
 
-interface IRentalInsuranceQueryFacet1TripQuery {
+interface IInsuranceQueryFacet1TripQuery {
   function getTripsByUser(address user) external view returns (uint256[] memory);
   function getTrip(uint256 tripId) external view returns (Trip memory);
 }
 
-interface IRentalInsuranceQueryFacet1UserService {
+interface IInsuranceQueryFacet1UserService {
   function getKYCInfo(address user) external view returns (UserProfileKYCInfo memory);
 }
 
-interface IRentalInsuranceQueryFacet1InsuranceService {
+interface IInsuranceQueryFacet1InsuranceService {
   function getTripInsurances(uint256 tripId) external view returns (InsuranceInfo[] memory);
   function getMyInsurancesAsGuest(address user) external view returns (InsuranceInfo[] memory);
   function findActualInsurance(InsuranceInfo[] memory insurances) external pure returns (uint256, uint256);
 }
 
-contract RentalInsuranceQueryFacet1 {
-  IRentalInsuranceQueryFacet1CarService public immutable carService;
-  IRentalInsuranceQueryFacet1TripQuery public immutable tripQuery;
-  IRentalInsuranceQueryFacet1UserService public immutable userService;
-  IRentalInsuranceQueryFacet1InsuranceService public immutable insuranceService;
+contract InsuranceQueryFacet1 {
+  IInsuranceQueryFacet1CarService public immutable carService;
+  IInsuranceQueryFacet1TripQuery public immutable tripQuery;
+  IInsuranceQueryFacet1UserService public immutable userService;
+  IInsuranceQueryFacet1InsuranceService public immutable insuranceService;
 
   constructor(
     address carServiceAddress,
@@ -38,13 +38,13 @@ contract RentalInsuranceQueryFacet1 {
     address userServiceAddress,
     address insuranceServiceAddress
   ) {
-    carService = IRentalInsuranceQueryFacet1CarService(carServiceAddress);
-    tripQuery = IRentalInsuranceQueryFacet1TripQuery(tripQueryAddress);
-    userService = IRentalInsuranceQueryFacet1UserService(userServiceAddress);
-    insuranceService = IRentalInsuranceQueryFacet1InsuranceService(insuranceServiceAddress);
+    carService = IInsuranceQueryFacet1CarService(carServiceAddress);
+    tripQuery = IInsuranceQueryFacet1TripQuery(tripQueryAddress);
+    userService = IInsuranceQueryFacet1UserService(userServiceAddress);
+    insuranceService = IInsuranceQueryFacet1InsuranceService(insuranceServiceAddress);
   }
 
-  function getInsurancesBy(bool host, address user) external view returns (RentalInsuranceDTO[] memory) {
+  function getInsurancesBy(bool host, address user) external view returns (InsuranceDTO[] memory) {
     return host ? _getTripInsurancesByHost(user) : _getTripInsurancesByGuest(user);
   }
 
@@ -52,7 +52,7 @@ contract RentalInsuranceQueryFacet1 {
     return insuranceService.getMyInsurancesAsGuest(user);
   }
 
-  function _getTripInsurancesByGuest(address guest) internal view returns (RentalInsuranceDTO[] memory) {
+  function _getTripInsurancesByGuest(address guest) internal view returns (InsuranceDTO[] memory) {
     uint256 itemCount;
     uint256[] memory userTrips = tripQuery.getTripsByUser(guest);
     for (uint256 i = 0; i < userTrips.length; i++) {
@@ -63,7 +63,7 @@ contract RentalInsuranceQueryFacet1 {
     uint256 itemCountWithoutGuestInsurances = itemCount;
     itemCount += guestInsurances.length;
 
-    RentalInsuranceDTO[] memory insurances = new RentalInsuranceDTO[](itemCount);
+    InsuranceDTO[] memory insurances = new InsuranceDTO[](itemCount);
     uint256 counter;
     for (uint256 i = 0; i < userTrips.length; i++) {
       Trip memory trip = tripQuery.getTrip(userTrips[i]);
@@ -87,11 +87,11 @@ contract RentalInsuranceQueryFacet1 {
   }
 
   function _addGuestInsurances(
-    RentalInsuranceDTO[] memory insurances,
+    InsuranceDTO[] memory insurances,
     InsuranceInfo[] memory guestInsurances,
     address guest,
     uint256 currentCount
-  ) internal view returns (RentalInsuranceDTO[] memory result) {
+  ) internal view returns (InsuranceDTO[] memory result) {
     uint256 lastOneTimeTimestamp;
     uint256 lastGeneralTimestamp;
     uint256 lastOneTimeIndex;
@@ -161,7 +161,7 @@ contract RentalInsuranceQueryFacet1 {
     bool createdByHost,
     uint256 carId,
     address creator
-  ) internal view returns (RentalInsuranceDTO memory result) {
+  ) internal view returns (InsuranceDTO memory result) {
     UserProfileKYCInfo memory kyc = userService.getKYCInfo(creator);
     CarGatewayTypes.GatewayCarInfo memory car = carService.getCarInfoById(carId);
     result.tripId = tripId;
@@ -177,14 +177,14 @@ contract RentalInsuranceQueryFacet1 {
     result.isActual = isActual;
   }
 
-  function _getTripInsurancesByHost(address host) internal view returns (RentalInsuranceDTO[] memory) {
+  function _getTripInsurancesByHost(address host) internal view returns (InsuranceDTO[] memory) {
     uint256 itemCount;
     uint256[] memory userTrips = tripQuery.getTripsByUser(host);
     for (uint256 i = 0; i < userTrips.length; i++) {
       itemCount += insuranceService.getTripInsurances(userTrips[i]).length;
     }
 
-    RentalInsuranceDTO[] memory insurances = new RentalInsuranceDTO[](itemCount);
+    InsuranceDTO[] memory insurances = new InsuranceDTO[](itemCount);
     uint256 counter;
     for (uint256 i = 0; i < userTrips.length; i++) {
       Trip memory trip = tripQuery.getTrip(userTrips[i]);

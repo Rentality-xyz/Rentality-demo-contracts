@@ -5,9 +5,9 @@ import {Initializable as OZInitializable} from '@openzeppelin/contracts/proxy/ut
 import '../../infrastructure/upgradeable/UUPSOwnable.sol';
 import '../../infrastructure/services/AiDamageTypes.sol';
 import '../ARentalityContext.sol';
-import '../../models/claim/RentalClaimQuery.sol';
-import '../../models/claim/RentalClaimMain.sol';
-import '../../models/claim/RentalClaimTypes.sol';
+import '../../models/referral/ReferralQuery.sol';
+import '../../models/referral/ReferralMainFacet1.sol';
+import '../../models/referral/ReferralTypes.sol';
 import './IClaimGatewayFacet.sol';
 
 interface IClaimGatewayUserAccess {
@@ -15,8 +15,8 @@ interface IClaimGatewayUserAccess {
 }
 
 contract ClaimGatewayFacet is UUPSOwnable, ARentalityContext, IClaimGatewayFacet {
-  RentalClaimQuery public claimQuery;
-  RentalClaimMain public claimMain;
+  ReferralQuery public claimQuery;
+  ReferralMainFacet1 public claimMain;
   IClaimGatewayUserAccess public userAccess;
 
   constructor() {
@@ -25,22 +25,22 @@ contract ClaimGatewayFacet is UUPSOwnable, ARentalityContext, IClaimGatewayFacet
 
   function initialize(address claimQueryAddress, address claimMainAddress, address userServiceAddress) public initializer {
     __Ownable_init();
-    claimQuery = RentalClaimQuery(claimQueryAddress);
-    claimMain = RentalClaimMain(claimMainAddress);
+    claimQuery = ReferralQuery(claimQueryAddress);
+    claimMain = ReferralMainFacet1(claimMainAddress);
     userAccess = IClaimGatewayUserAccess(userServiceAddress);
   }
 
   function updateServiceAddresses(address claimQueryAddress, address claimMainAddress, address userServiceAddress) external onlyOwner {
-    claimQuery = RentalClaimQuery(claimQueryAddress);
-    claimMain = RentalClaimMain(claimMainAddress);
+    claimQuery = ReferralQuery(claimQueryAddress);
+    claimMain = ReferralMainFacet1(claimMainAddress);
     userAccess = IClaimGatewayUserAccess(userServiceAddress);
   }
 
-  function getMyClaimsAs(bool host) external view returns (FullClaimInfo[] memory) {
+  function getMyClaimsAs(bool host) external view returns (FullReferralClaimInfo[] memory) {
     return claimQuery.getMyClaimsAs(host, _msgGatewaySender());
   }
 
-  function getClaim(uint256 claimId) external view returns (RentalClaimInfoV2 memory) {
+  function getClaim(uint256 claimId) external view returns (ReferralClaimInfoV2 memory) {
     return claimQuery.getClaim(claimId);
   }
 
@@ -56,7 +56,7 @@ contract ClaimGatewayFacet is UUPSOwnable, ARentalityContext, IClaimGatewayFacet
     return claimQuery.getAiDamageAnalyzeCaseRequest(tripId, caseType, _msgGatewaySender());
   }
 
-  function createClaim(CreateClaimRequest memory request, bool isInsuranceClaim) external {
+  function createClaim(CreateReferralClaimRequest memory request, bool isInsuranceClaim) external {
     claimMain.createClaim(request, isInsuranceClaim, _msgGatewaySender());
   }
 

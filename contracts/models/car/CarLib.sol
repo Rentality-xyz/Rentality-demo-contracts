@@ -1,8 +1,8 @@
+/// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
 import "../common/CommonTypes.sol";
 import "./CarTypes.sol";
-import "../common/RealMath.sol";
 
 library CarLib {
     error InvalidCarPrice();
@@ -10,6 +10,11 @@ library CarLib {
 
     int128 internal constant EARTH_RADIUS = 3_959;
     int128 internal constant COORDINATE_ACCURACY = 10000000000000;
+    int128 internal constant REAL_FBITS = 40;
+    int128 internal constant REAL_ONE = int128(1) << uint128(REAL_FBITS);
+    int128 internal constant REAL_PI = 3454217652358;
+    int128 internal constant REAL_HALF_PI = REAL_PI / 2;
+    int128 internal constant REAL_TWO_PI = REAL_PI * 2;
     uint256 internal constant COORDINATE_MULTIPLIER = 10 ** 7;
 
     function validatePricing(uint64 pricePerDayInUsdCents, uint64 milesIncludedPerDay) internal pure {
@@ -89,7 +94,7 @@ library CarLib {
     }
 
     function _toReal(string memory coordinates) private pure returns (int128) {
-        return RealMath.toReal(int88(int128(_parseInt(coordinates)))) / COORDINATE_ACCURACY;
+        return _realFromInt(int88(int128(_parseInt(coordinates)))) / COORDINATE_ACCURACY;
     }
 
     function _calculateDistanceFromReal(
@@ -104,22 +109,22 @@ library CarLib {
 
         int128 dLat = _deg2rad(lat2 - lat1);
         int128 dLon = _deg2rad(lon2 - lon1);
-        int128 a = RealMath.mul(RealMath.sin(dLat / 2), RealMath.sin((dLat / 2))) +
-            RealMath.mul(
-                RealMath.mul(
-                    RealMath.mul(RealMath.sin(dLon / 2), RealMath.sin((dLon / 2))),
-                    RealMath.cos(_deg2rad(lat1))
+        int128 a = _realMul(_realSin(dLat / 2), _realSin((dLat / 2))) +
+            _realMul(
+                _realMul(
+                    _realMul(_realSin(dLon / 2), _realSin((dLon / 2))),
+                    _realCos(_deg2rad(lat1))
                 ),
-                RealMath.cos(_deg2rad(lat2))
+                _realCos(_deg2rad(lat2))
             );
-        int128 y = RealMath.REAL_ONE - a;
+        int128 y = REAL_ONE - a;
         int128 c = 2 *
-            RealMath.atan2(int128(uint128(RealMath.sqrt1(uint128(a)))), int128(uint128(RealMath.sqrt1(uint128(y)))));
-        return RealMath.fromReal(c * EARTH_RADIUS);
+            _realAtan2(int128(uint128(_realSqrtInt(uint128(a)))), int128(uint128(_realSqrtInt(uint128(y)))));
+        return _realToInt(c * EARTH_RADIUS);
     }
 
     function _deg2rad(int128 degrees) private pure returns (int128) {
-        return RealMath.div(RealMath.mul(degrees, RealMath.REAL_PI), RealMath.toReal(180));
+        return _realDiv(_realMul(degrees, REAL_PI), _realFromInt(180));
     }
 
     function _parseInt(string memory value) private pure returns (int256) {
@@ -154,6 +159,111 @@ library CarLib {
         }
 
         return haystack.length;
+    }
+
+    function _realFromInt(int88 integerPart) private pure returns (int128) {
+        return int128(integerPart) * REAL_ONE;
+    }
+
+    function _realToInt(int128 realValue) private pure returns (int88) {
+        return int88(realValue / REAL_ONE);
+    }
+
+    function _realAbs(int128 realValue) private pure returns (int128) {
+        return realValue >= 0 ? realValue : -realValue;
+    }
+
+    function _realMul(int128 realA, int128 realB) private pure returns (int128) {
+        return int128((realA * realB) >> uint128(REAL_FBITS));
+    }
+
+    function _realDiv(int128 numerator, int128 denominator) private pure returns (int128) {
+        return int128((numerator * REAL_ONE) / denominator);
+    }
+
+    function _realSin(int128 realArg) private pure returns (int128) {
+        return _realSinLimited(realArg, 15);
+    }
+
+    function _realSinLimited(int128 realArg, int88 maxIterations) private pure returns (int128) {
+        if (realArg < 0) {
+            realArg += REAL_TWO_PI;
+        }
+        realArg = realArg % REAL_TWO_PI;
+
+        int128 accumulator = REAL_ONE;
+        require(maxIterations > 0 && maxIterations <= 70, "Invalid iteration count");
+
+        for (int88 iteration = maxIterations - 1; iteration >= 0; iteration--) {
+            int128 denominator = _realFromInt((2 * iteration + 2) * (2 * iteration + 3));
+            if (denominator == 0) {
+                continue;
+            }
+
+            int128 term = _realDiv(_realMul(realArg, realArg), denominator);
+            accumulator = REAL_ONE - _realMul(term, accumulator);
+        }
+
+        return _realMul(realArg, accumulator);
+    }
+
+    function _realCos(int128 realArg) private pure returns (int128) {
+        return _realSin(realArg + REAL_HALF_PI);
+    }
+
+    function _realAtanSmall(int128 realArg) private pure returns (int128) {
+        int128 realArgSquared = _realMul(realArg, realArg);
+
+        return
+            _realMul(
+                _realMul(
+                    _realMul(
+                        _realMul(
+                            _realMul(
+                                _realMul(-12606780422, realArgSquared) + 57120178819,
+                                realArgSquared
+                            ) - 127245381171,
+                            realArgSquared
+                        ) + 212464129393,
+                        realArgSquared
+                    ) - 365662383026,
+                    realArgSquared
+                ) + 1099483040474,
+                realArg
+            );
+    }
+
+    function _realAtan2(int128 realY, int128 realX) private pure returns (int128) {
+        int128 atanResult;
+        int128 realAbsX = _realAbs(realX);
+        int128 realAbsY = _realAbs(realY);
+
+        if (realAbsX > realAbsY) {
+            atanResult = _realAtanSmall(_realDiv(realAbsY, realAbsX));
+        } else {
+            atanResult = REAL_HALF_PI - _realAtanSmall(_realDiv(realAbsX, realAbsY));
+        }
+
+        if (realX < 0) {
+            if (realY < 0) {
+                atanResult -= REAL_PI;
+            } else {
+                atanResult = REAL_PI - atanResult;
+            }
+        } else if (realY < 0) {
+            atanResult = -atanResult;
+        }
+
+        return atanResult;
+    }
+
+    function _realSqrtInt(uint128 x) private pure returns (uint128 y) {
+        uint128 z = (x + 1) / 2;
+        y = x;
+        while (z < y) {
+            y = z;
+            z = (x / z + z) / 2;
+        }
     }
 }
 

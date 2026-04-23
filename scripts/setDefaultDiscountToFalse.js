@@ -7,12 +7,12 @@ const { getContractAddress } = require('./utils/contractAddress')
 
 async function main() {
   const { chainId } = await startDeploy('')
-  const baseDiscount = checkNotNull(
-    getContractAddress('RentalityBaseDiscount', 'scripts/deploy_2g_RentalityBaseDiscount.js', chainId),
-    'RentalityBaseDiscount'
+  const pricingMain = checkNotNull(
+    getContractAddress('PricingMain', 'scripts/deploy_3j_PricingMain.js', chainId),
+    'PricingMain'
   )
 
-  const contract = await ethers.getContractAt('RentalityBaseDiscount', baseDiscount)
+  const contract = await ethers.getContractAt('PricingMain', pricingMain)
 
   console.log(await contract.setDefaultDiscountToFalse())
 }

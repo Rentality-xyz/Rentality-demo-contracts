@@ -4,42 +4,42 @@ pragma solidity ^0.8.20;
 import '../../infrastructure/geo/IRentalityGeoService.sol';
 import '../base/insurance/InsuranceTypes.sol';
 import '../car/CarTypes.sol';
-import '../claim/RentalClaimTypes.sol';
+import '../referral/ReferralTypes.sol';
 import '../common/CommonTypes.sol';
 import '../profile/UserProfileTypes.sol';
 import '../trip/TripTypes.sol';
-import './RentalInsuranceTypes.sol';
+import './InsuranceTypes.sol';
 
-interface IRentalInsuranceQueryFacet2InsuranceService {
+interface IInsuranceQueryFacet2InsuranceService {
   function getMyInsurancesAsGuest(address user) external view returns (InsuranceInfo[] memory);
 }
 
-interface IRentalInsuranceQueryFacet2HostInsurance {
+interface IInsuranceQueryFacet2HostInsurance {
   function getInsuranceClaims() external view returns (uint256[] memory);
-  function getHostInsuranceRule(address host) external view returns (RentalHostInsuranceRuleDTO memory);
-  function getAllInsuranceRules() external view returns (RentalHostInsuranceRuleDTO[] memory);
+  function getHostInsuranceRule(address host) external view returns (HostInsuranceRuleDTO memory);
+  function getAllInsuranceRules() external view returns (HostInsuranceRuleDTO[] memory);
 }
 
-interface IRentalInsuranceQueryFacet2ClaimService {
-  function getClaim(uint256 claimId) external view returns (RentalClaimInfoV2 memory);
-  function getClaimTypeInfo(uint8 claimType) external view returns (RentalClaimTypeInfo memory);
+interface IInsuranceQueryFacet2ClaimService {
+  function getClaim(uint256 claimId) external view returns (ReferralClaimInfoV2 memory);
+  function getClaimTypeInfo(uint8 claimType) external view returns (ReferralClaimTypeInfo memory);
   function claimIdToCurrencyRate(uint256 claimId) external view returns (int256 rate, uint8 decimals);
 }
 
-interface IRentalInsuranceQueryFacet2TripQuery {
+interface IInsuranceQueryFacet2TripQuery {
   function getTrip(uint256 tripId) external view returns (Trip memory);
 }
 
-interface IRentalInsuranceQueryFacet2UserService {
+interface IInsuranceQueryFacet2UserService {
   function getKYCInfo(address user) external view returns (UserProfileKYCInfo memory);
 }
 
-interface IRentalInsuranceQueryFacet2CarService {
+interface IInsuranceQueryFacet2CarService {
   function getCarInfoById(uint256 carId) external view returns (CarGatewayTypes.GatewayCarInfo memory);
   function getGeoServiceAddress() external view returns (address);
 }
 
-interface IRentalInsuranceQueryFacet2CurrencyConverter {
+interface IInsuranceQueryFacet2CurrencyConverter {
   function getFromUsdCents(address tokenAddress, uint256 amount, int256 currencyRate) external view returns (uint256);
   function getFromUsdCentsLatest(address tokenAddress, uint256 valueInUsdCents)
     external
@@ -48,14 +48,14 @@ interface IRentalInsuranceQueryFacet2CurrencyConverter {
   function getCurrencyInfo(address currency) external view returns (UserCurrencyInfo memory);
 }
 
-contract RentalInsuranceQueryFacet2 {
-  IRentalInsuranceQueryFacet2InsuranceService public immutable insuranceService;
-  IRentalInsuranceQueryFacet2HostInsurance public immutable hostInsurance;
-  IRentalInsuranceQueryFacet2ClaimService public immutable claimService;
-  IRentalInsuranceQueryFacet2TripQuery public immutable tripQuery;
-  IRentalInsuranceQueryFacet2UserService public immutable userService;
-  IRentalInsuranceQueryFacet2CarService public immutable carService;
-  IRentalInsuranceQueryFacet2CurrencyConverter public immutable currencyConverter;
+contract InsuranceQueryFacet2 {
+  IInsuranceQueryFacet2InsuranceService public immutable insuranceService;
+  IInsuranceQueryFacet2HostInsurance public immutable hostInsurance;
+  IInsuranceQueryFacet2ClaimService public immutable claimService;
+  IInsuranceQueryFacet2TripQuery public immutable tripQuery;
+  IInsuranceQueryFacet2UserService public immutable userService;
+  IInsuranceQueryFacet2CarService public immutable carService;
+  IInsuranceQueryFacet2CurrencyConverter public immutable currencyConverter;
   address payable public immutable hostInsuranceAddress;
 
   constructor(
@@ -67,13 +67,13 @@ contract RentalInsuranceQueryFacet2 {
     address carServiceAddress,
     address currencyConverterAddress
   ) {
-    insuranceService = IRentalInsuranceQueryFacet2InsuranceService(insuranceServiceAddress);
-    hostInsurance = IRentalInsuranceQueryFacet2HostInsurance(hostInsuranceContractAddress);
-    claimService = IRentalInsuranceQueryFacet2ClaimService(claimServiceAddress);
-    tripQuery = IRentalInsuranceQueryFacet2TripQuery(tripQueryAddress);
-    userService = IRentalInsuranceQueryFacet2UserService(userServiceAddress);
-    carService = IRentalInsuranceQueryFacet2CarService(carServiceAddress);
-    currencyConverter = IRentalInsuranceQueryFacet2CurrencyConverter(currencyConverterAddress);
+    insuranceService = IInsuranceQueryFacet2InsuranceService(insuranceServiceAddress);
+    hostInsurance = IInsuranceQueryFacet2HostInsurance(hostInsuranceContractAddress);
+    claimService = IInsuranceQueryFacet2ClaimService(claimServiceAddress);
+    tripQuery = IInsuranceQueryFacet2TripQuery(tripQueryAddress);
+    userService = IInsuranceQueryFacet2UserService(userServiceAddress);
+    carService = IInsuranceQueryFacet2CarService(carServiceAddress);
+    currencyConverter = IInsuranceQueryFacet2CurrencyConverter(currencyConverterAddress);
     hostInsuranceAddress = payable(hostInsuranceContractAddress);
   }
 
@@ -81,16 +81,16 @@ contract RentalInsuranceQueryFacet2 {
     return insuranceService.getMyInsurancesAsGuest(guest);
   }
 
-  function getHostInsuranceClaims() external view returns (FullClaimInfo[] memory claimInfos) {
+  function getHostInsuranceClaims() external view returns (FullReferralClaimInfo[] memory claimInfos) {
     uint256[] memory claimIds = hostInsurance.getInsuranceClaims();
-    claimInfos = new FullClaimInfo[](claimIds.length);
+    claimInfos = new FullReferralClaimInfo[](claimIds.length);
 
     for (uint256 i = 0; i < claimIds.length; i++) {
-      RentalClaimInfoV2 memory claim = claimService.getClaim(claimIds[i]);
+      ReferralClaimInfoV2 memory claim = claimService.getClaim(claimIds[i]);
       Trip memory trip = tripQuery.getTrip(claim.tripId);
       CarGatewayTypes.GatewayCarInfo memory car = carService.getCarInfoById(trip.booking.resourceId);
 
-      claimInfos[i] = FullClaimInfo(
+      claimInfos[i] = FullReferralClaimInfo(
         claim,
         trip.booking.provider,
         trip.booking.customer,
@@ -105,11 +105,11 @@ contract RentalInsuranceQueryFacet2 {
     }
   }
 
-  function getHostInsuranceRule(address host) external view returns (RentalHostInsuranceRuleDTO memory insuranceRules) {
+  function getHostInsuranceRule(address host) external view returns (HostInsuranceRuleDTO memory insuranceRules) {
     return hostInsurance.getHostInsuranceRule(host);
   }
 
-  function getAllInsuranceRules() external view returns (RentalHostInsuranceRuleDTO[] memory insuranceRules) {
+  function getAllInsuranceRules() external view returns (HostInsuranceRuleDTO[] memory insuranceRules) {
     return hostInsurance.getAllInsuranceRules();
   }
 
@@ -120,9 +120,9 @@ contract RentalInsuranceQueryFacet2 {
   function _getClaimValueInCurrency(
     address currency,
     uint256 amount,
-    RentalClaimInfoV2 memory claim
+    ReferralClaimInfoV2 memory claim
   ) internal view returns (uint256 valueInCurrency) {
-    if (claim.status == RentalClaimStatus.Paid) {
+    if (claim.status == ReferralClaimStatus.Paid) {
       (int256 rate, ) = claimService.claimIdToCurrencyRate(claim.claimId);
       if (rate > 0) {
         valueInCurrency = currencyConverter.getFromUsdCents(currency, amount, rate);

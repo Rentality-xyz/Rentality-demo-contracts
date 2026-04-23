@@ -5,7 +5,7 @@ const addressSaver = require('./utils/addressSaver')
 const { checkNotNull, startDeploy } = require('./utils/deployHelper')
 
 async function main() {
-  const { contractName, chainId } = await startDeploy('RentalReferralMain')
+  const { contractName, chainId } = await startDeploy('ReferralMain')
 
   if (chainId < 0) throw new Error('chainId is not set')
 
@@ -21,12 +21,16 @@ async function main() {
     getContractAddress('CarQuery', 'scripts/deploy_3_CarModel.js', chainId),
     'CarQuery'
   )
-
   const contractFactory = await ethers.getContractFactory(contractName)
   const contract = await upgrades.deployProxy(contractFactory, [
     userProfileMainAddress,
     carQueryAddress,
     refferalLibAddress,
+    ethers.ZeroAddress,
+    ethers.ZeroAddress,
+    ethers.ZeroAddress,
+    ethers.ZeroAddress,
+    ethers.ZeroAddress,
   ])
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()

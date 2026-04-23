@@ -13,21 +13,17 @@ async function main() {
     getContractAddress('UserProfileMain', 'scripts/deploy_1h_UserProfileMain.js', chainId),
     'UserProfileMain'
   )
-  const claimStoreAddress = checkNotNull(
-    getContractAddress('RentalClaimStore', 'scripts/deploy_2a_RentalClaimStore.js', chainId),
-    'RentalClaimStore'
-  )
   const rentalityCurrencyConverterAddress = checkNotNull(
     getContractAddress('RentalityCurrencyConverter', 'scripts/deploy_3b_RentalityCurrencyConverter.js', chainId),
     'RentalityCurrencyConverter'
   )
   const paymentMainAddress = checkNotNull(
-    getContractAddress('RentalPaymentMain', 'scripts/deploy_3h_RentalPaymentMain.js', chainId),
-    'RentalPaymentMain'
+    getContractAddress('PaymentMain', 'scripts/deploy_3h_PaymentMain.js', chainId),
+    'PaymentMain'
   )
-  const rentalPricingMainAddress = checkNotNull(
-    getContractAddress('RentalPricingMain', 'scripts/deploy_3j_RentalPricingMain.js', chainId),
-    'RentalPricingMain'
+  const pricingMainAddress = checkNotNull(
+    getContractAddress('PricingMain', 'scripts/deploy_3j_PricingMain.js', chainId),
+    'PricingMain'
   )
   const carMainAddress = checkNotNull(
     getContractAddress('CarMain', 'scripts/deploy_3_CarModel.js', chainId),
@@ -50,12 +46,16 @@ async function main() {
     'CarMain'
   )
   const insuranceMainAddress = checkNotNull(
-    getContractAddress('RentalInsuranceMain', 'scripts/deploy_3l_RentalInsuranceMain.js', chainId),
-    'RentalInsuranceMain'
+    getContractAddress('InsuranceMain', 'scripts/deploy_3l_InsuranceMain.js', chainId),
+    'InsuranceMain'
   )
   const referralMainAddress = checkNotNull(
-    getContractAddress('RentalReferralMain', 'scripts/deploy_3n_RentalReferralMain.js', chainId),
-    'RentalReferralMain'
+    getContractAddress('ReferralMain', 'scripts/deploy_3n_ReferralMain.js', chainId),
+    'ReferralMain'
+  )
+  const referralMainFacet1Address = checkNotNull(
+    getContractAddress('ReferralMainFacet1', 'scripts/deploy_3n1_ReferralMainFacet1.js', chainId),
+    'ReferralMainFacet1'
   )
   const promoServiceAddress = checkNotNull(
     getContractAddress('RentalityPromoService', 'scripts/deploy_4f_RentalityPromo.js', chainId),
@@ -66,8 +66,8 @@ async function main() {
     'RentalityDimoService'
   )
   const investService = checkNotNull(
-    getContractAddress('RentalInvestmentMain', 'scripts/deploy_3p_RentalInvestmentMain.js', chainId),
-    'RentalInvestmentMain'
+    getContractAddress('InvestmentMain', 'scripts/deploy_3p_InvestmentMain.js', chainId),
+    'InvestmentMain'
   )
   const notificationService = checkNotNull(
     getContractAddress('RentalityNotificationService', 'scripts/deploy_2_RentalityNotificationService.js', chainId),
@@ -90,8 +90,8 @@ async function main() {
       rentalityCurrencyConverterAddress,
       userProfileMainAddress,
       paymentMainAddress,
-      rentalPricingMainAddress,
-      claimStoreAddress,
+      pricingMainAddress,
+      referralMainFacet1Address,
       carDeliveryAddress,
       ethers.ZeroAddress,
     ],

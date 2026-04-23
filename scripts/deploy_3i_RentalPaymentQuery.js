@@ -5,17 +5,17 @@ const addressSaver = require('./utils/addressSaver')
 const { checkNotNull, startDeploy } = require('./utils/deployHelper')
 
 async function main() {
-  const { contractName, chainId } = await startDeploy('RentalPaymentQuery')
+  const { contractName, chainId } = await startDeploy('PaymentQuery')
 
   if (chainId < 0) throw new Error('chainId is not set')
 
-  const rentalPaymentMainAddress = checkNotNull(
-    getContractAddress('RentalPaymentMain', 'scripts/deploy_3h_RentalPaymentMain.js', chainId),
-    'RentalPaymentMain'
+  const paymentMainAddress = checkNotNull(
+    getContractAddress('PaymentMain', 'scripts/deploy_3h_PaymentMain.js', chainId),
+    'PaymentMain'
   )
 
   const contractFactory = await ethers.getContractFactory(contractName)
-  const contract = await contractFactory.deploy(rentalPaymentMainAddress)
+  const contract = await contractFactory.deploy(paymentMainAddress)
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()
 

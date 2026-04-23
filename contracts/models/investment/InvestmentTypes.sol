@@ -3,21 +3,21 @@ pragma solidity ^0.8.20;
 
 import '../car/CarTypes.sol';
 
-struct RentalInvestmentCarRequest {
+struct InvestmentCarRequest {
     CreateCarRequest car;
     bool insuranceRequired;
     uint256 insurancePriceInUsdCents;
 }
 
-struct RentalCarInvestment {
-    RentalInvestmentCarRequest car;
+struct CarInvestment {
+    InvestmentCarRequest car;
     uint256 priceInCurrency;
     bool inProgress;
     uint256 creatorPercents;
 }
 
-struct RentalInvestmentDTO {
-    RentalCarInvestment investment;
+struct InvestmentDTO {
+    CarInvestment investment;
     address nft;
     uint256 investmentId;
     uint256 payedInUsd;
@@ -41,7 +41,7 @@ struct RentalInvestmentDTO {
     bool listed;
 }
 
-struct RentalClaimInvestmentDTO {
+struct ClaimInvestmentDTO {
     string tokenURI;
     uint256 income;
     uint256 myIncome;

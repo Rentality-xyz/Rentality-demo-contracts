@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 import "../base/asset/AssetTypes.sol";
 import "../common/CommonTypes.sol";
-import "../pricing/RentalPricingTypes.sol";
+import "../pricing/PricingTypes.sol";
 
 enum CarUpdateStatus {
     Add,
@@ -112,11 +112,11 @@ struct AvailableCarInfo {
     LocationInfo locationInfo;
     CarInsuranceInfo insuranceInfo;
     uint256 fuelPrice;
-    RentalBaseDiscount carDiscounts;
+    PricingBaseDiscount carDiscounts;
     int128 distance;
     bool isGuestHasInsurance;
     uint256 dimoTokenId;
-    RentalTaxValue[] taxes;
+    PricingTaxValue[] taxes;
     uint64 totalTax;
     UserCurrencyInfo hostCurrency;
 }
@@ -149,8 +149,8 @@ struct SearchCarInfo {
     uint256 dimoTokenId;
     UserCurrencyInfo hostCurrency;
     uint256 fuelPrice;
-    RentalBaseDiscount carDiscounts;
-    RentalTaxValue[] taxesInfo;
+    PricingBaseDiscount carDiscounts;
+    PricingTaxValue[] taxesInfo;
     uint64[] engineParams;
 }
 
@@ -351,8 +351,8 @@ library CarGatewayTypes {
         uint256 dimoTokenId;
         UserCurrencyInfo hostCurrency;
         uint256 fuelPrice;
-        RentalBaseDiscount carDiscounts;
-        RentalTaxValue[] taxesInfo;
+        PricingBaseDiscount carDiscounts;
+        PricingTaxValue[] taxesInfo;
         uint64[] engineParams;
     }
 
@@ -390,11 +390,11 @@ library CarGatewayTypes {
         LocationInfo locationInfo;
         InsuranceCarInfo insuranceInfo;
         uint256 fuelPrice;
-        RentalBaseDiscount carDiscounts;
+        PricingBaseDiscount carDiscounts;
         int128 distance;
         bool isGuestHasInsurance;
         uint256 dimoTokenId;
-        RentalTaxValue[] taxes;
+        PricingTaxValue[] taxes;
         uint64 totalTax;
         UserCurrencyInfo hostCurrency;
     }

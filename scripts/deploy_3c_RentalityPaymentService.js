@@ -13,13 +13,13 @@ async function main() {
     getContractAddress('RentalityUserService', 'scripts/deploy_1b_RentalityUserService.js', chainId),
     'RentalityUserService'
   )
-  const rentalityTaxes = checkNotNull(
-    getContractAddress('RentalityTaxes', 'scripts/deploy_2e_RentalityTaxes.js', chainId),
-    'RentalityTaxes'
+  const taxes = checkNotNull(
+    getContractAddress('Taxes', 'scripts/deploy_2e_Taxes.js', chainId),
+    'Taxes'
   )
   const baseDiscount = checkNotNull(
-    getContractAddress('RentalityBaseDiscount', 'scripts/deploy_2g_RentalityBaseDiscount.js', chainId),
-    'RentalityBaseDiscount'
+    getContractAddress('BaseDiscount', 'scripts/deploy_2g_BaseDiscount.js', chainId),
+    'BaseDiscount'
   )
   const investService = checkNotNull(
     getContractAddress('RentalityInvestment', 'scripts/deploy_3c_RentalityInvestment.js', chainId),
@@ -38,7 +38,7 @@ async function main() {
   const contractFactory = await ethers.getContractFactory(contractName)
   const contract = await upgrades.deployProxy(contractFactory, [
     userService,
-    rentalityTaxes,
+    taxes,
     baseDiscount,
     investService,
     rentalityHostInsurace,

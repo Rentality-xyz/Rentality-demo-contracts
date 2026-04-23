@@ -38,12 +38,12 @@ async function main() {
     'UserProfileQuery'
   )
   const pricingServiceAddress = checkNotNull(
-    getContractAddress('RentalPricingMain', 'scripts/deploy_3j_RentalPricingMain.js', chainId),
-    'RentalPricingMain'
+    getContractAddress('PricingMain', 'scripts/deploy_3j_PricingMain.js', chainId),
+    'PricingMain'
   )
   const insuranceServiceAddress = checkNotNull(
-    getContractAddress('RentalInsuranceMain', 'scripts/deploy_3l_RentalInsuranceMain.js', chainId),
-    'RentalInsuranceMain'
+    getContractAddress('InsuranceMain', 'scripts/deploy_3l_InsuranceMain.js', chainId),
+    'InsuranceMain'
   )
   const carTaxAdapterAddress = checkNotNull(
     getContractAddress('CarTaxAdapter', 'scripts/deploy_3r_CarTaxAdapter.js', chainId),

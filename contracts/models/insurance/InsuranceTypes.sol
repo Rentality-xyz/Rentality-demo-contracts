@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 import '../base/insurance/InsuranceTypes.sol';
 
-struct RentalSaveInsuranceRequest {
+struct SaveInsuranceRequest {
     string companyName;
     string policyNumber;
     string photo;
@@ -11,13 +11,13 @@ struct RentalSaveInsuranceRequest {
     InsuranceType insuranceType;
 }
 
-struct RentalHostInsurancePayoutContext {
+struct HostInsurancePayoutContext {
     address host;
     address currencyType;
     uint256 tripId;
 }
 
-struct RentalInsuranceDTO {
+struct InsuranceDTO {
     uint256 tripId;
     string carBrand;
     string carModel;
@@ -31,7 +31,7 @@ struct RentalInsuranceDTO {
     bool isActual;
 }
 
-struct RentalHostInsuranceRuleDTO {
+struct HostInsuranceRuleDTO {
     uint256 partToInsurance;
     uint256 insuranceId;
 }

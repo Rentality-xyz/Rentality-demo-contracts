@@ -18,10 +18,6 @@ const existingLibs = [
     pathToDeploy: './scripts/deploy_1d_RentalityQuery.js',
   },
   {
-    name: 'RealMath',
-    pathToDeploy: './scripts/deploy_1c_RealMath.js',
-  },
-  {
     name: 'RentalityTripsQuery',
     pathToDeploy: './scripts/deploy_1e_RentalityTripsQuery.js',
   },

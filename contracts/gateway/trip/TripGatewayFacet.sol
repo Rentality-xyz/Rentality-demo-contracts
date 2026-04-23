@@ -10,7 +10,7 @@ import "../../models/trip/TripQuery.sol";
 import "../../models/car/CarTypes.sol";
 import "../../models/common/CommonTypes.sol";
 import "../../models/profile/UserProfileTypes.sol";
-import "../../models/insurance/RentalInsuranceTypes.sol";
+import "../../models/insurance/InsuranceTypes.sol";
 import "../ARentalityContext.sol";
 import "./TripMapper.sol";
 
@@ -79,7 +79,7 @@ interface ITripGatewayFacetInsuranceService {
     function saveGuestInsurancePayment(uint256 tripId, uint256 carId, uint256 totalSum, address user) external;
     function saveTripInsuranceInfo(
         uint256 tripId,
-        RentalSaveInsuranceRequest memory insuranceInfo,
+        SaveInsuranceRequest memory insuranceInfo,
         address user
     ) external;
 }
@@ -322,7 +322,7 @@ contract TripGatewayFacet is UUPSOwnable, ARentalityContext {
         if (bytes(insuranceNumber).length > 0 || bytes(insuranceCompany).length > 0) {
             insuranceService.saveTripInsuranceInfo(
                 tripId,
-                RentalSaveInsuranceRequest(
+                SaveInsuranceRequest(
                     insuranceCompany,
                     insuranceNumber,
                     "",

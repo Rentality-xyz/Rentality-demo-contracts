@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
+import '../base/referral/ReferralTypes.sol';
 import '../car/CarTypes.sol';
 import '../common/CommonTypes.sol';
 
-enum RentalClaimType {
+enum ReferralClaimType {
   Tolls,
   Tickets,
   LateReturn,
@@ -17,31 +18,31 @@ enum RentalClaimType {
   ListingMismatch
 }
 
-enum RentalClaimCreator {
+enum ReferralClaimCreator {
   Host,
   Guest,
   Both
 }
 
-enum RentalClaimStatus {
+enum ReferralClaimStatus {
   NotPaid,
   Paid,
   Cancel,
   Overdue
 }
 
-struct RentalClaimTypeInfo {
+struct ReferralClaimTypeInfo {
   uint8 claimType;
   string claimName;
-  RentalClaimCreator creator;
+  ReferralClaimCreator creator;
 }
 
-struct RentalClaimInfo {
+struct ReferralClaimInfo {
   uint256 tripId;
   uint256 claimId;
   uint256 deadlineDateInSec;
-  RentalClaimType claimType;
-  RentalClaimStatus status;
+  ReferralClaimType claimType;
+  ReferralClaimStatus status;
   string description;
   uint64 amountInUsdCents;
   uint256 payDateInSec;
@@ -51,12 +52,12 @@ struct RentalClaimInfo {
   bool isHostClaims;
 }
 
-struct RentalClaimInfoV2 {
+struct ReferralClaimInfoV2 {
   uint256 tripId;
   uint256 claimId;
   uint256 deadlineDateInSec;
   uint8 claimType;
-  RentalClaimStatus status;
+  ReferralClaimStatus status;
   string description;
   uint64 amountInUsdCents;
   uint256 payDateInSec;
@@ -66,7 +67,7 @@ struct RentalClaimInfoV2 {
   bool isHostClaims;
 }
 
-struct CreateClaimRequest {
+struct CreateReferralClaimRequest {
   uint256 tripId;
   uint8 claimType;
   string description;
@@ -74,8 +75,8 @@ struct CreateClaimRequest {
   string photosUrl;
 }
 
-struct FullClaimInfo {
-  RentalClaimInfoV2 claim;
+struct FullReferralClaimInfo {
+  ReferralClaimInfoV2 claim;
   address host;
   address guest;
   string guestPhoneNumber;
@@ -83,6 +84,17 @@ struct FullClaimInfo {
   CarGatewayTypes.GatewayCarInfo carInfo;
   uint256 amountInEth;
   string timeZoneId;
-  RentalClaimTypeInfo claimType;
+  ReferralClaimTypeInfo claimType;
   UserCurrencyInfo currency;
+}
+
+struct CurrencyRate {
+  int256 rate;
+  uint8 decimals;
+}
+
+struct ReferralCallbackArgs {
+  uint256 tripId;
+  uint256 carId;
+  address counterparty;
 }

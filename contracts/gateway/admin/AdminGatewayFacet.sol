@@ -5,9 +5,9 @@ import {UUPSOwnable as GatewayUUPSOwnable} from '../../infrastructure/upgradeabl
 import '../ARentalityContext.sol';
 import '../../models/base/referral/ReferralTypes.sol';
 import '../../models/car/CarTypes.sol';
-import '../../models/claim/RentalClaimTypes.sol';
+import '../../models/referral/ReferralTypes.sol';
 import '../../models/common/CommonTypes.sol';
-import '../../models/pricing/RentalPricingTypes.sol';
+import '../../models/pricing/PricingTypes.sol';
 import '../../models/profile/UserProfileTypes.sol';
 import '../../models/trip/TripTypes.sol';
 import '../car/CarMapper.sol';
@@ -50,9 +50,9 @@ interface IAdminGatewayClaimService {
   function setWaitingTime(uint256 timeInSec) external;
   function getWaitingTime() external view returns (uint256);
   function setPlatformFee(uint256 value) external;
-  function getClaimTypesForHost() external view returns (RentalClaimTypeInfo[] memory);
-  function getClaimTypesForGuest() external view returns (RentalClaimTypeInfo[] memory);
-  function addClaimType(string memory name, RentalClaimCreator creator) external returns (uint256);
+  function getClaimTypesForHost() external view returns (ReferralClaimTypeInfo[] memory);
+  function getClaimTypesForGuest() external view returns (ReferralClaimTypeInfo[] memory);
+  function addClaimType(string memory name, ReferralClaimCreator creator) external returns (uint256);
   function removeClaimType(uint8 claimType) external;
 }
 
@@ -68,12 +68,12 @@ interface IAdminGatewayPricingService {
   function calculateTaxesDTO(uint256 taxesId, uint64 daysOfTrip, uint64 value)
     external
     view
-    returns (uint64 totalTax, RentalTaxValue[] memory taxValues);
-  function setDefaultDiscount(RentalBaseDiscount memory data) external;
+    returns (uint64 totalTax, PricingTaxValue[] memory taxValues);
+  function setDefaultDiscount(PricingBaseDiscount memory data) external;
   function addTaxes(
     string memory location,
-    RentalPricingTaxesLocationType locationType,
-    RentalTaxValue[] memory taxes
+    PricingTaxesLocationType locationType,
+    PricingTaxValue[] memory taxes
   ) external returns (uint256);
 }
 
@@ -271,7 +271,7 @@ contract AdminGatewayFacet is GatewayUUPSOwnable, ARentalityContext, IAdminGatew
   function calculateTaxesDTO(uint taxesId, uint64 daysOfTrip, uint64 value)
     public
     view
-    returns (uint64 totalTax, RentalTaxValue[] memory taxValues)
+    returns (uint64 totalTax, PricingTaxValue[] memory taxValues)
   {
     return pricingService.calculateTaxesDTO(taxesId, daysOfTrip, value);
   }
@@ -351,11 +351,11 @@ contract AdminGatewayFacet is GatewayUUPSOwnable, ARentalityContext, IAdminGatew
     return ProfileMapper.toLegacyAdminPage(userProfileQuery.getPlatformUsersKYCInfos(page, itemsPerPage));
   }
 
-  function getAllClaimTypes(bool byHost) public view returns (RentalClaimTypeInfo[] memory) {
+  function getAllClaimTypes(bool byHost) public view returns (ReferralClaimTypeInfo[] memory) {
     return byHost ? claimService.getClaimTypesForHost() : claimService.getClaimTypesForGuest();
   }
 
-  function addClaimType(string memory name, RentalClaimCreator creator) public {
+  function addClaimType(string memory name, ReferralClaimCreator creator) public {
     address sender = _msgGatewaySender();
     uint claimTypeId = claimService.addClaimType(name, creator);
     notificationService.emitEvent(EventType.AddClaimType, claimTypeId, uint8(EventCreator.Admin), sender, sender);
@@ -377,13 +377,13 @@ contract AdminGatewayFacet is GatewayUUPSOwnable, ARentalityContext, IAdminGatew
     notificationService.emitEvent(EventType.Delivery, 0, uint8(EventCreator.Admin), sender, sender);
   }
 
-  function setDefaultDiscount(RentalBaseDiscount memory newDiscounts) public {
+  function setDefaultDiscount(PricingBaseDiscount memory newDiscounts) public {
     address sender = _msgGatewaySender();
     pricingService.setDefaultDiscount(newDiscounts);
     notificationService.emitEvent(EventType.Discount, 0, uint8(EventCreator.Admin), sender, sender);
   }
 
-  function addTaxes(string memory location, RentalPricingTaxesLocationType locationType, RentalTaxValue[] memory taxes) public {
+  function addTaxes(string memory location, PricingTaxesLocationType locationType, PricingTaxValue[] memory taxes) public {
     address sender = _msgGatewaySender();
     uint taxId = pricingService.addTaxes(location, locationType, taxes);
     notificationService.emitEvent(EventType.Taxes, taxId, uint8(locationType), sender, sender);

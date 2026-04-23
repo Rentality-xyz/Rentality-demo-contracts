@@ -9,13 +9,13 @@ async function main() {
 
   if (chainId < 0) throw new Error('chainId is not set')
 
-  const rentalInvestmentMainAddress = checkNotNull(
-    getContractAddress('RentalInvestmentMain', 'scripts/deploy_3p_RentalInvestmentMain.js', chainId),
-    'RentalInvestmentMain'
+  const investmentMainAddress = checkNotNull(
+    getContractAddress('InvestmentMain', 'scripts/deploy_3p_InvestmentMain.js', chainId),
+    'InvestmentMain'
   )
-  const rentalInvestmentQueryAddress = checkNotNull(
-    getContractAddress('RentalInvestmentQuery', 'scripts/deploy_3q_RentalInvestmentQuery.js', chainId),
-    'RentalInvestmentQuery'
+  const investmentQueryAddress = checkNotNull(
+    getContractAddress('InvestmentQuery', 'scripts/deploy_3q_InvestmentQuery.js', chainId),
+    'InvestmentQuery'
   )
   const userProfileMainAddress = checkNotNull(
     getContractAddress('UserProfileMain', 'scripts/deploy_1h_UserProfileMain.js', chainId),
@@ -24,8 +24,8 @@ async function main() {
 
   const contractFactory = await ethers.getContractFactory(contractName)
   const contract = await upgrades.deployProxy(contractFactory, [
-    rentalInvestmentMainAddress,
-    rentalInvestmentQueryAddress,
+    investmentMainAddress,
+    investmentQueryAddress,
     userProfileMainAddress,
   ])
   await contract.waitForDeployment()

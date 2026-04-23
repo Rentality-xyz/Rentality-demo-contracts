@@ -3,32 +3,32 @@ pragma solidity ^0.8.20;
 
 import {Initializable as OZInitializable} from '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 import '../../infrastructure/upgradeable/UUPSOwnable.sol';
-import '../../models/payment/RentalPaymentQuery.sol';
-import '../../models/payment/RentalPaymentTypes.sol';
-import '../../models/pricing/RentalPricingTypes.sol';
+import '../../models/payment/PaymentQuery.sol';
+import '../../models/payment/PaymentTypes.sol';
+import '../../models/pricing/PricingTypes.sol';
 import '../../models/common/CommonTypes.sol';
 import '../ARentalityContext.sol';
 import './IPaymentGatewayFacet.sol';
 
 interface IPaymentGatewayFacetSwaps {
-  function getAllowedCurrencies() external view returns (RentalAllowedCurrencyDTO[] memory);
+  function getAllowedCurrencies() external view returns (AllowedCurrencyDTO[] memory);
 }
 
 interface IPaymentGatewayFacetPricingService {
-  function getBaseDiscount(address user) external view returns (RentalBaseDiscount memory);
-  function getTaxesInfoById(uint taxId) external view returns (RentalTaxesInfo memory);
-  function addBaseDiscount(address user, RentalBaseDiscount memory data) external;
+  function getBaseDiscount(address user) external view returns (PricingBaseDiscount memory);
+  function getTaxesInfoById(uint taxId) external view returns (PricingTaxesInfo memory);
+  function addBaseDiscount(address user, PricingBaseDiscount memory data) external;
 }
 
 interface IPaymentGatewayFacetPromoService {
   function checkPromo(string memory promo, uint startDateTime, uint endDateTime)
     external
     view
-    returns (RentalCheckPromoDTO memory);
+    returns (PricingCheckPromoDTO memory);
 }
 
 interface IPaymentGatewayFacetCurrencyConverter {
-  function getAllCurrencies() external view returns (RentalCurrency[] memory);
+  function getAllCurrencies() external view returns (PaymentCurrency[] memory);
 }
 
 interface IPaymentGatewayFacetUserAccess {
@@ -40,7 +40,7 @@ interface IPaymentGatewayFacetNotificationService {
 }
 
 contract PaymentGatewayFacet is UUPSOwnable, ARentalityContext, IPaymentGatewayFacet {
-  RentalPaymentQuery public paymentQuery;
+  PaymentQuery public paymentQuery;
   IPaymentGatewayFacetPricingService public pricingService;
   IPaymentGatewayFacetPromoService public promoService;
   IPaymentGatewayFacetCurrencyConverter public currencyConverter;
@@ -88,31 +88,31 @@ contract PaymentGatewayFacet is UUPSOwnable, ARentalityContext, IPaymentGatewayF
     );
   }
 
-  function getAvailableCurrency() external view returns (RentalAllowedCurrencyDTO[] memory) {
+  function getAvailableCurrency() external view returns (AllowedCurrencyDTO[] memory) {
     return IPaymentGatewayFacetSwaps(paymentQuery.getSwapsAddress()).getAllowedCurrencies();
   }
 
-  function getDiscount(address user) external view returns (RentalBaseDiscount memory) {
+  function getDiscount(address user) external view returns (PricingBaseDiscount memory) {
     return pricingService.getBaseDiscount(user);
   }
 
   function checkPromo(string memory promo, uint startDateTime, uint endDateTime)
     external
     view
-    returns (RentalCheckPromoDTO memory)
+    returns (PricingCheckPromoDTO memory)
   {
     return promoService.checkPromo(promo, startDateTime, endDateTime);
   }
 
-  function getAvaibleCurrencies() external view returns (RentalCurrency[] memory) {
+  function getAvaibleCurrencies() external view returns (PaymentCurrency[] memory) {
     return currencyConverter.getAllCurrencies();
   }
 
-  function getTaxesInfoById(uint taxId) external view returns (RentalTaxesInfo memory) {
+  function getTaxesInfoById(uint taxId) external view returns (PricingTaxesInfo memory) {
     return pricingService.getTaxesInfoById(taxId);
   }
 
-  function addUserDiscount(RentalBaseDiscount memory data) external {
+  function addUserDiscount(PricingBaseDiscount memory data) external {
     address sender = _msgGatewaySender();
     pricingService.addBaseDiscount(sender, data);
     notificationService.emitEvent(EventType.Discount, 0, uint8(EventCreator.User), sender, sender);
@@ -130,7 +130,7 @@ contract PaymentGatewayFacet is UUPSOwnable, ARentalityContext, IPaymentGatewayF
     address userAccessAddress,
     address notificationServiceAddress
   ) internal {
-    paymentQuery = RentalPaymentQuery(paymentQueryAddress);
+    paymentQuery = PaymentQuery(paymentQueryAddress);
     pricingService = IPaymentGatewayFacetPricingService(pricingServiceAddress);
     promoService = IPaymentGatewayFacetPromoService(promoServiceAddress);
     currencyConverter = IPaymentGatewayFacetCurrencyConverter(currencyConverterAddress);

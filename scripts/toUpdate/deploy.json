@@ -15,7 +15,7 @@
       "./scripts/update_RentalityProxy.js RentalityCurrencyConverter",
       "./scripts/update_RentalityProxy.js RentalityHostInsurance",
       "./scripts/update_RentalityProxy.js RentalityPaymentService",
-      "./scripts/update_RentalityProxy.js RentalityTaxes",
+      "./scripts/update_RentalityProxy.js Taxes",
       "./scripts/setGatewayNotificationService.js",
       "./scripts/setSwapsService.js"
     ]

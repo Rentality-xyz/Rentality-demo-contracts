@@ -3,8 +3,8 @@ pragma solidity ^0.8.20;
 
 import '../../infrastructure/upgradeable/UUPSOwnable.sol';
 import '../../models/base/referral/ReferralTypes.sol';
-import '../../models/referral/RentalReferralMain.sol';
-import '../../models/referral/RentalReferralQuery.sol';
+import '../../models/referral/ReferralMain.sol';
+import '../../models/referral/ReferralQuery.sol';
 import '../ARentalityContext.sol';
 import './IReferralGatewayFacet.sol';
 
@@ -13,8 +13,8 @@ interface IReferralGatewayFacetAccess {
 }
 
 contract ReferralGatewayFacet is UUPSOwnable, ARentalityContext, IReferralGatewayFacet {
-    RentalReferralMain public rentalReferralMain;
-    RentalReferralQuery public rentalReferralQuery;
+    ReferralMain public referralMain;
+    ReferralQuery public referralQuery;
     IReferralGatewayFacetAccess public userAccess;
 
     /// @custom:oz-upgrades-unsafe-allow constructor
@@ -22,40 +22,40 @@ contract ReferralGatewayFacet is UUPSOwnable, ARentalityContext, IReferralGatewa
         _disableInitializers();
     }
 
-    function initialize(address rentalReferralMainAddress, address rentalReferralQueryAddress, address userAccessAddress)
+    function initialize(address referralMainAddress, address referralQueryAddress, address userAccessAddress)
         public
         initializer
     {
         __Ownable_init();
-        _setServiceAddresses(rentalReferralMainAddress, rentalReferralQueryAddress, userAccessAddress);
+        _setServiceAddresses(referralMainAddress, referralQueryAddress, userAccessAddress);
     }
 
     function updateServiceAddresses(
-        address rentalReferralMainAddress,
-        address rentalReferralQueryAddress,
+        address referralMainAddress,
+        address referralQueryAddress,
         address userAccessAddress
     ) external onlyOwner {
-        _setServiceAddresses(rentalReferralMainAddress, rentalReferralQueryAddress, userAccessAddress);
+        _setServiceAddresses(referralMainAddress, referralQueryAddress, userAccessAddress);
     }
 
     function addressToPoints(address user) external view returns (uint256) {
-        return rentalReferralQuery.getPointsBalance(user);
+        return referralQuery.getPointsBalance(user);
     }
 
     function referralHashV2(address user) external view returns (bytes4) {
-        return rentalReferralQuery.getReferralHash(user);
+        return referralQuery.getReferralHash(user);
     }
 
     function getCarDailyClaimedTime(uint256 carId) external view returns (uint64) {
-        return uint64(rentalReferralQuery.getCarDailyClaimedTime(carId));
+        return uint64(referralQuery.getCarDailyClaimedTime(carId));
     }
 
     function getMyStartDiscount(address user) external view returns (ReferralDiscount memory) {
-        return ReferralDiscount({pointsCosts: 0, percents: rentalReferralQuery.getMyStartDiscount(user)});
+        return ReferralDiscount({pointsCosts: 0, percents: referralQuery.getMyStartDiscount(user)});
     }
 
     function getReadyToClaim(address user) external view returns (ReadyToClaimDTO memory readyToClaimDTO) {
-        return rentalReferralQuery.getReadyToClaim(user);
+        return referralQuery.getReadyToClaim(user);
     }
 
     function getReadyToClaimFromRefferalHash(address user)
@@ -63,7 +63,7 @@ contract ReferralGatewayFacet is UUPSOwnable, ARentalityContext, IReferralGatewa
         view
         returns (ReferralHashDTO memory refferalHashDTO)
     {
-        return rentalReferralQuery.getReadyToClaimFromHash(user);
+        return referralQuery.getReadyToClaimFromHash(user);
     }
 
     function getRefferalPointsInfo()
@@ -71,27 +71,27 @@ contract ReferralGatewayFacet is UUPSOwnable, ARentalityContext, IReferralGatewa
         view
         returns (AllReferralInfoDTO memory allRefferalInfoDTO)
     {
-        return rentalReferralQuery.getReferralPointsInfo();
+        return referralQuery.getReferralPointsInfo();
     }
 
     function getPointsHistory() external view returns (ReferralProgramHistory[] memory) {
-        return rentalReferralQuery.getPointsHistory(_msgGatewaySender());
+        return referralQuery.getPointsHistory(_msgGatewaySender());
     }
 
     function getMyRefferalInfo() external view returns (MyReferralInfoDTO memory myRefferalInfoDTO) {
-        return rentalReferralQuery.getMyReferralInfo(_msgGatewaySender());
+        return referralQuery.getMyReferralInfo(_msgGatewaySender());
     }
 
     function claimPoints(address user) external {
-        rentalReferralMain.claimPoints(user);
+        referralMain.claimPoints(user);
     }
 
     function claimRefferalPoints(address user) external {
-        rentalReferralMain.claimReferralPoints(user);
+        referralMain.claimReferralPoints(user);
     }
 
     function hashExists(bytes32 referralHash) external view returns (bool) {
-        return rentalReferralQuery.hashExists(bytes4(referralHash));
+        return referralQuery.hashExists(bytes4(referralHash));
     }
 
     function isTrustedForwarder(address forwarder) internal view override returns (bool) {
@@ -99,12 +99,12 @@ contract ReferralGatewayFacet is UUPSOwnable, ARentalityContext, IReferralGatewa
     }
 
     function _setServiceAddresses(
-        address rentalReferralMainAddress,
-        address rentalReferralQueryAddress,
+        address referralMainAddress,
+        address referralQueryAddress,
         address userAccessAddress
     ) internal {
-        rentalReferralMain = RentalReferralMain(rentalReferralMainAddress);
-        rentalReferralQuery = RentalReferralQuery(rentalReferralQueryAddress);
+        referralMain = ReferralMain(referralMainAddress);
+        referralQuery = ReferralQuery(referralQueryAddress);
         userAccess = IReferralGatewayFacetAccess(userAccessAddress);
     }
 }

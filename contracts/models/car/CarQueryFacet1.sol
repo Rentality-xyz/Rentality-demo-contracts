@@ -1,8 +1,9 @@
+/// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
 import "../common/CommonTypes.sol";
 import "../profile/UserProfileTypes.sol";
-import "../pricing/RentalPricingTypes.sol";
+import "../pricing/PricingTypes.sol";
 import "../base/insurance/InsuranceTypes.sol";
 import "../trip/TripTypes.sol";
 import "./CarLib.sol";
@@ -40,8 +41,8 @@ interface ICarQueryFacet1PricingService {
     function calculateTaxesDTO(uint256 taxId, uint64 tripDays, uint64 totalCost)
         external
         view
-        returns (uint64 totalTax, RentalTaxValue[] memory taxes);
-    function getBaseDiscount(address user) external view returns (RentalBaseDiscount memory);
+        returns (uint64 totalTax, PricingTaxValue[] memory taxes);
+    function getBaseDiscount(address user) external view returns (PricingBaseDiscount memory);
 }
 
 interface ICarQueryFacet1InsuranceService {
@@ -196,9 +197,9 @@ contract CarQueryFacet1 {
 
         uint256 taxId = pricingService.defineTaxesType(context.carTaxAdapter, car.asset.id);
         uint64 totalTax = 0;
-        RentalTaxValue[] memory taxes = new RentalTaxValue[](0);
+        PricingTaxValue[] memory taxes = new PricingTaxValue[](0);
         if (taxId != 0) {
-            RentalTaxValue[] memory rentalTaxes;
+            PricingTaxValue[] memory rentalTaxes;
             (totalTax, rentalTaxes) = pricingService.calculateTaxesDTO(
                 taxId,
                 totalTripDays,
@@ -209,7 +210,7 @@ contract CarQueryFacet1 {
 
         UserProfileKYCInfo memory hostKyc = userProfileQuery.getKYCInfo(host);
         InsuranceRequirement memory insuranceRequirement = insuranceService.getInsuranceRequirement(car.asset.id);
-        RentalBaseDiscount memory discount = pricingService.getBaseDiscount(host);
+        PricingBaseDiscount memory discount = pricingService.getBaseDiscount(host);
         uint256 dimoTokenId = ICarQueryFacet1DimoService(context.dimoService).getDimoTokenId(car.asset.id);
         (address selectedCurrency, bool hasSelectedCurrency) = userProfileQuery.getUserCurrency(host);
         UserCurrencyInfo memory hostCurrency = hasSelectedCurrency
@@ -248,7 +249,7 @@ contract CarQueryFacet1 {
                 priceInUsdCents: insuranceRequirement.priceInUsdCents
             }),
             fuelPrice: fuelPrice,
-            carDiscounts: RentalBaseDiscount({
+            carDiscounts: PricingBaseDiscount({
                 threeDaysDiscount: discount.threeDaysDiscount,
                 sevenDaysDiscount: discount.sevenDaysDiscount,
                 thirtyDaysDiscount: discount.thirtyDaysDiscount,

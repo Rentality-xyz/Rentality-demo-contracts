@@ -7,7 +7,7 @@ import '../../models/car/CarQuery.sol';
 import '../../models/car/CarQueryFacet1.sol';
 import '../../models/car/CarQueryFacet2.sol';
 import '../../models/car/CarTypes.sol';
-import '../../models/pricing/RentalPricingTypes.sol';
+import '../../models/pricing/PricingTypes.sol';
 import '../../models/common/CommonTypes.sol';
 import '../ARentalityContext.sol';
 
@@ -29,8 +29,8 @@ interface ICarViewGatewayPricingService {
   function calculateTaxesDTO(uint256 taxId, uint64 tripDays, uint64 totalCost)
     external
     view
-    returns (uint64 totalTax, RentalTaxValue[] memory taxes);
-  function getBaseDiscount(address user) external view returns (RentalBaseDiscount memory);
+    returns (uint64 totalTax, PricingTaxValue[] memory taxes);
+  function getBaseDiscount(address user) external view returns (PricingBaseDiscount memory);
 }
 
 interface ICarViewGatewayInsuranceService {

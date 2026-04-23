@@ -5,7 +5,7 @@ const addressSaver = require('./utils/addressSaver')
 const { checkNotNull, startDeploy } = require('./utils/deployHelper')
 
 async function main() {
-  const { contractName, chainId } = await startDeploy('RentalInvestmentMain')
+  const { contractName, chainId } = await startDeploy('InvestmentMain')
 
   if (chainId < 0) throw new Error('chainId is not set')
 
@@ -21,9 +21,9 @@ async function main() {
     getContractAddress('CarMain', 'scripts/deploy_3_CarModel.js', chainId),
     'CarMain'
   )
-  const rentalInsuranceMainAddress = checkNotNull(
-    getContractAddress('RentalInsuranceMain', 'scripts/deploy_3l_RentalInsuranceMain.js', chainId),
-    'RentalInsuranceMain'
+  const insuranceMainAddress = checkNotNull(
+    getContractAddress('InsuranceMain', 'scripts/deploy_3l_InsuranceMain.js', chainId),
+    'InsuranceMain'
   )
   const rentalityInvestDeployerAddress = checkNotNull(
     getContractAddress('RentalityInvestDeployer', 'scripts/deploy_3b_RentalityInvestDeployer.js', chainId),
@@ -35,7 +35,7 @@ async function main() {
     userProfileMainAddress,
     rentalityCurrencyConverterAddress,
     carMainAddress,
-    rentalInsuranceMainAddress,
+    insuranceMainAddress,
     rentalityInvestDeployerAddress,
   ])
   await contract.waitForDeployment()

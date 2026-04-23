@@ -3,14 +3,14 @@ pragma solidity ^0.8.20;
 
 import '@openzeppelin/contracts/utils/math/Math.sol';
 import '../base/investment/InvestmentTypes.sol';
-import './RentalInvestmentMain.sol';
-import './RentalInvestmentTypes.sol';
+import './InvestmentMain.sol';
+import './InvestmentTypes.sol';
 
-interface IRentalInvestmentQueryCurrencyConverter {
+interface IInvestmentQueryCurrencyConverter {
     function getToUsdLatest(address currencyType, uint256 amount) external view returns (uint256, int256, uint8);
 }
 
-interface IRentalInvestmentQueryNft {
+interface IInvestmentQueryNft {
     function balanceOf(address owner) external view returns (uint256);
     function ownerOf(uint256 tokenId) external view returns (address);
     function tokenIdToPriceInEth(uint256 tokenId) external view returns (uint256);
@@ -20,28 +20,28 @@ interface IRentalInvestmentQueryNft {
     function tokenURI(uint256 tokenId) external view returns (string memory);
 }
 
-struct RentalInvestmentPoolIncome {
+struct InvestmentPoolIncome {
     uint256 income;
     uint256 totalProfit;
 }
 
-interface IRentalInvestmentQueryPool {
+interface IInvestmentQueryPool {
     function getIncomeInfoByNft(uint256 id)
         external
         view
-        returns (RentalInvestmentPoolIncome[] memory, uint256, uint256);
+        returns (InvestmentPoolIncome[] memory, uint256, uint256);
     function creationDate() external view returns (uint256);
     function getTotalEarnings() external view returns (uint256);
     function getTotalEarningsByUser(address user) external view returns (uint256);
 }
 
-contract RentalInvestmentQuery {
-    RentalInvestmentMain public immutable rentalInvestmentMain;
-    IRentalInvestmentQueryCurrencyConverter public immutable converter;
+contract InvestmentQuery {
+    InvestmentMain public immutable investmentMain;
+    IInvestmentQueryCurrencyConverter public immutable converter;
 
-    constructor(address rentalInvestmentMainAddress, address converterAddress) {
-        rentalInvestmentMain = RentalInvestmentMain(rentalInvestmentMainAddress);
-        converter = IRentalInvestmentQueryCurrencyConverter(converterAddress);
+    constructor(address investmentMainAddress, address converterAddress) {
+        investmentMain = InvestmentMain(investmentMainAddress);
+        converter = IInvestmentQueryCurrencyConverter(converterAddress);
     }
 
     function getPaymentsInfo(uint256 carId)
@@ -49,25 +49,25 @@ contract RentalInvestmentQuery {
         view
         returns (uint256 percents, address pool, address currency)
     {
-        InvestmentPayoutRoute memory payoutRoute = rentalInvestmentMain.getPaymentsInfo(carId);
+        InvestmentPayoutRoute memory payoutRoute = investmentMain.getPaymentsInfo(carId);
         return (payoutRoute.creatorPercents, payoutRoute.pool, payoutRoute.currency);
     }
 
     function getAllInvestments(address user, bool isInvestorManager)
         external
         view
-        returns (RentalInvestmentDTO[] memory investments)
+        returns (InvestmentDTO[] memory investments)
     {
-        uint256 total = rentalInvestmentMain.getInvestmentCount();
-        investments = new RentalInvestmentDTO[](total);
+        uint256 total = investmentMain.getInvestmentCount();
+        investments = new InvestmentDTO[](total);
         uint256 count = 0;
         for (uint256 i = 1; i <= total; i++) {
-            bool listed = rentalInvestmentMain.isListed(i);
+            bool listed = investmentMain.isListed(i);
             if (!listed && !isInvestorManager) {
                 continue;
             }
 
-            RentalInvestmentDTO memory dto = _buildInvestmentDTO(i, user, listed);
+            InvestmentDTO memory dto = _buildInvestmentDTO(i, user, listed);
             investments[count] = dto;
             count += 1;
         }
@@ -80,20 +80,20 @@ contract RentalInvestmentQuery {
     function getClaimInvestmentInfo(uint256 investId, address user)
         external
         view
-        returns (RentalClaimInvestmentDTO memory)
+        returns (ClaimInvestmentDTO memory)
     {
-        address nftAddress = rentalInvestmentMain.getNft(investId);
-        address poolAddress = rentalInvestmentMain.getPool(investId);
+        address nftAddress = investmentMain.getNft(investId);
+        address poolAddress = investmentMain.getPool(investId);
         if (nftAddress == address(0) || poolAddress == address(0)) {
-            return RentalClaimInvestmentDTO({tokenURI: '', income: 0, myIncome: 0});
+            return ClaimInvestmentDTO({tokenURI: '', income: 0, myIncome: 0});
         }
 
-        IRentalInvestmentQueryNft nft = IRentalInvestmentQueryNft(nftAddress);
-        IRentalInvestmentQueryPool pool = IRentalInvestmentQueryPool(poolAddress);
+        IInvestmentQueryNft nft = IInvestmentQueryNft(nftAddress);
+        IInvestmentQueryPool pool = IInvestmentQueryPool(poolAddress);
         (uint256[] memory tokens, , , ) = _getAllMyTokensWithTotalPrice(user, nft);
         string memory tokenUri = tokens.length > 0 ? nft.tokenURI(tokens[0]) : '';
 
-        return RentalClaimInvestmentDTO({
+        return ClaimInvestmentDTO({
             tokenURI: tokenUri,
             income: _getTotalIncome(pool),
             myIncome: _getTotalIncomeByNFTs(tokens, pool, nft)
@@ -103,14 +103,14 @@ contract RentalInvestmentQuery {
     function _buildInvestmentDTO(uint256 investmentId, address user, bool listed)
         internal
         view
-        returns (RentalInvestmentDTO memory)
+        returns (InvestmentDTO memory)
     {
-        RentalCarInvestment memory investment = rentalInvestmentMain.getInvestment(investmentId);
-        address nftAddress = rentalInvestmentMain.getNft(investmentId);
-        address poolAddress = rentalInvestmentMain.getPool(investmentId);
-        address currency = rentalInvestmentMain.getInvestmentCurrency(investmentId);
-        address creator = rentalInvestmentMain.getCreator(investmentId);
-        uint256 payedInCurrency = rentalInvestmentMain.getInvestedAmount(investmentId);
+        CarInvestment memory investment = investmentMain.getInvestment(investmentId);
+        address nftAddress = investmentMain.getNft(investmentId);
+        address poolAddress = investmentMain.getPool(investmentId);
+        address currency = investmentMain.getInvestmentCurrency(investmentId);
+        address creator = investmentMain.getCreator(investmentId);
+        uint256 payedInCurrency = investmentMain.getInvestedAmount(investmentId);
         (uint256 payedInUsd, , ) = converter.getToUsdLatest(currency, payedInCurrency);
         (uint256 priceInUsdCents, , ) = converter.getToUsdLatest(currency, investment.priceInCurrency);
 
@@ -129,7 +129,7 @@ contract RentalInvestmentQuery {
         uint256 myInvestingSum = 0;
 
         if (nftAddress != address(0)) {
-            IRentalInvestmentQueryNft nft = IRentalInvestmentQueryNft(nftAddress);
+            IInvestmentQueryNft nft = IInvestmentQueryNft(nftAddress);
             uint256[] memory tokens;
             (tokens, myInvestingSum, totalHolders, totalTokens) = _getAllMyTokensWithTotalPrice(user, nft);
             myTokens = tokens.length;
@@ -137,7 +137,7 @@ contract RentalInvestmentQuery {
             name = nft.name();
             symbol = nft.symbol();
             if (isBought) {
-                IRentalInvestmentQueryPool pool = IRentalInvestmentQueryPool(poolAddress);
+                IInvestmentQueryPool pool = IInvestmentQueryPool(poolAddress);
                 income = _getTotalIncome(pool);
                 myIncome = _getTotalIncomeByNFTs(tokens, pool, nft);
                 listingDate = pool.creationDate();
@@ -146,7 +146,7 @@ contract RentalInvestmentQuery {
             }
         }
 
-        return RentalInvestmentDTO({
+        return InvestmentDTO({
             investment: investment,
             nft: nftAddress,
             investmentId: investmentId,
@@ -177,7 +177,7 @@ contract RentalInvestmentQuery {
         return (percentages, invested);
     }
 
-    function _getAllMyTokensWithTotalPrice(address user, IRentalInvestmentQueryNft nft)
+    function _getAllMyTokensWithTotalPrice(address user, IInvestmentQueryNft nft)
         internal
         view
         returns (uint256[] memory, uint256, uint256, uint256)
@@ -196,8 +196,8 @@ contract RentalInvestmentQuery {
         return (result, totalPrice, totalHolders, totalSupply);
     }
 
-    function _getTotalIncome(IRentalInvestmentQueryPool pool) internal view returns (uint256) {
-        (RentalInvestmentPoolIncome[] memory incomes, , ) = pool.getIncomeInfoByNft(0);
+    function _getTotalIncome(IInvestmentQueryPool pool) internal view returns (uint256) {
+        (InvestmentPoolIncome[] memory incomes, , ) = pool.getIncomeInfoByNft(0);
         uint256 result = 0;
         for (uint256 i = 0; i < incomes.length; i++) {
             result += incomes[i].totalProfit;
@@ -207,8 +207,8 @@ contract RentalInvestmentQuery {
 
     function _getTotalIncomeByNFTs(
         uint256[] memory tokens,
-        IRentalInvestmentQueryPool pool,
-        IRentalInvestmentQueryNft nft
+        IInvestmentQueryPool pool,
+        IInvestmentQueryNft nft
     ) internal view returns (uint256) {
         uint256 totalIncome = 0;
         for (uint256 i = 0; i < tokens.length; i++) {
@@ -219,10 +219,10 @@ contract RentalInvestmentQuery {
 
     function _getIncomesByNftId(
         uint256 id,
-        IRentalInvestmentQueryPool pool,
-        IRentalInvestmentQueryNft nft
+        IInvestmentQueryPool pool,
+        IInvestmentQueryNft nft
     ) internal view returns (uint256) {
-        (RentalInvestmentPoolIncome[] memory incomes, uint256 lastIncomeClaimed, uint256 totalPriceInEth) =
+        (InvestmentPoolIncome[] memory incomes, uint256 lastIncomeClaimed, uint256 totalPriceInEth) =
             pool.getIncomeInfoByNft(id);
         uint256 tokenPrice = nft.tokenIdToPriceInEth(id);
         uint256 part = (tokenPrice * 100_000) / totalPriceInEth;

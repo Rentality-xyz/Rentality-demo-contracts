@@ -10,16 +10,16 @@ async function main() {
   if (chainId < 0) throw new Error('chainId is not set')
 
   const insuranceQueryFacet1Address = checkNotNull(
-    getContractAddress('RentalInsuranceQueryFacet1', 'scripts/deploy_3v_RentalInsuranceQueryFacet1.js', chainId),
-    'RentalInsuranceQueryFacet1'
+    getContractAddress('InsuranceQueryFacet1', 'scripts/deploy_3v_InsuranceQueryFacet1.js', chainId),
+    'InsuranceQueryFacet1'
   )
   const insuranceQueryFacet2Address = checkNotNull(
-    getContractAddress('RentalInsuranceQueryFacet2', 'scripts/deploy_3x_RentalInsuranceQueryFacet2.js', chainId),
-    'RentalInsuranceQueryFacet2'
+    getContractAddress('InsuranceQueryFacet2', 'scripts/deploy_3x_InsuranceQueryFacet2.js', chainId),
+    'InsuranceQueryFacet2'
   )
   const insuranceMainAddress = checkNotNull(
-    getContractAddress('RentalInsuranceMain', 'scripts/deploy_3l_RentalInsuranceMain.js', chainId),
-    'RentalInsuranceMain'
+    getContractAddress('InsuranceMain', 'scripts/deploy_3l_InsuranceMain.js', chainId),
+    'InsuranceMain'
   )
   const userProfileMainAddress = checkNotNull(
     getContractAddress('UserProfileMain', 'scripts/deploy_1h_UserProfileMain.js', chainId),

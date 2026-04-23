@@ -10,12 +10,12 @@ async function main() {
   if (chainId < 0) throw new Error('chainId is not set')
 
   const paymentQueryAddress = checkNotNull(
-    getContractAddress('RentalPaymentQuery', 'scripts/deploy_3i_RentalPaymentQuery.js', chainId),
-    'RentalPaymentQuery'
+    getContractAddress('PaymentQuery', 'scripts/deploy_3i_PaymentQuery.js', chainId),
+    'PaymentQuery'
   )
   const pricingMainAddress = checkNotNull(
-    getContractAddress('RentalPricingMain', 'scripts/deploy_3j_RentalPricingMain.js', chainId),
-    'RentalPricingMain'
+    getContractAddress('PricingMain', 'scripts/deploy_3j_PricingMain.js', chainId),
+    'PricingMain'
   )
   const promoServiceAddress = checkNotNull(
     getContractAddress('RentalityPromoService', 'scripts/deploy_4f_RentalityPromo.js', chainId),
