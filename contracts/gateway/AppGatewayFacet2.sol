@@ -1,18 +1,18 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import '../../infrastructure/upgradeable/UUPSOwnable.sol';
-import '../../models/base/referral/ReferralTypes.sol';
-import '../../models/referral/ReferralMain.sol';
-import '../../models/referral/ReferralQuery.sol';
-import '../ARentalityContext.sol';
-import './IReferralGatewayFacet.sol';
+import '../infrastructure/upgradeable/UUPSOwnable.sol';
+import '../models/base/referral/ReferralTypes.sol';
+import '../models/referral/ReferralMain.sol';
+import '../models/referral/ReferralQuery.sol';
+import './ARentalityContext.sol';
+import './referral/IReferralGatewayFacet.sol';
 
 interface IReferralGatewayFacetAccess {
     function isRentalityPlatform(address user) external view returns (bool);
 }
 
-contract ReferralGatewayFacet is UUPSOwnable, ARentalityContext, IReferralGatewayFacet {
+contract AppGatewayFacet2 is UUPSOwnable, ARentalityContext, IReferralGatewayFacet {
     ReferralMain public referralMain;
     ReferralQuery public referralQuery;
     IReferralGatewayFacetAccess public userAccess;

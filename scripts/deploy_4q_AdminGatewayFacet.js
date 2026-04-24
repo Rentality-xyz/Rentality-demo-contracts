@@ -5,7 +5,9 @@ const addressSaver = require('./utils/addressSaver')
 const { checkNotNull, startDeploy } = require('./utils/deployHelper')
 
 async function main() {
-  const { contractName, chainId } = await startDeploy('AdminGatewayFacet')
+  const deploymentName = 'AdminGatewayFacet'
+  const implementationName = 'AppGatewayFacet11'
+  const { chainId } = await startDeploy(deploymentName)
 
   if (chainId < 0) throw new Error('chainId is not set')
 
@@ -82,7 +84,7 @@ async function main() {
     'TripQuery'
   )
 
-  const contractFactory = await ethers.getContractFactory(contractName)
+  const contractFactory = await ethers.getContractFactory(implementationName)
 
   const contract = await upgrades.deployProxy(contractFactory, [
     [
@@ -109,9 +111,11 @@ async function main() {
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()
 
-  console.log(`${contractName} was deployed to: ${contractAddress}`)
-  addressSaver(contractAddress, contractName, true, chainId)
-  await saveJsonAbi(contractName, chainId, contract)
+  console.log(`${implementationName} was deployed to: ${contractAddress}`)
+  addressSaver(contractAddress, deploymentName, true, chainId)
+  addressSaver(contractAddress, implementationName, true, chainId)
+  await saveJsonAbi(deploymentName, chainId, contract)
+  await saveJsonAbi(implementationName, chainId, contract)
   console.log()
 }
 

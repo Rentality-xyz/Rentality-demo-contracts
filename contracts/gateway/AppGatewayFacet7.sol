@@ -1,18 +1,18 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.20;
 
-import '../../infrastructure/upgradeable/UUPSOwnable.sol';
-import '../../models/base/insurance/InsuranceTypes.sol';
-import '../../models/car/CarMain.sol';
-import '../../models/car/CarQuery.sol';
-import '../../models/car/CarTypes.sol';
-import '../../models/common/CommonTypes.sol';
-import '../../models/profile/UserProfileTypes.sol';
-import '../../models/trip/TripTypes.sol';
-import '../ARentalityContext.sol';
+import '../infrastructure/upgradeable/UUPSOwnable.sol';
+import '../models/base/insurance/InsuranceTypes.sol';
+import '../models/car/CarMain.sol';
+import '../models/car/CarQuery.sol';
+import '../models/car/CarTypes.sol';
+import '../models/common/CommonTypes.sol';
+import '../models/profile/UserProfileTypes.sol';
+import '../models/trip/TripTypes.sol';
+import './ARentalityContext.sol';
 
-import '../mappers/CarMapper.sol';
-import './ICarViewGatewayFacet1.sol';
+import './mappers/CarMapper.sol';
+import './car/ICarViewGatewayFacet1.sol';
 
 interface ICarViewGatewayFacet1UserProfileMain {
   function isRentalityPlatform(address user) external view returns (bool);
@@ -40,7 +40,7 @@ interface ICarViewGatewayFacet1GeoService {
   function getCarCoordinateValidity(uint256 carId) external view returns (bool);
 }
 
-contract CarViewGatewayFacet1 is UUPSOwnable, ARentalityContext, ICarViewGatewayFacet1 {
+contract AppGatewayFacet7 is UUPSOwnable, ARentalityContext, ICarViewGatewayFacet1 {
   CarMain public carMain;
   CarQuery public carQuery;
   ICarViewGatewayFacet1TripQuery public tripQuery;

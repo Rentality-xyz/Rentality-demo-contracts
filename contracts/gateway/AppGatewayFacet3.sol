@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import '../../infrastructure/upgradeable/UUPSOwnable.sol';
-import '../../models/investment/InvestmentMain.sol';
-import '../../models/investment/InvestmentQuery.sol';
-import '../../models/investment/InvestmentTypes.sol';
-import '../../models/profile/UserProfileMain.sol';
-import '../ARentalityContext.sol';
-import './IInvestmentGatewayFacet.sol';
+import '../infrastructure/upgradeable/UUPSOwnable.sol';
+import '../models/investment/InvestmentMain.sol';
+import '../models/investment/InvestmentQuery.sol';
+import '../models/investment/InvestmentTypes.sol';
+import '../models/profile/UserProfileMain.sol';
+import './ARentalityContext.sol';
+import './investment/IInvestmentGatewayFacet.sol';
 
-contract InvestmentGatewayFacet is UUPSOwnable, ARentalityContext, IInvestmentGatewayFacet {
+contract AppGatewayFacet3 is UUPSOwnable, ARentalityContext, IInvestmentGatewayFacet {
     InvestmentMain public investmentMain;
     InvestmentQuery public investmentQuery;
     UserProfileMain public userProfileMain;

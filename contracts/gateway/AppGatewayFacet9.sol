@@ -2,19 +2,19 @@
 pragma solidity ^0.8.20;
 
 import {Initializable as OZInitializable} from '@openzeppelin/contracts/proxy/utils/Initializable.sol';
-import '../../infrastructure/upgradeable/UUPSOwnable.sol';
-import '../../infrastructure/services/ai-damage/AiDamageTypes.sol';
-import '../ARentalityContext.sol';
-import '../../models/referral/ReferralQuery.sol';
-import '../../models/referral/ReferralMainFacet1.sol';
-import '../../models/referral/ReferralTypes.sol';
-import './IClaimGatewayFacet.sol';
+import '../infrastructure/upgradeable/UUPSOwnable.sol';
+import '../infrastructure/services/ai-damage/AiDamageTypes.sol';
+import './ARentalityContext.sol';
+import '../models/referral/ReferralQuery.sol';
+import '../models/referral/ReferralMainFacet1.sol';
+import '../models/referral/ReferralTypes.sol';
+import './claim/IClaimGatewayFacet.sol';
 
 interface IClaimGatewayUserAccess {
   function isRentalityPlatform(address user) external view returns (bool);
 }
 
-contract ClaimGatewayFacet is UUPSOwnable, ARentalityContext, IClaimGatewayFacet {
+contract AppGatewayFacet9 is UUPSOwnable, ARentalityContext, IClaimGatewayFacet {
   ReferralQuery public claimQuery;
   ReferralMainFacet1 public claimMain;
   IClaimGatewayUserAccess public userAccess;

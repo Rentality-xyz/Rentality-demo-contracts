@@ -2,13 +2,13 @@
 pragma solidity ^0.8.20;
 
 import {Initializable as OZInitializable} from '@openzeppelin/contracts/proxy/utils/Initializable.sol';
-import '../../infrastructure/upgradeable/UUPSOwnable.sol';
-import '../../models/payment/PaymentQuery.sol';
-import '../../models/payment/PaymentTypes.sol';
-import '../../models/pricing/PricingTypes.sol';
-import '../../models/common/CommonTypes.sol';
-import '../ARentalityContext.sol';
-import './IPaymentGatewayFacet.sol';
+import '../infrastructure/upgradeable/UUPSOwnable.sol';
+import '../models/payment/PaymentQuery.sol';
+import '../models/payment/PaymentTypes.sol';
+import '../models/pricing/PricingTypes.sol';
+import '../models/common/CommonTypes.sol';
+import './ARentalityContext.sol';
+import './payment/IPaymentGatewayFacet.sol';
 
 interface IPaymentGatewayFacetSwaps {
   function getAllowedCurrencies() external view returns (AllowedCurrencyDTO[] memory);
@@ -39,7 +39,7 @@ interface IPaymentGatewayFacetNotificationService {
   function emitEvent(EventType eType, uint256 id, uint8 objectStatus, address from, address to) external;
 }
 
-contract PaymentGatewayFacet is UUPSOwnable, ARentalityContext, IPaymentGatewayFacet {
+contract AppGatewayFacet8 is UUPSOwnable, ARentalityContext, IPaymentGatewayFacet {
   PaymentQuery public paymentQuery;
   IPaymentGatewayFacetPricingService public pricingService;
   IPaymentGatewayFacetPromoService public promoService;

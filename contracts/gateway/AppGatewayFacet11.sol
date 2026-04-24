@@ -1,18 +1,18 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {UUPSOwnable as GatewayUUPSOwnable} from '../../infrastructure/upgradeable/UUPSOwnable.sol';
-import '../ARentalityContext.sol';
-import '../../models/base/referral/ReferralTypes.sol';
-import '../../models/car/CarTypes.sol';
-import '../../models/referral/ReferralTypes.sol';
-import '../../models/common/CommonTypes.sol';
-import '../../models/pricing/PricingTypes.sol';
-import '../../models/profile/UserProfileTypes.sol';
-import '../../models/trip/TripTypes.sol';
-import '../mappers/CarMapper.sol';
-import '../mappers/ProfileMapper.sol';
-import './IAdminGatewayFacet.sol';
+import {UUPSOwnable as GatewayUUPSOwnable} from '../infrastructure/upgradeable/UUPSOwnable.sol';
+import './ARentalityContext.sol';
+import '../models/base/referral/ReferralTypes.sol';
+import '../models/car/CarTypes.sol';
+import '../models/referral/ReferralTypes.sol';
+import '../models/common/CommonTypes.sol';
+import '../models/pricing/PricingTypes.sol';
+import '../models/profile/UserProfileTypes.sol';
+import '../models/trip/TripTypes.sol';
+import './mappers/CarMapper.sol';
+import './mappers/ProfileMapper.sol';
+import './admin/IAdminGatewayFacet.sol';
 
 interface IAdminGatewayTripQuery {
   function getAllTrips(TripGatewayTypes.GatewayTripFilter memory filter, uint256 page, uint256 itemsPerPage)
@@ -135,7 +135,7 @@ struct AdminQueryAddresses {
 }
 
 /// @custom:oz-upgrades-unsafe-allow external-library-linking
-contract AdminGatewayFacet is GatewayUUPSOwnable, ARentalityContext, IAdminGatewayFacet {
+contract AppGatewayFacet11 is GatewayUUPSOwnable, ARentalityContext, IAdminGatewayFacet {
   address private carService;
   IAdminGatewayCurrencyConverter private currencyConverterService;
   IAdminGatewayUserAccess private userService;

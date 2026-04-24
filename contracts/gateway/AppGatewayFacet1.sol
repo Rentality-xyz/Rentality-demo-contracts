@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import '../../infrastructure/upgradeable/UUPSOwnable.sol';
-import '../../models/base/referral/ReferralTypes.sol';
-import '../../models/common/CommonTypes.sol';
-import '../../models/profile/UserProfileMain.sol';
-import '../../models/profile/UserProfileQuery.sol';
-import '../../models/profile/UserProfileTypes.sol';
-import '../ARentalityContext.sol';
-import './IProfileGatewayFacet.sol';
-import '../mappers/ProfileMapper.sol';
+import '../infrastructure/upgradeable/UUPSOwnable.sol';
+import '../models/base/referral/ReferralTypes.sol';
+import '../models/common/CommonTypes.sol';
+import '../models/profile/UserProfileMain.sol';
+import '../models/profile/UserProfileQuery.sol';
+import '../models/profile/UserProfileTypes.sol';
+import './ARentalityContext.sol';
+import './profile/IProfileGatewayFacet.sol';
+import './mappers/ProfileMapper.sol';
 
 interface IProfileGatewayFacetReferralProgram {
     function generateReferralHash(address user) external;
@@ -50,7 +50,7 @@ interface IProfileGatewayFacetCarService {
     function totalSupply() external view returns (uint256);
 }
 
-contract ProfileGatewayFacet is UUPSOwnable, ARentalityContext, IProfileGatewayFacet {
+contract AppGatewayFacet1 is UUPSOwnable, ARentalityContext, IProfileGatewayFacet {
     UserProfileMain public userProfileMain;
     UserProfileQuery public userProfileQuery;
     IProfileGatewayFacetReferralProgram public referralProgram;

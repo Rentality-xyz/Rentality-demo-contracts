@@ -1,18 +1,18 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.20;
 
-import '../../infrastructure/upgradeable/UUPSOwnable.sol';
-import '../../models/car/CarMain.sol';
-import '../../models/car/CarQuery.sol';
-import '../../models/car/CarQueryFacet1.sol';
-import '../../models/car/CarQueryFacet2.sol';
-import '../../models/car/CarTypes.sol';
-import '../../models/pricing/PricingTypes.sol';
-import '../../models/common/CommonTypes.sol';
-import '../ARentalityContext.sol';
+import '../infrastructure/upgradeable/UUPSOwnable.sol';
+import '../models/car/CarMain.sol';
+import '../models/car/CarQuery.sol';
+import '../models/car/CarQueryFacet1.sol';
+import '../models/car/CarQueryFacet2.sol';
+import '../models/car/CarTypes.sol';
+import '../models/pricing/PricingTypes.sol';
+import '../models/common/CommonTypes.sol';
+import './ARentalityContext.sol';
 
-import './ICarViewGatewayFacet.sol';
-import '../mappers/CarMapper.sol';
+import './car/ICarViewGatewayFacet.sol';
+import './mappers/CarMapper.sol';
 
 interface ICarViewGatewayUserProfileMain {
   function isRentalityPlatform(address user) external view returns (bool);
@@ -47,7 +47,7 @@ interface ICarViewGatewayCurrencyConverter {
   function getUserCurrency(address user) external view returns (UserCurrencyInfo memory);
 }
 
-contract CarViewGatewayFacet is UUPSOwnable, ARentalityContext, ICarViewGatewayFacet {
+contract AppGatewayFacet6 is UUPSOwnable, ARentalityContext, ICarViewGatewayFacet {
   CarMain public carMain;
   CarQuery public carQuery;
   CarQueryFacet1 public carQueryFacet1;
