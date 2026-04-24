@@ -213,10 +213,9 @@ const checkInitialization = async () => {
     }
   }
 
-  const gateway = await ethers.getContractAt('IRentalityGateway', rentalityGatewayAddress, deployer)
-  const adminGateway = await ethers.getContractAt('IAdminGatewayFacet', rentalityGatewayAddress)
+  const gateway = await ethers.getContractAt('IGatewaySurface', rentalityGatewayAddress, deployer)
 
-  return [host, guest, kycManager, admin, gateway, verifierAddress, adminGateway]
+  return [host, guest, kycManager, admin, gateway, verifierAddress]
 }
 
 const emptyContractLocationInfo = {
@@ -254,7 +253,7 @@ async function signLocationInfo(signer, verifierAddress, locationInfo) {
   return signer.signTypedData(domain, types, locationInfo)
 }
 
-async function setDefaultDiscountIfNotSet(gateway, adminGateway) {
+async function setDefaultDiscountIfNotSet(gateway) {
   console.log('\nSetting default discount...')
 
   const discount = await gateway.getDiscount(ethers.ZeroAddress)
@@ -269,22 +268,22 @@ async function setDefaultDiscountIfNotSet(gateway, adminGateway) {
     return
   }
 
-  await adminGateway.setDefaultDiscount(DEFAULT_DISCOUNT_INFO)
+  await gateway.setDefaultDiscount(DEFAULT_DISCOUNT_INFO)
   console.log('Default discount was set')
 }
 
-async function setDefaultDeliveryPrices(adminGateway) {
+async function setDefaultDeliveryPrices(gateway) {
   console.log('\nSetting default delivery prices...')
-  await adminGateway.setDefaultPrices(
+  await gateway.setDefaultPrices(
     DEFAULT_DELIVERY_PRICE_INFO.underTwentyFiveMilesInUsdCents,
     DEFAULT_DELIVERY_PRICE_INFO.aboveTwentyFiveMilesInUsdCents
   )
   console.log('Default delivery prices were set')
 }
 
-async function setDefaultCurrencyType(adminGateway) {
+async function setDefaultCurrencyType(gateway) {
   console.log('\nSetting default currency...')
-  await adminGateway.setDefaultCurrencyType(ethers.ZeroAddress)
+  await gateway.setDefaultCurrencyType(ethers.ZeroAddress)
   console.log('Default currency was set')
 }
 
@@ -547,11 +546,11 @@ async function createConfirmedAfterCompletedWithoutGuestComfirmationTrip(tripInd
 }
 
 async function main() {
-  const [host, guest, kycManager, admin, gateway, verifierAddress, adminGateway] = await checkInitialization()
+  const [host, guest, kycManager, admin, gateway, verifierAddress] = await checkInitialization()
 
-  await setDefaultDiscountIfNotSet(gateway, adminGateway)
-  await setDefaultDeliveryPrices(adminGateway)
-  await setDefaultCurrencyType(adminGateway)
+  await setDefaultDiscountIfNotSet(gateway)
+  await setDefaultDeliveryPrices(gateway)
+  await setDefaultCurrencyType(gateway)
   await setHostKycIfNotSet(host, kycManager, gateway)
   await setGuestKycIfNotSet(guest, kycManager, gateway)
 

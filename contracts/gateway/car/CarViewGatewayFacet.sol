@@ -1,18 +1,18 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.20;
 
-import '../infrastructure/upgradeable/UUPSOwnable.sol';
-import '../models/car/CarMain.sol';
-import '../models/car/CarQuery.sol';
-import '../models/car/CarQueryFacet1.sol';
-import '../models/car/CarQueryFacet2.sol';
-import '../models/car/CarTypes.sol';
-import '../models/pricing/PricingTypes.sol';
-import '../models/common/CommonTypes.sol';
-import './ARentalityContext.sol';
+import '../../infrastructure/upgradeable/UUPSOwnable.sol';
+import '../../models/car/CarMain.sol';
+import '../../models/car/CarQuery.sol';
+import '../../models/car/CarQueryFacet1.sol';
+import '../../models/car/CarQueryFacet2.sol';
+import '../../models/car/CarTypes.sol';
+import '../../models/pricing/PricingTypes.sol';
+import '../../models/common/CommonTypes.sol';
+import '../GatewayContext.sol';
 
-import './car/ICarViewGatewayFacet.sol';
-import './mappers/CarMapper.sol';
+import './ICarViewGatewayFacet.sol';
+import '../mappers/CarMapper.sol';
 
 interface ICarViewGatewayUserProfileMain {
   function isRentalityPlatform(address user) external view returns (bool);
@@ -47,7 +47,7 @@ interface ICarViewGatewayCurrencyConverter {
   function getUserCurrency(address user) external view returns (UserCurrencyInfo memory);
 }
 
-contract AppGatewayFacet6 is UUPSOwnable, ARentalityContext, ICarViewGatewayFacet {
+contract CarViewGatewayFacet is UUPSOwnable, GatewayContext, ICarViewGatewayFacet {
   CarMain public carMain;
   CarQuery public carQuery;
   CarQueryFacet1 public carQueryFacet1;
@@ -218,6 +218,12 @@ contract AppGatewayFacet6 is UUPSOwnable, ARentalityContext, ICarViewGatewayFace
 
   function getFilterInfo(uint64 duration) external view returns (CarGatewayTypes.FilterInfoDTO memory) {
     return CarMapper.toLegacyFilterInfo(carQueryFacet2.getFilterInfo(address(pricingService), duration));
+  }
+
+  function getAllCars(uint page, uint itemsPerPage) external view returns (CarGatewayTypes.AllCarsDTO memory allCars) {
+    return CarMapper.toLegacyAllCarsInfo(
+      carQueryFacet2.getAllCarsForAdmin(address(userProfileQuery), address(geoService), address(dimoService), page, itemsPerPage)
+    );
   }
 
   function getDimoVehicles() external view returns (uint[] memory) {

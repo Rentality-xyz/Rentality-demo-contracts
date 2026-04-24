@@ -56,7 +56,7 @@ async function main() {
     })
   }
 
-  contract = await ethers.getContractAt('IRentalityGateway', contractAddress)
+  contract = await ethers.getContractAt('IGatewaySurface', contractAddress)
   await saveJsonAbi(contractName, chainId, contract)
 }
 

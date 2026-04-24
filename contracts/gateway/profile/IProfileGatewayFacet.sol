@@ -7,6 +7,7 @@ import '../../models/profile/UserProfileTypes.sol';
 interface IProfileGatewayFacet {
   function getMyFullKYCInfo() external view returns (GatewayFullUserProfileInfo memory);
   function getPlatformUsersKYCInfos(uint256 page, uint256 itemsPerPage) external view returns (GatewayAdminUserProfilePage memory);
+  function getPlatformUsersInfo(uint256 page, uint256 itemsPerPage) external view returns (GatewayAdminUserProfilePage memory);
   function getUserFullKYCInfo(address user) external view returns (GatewayFullUserProfileInfo memory);
   function getUserCurrency(address user) external view returns (UserCurrencyInfo memory);
   function getKycCommission() external view returns (uint256);
@@ -26,6 +27,9 @@ interface IProfileGatewayFacet {
   function setPhoneNumber(address user, string memory phone, bool isVerified) external;
   function setEmail(address user, string memory email, bool isVerified) external;
   function setCivicKYCInfo(address user, GatewayCivicUserProfileInfo memory civicKycInfo) external;
+  function setCivicData(address civicVerifier, uint256 civicGatekeeperNetwork) external;
+  function setKycCommission(uint256 value) external;
+  function manageRole(UserProfileRole role, address user, bool grant) external;
   function setPushToken(address user, string memory pushToken) external;
   function useKycCommission(address user) external;
 }

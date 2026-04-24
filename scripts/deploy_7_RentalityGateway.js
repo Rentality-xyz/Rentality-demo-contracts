@@ -49,17 +49,13 @@ async function main() {
     getContractAddress('PaymentGatewayFacet', 'scripts/deploy_4n_PaymentGatewayFacet.js', chainId),
     'PaymentGatewayFacet'
   )
-  const claimGatewayFacetAddress = checkNotNull(
-    getContractAddress('ClaimGatewayFacet', 'scripts/deploy_4o_ClaimGatewayFacet.js', chainId),
-    'ClaimGatewayFacet'
+  const pricingGatewayFacetAddress = checkNotNull(
+    getContractAddress('PricingGatewayFacet', 'scripts/deploy_4o_PricingGatewayFacet.js', chainId),
+    'PricingGatewayFacet'
   )
   const insuranceGatewayFacetAddress = checkNotNull(
     getContractAddress('InsuranceGatewayFacet', 'scripts/deploy_4p_InsuranceGatewayFacet.js', chainId),
     'InsuranceGatewayFacet'
-  )
-  const adminGatewayFacetAddress = checkNotNull(
-    getContractAddress('AdminGatewayFacet', 'scripts/deploy_4q_AdminGatewayFacet.js', chainId),
-    'AdminGatewayFacet'
   )
 
   const contractFactory = await ethers.getContractFactory(implementationName, {
@@ -76,21 +72,19 @@ async function main() {
   const carViewFacet = await ethers.getContractAt('ICarViewGatewayFacet', carViewGatewayFacetAddress)
   const carViewFacet1 = await ethers.getContractAt('ICarViewGatewayFacet1', carViewGatewayFacet1Address)
   const paymentFacet = await ethers.getContractAt('IPaymentGatewayFacet', paymentGatewayFacetAddress)
-  const claimFacet = await ethers.getContractAt('IClaimGatewayFacet', claimGatewayFacetAddress)
+  const pricingFacet = await ethers.getContractAt('IPricingGatewayFacet', pricingGatewayFacetAddress)
   const insuranceFacet = await ethers.getContractAt('IInsuranceGatewayFacet', insuranceGatewayFacetAddress)
   const investmentFacet = await ethers.getContractAt('IInvestmentGatewayFacet', investmentGatewayFacetAddress)
   const referralFacet = await ethers.getContractAt('IReferralGatewayFacet', referralGatewayFacetAddress)
-  const adminFacet = await ethers.getContractAt('IAdminGatewayFacet', adminGatewayFacetAddress)
 
   const facetCuts = [
-    createFacetCut(adminFacet),
     createFacetCut(profileFacet),
     createFacetCut(tripFacet),
     createFacetCut(carFacet),
     createFacetCut(carViewFacet),
     createFacetCut(carViewFacet1),
     createFacetCut(paymentFacet),
-    createFacetCut(claimFacet),
+    createFacetCut(pricingFacet),
     createFacetCut(insuranceFacet),
     createFacetCut(investmentFacet),
     createFacetCut(referralFacet),
@@ -99,7 +93,7 @@ async function main() {
   await contract.diamondCut(facetCuts, { gasLimit: 5000000 })
   await contract.setNotificationService(rentalityNotificationService)
 
-  contract = await ethers.getContractAt('IRentalityGateway', contractAddress)
+  contract = await ethers.getContractAt('IGatewaySurface', contractAddress)
 
   console.log(`${implementationName} was deployed to: ${contractAddress}`)
   addressSaver(contractAddress, deploymentName, true, chainId)

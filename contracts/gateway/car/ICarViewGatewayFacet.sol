@@ -26,6 +26,7 @@ interface ICarViewGatewayFacet {
   function getUniqCarsBrand() external view returns (string[] memory brandsArray);
   function getUniqModelsByBrand(string memory brand) external view returns (string[] memory modelsArray);
   function getFilterInfo(uint64 duration) external view returns (CarGatewayTypes.FilterInfoDTO memory);
+  function getAllCars(uint page, uint itemsPerPage) external view returns (CarGatewayTypes.AllCarsDTO memory allCars);
   function getDimoVehicles() external view returns (uint[] memory);
   function getCarMetadataURI(uint256 carId) external view returns (string memory);
   function getTotalCarsAmount() external view returns (uint256);

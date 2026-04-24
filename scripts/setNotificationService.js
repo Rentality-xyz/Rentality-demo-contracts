@@ -17,9 +17,9 @@ async function main() {
     'RentalityNotificationService'
   )
 
-  const adminGateway = await ethers.getContractAt('IAdminGatewayFacet', rentalityGateway)
+  const gateway = await ethers.getContractAt('AppGateway', rentalityGateway)
 
-  console.log(await adminGateway.updateNotificationService(notificationService))
+  console.log(await gateway.setNotificationService(notificationService))
 }
 
 main()

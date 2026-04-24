@@ -6,7 +6,7 @@ const { checkNotNull, startDeploy } = require('./utils/deployHelper')
 
 async function main() {
   const deploymentName = 'CarViewGatewayFacet1'
-  const implementationName = 'AppGatewayFacet7'
+  const implementationName = 'CarViewGatewayFacet1'
   const { chainId } = await startDeploy(deploymentName)
 
   if (chainId < 0) throw new Error('chainId is not set')

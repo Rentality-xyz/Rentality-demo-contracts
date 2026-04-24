@@ -1,31 +1,35 @@
 const saveJsonAbi = require('./utils/abiSaver')
-const { ethers, upgrades } = require('hardhat')
+const { upgrades, ethers } = require('hardhat')
 const { getContractAddress } = require('./utils/contractAddress')
 const addressSaver = require('./utils/addressSaver')
 const { checkNotNull, startDeploy } = require('./utils/deployHelper')
 
 async function main() {
-  const deploymentName = 'ClaimGatewayFacet'
-  const implementationName = 'AppGatewayFacet9'
+  const deploymentName = 'PricingGatewayFacet'
+  const implementationName = 'PricingGatewayFacet'
   const { chainId } = await startDeploy(deploymentName)
 
   if (chainId < 0) throw new Error('chainId is not set')
 
-  const claimQueryAddress = checkNotNull(
-    getContractAddress('ReferralQuery', 'scripts/deploy_3o_RentalReferralQuery.js', chainId),
-    'ReferralQuery'
-  )
-  const claimMainAddress = checkNotNull(
-    getContractAddress('ReferralMainFacet1', 'scripts/deploy_3n1_ReferralMainFacet1.js', chainId),
-    'ReferralMainFacet1'
+  const pricingMainAddress = checkNotNull(
+    getContractAddress('PricingMain', 'scripts/deploy_3j_PricingMain.js', chainId),
+    'PricingMain'
   )
   const userProfileMainAddress = checkNotNull(
     getContractAddress('UserProfileMain', 'scripts/deploy_1h_UserProfileMain.js', chainId),
     'UserProfileMain'
   )
+  const notificationServiceAddress = checkNotNull(
+    getContractAddress('RentalityNotificationService', 'scripts/deploy_2_RentalityNotificationService.js', chainId),
+    'RentalityNotificationService'
+  )
 
   const contractFactory = await ethers.getContractFactory(implementationName)
-  const contract = await upgrades.deployProxy(contractFactory, [claimQueryAddress, claimMainAddress, userProfileMainAddress])
+  const contract = await upgrades.deployProxy(contractFactory, [
+    pricingMainAddress,
+    userProfileMainAddress,
+    notificationServiceAddress,
+  ])
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()
 

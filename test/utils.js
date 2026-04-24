@@ -803,7 +803,7 @@ async function deployDefaultFixture() {
 
   await rentalityGateway.diamondCut(facetCuts)
 
-  rentalityGateway = await ethers.getContractAt('IRentalityGateway', await rentalityGateway.getAddress())
+  rentalityGateway = await ethers.getContractAt('IGatewaySurface', await rentalityGateway.getAddress())
 
   await rentalityUserService.connect(owner).grantPlatformRole(await rentalityAdminGateway.getAddress())
   await rentalityUserService.connect(owner).grantPlatformRole(await rentalityGateway.getAddress())

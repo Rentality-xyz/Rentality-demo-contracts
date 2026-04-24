@@ -6,7 +6,7 @@ const { checkNotNull, startDeploy } = require('./utils/deployHelper')
 
 async function main() {
   const deploymentName = 'PaymentGatewayFacet'
-  const implementationName = 'AppGatewayFacet8'
+  const implementationName = 'PaymentGatewayFacet'
   const { chainId } = await startDeploy(deploymentName)
 
   if (chainId < 0) throw new Error('chainId is not set')
@@ -14,6 +14,10 @@ async function main() {
   const paymentQueryAddress = checkNotNull(
     getContractAddress('PaymentQuery', 'scripts/deploy_3i_PaymentQuery.js', chainId),
     'PaymentQuery'
+  )
+  const paymentMainAddress = checkNotNull(
+    getContractAddress('PaymentMain', 'scripts/deploy_3h_PaymentMain.js', chainId),
+    'PaymentMain'
   )
   const pricingMainAddress = checkNotNull(
     getContractAddress('PricingMain', 'scripts/deploy_3j_PricingMain.js', chainId),
@@ -38,6 +42,7 @@ async function main() {
 
   const contractFactory = await ethers.getContractFactory(implementationName)
   const contract = await upgrades.deployProxy(contractFactory, [
+    paymentMainAddress,
     paymentQueryAddress,
     pricingMainAddress,
     promoServiceAddress,

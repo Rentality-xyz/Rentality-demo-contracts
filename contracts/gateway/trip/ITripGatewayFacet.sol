@@ -12,6 +12,10 @@ interface ITripGatewayFacet {
     function getTrip(uint256 tripId) external view returns (TripGatewayTypes.GatewayTripDTO memory);
     function getTripsAs(bool host) external view returns (TripGatewayTypes.GatewayTripDTO[] memory result);
     function getChatInfoFor(bool host) external view returns (TripGatewayTypes.GatewayChatInfo[] memory result);
+    function getAllTrips(TripGatewayTypes.GatewayTripFilter memory filter, uint page, uint itemsPerPage)
+        external
+        view
+        returns (TripGatewayTypes.GatewayAllTripsDTO memory allTrips);
     function createTripRequestWithDelivery(
         TripGatewayTypes.GatewayCreateTripRequestWithDelivery memory request,
         string memory promo
@@ -27,6 +31,8 @@ interface ITripGatewayFacet {
     function approveTripRequest(uint256 tripId) external;
     function rejectTripRequest(uint256 tripId) external;
     function confirmCheckOut(uint256 tripId) external;
+    function payToHost(uint256 tripId) external;
+    function refundToGuest(uint256 tripId) external;
     function finishTrip(uint256 tripId) external;
     function checkInByHost(
         uint256 tripId,

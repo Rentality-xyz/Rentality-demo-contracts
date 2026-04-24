@@ -35,7 +35,7 @@ async function main() {
     })
     console.log(`Updating contract ${contractName} in address ${contractAddress}`)
     let res = await upgrades.upgradeProxy(contractAddress, contractFactory)
-    if (contractName === 'RentalityGateway') res = await ethers.getContractAt('IRentalityGateway', contractAddress)
+  if (contractName === 'RentalityGateway') res = await ethers.getContractAt('IGatewaySurface', contractAddress)
 
     await saveJsonAbi(contractName, chainId, res)
   }

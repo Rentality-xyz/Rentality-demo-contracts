@@ -5,7 +5,7 @@ const directory = './artifacts'
 
 const args = process.argv.slice(2)
 if (args[0] === undefined) {
-  console.log('Enter contract name, and try again: \nnpm run generate_interface -- IRentalityGateway\n')
+console.log('Enter contract name, and try again: \nnpm run generate_interface -- IGatewaySurface\n')
   process.exit(0)
 }
 const contract = args[0]

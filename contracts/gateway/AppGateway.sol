@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol';
 import '../infrastructure/upgradeable/UUPSOwnable.sol';
 import '../models/common/CommonTypes.sol';
-import {LibDiamond} from './LibDiamond.sol';
+import {GatewayDiamond} from './GatewayDiamond.sol';
 
 interface IAppGatewayNotificationService {
   function emitEvent(EventType eType, uint256 id, uint8 objectStatus, address from, address to) external;
@@ -18,8 +18,8 @@ contract AppGateway is UUPSOwnable, ReentrancyGuardUpgradeable {
 
   fallback(bytes calldata data) external payable nonReentrant returns (bytes memory) {
     bytes memory dataToSend;
-    LibDiamond.DiamondStorage storage ds;
-    bytes32 position = LibDiamond.DIAMOND_STORAGE_POSITION;
+    GatewayDiamond.DiamondStorage storage ds;
+    bytes32 position = GatewayDiamond.DIAMOND_STORAGE_POSITION;
     assembly {
       ds.slot := position
     }
@@ -80,12 +80,12 @@ contract AppGateway is UUPSOwnable, ReentrancyGuardUpgradeable {
     notificationService = IAppGatewayNotificationService(notificationServiceAddress);
   }
 
-  function diamondCut(LibDiamond.FacetCut[] memory _diamondCut) public onlyOwner {
-    LibDiamond.diamondCut(_diamondCut);
+  function diamondCut(GatewayDiamond.FacetCut[] memory _diamondCut) public onlyOwner {
+    GatewayDiamond.diamondCut(_diamondCut);
   }
 
-  function initialize(LibDiamond.FacetCut[] memory _diamondCut) public initializer {
-    LibDiamond.diamondCut(_diamondCut);
+  function initialize(GatewayDiamond.FacetCut[] memory _diamondCut) public initializer {
+    GatewayDiamond.diamondCut(_diamondCut);
     __Ownable_init();
     __ReentrancyGuard_init();
   }

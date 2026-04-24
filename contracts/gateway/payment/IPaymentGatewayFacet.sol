@@ -11,4 +11,8 @@ interface IPaymentGatewayFacet {
   function getAvaibleCurrencies() external view returns (PaymentCurrency[] memory);
   function getTaxesInfoById(uint taxId) external view returns (PricingTaxesInfo memory);
   function addUserDiscount(PricingBaseDiscount memory data) external;
+  function withdrawFromPlatform(uint256 amount, address currencyType) external;
+  function withdrawAllFromPlatform(address currencyType) external;
+  function updatePromoData(string memory prefix, uint256 discount) external;
+  function setDefaultCurrencyType(address currency) external;
 }

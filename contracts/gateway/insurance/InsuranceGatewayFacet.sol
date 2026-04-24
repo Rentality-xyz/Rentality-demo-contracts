@@ -2,15 +2,15 @@
 pragma solidity ^0.8.20;
 
 import {Initializable as OZInitializable} from '@openzeppelin/contracts/proxy/utils/Initializable.sol';
-import '../infrastructure/upgradeable/UUPSOwnable.sol';
-import './ARentalityContext.sol';
-import '../models/referral/ReferralTypes.sol';
-import '../models/common/CommonTypes.sol';
-import '../models/base/insurance/InsuranceTypes.sol';
-import '../models/insurance/InsuranceTypes.sol';
-import '../models/insurance/InsuranceQueryFacet1.sol';
-import '../models/insurance/InsuranceQueryFacet2.sol';
-import './insurance/IInsuranceGatewayFacet.sol';
+import '../../infrastructure/upgradeable/UUPSOwnable.sol';
+import '../GatewayContext.sol';
+import '../../models/referral/ReferralTypes.sol';
+import '../../models/common/CommonTypes.sol';
+import '../../models/base/insurance/InsuranceTypes.sol';
+import '../../models/insurance/InsuranceTypes.sol';
+import '../../models/insurance/InsuranceQueryFacet1.sol';
+import '../../models/insurance/InsuranceQueryFacet2.sol';
+import './IInsuranceGatewayFacet.sol';
 
 interface IInsuranceGatewayUserAccess {
   function isRentalityPlatform(address user) external view returns (bool);
@@ -26,7 +26,7 @@ interface IInsuranceGatewayNotificationService {
   function emitEvent(EventType eType, uint256 id, uint8 objectStatus, address from, address to) external;
 }
 
-contract AppGatewayFacet10 is UUPSOwnable, ARentalityContext, IInsuranceGatewayFacet {
+contract InsuranceGatewayFacet is UUPSOwnable, GatewayContext, IInsuranceGatewayFacet {
   InsuranceQueryFacet1 public insuranceQueryFacet1;
   InsuranceQueryFacet2 public insuranceQueryFacet2;
   IInsuranceGatewayMain public insuranceMain;

@@ -176,7 +176,7 @@ console.log(await pool.initialize(BigInt("79228162514264337593543950336")))
    })
 
 
-let rentalityGateway = await ethers.getContractAt('IRentalityGateway','0xB257FE9D206b60882691a24d5dfF8Aa24929cB73')
+let rentalityGateway = await ethers.getContractAt('IGatewaySurface','0xB257FE9D206b60882691a24d5dfF8Aa24929cB73')
 
 // let contract =  await contractFactory.deploy(poolManager, weth, await rentalityGateway.getAddress())
 //   console.log('AccessSenderHook deployed to:', await contract.getAddress())

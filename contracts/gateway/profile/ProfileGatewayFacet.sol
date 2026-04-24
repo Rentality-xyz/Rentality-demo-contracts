@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import '../infrastructure/upgradeable/UUPSOwnable.sol';
-import '../models/base/referral/ReferralTypes.sol';
-import '../models/common/CommonTypes.sol';
-import '../models/profile/UserProfileMain.sol';
-import '../models/profile/UserProfileQuery.sol';
-import '../models/profile/UserProfileTypes.sol';
-import './ARentalityContext.sol';
-import './profile/IProfileGatewayFacet.sol';
-import './mappers/ProfileMapper.sol';
+import '../../infrastructure/upgradeable/UUPSOwnable.sol';
+import '../../models/base/referral/ReferralTypes.sol';
+import '../../models/common/CommonTypes.sol';
+import '../../models/profile/UserProfileMain.sol';
+import '../../models/profile/UserProfileQuery.sol';
+import '../../models/profile/UserProfileTypes.sol';
+import '../GatewayContext.sol';
+import './IProfileGatewayFacet.sol';
+import '../mappers/ProfileMapper.sol';
 
 interface IProfileGatewayFacetReferralProgram {
     function generateReferralHash(address user) external;
@@ -50,7 +50,7 @@ interface IProfileGatewayFacetCarService {
     function totalSupply() external view returns (uint256);
 }
 
-contract AppGatewayFacet1 is UUPSOwnable, ARentalityContext, IProfileGatewayFacet {
+contract ProfileGatewayFacet is UUPSOwnable, GatewayContext, IProfileGatewayFacet {
     UserProfileMain public userProfileMain;
     UserProfileQuery public userProfileQuery;
     IProfileGatewayFacetReferralProgram public referralProgram;
@@ -119,7 +119,15 @@ contract AppGatewayFacet1 is UUPSOwnable, ARentalityContext, IProfileGatewayFace
         return ProfileMapper.toLegacyFull(userProfileQuery.getMyFullKYCInfo(_msgGatewaySender()));
     }
 
-    function getPlatformUsersKYCInfos(uint256 page, uint256 itemsPerPage)
+  function getPlatformUsersKYCInfos(uint256 page, uint256 itemsPerPage)
+        external
+        view
+        returns (GatewayAdminUserProfilePage memory)
+    {
+        return ProfileMapper.toLegacyAdminPage(userProfileQuery.getPlatformUsersKYCInfos(page, itemsPerPage));
+    }
+
+    function getPlatformUsersInfo(uint256 page, uint256 itemsPerPage)
         external
         view
         returns (GatewayAdminUserProfilePage memory)
@@ -214,6 +222,18 @@ contract AppGatewayFacet1 is UUPSOwnable, ARentalityContext, IProfileGatewayFace
     function setCivicKYCInfo(address user, GatewayCivicUserProfileInfo memory civicKycInfo) external {
         referralProgram.passReferralProgram(ReferralProgram.PassCivic, bytes(''), user, address(promoService));
         userProfileMain.setCivicKYCInfo(user, ProfileMapper.toUserCivicInfo(civicKycInfo));
+    }
+
+    function setCivicData(address civicVerifier, uint256 civicGatekeeperNetwork) external {
+        userProfileMain.setCivicData(civicVerifier, civicGatekeeperNetwork);
+    }
+
+    function setKycCommission(uint256 value) external {
+        userProfileMain.setKycCommission(value);
+    }
+
+    function manageRole(UserProfileRole role, address user, bool grant) external {
+        userProfileMain.manageRole(role, user, grant);
     }
 
     function setPushToken(address user, string memory pushToken) external {
