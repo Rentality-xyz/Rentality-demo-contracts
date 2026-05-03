@@ -1,6 +1,6 @@
 const saveJsonAbi = require('./utils/abiSaver')
 const { ethers, upgrades } = require('hardhat')
-const { getContractAddress } = require('./utils/contractAddress')
+const { getContractAddress, readFromFile } = require('./utils/contractAddress')
 const addressSaver = require('./utils/addressSaver')
 const { checkNotNull, startDeploy } = require('./utils/deployHelper')
 
@@ -24,12 +24,29 @@ async function main() {
     'UserProfileMain'
   )
 
-  const contractFactory = await ethers.getContractFactory(implementationName)
+  let tripMapperAddress = readFromFile('TripMapper', chainId)
+  if (!tripMapperAddress) {
+    const tripMapperFactory = await ethers.getContractFactory('TripMapper')
+    const tripMapper = await tripMapperFactory.deploy()
+    await tripMapper.waitForDeployment()
+    tripMapperAddress = await tripMapper.getAddress()
+    console.log(`TripMapper was deployed to: ${tripMapperAddress}`)
+    addressSaver(tripMapperAddress, 'TripMapper', true, chainId)
+    await saveJsonAbi('TripMapper', chainId, tripMapper)
+  }
+
+  const contractFactory = await ethers.getContractFactory(implementationName, {
+    libraries: {
+      TripMapper: tripMapperAddress,
+    },
+  })
   const contract = await upgrades.deployProxy(contractFactory, [
     tripQueryAddress,
     tripMainFacet1Address,
     userProfileMainAddress,
-  ])
+  ], {
+    unsafeAllowLinkedLibraries: true,
+  })
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()
 

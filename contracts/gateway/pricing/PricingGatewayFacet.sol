@@ -21,6 +21,7 @@ contract PricingGatewayFacet is UUPSOwnable, GatewayContext, IPricingGatewayFace
   IPricingGatewayFacetAccess public userAccess;
   IPricingGatewayFacetNotificationService public notificationService;
 
+  /// @custom:oz-upgrades-unsafe-allow constructor
   constructor() {
     _disableInitializers();
   }

@@ -12,7 +12,7 @@ async function main() {
   if (chainId < 0) throw new Error('chainId is not set')
 
   const pricingMainAddress = checkNotNull(
-    getContractAddress('PricingMain', 'scripts/deploy_3j_PricingMain.js', chainId),
+    getContractAddress('PricingMain', 'scripts/deploy_3j_RentalPricingMain.js', chainId),
     'PricingMain'
   )
   const userProfileMainAddress = checkNotNull(

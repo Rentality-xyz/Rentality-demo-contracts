@@ -215,7 +215,7 @@ const checkInitialization = async () => {
 
   const gateway = await ethers.getContractAt('IGatewaySurface', rentalityGatewayAddress, deployer)
 
-  return [host, guest, kycManager, admin, gateway, verifierAddress]
+  return [host, guest, kycManager, admin, deployer, gateway, verifierAddress]
 }
 
 const emptyContractLocationInfo = {
@@ -287,10 +287,36 @@ async function setDefaultCurrencyType(gateway) {
   console.log('Default currency was set')
 }
 
+async function getGatewayKycOrEmpty(gateway, signer) {
+  try {
+    return (await gateway.connect(signer).getMyFullKYCInfo()).kyc
+  } catch (err) {
+    const revertData = err?.data ?? err?.info?.error?.data ?? err?.error?.data
+    const selector = typeof revertData === 'string' ? revertData.slice(0, 10) : ''
+    const message = err?.message ?? String(err)
+
+    if (selector === '0xcc2a7eb3' || message.includes('0xcc2a7eb3')) {
+      return {
+        name: '',
+        mobilePhoneNumber: '',
+        profilePhoto: '',
+        isTermsPassed: false,
+        termsSignature: '0x',
+        createDate: 0,
+        surname: '',
+        licenseNumber: '',
+        expirationDate: 0,
+      }
+    }
+
+    throw err
+  }
+}
+
 async function setHostKycIfNotSet(host, kycManager, gateway) {
   console.log('\nSetting KYC for host...')
 
-  const kyc = (await gateway.connect(host).getMyFullKYCInfo()).kyc
+  const kyc = await getGatewayKycOrEmpty(gateway, host)
 
   if (kyc.name && kyc.licenseNumber) {
     console.log('KYC for host has already set')
@@ -327,7 +353,7 @@ async function setHostKycIfNotSet(host, kycManager, gateway) {
 async function setGuestKycIfNotSet(guest, kycManager, gateway) {
   console.log('\nSetting KYC for guest...')
 
-  const kyc = (await gateway.connect(guest).getMyFullKYCInfo()).kyc
+  const kyc = await getGatewayKycOrEmpty(gateway, guest)
 
   if (kyc.name && kyc.licenseNumber) {
     console.log('KYC for guest has already set')
@@ -355,7 +381,7 @@ async function setGuestKycIfNotSet(guest, kycManager, gateway) {
   }
 }
 
-async function setCarsForHost(host, admin, verifierAddress, gateway) {
+async function setCarsForHost(host, locationSigner, verifierAddress, gateway) {
   console.log('\nListing cars for host...')
 
   let listedCars = await gateway.connect(host).getMyCars()
@@ -372,7 +398,11 @@ async function setCarsForHost(host, admin, verifierAddress, gateway) {
     console.log(`Listing car #${index}...`)
 
     const carData = testData.carInfos[index]
-    carData.locationInfo.signature = await signLocationInfo(admin, verifierAddress, carData.locationInfo.locationInfo)
+    carData.locationInfo.signature = await signLocationInfo(
+      locationSigner,
+      verifierAddress,
+      carData.locationInfo.locationInfo
+    )
 
     await gateway.connect(host).addCar(carData)
 
@@ -546,7 +576,7 @@ async function createConfirmedAfterCompletedWithoutGuestComfirmationTrip(tripInd
 }
 
 async function main() {
-  const [host, guest, kycManager, admin, gateway, verifierAddress] = await checkInitialization()
+  const [host, guest, kycManager, admin, deployer, gateway, verifierAddress] = await checkInitialization()
 
   await setDefaultDiscountIfNotSet(gateway)
   await setDefaultDeliveryPrices(gateway)
@@ -554,7 +584,7 @@ async function main() {
   await setHostKycIfNotSet(host, kycManager, gateway)
   await setGuestKycIfNotSet(guest, kycManager, gateway)
 
-  const carIds = await setCarsForHost(host, admin, verifierAddress, gateway)
+  const carIds = await setCarsForHost(host, deployer, verifierAddress, gateway)
   let tripCount = await getTripCount(host, gateway)
 
   if (carIds.length > 0 && tripCount < 6) {

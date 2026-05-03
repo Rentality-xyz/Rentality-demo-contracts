@@ -33,6 +33,7 @@ contract InsuranceGatewayFacet is UUPSOwnable, GatewayContext, IInsuranceGateway
   IInsuranceGatewayUserAccess public userAccess;
   IInsuranceGatewayNotificationService public notificationService;
 
+  /// @custom:oz-upgrades-unsafe-allow constructor
   constructor() {
     _disableInitializers();
   }

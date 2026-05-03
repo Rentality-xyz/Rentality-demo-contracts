@@ -52,6 +52,7 @@ contract PaymentGatewayFacet is UUPSOwnable, GatewayContext, IPaymentGatewayFace
   IPaymentGatewayFacetUserAccess public userAccess;
   IPaymentGatewayFacetNotificationService public notificationService;
 
+  /// @custom:oz-upgrades-unsafe-allow constructor
   constructor() {
     _disableInitializers();
   }
