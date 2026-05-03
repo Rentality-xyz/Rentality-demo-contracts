@@ -7,6 +7,8 @@ const { readFromFile } = require('./utils/contractAddress')
 
 async function main() {
   const { contractName, chainId } = await startDeploy('UserProfileMain')
+  const mockContractName = 'CivicMockVerifier'
+  const mockImplementationName = 'contracts/test/CivicMockVerifier.sol:CivicMockVerifier'
 
   if (chainId < 0) throw new Error('chainId is not set')
 
@@ -21,10 +23,8 @@ async function main() {
   ) {
     civicGatewayToken = checkNotNull(readFromFile('CivicGatewayTokenContract', chainId), 'CivicGatewayTokenContract')
   } else {
-    const mockContractName = 'CivicMockVerifier'
-
     console.log(`Deploying civic mock contact...`)
-    const mockCivicFactory = await ethers.getContractFactory(mockContractName)
+    const mockCivicFactory = await ethers.getContractFactory(mockImplementationName)
     const mockCivic = await mockCivicFactory.deploy()
     await mockCivic.waitForDeployment()
 

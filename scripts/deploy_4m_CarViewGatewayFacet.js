@@ -40,11 +40,11 @@ async function main() {
     'UserProfileQuery'
   )
   const pricingServiceAddress = checkNotNull(
-    getContractAddress('PricingMain', 'scripts/deploy_3j_PricingMain.js', chainId),
+    getContractAddress('PricingMain', 'scripts/deploy_3j_RentalPricingMain.js', chainId),
     'PricingMain'
   )
   const insuranceServiceAddress = checkNotNull(
-    getContractAddress('InsuranceMain', 'scripts/deploy_3l_InsuranceMain.js', chainId),
+    getContractAddress('InsuranceMain', 'scripts/deploy_3l_RentalInsuranceMain.js', chainId),
     'InsuranceMain'
   )
   const carTaxAdapterAddress = checkNotNull(

@@ -13,10 +13,6 @@ async function main() {
     getContractAddress('UserProfileMain', 'scripts/deploy_1h_UserProfileMain.js', chainId),
     'UserProfileMain'
   )
-  const refferalLibAddress = checkNotNull(
-    getContractAddress('RentalityRefferalLib', 'scripts/deploy_1f_RentalityRefferalLib.js', chainId),
-    'RentalityRefferalLib'
-  )
   const carQueryAddress = checkNotNull(
     getContractAddress('CarQuery', 'scripts/deploy_3_CarModel.js', chainId),
     'CarQuery'
@@ -25,7 +21,7 @@ async function main() {
   const contract = await upgrades.deployProxy(contractFactory, [
     userProfileMainAddress,
     carQueryAddress,
-    refferalLibAddress,
+    ethers.ZeroAddress,
     ethers.ZeroAddress,
     ethers.ZeroAddress,
     ethers.ZeroAddress,

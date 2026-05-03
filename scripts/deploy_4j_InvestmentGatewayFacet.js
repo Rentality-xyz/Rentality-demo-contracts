@@ -12,11 +12,11 @@ async function main() {
   if (chainId < 0) throw new Error('chainId is not set')
 
   const investmentMainAddress = checkNotNull(
-    getContractAddress('InvestmentMain', 'scripts/deploy_3p_InvestmentMain.js', chainId),
+    getContractAddress('InvestmentMain', 'scripts/deploy_3p_RentalInvestmentMain.js', chainId),
     'InvestmentMain'
   )
   const investmentQueryAddress = checkNotNull(
-    getContractAddress('InvestmentQuery', 'scripts/deploy_3q_InvestmentQuery.js', chainId),
+    getContractAddress('InvestmentQuery', 'scripts/deploy_3q_RentalInvestmentQuery.js', chainId),
     'InvestmentQuery'
   )
   const userProfileMainAddress = checkNotNull(

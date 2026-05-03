@@ -28,15 +28,15 @@ async function main() {
     'UserProfileMain'
   )
   const pricingServiceAddress = checkNotNull(
-    getContractAddress('PricingMain', 'scripts/deploy_3j_PricingMain.js', chainId),
+    getContractAddress('PricingMain', 'scripts/deploy_3j_RentalPricingMain.js', chainId),
     'PricingMain'
   )
   const insuranceServiceAddress = checkNotNull(
-    getContractAddress('InsuranceMain', 'scripts/deploy_3l_InsuranceMain.js', chainId),
+    getContractAddress('InsuranceMain', 'scripts/deploy_3l_RentalInsuranceMain.js', chainId),
     'InsuranceMain'
   )
   const referralProgramAddress = checkNotNull(
-    getContractAddress('ReferralMain', 'scripts/deploy_3n_ReferralMain.js', chainId),
+    getContractAddress('ReferralMain', 'scripts/deploy_3n_RentalReferralMain.js', chainId),
     'ReferralMain'
   )
   const promoServiceAddress = checkNotNull(

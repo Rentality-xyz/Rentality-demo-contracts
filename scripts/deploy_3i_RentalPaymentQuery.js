@@ -10,7 +10,7 @@ async function main() {
   if (chainId < 0) throw new Error('chainId is not set')
 
   const paymentMainAddress = checkNotNull(
-    getContractAddress('PaymentMain', 'scripts/deploy_3h_PaymentMain.js', chainId),
+    getContractAddress('PaymentMain', 'scripts/deploy_3h_RentalPaymentMain.js', chainId),
     'PaymentMain'
   )
 

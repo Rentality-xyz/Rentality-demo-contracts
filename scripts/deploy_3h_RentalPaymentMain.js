@@ -14,11 +14,11 @@ async function main() {
     'UserProfileMain'
   )
   const investmentMainAddress = checkNotNull(
-    getContractAddress('InvestmentMain', 'scripts/deploy_3p_InvestmentMain.js', chainId),
+    getContractAddress('InvestmentMain', 'scripts/deploy_3p_RentalInvestmentMain.js', chainId),
     'InvestmentMain'
   )
   const insuranceMainAddress = checkNotNull(
-    getContractAddress('InsuranceMain', 'scripts/deploy_3l_InsuranceMain.js', chainId),
+    getContractAddress('InsuranceMain', 'scripts/deploy_3l_RentalInsuranceMain.js', chainId),
     'InsuranceMain'
   )
   const rentalitySwapsAddress = checkNotNull(

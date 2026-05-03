@@ -5,10 +5,11 @@ const { startDeploy } = require('./utils/deployHelper')
 
 async function main() {
   const { contractName, chainId } = await startDeploy('RentalityTestUSDT')
+  const implementationName = 'contracts/test/RentalityTestUSDT.sol:RentalityTestUSDT'
 
   if (chainId < 0) throw new Error('chainId is not set')
 
-  const contractFactory = await ethers.getContractFactory(contractName)
+  const contractFactory = await ethers.getContractFactory(implementationName)
   const contract = await contractFactory.deploy()
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()

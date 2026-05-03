@@ -10,7 +10,7 @@ async function main() {
   if (chainId < 0) throw new Error('chainId is not set')
 
   const insuranceMainAddress = checkNotNull(
-    getContractAddress('InsuranceMain', 'scripts/deploy_3l_InsuranceMain.js', chainId),
+    getContractAddress('InsuranceMain', 'scripts/deploy_3l_RentalInsuranceMain.js', chainId),
     'InsuranceMain'
   )
 

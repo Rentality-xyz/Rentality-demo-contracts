@@ -19,24 +19,24 @@ const commands = [
   { message: 'Deploying engine service..', command: command + 'deploy_2b_RentalityEngineService.js' },
   { message: 'Deploying car model..', command: command + 'deploy_3_CarModel.js' },
   { message: 'Deploying dimo service..', command: command + 'deploy_3e_RentalityDimoService.js' },
-  { message: 'Deploying rental referral main..', command: command + 'deploy_3n_ReferralMain.js' },
+  { message: 'Deploying rental referral main..', command: command + 'deploy_3n_RentalReferralMain.js' },
   { message: 'Deploying rental referral main facet 1..', command: command + 'deploy_3n1_ReferralMainFacet1.js' },
-  { message: 'Deploying rental referral query..', command: command + 'deploy_3o_ReferralQuery.js' },
+  { message: 'Deploying rental referral query..', command: command + 'deploy_3o_RentalReferralQuery.js' },
   { message: 'Deploying pricing main facet 1..', command: command + 'deploy_3j1_PricingMainFacet1.js' },
-  { message: 'Deploying rental pricing main..', command: command + 'deploy_3j_PricingMain.js' },
-  { message: 'Deploying rental pricing query..', command: command + 'deploy_3k_PricingQuery.js' },
-  { message: 'Deploying rental insurance main..', command: command + 'deploy_3l_InsuranceMain.js' },
-  { message: 'Deploying rental insurance query..', command: command + 'deploy_3m_InsuranceQuery.js' },
+  { message: 'Deploying rental pricing main..', command: command + 'deploy_3j_RentalPricingMain.js' },
+  { message: 'Deploying rental pricing query..', command: command + 'deploy_3k_RentalPricingQuery.js' },
+  { message: 'Deploying rental insurance main..', command: command + 'deploy_3l_RentalInsuranceMain.js' },
+  { message: 'Deploying rental insurance query..', command: command + 'deploy_3m_RentalInsuranceQuery.js' },
   { message: 'Deploying car tax adapter..', command: command + 'deploy_3r_CarTaxAdapter.js' },
   { message: 'Deploying trip main..', command: command + 'deploy_3s_TripMain.js' },
   { message: 'Deploying trip query..', command: command + 'deploy_3t_TripQuery.js' },
-  { message: 'Deploying rental insurance query facet 1..', command: command + 'deploy_3v_InsuranceQueryFacet1.js' },
+  { message: 'Deploying rental insurance query facet 1..', command: command + 'deploy_3v_RentalInsuranceQueryFacet1.js' },
   { message: 'Deploying car query facet 2..', command: command + 'deploy_3w_CarQueryFacet2.js' },
-  { message: 'Deploying rental insurance query facet 2..', command: command + 'deploy_3x_InsuranceQueryFacet2.js' },
-  { message: 'Deploying rental investment main..', command: command + 'deploy_3p_InvestmentMain.js' },
-  { message: 'Deploying rental investment query..', command: command + 'deploy_3q_InvestmentQuery.js' },
-  { message: 'Deploying rental payment main..', command: command + 'deploy_3h_PaymentMain.js' },
-  { message: 'Deploying rental payment query..', command: command + 'deploy_3i_PaymentQuery.js' },
+  { message: 'Deploying rental insurance query facet 2..', command: command + 'deploy_3x_RentalInsuranceQueryFacet2.js' },
+  { message: 'Deploying rental investment main..', command: command + 'deploy_3p_RentalInvestmentMain.js' },
+  { message: 'Deploying rental investment query..', command: command + 'deploy_3q_RentalInvestmentQuery.js' },
+  { message: 'Deploying rental payment main..', command: command + 'deploy_3h_RentalPaymentMain.js' },
+  { message: 'Deploying rental payment query..', command: command + 'deploy_3i_RentalPaymentQuery.js' },
   { message: 'Deploying trip main facet 1..', command: command + 'deploy_3s1_TripMainFacet1.js' },
   { message: 'Deploying profile gateway facet..', command: command + 'deploy_4h_ProfileGatewayFacet.js' },
   { message: 'Deploying referral gateway facet..', command: command + 'deploy_4i_ReferralGatewayFacet.js' },
@@ -59,11 +59,15 @@ const commands = [
 async function main() {
   for (let i = 0; i < commands.length; i++) {
     console.log('\n' + commands[i].message)
-    spawnSync(commands[i].command, {
+    const result = spawnSync(commands[i].command, {
       shell: true,
       stdio: 'inherit',
       env: { ...process.env, SILENT: 'true' },
     })
+
+    if (result.status !== 0) {
+      throw new Error(`Command failed: ${commands[i].command}`)
+    }
   }
 }
 

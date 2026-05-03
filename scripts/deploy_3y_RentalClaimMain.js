@@ -22,11 +22,11 @@ async function main() {
     'RentalityCurrencyConverter'
   )
   const paymentMainAddress = checkNotNull(
-    getContractAddress('PaymentMain', 'scripts/deploy_3h_PaymentMain.js', chainId),
+    getContractAddress('PaymentMain', 'scripts/deploy_3h_RentalPaymentMain.js', chainId),
     'PaymentMain'
   )
   const insuranceMainAddress = checkNotNull(
-    getContractAddress('InsuranceMain', 'scripts/deploy_3l_InsuranceMain.js', chainId),
+    getContractAddress('InsuranceMain', 'scripts/deploy_3l_RentalInsuranceMain.js', chainId),
     'InsuranceMain'
   )
 

@@ -22,7 +22,7 @@ async function main() {
     'CarMain'
   )
   const insuranceMainAddress = checkNotNull(
-    getContractAddress('InsuranceMain', 'scripts/deploy_3l_InsuranceMain.js', chainId),
+    getContractAddress('InsuranceMain', 'scripts/deploy_3l_RentalInsuranceMain.js', chainId),
     'InsuranceMain'
   )
   const rentalityInvestDeployerAddress = checkNotNull(

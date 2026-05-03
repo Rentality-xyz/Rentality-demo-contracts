@@ -9,15 +9,16 @@ async function main() {
 
   if (chainId < 0) throw new Error('chainId is not set')
 
-  const userService = checkNotNull(
-    getContractAddress('RentalityUserService', 'scripts/deploy_1b_RentalityUserService.js', chainId),
-    'RentalityUserService'
+  const userAccessAddress = checkNotNull(
+    getContractAddress('UserProfileMain', 'scripts/deploy_1h_UserProfileMain.js', chainId),
+    'UserProfileMain'
   )
 
-  const contractFactory = await ethers.getContractFactory(contractName, {
+  const implementationName = 'contracts/test/RentalityInvestDeployer.sol:RentalityInvestDeployer'
+  const contractFactory = await ethers.getContractFactory(implementationName, {
     libraries: {},
   })
-  const contract = await upgrades.deployProxy(contractFactory, [userService])
+  const contract = await upgrades.deployProxy(contractFactory, [userAccessAddress])
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()
 

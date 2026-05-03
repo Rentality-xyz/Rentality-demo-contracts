@@ -5,10 +5,11 @@ const { startDeploy } = require('./utils/deployHelper')
 
 async function main() {
   const { contractName, chainId } = await startDeploy('RentalityMockPriceFeed')
+  const implementationName = 'contracts/test/RentalityMockPriceFeed.sol:RentalityMockPriceFeed'
 
   // if (chainId !== 1337n) throw new Error('Can be deployed only on chainId: 1337')
 
-  const contractFactory = await ethers.getContractFactory(contractName)
+  const contractFactory = await ethers.getContractFactory(implementationName)
   const contract = await contractFactory.deploy(6, 100)
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()

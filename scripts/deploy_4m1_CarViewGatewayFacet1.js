@@ -32,7 +32,7 @@ async function main() {
     'UserProfileQuery'
   )
   const insuranceServiceAddress = checkNotNull(
-    getContractAddress('InsuranceMain', 'scripts/deploy_3l_InsuranceMain.js', chainId),
+    getContractAddress('InsuranceMain', 'scripts/deploy_3l_RentalInsuranceMain.js', chainId),
     'InsuranceMain'
   )
   const dimoServiceAddress = checkNotNull(

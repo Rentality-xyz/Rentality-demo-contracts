@@ -8,7 +8,7 @@ const { getContractAddress } = require('./utils/contractAddress')
 async function main() {
   const { chainId } = await startDeploy('')
   const pricingMain = checkNotNull(
-    getContractAddress('PricingMain', 'scripts/deploy_3j_PricingMain.js', chainId),
+    getContractAddress('PricingMain', 'scripts/deploy_3j_RentalPricingMain.js', chainId),
     'PricingMain'
   )
 

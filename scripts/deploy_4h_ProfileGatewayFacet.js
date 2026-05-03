@@ -20,7 +20,7 @@ async function main() {
     'UserProfileQuery'
   )
   const referralMainAddress = checkNotNull(
-    getContractAddress('ReferralMain', 'scripts/deploy_3n_ReferralMain.js', chainId),
+    getContractAddress('ReferralMain', 'scripts/deploy_3n_RentalReferralMain.js', chainId),
     'ReferralMain'
   )
   const rentalityPromoService = checkNotNull(
@@ -32,7 +32,7 @@ async function main() {
     'RentalityNotificationService'
   )
   const paymentMainAddress = checkNotNull(
-    getContractAddress('PaymentMain', 'scripts/deploy_3h_PaymentMain.js', chainId),
+    getContractAddress('PaymentMain', 'scripts/deploy_3h_RentalPaymentMain.js', chainId),
     'PaymentMain'
   )
   const rentalityCurrencyConverterAddress = checkNotNull(

@@ -1,6 +1,6 @@
 const saveJsonAbi = require('./utils/abiSaver')
 const { ethers, upgrades } = require('hardhat')
-const { getContractAddress } = require('./utils/contractAddress')
+const { getContractAddress, readFromFile } = require('./utils/contractAddress')
 const addressSaver = require('./utils/addressSaver')
 const { checkNotNull, startDeploy } = require('./utils/deployHelper')
 
@@ -26,11 +26,11 @@ async function main() {
     'CarTaxAdapter'
   )
   const pricingMainAddress = checkNotNull(
-    getContractAddress('PricingMain', 'scripts/deploy_3j_PricingMain.js', chainId),
+    getContractAddress('PricingMain', 'scripts/deploy_3j_RentalPricingMain.js', chainId),
     'PricingMain'
   )
   const paymentMainAddress = checkNotNull(
-    getContractAddress('PaymentMain', 'scripts/deploy_3h_PaymentMain.js', chainId),
+    getContractAddress('PaymentMain', 'scripts/deploy_3h_RentalPaymentMain.js', chainId),
     'PaymentMain'
   )
   const currencyConverterAddress = checkNotNull(
@@ -38,7 +38,7 @@ async function main() {
     'RentalityCurrencyConverter'
   )
   const insuranceMainAddress = checkNotNull(
-    getContractAddress('InsuranceMain', 'scripts/deploy_3l_InsuranceMain.js', chainId),
+    getContractAddress('InsuranceMain', 'scripts/deploy_3l_RentalInsuranceMain.js', chainId),
     'InsuranceMain'
   )
   const promoServiceAddress = checkNotNull(
@@ -46,7 +46,7 @@ async function main() {
     'RentalityPromoService'
   )
   const referralMainAddress = checkNotNull(
-    getContractAddress('ReferralMain', 'scripts/deploy_3n_ReferralMain.js', chainId),
+    getContractAddress('ReferralMain', 'scripts/deploy_3n_RentalReferralMain.js', chainId),
     'ReferralMain'
   )
   const notificationServiceAddress = checkNotNull(
@@ -54,7 +54,22 @@ async function main() {
     'RentalityNotificationService'
   )
 
-  const contractFactory = await ethers.getContractFactory(contractName)
+  let tripLibAddress = readFromFile('TripLib', chainId)
+  if (!tripLibAddress) {
+    const tripLibFactory = await ethers.getContractFactory('TripLib')
+    const tripLib = await tripLibFactory.deploy()
+    await tripLib.waitForDeployment()
+    tripLibAddress = await tripLib.getAddress()
+    console.log(`TripLib was deployed to: ${tripLibAddress}`)
+    addressSaver(tripLibAddress, 'TripLib', true, chainId)
+    await saveJsonAbi('TripLib', chainId, tripLib)
+  }
+
+  const contractFactory = await ethers.getContractFactory(contractName, {
+    libraries: {
+      TripLib: tripLibAddress,
+    },
+  })
   const contract = await upgrades.deployProxy(contractFactory, [
     tripMainAddress,
     userProfileMainAddress,
@@ -68,7 +83,9 @@ async function main() {
     promoServiceAddress,
     referralMainAddress,
     notificationServiceAddress,
-  ])
+  ], {
+    unsafeAllowLinkedLibraries: true,
+  })
   await contract.waitForDeployment()
   const contractAddress = await contract.getAddress()
 

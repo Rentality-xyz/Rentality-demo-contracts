@@ -10,7 +10,7 @@ async function main() {
   if (chainId < 0) throw new Error('chainId is not set')
 
   const referralMainAddress = checkNotNull(
-    getContractAddress('ReferralMain', 'scripts/deploy_3n_ReferralMain.js', chainId),
+    getContractAddress('ReferralMain', 'scripts/deploy_3n_RentalReferralMain.js', chainId),
     'ReferralMain'
   )
   const carQueryAddress = checkNotNull(
