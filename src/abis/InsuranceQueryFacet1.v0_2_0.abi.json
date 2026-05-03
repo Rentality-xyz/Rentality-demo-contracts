@@ -1,0 +1,116 @@
+{
+  "abi": [
+    {
+      "type": "constructor",
+      "stateMutability": "undefined",
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "carServiceAddress" },
+        { "type": "address", "name": "tripQueryAddress" },
+        { "type": "address", "name": "userServiceAddress" },
+        { "type": "address", "name": "insuranceServiceAddress" }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "carService",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getInsurancesBy",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        { "type": "bool", "name": "host" },
+        { "type": "address", "name": "user" }
+      ],
+      "outputs": [
+        {
+          "type": "tuple[]",
+          "name": "",
+          "components": [
+            { "type": "uint256", "name": "tripId" },
+            { "type": "string", "name": "carBrand" },
+            { "type": "string", "name": "carModel" },
+            { "type": "uint32", "name": "carYear" },
+            {
+              "type": "tuple",
+              "name": "insuranceInfo",
+              "components": [
+                { "type": "string", "name": "companyName" },
+                { "type": "string", "name": "policyNumber" },
+                { "type": "string", "name": "photo" },
+                { "type": "string", "name": "comment" },
+                { "type": "uint8", "name": "insuranceType" },
+                { "type": "uint256", "name": "createdTime" },
+                { "type": "address", "name": "createdBy" }
+              ]
+            },
+            { "type": "bool", "name": "createdByHost" },
+            { "type": "string", "name": "creatorPhoneNumber" },
+            { "type": "string", "name": "creatorFullName" },
+            { "type": "uint64", "name": "startDateTime" },
+            { "type": "uint64", "name": "endDateTime" },
+            { "type": "bool", "name": "isActual" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getMyInsurancesAsGuest",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "user" }],
+      "outputs": [
+        {
+          "type": "tuple[]",
+          "name": "",
+          "components": [
+            { "type": "string", "name": "companyName" },
+            { "type": "string", "name": "policyNumber" },
+            { "type": "string", "name": "photo" },
+            { "type": "string", "name": "comment" },
+            { "type": "uint8", "name": "insuranceType" },
+            { "type": "uint256", "name": "createdTime" },
+            { "type": "address", "name": "createdBy" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "insuranceService",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "tripQuery",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "userService",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    }
+  ]
+}

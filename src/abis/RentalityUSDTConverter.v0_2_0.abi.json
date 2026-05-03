@@ -1,5 +1,7 @@
 {
   "abi": [
+    { "type": "error", "name": "InvalidRate", "inputs": [] },
+    { "type": "error", "name": "OnlyAdmin", "inputs": [] },
     {
       "type": "event",
       "anonymous": false,
@@ -20,6 +22,15 @@
       "anonymous": false,
       "name": "Initialized",
       "inputs": [{ "type": "uint8", "name": "version", "indexed": false }]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "OwnershipTransferred",
+      "inputs": [
+        { "type": "address", "name": "previousOwner", "indexed": true },
+        { "type": "address", "name": "newOwner", "indexed": true }
+      ]
     },
     {
       "type": "event",
@@ -152,9 +163,9 @@
       "constant": false,
       "payable": false,
       "inputs": [
-        { "type": "address", "name": "_userService" },
-        { "type": "address", "name": "_tokenAddress" },
-        { "type": "address", "name": "_rateFeed" }
+        { "type": "address", "name": "userAccessAddress" },
+        { "type": "address", "name": "token" },
+        { "type": "address", "name": "rateFeedAddress" }
       ],
       "outputs": []
     },
@@ -166,6 +177,15 @@
       "payable": false,
       "inputs": [],
       "outputs": [{ "type": "uint256", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "owner",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
     },
     {
       "type": "function",
@@ -187,10 +207,18 @@
     },
     {
       "type": "function",
+      "name": "renounceOwnership",
+      "constant": false,
+      "payable": false,
+      "inputs": [],
+      "outputs": []
+    },
+    {
+      "type": "function",
       "name": "setRateFeed",
       "constant": false,
       "payable": false,
-      "inputs": [{ "type": "address", "name": "_rateFeed" }],
+      "inputs": [{ "type": "address", "name": "rateFeedAddress" }],
       "outputs": []
     },
     {
@@ -210,6 +238,14 @@
       "payable": false,
       "inputs": [],
       "outputs": [{ "type": "uint8", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "transferOwnership",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "newOwner" }],
+      "outputs": []
     },
     {
       "type": "function",
@@ -239,6 +275,15 @@
         { "type": "bytes", "name": "data" }
       ],
       "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "userAccess",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
     }
   ]
 }

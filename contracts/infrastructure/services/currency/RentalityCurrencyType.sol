@@ -21,6 +21,7 @@ abstract contract ARentalityUpgradableCurrencyType is UUPSOwnable {
   error OnlyAdmin();
   error InvalidRate();
 
+  /// @custom:oz-upgrades-unsafe-allow constructor
   constructor() {
     _disableInitializers();
   }

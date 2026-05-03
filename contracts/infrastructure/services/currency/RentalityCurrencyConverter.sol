@@ -27,6 +27,7 @@ contract RentalityCurrencyConverter is UUPSOwnable {
   error OnlyPlatform();
   error CurrencyNotAvailable(address currency);
 
+  /// @custom:oz-upgrades-unsafe-allow constructor
   constructor() {
     _disableInitializers();
   }

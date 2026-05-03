@@ -64,6 +64,7 @@ contract RentalityPromoService is UUPSOwnable {
   error PromoTypeNotExists();
   error PromoIsNotValid();
 
+  /// @custom:oz-upgrades-unsafe-allow constructor
   constructor() {
     _disableInitializers();
   }

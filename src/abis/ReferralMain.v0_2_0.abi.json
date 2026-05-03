@@ -1,0 +1,574 @@
+{
+  "abi": [
+    { "type": "constructor", "stateMutability": "undefined", "payable": false, "inputs": [] },
+    { "type": "error", "name": "FailedToCalculatePoints", "inputs": [] },
+    { "type": "error", "name": "NotEnoughPoints", "inputs": [] },
+    { "type": "error", "name": "OnlyPlatform", "inputs": [] },
+    { "type": "error", "name": "OwnHash", "inputs": [] },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "AdminChanged",
+      "inputs": [
+        { "type": "address", "name": "previousAdmin", "indexed": false },
+        { "type": "address", "name": "newAdmin", "indexed": false }
+      ]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "BeaconUpgraded",
+      "inputs": [{ "type": "address", "name": "beacon", "indexed": true }]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "Initialized",
+      "inputs": [{ "type": "uint8", "name": "version", "indexed": false }]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "OwnershipTransferred",
+      "inputs": [
+        { "type": "address", "name": "previousOwner", "indexed": true },
+        { "type": "address", "name": "newOwner", "indexed": true }
+      ]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "Upgraded",
+      "inputs": [{ "type": "address", "name": "implementation", "indexed": true }]
+    },
+    {
+      "type": "function",
+      "name": "addOneTimeProgram",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint8", "name": "selector" },
+        { "type": "int256", "name": "points" },
+        { "type": "int256", "name": "pointsWithReferralCode" },
+        { "type": "bytes4", "name": "callback" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "addPermanentProgram",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint8", "name": "selector" },
+        { "type": "int256", "name": "points" },
+        { "type": "bytes4", "name": "callback" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "calculateListedCarsPoints",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        { "type": "int256", "name": "points" },
+        { "type": "address", "name": "user" }
+      ],
+      "outputs": [
+        { "type": "uint256", "name": "" },
+        { "type": "uint256[]", "name": "" }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "carQuery",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "claimPoints",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "user" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "claimReferralPoints",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "user" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "createReferralHash",
+      "constant": true,
+      "stateMutability": "pure",
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "user" }],
+      "outputs": [{ "type": "bytes4", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "generateReferralHash",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "user" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "getAllTierInfo",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "tuple[]",
+          "name": "",
+          "components": [
+            {
+              "type": "tuple",
+              "name": "points",
+              "components": [
+                { "type": "uint256", "name": "from" },
+                { "type": "uint256", "name": "to" }
+              ]
+            },
+            { "type": "uint8", "name": "tier" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getCarDailyClaimedTime",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "carId" }],
+      "outputs": [{ "type": "uint256", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getDiscount",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        { "type": "uint8", "name": "selector" },
+        { "type": "uint8", "name": "tier" }
+      ],
+      "outputs": [
+        { "type": "uint256", "name": "" },
+        { "type": "uint256", "name": "" }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getMyReferralInfo",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "user" }],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "",
+          "components": [
+            { "type": "bytes4", "name": "myHash" },
+            { "type": "bytes4", "name": "savedHash" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getMyStartDiscount",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "user" }],
+      "outputs": [{ "type": "uint256", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getPointsBalance",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "user" }],
+      "outputs": [{ "type": "uint256", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getPointsHistory",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "user" }],
+      "outputs": [
+        {
+          "type": "tuple[]",
+          "name": "",
+          "components": [
+            { "type": "int256", "name": "points" },
+            { "type": "uint256", "name": "date" },
+            { "type": "uint8", "name": "method" },
+            { "type": "bool", "name": "oneTime" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getReadyToClaim",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "user" }],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "",
+          "components": [
+            {
+              "type": "tuple[]",
+              "name": "toClaim",
+              "components": [
+                { "type": "uint256", "name": "points" },
+                { "type": "uint8", "name": "refType" },
+                { "type": "bool", "name": "oneTime" }
+              ]
+            },
+            { "type": "uint256", "name": "totalPoints" },
+            { "type": "uint256", "name": "toNextDailyClaim" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getReadyToClaimFromHash",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "user" }],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "",
+          "components": [
+            {
+              "type": "tuple[]",
+              "name": "toClaim",
+              "components": [
+                { "type": "uint256", "name": "points" },
+                { "type": "uint8", "name": "refType" },
+                { "type": "bool", "name": "oneTime" },
+                { "type": "bool", "name": "claimed" },
+                { "type": "address", "name": "user" }
+              ]
+            },
+            { "type": "uint256", "name": "totalPoints" },
+            { "type": "bytes4", "name": "hash" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getReferralHash",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "user" }],
+      "outputs": [{ "type": "bytes4", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getReferralPointsInfo",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "",
+          "components": [
+            {
+              "type": "tuple[]",
+              "name": "programPoints",
+              "components": [
+                { "type": "uint8", "name": "referralType" },
+                { "type": "uint8", "name": "method" },
+                { "type": "int256", "name": "points" }
+              ]
+            },
+            {
+              "type": "tuple[]",
+              "name": "hashPoints",
+              "components": [
+                { "type": "uint8", "name": "method" },
+                { "type": "uint256", "name": "points" }
+              ]
+            },
+            {
+              "type": "tuple[]",
+              "name": "discounts",
+              "components": [
+                { "type": "uint8", "name": "method" },
+                { "type": "uint8", "name": "tier" },
+                {
+                  "type": "tuple",
+                  "name": "discount",
+                  "components": [
+                    { "type": "uint256", "name": "pointsCosts" },
+                    { "type": "uint256", "name": "percents" }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "tuple[]",
+              "name": "tier",
+              "components": [
+                {
+                  "type": "tuple",
+                  "name": "points",
+                  "components": [
+                    { "type": "uint256", "name": "from" },
+                    { "type": "uint256", "name": "to" }
+                  ]
+                },
+                { "type": "uint8", "name": "tier" }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getTierTypeByPoints",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "points" }],
+      "outputs": [{ "type": "uint8", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "hashExists",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "bytes4", "name": "hash" }],
+      "outputs": [{ "type": "bool", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "initialize",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "userAccessAddress" },
+        { "type": "address", "name": "carQueryAddress" },
+        { "type": "address", "name": "referralLibAddress" },
+        { "type": "address", "name": "" },
+        { "type": "address", "name": "" },
+        { "type": "address", "name": "" },
+        { "type": "address", "name": "" },
+        { "type": "address", "name": "" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "manageReferralDiscount",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint8", "name": "selector" },
+        { "type": "uint8", "name": "tier" },
+        { "type": "uint256", "name": "points" },
+        { "type": "uint256", "name": "percents" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "manageReferralHashProgram",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint8", "name": "selector" },
+        { "type": "uint256", "name": "points" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "manageTierInfo",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint8", "name": "tier" },
+        { "type": "uint256", "name": "from" },
+        { "type": "uint256", "name": "to" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "owner",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "passReferralProgram",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint8", "name": "selector" },
+        { "type": "bytes", "name": "callbackArgs" },
+        { "type": "address", "name": "user" },
+        { "type": "address", "name": "" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "proxiableUUID",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "bytes32", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "referralLib",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "renounceOwnership",
+      "constant": false,
+      "payable": false,
+      "inputs": [],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "saveReferralHash",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "bytes4", "name": "hash" },
+        { "type": "bool", "name": "isGuest" },
+        { "type": "address", "name": "sender" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "transferOwnership",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "newOwner" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "updateCarQuery",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "carQueryAddress" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "updateDaily",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "user" }],
+      "outputs": [{ "type": "uint256", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "updateReferralLib",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "referralLibAddress" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "updateUserAccess",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "userAccessAddress" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "upgradeTo",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "newImplementation" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "upgradeToAndCall",
+      "constant": false,
+      "stateMutability": "payable",
+      "payable": true,
+      "inputs": [
+        { "type": "address", "name": "newImplementation" },
+        { "type": "bytes", "name": "data" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "useDiscount",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint8", "name": "selector" },
+        { "type": "bool", "name": "host" },
+        { "type": "uint256", "name": "tripId" },
+        { "type": "address", "name": "user" }
+      ],
+      "outputs": [{ "type": "uint256", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "userAccess",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    }
+  ]
+}

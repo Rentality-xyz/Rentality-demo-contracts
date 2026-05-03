@@ -38,6 +38,7 @@ contract PricingMainFacet1 is UUPSOwnable {
   error LengthMismatch();
   error TaxIdMismatch();
 
+  /// @custom:oz-upgrades-unsafe-allow constructor
   constructor() {
     _disableInitializers();
   }

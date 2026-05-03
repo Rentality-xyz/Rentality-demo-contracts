@@ -1,5 +1,9 @@
 {
   "abi": [
+    { "type": "constructor", "stateMutability": "undefined", "payable": false, "inputs": [] },
+    { "type": "error", "name": "CurrencyNotAvailable", "inputs": [{ "type": "address", "name": "currency" }] },
+    { "type": "error", "name": "OnlyAdmin", "inputs": [] },
+    { "type": "error", "name": "OnlyPlatform", "inputs": [] },
     {
       "type": "event",
       "anonymous": false,
@@ -20,6 +24,15 @@
       "anonymous": false,
       "name": "Initialized",
       "inputs": [{ "type": "uint8", "name": "version", "indexed": false }]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "OwnershipTransferred",
+      "inputs": [
+        { "type": "address", "name": "previousOwner", "indexed": true },
+        { "type": "address", "name": "newOwner", "indexed": true }
+      ]
     },
     {
       "type": "event",
@@ -143,7 +156,7 @@
         { "type": "uint256", "name": "insurance" },
         { "type": "uint64", "name": "totalTax" }
       ],
-      "outputs": [{ "type": "uint256", "name": "tripRejectValue" }]
+      "outputs": [{ "type": "uint256", "name": "" }]
     },
     {
       "type": "function",
@@ -152,7 +165,7 @@
       "stateMutability": "view",
       "payable": false,
       "inputs": [{ "type": "address", "name": "tokenAddress" }],
-      "outputs": [{ "type": "bool", "name": "isAvailable" }]
+      "outputs": [{ "type": "bool", "name": "" }]
     },
     {
       "type": "function",
@@ -164,7 +177,7 @@
       "outputs": [
         {
           "type": "tuple[]",
-          "name": "availableOnPlatformCurrencies",
+          "name": "",
           "components": [
             { "type": "address", "name": "currency" },
             { "type": "string", "name": "name" }
@@ -216,6 +229,25 @@
     },
     {
       "type": "function",
+      "name": "getDefaultCurrency",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "",
+          "components": [
+            { "type": "address", "name": "currency" },
+            { "type": "string", "name": "name" },
+            { "type": "bool", "name": "initialized" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
       "name": "getFromUsdCents",
       "constant": true,
       "stateMutability": "view",
@@ -225,7 +257,7 @@
         { "type": "uint256", "name": "amount" },
         { "type": "int256", "name": "currencyRate" }
       ],
-      "outputs": [{ "type": "uint256", "name": "amountInCurrency" }]
+      "outputs": [{ "type": "uint256", "name": "" }]
     },
     {
       "type": "function",
@@ -261,7 +293,7 @@
       "stateMutability": "view",
       "payable": false,
       "inputs": [{ "type": "address", "name": "tokenAddress" }],
-      "outputs": [{ "type": "int256", "name": "latestRate" }]
+      "outputs": [{ "type": "int256", "name": "" }]
     },
     {
       "type": "function",
@@ -286,7 +318,7 @@
         { "type": "uint256", "name": "tokenValue" },
         { "type": "int256", "name": "tokenToUsd" }
       ],
-      "outputs": [{ "type": "uint256", "name": "valueInUsd" }]
+      "outputs": [{ "type": "uint256", "name": "" }]
     },
     {
       "type": "function",
@@ -325,7 +357,7 @@
       "outputs": [
         {
           "type": "tuple",
-          "name": "currency",
+          "name": "",
           "components": [
             { "type": "address", "name": "currency" },
             { "type": "string", "name": "name" },
@@ -340,7 +372,7 @@
       "constant": false,
       "payable": false,
       "inputs": [
-        { "type": "address", "name": "_userService" },
+        { "type": "address", "name": "userAccessAddress" },
         { "type": "address", "name": "ethPaymentAddress" },
         { "type": "string", "name": "nativeCurrencyName" }
       ],
@@ -353,7 +385,16 @@
       "stateMutability": "pure",
       "payable": false,
       "inputs": [{ "type": "address", "name": "tokenAddress" }],
-      "outputs": [{ "type": "bool", "name": "isEthCurrency" }]
+      "outputs": [{ "type": "bool", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "owner",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
     },
     {
       "type": "function",
@@ -374,10 +415,34 @@
     },
     {
       "type": "function",
+      "name": "renounceOwnership",
+      "constant": false,
+      "payable": false,
+      "inputs": [],
+      "outputs": []
+    },
+    {
+      "type": "function",
       "name": "setDefaultCurrencyType",
       "constant": false,
       "payable": false,
       "inputs": [{ "type": "address", "name": "currency" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "transferOwnership",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "newOwner" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "updateUserAccess",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "userAccessAddress" }],
       "outputs": []
     },
     {
@@ -399,6 +464,15 @@
         { "type": "bytes", "name": "data" }
       ],
       "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "userAccess",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
     }
   ]
 }

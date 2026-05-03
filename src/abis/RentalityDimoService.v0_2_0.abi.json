@@ -1,5 +1,6 @@
 {
   "abi": [
+    { "type": "constructor", "stateMutability": "undefined", "payable": false, "inputs": [] },
     {
       "type": "event",
       "anonymous": false,
@@ -21,6 +22,15 @@
       "anonymous": false,
       "name": "Initialized",
       "inputs": [{ "type": "uint8", "name": "version", "indexed": false }]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "OwnershipTransferred",
+      "inputs": [
+        { "type": "address", "name": "previousOwner", "indexed": true },
+        { "type": "address", "name": "newOwner", "indexed": true }
+      ]
     },
     {
       "type": "event",
@@ -69,10 +79,19 @@
       "constant": false,
       "payable": false,
       "inputs": [
-        { "type": "address", "name": "_userService" },
-        { "type": "address", "name": "_carToken" }
+        { "type": "address", "name": "userAccessAddress" },
+        { "type": "address", "name": "carTokenAddress" }
       ],
       "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "owner",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
     },
     {
       "type": "function",
@@ -82,6 +101,14 @@
       "payable": false,
       "inputs": [],
       "outputs": [{ "type": "bytes32", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "renounceOwnership",
+      "constant": false,
+      "payable": false,
+      "inputs": [],
+      "outputs": []
     },
     {
       "type": "function",
@@ -106,6 +133,14 @@
         { "type": "address", "name": "user" },
         { "type": "bytes", "name": "signature" }
       ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "transferOwnership",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "newOwner" }],
       "outputs": []
     },
     {

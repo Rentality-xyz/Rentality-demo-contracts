@@ -355,6 +355,25 @@
     },
     {
       "type": "function",
+      "name": "getUserDeliveryPrices",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "user" }],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "",
+          "components": [
+            { "type": "uint64", "name": "underTwentyFiveMilesInUsdCents" },
+            { "type": "uint64", "name": "aboveTwentyFiveMilesInUsdCents" },
+            { "type": "bool", "name": "initialized" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
       "name": "initialize",
       "constant": false,
       "payable": false,
@@ -466,6 +485,29 @@
       "inputs": [
         { "type": "address", "name": "operator" },
         { "type": "bool", "name": "approved" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "setDefaultPrices",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint64", "name": "underTwentyFiveMilesInUsdCents" },
+        { "type": "uint64", "name": "aboveTwentyFiveMilesInUsdCents" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "setUserDeliveryPrices",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint64", "name": "underTwentyFiveMilesInUsdCents" },
+        { "type": "uint64", "name": "aboveTwentyFiveMilesInUsdCents" },
+        { "type": "address", "name": "user" }
       ],
       "outputs": []
     },

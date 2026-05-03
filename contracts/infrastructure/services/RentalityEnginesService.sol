@@ -4,6 +4,7 @@ pragma solidity ^0.8.20;
 import '../upgradeable/UUPSOwnable.sol';
 
 contract RentalityEnginesService is UUPSOwnable {
+  /// @custom:oz-upgrades-unsafe-allow constructor
   constructor() {
     _disableInitializers();
   }

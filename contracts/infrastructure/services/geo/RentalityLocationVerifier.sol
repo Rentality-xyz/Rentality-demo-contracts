@@ -14,13 +14,14 @@ contract RentalityLocationVerifier is EIP712Upgradeable, UUPSOwnable {
   IRentalityLocationVerifierAccess public userAccess;
   address private adminAddress;
 
+  /// @custom:oz-upgrades-unsafe-allow constructor
   constructor() {
     _disableInitializers();
   }
 
   function initialize(address userAccessAddress, address admin) public initializer {
-    __Ownable_init();
     __EIP712_init('RentalityLocationVerifier', '1');
+    __Ownable_init();
     userAccess = IRentalityLocationVerifierAccess(userAccessAddress);
     adminAddress = admin;
   }

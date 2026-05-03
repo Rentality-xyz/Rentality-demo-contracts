@@ -19,6 +19,7 @@ contract RentalitySwaps is UUPSOwnable {
 
   error OnlyAdmin();
 
+  /// @custom:oz-upgrades-unsafe-allow constructor
   constructor() {
     _disableInitializers();
   }

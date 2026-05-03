@@ -40,6 +40,7 @@ contract TripMainFacet1 is UUPSOwnable {
   ITripMainFacet1ReferralProgram public referralProgram;
   ITripMainFacet1NotificationService public notificationService;
 
+  /// @custom:oz-upgrades-unsafe-allow constructor
   constructor() {
     _disableInitializers();
   }

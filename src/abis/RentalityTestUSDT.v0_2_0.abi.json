@@ -86,17 +86,6 @@
     },
     {
       "type": "function",
-      "name": "mint",
-      "constant": false,
-      "payable": false,
-      "inputs": [
-        { "type": "address", "name": "to" },
-        { "type": "uint256", "name": "amount" }
-      ],
-      "outputs": []
-    },
-    {
-      "type": "function",
       "name": "name",
       "constant": true,
       "stateMutability": "view",

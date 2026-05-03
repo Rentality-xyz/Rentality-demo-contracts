@@ -1,5 +1,7 @@
 {
   "abi": [
+    { "type": "constructor", "stateMutability": "undefined", "payable": false, "inputs": [] },
+    { "type": "error", "name": "OnlyAdmin", "inputs": [] },
     {
       "type": "event",
       "anonymous": false,
@@ -24,40 +26,21 @@
     {
       "type": "event",
       "anonymous": false,
+      "name": "OwnershipTransferred",
+      "inputs": [
+        { "type": "address", "name": "previousOwner", "indexed": true },
+        { "type": "address", "name": "newOwner", "indexed": true }
+      ]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
       "name": "Upgraded",
       "inputs": [{ "type": "address", "name": "implementation", "indexed": true }]
     },
     {
       "type": "function",
-      "name": "addAllowedCurrencies",
-      "constant": false,
-      "payable": false,
-      "inputs": [{ "type": "address[]", "name": "currencies" }],
-      "outputs": []
-    },
-    {
-      "type": "function",
-      "name": "addAllowedCurrency",
-      "constant": false,
-      "payable": false,
-      "inputs": [{ "type": "address", "name": "currency" }],
-      "outputs": []
-    },
-    {
-      "type": "function",
-      "name": "calculateAdjustedSqrtPriceX96",
-      "constant": true,
-      "stateMutability": "pure",
-      "payable": false,
-      "inputs": [
-        { "type": "uint160", "name": "currentSqrtPriceX96" },
-        { "type": "int24", "name": "basisPointsDelta" }
-      ],
-      "outputs": [{ "type": "uint160", "name": "adjustedSqrtPriceX96" }]
-    },
-    {
-      "type": "function",
-      "name": "factory",
+      "name": "allowedToken",
       "constant": true,
       "stateMutability": "view",
       "payable": false,
@@ -86,39 +69,26 @@
     },
     {
       "type": "function",
-      "name": "getPrice",
-      "constant": true,
-      "stateMutability": "view",
-      "payable": false,
-      "inputs": [
-        { "type": "address", "name": "from" },
-        { "type": "address", "name": "to" },
-        { "type": "uint24", "name": "fee" }
-      ],
-      "outputs": [{ "type": "uint256", "name": "" }]
-    },
-    {
-      "type": "function",
       "name": "initialize",
       "constant": false,
       "payable": false,
       "inputs": [
-        { "type": "address", "name": "_router" },
-        { "type": "address", "name": "_weth" },
-        { "type": "address", "name": "allowedToken" },
-        { "type": "address", "name": "_userService" },
-        { "type": "address", "name": "_factory" }
+        { "type": "address", "name": "routerAddress" },
+        { "type": "address", "name": "wethAddress" },
+        { "type": "address", "name": "allowedTokenAddress" },
+        { "type": "address", "name": "userAccessAddress" },
+        { "type": "address", "name": "uniswapFactoryAddress" }
       ],
       "outputs": []
     },
     {
       "type": "function",
-      "name": "isAllowedCurrency",
+      "name": "owner",
       "constant": true,
       "stateMutability": "view",
       "payable": false,
-      "inputs": [{ "type": "address", "name": "currency" }],
-      "outputs": [{ "type": "bool", "name": "" }]
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
     },
     {
       "type": "function",
@@ -131,10 +101,10 @@
     },
     {
       "type": "function",
-      "name": "removeAllowedCurrency",
+      "name": "renounceOwnership",
       "constant": false,
       "payable": false,
-      "inputs": [{ "type": "address", "name": "currency" }],
+      "inputs": [],
       "outputs": []
     },
     {
@@ -148,10 +118,10 @@
     },
     {
       "type": "function",
-      "name": "setFactory",
+      "name": "setAllowedToken",
       "constant": false,
       "payable": false,
-      "inputs": [{ "type": "address", "name": "_factory" }],
+      "inputs": [{ "type": "address", "name": "allowedTokenAddress" }],
       "outputs": []
     },
     {
@@ -166,9 +136,34 @@
         { "type": "uint128", "name": "amountIn" },
         { "type": "address", "name": "sender" },
         { "type": "uint128", "name": "minimumAmountOut" },
-        { "type": "uint24", "name": "fee" }
+        { "type": "uint24", "name": "" }
       ],
       "outputs": [{ "type": "uint256", "name": "amountOut" }]
+    },
+    {
+      "type": "function",
+      "name": "transferOwnership",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "newOwner" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "uniswapFactory",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "updateUserAccess",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "userAccessAddress" }],
+      "outputs": []
     },
     {
       "type": "function",
@@ -192,13 +187,21 @@
     },
     {
       "type": "function",
-      "name": "weth",
+      "name": "userAccess",
       "constant": true,
       "stateMutability": "view",
       "payable": false,
       "inputs": [],
       "outputs": [{ "type": "address", "name": "" }]
     },
-    { "type": "receive", "stateMutability": "payable" }
+    {
+      "type": "function",
+      "name": "weth",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    }
   ]
 }

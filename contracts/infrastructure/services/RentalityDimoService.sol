@@ -21,13 +21,14 @@ contract RentalityDimoService is EIP712Upgradeable, UUPSOwnable {
   IRentalityDimoAccess private userAccess;
   IRentalityDimoCar private carToken;
 
+  /// @custom:oz-upgrades-unsafe-allow constructor
   constructor() {
     _disableInitializers();
   }
 
   function initialize(address userAccessAddress, address carTokenAddress) public initializer {
-    __Ownable_init();
     __EIP712_init('RentalityDimoService', '1');
+    __Ownable_init();
     userAccess = IRentalityDimoAccess(userAccessAddress);
     carToken = IRentalityDimoCar(carTokenAddress);
   }

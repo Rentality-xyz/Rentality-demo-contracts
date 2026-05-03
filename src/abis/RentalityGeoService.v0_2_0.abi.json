@@ -1,5 +1,6 @@
 {
   "abi": [
+    { "type": "constructor", "stateMutability": "undefined", "payable": false, "inputs": [] },
     {
       "type": "event",
       "anonymous": false,
@@ -24,30 +25,17 @@
     {
       "type": "event",
       "anonymous": false,
-      "name": "Upgraded",
-      "inputs": [{ "type": "address", "name": "implementation", "indexed": true }]
+      "name": "OwnershipTransferred",
+      "inputs": [
+        { "type": "address", "name": "previousOwner", "indexed": true },
+        { "type": "address", "name": "newOwner", "indexed": true }
+      ]
     },
     {
-      "type": "function",
-      "name": "carIdToParsedGeolocationData",
-      "constant": true,
-      "stateMutability": "view",
-      "payable": false,
-      "inputs": [{ "type": "uint256", "name": "" }],
-      "outputs": [
-        { "type": "string", "name": "status" },
-        { "type": "bool", "name": "validCoordinates" },
-        { "type": "string", "name": "locationLat" },
-        { "type": "string", "name": "locationLng" },
-        { "type": "string", "name": "northeastLat" },
-        { "type": "string", "name": "northeastLng" },
-        { "type": "string", "name": "southwestLat" },
-        { "type": "string", "name": "southwestLng" },
-        { "type": "string", "name": "city" },
-        { "type": "string", "name": "state" },
-        { "type": "string", "name": "country" },
-        { "type": "string", "name": "timeZoneId" }
-      ]
+      "type": "event",
+      "anonymous": false,
+      "name": "Upgraded",
+      "inputs": [{ "type": "address", "name": "implementation", "indexed": true }]
     },
     {
       "type": "function",
@@ -109,10 +97,10 @@
         { "type": "string", "name": "addr" },
         { "type": "string", "name": "locationLatitude" },
         { "type": "string", "name": "locationLongitude" },
-        { "type": "string", "name": "key" },
+        { "type": "string", "name": "" },
         { "type": "uint256", "name": "carId" }
       ],
-      "outputs": [{ "type": "bytes32", "name": "requestId" }]
+      "outputs": [{ "type": "bytes32", "name": "" }]
     },
     {
       "type": "function",
@@ -179,15 +167,6 @@
     },
     {
       "type": "function",
-      "name": "getGeoParserAddress",
-      "constant": true,
-      "stateMutability": "view",
-      "payable": false,
-      "inputs": [],
-      "outputs": [{ "type": "address", "name": "" }]
-    },
-    {
-      "type": "function",
       "name": "getLocationInfo",
       "constant": true,
       "stateMutability": "view",
@@ -208,15 +187,6 @@
           ]
         }
       ]
-    },
-    {
-      "type": "function",
-      "name": "getUserServiceAddrss",
-      "constant": true,
-      "stateMutability": "view",
-      "payable": false,
-      "inputs": [],
-      "outputs": [{ "type": "address", "name": "" }]
     },
     {
       "type": "function",
@@ -256,7 +226,7 @@
       "constant": false,
       "payable": false,
       "inputs": [
-        { "type": "address", "name": "_userService" },
+        { "type": "address", "name": "userAccessAddress" },
         { "type": "address", "name": "locationVerifier" }
       ],
       "outputs": []
@@ -280,10 +250,20 @@
     },
     {
       "type": "function",
-      "name": "parseGeoResponse",
-      "constant": false,
+      "name": "owner",
+      "constant": true,
+      "stateMutability": "view",
       "payable": false,
-      "inputs": [{ "type": "uint256", "name": "carId" }],
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "parseGeoResponse",
+      "constant": true,
+      "stateMutability": "pure",
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "" }],
       "outputs": []
     },
     {
@@ -297,18 +277,34 @@
     },
     {
       "type": "function",
-      "name": "setLocationVerifier",
+      "name": "renounceOwnership",
       "constant": false,
       "payable": false,
-      "inputs": [{ "type": "address", "name": "_verifier" }],
+      "inputs": [],
       "outputs": []
     },
     {
       "type": "function",
-      "name": "updateUserServiceAddress",
+      "name": "setLocationVerifier",
       "constant": false,
       "payable": false,
-      "inputs": [{ "type": "address", "name": "_userService" }],
+      "inputs": [{ "type": "address", "name": "locationVerifier" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "transferOwnership",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "newOwner" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "updateUserAccess",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "userAccessAddress" }],
       "outputs": []
     },
     {
@@ -330,6 +326,15 @@
         { "type": "bytes", "name": "data" }
       ],
       "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "userAccess",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
     },
     {
       "type": "function",

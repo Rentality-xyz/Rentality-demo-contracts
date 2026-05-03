@@ -1,0 +1,454 @@
+{
+  "abi": [
+    { "type": "constructor", "stateMutability": "undefined", "payable": false, "inputs": [] },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "AdminChanged",
+      "inputs": [
+        { "type": "address", "name": "previousAdmin", "indexed": false },
+        { "type": "address", "name": "newAdmin", "indexed": false }
+      ]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "BeaconUpgraded",
+      "inputs": [{ "type": "address", "name": "beacon", "indexed": true }]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "Initialized",
+      "inputs": [{ "type": "uint8", "name": "version", "indexed": false }]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "OwnershipTransferred",
+      "inputs": [
+        { "type": "address", "name": "previousOwner", "indexed": true },
+        { "type": "address", "name": "newOwner", "indexed": true }
+      ]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "Upgraded",
+      "inputs": [{ "type": "address", "name": "implementation", "indexed": true }]
+    },
+    {
+      "type": "function",
+      "name": "approveTripRequest",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint256", "name": "tripId" },
+        { "type": "address", "name": "sender" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "calculatePaymentsWithDelivery",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        { "type": "uint256", "name": "carId" },
+        { "type": "uint64", "name": "daysOfTrip" },
+        { "type": "address", "name": "currency" },
+        {
+          "type": "tuple",
+          "name": "pickUpLocation",
+          "components": [
+            { "type": "string", "name": "userAddress" },
+            { "type": "string", "name": "country" },
+            { "type": "string", "name": "state" },
+            { "type": "string", "name": "city" },
+            { "type": "string", "name": "latitude" },
+            { "type": "string", "name": "longitude" },
+            { "type": "string", "name": "timeZoneId" }
+          ]
+        },
+        {
+          "type": "tuple",
+          "name": "returnLocation",
+          "components": [
+            { "type": "string", "name": "userAddress" },
+            { "type": "string", "name": "country" },
+            { "type": "string", "name": "state" },
+            { "type": "string", "name": "city" },
+            { "type": "string", "name": "latitude" },
+            { "type": "string", "name": "longitude" },
+            { "type": "string", "name": "timeZoneId" }
+          ]
+        },
+        { "type": "string", "name": "promo" },
+        { "type": "address", "name": "sender" }
+      ],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "",
+          "components": [
+            { "type": "uint256", "name": "totalPrice" },
+            { "type": "int256", "name": "currencyRate" },
+            { "type": "uint8", "name": "currencyDecimals" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "carQueryAddress",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "carTaxAdapterAddress",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "checkInByGuest",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint256", "name": "tripId" },
+        { "type": "uint64[]", "name": "panelParams" },
+        { "type": "address", "name": "sender" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "checkInByHost",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint256", "name": "tripId" },
+        { "type": "uint64[]", "name": "panelParams" },
+        { "type": "string", "name": "insuranceCompany" },
+        { "type": "string", "name": "insuranceNumber" },
+        { "type": "address", "name": "sender" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "checkOutByGuest",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint256", "name": "tripId" },
+        { "type": "uint64[]", "name": "panelParams" },
+        { "type": "address", "name": "sender" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "checkOutByHost",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint256", "name": "tripId" },
+        { "type": "uint64[]", "name": "panelParams" },
+        { "type": "address", "name": "sender" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "confirmCheckOut",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint256", "name": "tripId" },
+        { "type": "address", "name": "sender" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "createTripRequestWithDelivery",
+      "constant": false,
+      "stateMutability": "payable",
+      "payable": true,
+      "inputs": [
+        {
+          "type": "tuple",
+          "name": "request",
+          "components": [
+            { "type": "uint256", "name": "carId" },
+            { "type": "uint64", "name": "startDateTime" },
+            { "type": "uint64", "name": "endDateTime" },
+            { "type": "address", "name": "currencyType" },
+            {
+              "type": "tuple",
+              "name": "pickUpInfo",
+              "components": [
+                {
+                  "type": "tuple",
+                  "name": "locationInfo",
+                  "components": [
+                    { "type": "string", "name": "userAddress" },
+                    { "type": "string", "name": "country" },
+                    { "type": "string", "name": "state" },
+                    { "type": "string", "name": "city" },
+                    { "type": "string", "name": "latitude" },
+                    { "type": "string", "name": "longitude" },
+                    { "type": "string", "name": "timeZoneId" }
+                  ]
+                },
+                { "type": "bytes", "name": "signature" }
+              ]
+            },
+            {
+              "type": "tuple",
+              "name": "returnInfo",
+              "components": [
+                {
+                  "type": "tuple",
+                  "name": "locationInfo",
+                  "components": [
+                    { "type": "string", "name": "userAddress" },
+                    { "type": "string", "name": "country" },
+                    { "type": "string", "name": "state" },
+                    { "type": "string", "name": "city" },
+                    { "type": "string", "name": "latitude" },
+                    { "type": "string", "name": "longitude" },
+                    { "type": "string", "name": "timeZoneId" }
+                  ]
+                },
+                { "type": "bytes", "name": "signature" }
+              ]
+            },
+            { "type": "uint256", "name": "amountIn" },
+            { "type": "uint24", "name": "fee" }
+          ]
+        },
+        { "type": "string", "name": "promo" },
+        { "type": "address", "name": "sender" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "currencyConverterAddress",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "finishTrip",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint256", "name": "tripId" },
+        { "type": "address", "name": "sender" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "initialize",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "tripMainAddress" },
+        { "type": "address", "name": "userAccessAddress" },
+        { "type": "address", "name": "userProfileMainAddress_" },
+        { "type": "address", "name": "carQueryAddress_" },
+        { "type": "address", "name": "carTaxAdapterAddress_" },
+        { "type": "address", "name": "pricingServiceAddress_" },
+        { "type": "address", "name": "paymentServiceAddress_" },
+        { "type": "address", "name": "currencyConverterAddress_" },
+        { "type": "address", "name": "insuranceServiceAddress_" },
+        { "type": "address", "name": "promoServiceAddress_" },
+        { "type": "address", "name": "referralProgramAddress_" },
+        { "type": "address", "name": "notificationServiceAddress_" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "insuranceServiceAddress",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "notificationService",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "owner",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "paymentServiceAddress",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "pricingServiceAddress",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "promoServiceAddress",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "proxiableUUID",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "bytes32", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "referralProgram",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "rejectTripRequest",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint256", "name": "tripId" },
+        { "type": "address", "name": "sender" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "renounceOwnership",
+      "constant": false,
+      "payable": false,
+      "inputs": [],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "transferOwnership",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "newOwner" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "tripMain",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "updateServiceAddresses",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "tripMainAddress" },
+        { "type": "address", "name": "userAccessAddress" },
+        { "type": "address", "name": "userProfileMainAddress_" },
+        { "type": "address", "name": "carQueryAddress_" },
+        { "type": "address", "name": "carTaxAdapterAddress_" },
+        { "type": "address", "name": "pricingServiceAddress_" },
+        { "type": "address", "name": "paymentServiceAddress_" },
+        { "type": "address", "name": "currencyConverterAddress_" },
+        { "type": "address", "name": "insuranceServiceAddress_" },
+        { "type": "address", "name": "promoServiceAddress_" },
+        { "type": "address", "name": "referralProgramAddress_" },
+        { "type": "address", "name": "notificationServiceAddress_" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "upgradeTo",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "newImplementation" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "upgradeToAndCall",
+      "constant": false,
+      "stateMutability": "payable",
+      "payable": true,
+      "inputs": [
+        { "type": "address", "name": "newImplementation" },
+        { "type": "bytes", "name": "data" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "userAccess",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "userProfileMainAddress",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    }
+  ]
+}

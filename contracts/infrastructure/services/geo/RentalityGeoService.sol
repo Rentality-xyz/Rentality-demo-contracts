@@ -16,6 +16,7 @@ contract RentalityGeoService is IRentalityGeoService, UUPSOwnable {
   mapping(bytes32 => LocationInfo) public locationDictionary;
   mapping(uint256 => bool) private carIdToCoordinateValidity;
 
+  /// @custom:oz-upgrades-unsafe-allow constructor
   constructor() {
     _disableInitializers();
   }

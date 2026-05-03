@@ -60,6 +60,7 @@ contract ReferralMainFacet1 is UUPSOwnable {
 
   event WaitingTimeChanged(uint256 newWaitingTime);
 
+  /// @custom:oz-upgrades-unsafe-allow constructor
   constructor() {
     _disableInitializers();
   }

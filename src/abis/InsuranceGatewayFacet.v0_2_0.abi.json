@@ -1,0 +1,429 @@
+{
+  "abi": [
+    { "type": "constructor", "stateMutability": "undefined", "payable": false, "inputs": [] },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "AdminChanged",
+      "inputs": [
+        { "type": "address", "name": "previousAdmin", "indexed": false },
+        { "type": "address", "name": "newAdmin", "indexed": false }
+      ]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "BeaconUpgraded",
+      "inputs": [{ "type": "address", "name": "beacon", "indexed": true }]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "Initialized",
+      "inputs": [{ "type": "uint8", "name": "version", "indexed": false }]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "OwnershipTransferred",
+      "inputs": [
+        { "type": "address", "name": "previousOwner", "indexed": true },
+        { "type": "address", "name": "newOwner", "indexed": true }
+      ]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "Upgraded",
+      "inputs": [{ "type": "address", "name": "implementation", "indexed": true }]
+    },
+    {
+      "type": "function",
+      "name": "getAllInsuranceRules",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "tuple[]",
+          "name": "insuranceRules",
+          "components": [
+            { "type": "uint256", "name": "partToInsurance" },
+            { "type": "uint256", "name": "insuranceId" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getGuestInsurance",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "guest" }],
+      "outputs": [
+        {
+          "type": "tuple[]",
+          "name": "",
+          "components": [
+            { "type": "string", "name": "companyName" },
+            { "type": "string", "name": "policyNumber" },
+            { "type": "string", "name": "photo" },
+            { "type": "string", "name": "comment" },
+            { "type": "uint8", "name": "insuranceType" },
+            { "type": "uint256", "name": "createdTime" },
+            { "type": "address", "name": "createdBy" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getHostInsuranceBalance",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "uint256", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getHostInsuranceClaims",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "tuple[]",
+          "name": "claimInfos",
+          "components": [
+            {
+              "type": "tuple",
+              "name": "claim",
+              "components": [
+                { "type": "uint256", "name": "tripId" },
+                { "type": "uint256", "name": "claimId" },
+                { "type": "uint256", "name": "deadlineDateInSec" },
+                { "type": "uint8", "name": "claimType" },
+                { "type": "uint8", "name": "status" },
+                { "type": "string", "name": "description" },
+                { "type": "uint64", "name": "amountInUsdCents" },
+                { "type": "uint256", "name": "payDateInSec" },
+                { "type": "address", "name": "rejectedBy" },
+                { "type": "uint256", "name": "rejectedDateInSec" },
+                { "type": "string", "name": "photosUrl" },
+                { "type": "bool", "name": "isHostClaims" }
+              ]
+            },
+            { "type": "address", "name": "host" },
+            { "type": "address", "name": "guest" },
+            { "type": "string", "name": "guestPhoneNumber" },
+            { "type": "string", "name": "hostPhoneNumber" },
+            {
+              "type": "tuple",
+              "name": "carInfo",
+              "components": [
+                { "type": "uint256", "name": "carId" },
+                { "type": "string", "name": "carVinNumber" },
+                { "type": "bytes32", "name": "carVinNumberHash" },
+                { "type": "address", "name": "createdBy" },
+                { "type": "string", "name": "brand" },
+                { "type": "string", "name": "model" },
+                { "type": "uint32", "name": "yearOfProduction" },
+                { "type": "uint64", "name": "pricePerDayInUsdCents" },
+                { "type": "uint64", "name": "securityDepositPerTripInUsdCents" },
+                { "type": "uint8", "name": "engineType" },
+                { "type": "uint64[]", "name": "engineParams" },
+                { "type": "uint64", "name": "milesIncludedPerDay" },
+                { "type": "uint32", "name": "timeBufferBetweenTripsInSec" },
+                { "type": "bool", "name": "currentlyListed" },
+                { "type": "bool", "name": "geoVerified" },
+                { "type": "string", "name": "timeZoneId" },
+                { "type": "bool", "name": "insuranceIncluded" },
+                { "type": "bytes32", "name": "locationHash" }
+              ]
+            },
+            { "type": "uint256", "name": "amountInEth" },
+            { "type": "string", "name": "timeZoneId" },
+            {
+              "type": "tuple",
+              "name": "claimType",
+              "components": [
+                { "type": "uint8", "name": "claimType" },
+                { "type": "string", "name": "claimName" },
+                { "type": "uint8", "name": "creator" }
+              ]
+            },
+            {
+              "type": "tuple",
+              "name": "currency",
+              "components": [
+                { "type": "address", "name": "currency" },
+                { "type": "string", "name": "name" },
+                { "type": "bool", "name": "initialized" }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getHostInsuranceRule",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "host" }],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "insuranceRules",
+          "components": [
+            { "type": "uint256", "name": "partToInsurance" },
+            { "type": "uint256", "name": "insuranceId" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getInsurancesBy",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "bool", "name": "host" }],
+      "outputs": [
+        {
+          "type": "tuple[]",
+          "name": "",
+          "components": [
+            { "type": "uint256", "name": "tripId" },
+            { "type": "string", "name": "carBrand" },
+            { "type": "string", "name": "carModel" },
+            { "type": "uint32", "name": "carYear" },
+            {
+              "type": "tuple",
+              "name": "insuranceInfo",
+              "components": [
+                { "type": "string", "name": "companyName" },
+                { "type": "string", "name": "policyNumber" },
+                { "type": "string", "name": "photo" },
+                { "type": "string", "name": "comment" },
+                { "type": "uint8", "name": "insuranceType" },
+                { "type": "uint256", "name": "createdTime" },
+                { "type": "address", "name": "createdBy" }
+              ]
+            },
+            { "type": "bool", "name": "createdByHost" },
+            { "type": "string", "name": "creatorPhoneNumber" },
+            { "type": "string", "name": "creatorFullName" },
+            { "type": "uint64", "name": "startDateTime" },
+            { "type": "uint64", "name": "endDateTime" },
+            { "type": "bool", "name": "isActual" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getMyInsurancesAsGuest",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "tuple[]",
+          "name": "",
+          "components": [
+            { "type": "string", "name": "companyName" },
+            { "type": "string", "name": "policyNumber" },
+            { "type": "string", "name": "photo" },
+            { "type": "string", "name": "comment" },
+            { "type": "uint8", "name": "insuranceType" },
+            { "type": "uint256", "name": "createdTime" },
+            { "type": "address", "name": "createdBy" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "initialize",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "insuranceQueryFacet1Address" },
+        { "type": "address", "name": "insuranceQueryFacet2Address" },
+        { "type": "address", "name": "insuranceMainAddress" },
+        { "type": "address", "name": "userServiceAddress" },
+        { "type": "address", "name": "notificationServiceAddress" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "insuranceMain",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "insuranceQueryFacet1",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "insuranceQueryFacet2",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "notificationService",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "owner",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "proxiableUUID",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "bytes32", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "renounceOwnership",
+      "constant": false,
+      "payable": false,
+      "inputs": [],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "saveGuestInsurance",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "tuple",
+          "name": "insuranceInfo",
+          "components": [
+            { "type": "string", "name": "companyName" },
+            { "type": "string", "name": "policyNumber" },
+            { "type": "string", "name": "photo" },
+            { "type": "string", "name": "comment" },
+            { "type": "uint8", "name": "insuranceType" }
+          ]
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "saveTripInsuranceInfo",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint256", "name": "tripId" },
+        {
+          "type": "tuple",
+          "name": "insuranceInfo",
+          "components": [
+            { "type": "string", "name": "companyName" },
+            { "type": "string", "name": "policyNumber" },
+            { "type": "string", "name": "photo" },
+            { "type": "string", "name": "comment" },
+            { "type": "uint8", "name": "insuranceType" }
+          ]
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "setHostInsurance",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "insuranceId" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "transferOwnership",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "newOwner" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "updateServiceAddresses",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "insuranceQueryFacet1Address" },
+        { "type": "address", "name": "insuranceQueryFacet2Address" },
+        { "type": "address", "name": "insuranceMainAddress" },
+        { "type": "address", "name": "userServiceAddress" },
+        { "type": "address", "name": "notificationServiceAddress" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "upgradeTo",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "newImplementation" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "upgradeToAndCall",
+      "constant": false,
+      "stateMutability": "payable",
+      "payable": true,
+      "inputs": [
+        { "type": "address", "name": "newImplementation" },
+        { "type": "bytes", "name": "data" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "userAccess",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    }
+  ]
+}
