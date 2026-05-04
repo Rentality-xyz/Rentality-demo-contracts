@@ -2,8 +2,6 @@
 pragma solidity ^0.8.20;
 
 import './car/ICarGatewayFacet.sol';
-import './car/ICarViewGatewayFacet.sol';
-import './car/ICarViewGatewayFacet1.sol';
 import './insurance/IInsuranceGatewayFacet.sol';
 import './investment/IInvestmentGatewayFacet.sol';
 import './payment/IPaymentGatewayFacet.sol';
@@ -16,8 +14,6 @@ import './trip/ITripGatewayFacet.sol';
 /// @notice Unified external Rentality gateway interface composed from gateway facets.
 interface IGatewaySurface is
   ICarGatewayFacet,
-  ICarViewGatewayFacet,
-  ICarViewGatewayFacet1,
   IInsuranceGatewayFacet,
   IInvestmentGatewayFacet,
   IPaymentGatewayFacet,

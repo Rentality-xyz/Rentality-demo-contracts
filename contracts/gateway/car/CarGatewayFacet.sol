@@ -10,9 +10,6 @@ import '../../models/trip/TripTypes.sol';
 import '../../models/common/CommonTypes.sol';
 import '../GatewayContext.sol';
 
-import './ICarGatewayFacet.sol';
-import '../mappers/CarMapper.sol';
-
 interface ICarGatewayUserProfileMain {
   function isRentalityPlatform(address user) external view returns (bool);
 }
@@ -43,7 +40,7 @@ interface ICarGatewayNotificationService {
   function emitEvent(EventType eType, uint256 id, uint8 objectStatus, address from, address to) external;
 }
 
-contract CarGatewayFacet is UUPSOwnable, GatewayContext, ICarGatewayFacet {
+contract CarGatewayFacet is UUPSOwnable, GatewayContext {
   CarMain public carMain;
   CarQuery public carQuery;
   ICarGatewayTripQuery public tripQuery;
@@ -108,44 +105,48 @@ contract CarGatewayFacet is UUPSOwnable, GatewayContext, ICarGatewayFacet {
     );
   }
 
-  function addCar(CarGatewayTypes.GatewayCreateCarRequest memory request) external returns (uint newTokenId) {
+  function addCar(
+    CreateCarRequest memory request,
+    uint256 insurancePriceInUsdCents,
+    bool insuranceRequired,
+    uint256 dimoTokenId,
+    bytes memory signedDimoTokenId
+  ) external returns (uint newTokenId) {
     address sender = _msgGatewaySender();
 
     referralProgram.passReferralProgram(ReferralProgram.AddCar, abi.encode(request.currentlyListed), sender, promoService);
-    require(pricingService.taxExist(CarMapper.toCommonLocationInfo(request.locationInfo.locationInfo)) != 0, 'Tax not exist.');
+    require(pricingService.taxExist(request.locationInfo.locationInfo) != 0, 'Tax not exist.');
 
-    newTokenId = carMain.createCar(CarMapper.toCreateCarRequest(request), sender);
-    dimoService.saveDimoTokenId(request.dimoTokenId, newTokenId, sender, request.signedDimoTokenId);
-    insuranceService.saveInsuranceRequired(newTokenId, request.insurancePriceInUsdCents, request.insuranceRequired, sender);
+    newTokenId = carMain.createCar(request, sender);
+    dimoService.saveDimoTokenId(dimoTokenId, newTokenId, sender, signedDimoTokenId);
+    insuranceService.saveInsuranceRequired(newTokenId, insurancePriceInUsdCents, insuranceRequired, sender);
   }
 
   function updateCarInfoWithLocation(
-    CarGatewayTypes.UpdateCarInfoRequest memory request,
-    SignedLocationInfo memory location
+    uint256 carId,
+    UpdateCarRequest memory request,
+    SignedLocationInfo memory location,
+    uint256 insurancePriceInUsdCents,
+    bool insuranceRequired
   ) external {
-    require(_isCarEditable(request.carId), 'Car is not available for update.');
+    require(_isCarEditable(carId), 'Car is not available for update.');
 
     address sender = _msgGatewaySender();
     bool updateLocation = location.signature.length > 0;
     if (updateLocation) {
-      carQuery.verifySignedLocationInfo(CarMapper.toCommonSignedLocationInfo(location));
+      carQuery.verifySignedLocationInfo(location);
     }
 
-    bool wasListed = carQuery.getCar(request.carId).car.currentlyListed;
+    bool wasListed = carQuery.getCar(carId).car.currentlyListed;
     referralProgram.passReferralProgram(
       ReferralProgram.UnlistedCar,
       abi.encode(wasListed, request.currentlyListed),
       sender,
       promoService
     );
-    insuranceService.saveInsuranceRequired(request.carId, request.insurancePriceInUsdCents, request.insuranceRequired, sender);
+    insuranceService.saveInsuranceRequired(carId, insurancePriceInUsdCents, insuranceRequired, sender);
 
-    string memory currentMetadataURI = carQuery.getCar(request.carId).asset.metadataURI;
-    carMain.updateCar(
-      request.carId,
-      CarMapper.toUpdateCarRequest(request, currentMetadataURI, location.locationInfo, updateLocation),
-      sender
-    );
+    carMain.updateCar(carId, request, sender);
   }
 
   function addUserDeliveryPrices(uint64 underTwentyFiveMilesInUsdCents, uint64 aboveTwentyFiveMilesInUsdCents) external {

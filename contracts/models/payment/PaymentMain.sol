@@ -183,7 +183,7 @@ contract PaymentMain is PaymentBase, UUPSOwnable {
     }
 
     function payFinishTrip(
-        TripGatewayTypes.GatewayTrip memory trip,
+        Trip memory trip,
         uint256 valueToHost,
         uint256 valueToGuest,
         uint256 totalIncome,
@@ -192,7 +192,7 @@ contract PaymentMain is PaymentBase, UUPSOwnable {
         bool successHost;
         bool successGuest;
         (uint256 hostPercents, IPaymentInvestmentPool pool, address currency) = investmentService.getPaymentsInfo(
-            trip.carId
+            trip.booking.resourceId
         );
 
         if (address(pool) != address(0)) {
@@ -211,48 +211,52 @@ contract PaymentMain is PaymentBase, UUPSOwnable {
 
         uint256 toInsurance = 0;
         if (address(pool) == address(0)) {
-            toInsurance = insuranceService.calculateCurrentHostInsuranceSumFrom(trip.host, tripCostValue);
+            toInsurance = insuranceService.calculateCurrentHostInsuranceSumFrom(trip.booking.provider, tripCostValue);
         }
 
         if (trip.paymentInfo.currencyType == address(0)) {
             if (valueToHost > 0) {
                 if (toInsurance > 0) {
                     valueToHost = valueToHost - toInsurance;
-                    insuranceService.updateUserInsuranceAverage{value: toInsurance}(trip.host, trip.tripId, toInsurance);
+                    insuranceService.updateUserInsuranceAverage{value: toInsurance}(
+                        trip.booking.provider,
+                        trip.booking.id,
+                        toInsurance
+                    );
                 }
-                (successHost, ) = payable(trip.host).call{value: valueToHost}("");
+                (successHost, ) = payable(trip.booking.provider).call{value: valueToHost}("");
             } else {
                 successHost = true;
             }
 
             if (valueToGuest > 0) {
-                (successGuest, ) = payable(trip.guest).call{value: valueToGuest}("");
+                (successGuest, ) = payable(trip.booking.customer).call{value: valueToGuest}("");
             } else {
                 successGuest = true;
             }
         } else {
             if (toInsurance > 0) {
                 valueToHost = valueToHost - toInsurance;
-                insuranceService.updateUserInsuranceAverage(trip.host, trip.tripId, toInsurance);
+                insuranceService.updateUserInsuranceAverage(trip.booking.provider, trip.booking.id, toInsurance);
                 IERC20(trip.paymentInfo.currencyType).transfer(address(insuranceService), toInsurance);
             }
 
-            successHost = IERC20(trip.paymentInfo.currencyType).transfer(trip.host, valueToHost);
-            successGuest = IERC20(trip.paymentInfo.currencyType).transfer(trip.guest, valueToGuest);
+            successHost = IERC20(trip.paymentInfo.currencyType).transfer(trip.booking.provider, valueToHost);
+            successGuest = IERC20(trip.paymentInfo.currencyType).transfer(trip.booking.customer, valueToGuest);
         }
 
         require(successHost && successGuest, 'Transfer failed.');
     }
 
     function payClaim(
-        TripGatewayTypes.GatewayTrip memory trip,
+        Trip memory trip,
         uint256 valueToPay,
         uint256 feeInCurrency,
         uint256 commission,
         address user
     ) external payable onlyPlatform {
         bool successHost;
-        address to = user == trip.host ? trip.guest : trip.host;
+        address to = user == trip.booking.provider ? trip.booking.customer : trip.booking.provider;
 
         if (trip.paymentInfo.currencyType == address(0)) {
             _checkNativeAmount(valueToPay);
@@ -277,12 +281,12 @@ contract PaymentMain is PaymentBase, UUPSOwnable {
         require(successHost, 'Transfer to host failed.');
     }
 
-    function payRejectTrip(TripGatewayTypes.GatewayTrip memory trip, uint256 valueToReturnInToken) external onlyPlatform {
+    function payRejectTrip(Trip memory trip, uint256 valueToReturnInToken) external onlyPlatform {
         bool successGuest;
         if (trip.paymentInfo.currencyType == address(0)) {
-            (successGuest, ) = payable(trip.guest).call{value: valueToReturnInToken}("");
+            (successGuest, ) = payable(trip.booking.customer).call{value: valueToReturnInToken}("");
         } else {
-            successGuest = IERC20(trip.paymentInfo.currencyType).transfer(trip.guest, valueToReturnInToken);
+            successGuest = IERC20(trip.paymentInfo.currencyType).transfer(trip.booking.customer, valueToReturnInToken);
         }
 
         require(successGuest, 'Transfer to guest failed.');

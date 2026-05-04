@@ -9,7 +9,6 @@ import '../../models/profile/UserProfileQuery.sol';
 import '../../models/profile/UserProfileTypes.sol';
 import '../GatewayContext.sol';
 import './IProfileGatewayFacet.sol';
-import '../mappers/ProfileMapper.sol';
 
 interface IProfileGatewayFacetReferralProgram {
     function generateReferralHash(address user) external;
@@ -115,28 +114,28 @@ contract ProfileGatewayFacet is UUPSOwnable, GatewayContext, IProfileGatewayFace
         );
     }
 
-    function getMyFullKYCInfo() external view returns (GatewayFullUserProfileInfo memory) {
-        return ProfileMapper.toLegacyFull(userProfileQuery.getMyFullKYCInfo(_msgGatewaySender()));
+    function getMyFullKYCInfo() external view returns (FullUserProfileInfo memory) {
+        return userProfileQuery.getMyFullKYCInfo(_msgGatewaySender());
     }
 
   function getPlatformUsersKYCInfos(uint256 page, uint256 itemsPerPage)
         external
         view
-        returns (GatewayAdminUserProfilePage memory)
+        returns (AdminUserProfilePage memory)
     {
-        return ProfileMapper.toLegacyAdminPage(userProfileQuery.getPlatformUsersKYCInfos(page, itemsPerPage));
+        return userProfileQuery.getPlatformUsersKYCInfos(page, itemsPerPage);
     }
 
     function getPlatformUsersInfo(uint256 page, uint256 itemsPerPage)
         external
         view
-        returns (GatewayAdminUserProfilePage memory)
+        returns (AdminUserProfilePage memory)
     {
-        return ProfileMapper.toLegacyAdminPage(userProfileQuery.getPlatformUsersKYCInfos(page, itemsPerPage));
+        return userProfileQuery.getPlatformUsersKYCInfos(page, itemsPerPage);
     }
 
-    function getUserFullKYCInfo(address user) external view returns (GatewayFullUserProfileInfo memory) {
-        return ProfileMapper.toLegacyFull(userProfileQuery.getMyFullKYCInfo(user));
+    function getUserFullKYCInfo(address user) external view returns (FullUserProfileInfo memory) {
+        return userProfileQuery.getMyFullKYCInfo(user);
     }
 
     function getKycCommission() external view returns (uint256) {
@@ -219,9 +218,9 @@ contract ProfileGatewayFacet is UUPSOwnable, GatewayContext, IProfileGatewayFace
         userProfileMain.setEmail(user, email, isVerified);
     }
 
-    function setCivicKYCInfo(address user, GatewayCivicUserProfileInfo memory civicKycInfo) external {
+    function setCivicKYCInfo(address user, CivicUserProfileInfo memory civicKycInfo) external {
         referralProgram.passReferralProgram(ReferralProgram.PassCivic, bytes(''), user, address(promoService));
-        userProfileMain.setCivicKYCInfo(user, ProfileMapper.toUserCivicInfo(civicKycInfo));
+        userProfileMain.setCivicKYCInfo(user, civicKycInfo);
     }
 
     function setCivicData(address civicVerifier, uint256 civicGatekeeperNetwork) external {

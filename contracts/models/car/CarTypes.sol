@@ -176,6 +176,13 @@ struct PublicHostCarInfo {
     bool currentlyListed;
 }
 
+struct CarInfoDTO {
+    CarInfo carInfo;
+    string metadataURI;
+    bool isEditable;
+    uint256 dimoTokenId;
+}
+
 struct CarSearchParams {
     string country;
     string state;

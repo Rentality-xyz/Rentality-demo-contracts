@@ -9,8 +9,8 @@ interface ITripGatewayFacet {
         external
         view
         returns (string memory guestPhoneNumber, string memory hostPhoneNumber);
-    function getTrip(uint256 tripId) external view returns (TripGatewayTypes.GatewayTripDTO memory);
-    function getTripsAs(bool host) external view returns (TripGatewayTypes.GatewayTripDTO[] memory result);
+    function getTrip(uint256 tripId) external view returns (TripDTO memory);
+    function getTripsAs(bool host) external view returns (TripDTO[] memory result);
     function getChatInfoFor(bool host) external view returns (TripGatewayTypes.GatewayChatInfo[] memory result);
     function getAllTrips(TripGatewayTypes.GatewayTripFilter memory filter, uint page, uint itemsPerPage)
         external

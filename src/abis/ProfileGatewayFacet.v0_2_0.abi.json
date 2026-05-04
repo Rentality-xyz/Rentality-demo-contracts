@@ -104,8 +104,8 @@
                 { "type": "string", "name": "licenseNumber" },
                 { "type": "uint64", "name": "expirationDate" },
                 { "type": "uint256", "name": "createDate" },
-                { "type": "bool", "name": "isTCPassed" },
-                { "type": "bytes", "name": "TCSignature" }
+                { "type": "bool", "name": "isTermsPassed" },
+                { "type": "bytes", "name": "termsSignature" }
               ]
             },
             {
@@ -116,9 +116,17 @@
                 { "type": "string", "name": "email" }
               ]
             },
-            { "type": "bool", "name": "isPhoneVerified" },
-            { "type": "bool", "name": "isEmailVerified" },
-            { "type": "string", "name": "pushToken" }
+            {
+              "type": "tuple",
+              "name": "contact",
+              "components": [
+                { "type": "string", "name": "phoneNumber" },
+                { "type": "string", "name": "email" },
+                { "type": "bool", "name": "isPhoneVerified" },
+                { "type": "bool", "name": "isEmailVerified" },
+                { "type": "string", "name": "pushToken" }
+              ]
+            }
           ]
         }
       ]
@@ -159,7 +167,7 @@
           "components": [
             {
               "type": "tuple[]",
-              "name": "kycInfos",
+              "name": "profiles",
               "components": [
                 {
                   "type": "tuple",
@@ -172,8 +180,8 @@
                     { "type": "string", "name": "licenseNumber" },
                     { "type": "uint64", "name": "expirationDate" },
                     { "type": "uint256", "name": "createDate" },
-                    { "type": "bool", "name": "isTCPassed" },
-                    { "type": "bytes", "name": "TCSignature" }
+                    { "type": "bool", "name": "isTermsPassed" },
+                    { "type": "bytes", "name": "termsSignature" }
                   ]
                 },
                 {
@@ -211,7 +219,7 @@
           "components": [
             {
               "type": "tuple[]",
-              "name": "kycInfos",
+              "name": "profiles",
               "components": [
                 {
                   "type": "tuple",
@@ -224,8 +232,8 @@
                     { "type": "string", "name": "licenseNumber" },
                     { "type": "uint64", "name": "expirationDate" },
                     { "type": "uint256", "name": "createDate" },
-                    { "type": "bool", "name": "isTCPassed" },
-                    { "type": "bytes", "name": "TCSignature" }
+                    { "type": "bool", "name": "isTermsPassed" },
+                    { "type": "bytes", "name": "termsSignature" }
                   ]
                 },
                 {
@@ -288,8 +296,8 @@
                 { "type": "string", "name": "licenseNumber" },
                 { "type": "uint64", "name": "expirationDate" },
                 { "type": "uint256", "name": "createDate" },
-                { "type": "bool", "name": "isTCPassed" },
-                { "type": "bytes", "name": "TCSignature" }
+                { "type": "bool", "name": "isTermsPassed" },
+                { "type": "bytes", "name": "termsSignature" }
               ]
             },
             {
@@ -300,9 +308,17 @@
                 { "type": "string", "name": "email" }
               ]
             },
-            { "type": "bool", "name": "isPhoneVerified" },
-            { "type": "bool", "name": "isEmailVerified" },
-            { "type": "string", "name": "pushToken" }
+            {
+              "type": "tuple",
+              "name": "contact",
+              "components": [
+                { "type": "string", "name": "phoneNumber" },
+                { "type": "string", "name": "email" },
+                { "type": "bool", "name": "isPhoneVerified" },
+                { "type": "bool", "name": "isEmailVerified" },
+                { "type": "string", "name": "pushToken" }
+              ]
+            }
           ]
         }
       ]

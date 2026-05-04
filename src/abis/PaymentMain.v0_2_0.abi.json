@@ -154,16 +154,23 @@
           "type": "tuple",
           "name": "trip",
           "components": [
-            { "type": "uint256", "name": "tripId" },
-            { "type": "uint256", "name": "carId" },
+            {
+              "type": "tuple",
+              "name": "booking",
+              "components": [
+                { "type": "uint256", "name": "id" },
+                { "type": "uint256", "name": "resourceId" },
+                { "type": "address", "name": "customer" },
+                { "type": "address", "name": "provider" },
+                { "type": "uint64", "name": "startDateTime" },
+                { "type": "uint64", "name": "endDateTime" },
+                { "type": "uint64", "name": "createdAt" }
+              ]
+            },
             { "type": "uint8", "name": "status" },
-            { "type": "address", "name": "guest" },
-            { "type": "address", "name": "host" },
             { "type": "string", "name": "guestName" },
             { "type": "string", "name": "hostName" },
             { "type": "uint64", "name": "pricePerDayInUsdCents" },
-            { "type": "uint64", "name": "startDateTime" },
-            { "type": "uint64", "name": "endDateTime" },
             { "type": "uint8", "name": "engineType" },
             { "type": "uint64", "name": "milesIncludedPerDay" },
             { "type": "uint64", "name": "fuelPrice" },
@@ -189,7 +196,6 @@
                 { "type": "uint128", "name": "dropOfFee" }
               ]
             },
-            { "type": "uint256", "name": "createdDateTime" },
             { "type": "uint256", "name": "approvedDateTime" },
             { "type": "uint256", "name": "rejectedDateTime" },
             { "type": "string", "name": "guestInsuranceCompanyName" },
@@ -254,16 +260,23 @@
           "type": "tuple",
           "name": "trip",
           "components": [
-            { "type": "uint256", "name": "tripId" },
-            { "type": "uint256", "name": "carId" },
+            {
+              "type": "tuple",
+              "name": "booking",
+              "components": [
+                { "type": "uint256", "name": "id" },
+                { "type": "uint256", "name": "resourceId" },
+                { "type": "address", "name": "customer" },
+                { "type": "address", "name": "provider" },
+                { "type": "uint64", "name": "startDateTime" },
+                { "type": "uint64", "name": "endDateTime" },
+                { "type": "uint64", "name": "createdAt" }
+              ]
+            },
             { "type": "uint8", "name": "status" },
-            { "type": "address", "name": "guest" },
-            { "type": "address", "name": "host" },
             { "type": "string", "name": "guestName" },
             { "type": "string", "name": "hostName" },
             { "type": "uint64", "name": "pricePerDayInUsdCents" },
-            { "type": "uint64", "name": "startDateTime" },
-            { "type": "uint64", "name": "endDateTime" },
             { "type": "uint8", "name": "engineType" },
             { "type": "uint64", "name": "milesIncludedPerDay" },
             { "type": "uint64", "name": "fuelPrice" },
@@ -289,7 +302,6 @@
                 { "type": "uint128", "name": "dropOfFee" }
               ]
             },
-            { "type": "uint256", "name": "createdDateTime" },
             { "type": "uint256", "name": "approvedDateTime" },
             { "type": "uint256", "name": "rejectedDateTime" },
             { "type": "string", "name": "guestInsuranceCompanyName" },
@@ -349,16 +361,23 @@
           "type": "tuple",
           "name": "trip",
           "components": [
-            { "type": "uint256", "name": "tripId" },
-            { "type": "uint256", "name": "carId" },
+            {
+              "type": "tuple",
+              "name": "booking",
+              "components": [
+                { "type": "uint256", "name": "id" },
+                { "type": "uint256", "name": "resourceId" },
+                { "type": "address", "name": "customer" },
+                { "type": "address", "name": "provider" },
+                { "type": "uint64", "name": "startDateTime" },
+                { "type": "uint64", "name": "endDateTime" },
+                { "type": "uint64", "name": "createdAt" }
+              ]
+            },
             { "type": "uint8", "name": "status" },
-            { "type": "address", "name": "guest" },
-            { "type": "address", "name": "host" },
             { "type": "string", "name": "guestName" },
             { "type": "string", "name": "hostName" },
             { "type": "uint64", "name": "pricePerDayInUsdCents" },
-            { "type": "uint64", "name": "startDateTime" },
-            { "type": "uint64", "name": "endDateTime" },
             { "type": "uint8", "name": "engineType" },
             { "type": "uint64", "name": "milesIncludedPerDay" },
             { "type": "uint64", "name": "fuelPrice" },
@@ -384,7 +403,6 @@
                 { "type": "uint128", "name": "dropOfFee" }
               ]
             },
-            { "type": "uint256", "name": "createdDateTime" },
             { "type": "uint256", "name": "approvedDateTime" },
             { "type": "uint256", "name": "rejectedDateTime" },
             { "type": "string", "name": "guestInsuranceCompanyName" },

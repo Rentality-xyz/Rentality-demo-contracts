@@ -68,24 +68,24 @@ interface ITripLibWritePricingService {
 interface ITripLibWritePaymentService {
     function payCreateTrip(address currencyType, uint valueSumInCurrency, address user, uint carId, address currencyFrom, uint256 amountIn, uint24 fee) external payable;
     function payFinishTrip(
-        TripGatewayTypes.GatewayTrip memory trip,
+        Trip memory trip,
         uint256 valueToHost,
         uint256 valueToGuest,
         uint256 totalIncome,
         uint256 tripCostValue
     ) external payable;
-    function payRejectTrip(TripGatewayTypes.GatewayTrip memory trip, uint256 valueToReturnInToken) external;
+    function payRejectTrip(Trip memory trip, uint256 valueToReturnInToken) external;
 }
 
 interface ITripLibWriteCurrencyConverter {
     function getDefaultCurrency() external view returns (UserCurrencyInfo memory);
     function calculateTripReject(
-        TripGatewayTypes.GatewayPaymentInfo memory paymentInfo,
+        TripPaymentInfo memory paymentInfo,
         uint256 insurance,
         uint64 totalTax
     ) external pure returns (uint256);
     function calculateTripFinsish(
-        TripGatewayTypes.GatewayPaymentInfo memory paymentInfo,
+        TripPaymentInfo memory paymentInfo,
         uint256 rentalityFee,
         uint256 feeOfPriceWithDiscount,
         uint256 insurancePriceInUsdCents,
@@ -177,10 +177,10 @@ library TripLib {
         );
 
         if (pickUp > 0) {
-            carQuery.verifySignedLocationInfo(_toCommonSignedLocationInfo(request.pickUpInfo));
+            carQuery.verifySignedLocationInfo(request.pickUpInfo);
         }
         if (dropOf > 0) {
-            carQuery.verifySignedLocationInfo(_toCommonSignedLocationInfo(request.returnInfo));
+            carQuery.verifySignedLocationInfo(request.returnInfo);
         }
     }
 
@@ -362,8 +362,8 @@ library TripLib {
         (uint64 pickUp, uint64 dropOf) = calculateDelivery(carQuery, request);
 
         IRentalityGeoService geoService = IRentalityGeoService(carQuery.getGeoVerifierAddress());
-        bytes32 pickUpHash = geoService.createSignedLocationInfo(_toCommonSignedLocationInfo(request.pickUpInfo));
-        bytes32 returnHash = geoService.createSignedLocationInfo(_toCommonSignedLocationInfo(request.returnInfo));
+        bytes32 pickUpHash = geoService.createSignedLocationInfo(request.pickUpInfo);
+        bytes32 returnHash = geoService.createSignedLocationInfo(request.returnInfo);
 
         uint64 daysOfTrip = getCeilDays(request.startDateTime, request.endDateTime);
         uint256 insurance = ITripLibWriteInsuranceService(insuranceServiceAddress).calculateInsuranceForTrip(
@@ -608,16 +608,15 @@ library TripLib {
         address sender
     ) private {
         Trip memory trip = tripMain.getTrip(tripId);
-        TripGatewayTypes.GatewayTrip memory legacyTrip = toLegacyTrip(trip);
 
         uint256 insurance = ITripLibWriteInsuranceService(insuranceServiceAddress).getInsurancePriceByTrip(tripId);
         uint64 totalTax = ITripLibWritePricingService(pricingServiceAddress).getTotalTripTax(tripId);
         uint256 valueToReturnInUsdCents = ITripLibWriteCurrencyConverter(currencyConverterAddress)
-            .calculateTripReject(legacyTrip.paymentInfo, insurance, totalTax);
+            .calculateTripReject(trip.paymentInfo, insurance, totalTax);
 
         tripMain.rejectTrip(tripId, 0, valueToReturnInUsdCents, 0, sender);
         ITripLibWritePaymentService(paymentServiceAddress).payRejectTrip(
-            legacyTrip,
+            trip,
             tripMain.getEthSumInTripCreation(tripId)
         );
         ITripLibWritePromoService(promoServiceAddress).rejectDiscountByTrip(tripId, trip.booking.customer);
@@ -645,7 +644,6 @@ library TripLib {
     ) private {
         tripMain.finishTrip(tripId, sender);
         Trip memory trip = tripMain.getTrip(tripId);
-        TripGatewayTypes.GatewayTrip memory legacyTrip = toLegacyTrip(trip);
 
         uint256 rentalityFee = ITripLibWritePricingService(pricingServiceAddress).getPlatformFeeFrom(
             trip.paymentInfo.priceWithDiscount + trip.paymentInfo.pickUpFee + trip.paymentInfo.dropOfFee
@@ -660,7 +658,7 @@ library TripLib {
             uint256 totalIncome,
             uint256 tripCostValue
         ) = ITripLibWriteCurrencyConverter(currencyConverterAddress).calculateTripFinsish(
-            legacyTrip.paymentInfo,
+            trip.paymentInfo,
             rentalityFee,
             ITripLibWritePricingService(pricingServiceAddress).getPlatformFeeFrom(trip.paymentInfo.priceWithDiscount),
             insurancePrice,
@@ -668,7 +666,7 @@ library TripLib {
         );
 
         ITripLibWritePaymentService(paymentServiceAddress).payFinishTrip(
-            legacyTrip,
+            trip,
             valueToHost,
             valueToGuest,
             totalIncome,
@@ -774,13 +772,6 @@ library TripLib {
             dateTime: transactionInfo.dateTime,
             statusBeforeCancellation: TripGatewayTypes.GatewayTripStatus(uint8(transactionInfo.statusBeforeCancellation))
         });
-    }
-    function _toCommonSignedLocationInfo(SignedLocationInfo memory location)
-        private
-        pure
-        returns (SignedLocationInfo memory)
-    {
-        return location;
     }
 }
 

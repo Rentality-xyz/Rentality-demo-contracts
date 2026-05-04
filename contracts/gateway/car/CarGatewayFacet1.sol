@@ -11,19 +11,16 @@ import '../../models/pricing/PricingTypes.sol';
 import '../../models/common/CommonTypes.sol';
 import '../GatewayContext.sol';
 
-import './ICarViewGatewayFacet.sol';
-import '../mappers/CarMapper.sol';
-
-interface ICarViewGatewayUserProfileMain {
+interface ICarGatewayUserProfileMain1 {
   function isRentalityPlatform(address user) external view returns (bool);
 }
 
-interface ICarViewGatewayUserProfileQuery {
+interface ICarGatewayUserProfileQuery1 {
 }
 
-interface ICarViewGatewayTripQuery {}
+interface ICarGatewayTripQuery1 {}
 
-interface ICarViewGatewayPricingService {
+interface ICarGatewayPricingService1 {
   function calculateSumWithDiscount(address user, uint64 daysOfTrip, uint64 value) external view returns (uint64);
   function defineTaxesType(address carService, uint256 carId) external view returns (uint256);
   function calculateTaxesDTO(uint256 taxId, uint64 tripDays, uint64 totalCost)
@@ -33,34 +30,34 @@ interface ICarViewGatewayPricingService {
   function getBaseDiscount(address user) external view returns (PricingBaseDiscount memory);
 }
 
-interface ICarViewGatewayInsuranceService {
+interface ICarGatewayInsuranceService1 {
   function isGuestHasInsurance(address guest) external view returns (bool);
 }
 
-interface ICarViewGatewayDimoService {
+interface ICarGatewayDimoService1 {
   function getDimoVehicles() external view returns (uint256[] memory);
 }
 
-interface ICarViewGatewayGeoService {}
+interface ICarGatewayGeoService1 {}
 
-interface ICarViewGatewayCurrencyConverter {
+interface ICarGatewayCurrencyConverter1 {
   function getUserCurrency(address user) external view returns (UserCurrencyInfo memory);
 }
 
-contract CarViewGatewayFacet is UUPSOwnable, GatewayContext, ICarViewGatewayFacet {
+contract CarGatewayFacet1 is UUPSOwnable, GatewayContext {
   CarMain public carMain;
   CarQuery public carQuery;
   CarQueryFacet1 public carQueryFacet1;
   CarQueryFacet2 public carQueryFacet2;
-  ICarViewGatewayTripQuery public tripQuery;
-  ICarViewGatewayUserProfileMain public userProfileMain;
-  ICarViewGatewayUserProfileQuery public userProfileQuery;
-  ICarViewGatewayPricingService public pricingService;
-  ICarViewGatewayInsuranceService public insuranceService;
+  ICarGatewayTripQuery1 public tripQuery;
+  ICarGatewayUserProfileMain1 public userProfileMain;
+  ICarGatewayUserProfileQuery1 public userProfileQuery;
+  ICarGatewayPricingService1 public pricingService;
+  ICarGatewayInsuranceService1 public insuranceService;
   address public carTaxAdapter;
-  ICarViewGatewayCurrencyConverter public currencyConverter;
-  ICarViewGatewayDimoService public dimoService;
-  ICarViewGatewayGeoService public geoService;
+  ICarGatewayCurrencyConverter1 public currencyConverter;
+  ICarGatewayDimoService1 public dimoService;
+  ICarGatewayGeoService1 public geoService;
 
   function initialize(
     address carMainAddress,
@@ -127,15 +124,8 @@ contract CarViewGatewayFacet is UUPSOwnable, GatewayContext, ICarViewGatewayFace
     );
   }
 
-  function getAvailableCarsForUser(address user) external view returns (CarGatewayTypes.GatewayCarInfo[] memory) {
-    CarInfo[] memory cars = carQuery.getAvailableCarsForUser(user);
-    CarGatewayTypes.GatewayCarInfo[] memory result = new CarGatewayTypes.GatewayCarInfo[](cars.length);
-
-    for (uint256 i = 0; i < cars.length; i++) {
-      result[i] = CarMapper.toLegacyCarInfo(cars[i].asset, cars[i].car);
-    }
-
-    return result;
+  function getAvailableCarsForUser(address user) external view returns (CarInfo[] memory) {
+    return carQuery.getAvailableCarsForUser(user);
   }
 
   function checkCarAvailabilityWithDelivery(
@@ -144,8 +134,8 @@ contract CarViewGatewayFacet is UUPSOwnable, GatewayContext, ICarViewGatewayFace
     uint64 endDateTime,
     LocationInfo memory pickUpInfo,
     LocationInfo memory returnInfo
-  ) external view returns (CarGatewayTypes.AvailableCarDTO memory) {
-    return CarMapper.toLegacyAvailableCarInfo(carQueryFacet1.buildAvailableCarDTO(
+  ) external view returns (AvailableCarInfo memory) {
+    return carQueryFacet1.buildAvailableCarDTO(
       CarAvailabilityContext({
         tripQuery: address(tripQuery),
         userProfileQuery: address(userProfileQuery),
@@ -160,22 +150,22 @@ contract CarViewGatewayFacet is UUPSOwnable, GatewayContext, ICarViewGatewayFace
       startDateTime,
       endDateTime,
       carMain.tokenURI(carId),
-      CarMapper.toCommonLocationInfo(pickUpInfo),
-      CarMapper.toCommonLocationInfo(returnInfo),
+      pickUpInfo,
+      returnInfo,
       _msgGatewaySender()
-    ));
+    );
   }
 
   function searchAvailableCarsWithDelivery(
     uint64 startDateTime,
     uint64 endDateTime,
-    CarGatewayTypes.SearchCarParams memory searchParams,
+    CarSearchParams memory searchParams,
     LocationInfo memory pickUpInfo,
     LocationInfo memory returnInfo,
     uint from,
     uint to
-  ) external view returns (CarGatewayTypes.SearchCarsWithDistanceDTO memory) {
-    return CarMapper.toLegacySearchCarsWithDistanceInfo(carQueryFacet1.searchAvailableCarsWithDelivery(
+  ) external view returns (SearchCarsWithDistanceInfo memory) {
+    return carQueryFacet1.searchAvailableCarsWithDelivery(
       CarAvailabilityContext({
         tripQuery: address(tripQuery),
         userProfileQuery: address(userProfileQuery),
@@ -189,23 +179,16 @@ contract CarViewGatewayFacet is UUPSOwnable, GatewayContext, ICarViewGatewayFace
       _msgGatewaySender(),
       startDateTime,
       endDateTime,
-      CarMapper.toCommonSearchCarParams(searchParams),
-      CarMapper.toCommonLocationInfo(pickUpInfo),
-      CarMapper.toCommonLocationInfo(returnInfo),
+      searchParams,
+      pickUpInfo,
+      returnInfo,
       from,
       to
-    ));
+    );
   }
 
-  function getCarsOfHost(address host) external view returns (CarGatewayTypes.PublicHostCarDTO[] memory) {
-    PublicHostCarInfo[] memory cars = carQuery.getCarsOfHost(host);
-    CarGatewayTypes.PublicHostCarDTO[] memory result = new CarGatewayTypes.PublicHostCarDTO[](cars.length);
-
-    for (uint256 i = 0; i < cars.length; i++) {
-      result[i] = CarMapper.toLegacyPublicHostCarDTO(cars[i]);
-    }
-
-    return result;
+  function getCarsOfHost(address host) external view returns (PublicHostCarInfo[] memory) {
+    return carQuery.getCarsOfHost(host);
   }
 
   function getUniqCarsBrand() external view returns (string[] memory brandsArray) {
@@ -216,14 +199,12 @@ contract CarViewGatewayFacet is UUPSOwnable, GatewayContext, ICarViewGatewayFace
     return carQueryFacet2.getUniqModelsByBrand(brand);
   }
 
-  function getFilterInfo(uint64 duration) external view returns (CarGatewayTypes.FilterInfoDTO memory) {
-    return CarMapper.toLegacyFilterInfo(carQueryFacet2.getFilterInfo(address(pricingService), duration));
+  function getFilterInfo(uint64 duration) external view returns (CarFilterInfo memory) {
+    return carQueryFacet2.getFilterInfo(address(pricingService), duration);
   }
 
-  function getAllCars(uint page, uint itemsPerPage) external view returns (CarGatewayTypes.AllCarsDTO memory allCars) {
-    return CarMapper.toLegacyAllCarsInfo(
-      carQueryFacet2.getAllCarsForAdmin(address(userProfileQuery), address(geoService), address(dimoService), page, itemsPerPage)
-    );
+  function getAllCars(uint page, uint itemsPerPage) external view returns (AllCarsInfo memory allCars) {
+    return carQueryFacet2.getAllCarsForAdmin(address(userProfileQuery), address(geoService), address(dimoService), page, itemsPerPage);
   }
 
   function getDimoVehicles() external view returns (uint[] memory) {
@@ -261,15 +242,15 @@ contract CarViewGatewayFacet is UUPSOwnable, GatewayContext, ICarViewGatewayFace
     carQuery = CarQuery(carQueryAddress);
     carQueryFacet1 = CarQueryFacet1(carQueryFacet1Address);
     carQueryFacet2 = CarQueryFacet2(carQueryFacet2Address);
-    tripQuery = ICarViewGatewayTripQuery(tripQueryAddress);
-    userProfileMain = ICarViewGatewayUserProfileMain(userProfileMainAddress);
-    userProfileQuery = ICarViewGatewayUserProfileQuery(userProfileQueryAddress);
-    pricingService = ICarViewGatewayPricingService(pricingServiceAddress);
-    insuranceService = ICarViewGatewayInsuranceService(insuranceServiceAddress);
+    tripQuery = ICarGatewayTripQuery1(tripQueryAddress);
+    userProfileMain = ICarGatewayUserProfileMain1(userProfileMainAddress);
+    userProfileQuery = ICarGatewayUserProfileQuery1(userProfileQueryAddress);
+    pricingService = ICarGatewayPricingService1(pricingServiceAddress);
+    insuranceService = ICarGatewayInsuranceService1(insuranceServiceAddress);
     carTaxAdapter = carTaxAdapterAddress;
-    currencyConverter = ICarViewGatewayCurrencyConverter(currencyConverterAddress);
-    dimoService = ICarViewGatewayDimoService(dimoServiceAddress);
-    geoService = ICarViewGatewayGeoService(geoServiceAddress);
+    currencyConverter = ICarGatewayCurrencyConverter1(currencyConverterAddress);
+    dimoService = ICarGatewayDimoService1(dimoServiceAddress);
+    geoService = ICarGatewayGeoService1(geoServiceAddress);
   }
 
 }

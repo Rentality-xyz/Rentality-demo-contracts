@@ -2,6 +2,7 @@
 pragma solidity ^0.8.20;
 
 import "../base/asset/AssetTypes.sol";
+import "../base/insurance/IInsurance.sol";
 import "../common/CommonTypes.sol";
 import "./CarLib.sol";
 import "./CarTypes.sol";
@@ -28,10 +29,6 @@ interface ICarGeoService {
     function getCarLocationLongitude(bytes32 locationHash) external view returns (string memory);
 }
 
-interface ICarInsuranceAdapter {
-    function getCarInsuranceInfo(uint256 carId) external view returns (CarInsuranceInfo memory);
-}
-
 contract CarQuery {
     ICarMain public immutable carMain;
 
@@ -54,9 +51,14 @@ contract CarQuery {
             return CarInfoWithInsurance({carInfo: emptyCar, insuranceInfo: emptyInsurance, carMetadataURI: ""});
         }
 
+        InsuranceRequirement memory insuranceRequirement = IInsurance(insuranceAdapterAddress).getInsuranceRequirement(carId);
+
         return CarInfoWithInsurance({
             carInfo: getCar(carId),
-            insuranceInfo: ICarInsuranceAdapter(insuranceAdapterAddress).getCarInsuranceInfo(carId),
+            insuranceInfo: CarInsuranceInfo({
+                required: insuranceRequirement.required,
+                priceInUsdCents: insuranceRequirement.priceInUsdCents
+            }),
             carMetadataURI: carMain.tokenURI(carId)
         });
     }

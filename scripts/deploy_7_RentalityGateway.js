@@ -5,6 +5,36 @@ const addressSaver = require('./utils/addressSaver')
 const { checkNotNull, startDeploy } = require('./utils/deployHelper')
 const { createFacetCut } = require('./utils/createFacetCut')
 
+const carFacetFunctions = [
+  'addCar',
+  'updateCarInfoWithLocation',
+  'addUserDeliveryPrices',
+  'setDefaultPrices',
+  'saveDimoTokenIds',
+]
+
+const carFacet1Functions = [
+  'getAvailableCarsForUser',
+  'checkCarAvailabilityWithDelivery',
+  'searchAvailableCarsWithDelivery',
+  'getCarsOfHost',
+  'getUniqCarsBrand',
+  'getUniqModelsByBrand',
+  'getFilterInfo',
+  'getAllCars',
+  'getDimoVehicles',
+  'getCarMetadataURI',
+  'getTotalCarsAmount',
+]
+
+const carFacet2Functions = [
+  'getMyCars',
+  'getCarInfoById',
+  'getCarDetails',
+  'getDeliveryData',
+  'getUserDeliveryPrices',
+]
+
 async function main() {
   const deploymentName = 'RentalityGateway'
   const implementationName = 'AppGateway'
@@ -37,13 +67,13 @@ async function main() {
     getContractAddress('CarGatewayFacet', 'scripts/deploy_4l_CarGatewayFacet.js', chainId),
     'CarGatewayFacet'
   )
-  const carViewGatewayFacetAddress = checkNotNull(
-    getContractAddress('CarViewGatewayFacet', 'scripts/deploy_4m_CarViewGatewayFacet.js', chainId),
-    'CarViewGatewayFacet'
+  const carGatewayFacet1Address = checkNotNull(
+    getContractAddress('CarGatewayFacet1', 'scripts/deploy_4m_CarGatewayFacet1.js', chainId),
+    'CarGatewayFacet1'
   )
-  const carViewGatewayFacet1Address = checkNotNull(
-    getContractAddress('CarViewGatewayFacet1', 'scripts/deploy_4m1_CarViewGatewayFacet1.js', chainId),
-    'CarViewGatewayFacet1'
+  const carGatewayFacet2Address = checkNotNull(
+    getContractAddress('CarGatewayFacet2', 'scripts/deploy_4m1_CarGatewayFacet2.js', chainId),
+    'CarGatewayFacet2'
   )
   const paymentGatewayFacetAddress = checkNotNull(
     getContractAddress('PaymentGatewayFacet', 'scripts/deploy_4n_PaymentGatewayFacet.js', chainId),
@@ -69,8 +99,8 @@ async function main() {
   const profileFacet = await ethers.getContractAt('IProfileGatewayFacet', profileGatewayFacetAddress)
   const tripFacet = await ethers.getContractAt('ITripGatewayFacet', tripGatewayFacetAddress)
   const carFacet = await ethers.getContractAt('ICarGatewayFacet', carGatewayFacetAddress)
-  const carViewFacet = await ethers.getContractAt('ICarViewGatewayFacet', carViewGatewayFacetAddress)
-  const carViewFacet1 = await ethers.getContractAt('ICarViewGatewayFacet1', carViewGatewayFacet1Address)
+  const carFacet1 = await ethers.getContractAt('ICarGatewayFacet', carGatewayFacet1Address)
+  const carFacet2 = await ethers.getContractAt('ICarGatewayFacet', carGatewayFacet2Address)
   const paymentFacet = await ethers.getContractAt('IPaymentGatewayFacet', paymentGatewayFacetAddress)
   const pricingFacet = await ethers.getContractAt('IPricingGatewayFacet', pricingGatewayFacetAddress)
   const insuranceFacet = await ethers.getContractAt('IInsuranceGatewayFacet', insuranceGatewayFacetAddress)
@@ -80,9 +110,9 @@ async function main() {
   const facetCuts = [
     createFacetCut(profileFacet),
     createFacetCut(tripFacet),
-    createFacetCut(carFacet),
-    createFacetCut(carViewFacet),
-    createFacetCut(carViewFacet1),
+    createFacetCut(carFacet, { includeFunctions: carFacetFunctions }),
+    createFacetCut(carFacet1, { includeFunctions: carFacet1Functions }),
+    createFacetCut(carFacet2, { includeFunctions: carFacet2Functions }),
     createFacetCut(paymentFacet),
     createFacetCut(pricingFacet),
     createFacetCut(insuranceFacet),

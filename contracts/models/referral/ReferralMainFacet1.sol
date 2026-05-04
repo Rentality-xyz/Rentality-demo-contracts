@@ -3,7 +3,6 @@ pragma solidity ^0.8.20;
 
 import '../../infrastructure/upgradeable/UUPSOwnable.sol';
 import '../insurance/InsuranceTypes.sol';
-import '../trip/TripLib.sol';
 import '../trip/TripTypes.sol';
 import './ReferralTypes.sol';
 
@@ -25,7 +24,7 @@ interface IReferralMainFacet1CurrencyConverter {
 
 interface IReferralMainFacet1PaymentService {
   function payClaim(
-    TripGatewayTypes.GatewayTrip memory trip,
+    Trip memory trip,
     uint256 valueToPay,
     uint256 feeInCurrency,
     uint256 commission,
@@ -173,15 +172,15 @@ contract ReferralMainFacet1 is UUPSOwnable {
     onlyPlatform
     returns (uint256 newClaimId)
   {
-    TripGatewayTypes.GatewayTrip memory trip = TripLib.toLegacyTrip(tripQuery.getTrip(request.tripId));
-    require(!isInsuranceClaim || trip.host == sender, 'ReferralMainFacet1: insurance claim only for hosts');
+    Trip memory trip = tripQuery.getTrip(request.tripId);
+    require(!isInsuranceClaim || trip.booking.provider == sender, 'ReferralMainFacet1: insurance claim only for hosts');
     require(
-      (trip.host == sender && claimTypeExists(request.claimType, true)) ||
-        (trip.guest == sender && claimTypeExists(request.claimType, false)),
+      (trip.booking.provider == sender && claimTypeExists(request.claimType, true)) ||
+        (trip.booking.customer == sender && claimTypeExists(request.claimType, false)),
       'Only for trip host or guest, or wrong claim type.'
     );
     require(
-      trip.status != TripGatewayTypes.GatewayTripStatus.Canceled && trip.status != TripGatewayTypes.GatewayTripStatus.Created,
+      trip.status != TripStatus.Canceled && trip.status != TripStatus.Created,
       'Wrong trip status.'
     );
     require(request.amountInUsdCents > 0, 'Amount can not be null.');
@@ -200,14 +199,14 @@ contract ReferralMainFacet1 is UUPSOwnable {
       rejectedBy: address(0),
       rejectedDateInSec: 0,
       photosUrl: request.photosUrl,
-      isHostClaims: sender == trip.host
+      isHostClaims: sender == trip.booking.provider
     });
 
     _emitClaimEvent(
       newClaimId,
       uint8(ReferralClaimStatus.NotPaid),
-      trip.host == sender ? trip.guest : trip.host,
-      trip.host == sender ? trip.host : trip.guest
+      trip.booking.provider == sender ? trip.booking.customer : trip.booking.provider,
+      trip.booking.provider == sender ? trip.booking.provider : trip.booking.customer
     );
 
     if (isInsuranceClaim) {
@@ -217,8 +216,8 @@ contract ReferralMainFacet1 is UUPSOwnable {
 
   function rejectClaim(uint256 targetClaimId, address sender) external onlyPlatform {
     ReferralClaimInfoV2 memory claim = getClaim(targetClaimId);
-    TripGatewayTypes.GatewayTrip memory trip = TripLib.toLegacyTrip(tripQuery.getTrip(claim.tripId));
-    require(trip.host == sender || trip.guest == sender, 'For trip guest or host.');
+    Trip memory trip = tripQuery.getTrip(claim.tripId);
+    require(trip.booking.provider == sender || trip.booking.customer == sender, 'For trip guest or host.');
     require(claim.status != ReferralClaimStatus.Paid && claim.status != ReferralClaimStatus.Cancel, 'Wrong claim status.');
 
     ReferralClaimInfoV2 storage claimToUpdate = claimIdToClaim[targetClaimId];
@@ -230,13 +229,13 @@ contract ReferralMainFacet1 is UUPSOwnable {
       targetClaimId,
       uint8(ReferralClaimStatus.Cancel),
       sender,
-      trip.host == sender ? trip.host : trip.guest
+      trip.booking.provider == sender ? trip.booking.provider : trip.booking.customer
     );
   }
 
   function payClaim(uint256 targetClaimId, address sender) external payable onlyPlatform {
     ReferralClaimInfoV2 memory claim = getClaim(targetClaimId);
-    TripGatewayTypes.GatewayTrip memory trip = TripLib.toLegacyTrip(tripQuery.getTrip(claim.tripId));
+    Trip memory trip = tripQuery.getTrip(claim.tripId);
     uint256 commission = getPlatformFeeFrom(claim.amountInUsdCents);
 
     (uint256 valueToPay, uint256 feeInCurrency, int256 rate, uint8 decimals) = currencyConverter.calculateLatestValueWithFee(
@@ -250,16 +249,20 @@ contract ReferralMainFacet1 is UUPSOwnable {
     claimToUpdate.status = ReferralClaimStatus.Paid;
     claimIdToCurrencyRate[targetClaimId] = CurrencyRate(rate, decimals);
 
-    _emitClaimEvent(targetClaimId, uint8(ReferralClaimStatus.Paid), trip.guest, trip.host);
+    _emitClaimEvent(targetClaimId, uint8(ReferralClaimStatus.Paid), trip.booking.customer, trip.booking.provider);
 
-    if (!insuranceMain.isInsuranceClaim(targetClaimId) || trip.guest == sender) {
+    if (!insuranceMain.isInsuranceClaim(targetClaimId) || trip.booking.customer == sender) {
       paymentService.payClaim{value: msg.value}(trip, valueToPay, feeInCurrency, commission, sender);
       return;
     }
 
     insuranceMain.payHostInsuranceClaim{value: msg.value}(
       valueToPay,
-      HostInsurancePayoutContext({host: trip.host, currencyType: trip.paymentInfo.currencyType, tripId: trip.tripId})
+      HostInsurancePayoutContext({
+        host: trip.booking.provider,
+        currencyType: trip.paymentInfo.currencyType,
+        tripId: trip.booking.id
+      })
     );
   }
 

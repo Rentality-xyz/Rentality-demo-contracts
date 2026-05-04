@@ -11,44 +11,41 @@ import '../../models/profile/UserProfileTypes.sol';
 import '../../models/trip/TripTypes.sol';
 import '../GatewayContext.sol';
 
-import '../mappers/CarMapper.sol';
-import './ICarViewGatewayFacet1.sol';
-
-interface ICarViewGatewayFacet1UserProfileMain {
+interface ICarGatewayUserProfileMain2 {
   function isRentalityPlatform(address user) external view returns (bool);
 }
 
-interface ICarViewGatewayFacet1UserProfileQuery {
+interface ICarGatewayUserProfileQuery2 {
   function getKYCInfo(address user) external view returns (UserProfileKYCInfo memory);
 }
 
-interface ICarViewGatewayFacet1TripQuery {
+interface ICarGatewayTripQuery2 {
   function getActiveTrips(uint256 carId) external view returns (uint256[] memory);
   function getTrip(uint256 tripId) external view returns (Trip memory);
 }
 
-interface ICarViewGatewayFacet1InsuranceService {
+interface ICarGatewayInsuranceService2 {
   function getInsuranceRequirement(uint256 objectId) external view returns (InsuranceRequirement memory);
 }
 
-interface ICarViewGatewayFacet1DimoService {
+interface ICarGatewayDimoService2 {
   function getDimoTokenId(uint256 carId) external view returns (uint256);
 }
 
-interface ICarViewGatewayFacet1GeoService {
+interface ICarGatewayGeoService2 {
   function getLocationInfo(bytes32 hash) external view returns (LocationInfo memory);
   function getCarCoordinateValidity(uint256 carId) external view returns (bool);
 }
 
-contract CarViewGatewayFacet1 is UUPSOwnable, GatewayContext, ICarViewGatewayFacet1 {
+contract CarGatewayFacet2 is UUPSOwnable, GatewayContext {
   CarMain public carMain;
   CarQuery public carQuery;
-  ICarViewGatewayFacet1TripQuery public tripQuery;
-  ICarViewGatewayFacet1UserProfileMain public userProfileMain;
-  ICarViewGatewayFacet1UserProfileQuery public userProfileQuery;
-  ICarViewGatewayFacet1InsuranceService public insuranceService;
-  ICarViewGatewayFacet1DimoService public dimoService;
-  ICarViewGatewayFacet1GeoService public geoService;
+  ICarGatewayTripQuery2 public tripQuery;
+  ICarGatewayUserProfileMain2 public userProfileMain;
+  ICarGatewayUserProfileQuery2 public userProfileQuery;
+  ICarGatewayInsuranceService2 public insuranceService;
+  ICarGatewayDimoService2 public dimoService;
+  ICarGatewayGeoService2 public geoService;
 
   function initialize(
     address carMainAddress,
@@ -95,63 +92,72 @@ contract CarViewGatewayFacet1 is UUPSOwnable, GatewayContext, ICarViewGatewayFac
     );
   }
 
-  function getMyCars() external view returns (CarGatewayTypes.GatewayCarInfoDTO[] memory) {
+  function getMyCars() external view returns (CarInfoDTO[] memory) {
     address sender = _msgGatewaySender();
     CarInfo[] memory cars = carQuery.getCarsOfOwner(sender);
-    CarGatewayTypes.GatewayCarInfoDTO[] memory result = new CarGatewayTypes.GatewayCarInfoDTO[](cars.length);
+    CarInfoDTO[] memory result = new CarInfoDTO[](cars.length);
 
     for (uint256 i = 0; i < cars.length; i++) {
-      result[i] = CarMapper.toLegacyCarInfoDTO(
-        cars[i].asset,
-        cars[i].car,
-        carMain.tokenURI(cars[i].asset.id),
-        _isCarEditable(cars[i].asset.id),
-        dimoService.getDimoTokenId(cars[i].asset.id)
-      );
+      result[i] = CarInfoDTO({
+        carInfo: cars[i],
+        metadataURI: carMain.tokenURI(cars[i].asset.id),
+        isEditable: _isCarEditable(cars[i].asset.id),
+        dimoTokenId: dimoService.getDimoTokenId(cars[i].asset.id)
+      });
     }
 
     return result;
   }
 
-  function getCarInfoById(uint256 carId) external view returns (CarGatewayTypes.GatewayCarInfoWithInsurance memory) {
-    if (!carQuery.exists(carId)) {
-      CarGatewayTypes.GatewayCarInfo memory emptyCar;
-      CarGatewayTypes.InsuranceCarInfo memory emptyInsurance;
-      return CarGatewayTypes.GatewayCarInfoWithInsurance({carInfo: emptyCar, insuranceInfo: emptyInsurance, carMetadataURI: ''});
-    }
-
-    CarInfo memory car = carQuery.getCar(carId);
-    InsuranceRequirement memory requirement = insuranceService.getInsuranceRequirement(carId);
-
-    return CarMapper.toLegacyCarInfoWithInsurance(car.asset, car.car, requirement, carMain.tokenURI(carId));
+  function getCarInfoById(uint256 carId) external view returns (CarInfoWithInsurance memory) {
+    return carQuery.getCarInfoWithInsurance(address(insuranceService), carId);
   }
 
-  function getCarDetails(uint256 carId) external view returns (CarGatewayTypes.GatewayCarDetails memory) {
+  function getCarDetails(uint256 carId) external view returns (CarDetails memory) {
     CarInfo memory car = carQuery.getCar(carId);
     UserProfileKYCInfo memory hostKyc = userProfileQuery.getKYCInfo(car.asset.owner);
 
-    return CarMapper.toLegacyCarDetails(
-      carId,
-      car.asset,
-      car.car,
-      hostKyc.name,
-      hostKyc.profilePhoto,
-      geoService.getCarCoordinateValidity(carId),
-      geoService.getLocationInfo(car.car.locationHash),
-      carMain.tokenURI(carId),
-      dimoService.getDimoTokenId(carId)
-    );
+    return CarDetails({
+      carId: carId,
+      hostName: hostKyc.name,
+      hostPhotoUrl: hostKyc.profilePhoto,
+      host: car.asset.owner,
+      brand: car.car.brand,
+      model: car.car.model,
+      yearOfProduction: car.car.yearOfProduction,
+      pricePerDayInUsdCents: car.car.pricePerDayInUsdCents,
+      securityDepositPerTripInUsdCents: car.car.securityDepositPerTripInUsdCents,
+      milesIncludedPerDay: car.car.milesIncludedPerDay,
+      engineType: car.car.engineType,
+      engineParams: car.car.engineParams,
+      geoVerified: geoService.getCarCoordinateValidity(carId),
+      currentlyListed: car.car.currentlyListed,
+      locationInfo: geoService.getLocationInfo(car.car.locationHash),
+      carVinNumber: car.car.carVinNumber,
+      carMetadataURI: carMain.tokenURI(carId),
+      dimoTokenId: dimoService.getDimoTokenId(carId)
+    });
   }
 
   function getDeliveryData(uint256 carId) external view returns (CarGatewayTypes.DeliveryData memory) {
     CarInfo memory car = carQuery.getCar(carId);
     DeliveryPrices memory prices = carQuery.getUserDeliveryPrices(car.asset.owner);
 
-    return CarMapper.toLegacyDeliveryData(geoService.getLocationInfo(car.car.locationHash), prices, car.car.insuranceIncluded);
+    return CarGatewayTypes.DeliveryData({
+      locationInfo: geoService.getLocationInfo(car.car.locationHash),
+      underTwentyFiveMilesInUsdCents: prices.underTwentyFiveMilesInUsdCents,
+      aboveTwentyFiveMilesInUsdCents: prices.aboveTwentyFiveMilesInUsdCents,
+      insuranceIncluded: car.car.insuranceIncluded
+    });
   }
 
   function getUserDeliveryPrices(address user) external view returns (CarGatewayTypes.GatewayDeliveryPrices memory) {
-    return CarMapper.toLegacyDeliveryPrices(carQuery.getUserDeliveryPrices(user));
+    DeliveryPrices memory prices = carQuery.getUserDeliveryPrices(user);
+    return CarGatewayTypes.GatewayDeliveryPrices({
+      underTwentyFiveMilesInUsdCents: prices.underTwentyFiveMilesInUsdCents,
+      aboveTwentyFiveMilesInUsdCents: prices.aboveTwentyFiveMilesInUsdCents,
+      initialized: prices.initialized
+    });
   }
 
   function isTrustedForwarder(address forwarder) internal view override returns (bool) {
@@ -189,11 +195,11 @@ contract CarViewGatewayFacet1 is UUPSOwnable, GatewayContext, ICarViewGatewayFac
   ) internal {
     carMain = CarMain(carMainAddress);
     carQuery = CarQuery(carQueryAddress);
-    tripQuery = ICarViewGatewayFacet1TripQuery(tripQueryAddress);
-    userProfileMain = ICarViewGatewayFacet1UserProfileMain(userProfileMainAddress);
-    userProfileQuery = ICarViewGatewayFacet1UserProfileQuery(userProfileQueryAddress);
-    insuranceService = ICarViewGatewayFacet1InsuranceService(insuranceServiceAddress);
-    dimoService = ICarViewGatewayFacet1DimoService(dimoServiceAddress);
-    geoService = ICarViewGatewayFacet1GeoService(geoServiceAddress);
+    tripQuery = ICarGatewayTripQuery2(tripQueryAddress);
+    userProfileMain = ICarGatewayUserProfileMain2(userProfileMainAddress);
+    userProfileQuery = ICarGatewayUserProfileQuery2(userProfileQueryAddress);
+    insuranceService = ICarGatewayInsuranceService2(insuranceServiceAddress);
+    dimoService = ICarGatewayDimoService2(dimoServiceAddress);
+    geoService = ICarGatewayGeoService2(geoServiceAddress);
   }
 }

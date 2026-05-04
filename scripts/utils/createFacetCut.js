@@ -29,10 +29,16 @@ function resolveFacetAddress(contractOrFactory, providedAddress) {
 function createFacetCut(contractOrFactory, options = {}) {
   const iface = resolveInterface(contractOrFactory)
   const facetAddress = resolveFacetAddress(contractOrFactory, options.facetAddress)
+  const includedFunctions = options.includeFunctions ? new Set(options.includeFunctions) : null
   const functionSelectors = Array.from(
     new Set(
       iface.fragments
-        .filter((fragment) => fragment.type === 'function')
+        .filter((fragment) => {
+          if (fragment.type !== 'function') return false
+          if (!includedFunctions) return true
+          const signature = fragment.format('sighash')
+          return includedFunctions.has(fragment.name) || includedFunctions.has(signature)
+        })
         .map((fragment) => {
           const signature = fragment.format('sighash')
           return ethers.id(signature).slice(0, 10)

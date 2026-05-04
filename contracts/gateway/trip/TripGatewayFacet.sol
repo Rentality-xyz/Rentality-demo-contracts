@@ -7,7 +7,6 @@ import "../../models/trip/TripQuery.sol";
 import "../../models/common/CommonTypes.sol";
 import "../../models/trip/TripMainFacet1.sol";
 import "../GatewayContext.sol";
-import "../mappers/TripMapper.sol";
 
 interface ITripGatewayFacetUserProfileMain {
     function isRentalityPlatform(address user) external view returns (bool);
@@ -49,16 +48,12 @@ contract TripGatewayFacet is UUPSOwnable, GatewayContext {
         return tripQuery.getTripContactInfo(tripId);
     }
 
-    function getTrip(uint256 tripId) external view returns (TripGatewayTypes.GatewayTripDTO memory) {
-        return TripMapper.toLegacyTripDTO(tripQuery.getTripDTO(tripId, _msgGatewaySender()));
+    function getTrip(uint256 tripId) external view returns (TripDTO memory) {
+        return tripQuery.getTripDTO(tripId, _msgGatewaySender());
     }
 
-    function getTripsAs(bool host) external view returns (TripGatewayTypes.GatewayTripDTO[] memory result) {
-        TripDTO[] memory trips = tripQuery.getTripsAs(_msgGatewaySender(), host);
-        result = new TripGatewayTypes.GatewayTripDTO[](trips.length);
-        for (uint256 i = 0; i < trips.length; i++) {
-            result[i] = TripMapper.toLegacyTripDTO(trips[i]);
-        }
+    function getTripsAs(bool host) external view returns (TripDTO[] memory result) {
+        result = tripQuery.getTripsAs(_msgGatewaySender(), host);
     }
 
     function getChatInfoFor(bool host) external view returns (TripGatewayTypes.GatewayChatInfo[] memory result) {

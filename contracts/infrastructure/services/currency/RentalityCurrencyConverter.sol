@@ -169,7 +169,7 @@ contract RentalityCurrencyConverter is UUPSOwnable {
   }
 
   function calculateTripFinsish(
-    TripGatewayTypes.GatewayPaymentInfo memory paymentInfo,
+    TripPaymentInfo memory paymentInfo,
     uint256 rentalityFee,
     uint256 feeOfPriceWithDiscount,
     uint256 insurancePriceInUsdCents,
@@ -203,7 +203,7 @@ contract RentalityCurrencyConverter is UUPSOwnable {
   }
 
   function calculateTripReject(
-    TripGatewayTypes.GatewayPaymentInfo memory paymentInfo,
+    TripPaymentInfo memory paymentInfo,
     uint256 insurance,
     uint64 totalTax
   ) public pure returns (uint256) {

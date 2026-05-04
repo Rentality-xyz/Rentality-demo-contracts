@@ -46,7 +46,14 @@
           "type": "tuple",
           "name": "request",
           "components": [
-            { "type": "string", "name": "tokenUri" },
+            {
+              "type": "tuple",
+              "name": "asset",
+              "components": [
+                { "type": "string", "name": "name" },
+                { "type": "string", "name": "metadataURI" }
+              ]
+            },
             { "type": "string", "name": "carVinNumber" },
             { "type": "string", "name": "brand" },
             { "type": "string", "name": "model" },
@@ -57,7 +64,6 @@
             { "type": "uint8", "name": "engineType" },
             { "type": "uint64", "name": "milesIncludedPerDay" },
             { "type": "uint32", "name": "timeBufferBetweenTripsInSec" },
-            { "type": "string", "name": "geoApiKey" },
             {
               "type": "tuple",
               "name": "locationInfo",
@@ -78,13 +84,13 @@
                 { "type": "bytes", "name": "signature" }
               ]
             },
-            { "type": "bool", "name": "currentlyListed" },
-            { "type": "bool", "name": "insuranceRequired" },
-            { "type": "uint256", "name": "insurancePriceInUsdCents" },
-            { "type": "uint256", "name": "dimoTokenId" },
-            { "type": "bytes", "name": "signedDimoTokenId" }
+            { "type": "bool", "name": "currentlyListed" }
           ]
-        }
+        },
+        { "type": "uint256", "name": "insurancePriceInUsdCents" },
+        { "type": "bool", "name": "insuranceRequired" },
+        { "type": "uint256", "name": "dimoTokenId" },
+        { "type": "bytes", "name": "signedDimoTokenId" }
       ],
       "outputs": [{ "type": "uint256", "name": "newTokenId" }]
     },
@@ -261,21 +267,40 @@
       "constant": false,
       "payable": false,
       "inputs": [
+        { "type": "uint256", "name": "carId" },
         {
           "type": "tuple",
           "name": "request",
           "components": [
-            { "type": "uint256", "name": "carId" },
+            {
+              "type": "tuple",
+              "name": "asset",
+              "components": [
+                { "type": "string", "name": "name" },
+                { "type": "string", "name": "metadataURI" }
+              ]
+            },
             { "type": "uint64", "name": "pricePerDayInUsdCents" },
             { "type": "uint64", "name": "securityDepositPerTripInUsdCents" },
             { "type": "uint64[]", "name": "engineParams" },
             { "type": "uint64", "name": "milesIncludedPerDay" },
             { "type": "uint32", "name": "timeBufferBetweenTripsInSec" },
             { "type": "bool", "name": "currentlyListed" },
-            { "type": "bool", "name": "insuranceRequired" },
-            { "type": "uint256", "name": "insurancePriceInUsdCents" },
             { "type": "uint8", "name": "engineType" },
-            { "type": "string", "name": "tokenUri" }
+            {
+              "type": "tuple",
+              "name": "location",
+              "components": [
+                { "type": "string", "name": "userAddress" },
+                { "type": "string", "name": "country" },
+                { "type": "string", "name": "state" },
+                { "type": "string", "name": "city" },
+                { "type": "string", "name": "latitude" },
+                { "type": "string", "name": "longitude" },
+                { "type": "string", "name": "timeZoneId" }
+              ]
+            },
+            { "type": "bool", "name": "updateLocation" }
           ]
         },
         {
@@ -297,7 +322,9 @@
             },
             { "type": "bytes", "name": "signature" }
           ]
-        }
+        },
+        { "type": "uint256", "name": "insurancePriceInUsdCents" },
+        { "type": "bool", "name": "insuranceRequired" }
       ],
       "outputs": []
     },

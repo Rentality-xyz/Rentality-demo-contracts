@@ -67,6 +67,27 @@ function makeDefaultCarInfo(index) {
   }
 }
 
+function toCreateCarRequest(carData) {
+  return {
+    asset: {
+      name: '',
+      metadataURI: carData.tokenUri,
+    },
+    carVinNumber: carData.carVinNumber,
+    brand: carData.brand,
+    model: carData.model,
+    yearOfProduction: carData.yearOfProduction,
+    pricePerDayInUsdCents: carData.pricePerDayInUsdCents,
+    securityDepositPerTripInUsdCents: carData.securityDepositPerTripInUsdCents,
+    engineParams: carData.engineParams,
+    engineType: carData.engineType,
+    milesIncludedPerDay: carData.milesIncludedPerDay,
+    timeBufferBetweenTripsInSec: carData.timeBufferBetweenTripsInSec,
+    locationInfo: carData.locationInfo,
+    currentlyListed: carData.currentlyListed,
+  }
+}
+
 function getEnvValue(name) {
   const value = process.env[name]
   return typeof value === 'string' && value.trim().length > 0 ? value.trim() : undefined
@@ -389,9 +410,9 @@ async function setCarsForHost(host, locationSigner, verifierAddress, gateway) {
 
   if (carCount > 6) {
     console.log(
-      `All car has been already listed. Car ids: ${JSON.stringify(listedCars.map((i) => Number(i.carInfo.carId)))}`
+      `All car has been already listed. Car ids: ${JSON.stringify(listedCars.map((i) => Number(i.carInfo.asset.id)))}`
     )
-    return listedCars.map((i) => i.carInfo.carId)
+    return listedCars.map((i) => i.carInfo.asset.id)
   }
 
   for (let index = carCount; index < 6; index++) {
@@ -404,13 +425,19 @@ async function setCarsForHost(host, locationSigner, verifierAddress, gateway) {
       carData.locationInfo.locationInfo
     )
 
-    await gateway.connect(host).addCar(carData)
+    await gateway.connect(host).addCar(
+      toCreateCarRequest(carData),
+      carData.insurancePriceInUsdCents,
+      carData.insuranceRequired,
+      carData.dimoTokenId,
+      carData.signedDimoTokenId
+    )
 
     console.log(`Car #${index} listed successfully`)
   }
 
   listedCars = await gateway.connect(host).getMyCars()
-  const carIds = listedCars.map((i) => i.carInfo.carId)
+  const carIds = listedCars.map((i) => i.carInfo.asset.id)
   console.log(`All cars were listed. Car ids: ${JSON.stringify(carIds.map((i) => Number(i)))}`)
 
   return carIds
@@ -458,7 +485,7 @@ async function createPendingTrip(tripIndex, carId, host, guest, gateway) {
   })
 
   const trips = await gateway.connect(guest).getTripsAs(false)
-  const tripId = trips[trips.length - 1]?.trip?.tripId ?? -1
+  const tripId = trips[trips.length - 1]?.trip?.booking?.id ?? -1
   console.log(`\nTrip #${tripIndex} was created with id ${tripId} and status 'Pending'`)
   return tripId
 }

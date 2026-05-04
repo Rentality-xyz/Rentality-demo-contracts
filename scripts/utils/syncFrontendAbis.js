@@ -4,6 +4,7 @@ const { spawnSync } = require('child_process')
 
 const contractsAbiDir = path.resolve(__dirname, '..', '..', 'src', 'abis')
 const frontendAbiDir = path.resolve(__dirname, '..', '..', '..', 'RentalityPrototypeNEW', 'src', 'abis')
+const indexerAbiDir = path.resolve(__dirname, '..', '..', '..', 'RentalityPrototypeNEW', 'indexer', 'gateway', 'abis')
 const indexerSyncScriptPath = path.resolve(
   __dirname,
   '..',
@@ -18,6 +19,12 @@ const indexerSyncScriptPath = path.resolve(
 
 const allowedPrefixes = ['Rentality', 'Car']
 const allowedSuffixes = ['.abi.json', '.addresses.json']
+const indexerAbiMappings = [
+  ['RentalityNotificationService.v0_2_0.abi.json', 'RentalityNotificationService.json'],
+  ['RentalityGateway.v0_2_0.abi.json', 'RentalityGateway.json'],
+  ['TripQuery.v0_2_0.abi.json', 'RentalityTripService.json'],
+  ['UserProfileQuery.v0_2_0.abi.json', 'RentalityUserService.json'],
+]
 
 function shouldCopy(fileName) {
   return (
@@ -43,6 +50,26 @@ function syncIndexerLocalhostAddresses() {
   console.log('Indexer localhost addresses were synced')
 }
 
+function syncIndexerAbis() {
+  if (!fs.existsSync(indexerAbiDir)) {
+    console.log(`Indexer ABI directory was not found, skipping: ${indexerAbiDir}`)
+    return
+  }
+
+  for (const [sourceFileName, targetFileName] of indexerAbiMappings) {
+    const sourcePath = path.join(contractsAbiDir, sourceFileName)
+    if (!fs.existsSync(sourcePath)) {
+      throw new Error(`Indexer ABI source file was not found: ${sourcePath}`)
+    }
+
+    const targetPath = path.join(indexerAbiDir, targetFileName)
+    fs.copyFileSync(sourcePath, targetPath)
+    console.log(`Copied ${sourceFileName} -> indexer/gateway/abis/${targetFileName}`)
+  }
+
+  console.log(`Synced ${indexerAbiMappings.length} ABI files to ${indexerAbiDir}`)
+}
+
 function main() {
   if (!fs.existsSync(frontendAbiDir)) {
     throw new Error(`Frontend ABI directory was not found: ${frontendAbiDir}`)
@@ -59,6 +86,7 @@ function main() {
   }
 
   console.log(`Synced ${files.length} ABI/address files to ${frontendAbiDir}`)
+  syncIndexerAbis()
   syncIndexerLocalhostAddresses()
 }
 

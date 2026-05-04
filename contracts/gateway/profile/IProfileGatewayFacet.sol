@@ -5,10 +5,10 @@ import '../../models/common/CommonTypes.sol';
 import '../../models/profile/UserProfileTypes.sol';
 
 interface IProfileGatewayFacet {
-  function getMyFullKYCInfo() external view returns (GatewayFullUserProfileInfo memory);
-  function getPlatformUsersKYCInfos(uint256 page, uint256 itemsPerPage) external view returns (GatewayAdminUserProfilePage memory);
-  function getPlatformUsersInfo(uint256 page, uint256 itemsPerPage) external view returns (GatewayAdminUserProfilePage memory);
-  function getUserFullKYCInfo(address user) external view returns (GatewayFullUserProfileInfo memory);
+  function getMyFullKYCInfo() external view returns (FullUserProfileInfo memory);
+  function getPlatformUsersKYCInfos(uint256 page, uint256 itemsPerPage) external view returns (AdminUserProfilePage memory);
+  function getPlatformUsersInfo(uint256 page, uint256 itemsPerPage) external view returns (AdminUserProfilePage memory);
+  function getUserFullKYCInfo(address user) external view returns (FullUserProfileInfo memory);
   function getUserCurrency(address user) external view returns (UserCurrencyInfo memory);
   function getKycCommission() external view returns (uint256);
   function calculateKycCommission(address currency) external view returns (uint256);
@@ -26,7 +26,7 @@ interface IProfileGatewayFacet {
   ) external;
   function setPhoneNumber(address user, string memory phone, bool isVerified) external;
   function setEmail(address user, string memory email, bool isVerified) external;
-  function setCivicKYCInfo(address user, GatewayCivicUserProfileInfo memory civicKycInfo) external;
+  function setCivicKYCInfo(address user, CivicUserProfileInfo memory civicKycInfo) external;
   function setCivicData(address civicVerifier, uint256 civicGatekeeperNetwork) external;
   function setKycCommission(uint256 value) external;
   function manageRole(UserProfileRole role, address user, bool grant) external;

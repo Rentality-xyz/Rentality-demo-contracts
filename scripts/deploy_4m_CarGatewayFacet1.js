@@ -5,8 +5,8 @@ const addressSaver = require('./utils/addressSaver')
 const { checkNotNull, startDeploy } = require('./utils/deployHelper')
 
 async function main() {
-  const deploymentName = 'CarViewGatewayFacet1'
-  const implementationName = 'CarViewGatewayFacet1'
+  const deploymentName = 'CarGatewayFacet1'
+  const implementationName = 'CarGatewayFacet1'
   const { chainId } = await startDeploy(deploymentName)
 
   if (chainId < 0) throw new Error('chainId is not set')
@@ -18,6 +18,14 @@ async function main() {
   const carQueryAddress = checkNotNull(
     getContractAddress('CarQuery', 'scripts/deploy_3_CarModel.js', chainId),
     'CarQuery'
+  )
+  const carQueryFacet1Address = checkNotNull(
+    getContractAddress('CarQueryFacet1', 'scripts/deploy_3_CarModel.js', chainId),
+    'CarQueryFacet1'
+  )
+  const carQueryFacet2Address = checkNotNull(
+    getContractAddress('CarQueryFacet2', 'scripts/deploy_3w_CarQueryFacet2.js', chainId),
+    'CarQueryFacet2'
   )
   const tripQueryAddress = checkNotNull(
     getContractAddress('TripQuery', 'scripts/deploy_3t_TripQuery.js', chainId),
@@ -31,9 +39,21 @@ async function main() {
     getContractAddress('UserProfileQuery', 'scripts/deploy_1i_UserProfileQuery.js', chainId),
     'UserProfileQuery'
   )
+  const pricingServiceAddress = checkNotNull(
+    getContractAddress('PricingMain', 'scripts/deploy_3j_RentalPricingMain.js', chainId),
+    'PricingMain'
+  )
   const insuranceServiceAddress = checkNotNull(
     getContractAddress('InsuranceMain', 'scripts/deploy_3l_RentalInsuranceMain.js', chainId),
     'InsuranceMain'
+  )
+  const carTaxAdapterAddress = checkNotNull(
+    getContractAddress('CarTaxAdapter', 'scripts/deploy_3r_CarTaxAdapter.js', chainId),
+    'CarTaxAdapter'
+  )
+  const rentalityCurrencyConverterAddress = checkNotNull(
+    getContractAddress('RentalityCurrencyConverter', 'scripts/deploy_3b_RentalityCurrencyConverter.js', chainId),
+    'RentalityCurrencyConverter'
   )
   const dimoServiceAddress = checkNotNull(
     getContractAddress('RentalityDimoService', 'scripts/deploy_3e_RentalityDimoService.js', chainId),
@@ -48,10 +68,15 @@ async function main() {
   const contract = await upgrades.deployProxy(contractFactory, [
     carMainAddress,
     carQueryAddress,
+    carQueryFacet1Address,
+    carQueryFacet2Address,
     tripQueryAddress,
     userProfileMainAddress,
     userProfileQueryAddress,
+    pricingServiceAddress,
     insuranceServiceAddress,
+    carTaxAdapterAddress,
+    rentalityCurrencyConverterAddress,
     dimoServiceAddress,
     geoServiceAddress,
   ])
