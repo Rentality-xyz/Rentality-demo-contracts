@@ -1,8 +1,8 @@
-const { readFileSync, writeFileSync } = require('fs')
+const { existsSync, readFileSync, writeFileSync } = require('fs')
 const { network, ethers } = require('hardhat')
 const readlineSync = require('readline-sync')
 const { spawnSync } = require('child_process')
-const { buildPath, extractReadVersion, buildPathWithVersion } = require('./pathBuilder')
+const { extractReadVersion, buildPathWithVersion } = require('./pathBuilder')
 
 function getContractAddress(contractName, addressToDeployScript, chainId) {
   let address = readFromFile(contractName, chainId)
@@ -69,16 +69,41 @@ function readAddress(path, chain, name) {
   )
 }
 
+function readAddressIfExists(path, chain, name) {
+  if (!existsSync(path)) {
+    return undefined
+  }
+
+  return readAddress(path, chain, name)
+}
+
+function buildDefaultAddressPath(version) {
+  return 'scripts/addressesContractsTestnets.' + version + '.json'
+}
+
 function readFromFile(contractName, chain) {
   let chainId = Number.parseInt(chain.toString())
   const version = extractReadVersion()
   const { oldPath, path } = buildPathWithVersion(version)
-  let contract = readAddress(path, chainId, contractName)
-  if (contract === undefined && oldPath === undefined) return null
-  else if (contract === undefined) {
-    contract = readAddress(oldPath, chainId, contractName)
-    if (contract === undefined) return null
+  let contract = readAddressIfExists(path, chainId, contractName)
+
+  if (contract === undefined && oldPath !== undefined) {
+    contract = readAddressIfExists(oldPath, chainId, contractName)
   }
+
+  const defaultPath = buildDefaultAddressPath(version)
+  if (contract === undefined && defaultPath !== path) {
+    contract = readAddressIfExists(defaultPath, chainId, contractName)
+  }
+
+  if (contract === undefined && oldPath !== undefined) {
+    const defaultOldPath = buildDefaultAddressPath(version)
+    if (defaultOldPath !== oldPath) {
+      contract = readAddressIfExists(defaultOldPath, chainId, contractName)
+    }
+  }
+
+  if (contract === undefined) return null
   return contract[contractName]
 }
 

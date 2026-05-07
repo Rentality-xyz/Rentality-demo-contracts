@@ -1,0 +1,608 @@
+{
+  "abi": [
+    { "type": "constructor", "stateMutability": "undefined", "payable": false, "inputs": [] },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "AdminChanged",
+      "inputs": [
+        { "type": "address", "name": "previousAdmin", "indexed": false },
+        { "type": "address", "name": "newAdmin", "indexed": false }
+      ]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "BeaconUpgraded",
+      "inputs": [{ "type": "address", "name": "beacon", "indexed": true }]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "Initialized",
+      "inputs": [{ "type": "uint8", "name": "version", "indexed": false }]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "OwnershipTransferred",
+      "inputs": [
+        { "type": "address", "name": "previousOwner", "indexed": true },
+        { "type": "address", "name": "newOwner", "indexed": true }
+      ]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "Upgraded",
+      "inputs": [{ "type": "address", "name": "implementation", "indexed": true }]
+    },
+    {
+      "type": "function",
+      "name": "addUserCurrency",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "currency" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "calculateKycCommission",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "currency" }],
+      "outputs": [{ "type": "uint256", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "carService",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "currencyConverter",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getKycCommission",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "uint256", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getMyFullKYCInfo",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "",
+          "components": [
+            {
+              "type": "tuple",
+              "name": "kyc",
+              "components": [
+                { "type": "string", "name": "name" },
+                { "type": "string", "name": "surname" },
+                { "type": "string", "name": "mobilePhoneNumber" },
+                { "type": "string", "name": "profilePhoto" },
+                { "type": "string", "name": "licenseNumber" },
+                { "type": "uint64", "name": "expirationDate" },
+                { "type": "uint256", "name": "createDate" },
+                { "type": "bool", "name": "isTermsPassed" },
+                { "type": "bytes", "name": "termsSignature" }
+              ]
+            },
+            {
+              "type": "tuple",
+              "name": "additionalKYC",
+              "components": [
+                { "type": "string", "name": "issueCountry" },
+                { "type": "string", "name": "email" }
+              ]
+            },
+            {
+              "type": "tuple",
+              "name": "contact",
+              "components": [
+                { "type": "string", "name": "phoneNumber" },
+                { "type": "string", "name": "email" },
+                { "type": "bool", "name": "isPhoneVerified" },
+                { "type": "bool", "name": "isEmailVerified" },
+                { "type": "string", "name": "pushToken" }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getPlatformInfo",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "",
+          "components": [
+            { "type": "uint256", "name": "totalUsers" },
+            { "type": "uint256", "name": "totalTrips" },
+            { "type": "uint256", "name": "totalCars" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getPlatformUsersInfo",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        { "type": "uint256", "name": "page" },
+        { "type": "uint256", "name": "itemsPerPage" }
+      ],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "",
+          "components": [
+            {
+              "type": "tuple[]",
+              "name": "profiles",
+              "components": [
+                {
+                  "type": "tuple",
+                  "name": "kyc",
+                  "components": [
+                    { "type": "string", "name": "name" },
+                    { "type": "string", "name": "surname" },
+                    { "type": "string", "name": "mobilePhoneNumber" },
+                    { "type": "string", "name": "profilePhoto" },
+                    { "type": "string", "name": "licenseNumber" },
+                    { "type": "uint64", "name": "expirationDate" },
+                    { "type": "uint256", "name": "createDate" },
+                    { "type": "bool", "name": "isTermsPassed" },
+                    { "type": "bytes", "name": "termsSignature" }
+                  ]
+                },
+                {
+                  "type": "tuple",
+                  "name": "additionalKYC",
+                  "components": [
+                    { "type": "string", "name": "issueCountry" },
+                    { "type": "string", "name": "email" }
+                  ]
+                },
+                { "type": "address", "name": "wallet" },
+                { "type": "bool", "name": "isEmailVerified" },
+                { "type": "string", "name": "pushToken" }
+              ]
+            },
+            { "type": "uint256", "name": "totalPageCount" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getPlatformUsersKYCInfos",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        { "type": "uint256", "name": "page" },
+        { "type": "uint256", "name": "itemsPerPage" }
+      ],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "",
+          "components": [
+            {
+              "type": "tuple[]",
+              "name": "profiles",
+              "components": [
+                {
+                  "type": "tuple",
+                  "name": "kyc",
+                  "components": [
+                    { "type": "string", "name": "name" },
+                    { "type": "string", "name": "surname" },
+                    { "type": "string", "name": "mobilePhoneNumber" },
+                    { "type": "string", "name": "profilePhoto" },
+                    { "type": "string", "name": "licenseNumber" },
+                    { "type": "uint64", "name": "expirationDate" },
+                    { "type": "uint256", "name": "createDate" },
+                    { "type": "bool", "name": "isTermsPassed" },
+                    { "type": "bytes", "name": "termsSignature" }
+                  ]
+                },
+                {
+                  "type": "tuple",
+                  "name": "additionalKYC",
+                  "components": [
+                    { "type": "string", "name": "issueCountry" },
+                    { "type": "string", "name": "email" }
+                  ]
+                },
+                { "type": "address", "name": "wallet" },
+                { "type": "bool", "name": "isEmailVerified" },
+                { "type": "string", "name": "pushToken" }
+              ]
+            },
+            { "type": "uint256", "name": "totalPageCount" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getUserCurrency",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "user" }],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "result",
+          "components": [
+            { "type": "address", "name": "currency" },
+            { "type": "string", "name": "name" },
+            { "type": "bool", "name": "initialized" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getUserFullKYCInfo",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "user" }],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "",
+          "components": [
+            {
+              "type": "tuple",
+              "name": "kyc",
+              "components": [
+                { "type": "string", "name": "name" },
+                { "type": "string", "name": "surname" },
+                { "type": "string", "name": "mobilePhoneNumber" },
+                { "type": "string", "name": "profilePhoto" },
+                { "type": "string", "name": "licenseNumber" },
+                { "type": "uint64", "name": "expirationDate" },
+                { "type": "uint256", "name": "createDate" },
+                { "type": "bool", "name": "isTermsPassed" },
+                { "type": "bytes", "name": "termsSignature" }
+              ]
+            },
+            {
+              "type": "tuple",
+              "name": "additionalKYC",
+              "components": [
+                { "type": "string", "name": "issueCountry" },
+                { "type": "string", "name": "email" }
+              ]
+            },
+            {
+              "type": "tuple",
+              "name": "contact",
+              "components": [
+                { "type": "string", "name": "phoneNumber" },
+                { "type": "string", "name": "email" },
+                { "type": "bool", "name": "isPhoneVerified" },
+                { "type": "bool", "name": "isEmailVerified" },
+                { "type": "string", "name": "pushToken" }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "initialize",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "userProfileMainAddress" },
+        { "type": "address", "name": "userProfileQueryAddress" },
+        { "type": "address", "name": "referralProgramAddress" },
+        { "type": "address", "name": "promoServiceAddress" },
+        { "type": "address", "name": "notificationServiceAddress" },
+        { "type": "address", "name": "paymentServiceAddress" },
+        { "type": "address", "name": "currencyConverterAddress" },
+        { "type": "address", "name": "tripQueryAddress" },
+        { "type": "address", "name": "carServiceAddress" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "isKycCommissionPaid",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "user" }],
+      "outputs": [{ "type": "bool", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "manageRole",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint8", "name": "role" },
+        { "type": "address", "name": "user" },
+        { "type": "bool", "name": "grant" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "notificationService",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "owner",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "payKycCommission",
+      "constant": false,
+      "stateMutability": "payable",
+      "payable": true,
+      "inputs": [{ "type": "address", "name": "currency" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "paymentService",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "promoService",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "proxiableUUID",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "bytes32", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "referralProgram",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "renounceOwnership",
+      "constant": false,
+      "payable": false,
+      "inputs": [],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "setCivicData",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "civicVerifier" },
+        { "type": "uint256", "name": "civicGatekeeperNetwork" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "setCivicKYCInfo",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "user" },
+        {
+          "type": "tuple",
+          "name": "civicKycInfo",
+          "components": [
+            { "type": "string", "name": "fullName" },
+            { "type": "string", "name": "licenseNumber" },
+            { "type": "uint64", "name": "expirationDate" },
+            { "type": "string", "name": "issueCountry" },
+            { "type": "string", "name": "email" }
+          ]
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "setEmail",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "user" },
+        { "type": "string", "name": "email" },
+        { "type": "bool", "name": "isVerified" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "setKYCInfo",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "string", "name": "nickName" },
+        { "type": "string", "name": "mobilePhoneNumber" },
+        { "type": "string", "name": "profilePhoto" },
+        { "type": "string", "name": "email" },
+        { "type": "bytes", "name": "tcSignature" },
+        { "type": "bytes4", "name": "hash" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "setKycCommission",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "value" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "setPhoneNumber",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "user" },
+        { "type": "string", "name": "phone" },
+        { "type": "bool", "name": "isVerified" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "setPushToken",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "user" },
+        { "type": "string", "name": "pushToken" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "transferOwnership",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "newOwner" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "tripQuery",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "updateServiceAddresses",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "userProfileMainAddress" },
+        { "type": "address", "name": "userProfileQueryAddress" },
+        { "type": "address", "name": "referralProgramAddress" },
+        { "type": "address", "name": "promoServiceAddress" },
+        { "type": "address", "name": "notificationServiceAddress" },
+        { "type": "address", "name": "paymentServiceAddress" },
+        { "type": "address", "name": "currencyConverterAddress" },
+        { "type": "address", "name": "tripQueryAddress" },
+        { "type": "address", "name": "carServiceAddress" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "upgradeTo",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "newImplementation" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "upgradeToAndCall",
+      "constant": false,
+      "stateMutability": "payable",
+      "payable": true,
+      "inputs": [
+        { "type": "address", "name": "newImplementation" },
+        { "type": "bytes", "name": "data" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "useKycCommission",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "user" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "userProfileMain",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "userProfileQuery",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    }
+  ]
+}

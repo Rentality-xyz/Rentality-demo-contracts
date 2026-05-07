@@ -1,0 +1,203 @@
+{
+  "abi": [
+    {
+      "type": "constructor",
+      "stateMutability": "undefined",
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "userProfileMainAddress" }]
+    },
+    {
+      "type": "function",
+      "name": "getKYCInfo",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "user" }],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "",
+          "components": [
+            { "type": "string", "name": "name" },
+            { "type": "string", "name": "surname" },
+            { "type": "string", "name": "mobilePhoneNumber" },
+            { "type": "string", "name": "profilePhoto" },
+            { "type": "string", "name": "licenseNumber" },
+            { "type": "uint64", "name": "expirationDate" },
+            { "type": "uint256", "name": "createDate" },
+            { "type": "bool", "name": "isTermsPassed" },
+            { "type": "bytes", "name": "termsSignature" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getKycCommission",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "uint256", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getMyFullKYCInfo",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "user" }],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "",
+          "components": [
+            {
+              "type": "tuple",
+              "name": "kyc",
+              "components": [
+                { "type": "string", "name": "name" },
+                { "type": "string", "name": "surname" },
+                { "type": "string", "name": "mobilePhoneNumber" },
+                { "type": "string", "name": "profilePhoto" },
+                { "type": "string", "name": "licenseNumber" },
+                { "type": "uint64", "name": "expirationDate" },
+                { "type": "uint256", "name": "createDate" },
+                { "type": "bool", "name": "isTermsPassed" },
+                { "type": "bytes", "name": "termsSignature" }
+              ]
+            },
+            {
+              "type": "tuple",
+              "name": "additionalKYC",
+              "components": [
+                { "type": "string", "name": "issueCountry" },
+                { "type": "string", "name": "email" }
+              ]
+            },
+            {
+              "type": "tuple",
+              "name": "contact",
+              "components": [
+                { "type": "string", "name": "phoneNumber" },
+                { "type": "string", "name": "email" },
+                { "type": "bool", "name": "isPhoneVerified" },
+                { "type": "bool", "name": "isEmailVerified" },
+                { "type": "string", "name": "pushToken" }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getPlatformUsers",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address[]", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getPlatformUsersCount",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "uint256", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getPlatformUsersKYCInfos",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        { "type": "uint256", "name": "page" },
+        { "type": "uint256", "name": "itemsPerPage" }
+      ],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "",
+          "components": [
+            {
+              "type": "tuple[]",
+              "name": "profiles",
+              "components": [
+                {
+                  "type": "tuple",
+                  "name": "kyc",
+                  "components": [
+                    { "type": "string", "name": "name" },
+                    { "type": "string", "name": "surname" },
+                    { "type": "string", "name": "mobilePhoneNumber" },
+                    { "type": "string", "name": "profilePhoto" },
+                    { "type": "string", "name": "licenseNumber" },
+                    { "type": "uint64", "name": "expirationDate" },
+                    { "type": "uint256", "name": "createDate" },
+                    { "type": "bool", "name": "isTermsPassed" },
+                    { "type": "bytes", "name": "termsSignature" }
+                  ]
+                },
+                {
+                  "type": "tuple",
+                  "name": "additionalKYC",
+                  "components": [
+                    { "type": "string", "name": "issueCountry" },
+                    { "type": "string", "name": "email" }
+                  ]
+                },
+                { "type": "address", "name": "wallet" },
+                { "type": "bool", "name": "isEmailVerified" },
+                { "type": "string", "name": "pushToken" }
+              ]
+            },
+            { "type": "uint256", "name": "totalPageCount" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getUserCurrency",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "user" }],
+      "outputs": [
+        { "type": "address", "name": "currency" },
+        { "type": "bool", "name": "initialized" }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "hasValidKYC",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "user" }],
+      "outputs": [{ "type": "bool", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "isCommissionPaidForUser",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "user" }],
+      "outputs": [{ "type": "bool", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "userProfileMain",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    }
+  ]
+}

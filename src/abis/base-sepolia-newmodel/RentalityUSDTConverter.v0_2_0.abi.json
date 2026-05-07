@@ -1,0 +1,289 @@
+{
+  "abi": [
+    { "type": "error", "name": "InvalidRate", "inputs": [] },
+    { "type": "error", "name": "OnlyAdmin", "inputs": [] },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "AdminChanged",
+      "inputs": [
+        { "type": "address", "name": "previousAdmin", "indexed": false },
+        { "type": "address", "name": "newAdmin", "indexed": false }
+      ]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "BeaconUpgraded",
+      "inputs": [{ "type": "address", "name": "beacon", "indexed": true }]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "Initialized",
+      "inputs": [{ "type": "uint8", "name": "version", "indexed": false }]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "OwnershipTransferred",
+      "inputs": [
+        { "type": "address", "name": "previousOwner", "indexed": true },
+        { "type": "address", "name": "newOwner", "indexed": true }
+      ]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "Upgraded",
+      "inputs": [{ "type": "address", "name": "implementation", "indexed": true }]
+    },
+    {
+      "type": "function",
+      "name": "getCurrentRate",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        { "type": "int256", "name": "" },
+        { "type": "uint8", "name": "" }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getFromUsdCents",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        { "type": "uint256", "name": "amountInUsdCent" },
+        { "type": "int256", "name": "rate" }
+      ],
+      "outputs": [{ "type": "uint256", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getFromUsdCentsLatest",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "amount" }],
+      "outputs": [
+        { "type": "uint256", "name": "" },
+        { "type": "int256", "name": "" },
+        { "type": "uint8", "name": "" }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getFromUsdCentsWithCache",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "valueInUsdCents" }],
+      "outputs": [{ "type": "uint256", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getLatest",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "int256", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getRate",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        { "type": "int256", "name": "" },
+        { "type": "uint8", "name": "" }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getRateWithCache",
+      "constant": false,
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        { "type": "int256", "name": "" },
+        { "type": "uint8", "name": "" }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getTokenAddress",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getUsdCents",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        { "type": "uint256", "name": "value" },
+        { "type": "int256", "name": "rate" }
+      ],
+      "outputs": [{ "type": "uint256", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getUsdFromLatest",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "amount" }],
+      "outputs": [
+        { "type": "uint256", "name": "" },
+        { "type": "int256", "name": "" },
+        { "type": "uint8", "name": "" }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getUsdWithCache",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "valueInThis" }],
+      "outputs": [{ "type": "uint256", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "initialize",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "userAccessAddress" },
+        { "type": "address", "name": "token" },
+        { "type": "address", "name": "rateFeedAddress" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "lastUpdateRateTimeStamp",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "uint256", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "owner",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "proxiableUUID",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "bytes32", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "rateTokenDecimals",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "uint8", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "renounceOwnership",
+      "constant": false,
+      "payable": false,
+      "inputs": [],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "setRateFeed",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "rateFeedAddress" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "tokenAddress",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "tokenDecimals",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "uint8", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "transferOwnership",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "newOwner" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "updateRateInterval",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "uint256", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "upgradeTo",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "newImplementation" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "upgradeToAndCall",
+      "constant": false,
+      "stateMutability": "payable",
+      "payable": true,
+      "inputs": [
+        { "type": "address", "name": "newImplementation" },
+        { "type": "bytes", "name": "data" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "userAccess",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    }
+  ]
+}

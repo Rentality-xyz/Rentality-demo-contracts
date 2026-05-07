@@ -115,6 +115,10 @@ contract InsuranceMain is InsuranceBase, UUPSOwnable {
         return userToInsuranceInfo[user];
     }
 
+    function getMyInsurancesAsGuest(address user) external view returns (InsuranceInfo[] memory) {
+        return userToInsuranceInfo[user];
+    }
+
     function saveTripInsuranceInfo(uint256 tripId, SaveInsuranceRequest memory insuranceInfo, address user) external onlyPlatform {
         if (insuranceInfo.insuranceType == InsuranceType.None) {
             revert InvalidInsuranceType();

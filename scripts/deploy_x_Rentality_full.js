@@ -1,6 +1,8 @@
 const { spawnSync } = require('child_process')
+const { network } = require('hardhat')
 
-const command = 'npx hardhat run scripts/'
+const networkFlag = network.name ? ` --network ${network.name}` : ''
+const command = 'npx hardhat run' + networkFlag + ' scripts/'
 
 const commands = [
   { message: 'Deploying test USDT..', command: command + 'deploy_0a_RentalityTestUSDT.js' },
@@ -57,7 +59,17 @@ const commands = [
 ]
 
 async function main() {
-  for (let i = 0; i < commands.length; i++) {
+  let startIndex = 0
+  if (process.env.START_FROM) {
+    startIndex = commands.findIndex(
+      (item) => item.command.includes(process.env.START_FROM) || item.message.includes(process.env.START_FROM)
+    )
+    if (startIndex < 0) {
+      throw new Error(`START_FROM target was not found: ${process.env.START_FROM}`)
+    }
+  }
+
+  for (let i = startIndex; i < commands.length; i++) {
     console.log('\n' + commands[i].message)
     const result = spawnSync(commands[i].command, {
       shell: true,

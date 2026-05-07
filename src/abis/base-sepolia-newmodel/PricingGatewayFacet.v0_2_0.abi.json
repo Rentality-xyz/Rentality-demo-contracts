@@ -1,0 +1,252 @@
+{
+  "abi": [
+    { "type": "constructor", "stateMutability": "undefined", "payable": false, "inputs": [] },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "AdminChanged",
+      "inputs": [
+        { "type": "address", "name": "previousAdmin", "indexed": false },
+        { "type": "address", "name": "newAdmin", "indexed": false }
+      ]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "BeaconUpgraded",
+      "inputs": [{ "type": "address", "name": "beacon", "indexed": true }]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "Initialized",
+      "inputs": [{ "type": "uint8", "name": "version", "indexed": false }]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "OwnershipTransferred",
+      "inputs": [
+        { "type": "address", "name": "previousOwner", "indexed": true },
+        { "type": "address", "name": "newOwner", "indexed": true }
+      ]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "Upgraded",
+      "inputs": [{ "type": "address", "name": "implementation", "indexed": true }]
+    },
+    {
+      "type": "function",
+      "name": "addTaxes",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "string", "name": "location" },
+        { "type": "uint8", "name": "locationType" },
+        {
+          "type": "tuple[]",
+          "name": "taxes",
+          "components": [
+            { "type": "string", "name": "name" },
+            { "type": "uint32", "name": "value" },
+            { "type": "uint8", "name": "tType" }
+          ]
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "calculateSumWithDiscount",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "user" },
+        { "type": "uint64", "name": "daysOfTrip" },
+        { "type": "uint64", "name": "value" }
+      ],
+      "outputs": [{ "type": "uint64", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "calculateTaxes",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        { "type": "uint256", "name": "taxesId" },
+        { "type": "uint64", "name": "daysOfTrip" },
+        { "type": "uint64", "name": "value" }
+      ],
+      "outputs": [{ "type": "uint64", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "calculateTaxesDTO",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        { "type": "uint256", "name": "taxesId" },
+        { "type": "uint64", "name": "daysOfTrip" },
+        { "type": "uint64", "name": "value" }
+      ],
+      "outputs": [
+        { "type": "uint64", "name": "totalTax" },
+        {
+          "type": "tuple[]",
+          "name": "taxValues",
+          "components": [
+            { "type": "string", "name": "name" },
+            { "type": "uint32", "name": "value" },
+            { "type": "uint8", "name": "tType" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getPlatformFeeInPPM",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "uint32", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "initialize",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "pricingMainAddress" },
+        { "type": "address", "name": "userAccessAddress" },
+        { "type": "address", "name": "notificationServiceAddress" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "notificationService",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "owner",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "pricingMain",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "proxiableUUID",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "bytes32", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "renounceOwnership",
+      "constant": false,
+      "payable": false,
+      "inputs": [],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "setDefaultDiscount",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "tuple",
+          "name": "newDiscounts",
+          "components": [
+            { "type": "uint32", "name": "threeDaysDiscount" },
+            { "type": "uint32", "name": "sevenDaysDiscount" },
+            { "type": "uint32", "name": "thirtyDaysDiscount" },
+            { "type": "bool", "name": "initialized" }
+          ]
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "setPlatformFeeInPPM",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "uint32", "name": "valueInPPM" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "transferOwnership",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "newOwner" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "updateServiceAddresses",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "pricingMainAddress" },
+        { "type": "address", "name": "userAccessAddress" },
+        { "type": "address", "name": "notificationServiceAddress" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "upgradeTo",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "newImplementation" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "upgradeToAndCall",
+      "constant": false,
+      "stateMutability": "payable",
+      "payable": true,
+      "inputs": [
+        { "type": "address", "name": "newImplementation" },
+        { "type": "bytes", "name": "data" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "userAccess",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    }
+  ]
+}

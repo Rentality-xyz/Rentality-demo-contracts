@@ -1,0 +1,356 @@
+{
+  "abi": [
+    { "type": "constructor", "stateMutability": "undefined", "payable": false, "inputs": [] },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "AdminChanged",
+      "inputs": [
+        { "type": "address", "name": "previousAdmin", "indexed": false },
+        { "type": "address", "name": "newAdmin", "indexed": false }
+      ]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "BeaconUpgraded",
+      "inputs": [{ "type": "address", "name": "beacon", "indexed": true }]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "Initialized",
+      "inputs": [{ "type": "uint8", "name": "version", "indexed": false }]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "OwnershipTransferred",
+      "inputs": [
+        { "type": "address", "name": "previousOwner", "indexed": true },
+        { "type": "address", "name": "newOwner", "indexed": true }
+      ]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "Upgraded",
+      "inputs": [{ "type": "address", "name": "implementation", "indexed": true }]
+    },
+    {
+      "type": "function",
+      "name": "addUserDiscount",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "tuple",
+          "name": "data",
+          "components": [
+            { "type": "uint32", "name": "threeDaysDiscount" },
+            { "type": "uint32", "name": "sevenDaysDiscount" },
+            { "type": "uint32", "name": "thirtyDaysDiscount" },
+            { "type": "bool", "name": "initialized" }
+          ]
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "checkPromo",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        { "type": "string", "name": "promo" },
+        { "type": "uint256", "name": "startDateTime" },
+        { "type": "uint256", "name": "endDateTime" }
+      ],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "",
+          "components": [
+            { "type": "bool", "name": "isFound" },
+            { "type": "bool", "name": "isValid" },
+            { "type": "bool", "name": "isDiscount" },
+            { "type": "uint256", "name": "value" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "currencyConverter",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getAvaibleCurrencies",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "tuple[]",
+          "name": "",
+          "components": [
+            { "type": "address", "name": "currency" },
+            { "type": "string", "name": "name" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getAvailableCurrency",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "tuple[]",
+          "name": "",
+          "components": [
+            { "type": "uint8", "name": "decimals" },
+            { "type": "string", "name": "name" },
+            { "type": "string", "name": "symbol" },
+            { "type": "address", "name": "tokenAddress" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getDiscount",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "user" }],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "",
+          "components": [
+            { "type": "uint32", "name": "threeDaysDiscount" },
+            { "type": "uint32", "name": "sevenDaysDiscount" },
+            { "type": "uint32", "name": "thirtyDaysDiscount" },
+            { "type": "bool", "name": "initialized" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getTaxesInfoById",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "taxId" }],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "",
+          "components": [
+            { "type": "string", "name": "location" },
+            { "type": "uint8", "name": "locationType" },
+            {
+              "type": "tuple[]",
+              "name": "taxes",
+              "components": [
+                { "type": "string", "name": "name" },
+                { "type": "uint32", "name": "value" },
+                { "type": "uint8", "name": "tType" }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "initialize",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "paymentMainAddress" },
+        { "type": "address", "name": "paymentQueryAddress" },
+        { "type": "address", "name": "pricingServiceAddress" },
+        { "type": "address", "name": "promoServiceAddress" },
+        { "type": "address", "name": "currencyConverterAddress" },
+        { "type": "address", "name": "userAccessAddress" },
+        { "type": "address", "name": "notificationServiceAddress" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "notificationService",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "owner",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "paymentMain",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "paymentQuery",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "pricingService",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "promoService",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "proxiableUUID",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "bytes32", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "renounceOwnership",
+      "constant": false,
+      "payable": false,
+      "inputs": [],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "setDefaultCurrencyType",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "currency" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "transferOwnership",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "newOwner" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "updatePromoData",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "string", "name": "prefix" },
+        { "type": "uint256", "name": "discount" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "updateServiceAddresses",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "paymentMainAddress" },
+        { "type": "address", "name": "paymentQueryAddress" },
+        { "type": "address", "name": "pricingServiceAddress" },
+        { "type": "address", "name": "promoServiceAddress" },
+        { "type": "address", "name": "currencyConverterAddress" },
+        { "type": "address", "name": "userAccessAddress" },
+        { "type": "address", "name": "notificationServiceAddress" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "upgradeTo",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "newImplementation" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "upgradeToAndCall",
+      "constant": false,
+      "stateMutability": "payable",
+      "payable": true,
+      "inputs": [
+        { "type": "address", "name": "newImplementation" },
+        { "type": "bytes", "name": "data" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "userAccess",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "withdrawAllFromPlatform",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "currencyType" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "withdrawFromPlatform",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint256", "name": "amount" },
+        { "type": "address", "name": "currencyType" }
+      ],
+      "outputs": []
+    }
+  ]
+}

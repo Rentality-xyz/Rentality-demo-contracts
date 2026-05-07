@@ -1,0 +1,197 @@
+{
+  "abi": [
+    {
+      "type": "constructor",
+      "stateMutability": "undefined",
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "pricingMainAddress" }]
+    },
+    {
+      "type": "function",
+      "name": "calculateSumWithDiscount",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "user" },
+        { "type": "uint64", "name": "daysOfTrip" },
+        { "type": "uint64", "name": "value" }
+      ],
+      "outputs": [{ "type": "uint64", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "calculateTaxes",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        { "type": "uint256", "name": "taxId" },
+        { "type": "uint64", "name": "tripDays" },
+        { "type": "uint64", "name": "totalCost" }
+      ],
+      "outputs": [{ "type": "uint64", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "calculateTaxesDTO",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        { "type": "uint256", "name": "taxId" },
+        { "type": "uint64", "name": "tripDays" },
+        { "type": "uint64", "name": "totalCost" }
+      ],
+      "outputs": [
+        { "type": "uint64", "name": "totalTax" },
+        {
+          "type": "tuple[]",
+          "name": "taxes",
+          "components": [
+            { "type": "string", "name": "name" },
+            { "type": "uint32", "name": "value" },
+            { "type": "uint8", "name": "tType" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "defineTaxesType",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "carServiceAddress" },
+        { "type": "uint256", "name": "carId" }
+      ],
+      "outputs": [{ "type": "uint256", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getBaseDiscount",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "user" }],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "",
+          "components": [
+            { "type": "uint32", "name": "threeDaysDiscount" },
+            { "type": "uint32", "name": "sevenDaysDiscount" },
+            { "type": "uint32", "name": "thirtyDaysDiscount" },
+            { "type": "bool", "name": "initialized" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getPlatformFeeFrom",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "value" }],
+      "outputs": [{ "type": "uint256", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getPlatformFeeInPPM",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "uint32", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getTaxesInfoById",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "taxId" }],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "",
+          "components": [
+            { "type": "string", "name": "location" },
+            { "type": "uint8", "name": "locationType" },
+            {
+              "type": "tuple[]",
+              "name": "taxes",
+              "components": [
+                { "type": "string", "name": "name" },
+                { "type": "uint32", "name": "value" },
+                { "type": "uint8", "name": "tType" }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getTotalTripTax",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "tripId" }],
+      "outputs": [{ "type": "uint64", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getTripTaxesDTO",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "tripId" }],
+      "outputs": [
+        {
+          "type": "tuple[]",
+          "name": "",
+          "components": [
+            { "type": "string", "name": "name" },
+            { "type": "uint32", "name": "value" },
+            { "type": "uint8", "name": "tType" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "pricingMain",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "taxExist",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        {
+          "type": "tuple",
+          "name": "locationInfo",
+          "components": [
+            { "type": "string", "name": "userAddress" },
+            { "type": "string", "name": "country" },
+            { "type": "string", "name": "state" },
+            { "type": "string", "name": "city" },
+            { "type": "string", "name": "latitude" },
+            { "type": "string", "name": "longitude" },
+            { "type": "string", "name": "timeZoneId" }
+          ]
+        }
+      ],
+      "outputs": [{ "type": "uint256", "name": "" }]
+    }
+  ]
+}

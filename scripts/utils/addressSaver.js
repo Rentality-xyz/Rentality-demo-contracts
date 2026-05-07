@@ -1,4 +1,4 @@
-const { readFileSync } = require('fs')
+const { readFileSync, existsSync, writeFileSync } = require('fs')
 const fs = require('fs')
 const { network } = require('hardhat')
 const { buildPath } = require('./pathBuilder')
@@ -6,6 +6,9 @@ const { buildPath } = require('./pathBuilder')
 module.exports = function addressSaver(contractAddress, contractName, rewriteIfExist, chain) {
   let chainId = Number.parseInt(chain.toString())
   const path = buildPath()
+  if (!existsSync(path)) {
+    writeFileSync(path, '[]', 'utf-8')
+  }
   const data = readFileSync(path, 'utf-8')
   const jsonData = JSON.parse(data)
 

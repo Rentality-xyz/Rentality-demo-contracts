@@ -14,8 +14,14 @@ async function grantPlatformRoleIfPresent(contract, label, user) {
     return
   }
 
+  if (await contract.isRentalityPlatform(user)) {
+    console.log(`${label}: platform role already granted`)
+    return
+  }
+
   const tx = await contract.grantPlatformRole(user)
   console.log(`${label}: platform role tx -> ${tx.hash ?? tx}`)
+  await tx.wait()
 }
 
 async function main() {

@@ -1,0 +1,808 @@
+{
+  "abi": [
+    { "type": "constructor", "stateMutability": "undefined", "payable": false, "inputs": [] },
+    { "type": "error", "name": "AssetDoesNotExist", "inputs": [{ "type": "uint256", "name": "id" }] },
+    { "type": "error", "name": "DuplicateVin", "inputs": [{ "type": "bytes32", "name": "vinHash" }] },
+    { "type": "error", "name": "InvalidAssetName", "inputs": [] },
+    { "type": "error", "name": "InvalidCarPrice", "inputs": [] },
+    { "type": "error", "name": "InvalidMetadataURI", "inputs": [] },
+    { "type": "error", "name": "InvalidMilesIncluded", "inputs": [] },
+    {
+      "type": "error",
+      "name": "NotAssetOwner",
+      "inputs": [
+        { "type": "uint256", "name": "id" },
+        { "type": "address", "name": "caller" }
+      ]
+    },
+    { "type": "error", "name": "OnlyAdmin", "inputs": [] },
+    { "type": "error", "name": "OnlyPlatform", "inputs": [] },
+    { "type": "error", "name": "UserDidNotPassKyc", "inputs": [{ "type": "address", "name": "user" }] },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "AdminChanged",
+      "inputs": [
+        { "type": "address", "name": "previousAdmin", "indexed": false },
+        { "type": "address", "name": "newAdmin", "indexed": false }
+      ]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "Approval",
+      "inputs": [
+        { "type": "address", "name": "owner", "indexed": true },
+        { "type": "address", "name": "approved", "indexed": true },
+        { "type": "uint256", "name": "tokenId", "indexed": true }
+      ]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "ApprovalForAll",
+      "inputs": [
+        { "type": "address", "name": "owner", "indexed": true },
+        { "type": "address", "name": "operator", "indexed": true },
+        { "type": "bool", "name": "approved", "indexed": false }
+      ]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "AssetCreated",
+      "inputs": [
+        { "type": "uint256", "name": "id", "indexed": true },
+        { "type": "address", "name": "owner", "indexed": true },
+        { "type": "string", "name": "name", "indexed": false }
+      ]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "AssetUpdated",
+      "inputs": [
+        { "type": "uint256", "name": "id", "indexed": true },
+        { "type": "string", "name": "name", "indexed": false },
+        { "type": "string", "name": "metadataURI", "indexed": false }
+      ]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "BatchMetadataUpdate",
+      "inputs": [
+        { "type": "uint256", "name": "_fromTokenId", "indexed": false },
+        { "type": "uint256", "name": "_toTokenId", "indexed": false }
+      ]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "BeaconUpgraded",
+      "inputs": [{ "type": "address", "name": "beacon", "indexed": true }]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "CarCreated",
+      "inputs": [
+        { "type": "uint256", "name": "id", "indexed": true },
+        { "type": "address", "name": "owner", "indexed": true },
+        { "type": "string", "name": "brand", "indexed": false },
+        { "type": "string", "name": "model", "indexed": false }
+      ]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "CarUpdated",
+      "inputs": [{ "type": "uint256", "name": "id", "indexed": true }]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "Initialized",
+      "inputs": [{ "type": "uint8", "name": "version", "indexed": false }]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "MetadataUpdate",
+      "inputs": [{ "type": "uint256", "name": "_tokenId", "indexed": false }]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "OwnershipTransferred",
+      "inputs": [
+        { "type": "address", "name": "previousOwner", "indexed": true },
+        { "type": "address", "name": "newOwner", "indexed": true }
+      ]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "Transfer",
+      "inputs": [
+        { "type": "address", "name": "from", "indexed": true },
+        { "type": "address", "name": "to", "indexed": true },
+        { "type": "uint256", "name": "tokenId", "indexed": true }
+      ]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "Upgraded",
+      "inputs": [{ "type": "address", "name": "implementation", "indexed": true }]
+    },
+    {
+      "type": "function",
+      "name": "approve",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "to" },
+        { "type": "uint256", "name": "tokenId" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "balanceOf",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "owner" }],
+      "outputs": [{ "type": "uint256", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "burnCar",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "id" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "createCar",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "tuple",
+          "name": "request",
+          "components": [
+            {
+              "type": "tuple",
+              "name": "asset",
+              "components": [
+                { "type": "string", "name": "name" },
+                { "type": "string", "name": "metadataURI" }
+              ]
+            },
+            { "type": "string", "name": "carVinNumber" },
+            { "type": "string", "name": "brand" },
+            { "type": "string", "name": "model" },
+            { "type": "uint32", "name": "yearOfProduction" },
+            { "type": "uint64", "name": "pricePerDayInUsdCents" },
+            { "type": "uint64", "name": "securityDepositPerTripInUsdCents" },
+            { "type": "uint64[]", "name": "engineParams" },
+            { "type": "uint8", "name": "engineType" },
+            { "type": "uint64", "name": "milesIncludedPerDay" },
+            { "type": "uint32", "name": "timeBufferBetweenTripsInSec" },
+            {
+              "type": "tuple",
+              "name": "locationInfo",
+              "components": [
+                {
+                  "type": "tuple",
+                  "name": "locationInfo",
+                  "components": [
+                    { "type": "string", "name": "userAddress" },
+                    { "type": "string", "name": "country" },
+                    { "type": "string", "name": "state" },
+                    { "type": "string", "name": "city" },
+                    { "type": "string", "name": "latitude" },
+                    { "type": "string", "name": "longitude" },
+                    { "type": "string", "name": "timeZoneId" }
+                  ]
+                },
+                { "type": "bytes", "name": "signature" }
+              ]
+            },
+            { "type": "bool", "name": "currentlyListed" }
+          ]
+        },
+        { "type": "address", "name": "user" }
+      ],
+      "outputs": [{ "type": "uint256", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "engineValidator",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "eventEmitter",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "exists",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "id" }],
+      "outputs": [{ "type": "bool", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "geoVerifier",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getApproved",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "tokenId" }],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getAsset",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "id" }],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "",
+          "components": [
+            { "type": "uint256", "name": "id" },
+            { "type": "address", "name": "owner" },
+            { "type": "string", "name": "name" },
+            { "type": "string", "name": "metadataURI" },
+            { "type": "uint64", "name": "createdAt" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getCarData",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "id" }],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "",
+          "components": [
+            { "type": "string", "name": "carVinNumber" },
+            { "type": "bytes32", "name": "carVinNumberHash" },
+            { "type": "string", "name": "brand" },
+            { "type": "string", "name": "model" },
+            { "type": "uint32", "name": "yearOfProduction" },
+            { "type": "uint64", "name": "pricePerDayInUsdCents" },
+            { "type": "uint64", "name": "securityDepositPerTripInUsdCents" },
+            { "type": "uint8", "name": "engineType" },
+            { "type": "uint64[]", "name": "engineParams" },
+            { "type": "uint64", "name": "milesIncludedPerDay" },
+            { "type": "uint32", "name": "timeBufferBetweenTripsInSec" },
+            { "type": "bool", "name": "currentlyListed" },
+            { "type": "bool", "name": "geoVerified" },
+            { "type": "string", "name": "timeZoneId" },
+            { "type": "bool", "name": "insuranceIncluded" },
+            { "type": "bytes32", "name": "locationHash" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getEngineValidatorAddress",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getGeoVerifierAddress",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getListingMoment",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "id" }],
+      "outputs": [{ "type": "uint256", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getOwner",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "id" }],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "getUserDeliveryPrices",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "user" }],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "",
+          "components": [
+            { "type": "uint64", "name": "underTwentyFiveMilesInUsdCents" },
+            { "type": "uint64", "name": "aboveTwentyFiveMilesInUsdCents" },
+            { "type": "bool", "name": "initialized" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "initialize",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "geoVerifierAddress" },
+        { "type": "address", "name": "engineValidatorAddress" },
+        { "type": "address", "name": "userAccessAddress" },
+        { "type": "address", "name": "eventEmitterAddress" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "isApprovedForAll",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "owner" },
+        { "type": "address", "name": "operator" }
+      ],
+      "outputs": [{ "type": "bool", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "isUniqueVinNumber",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "string", "name": "carVinNumber" }],
+      "outputs": [{ "type": "bool", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "migrationImportCar",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "tuple",
+          "name": "item",
+          "components": [
+            {
+              "type": "tuple",
+              "name": "asset",
+              "components": [
+                { "type": "uint256", "name": "id" },
+                { "type": "address", "name": "owner" },
+                { "type": "string", "name": "name" },
+                { "type": "string", "name": "metadataURI" },
+                { "type": "uint64", "name": "createdAt" }
+              ]
+            },
+            {
+              "type": "tuple",
+              "name": "car",
+              "components": [
+                { "type": "string", "name": "carVinNumber" },
+                { "type": "bytes32", "name": "carVinNumberHash" },
+                { "type": "string", "name": "brand" },
+                { "type": "string", "name": "model" },
+                { "type": "uint32", "name": "yearOfProduction" },
+                { "type": "uint64", "name": "pricePerDayInUsdCents" },
+                { "type": "uint64", "name": "securityDepositPerTripInUsdCents" },
+                { "type": "uint8", "name": "engineType" },
+                { "type": "uint64[]", "name": "engineParams" },
+                { "type": "uint64", "name": "milesIncludedPerDay" },
+                { "type": "uint32", "name": "timeBufferBetweenTripsInSec" },
+                { "type": "bool", "name": "currentlyListed" },
+                { "type": "bool", "name": "geoVerified" },
+                { "type": "string", "name": "timeZoneId" },
+                { "type": "bool", "name": "insuranceIncluded" },
+                { "type": "bytes32", "name": "locationHash" }
+              ]
+            },
+            { "type": "uint256", "name": "listingMoment" },
+            { "type": "string", "name": "tokenURI" }
+          ]
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "migrationSetDefaultDeliveryPrices",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "tuple",
+          "name": "newDefaultDeliveryPrices",
+          "components": [
+            { "type": "uint64", "name": "underTwentyFiveMilesInUsdCents" },
+            { "type": "uint64", "name": "aboveTwentyFiveMilesInUsdCents" },
+            { "type": "bool", "name": "initialized" }
+          ]
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "migrationSetUserDeliveryPrices",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "user" },
+        {
+          "type": "tuple",
+          "name": "prices",
+          "components": [
+            { "type": "uint64", "name": "underTwentyFiveMilesInUsdCents" },
+            { "type": "uint64", "name": "aboveTwentyFiveMilesInUsdCents" },
+            { "type": "bool", "name": "initialized" }
+          ]
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "name",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "string", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "owner",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "ownerOf",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "tokenId" }],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "proxiableUUID",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "bytes32", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "renounceOwnership",
+      "constant": false,
+      "payable": false,
+      "inputs": [],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "safeTransferFrom",
+      "constant": true,
+      "stateMutability": "pure",
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "" },
+        { "type": "address", "name": "" },
+        { "type": "uint256", "name": "" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "safeTransferFrom",
+      "constant": true,
+      "stateMutability": "pure",
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "" },
+        { "type": "address", "name": "" },
+        { "type": "uint256", "name": "" },
+        { "type": "bytes", "name": "" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "setApprovalForAll",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "operator" },
+        { "type": "bool", "name": "approved" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "setDefaultPrices",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint64", "name": "underTwentyFiveMilesInUsdCents" },
+        { "type": "uint64", "name": "aboveTwentyFiveMilesInUsdCents" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "setUserDeliveryPrices",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint64", "name": "underTwentyFiveMilesInUsdCents" },
+        { "type": "uint64", "name": "aboveTwentyFiveMilesInUsdCents" },
+        { "type": "address", "name": "user" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "supportsInterface",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "bytes4", "name": "interfaceId" }],
+      "outputs": [{ "type": "bool", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "symbol",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "string", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "tokenURI",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [{ "type": "uint256", "name": "tokenId" }],
+      "outputs": [{ "type": "string", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "totalSupply",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "uint256", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "transferFrom",
+      "constant": true,
+      "stateMutability": "pure",
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "" },
+        { "type": "address", "name": "" },
+        { "type": "uint256", "name": "" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "transferOwnership",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "newOwner" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "updateCar",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint256", "name": "id" },
+        {
+          "type": "tuple",
+          "name": "request",
+          "components": [
+            {
+              "type": "tuple",
+              "name": "asset",
+              "components": [
+                { "type": "string", "name": "name" },
+                { "type": "string", "name": "metadataURI" }
+              ]
+            },
+            { "type": "uint64", "name": "pricePerDayInUsdCents" },
+            { "type": "uint64", "name": "securityDepositPerTripInUsdCents" },
+            { "type": "uint64[]", "name": "engineParams" },
+            { "type": "uint64", "name": "milesIncludedPerDay" },
+            { "type": "uint32", "name": "timeBufferBetweenTripsInSec" },
+            { "type": "bool", "name": "currentlyListed" },
+            { "type": "uint8", "name": "engineType" },
+            {
+              "type": "tuple",
+              "name": "location",
+              "components": [
+                { "type": "string", "name": "userAddress" },
+                { "type": "string", "name": "country" },
+                { "type": "string", "name": "state" },
+                { "type": "string", "name": "city" },
+                { "type": "string", "name": "latitude" },
+                { "type": "string", "name": "longitude" },
+                { "type": "string", "name": "timeZoneId" }
+              ]
+            },
+            { "type": "bool", "name": "updateLocation" }
+          ]
+        },
+        { "type": "address", "name": "user" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "updateCarTokenUri",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "uint256", "name": "id" },
+        { "type": "string", "name": "metadataURI" },
+        { "type": "address", "name": "user" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "updateEngineValidatorAddress",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "engineValidatorAddress" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "updateEventEmitterAddress",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "eventEmitterAddress" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "updateGeoVerifierAddress",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "geoVerifierAddress" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "updateUserAccessAddress",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "userAccessAddress" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "upgradeTo",
+      "constant": false,
+      "payable": false,
+      "inputs": [{ "type": "address", "name": "newImplementation" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "upgradeToAndCall",
+      "constant": false,
+      "stateMutability": "payable",
+      "payable": true,
+      "inputs": [
+        { "type": "address", "name": "newImplementation" },
+        { "type": "bytes", "name": "data" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "userAccess",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "verifySignedLocationInfo",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        {
+          "type": "tuple",
+          "name": "locationInfo",
+          "components": [
+            {
+              "type": "tuple",
+              "name": "locationInfo",
+              "components": [
+                { "type": "string", "name": "userAddress" },
+                { "type": "string", "name": "country" },
+                { "type": "string", "name": "state" },
+                { "type": "string", "name": "city" },
+                { "type": "string", "name": "latitude" },
+                { "type": "string", "name": "longitude" },
+                { "type": "string", "name": "timeZoneId" }
+              ]
+            },
+            { "type": "bytes", "name": "signature" }
+          ]
+        }
+      ],
+      "outputs": []
+    }
+  ]
+}

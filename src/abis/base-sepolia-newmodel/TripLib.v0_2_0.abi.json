@@ -1,0 +1,61 @@
+{
+  "abi": [
+    {
+      "type": "function",
+      "name": "calculatePaymentsWithDelivery",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "carQueryAddress" },
+        { "type": "address", "name": "pricingServiceAddress" },
+        { "type": "address", "name": "insuranceServiceAddress" },
+        { "type": "address", "name": "promoServiceAddress" },
+        { "type": "address", "name": "currencyConverterAddress" },
+        { "type": "address", "name": "carTaxAdapterAddress" },
+        { "type": "uint256", "name": "carId" },
+        { "type": "uint64", "name": "daysOfTrip" },
+        { "type": "address", "name": "currency" },
+        {
+          "type": "tuple",
+          "name": "pickUpLocation",
+          "components": [
+            { "type": "string", "name": "userAddress" },
+            { "type": "string", "name": "country" },
+            { "type": "string", "name": "state" },
+            { "type": "string", "name": "city" },
+            { "type": "string", "name": "latitude" },
+            { "type": "string", "name": "longitude" },
+            { "type": "string", "name": "timeZoneId" }
+          ]
+        },
+        {
+          "type": "tuple",
+          "name": "returnLocation",
+          "components": [
+            { "type": "string", "name": "userAddress" },
+            { "type": "string", "name": "country" },
+            { "type": "string", "name": "state" },
+            { "type": "string", "name": "city" },
+            { "type": "string", "name": "latitude" },
+            { "type": "string", "name": "longitude" },
+            { "type": "string", "name": "timeZoneId" }
+          ]
+        },
+        { "type": "string", "name": "promo" },
+        { "type": "address", "name": "user" }
+      ],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "",
+          "components": [
+            { "type": "uint256", "name": "totalPrice" },
+            { "type": "int256", "name": "currencyRate" },
+            { "type": "uint8", "name": "currencyDecimals" }
+          ]
+        }
+      ]
+    }
+  ]
+}
