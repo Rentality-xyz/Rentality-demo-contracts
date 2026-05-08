@@ -25,7 +25,7 @@ contract AppGateway is UUPSOwnable, ReentrancyGuardUpgradeable {
     }
 
     address facet = ds.selectorToFacetAndPosition[msg.sig].facetAddress;
-    bool isCrossChain = msg.sender == l0Sender;
+    bool isCrossChain = l0Sender != address(0) && msg.sender == l0Sender;
     address sender = msg.sender;
 
     if (isCrossChain) {

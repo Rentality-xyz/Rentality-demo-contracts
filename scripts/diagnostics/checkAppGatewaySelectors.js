@@ -14,7 +14,10 @@ const SMOKE_CALLS = [
   { name: 'getFilterInfo', args: [1n] },
   { name: 'getMyInsurancesAsGuest', args: [] },
   { name: 'getCarDetails', args: [1n] },
+  { name: 'getDiscount', args: [ethers.ZeroAddress] },
 ];
+
+const INDEXER_ZERO_FROM_SMOKE_CALLS = [{ name: 'getDiscount', args: [ethers.ZeroAddress] }];
 
 function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, 'utf8'));
@@ -136,6 +139,42 @@ async function main() {
         console.log(`  OK ${fragment.selector} ${signature} -> ${facet}`);
       } catch (error) {
         const message = `${signature} routed to ${facet} but reverted: ${formatError(error)}`;
+        runtimeFailures.push(message);
+        console.log(`  REVERT ${fragment.selector} ${message}`);
+      }
+    }
+  }
+
+  console.log(`Indexer zero-from smoke calls`);
+  for (const smoke of INDEXER_ZERO_FROM_SMOKE_CALLS) {
+    const fragments = functions.filter((fragment) => fragment.name === smoke.name);
+    if (fragments.length === 0) {
+      console.log(`  SKIP ${smoke.name}: not in ABI`);
+      continue;
+    }
+
+    for (const fragment of fragments) {
+      const signature = fragment.format('sighash');
+      const facet = await readFacetAddress(signer.provider, address, fragment.selector);
+
+      if (facet === ethers.ZeroAddress) {
+        const message = `${signature} is not routed`;
+        runtimeFailures.push(message);
+        console.log(`  MISSING ${fragment.selector} ${message}`);
+        continue;
+      }
+
+      try {
+        const data = iface.encodeFunctionData(fragment, smoke.args);
+        const result = await signer.provider.call({
+          to: address,
+          from: ethers.ZeroAddress,
+          data,
+        });
+        iface.decodeFunctionResult(fragment, result);
+        console.log(`  OK ${fragment.selector} ${signature} from zero -> ${facet}`);
+      } catch (error) {
+        const message = `${signature} routed to ${facet} but reverted from zero: ${formatError(error)}`;
         runtimeFailures.push(message);
         console.log(`  REVERT ${fragment.selector} ${message}`);
       }
