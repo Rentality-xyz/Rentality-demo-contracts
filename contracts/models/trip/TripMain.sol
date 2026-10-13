@@ -82,6 +82,15 @@ contract TripMain is BookingBase, UUPSOwnable {
         carLookup = ITripCarLookup(carLookupAddress);
     }
 
+    /**
+     * Rentality lets several guests ask for the same car over the same dates, and the host picks one.
+     * The conflict is settled at check-in instead, where {CarOnAnotherActiveTrip} refuses to hand over
+     * a car that is already out. Refusing the second request here would take that choice away.
+     */
+    function _bookingsAreExclusive() internal pure override returns (bool) {
+        return false;
+    }
+
     function createTrip(CreateTripRecordRequest calldata request) external onlyPlatform returns (uint256) {
         uint64 milesIncludedPerDay = request.milesIncludedPerDay;
         if (milesIncludedPerDay == 0) {

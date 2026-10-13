@@ -11,4 +11,10 @@ interface IBooking {
     function getProvider(uint256 id) external view returns (address);
 
     function getCustomer(uint256 id) external view returns (address);
+
+    function isWindowFree(uint256 resourceId, uint64 startDateTime, uint64 endDateTime) external view returns (bool);
+
+    function isBookedAt(uint256 resourceId, uint64 timestamp) external view returns (bool);
+
+    function getActiveBookings(uint256 resourceId) external view returns (uint256[] memory);
 }
