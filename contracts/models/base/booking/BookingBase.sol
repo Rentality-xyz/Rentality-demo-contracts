@@ -80,6 +80,15 @@ abstract contract BookingBase is IBooking {
         uint64 endDateTime
     ) internal virtual returns (uint256) {
         _validateBooking(resourceId, provider, customer, startDateTime, endDateTime);
+
+        // Pruning belongs to exclusivity and goes no further than it. A model that allows
+        // overlapping requests keeps its own meaning for this list: Rentality's trips read it to
+        // refuse handing over a car that is already out, and a car whose trip was due back
+        // yesterday and was never closed is precisely the one that must not be handed to anybody.
+        if (_bookingsAreExclusive()) {
+            _forgetEndedBookings(resourceId);
+        }
+
         _requireWindowFree(resourceId, startDateTime, endDateTime, 0);
 
         uint256 id = ++nextBookingId;
@@ -199,12 +208,45 @@ abstract contract BookingBase is IBooking {
 
             Booking storage booking = bookings[bookingId];
 
+            // A window that has run out holds nothing. The resource is free whatever became of the
+            // booking: a request nobody answered, or one answered and never closed, stops standing
+            // in the way of the hours it asked for once those hours have gone by.
+            if (booking.endDateTime <= block.timestamp) {
+                continue;
+            }
+
             if (startDateTime < booking.endDateTime && booking.startDateTime < endDateTime) {
                 return bookingId;
             }
         }
 
         return 0;
+    }
+
+    /**
+     * Drops bookings whose hours have gone by from the list this resource is checked against.
+     *
+     * <p>Only that list. The same bookings stay in their people's own, because a stay that ended
+     * yesterday and was never closed is still somebody's to finish — the resource has moved on, the
+     * paperwork has not.
+     *
+     * <p>Run when a booking is made rather than on a timer, which there is none of here: the cost
+     * falls on the next person to book the same resource, and it is theirs to pay — an unpruned
+     * list is exactly what makes their own booking expensive.
+     */
+    function _forgetEndedBookings(uint256 resourceId) internal virtual {
+        uint256[] storage activeBookings = resourceIdToActiveBookings[resourceId];
+
+        // Backwards, because removing swaps the last entry into the hole: walking forwards would
+        // step over whatever was moved down into the slot just examined.
+        for (uint256 i = activeBookings.length; i > 0; i--) {
+            uint256 bookingId = activeBookings[i - 1];
+
+            if (bookings[bookingId].endDateTime <= block.timestamp) {
+                activeBookings[i - 1] = activeBookings[activeBookings.length - 1];
+                activeBookings.pop();
+            }
+        }
     }
 
     function _validateBooking(

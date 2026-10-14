@@ -30,3 +30,14 @@ contract OpenBookingHarness is ExclusiveBookingHarness {
     return false;
   }
 }
+
+/// Lets a test put a booking in the past without waiting for time to pass.
+contract TimeTravelBookingHarness is ExclusiveBookingHarness {
+  function forgetEnded(uint256 resourceId) external {
+    _forgetEndedBookings(resourceId);
+  }
+
+  function activeCount(uint256 resourceId) external view returns (uint256) {
+    return resourceIdToActiveBookings[resourceId].length;
+  }
+}
